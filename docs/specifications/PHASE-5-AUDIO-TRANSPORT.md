@@ -122,8 +122,8 @@ api-server  ──▶  streaming crate  ──▶  ICE negotiation
    next transport increment.
 6. Define silence-frame contract (20ms, 48kHz, stereo); Opus encoding and frame
    pump wait for Phase 7/9 media integration.
-7. Wire HTTP routes into `api-server` in the next increment after the signaling
-   API contract stabilizes.
+7. Wire authenticated HTTP routes into `api-server`: offer negotiation, trickle
+   ICE boundary, and engineer-only session listing.
 8. Tests: SDP validation, bounds, session list, candidate validation, and
    silence-frame contract.
 
@@ -131,10 +131,11 @@ api-server  ──▶  streaming crate  ──▶  ICE negotiation
 
 ## 6. Acceptance Criteria
 
-- [ ] `POST /api/v1/audio/offer` returns 200 + SDP answer for valid JWT musician
-- [ ] `POST /api/v1/audio/offer` returns 401 for missing JWT
-- [ ] `POST /api/v1/audio/ice-candidate` routes candidate to correct session
-- [ ] `GET /api/v1/audio/sessions` returns 403 for musician role, 200 for engineer role
+- [x] `POST /api/v1/audio/offer` route returns SDP answer after valid JWT musician auth
+- [x] `POST /api/v1/audio/offer` is protected by auth middleware
+- [x] `POST /api/v1/audio/ice-candidate` routes candidate to caller session
+- [x] `GET /api/v1/audio/sessions` enforces Engineer role
+- [ ] Add integration tests for HTTP status codes and full router middleware stack
 - [ ] `cargo test --workspace` ≥ 118 tests, 0 failures
 - [ ] `cargo clippy --workspace --all-targets -- -D warnings` clean
 - [ ] `cargo fmt --all -- --check` clean

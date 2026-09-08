@@ -3,6 +3,7 @@
 //! Phase 5 scope: SDP/ICE signaling and session bookkeeping. Audio frames remain
 //! SIMULATED until `PipeWire` and Opus integration in later phases.
 
+use serde::Serialize;
 use std::{collections::HashMap, sync::Arc, time::Instant};
 use str0m::{change::SdpOffer, Rtc};
 use thiserror::Error;
@@ -23,7 +24,7 @@ pub enum StreamingError {
     InvalidIceCandidate,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct SessionInfo {
     pub user_id: String,
     pub mix_id: Option<String>,

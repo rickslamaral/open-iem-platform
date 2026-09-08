@@ -3,6 +3,7 @@
 use crate::{auth::JwtKeys, db::Db};
 use control_server::ControlState;
 use std::sync::{Arc, Mutex};
+use streaming::SessionRegistry;
 
 /// Application state shared across Axum handlers.
 #[derive(Clone)]
@@ -15,6 +16,8 @@ pub struct AppState {
     pub jwt: Arc<JwtKeys>,
     /// Serializes refresh issuance, preventing concurrent rotation races.
     pub refresh_lock: Arc<Mutex<()>>,
+    /// WebRTC audio transport sessions.
+    pub streaming: SessionRegistry,
 }
 
 impl AppState {
@@ -26,6 +29,7 @@ impl AppState {
             db,
             jwt: Arc::new(jwt),
             refresh_lock: Arc::new(Mutex::new(())),
+            streaming: SessionRegistry::new(),
         }
     }
 }
