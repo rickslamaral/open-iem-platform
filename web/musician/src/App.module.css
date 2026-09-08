@@ -1,0 +1,11 @@
+.appRoot {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.statusBar {
+  background: #12122a;
+  padding: 4px 16px;
+  border-bottom: 1px solid #1a1a2e;
+}

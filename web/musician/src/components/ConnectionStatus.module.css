@@ -1,0 +1,32 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.connected { background: #22c55e; }
+.connecting { background: #eab308; animation: pulse 1s infinite; }
+.disconnected { background: #6b7280; }
+.error { background: #ef4444; }
+
+.label { font-weight: 500; }
+
+.revision {
+  color: #888;
+  font-size: 0.75rem;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
