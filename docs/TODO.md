@@ -52,6 +52,12 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ---
 
+## PHASE 1 STATUS
+
+- [x] Audio engine crate with simulated backend and feature-gated JACK/PipeWire bridge
+- [x] Phase 1 review completed: PASS WITH CONDITIONS
+- [ ] Validate real PipeWire graph on Raspberry Pi 5 (hardware blocker)
+
 ## COMPLETED
 
 - [x] Repository initialized with correct GitHub remote
@@ -67,3 +73,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] XRUN SLA defined (`docs/audio/AUDIO-SLA.md`) — GAP-006 CLOSED
 - [x] Mix Engine Rust crate implemented (Channel, MixSend, Mix, Limiter, MixEngine)
 - [x] 53 unit + doc tests passing — 0 clippy warnings
+
+- [x] Lookahead brick-wall limiter (LOOKAHEAD_FRAMES=64 @ 48kHz = 1.33ms)
+- [x] ParametricEq stub (passthrough — biquad DSP Phase 7)
+- [x] Compressor stub (passthrough — dynamics DSP Phase 7)
+- [x] 80 tests passing — 0 clippy warnings

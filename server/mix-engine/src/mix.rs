@@ -180,7 +180,7 @@ impl Mix {
     /// Does not panic. `input_samples` and `channels` slices are accessed
     /// with bounds checks (returning 0.0 for out-of-range indices).
     #[must_use]
-    pub fn process(&self, input_samples: &[f32], channels: &[Channel]) -> (f32, f32) {
+    pub fn process(&mut self, input_samples: &[f32], channels: &[Channel]) -> (f32, f32) {
         if self.master_muted {
             return (0.0, 0.0);
         }
@@ -293,7 +293,7 @@ mod tests {
 
     #[test]
     fn test_mix_process_silence_when_no_sends() {
-        let mix = Mix::new(1, "empty");
+        let mut mix = Mix::new(1, "empty");
         let channels = make_channels(4);
         let samples = [0.5_f32; 4];
         let (l, r) = mix.process(&samples, &channels);

@@ -107,3 +107,44 @@ skills validate: 11/11 PASS
 - PipeWire filter node registration — requires PipeWire on target
 - Audio I/O integration — Phase 1b
 - ADR-004 final update with benchmark data — Phase 5
+
+### 2026-09-08 — Phase 1 audio-engine integration validated
+
+- Validated `server/audio-engine/` simulated backend and feature-gated JACK bridge.
+- `cargo test --workspace`: 73 tests passed (20 audio-engine, 50 mix-engine, 3 doc tests).
+- `cargo clippy -p audio-engine`: no warnings.
+- Real PipeWire/JACK execution remains **SIMULATED** until Raspberry Pi 5 hardware is available.
+- Phase 2 limiter replacement remains pending; current limiter is hard-clip by design.
+
+### 2026-09-08 — Phase 2: Mix Engine complete
+
+**Implemented:**
+
+#### Lookahead Brick-wall Limiter (`mix-engine/src/limiter.rs`)
+- Replaced Phase 1 hard-clip stub with proper lookahead limiter
+- `LOOKAHEAD_FRAMES = 64` (1.33 ms @ 48 kHz — within IEM latency budget)
+- Attack coef = `exp(-1/(48000×0.0005))` (0.5 ms), Release = `exp(-1/(48000×0.1))` (100 ms)
+- Brick-wall guaranteed: `envelope_gain` never exceeds `target_gain`
+- Zero heap allocation — fixed `[f32; LOOKAHEAD_FRAMES*2]` inline buffer
+- `Limiter::process` now `&mut self` (state-mutating); `Mix::process` and `MixEngine::process_frame` updated to `&mut self` accordingly
+- `Limiter::reset()` clears buffer and envelope (call on engine restart)
+
+#### Parametric EQ stub (`mix-engine/src/eq.rs`)
+- `ParametricEq` with `MAX_EQ_BANDS=4`, `EqBand { frequency_hz, gain_db, q, enabled }`
+- `process(&self, l, r) → (l, r)` passthrough; biquad DSP deferred to Phase 7
+- Revision counter on every mutation
+
+#### Compressor stub (`mix-engine/src/compressor.rs`)
+- `Compressor { threshold_db, ratio, attack_ms, release_ms, enabled }`
+- `process(&self, l, r) → (l, r)` passthrough; dynamics DSP deferred to Phase 7
+- Safe defaults: -18 dBFS threshold, 4:1 ratio, 10/100 ms attack/release
+
+#### API propagation
+- `Mix::process` → `&mut self` (required for mutable limiter)
+- `MixEngine::process_frame` → `&mut self`
+- All test fixtures updated accordingly
+
+**Test results:** 80 tests, 0 failed, 0 clippy warnings
+- audio-engine: 20 tests
+- mix-engine: 57 tests (50 original + 7 new limiter tests)
+- doc-tests: 3

@@ -36,12 +36,16 @@
 #![allow(clippy::indexing_slicing)]
 
 pub mod channel;
+pub mod compressor;
+pub mod eq;
 pub mod limiter;
 pub mod mix;
 pub mod mix_engine;
 pub mod mix_send;
 
 pub use channel::Channel;
+pub use compressor::Compressor;
+pub use eq::{EqBand, ParametricEq, MAX_EQ_BANDS};
 pub use limiter::Limiter;
 pub use mix::Mix;
 pub use mix_engine::MixEngine;
