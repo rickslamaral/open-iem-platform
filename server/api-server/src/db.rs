@@ -154,6 +154,47 @@ impl Db {
         Ok(())
     }
 
+    /// Look up refresh-token owner before rotation without mutating token state.
+    ///
+    /// # Errors
+    /// Returns `ApiError::Unauthorized` if token is not found, revoked, or expired.
+    pub fn refresh_token_user(&self, token_hash: &str, now_unix: u64) -> Result<i64, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.query_row(
+            "SELECT user_id FROM refresh_tokens WHERE token_hash = ?1 AND revoked = 0 AND expires_at > ?2",
+            params![token_hash, now_unix.cast_signed()],
+            |row| row.get(0),
+        )
+        .map_err(|_| ApiError::Unauthorized("invalid or expired refresh token"))
+    }
+
+    /// Revoke refresh-token family after replay detection.
+    ///
+    /// # Errors
+    /// Returns `ApiError::Unauthorized` when token is unknown; database failures are internal errors.
+    pub fn revoke_refresh_family(&self, token_hash: &str) -> Result<(), ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let family: String = conn
+            .query_row(
+                "SELECT family FROM refresh_tokens WHERE token_hash = ?1",
+                params![token_hash],
+                |row| row.get(0),
+            )
+            .map_err(|_| ApiError::Unauthorized("invalid refresh token"))?;
+        conn.execute(
+            "UPDATE refresh_tokens SET revoked = 1 WHERE family = ?1",
+            params![family],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok(())
+    }
+
     /// Validate and rotate a refresh token.
     ///
     /// Returns `(user_id, family)` if valid. Marks the old token revoked.
@@ -164,54 +205,52 @@ impl Db {
     pub fn rotate_refresh_token(
         &self,
         token_hash: &str,
+        new_token_hash: &str,
+        new_expires_at: u64,
         now_unix: u64,
     ) -> Result<(i64, String), ApiError> {
-        let conn = self
+        let mut conn = self
             .conn
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
 
-        let result: rusqlite::Result<(i64, i64, i64, String)> = conn.query_row(
-            "SELECT id, user_id, revoked, family FROM refresh_tokens WHERE token_hash = ?1",
+        let result: rusqlite::Result<(i64, i64, i64, i64, String)> = tx.query_row(
+            "SELECT id, user_id, revoked, expires_at, family FROM refresh_tokens WHERE token_hash = ?1",
             params![token_hash],
-            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?)),
         );
-
-        let (tok_id, user_id, revoked, family) =
+        let (tok_id, user_id, revoked, expires, family) =
             result.map_err(|_| ApiError::Unauthorized("refresh token not found"))?;
 
         if revoked != 0 {
-            // Reuse detected: revoke entire family
-            conn.execute(
+            tx.execute(
                 "UPDATE refresh_tokens SET revoked = 1 WHERE family = ?1",
                 params![family],
             )
             .map_err(|e| ApiError::Internal(e.to_string()))?;
+            tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
             return Err(ApiError::Unauthorized(
                 "refresh token reuse detected — family revoked",
             ));
         }
-
-        // Check expiry
-        let expires: i64 = conn
-            .query_row(
-                "SELECT expires_at FROM refresh_tokens WHERE id = ?1",
-                params![tok_id],
-                |r| r.get(0),
-            )
-            .map_err(|e| ApiError::Internal(e.to_string()))?;
-
-        if (now_unix.cast_signed()) > expires {
+        if now_unix.cast_signed() >= expires {
             return Err(ApiError::Unauthorized("refresh token expired"));
         }
 
-        // Mark used
-        conn.execute(
-            "UPDATE refresh_tokens SET revoked = 1 WHERE id = ?1",
+        tx.execute(
+            "UPDATE refresh_tokens SET revoked = 1 WHERE id = ?1 AND revoked = 0",
             params![tok_id],
         )
         .map_err(|e| ApiError::Internal(e.to_string()))?;
-
+        tx.execute(
+            "INSERT INTO refresh_tokens (user_id, token_hash, expires_at, family) VALUES (?1, ?2, ?3, ?4)",
+            params![user_id, new_token_hash, new_expires_at.cast_signed(), family],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
         Ok((user_id, family))
     }
 
@@ -323,7 +362,9 @@ mod tests {
         let now = 1_000_000_u64;
         db.store_refresh_token(user_id, "tokenhash_a", now + 1000, "fam-1")
             .unwrap();
-        let (uid, fam) = db.rotate_refresh_token("tokenhash_a", now).unwrap();
+        let (uid, fam) = db
+            .rotate_refresh_token("tokenhash_a", "tokenhash_a_new", now + 1000, now)
+            .unwrap();
         assert_eq!(uid, user_id);
         assert_eq!(fam, "fam-1");
     }
@@ -337,9 +378,12 @@ mod tests {
         db.store_refresh_token(user_id, "tokenhash_b", now + 1000, "fam-2")
             .unwrap();
         // First rotation — ok
-        db.rotate_refresh_token("tokenhash_b", now).unwrap();
+        db.rotate_refresh_token("tokenhash_b", "tokenhash_b_new", now + 1000, now)
+            .unwrap();
         // Reuse — should fail and revoke family
-        let err = db.rotate_refresh_token("tokenhash_b", now).unwrap_err();
+        let err = db
+            .rotate_refresh_token("tokenhash_b", "unused", now + 1000, now)
+            .unwrap_err();
         assert!(matches!(err, ApiError::Unauthorized(_)));
     }
 
@@ -352,7 +396,9 @@ mod tests {
         db.store_refresh_token(user_id, "tokenhash_c", now + 1000, "fam-3")
             .unwrap();
         db.revoke_all_for_user(user_id).unwrap();
-        let err = db.rotate_refresh_token("tokenhash_c", now).unwrap_err();
+        let err = db
+            .rotate_refresh_token("tokenhash_c", "unused", now + 1000, now)
+            .unwrap_err();
         assert!(matches!(err, ApiError::Unauthorized(_)));
     }
 }

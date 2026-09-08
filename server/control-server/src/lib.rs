@@ -4,7 +4,7 @@
 #![deny(unsafe_code)]
 
 use control_protocol::{ClientMessage, Envelope, ServerMessage, PROTOCOL_VERSION};
-use mix_engine::{Channel, MixEngine, MAX_CHANNELS};
+use mix_engine::{Channel, MixEngine, GAIN_DB_MAX, GAIN_DB_MIN, MAX_CHANNELS};
 
 /// Mutable control-plane state owned by the server task.
 #[derive(Debug, Default)]
@@ -44,12 +44,14 @@ impl ControlState {
                     revision: self.revision(),
                 },
                 ClientMessage::SetChannelGain { channel, gain_db } => {
-                    if gain_db.is_finite() {
+                    if gain_db.is_finite() && (GAIN_DB_MIN..=GAIN_DB_MAX).contains(&gain_db) {
                         self.update_channel(channel, |item| item.set_gain_db(gain_db))
                     } else {
                         ServerMessage::Error {
                             code: "INVALID_GAIN".to_owned(),
-                            message: "gain_db must be finite".to_owned(),
+                            message: format!(
+                                "gain_db must be finite and between {GAIN_DB_MIN} and {GAIN_DB_MAX} dB"
+                            ),
                         }
                     }
                 }

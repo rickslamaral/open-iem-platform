@@ -9,6 +9,7 @@ use axum::{
     Json,
 };
 use control_protocol::{ClientMessage, Envelope, Role, ServerMessage};
+use mix_engine::{GAIN_DB_MAX, GAIN_DB_MIN};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -81,6 +82,11 @@ pub async fn set_channel_gain(
     require_min_role(&claims, Role::Engineer)?;
     if !body.gain_db.is_finite() {
         return Err(ApiError::BadRequest("gain_db must be finite".to_owned()));
+    }
+    if !(GAIN_DB_MIN..=GAIN_DB_MAX).contains(&body.gain_db) {
+        return Err(ApiError::BadRequest(format!(
+            "gain_db must be between {GAIN_DB_MIN} and {GAIN_DB_MAX} dB"
+        )));
     }
     let request_id = Uuid::new_v4().to_string();
     let envelope = Envelope::new(

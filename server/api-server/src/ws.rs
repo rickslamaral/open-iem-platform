@@ -18,11 +18,24 @@ use axum::{
     },
     response::IntoResponse,
 };
-use control_protocol::{decode_client_message, Envelope, ServerMessage, PROTOCOL_VERSION};
+use control_protocol::{
+    decode_client_message, ClientMessage, Envelope, Role, ServerMessage, MAX_MESSAGE_BYTES,
+    PROTOCOL_VERSION,
+};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+const MAX_MESSAGES_PER_MINUTE: u32 = 120;
+
+fn unix_now() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs()
+}
 use tracing::{debug, warn};
 
 /// Maximum WebSocket message size in bytes (16 KiB).
-const MAX_WS_MESSAGE_BYTES: usize = 16 * 1024;
+const MAX_WS_MESSAGE_BYTES: usize = MAX_MESSAGE_BYTES;
 
 /// `/ws/v1` WebSocket upgrade handler.
 ///
@@ -38,16 +51,42 @@ pub async fn ws_handler(
 
 async fn handle_socket(mut socket: WebSocket, state: AppState, claims: JwtClaims) {
     debug!(user = %claims.sub, role = ?claims.role, "WebSocket connected");
+    let mut window_started = unix_now();
+    let mut message_count = 0_u32;
 
     loop {
-        let msg = match socket.recv().await {
-            Some(Ok(m)) => m,
-            Some(Err(e)) => {
+        let now = unix_now();
+        if now >= claims.exp {
+            send_error(&mut socket, "TOKEN_EXPIRED", "access token expired").await;
+            break;
+        }
+        let remaining = claims.exp - now;
+        let msg = match tokio::time::timeout(Duration::from_secs(remaining), socket.recv()).await {
+            Ok(Some(Ok(m))) => m,
+            Ok(Some(Err(e))) => {
                 warn!("WebSocket recv error: {e}");
                 break;
             }
-            None => break,
+            Ok(None) | Err(_) => {
+                send_error(&mut socket, "TOKEN_EXPIRED", "access token expired").await;
+                break;
+            }
         };
+
+        let now = unix_now();
+        if now >= claims.exp {
+            send_error(&mut socket, "TOKEN_EXPIRED", "access token expired").await;
+            break;
+        }
+        if now.saturating_sub(window_started) >= 60 {
+            window_started = now;
+            message_count = 0;
+        }
+        message_count = message_count.saturating_add(1);
+        if message_count > MAX_MESSAGES_PER_MINUTE {
+            send_error(&mut socket, "RATE_LIMITED", "too many messages").await;
+            break;
+        }
 
         match msg {
             Message::Text(text) => {
@@ -69,6 +108,19 @@ async fn handle_socket(mut socket: WebSocket, state: AppState, claims: JwtClaims
                     }
                     Ok(env) => env,
                 };
+
+                let permitted = match (&claims.role, &envelope.payload) {
+                    (Role::Admin | Role::Engineer, _)
+                    | (Role::Musician, ClientMessage::GetState) => true,
+                    (
+                        Role::Musician,
+                        ClientMessage::SetChannelGain { .. } | ClientMessage::SetChannelMute { .. },
+                    ) => false,
+                };
+                if !permitted {
+                    send_error(&mut socket, "FORBIDDEN", "role cannot mutate control state").await;
+                    continue;
+                }
 
                 // Dispatch with lock held only for the duration of the call.
                 // Lock is released before any await point.
