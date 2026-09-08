@@ -6,7 +6,7 @@
 //!   `OPENIEM_JWT_PRIVATE_PEM` — path to Ed25519 private key PEM
 //!   `OPENIEM_JWT_PUBLIC_PEM`  — path to Ed25519 public key PEM
 //!   `OPENIEM_DB_PATH`         — path to SQLite database file
-//!   `OPENIEM_BIND_ADDR`       — bind address (default: 0.0.0.0:8080)
+//!   `OPENIEM_BIND_ADDR`       — bind address (default: 127.0.0.1:8080); non-loopback requires explicit dev override
 
 use api_server::{
     auth::JwtKeys,
@@ -17,10 +17,12 @@ use api_server::{
         channels::{get_state, set_channel_gain, set_channel_mute},
         health::health,
     },
+    security::validate_origin,
     state::AppState,
     ws::ws_handler,
 };
 use axum::{
+    extract::DefaultBodyLimit,
     middleware,
     routing::{get, post, put},
     Router,
@@ -42,7 +44,17 @@ async fn main() -> anyhow::Result<()> {
     let public_pem_path =
         env::var("OPENIEM_JWT_PUBLIC_PEM").unwrap_or_else(|_| "keys/ed25519_public.pem".to_owned());
     let db_path = env::var("OPENIEM_DB_PATH").unwrap_or_else(|_| "openiem.db".to_owned());
-    let bind_addr = env::var("OPENIEM_BIND_ADDR").unwrap_or_else(|_| "0.0.0.0:8080".to_owned());
+    let bind_addr = env::var("OPENIEM_BIND_ADDR").unwrap_or_else(|_| "127.0.0.1:8080".to_owned());
+    let allow_insecure_http = env::var("OPENIEM_ALLOW_INSECURE_HTTP")
+        .is_ok_and(|value| value.eq_ignore_ascii_case("true"));
+    let parsed_bind_addr: std::net::SocketAddr = bind_addr
+        .parse()
+        .map_err(|_| anyhow::anyhow!("OPENIEM_BIND_ADDR must be a valid socket address"))?;
+    if !parsed_bind_addr.ip().is_loopback() && !allow_insecure_http {
+        anyhow::bail!(
+            "refusing insecure HTTP on non-loopback address {bind_addr}; configure TLS reverse proxy or set OPENIEM_ALLOW_INSECURE_HTTP=true only for isolated development"
+        );
+    }
 
     let private_pem = fs::read(&private_pem_path)
         .unwrap_or_else(|_| panic!("cannot read OPENIEM_JWT_PRIVATE_PEM from {private_pem_path}"));
@@ -71,6 +83,8 @@ async fn main() -> anyhow::Result<()> {
         .merge(protected)
         .merge(public)
         .with_state(state)
+        .layer(DefaultBodyLimit::max(16 * 1024))
+        .layer(middleware::from_fn(validate_origin))
         .layer(TraceLayer::new_for_http());
 
     let listener = tokio::net::TcpListener::bind(&bind_addr).await?;

@@ -22,6 +22,23 @@ use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 use uuid::Uuid;
 
+const MAX_USERNAME_BYTES: usize = 128;
+const MAX_PASSWORD_BYTES: usize = 1024;
+
+fn validate_credentials(username: &str, password: &str) -> Result<(), ApiError> {
+    if username.is_empty() || username.len() > MAX_USERNAME_BYTES {
+        return Err(ApiError::BadRequest(
+            "username length is invalid".to_owned(),
+        ));
+    }
+    if password.is_empty() || password.len() > MAX_PASSWORD_BYTES {
+        return Err(ApiError::BadRequest(
+            "password length is invalid".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
 fn unix_now() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -78,6 +95,7 @@ pub async fn login(
     State(state): State<AppState>,
     Json(body): Json<LoginRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
+    validate_credentials(&body.username, &body.password)?;
     let (user_id, pw_hash, role) = state.db.find_user(&body.username)?;
     verify_password(&body.password, &pw_hash)?;
 
@@ -130,22 +148,24 @@ pub async fn refresh(
 ) -> Result<impl IntoResponse, ApiError> {
     let raw_refresh = extract_cookie_value(&headers, "refresh_token")
         .ok_or(ApiError::Unauthorized("missing refresh_token cookie"))?;
+    let _refresh_guard = state
+        .refresh_lock
+        .lock()
+        .map_err(|_| ApiError::Internal("refresh lock poisoned".to_owned()))?;
 
     let now = unix_now();
     let token_hash = token_to_storage_key(raw_refresh);
-    let (user_id, family) = state.db.rotate_refresh_token(&token_hash, now)?;
-
+    let user_id = state.db.refresh_token_user(&token_hash, now)?;
     let (username, role) = state.db.find_user_by_id(user_id)?;
-
     let jti = Uuid::new_v4().to_string();
     let access = state.jwt.issue(&username, role, &jti)?;
-
     let raw_new_refresh = generate_refresh_token();
     let expires_at = now + REFRESH_TOKEN_TTL_S;
     let new_token_hash = token_to_storage_key(&raw_new_refresh);
-    state
-        .db
-        .store_refresh_token(user_id, &new_token_hash, expires_at, &family)?;
+    let (_rotated_user_id, _family) =
+        state
+            .db
+            .rotate_refresh_token(&token_hash, &new_token_hash, expires_at, now)?;
 
     Ok((
         StatusCode::OK,
@@ -194,6 +214,7 @@ pub async fn create_user(
     Json(body): Json<CreateUserRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Admin)?;
+    validate_credentials(&body.username, &body.password)?;
     let pw_hash = hash_password(&body.password)?;
     state.db.create_user(&body.username, &pw_hash, body.role)?;
     Ok(StatusCode::CREATED)

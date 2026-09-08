@@ -52,6 +52,18 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ---
 
+## PHASE 3 SECURITY FOLLOW-UP
+
+- [ ] HIGH: Add HTTPS/TLS listener and fail-closed transport configuration
+- [ ] HIGH: Authorize every WebSocket message by role and musician mix ownership
+- [x] HIGH: Enforce WebSocket expiry and rate limits; revocation remains bounded by JWT TTL
+- [x] HIGH: Make refresh rotation atomic in one SQLite transaction
+- [x] MEDIUM: Add Origin/CSRF validation and bounded auth request inputs
+- [x] MEDIUM: Bound HTTP request body to 16 KiB; route payload validation remains pending
+- [x] MEDIUM: Parse bind address as SocketAddr and fail closed for non-loopback HTTP without explicit dev override
+- [x] MEDIUM: Preflight refresh token owner and JWT before atomic rotation to avoid token loss on issuance failure
+- [ ] MEDIUM: Enforce musician mix ownership after mix assignment model exists
+
 ## PHASE 1 STATUS
 
 - [x] Audio engine crate with simulated backend and feature-gated JACK/PipeWire bridge

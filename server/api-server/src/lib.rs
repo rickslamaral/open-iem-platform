@@ -11,5 +11,6 @@ pub mod db;
 pub mod error;
 pub mod middleware;
 pub mod routes;
+pub mod security;
 pub mod state;
 pub mod ws;

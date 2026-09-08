@@ -7,7 +7,7 @@
 use crate::error::ApiError;
 use control_protocol::Role;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use rand::RngCore;
+use rand::{rngs::OsRng, RngCore};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -100,7 +100,7 @@ impl JwtKeys {
 #[must_use]
 pub fn generate_refresh_token() -> String {
     let mut bytes = [0u8; 32];
-    rand::thread_rng().fill_bytes(&mut bytes);
+    OsRng.fill_bytes(&mut bytes);
     bytes_to_hex(&bytes)
 }
 

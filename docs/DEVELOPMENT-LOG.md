@@ -4,6 +4,34 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-08 — Phase 3: Security boundary hardening — follow-up
+
+**Branch:** `fix/phase3-auth-boundaries`
+
+- Added Origin validation for browser state-changing requests and rejected cookie-authenticated requests without Origin.
+- Bounded login and admin user-creation username/password inputs before Argon2 work.
+- Refresh rotation now revokes old token and inserts replacement in one SQLite transaction.
+- API defaults to loopback HTTP; non-loopback insecure bind fails unless explicit isolated-development override is set.
+- WebSocket enforces role checks, 16 KiB messages, 120 messages/minute, and closes at JWT expiry.
+- Global HTTP body limit set to 16 KiB.
+- TLS reverse-proxy deployment documented in `docs/deployment/TLS.md`.
+
+**Test results:** `cargo fmt --all`: PASS; `cargo test --workspace`: 99 tests passed; `cargo clippy --workspace --all-targets -- -D warnings`: PASS.
+
+---
+
+## 2026-09-08 — Phase 3: Security boundary hardening
+
+**Branch:** `fix/phase3-auth-boundaries`
+
+- Independent security review found unresolved BLOCKER/HIGH gaps: plaintext HTTP, unauthorised WebSocket mutations, missing token expiry/revocation on sockets, non-atomic refresh rotation, missing CSRF/origin validation, and unbounded auth inputs.
+- Fixed refresh expiry boundary (`now >= expires`), explicit `OsRng` refresh-token generation, bounded WebSocket message/request IDs, and REST gain range validation.
+- Remaining BLOCKER/HIGH findings are tracked in `docs/TODO.md`; no merge is allowed until resolved.
+
+**Test results:** `cargo fmt --all -- --check`: PASS; `cargo test --workspace`: 99 tests passed; `cargo clippy --workspace --all-targets -- -D warnings`: PASS.
+
+---
+
 ## 2026-09-08 — Phase 3: Control Server State Dispatcher
 
 **Branch:** `feat/phase3-control-protocol`

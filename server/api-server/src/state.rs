@@ -13,6 +13,8 @@ pub struct AppState {
     pub db: Db,
     /// JWT signing/verification keys.
     pub jwt: Arc<JwtKeys>,
+    /// Serializes refresh issuance, preventing concurrent rotation races.
+    pub refresh_lock: Arc<Mutex<()>>,
 }
 
 impl AppState {
@@ -23,6 +25,7 @@ impl AppState {
             control: Arc::new(Mutex::new(control)),
             db,
             jwt: Arc::new(jwt),
+            refresh_lock: Arc::new(Mutex::new(())),
         }
     }
 }
