@@ -40,20 +40,22 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Phase 0 — Bootstrap & Specification Audit** (in progress)
+**Phase 5 — Audio Transport** (signaling scaffold complete; media pipeline SIMULATED on VPS)
 
-See [docs/reviews/PHASE-0-REVIEW.md](docs/reviews/PHASE-0-REVIEW.md) for current phase status.
+WebRTC transport selection is accepted in [ADR-004](docs/adr/ADR-004-audio-transport.md). The `server/streaming` crate validates SDP offers, creates one `str0m` peer session per musician, tracks bounded ICE signaling, and defines 48 kHz stereo/20 ms silence-frame contract. Real PipeWire capture and Opus frame delivery require Raspberry Pi integration in later phases. VPS has no audio hardware.
+
+See [Phase 5 specification](docs/specifications/PHASE-5-AUDIO-TRANSPORT.md) and [Phase 5 review](docs/reviews/PHASE-5-REVIEW.md).
 
 ## Development Phases
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 0 | Bootstrap & Specification Audit | 🔄 In Progress |
-| 1 | Audio Engine POC | ⏳ Pending |
-| 2 | Mix Engine | ⏳ Pending |
-| 3 | Backend (Rust/REST/WS) | ⏳ Pending |
-| 4 | Musician PWA | ⏳ Pending |
-| 5 | Audio Transport | ⏳ Pending |
+| 0 | Bootstrap & Specification Audit | ✅ Complete |
+| 1 | Audio Engine POC | ✅ Complete |
+| 2 | Mix Engine | ✅ Complete |
+| 3 | Backend (Rust/REST/WS) | ✅ Complete |
+| 4 | Musician PWA | ✅ Complete |
+| 5 | Audio Transport | 🔄 Signaling scaffold complete; media SIMULATED |
 | 6 | Engineer Console | ⏳ Pending |
 | 7 | Scenes & Advanced DSP | ⏳ Pending |
 | 8 | Raspberry Pi Deployment | ⏳ Pending |

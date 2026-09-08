@@ -4,6 +4,23 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-08 — Phase 5: Audio transport signaling scaffold
+
+**Branch:** `feat/phase5-audio-transport`
+
+### Implemented
+
+- Accepted ADR-004: WebRTC primary transport; RTP/UDP reserved for dedicated receivers.
+- Added `server/streaming` Rust crate using `str0m 0.23`.
+- Added bounded SDP offer validation and per-musician WebRTC session registry.
+- Added bounded ICE candidate validation and session lifecycle/list operations.
+- Defined SIMULATED 48 kHz stereo, 20 ms silence-frame contract for VPS development.
+- Added Phase 5 specification and review.
+
+**Verification:** `cargo fmt --all`, `cargo test --workspace` (122 passed), and `cargo clippy --workspace --all-targets -- -D warnings` pass. No Raspberry Pi hardware available on VPS; PipeWire and real Opus media remain pending.
+
+---
+
 ## 2026-09-08 — Phase 4: Musician PWA and Engineer scaffold
 
 **Branch:** `feat/phase4-frontend-init` → squash-merged to `main` as PR #3

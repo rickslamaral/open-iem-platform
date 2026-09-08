@@ -1,0 +1,33 @@
+[package]
+name = "streaming"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+# WebRTC (Sans-IO, no external media engine dependency)
+str0m = "0.23"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "2"
+
+# Logging
+tracing = "0.1"
+
+# Opus encoding for silence frames — deferred to Phase 7/9 (requires cmake on Pi)
+# opus = { version = "0.3", features = [] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+
+[lints]
+workspace = true
