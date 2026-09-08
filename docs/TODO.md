@@ -14,7 +14,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] Install PipeWire on target hardware (Raspberry Pi 5) for Phase 1 validation
 - [ ] Evaluate audio transport options before Phase 5 (`docs/research/audio-transport/EVALUATION.md`)
-- [ ] Establish authentication mechanism decision (ADR-008 — Proposed state)
+- [x] Establish authentication mechanism decision (ADR-008 — Accepted; implementation pending)
 - [ ] Add ARM64 cross-compilation to CI (requires `aarch64-unknown-linux-gnu` setup)
 
 ---
@@ -26,7 +26,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [ ] Create Docker Compose for local development
 - [x] Define PipeWire filter node architecture for Mix Engine (pipewire-jack — see docs/research/pipewire-integration.md)
 - [x] Design channel/mix state machine (revision control — implemented in mix-engine)
-- [ ] Define WebSocket message type catalog
+- [x] Define WebSocket message type catalog (`server/control-protocol/`; Phase 3 foundation)
 
 ---
 

@@ -1,7 +1,7 @@
 # ADR-008: Authentication Mechanism
 
 ## Status
-Proposed — PENDING DECISION
+Accepted — Phase 3 security baseline (2026-09-08)
 
 ## Context
 Open IEM Platform operates on a **local LAN** (not internet-facing). Musicians and engineers connect from phones and laptops on the same Wi-Fi network as the server. The system requires RBAC (ADMIN, ENGINEER, MUSICIAN roles).
@@ -19,22 +19,25 @@ Authentication options:
 5. **Username/password → JWT** — standard web auth with token issuance
 
 ## Decision
-**DEFERRED** — requires security review before Phase 3.
+Use username/password login with short-lived Ed25519-signed JWT access tokens and opaque, rotated refresh tokens persisted server-side.
 
-## Recommendation for Evaluation
-Given local LAN context, JWT with username/password login is likely appropriate:
-- Standard, well-understood
-- Stateless verification (no DB lookup per request)
-- Expiry support
-- Works with WebSocket (token in header or URL param — prefer header)
-- No complex PKI infrastructure on Raspberry Pi
+- Access token: 15-minute lifetime; claims limited to `sub`, `role`, `iat`, `exp`, `jti`, issuer and audience. Algorithm and issuer/audience are fixed during verification.
+- Refresh token: 12-hour lifetime, cryptographically random, stored hashed in SQLite, rotated on every use. Reuse revokes its token family. Logout and user revocation invalidate active refresh tokens.
+- Passwords: Argon2id with unique salt and versioned parameters. Never store or log plaintext passwords, tokens, or hashes.
+- Browser storage: `HttpOnly`, `Secure`, `SameSite=Strict` cookies. Never `localStorage`, `sessionStorage`, or URL query parameters.
+- Transport: HTTPS required for login and authenticated traffic, including WebSocket upgrade. HTTP is rejected, not silently trusted because traffic is on LAN.
+- WebSocket: authenticate during HTTP upgrade, bind connection to identity, authorize every message, enforce message size/rate limits, and close on session expiry or revocation.
+- Mutating browser requests: validate `Origin` and use CSRF protection where cookie authentication alone is insufficient.
 
-## Constraints to Resolve
-- [ ] Token lifetime (session duration for a live show: 8-12 hours?)
-- [ ] Token refresh mechanism
-- [ ] Secure token storage on mobile PWA (localStorage vs Cookie)
-- [ ] HTTPS required? (LAN self-signed cert vs HTTP)
-- [ ] WebSocket auth: token in initial HTTP upgrade header (preferred) or per-message?
+## Constraints Resolved
+- [x] Token lifetime: 15-minute access; 12-hour refresh, covering an 8–12 hour show.
+- [x] Token refresh: rotating opaque refresh token with reuse detection.
+- [x] Secure token storage: `HttpOnly` + `Secure` + `SameSite=Strict` cookies.
+- [x] HTTPS: mandatory; provision a trusted local certificate/CA for target hardware.
+- [x] WebSocket auth: cookie during initial HTTPS upgrade; never token in URL.
+
+## Implementation dependencies
+The backend must use a maintained JWT crate configured for EdDSA, Argon2id password hashing, a CSPRNG for refresh tokens, and secret-safe handling. Dependency versions require `cargo audit` before production release.
 
 ## Security Requirements (Non-Negotiable)
 - Backend authorization enforced on every endpoint and every WS message

@@ -1,0 +1,14 @@
+[package]
+name = "control-server"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+control-protocol = { path = "../control-protocol" }
+mix-engine = { path = "../mix-engine" }
+
+[lints]
+workspace = true
