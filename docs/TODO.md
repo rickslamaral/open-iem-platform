@@ -21,11 +21,11 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## MEDIUM
 
-- [ ] Initialize Rust workspace (`server/Cargo.toml`)
+- [x] Initialize Rust workspace (`server/Cargo.toml`)
 - [ ] Initialize frontend projects (`web/musician/`, `web/engineer/`)
 - [ ] Create Docker Compose for local development
-- [ ] Define PipeWire filter node architecture for Mix Engine
-- [ ] Design channel/mix state machine (revision control)
+- [x] Define PipeWire filter node architecture for Mix Engine (pipewire-jack — see docs/research/pipewire-integration.md)
+- [x] Design channel/mix state machine (revision control — implemented in mix-engine)
 - [ ] Define WebSocket message type catalog
 
 ---
@@ -42,13 +42,13 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## RESEARCH
 
-- [ ] **Audio Transport** — Compare RTP/UDP, WebRTC, WebTransport/QUIC, custom UDP for latency/jitter/browser compat
+- [x] **Audio Transport** — Preliminary evaluation complete (docs/research/audio-transport/EVALUATION.md); WebRTC selected as primary; final benchmarks deferred to Phase 5
 - [ ] **Browser Audio Constraint** — Verify what browsers can receive (WebRTC vs native receiver architecture)
 - [ ] **ESP32-S3 / ESP32-P4** — I2S, DAC, Wi-Fi, latency, power budget (Phase 10)
-- [ ] **PipeWire filter node API** — Best approach for Mix Engine integration
+- [x] **PipeWire filter node API** — pipewire-jack selected for Phase 1 (docs/research/pipewire-integration.md)
 - [ ] **Raspberry Pi 5 realtime tuning** — PREEMPT_RT kernel, PipeWire latency config, USB audio device selection
 - [ ] **JPMixer architecture** — Study WebSocket/scene/mix model as UX reference (verify license before using code)
-- [ ] **Linux realtime scheduling** — SCHED_FIFO vs PipeWire-managed priority for audio threads
+- [x] **Linux realtime scheduling** — PipeWire+rtkit for Phase 1; hybrid in Phase 2 (docs/research/realtime-scheduling.md)
 
 ---
 
@@ -63,3 +63,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] CI foundation created (GitHub Actions)
 - [x] `scripts/validate-skills.sh` created
 - [x] Root project files created (README, CONTRIBUTING, SECURITY, LICENSE, CHANGELOG, .gitignore)
+- [x] Latency budget defined (`docs/audio/LATENCY-BUDGET.md`) — GAP-005 CLOSED
+- [x] XRUN SLA defined (`docs/audio/AUDIO-SLA.md`) — GAP-006 CLOSED
+- [x] Mix Engine Rust crate implemented (Channel, MixSend, Mix, Limiter, MixEngine)
+- [x] 53 unit + doc tests passing — 0 clippy warnings

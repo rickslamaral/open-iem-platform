@@ -40,3 +40,70 @@ All significant milestones documented here in reverse chronological order.
 ### Next
 
 Phase 0 Review → PASS → Phase 1 (Audio Engine POC)
+
+---
+
+## 2026-09-08 — Phase 1: Audio Engine POC (Research + Rust Workspace)
+
+**Agent:** Autonomous Engineering Agent (cron)
+**Branch:** main
+**Commit:** (pending — see below)
+
+### Completed
+
+#### Research Documents Created
+
+| Document | Gap Closed | Status |
+|----------|-----------|--------|
+| `docs/audio/LATENCY-BUDGET.md` | GAP-005 | DEFINED |
+| `docs/audio/AUDIO-SLA.md` | GAP-006 | DEFINED |
+| `docs/research/pipewire-integration.md` | GAP-003 | CLOSED — pipewire-jack selected for Phase 1 |
+| `docs/research/realtime-scheduling.md` | GAP-008 | CLOSED — PipeWire+rtkit managed for Phase 1 |
+| `docs/research/audio-transport/EVALUATION.md` | GAP-001 (partial) | PRELIMINARY — WebRTC selected as primary candidate |
+
+#### Rust Workspace Initialized
+
+- `server/Cargo.toml` — workspace root, resolver = "2", workspace lints
+- `server/mix-engine/Cargo.toml` — crate definition
+- `server/mix-engine/src/lib.rs` — public API, constants, `db_to_linear`, `linear_to_db`, `apply_pan`
+- `server/mix-engine/src/channel.rs` — `Channel` struct
+- `server/mix-engine/src/mix_send.rs` — `MixSend` struct  
+- `server/mix-engine/src/limiter.rs` — `Limiter` stub
+- `server/mix-engine/src/mix.rs` — `Mix` struct with `process()`
+- `server/mix-engine/src/mix_engine.rs` — `MixEngine` top-level coordinator
+
+#### Key Design Decisions
+
+- No heap allocation in audio path (`core::array::from_fn`, fixed-size arrays)
+- No I/O in `process_frame()` — enforced by code structure and `#[deny]` directives
+- Revision counter (monotonic `u64`) on every mutable type
+- Limiter is a stub (hard-clip) — proper lookahead planned for Phase 2
+- `GAIN_DB_MIN = -144.0 dBFS` (practical –∞), `GAIN_DB_MAX = +12.0 dBFS`
+- Equal-power (sine/cosine law) pan
+- Solo logic evaluated at Mix level, not MixSend level
+
+#### Test Results
+
+```
+cargo test: 50 unit tests + 3 doc tests = 53 total — ALL PASS
+cargo clippy -- -D warnings: 0 warnings
+cargo fmt: applied
+skills validate: 11/11 PASS
+```
+
+### Gap Status After This Session
+
+| Gap | Before | After |
+|-----|--------|-------|
+| GAP-001 Audio Transport | UNRESOLVED | PARTIALLY CLOSED |
+| GAP-003 PipeWire Integration | UNRESOLVED | CLOSED |
+| GAP-005 Latency Budget | UNDEFINED | DEFINED |
+| GAP-006 XRUN SLA | UNDEFINED | DEFINED |
+| GAP-008 RT Scheduling | UNRESOLVED | CLOSED |
+
+### Not Yet Done (Phase 1 continuation)
+
+- Hardware testing (Raspberry Pi 5 + USB audio) — requires hardware
+- PipeWire filter node registration — requires PipeWire on target
+- Audio I/O integration — Phase 1b
+- ADR-004 final update with benchmark data — Phase 5
