@@ -1,0 +1,23 @@
+[workspace]
+resolver = "2"
+members = [
+    "mix-engine",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Open IEM Platform Contributors"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/rickslamaral/open-iem-platform"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+# Allow some pedantic lints that are too noisy for audio DSP code
+cast_possible_truncation = "allow"
+cast_precision_loss = "allow"
+module_name_repetitions = "allow"

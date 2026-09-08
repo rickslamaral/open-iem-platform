@@ -1,0 +1,18 @@
+[package]
+name = "mix-engine"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Open IEM Platform — realtime-safe mix engine core"
+keywords = ["audio", "mixing", "iem", "realtime"]
+categories = ["multimedia::audio"]
+
+[lints]
+workspace = true
+
+[dependencies]
+
+[dev-dependencies]
+# No dev dependencies required — all tests use std only
