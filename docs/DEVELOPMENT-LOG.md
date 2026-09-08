@@ -21,6 +21,23 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-08 — Phase 5: Authenticated audio signaling routes
+
+**Branch:** `main` (working tree delivery; commit pending)
+
+### Implemented
+
+- Wired `server/streaming` into `api-server` application state.
+- Added authenticated `POST /api/v1/audio/offer` for SDP negotiation.
+- Added authenticated `POST /api/v1/audio/ice-candidate` for bounded ICE signaling.
+- Added engineer-only `GET /api/v1/audio/sessions`.
+- Added `SessionInfo` JSON serialization and bounded `mix_id` validation.
+- Mapped SDP parser failures to generic client errors.
+
+**Verification:** `cargo fmt --all -- --check`, `cargo test --workspace`, and `cargo clippy --workspace --all-targets -- -D warnings` pass. Independent review initially found input/error-boundary gaps; fixes applied and re-review passed. VPS remains **SIMULATED**: no Raspberry Pi, PipeWire, or real Opus path.
+
+---
+
 ## 2026-09-08 — Phase 4: Musician PWA and Engineer scaffold
 
 **Branch:** `feat/phase4-frontend-init` → squash-merged to `main` as PR #3

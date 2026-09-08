@@ -13,6 +13,7 @@ use api_server::{
     db::Db,
     middleware::jwt_auth,
     routes::{
+        audio::{ice_candidate, offer, sessions},
         auth::{create_user, login, logout, refresh},
         channels::{get_state, set_channel_gain, set_channel_mute},
         health::health,
@@ -67,6 +68,9 @@ async fn main() -> anyhow::Result<()> {
 
     let protected = Router::new()
         .route("/api/v1/state", get(get_state))
+        .route("/api/v1/audio/offer", post(offer))
+        .route("/api/v1/audio/ice-candidate", post(ice_candidate))
+        .route("/api/v1/audio/sessions", get(sessions))
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
         .route("/api/v1/auth/logout", post(logout))

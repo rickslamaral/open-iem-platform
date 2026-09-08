@@ -14,6 +14,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] Install PipeWire on target hardware (Raspberry Pi 5) for Phase 1 validation
 - [x] Evaluate audio transport options; WebRTC selected in ADR-004 (Phase 5 signaling scaffold complete)
+- [x] Wire authenticated audio signaling routes and engineer session listing (Phase 5)
 - [x] Establish authentication mechanism decision (ADR-008 — Accepted; implementation pending)
 - [ ] Add ARM64 cross-compilation to CI (requires `aarch64-unknown-linux-gnu` setup)
 
