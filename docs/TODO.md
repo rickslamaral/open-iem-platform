@@ -14,7 +14,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] Install PipeWire on target hardware (Raspberry Pi 5) for Phase 1 validation
 - [ ] Evaluate audio transport options before Phase 5 (`docs/research/audio-transport/EVALUATION.md`)
-- [ ] Establish authentication mechanism decision (ADR-008 — Proposed state)
+- [x] Establish authentication mechanism decision (ADR-008 — Accepted; implementation pending)
 - [ ] Add ARM64 cross-compilation to CI (requires `aarch64-unknown-linux-gnu` setup)
 
 ---

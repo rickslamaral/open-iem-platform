@@ -4,6 +4,7 @@ members = [
     "mix-engine",
     "audio-engine",
     "control-protocol",
+    "control-server",
 ]
 
 [workspace.dependencies]

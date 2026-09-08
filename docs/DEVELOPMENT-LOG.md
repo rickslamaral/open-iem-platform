@@ -4,6 +4,19 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-08 — Phase 3: Control Server State Dispatcher
+
+**Branch:** `feat/phase3-control-protocol`
+
+- Added `server/control-server/`, a tested control-plane consumer of `control-protocol` and `mix-engine`.
+- Implemented revision-aware dispatch for `GetState`, `SetChannelGain`, and `SetChannelMute`.
+- Invalid channel indexes and non-finite gains fail without state mutation.
+- Accepted ADR-008: Ed25519 JWT access tokens, rotating opaque refresh tokens, Argon2id passwords, HTTPS-only cookies/WebSocket upgrades. Authentication implementation remains pending.
+
+**Test results:** `cargo test --workspace`: 89 tests passed (86 unit + 3 doc tests); `cargo clippy --workspace --all-targets -- -D warnings`: PASS; `cargo fmt --all -- --check`: PASS.
+
+---
+
 ## 2026-09-08 — Phase 3: Versioned Control Protocol Foundation
 
 **Branch:** `feat/phase3-control-protocol`
