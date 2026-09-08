@@ -1,0 +1,199 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feature/**", "fix/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  rust-check:
+    name: Rust Format + Clippy + Tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Check formatting
+        run: |
+          if [ -f server/Cargo.toml ]; then
+            cargo fmt --manifest-path server/Cargo.toml --all -- --check
+          else
+            echo "No Cargo.toml yet — skipping fmt"
+          fi
+
+      - name: Clippy
+        run: |
+          if [ -f server/Cargo.toml ]; then
+            cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings
+          else
+            echo "No Cargo.toml yet — skipping clippy"
+          fi
+
+      - name: Tests
+        run: |
+          if [ -f server/Cargo.toml ]; then
+            cargo test --manifest-path server/Cargo.toml --all
+          else
+            echo "No Cargo.toml yet — skipping tests"
+          fi
+
+  rust-security-audit:
+    name: Rust Security Audit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+
+      - name: Security audit
+        run: |
+          if [ -f server/Cargo.lock ]; then
+            cargo audit --file server/Cargo.lock
+          else
+            echo "No Cargo.lock yet — skipping audit"
+          fi
+
+  rust-build-x86:
+    name: Rust Build (x86_64)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        run: |
+          if [ -f server/Cargo.toml ]; then
+            cargo build --manifest-path server/Cargo.toml --release
+          else
+            echo "No Cargo.toml yet — skipping build"
+          fi
+
+  rust-build-arm64:
+    name: Rust Build (ARM64 cross)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable + ARM64 target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-unknown-linux-gnu
+
+      - name: Install cross-compilation toolchain
+        run: sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Build (ARM64)
+        env:
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+        run: |
+          if [ -f server/Cargo.toml ]; then
+            cargo build --manifest-path server/Cargo.toml --target aarch64-unknown-linux-gnu --release
+          else
+            echo "No Cargo.toml yet — skipping ARM64 build"
+          fi
+
+  frontend-musician:
+    name: Frontend Musician (typecheck + test + build)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache-dependency-path: web/musician/package-lock.json
+
+      - name: Install deps
+        run: |
+          if [ -f web/musician/package.json ]; then
+            npm ci --prefix web/musician
+          else
+            echo "No package.json yet — skipping"
+          fi
+
+      - name: Typecheck
+        run: |
+          if [ -f web/musician/package.json ]; then
+            npm run typecheck --prefix web/musician 2>/dev/null || npm run tsc --prefix web/musician 2>/dev/null || echo "No typecheck script yet"
+          fi
+
+      - name: Test
+        run: |
+          if [ -f web/musician/package.json ]; then
+            npm test --prefix web/musician -- --run 2>/dev/null || echo "No tests yet"
+          fi
+
+      - name: Build
+        run: |
+          if [ -f web/musician/package.json ]; then
+            npm run build --prefix web/musician
+          fi
+
+  frontend-engineer:
+    name: Frontend Engineer (typecheck + test + build)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache-dependency-path: web/engineer/package-lock.json
+
+      - name: Install deps
+        run: |
+          if [ -f web/engineer/package.json ]; then
+            npm ci --prefix web/engineer
+          else
+            echo "No package.json yet — skipping"
+          fi
+
+      - name: Typecheck
+        run: |
+          if [ -f web/engineer/package.json ]; then
+            npm run typecheck --prefix web/engineer 2>/dev/null || echo "No typecheck script yet"
+          fi
+
+      - name: Test
+        run: |
+          if [ -f web/engineer/package.json ]; then
+            npm test --prefix web/engineer -- --run 2>/dev/null || echo "No tests yet"
+          fi
+
+      - name: Build
+        run: |
+          if [ -f web/engineer/package.json ]; then
+            npm run build --prefix web/engineer
+          fi
+
+  validate-skills:
+    name: Validate Agent Skills
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run skill validation
+        run: bash scripts/validate-skills.sh

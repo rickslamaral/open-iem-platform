@@ -1,0 +1,64 @@
+# Gitignore — Open IEM Platform
+
+## Rust
+target/
+Cargo.lock
+*.pdb
+
+## Node / Frontend
+node_modules/
+dist/
+build/
+.vite/
+*.tsbuildinfo
+
+## Environment / Secrets
+.env
+.env.local
+.env.*.local
+*.secret
+secrets/
+*.key
+*.pem
+*.crt
+*.p12
+
+## Database
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+## OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+## IDE
+.vscode/
+.idea/
+*.iml
+
+## Logs
+*.log
+logs/
+
+## Build artifacts
+*.o
+*.so
+*.a
+*.out
+
+## Audio test artifacts
+experiments/audio-transport/captures/
+tests/audio/recordings/
+
+## Coverage
+coverage/
+lcov.info
+*.profraw
+*.profdata
