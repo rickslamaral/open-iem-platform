@@ -4,6 +4,18 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-08 — Phase 3: Versioned Control Protocol Foundation
+
+**Branch:** `feat/phase3-control-protocol`
+
+- Added `server/control-protocol/` crate with JSON/Serde envelope, protocol version validation, role catalog, and typed client/server message catalog.
+- Added round-trip and unsupported-version tests.
+- Control protocol is control-plane only; it does not touch realtime audio path.
+
+**Test results:** `cargo test --workspace`: 82 tests passed (20 audio-engine, 57 mix-engine, 2 control-protocol, 3 doc tests); `cargo clippy --workspace --all-targets -- -D warnings`: PASS.
+
+---
+
 ## 2026-09-08 — Phase 0: Bootstrap & Specification Audit
 
 ### Status: IN PROGRESS

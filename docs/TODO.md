@@ -26,7 +26,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [ ] Create Docker Compose for local development
 - [x] Define PipeWire filter node architecture for Mix Engine (pipewire-jack — see docs/research/pipewire-integration.md)
 - [x] Design channel/mix state machine (revision control — implemented in mix-engine)
-- [ ] Define WebSocket message type catalog
+- [x] Define WebSocket message type catalog (`server/control-protocol/`; Phase 3 foundation)
 
 ---
 
