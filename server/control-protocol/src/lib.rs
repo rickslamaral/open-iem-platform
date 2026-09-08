@@ -8,6 +8,11 @@ use serde::{Deserialize, Serialize};
 /// Current wire protocol version.
 pub const PROTOCOL_VERSION: u16 = 1;
 
+/// Maximum UTF-8 byte length for a request correlation identifier.
+pub const MAX_REQUEST_ID_BYTES: usize = 128;
+/// Maximum encoded client message size accepted by protocol decoder.
+pub const MAX_MESSAGE_BYTES: usize = 16 * 1024;
+
 /// Supported authorization roles.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -90,8 +95,14 @@ pub enum ServerMessage {
 /// Returns [`ProtocolError::InvalidJson`] for malformed payloads and
 /// [`ProtocolError::UnsupportedVersion`] when version is not supported.
 pub fn decode_client_message(input: &str) -> Result<Envelope<ClientMessage>, ProtocolError> {
+    if input.len() > MAX_MESSAGE_BYTES {
+        return Err(ProtocolError::MessageTooLarge);
+    }
     let envelope: Envelope<ClientMessage> =
         serde_json::from_str(input).map_err(ProtocolError::InvalidJson)?;
+    if envelope.request_id.is_empty() || envelope.request_id.len() > MAX_REQUEST_ID_BYTES {
+        return Err(ProtocolError::InvalidRequestId);
+    }
     if envelope.version != PROTOCOL_VERSION {
         return Err(ProtocolError::UnsupportedVersion(envelope.version));
     }
@@ -105,6 +116,10 @@ pub enum ProtocolError {
     InvalidJson(serde_json::Error),
     /// Version is not supported.
     UnsupportedVersion(u16),
+    /// Request correlation identifier is empty or too long.
+    InvalidRequestId,
+    /// Encoded client message exceeds the protocol limit.
+    MessageTooLarge,
 }
 
 impl std::fmt::Display for ProtocolError {
@@ -114,6 +129,8 @@ impl std::fmt::Display for ProtocolError {
             Self::UnsupportedVersion(version) => {
                 write!(formatter, "unsupported protocol version: {version}")
             }
+            Self::InvalidRequestId => write!(formatter, "invalid request id"),
+            Self::MessageTooLarge => write!(formatter, "message too large"),
         }
     }
 }
@@ -139,6 +156,24 @@ mod tests {
         assert!(matches!(
             decode_client_message(input),
             Err(ProtocolError::UnsupportedVersion(99))
+        ));
+    }
+
+    #[test]
+    fn rejects_empty_or_oversized_request_id() {
+        let empty = r#"{"version":1,"request_id":"","payload":{"type":"GetState"}}"#;
+        assert!(matches!(
+            decode_client_message(empty),
+            Err(ProtocolError::InvalidRequestId)
+        ));
+
+        let oversized = format!(
+            r#"{{"version":1,"request_id":"{}","payload":{{"type":"GetState"}}}}"#,
+            "x".repeat(MAX_REQUEST_ID_BYTES + 1)
+        );
+        assert!(matches!(
+            decode_client_message(&oversized),
+            Err(ProtocolError::InvalidRequestId)
         ));
     }
 }
