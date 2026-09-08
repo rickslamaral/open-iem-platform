@@ -4,6 +4,39 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-08 — Phase 4: Musician PWA and Engineer scaffold
+
+**Branch:** `feat/phase4-frontend-init` → squash-merged to `main` as PR #3
+**Commit:** `b8ca865`
+
+### Implemented
+
+#### Musician PWA (`web/musician/`)
+- Vite 5 + React 18 + TypeScript strict, mobile-first CSS modules
+- `src/api/auth.ts`: login/refresh/logout via fetch with `credentials:'include'`
+- `src/hooks/useWebSocket.ts`: WS hook connecting to `/ws/v1?token=<jwt>` (browser WS cannot set headers — known limitation, short TTL + LAN mitigation)
+- `src/components/Login.tsx`: form, in-memory token storage (never localStorage)
+- `src/components/Channel.tsx`: gain slider (−60 to +6 dBFS, step 0.5), mute toggle
+- `src/components/MixControl.tsx`: 8 channels, master volume, logout
+- `src/components/ConnectionStatus.tsx`: status dot + revision display
+- `src/protocol/types.ts + envelope.ts`: matches server `control-protocol` wire format
+- PWA manifest + SVG icons (192px, 512px)
+- 25 vitest tests passing, typecheck clean, build: 150 KB JS (48 KB gzip)
+
+#### Engineer Scaffold (`web/engineer/`)
+- Phase 6 placeholder page
+- 2 vitest tests passing, typecheck clean, build: 143 KB JS
+
+### Security review
+- Independent reviewer: **passed** (0 security, 0 logic errors)
+- 3 non-blocking suggestions logged (master volume wire-up Phase 6, WS reconnect design, log scrubbing for Pi)
+
+### Post-merge test results
+- web/musician: 25/25 tests passing
+- web/engineer: 2/2 tests passing
+
+---
+
 ## 2026-09-08 — Phase 3: Security boundary hardening — follow-up
 
 **Branch:** `fix/phase3-auth-boundaries`
