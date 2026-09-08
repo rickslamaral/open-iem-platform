@@ -6,6 +6,7 @@ members = [
     "control-protocol",
     "control-server",
     "api-server",
+    "streaming",
 ]
 
 [workspace.dependencies]
