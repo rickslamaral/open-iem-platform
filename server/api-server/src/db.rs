@@ -8,7 +8,7 @@
 
 use crate::error::ApiError;
 use control_protocol::Role;
-use rusqlite::{Connection, params};
+use rusqlite::{params, Connection};
 use std::sync::{Arc, Mutex};
 
 /// Thread-safe SQLite connection wrapper.
@@ -38,8 +38,7 @@ impl Db {
     /// # Errors
     /// Returns `ApiError::Internal` on failure.
     pub fn open_in_memory() -> Result<Self, ApiError> {
-        let conn =
-            Connection::open_in_memory().map_err(|e| ApiError::Internal(e.to_string()))?;
+        let conn = Connection::open_in_memory().map_err(|e| ApiError::Internal(e.to_string()))?;
         let db = Self {
             conn: Arc::new(Mutex::new(conn)),
         };
@@ -48,7 +47,10 @@ impl Db {
     }
 
     fn migrate(&self) -> Result<(), ApiError> {
-        let conn = self.conn.lock().map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
         conn.execute_batch(
             "
             PRAGMA journal_mode=WAL;
@@ -82,7 +84,10 @@ impl Db {
     /// Returns `ApiError::Internal` on DB error or `ApiError::BadRequest` on duplicate.
     pub fn create_user(&self, username: &str, pw_hash: &str, role: Role) -> Result<(), ApiError> {
         let role_str = role_to_str(role);
-        let conn = self.conn.lock().map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
         conn.execute(
             "INSERT INTO users (username, pw_hash, role) VALUES (?1, ?2, ?3)",
             params![username, pw_hash, role_str],
@@ -102,7 +107,10 @@ impl Db {
     /// # Errors
     /// Returns `ApiError::Unauthorized` if user not found.
     pub fn find_user(&self, username: &str) -> Result<(i64, String, Role), ApiError> {
-        let conn = self.conn.lock().map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
         conn.query_row(
             "SELECT id, pw_hash, role FROM users WHERE username = ?1",
             params![username],
@@ -134,7 +142,10 @@ impl Db {
         expires_at: u64,
         family: &str,
     ) -> Result<(), ApiError> {
-        let conn = self.conn.lock().map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
         conn.execute(
             "INSERT INTO refresh_tokens (user_id, token_hash, expires_at, family) VALUES (?1, ?2, ?3, ?4)",
             params![user_id, token_hash, expires_at.cast_signed(), family],
@@ -155,7 +166,10 @@ impl Db {
         token_hash: &str,
         now_unix: u64,
     ) -> Result<(i64, String), ApiError> {
-        let conn = self.conn.lock().map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
 
         let result: rusqlite::Result<(i64, i64, i64, String)> = conn.query_row(
             "SELECT id, user_id, revoked, family FROM refresh_tokens WHERE token_hash = ?1",
@@ -163,7 +177,8 @@ impl Db {
             |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
         );
 
-        let (tok_id, user_id, revoked, family) = result.map_err(|_| ApiError::Unauthorized("refresh token not found"))?;
+        let (tok_id, user_id, revoked, family) =
+            result.map_err(|_| ApiError::Unauthorized("refresh token not found"))?;
 
         if revoked != 0 {
             // Reuse detected: revoke entire family
@@ -172,7 +187,9 @@ impl Db {
                 params![family],
             )
             .map_err(|e| ApiError::Internal(e.to_string()))?;
-            return Err(ApiError::Unauthorized("refresh token reuse detected — family revoked"));
+            return Err(ApiError::Unauthorized(
+                "refresh token reuse detected — family revoked",
+            ));
         }
 
         // Check expiry
@@ -228,7 +245,10 @@ impl Db {
     /// # Errors
     /// Returns `ApiError::Internal` on DB error.
     pub fn revoke_all_for_user(&self, user_id: i64) -> Result<(), ApiError> {
-        let conn = self.conn.lock().map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
         conn.execute(
             "UPDATE refresh_tokens SET revoked = 1 WHERE user_id = ?1",
             params![user_id],
@@ -266,7 +286,12 @@ mod tests {
     #[test]
     fn create_and_find_user() {
         let db = setup();
-        db.create_user("alice", "$argon2id$v=19$m=19456,t=2,p=1$fakesalt$fakehash", Role::Engineer).unwrap();
+        db.create_user(
+            "alice",
+            "$argon2id$v=19$m=19456,t=2,p=1$fakesalt$fakehash",
+            Role::Engineer,
+        )
+        .unwrap();
         let (id, hash, role) = db.find_user("alice").unwrap();
         assert!(id > 0);
         assert!(hash.starts_with("$argon2id$"));
@@ -284,7 +309,10 @@ mod tests {
     #[test]
     fn unknown_user_returns_unauthorized() {
         let db = setup();
-        assert!(matches!(db.find_user("nobody"), Err(ApiError::Unauthorized(_))));
+        assert!(matches!(
+            db.find_user("nobody"),
+            Err(ApiError::Unauthorized(_))
+        ));
     }
 
     #[test]
@@ -293,7 +321,8 @@ mod tests {
         db.create_user("carol", "hash", Role::Musician).unwrap();
         let (user_id, _, _) = db.find_user("carol").unwrap();
         let now = 1_000_000_u64;
-        db.store_refresh_token(user_id, "tokenhash_a", now + 1000, "fam-1").unwrap();
+        db.store_refresh_token(user_id, "tokenhash_a", now + 1000, "fam-1")
+            .unwrap();
         let (uid, fam) = db.rotate_refresh_token("tokenhash_a", now).unwrap();
         assert_eq!(uid, user_id);
         assert_eq!(fam, "fam-1");
@@ -305,7 +334,8 @@ mod tests {
         db.create_user("dave", "hash", Role::Musician).unwrap();
         let (user_id, _, _) = db.find_user("dave").unwrap();
         let now = 1_000_000_u64;
-        db.store_refresh_token(user_id, "tokenhash_b", now + 1000, "fam-2").unwrap();
+        db.store_refresh_token(user_id, "tokenhash_b", now + 1000, "fam-2")
+            .unwrap();
         // First rotation — ok
         db.rotate_refresh_token("tokenhash_b", now).unwrap();
         // Reuse — should fail and revoke family
@@ -319,7 +349,8 @@ mod tests {
         db.create_user("eve", "hash", Role::Admin).unwrap();
         let (user_id, _, _) = db.find_user("eve").unwrap();
         let now = 1_000_000_u64;
-        db.store_refresh_token(user_id, "tokenhash_c", now + 1000, "fam-3").unwrap();
+        db.store_refresh_token(user_id, "tokenhash_c", now + 1000, "fam-3")
+            .unwrap();
         db.revoke_all_for_user(user_id).unwrap();
         let err = db.rotate_refresh_token("tokenhash_c", now).unwrap_err();
         assert!(matches!(err, ApiError::Unauthorized(_)));

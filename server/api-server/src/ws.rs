@@ -13,12 +13,12 @@
 use crate::{auth::JwtClaims, state::AppState};
 use axum::{
     extract::{
-        State, WebSocketUpgrade,
         ws::{Message, WebSocket},
+        State, WebSocketUpgrade,
     },
     response::IntoResponse,
 };
-use control_protocol::{Envelope, ServerMessage, PROTOCOL_VERSION, decode_client_message};
+use control_protocol::{decode_client_message, Envelope, ServerMessage, PROTOCOL_VERSION};
 use tracing::{debug, warn};
 
 /// Maximum WebSocket message size in bytes (16 KiB).
@@ -53,8 +53,12 @@ async fn handle_socket(mut socket: WebSocket, state: AppState, claims: JwtClaims
             Message::Text(text) => {
                 if text.len() > MAX_WS_MESSAGE_BYTES {
                     warn!("WebSocket message too large: {} bytes", text.len());
-                    send_error(&mut socket, "MESSAGE_TOO_LARGE", "message exceeds 16 KiB limit")
-                        .await;
+                    send_error(
+                        &mut socket,
+                        "MESSAGE_TOO_LARGE",
+                        "message exceeds 16 KiB limit",
+                    )
+                    .await;
                     break;
                 }
 

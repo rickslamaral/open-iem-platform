@@ -6,7 +6,7 @@
 
 use crate::error::ApiError;
 use control_protocol::Role;
-use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
+use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use rand::RngCore;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -112,7 +112,7 @@ pub fn generate_refresh_token() -> String {
 /// # Errors
 /// Returns `ApiError::Internal` on hashing failure.
 pub fn hash_password(password: &str) -> Result<String, ApiError> {
-    use argon2::{Argon2, password_hash::PasswordHasher};
+    use argon2::{password_hash::PasswordHasher, Argon2};
     Argon2::default()
         .hash_password(password.as_bytes())
         .map(|h| h.to_string())
@@ -125,11 +125,11 @@ pub fn hash_password(password: &str) -> Result<String, ApiError> {
 /// Returns `ApiError::Unauthorized` on mismatch.
 pub fn verify_password(password: &str, hash: &str) -> Result<(), ApiError> {
     use argon2::{
+        password_hash::{phc::PasswordHash, PasswordVerifier},
         Argon2,
-        password_hash::{PasswordVerifier, phc::PasswordHash},
     };
-    let parsed = PasswordHash::new(hash)
-        .map_err(|_| ApiError::Unauthorized("invalid password hash"))?;
+    let parsed =
+        PasswordHash::new(hash).map_err(|_| ApiError::Unauthorized("invalid password hash"))?;
     Argon2::default()
         .verify_password(password.as_bytes(), &parsed)
         .map_err(|_| ApiError::Unauthorized("invalid credentials"))
@@ -143,11 +143,13 @@ fn unix_now() -> u64 {
 }
 
 fn bytes_to_hex(bytes: &[u8]) -> String {
-    bytes.iter().fold(String::with_capacity(bytes.len() * 2), |mut s, b| {
-        use std::fmt::Write;
-        let _ = write!(s, "{b:02x}");
-        s
-    })
+    bytes
+        .iter()
+        .fold(String::with_capacity(bytes.len() * 2), |mut s, b| {
+            use std::fmt::Write;
+            let _ = write!(s, "{b:02x}");
+            s
+        })
 }
 
 /// Hash a refresh token for safe DB storage using SHA-256.

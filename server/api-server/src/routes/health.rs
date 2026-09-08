@@ -2,7 +2,7 @@
 
 #![allow(clippy::unused_async)]
 
-use axum::{Json, response::IntoResponse};
+use axum::{response::IntoResponse, Json};
 use serde::Serialize;
 
 /// Health response body.

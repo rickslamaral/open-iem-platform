@@ -4,7 +4,7 @@
 
 use crate::{
     auth::{
-        JwtClaims, generate_refresh_token, hash_password, token_to_storage_key, verify_password,
+        generate_refresh_token, hash_password, token_to_storage_key, verify_password, JwtClaims,
         REFRESH_TOKEN_TTL_S,
     },
     error::ApiError,
@@ -12,10 +12,10 @@ use crate::{
     state::AppState,
 };
 use axum::{
-    Json,
     extract::State,
     http::{header, StatusCode},
     response::IntoResponse,
+    Json,
 };
 use control_protocol::Role;
 use serde::{Deserialize, Serialize};

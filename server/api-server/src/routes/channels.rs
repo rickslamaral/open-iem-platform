@@ -4,9 +4,9 @@
 
 use crate::{auth::JwtClaims, error::ApiError, middleware::require_min_role, state::AppState};
 use axum::{
-    Json,
     extract::{Path, State},
     response::IntoResponse,
+    Json,
 };
 use control_protocol::{ClientMessage, Envelope, Role, ServerMessage};
 use serde::{Deserialize, Serialize};

@@ -20,7 +20,11 @@ use api_server::{
     state::AppState,
     ws::ws_handler,
 };
-use axum::{Router, middleware, routing::{get, post, put}};
+use axum::{
+    middleware,
+    routing::{get, post, put},
+    Router,
+};
 use control_server::ControlState;
 use std::{env, fs};
 use tower_http::trace::TraceLayer;
@@ -35,8 +39,8 @@ async fn main() -> anyhow::Result<()> {
 
     let private_pem_path = env::var("OPENIEM_JWT_PRIVATE_PEM")
         .unwrap_or_else(|_| "keys/ed25519_private.pem".to_owned());
-    let public_pem_path = env::var("OPENIEM_JWT_PUBLIC_PEM")
-        .unwrap_or_else(|_| "keys/ed25519_public.pem".to_owned());
+    let public_pem_path =
+        env::var("OPENIEM_JWT_PUBLIC_PEM").unwrap_or_else(|_| "keys/ed25519_public.pem".to_owned());
     let db_path = env::var("OPENIEM_DB_PATH").unwrap_or_else(|_| "openiem.db".to_owned());
     let bind_addr = env::var("OPENIEM_BIND_ADDR").unwrap_or_else(|_| "0.0.0.0:8080".to_owned());
 
