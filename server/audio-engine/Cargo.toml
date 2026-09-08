@@ -1,0 +1,27 @@
+[package]
+name = "audio-engine"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Open IEM Platform — audio engine: PipeWire integration layer (SIMULATED on VPS)"
+keywords = ["audio", "pipewire", "iem", "realtime"]
+categories = ["multimedia::audio"]
+
+[lints]
+workspace = true
+
+[features]
+# Enable to compile the JACK/PipeWire backend (requires libjack-dev on host).
+# NOT enabled by default — VPS/CI builds use the simulated backend.
+jack = ["dep:jack"]
+
+[dependencies]
+mix-engine = { path = "../mix-engine" }
+log = "0.4"
+
+# Optional — only when `jack` feature is enabled (hardware target: RPi 5 with pipewire-jack)
+jack = { version = "0.13", optional = true }
+
+[dev-dependencies]

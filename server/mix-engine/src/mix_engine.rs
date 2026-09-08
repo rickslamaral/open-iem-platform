@@ -172,6 +172,10 @@ impl MixEngine {
     ///
     /// [`FrameOutput`] with stereo pairs for each mix slot.
     ///
+    /// # Panics
+    ///
+    /// Does not panic. All array accesses are bounds-checked.
+    ///
     /// # Realtime Safety
     ///
     /// - No heap allocation.
@@ -179,7 +183,7 @@ impl MixEngine {
     /// - No blocking.
     /// - Fixed iteration over fixed-size arrays.
     #[must_use]
-    pub fn process_frame(&self, input_samples: &[f32]) -> FrameOutput {
+    pub fn process_frame(&mut self, input_samples: &[f32]) -> FrameOutput {
         // Build a flat channel slice for mix processing (stack-allocated)
         // We need a slice of `Channel` for borrow-check reasons; we build
         // a compact view from the sparse `Option<Channel>` array.
@@ -207,8 +211,8 @@ impl MixEngine {
                 })
         });
 
-        for (mix_idx, mix_opt) in self.mixes.iter().enumerate() {
-            if let Some(mix) = mix_opt {
+        for mix_idx in 0..MAX_MIXES {
+            if let Some(mix) = self.mixes.get_mut(mix_idx).and_then(Option::as_mut) {
                 let (l, r) = mix.process(input_samples, &channel_slice);
                 if let Some(slot) = out.mixes.get_mut(mix_idx) {
                     *slot = (l, r);
@@ -338,7 +342,7 @@ mod tests {
 
     #[test]
     fn test_engine_process_empty_returns_silence() {
-        let engine = MixEngine::new();
+        let mut engine = MixEngine::new();
         let out = engine.process_frame(&[0.5; MAX_CHANNELS]);
         for (l, r) in out.mixes {
             assert!((l).abs() < f32::EPSILON);
@@ -348,7 +352,7 @@ mod tests {
 
     #[test]
     fn test_engine_process_with_active_send() {
-        let engine = make_engine_with_one_send();
+        let mut engine = make_engine_with_one_send();
         let samples = [1.0_f32; MAX_CHANNELS];
         let out = engine.process_frame(&samples);
         // Mix 0 should have output (centre pan → l ≈ r ≈ 0.707)

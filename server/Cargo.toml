@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "mix-engine",
+    "audio-engine",
 ]
 
 [workspace.package]
