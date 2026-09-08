@@ -1,0 +1,79 @@
+.channel {
+  background: #1e1e3a;
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid #2d2d4e;
+  transition: opacity 0.2s;
+}
+
+.muted {
+  opacity: 0.55;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.number {
+  font-size: 0.7rem;
+  color: #7c3aed;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  min-width: 36px;
+}
+
+.name {
+  flex: 1;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.muteBtn {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #4b5563;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.muteActive {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: white;
+}
+
+.gainRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gainLabel {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  min-width: 52px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.slider {
+  flex: 1;
+  accent-color: #7c3aed;
+  height: 4px;
+}
+
+.slider:disabled {
+  opacity: 0.4;
+}
