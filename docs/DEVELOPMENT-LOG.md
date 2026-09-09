@@ -467,3 +467,15 @@ Bumped workspace version `0.1.0` → `0.2.0`. Aligned `admin-cli` Cargo manifest
 **Limitations:** ARM64 cross-compiled but SIMULATED — not tested on real Pi hardware. Windows/macOS UNSUPPORTED (toolchain). PipeWire/Opus remain SIMULATED on VPS.
 
 **Verification:** cargo fmt PASS; cargo clippy PASS; cargo test --all PASS: 171 tests, 0 failures. Static scan clean. Independent reviewer: passed=true.
+
+### 2026-09-09 — Documentation validation hardening
+
+**Goal:** validate required documentation and release metadata on every CI/development round.
+
+**Implemented:** Added `scripts/validate-docs.sh`, checking required Markdown/PDF files, SemVer workspace version, single CHANGELOG `[Unreleased]` section, and non-empty Musician Guide PDF. Removed duplicate `[Unreleased]` heading from CHANGELOG.
+
+**Tests:** Documentation validator PASS (`version 0.2.0`); `git diff --check` PASS. Rust and frontend tests remain green from this run.
+
+**Limitations:** PDF content extraction and rendering remain outside this lightweight validator. PipeWire/Opus and ARM64 runtime remain SIMULATED.
+
+**Next Step:** Add validator to CI, then continue HTTP/WebSocket integration hardening.
