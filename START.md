@@ -1,815 +1,339 @@
-OPEN IEM PLATFORM
+# OPEN IEM PLATFORM
 
-MASTER ENGINEERING PROMPT — HERMES AGENT
+# START.md --- Master Engineering Bootstrap & Development Specification
 
-0. MISSION
+## 1. Agent mission
 
-You are the autonomous engineering agent responsible for designing, specifying, implementing, testing, reviewing, documenting and continuously improving the Open IEM Platform.
+You are the autonomous engineering team responsible for designing,
+specifying, implementing, testing, reviewing, documenting, packaging and
+releasing Open IEM Platform.
 
-You are operating inside a Linux VPS using Hermes Agent.
+Canonical repository:
+`https://github.com/rickslamaral/open-iem-platform` Canonical workspace:
+`/workspace/open-iem-platform/`
 
-The project repository is:
+Always start with:
 
-https://github.com/rickslamaral/open-iem-platform
-
-The mandatory local workspace is:
-
-/workspace/open-iem-platform/
-
-You MUST treat this directory as the canonical project workspace.
-
----
-
-1. ABSOLUTE PROJECT RULE
-
-Before doing anything:
-
+``` bash
 cd /workspace/open-iem-platform
+```
 
-Verify:
+The repository is the source of truth. Never create another repository
+or project workspace.
 
-pwd
-git remote -v
-git status
-git branch --show-current
+## 2. Product
 
-The GitHub repository must be:
+Open IEM Platform is an open-source personal in-ear monitoring platform
+for bands, churches, rehearsal rooms, venues and live production. It
+receives multichannel audio from a digital mixer or audio interface,
+creates independent monitor mixes, and provides real-time control to
+musicians and engineers.
 
-origin:
-https://github.com/rickslamaral/open-iem-platform
-
-Do not create another repository.
-
-Do not create another project directory.
-
-Do not develop outside:
-
-/workspace/open-iem-platform/
-
-Temporary experiments may use "/tmp", but all relevant results must be moved into the project repository.
-
----
-
-2. PROJECT OBJECTIVE
-
-Build an open-source professional personal In-Ear Monitoring platform.
-
-Product name:
-
-Open IEM Platform
-
-The system should eventually provide:
-
+``` text
 Digital Mixer / Audio Interface
             |
             v
-      Linux IEM Server
+      Open IEM Server
             |
          PipeWire
             |
         Mix Engine
             |
-    Independent IEM Mixes
+   Independent Mixes
             |
-       Audio Transport
+      Audio Transport
             |
-          Wi-Fi
-     /      |      \
-    /       |       \
-Musician Musician Musician
- Phone    Phone    Phone
-   |        |        |
-  IEM      IEM      IEM
+       Local Network
+       /     |      \
+  Musician Musician Musician
+   Client   Client   Client
+      |       |       |
+     IEM     IEM     IEM
+```
 
-The product is conceptually similar to personal monitor systems such as StageWave and the control experience offered by JPMixer, but it must be independently designed and implemented.
+The system is local-first and must not depend on Internet connectivity
+for live audio operation.
 
----
+## 3. Product vision
 
-3. PRIMARY PRODUCT PRINCIPLES
+The long-term platform should support multiple audio interfaces,
+multichannel input, independent stereo mixes, musician self-service
+mixing, engineer control, scenes, presets, channel groups, EQ,
+compressor, limiter, optional reverb, meters, diagnostics, network
+monitoring, Linux, Windows, macOS where technically possible, Raspberry
+Pi, x86_64 mini PCs, future dedicated receivers, future ESP32 research,
+open API, open protocol and console integrations.
 
-The architecture MUST follow these principles:
+Do not implement the whole vision at once.
 
-1. Local-first
-2. Audio-first
-3. Realtime-safe
-4. Control plane separated from audio plane
-5. Server-authoritative state
-6. Strong authorization
-7. Hardware abstraction
-8. Linux-native
-9. Open source
-10. Extensible
-11. Observable
-12. Testable
-13. Recoverable
-14. Documentation-driven development
-15. Specification before implementation
+## 4. Product principles
 
----
+1.  Audio-first.
+2.  Local-first.
+3.  Realtime-safe.
+4.  Control plane separated from audio plane.
+5.  Server-authoritative state.
+6.  Strong authorization.
+7.  Hardware abstraction.
+8.  Cross-platform where practical.
+9.  Open source.
+10. Extensible.
+11. Observable.
+12. Testable.
+13. Recoverable.
+14. Documentation-driven development.
+15. Specification before implementation.
+16. Measure performance instead of assuming it.
+17. Safe audio defaults.
+18. Backward-compatible versioned protocols.
 
-4. SUPPORTED PLATFORM
+## 5. Mandatory engineering workflow
 
-The platform must target:
+For every significant feature:
 
-Linux ARM64
-Linux x86_64
+``` text
+DISCOVER -> RESEARCH -> SPECIFY -> ARCHITECT -> PLAN -> IMPLEMENT -> TEST -> SECURITY REVIEW -> CODE REVIEW -> DOCUMENT -> PACKAGE -> CHANGELOG -> COMMIT / PR
+```
 
-Reference hardware:
+Do not skip specification for architectural or audio features.
 
-Raspberry Pi 5
+## 6. Documentation is mandatory every round
 
-Alternative:
+Every meaningful implementation round, milestone, commit series or PR
+must review and update relevant Markdown documentation.
 
-Intel N100/N150
-Other x86_64 mini PCs
+At minimum inspect:
 
-Never hard-code Raspberry Pi-specific behavior into the core architecture.
-
-Raspberry Pi must be treated as a supported hardware profile.
-
----
-
-5. SOURCE OF TRUTH
-
-The repository is the project's source of truth.
-
-The following must be maintained:
-
+``` text
+README.md
+CHANGELOG.md
+START.md
 docs/
-specifications/
-architecture/
-decisions/
-skills/
-tests/
+```
 
-No important architectural decision should exist only in conversation.
+Examples:
 
-No important product requirement should exist only in an agent prompt.
+-   API change -\> API documentation.
+-   Protocol change -\> protocol documentation + ADR.
+-   Audio architecture change -\> audio docs + ADR.
+-   New feature -\> product spec + user documentation.
+-   Build change -\> build/release documentation.
+-   Security change -\> security documentation.
+-   Deployment change -\> deployment documentation.
+-   Bug fix -\> troubleshooting documentation when applicable.
 
-Everything important must become repository documentation.
+Never leave documentation describing obsolete behavior.
 
----
+## 7. CHANGELOG
 
-6. DEVELOPMENT METHODOLOGY
+Maintain `CHANGELOG.md` using Keep a Changelog style. Every meaningful
+PR that changes user-visible behavior, architecture, API, protocol,
+deployment, security or developer workflow must update the Unreleased
+section.
 
-Use the following development loop:
+``` markdown
+## [Unreleased]
 
-DISCOVER
-   ↓
-RESEARCH
-   ↓
-SPECIFY
-   ↓
-ARCHITECT
-   ↓
-PLAN
-   ↓
-IMPLEMENT
-   ↓
-TEST
-   ↓
-SECURITY REVIEW
-   ↓
-CODE REVIEW
-   ↓
-DOCUMENT
-   ↓
-COMMIT
+### Added
+### Changed
+### Fixed
+### Security
+```
 
-Do not skip stages for important features.
+Do not reconstruct the changelog at release time.
 
----
+## 8. Versioning
 
-7. AGENT SKILLS SYSTEM
+Use Semantic Versioning:
 
-The project must have a project-local skills system.
+``` text
+MAJOR.MINOR.PATCH
+```
 
-Create:
+Early development may use `0.x`. Keep one source of truth, preferably a
+root `VERSION` file or workspace version source. Automate
+synchronization into package metadata where practical.
 
-.agents/
-└── skills/
+## 9. Release engineering
 
-This directory is the canonical source for project-specific skills.
+Generate versioned build artifacts.
 
-Also support adapters for:
+Target where technically feasible:
 
-.claude/
-.hermes/
+-   Linux x86_64
+-   Linux ARM64
+-   Windows x86_64
+-   macOS arm64
+-   macOS x86_64
+-   Raspberry Pi Linux ARM64
 
-Do not duplicate large external skill repositories unnecessarily.
+Raspberry Pi may use a native systemd deployment rather than a desktop
+installer.
 
-Use symlinks or generated adapters where appropriate.
+Potential artifact formats:
 
-The project must remain portable between:
+``` text
+Linux: tar.gz, deb, AppImage where appropriate
+Windows: zip, MSI/installer where appropriate
+macOS: dmg, app bundle, zip
+```
 
-Hermes Agent
-Claude Code
-Codex
-other agents supporting SKILL.md / Agent Skills
+Only publish formats that are actually built and tested.
 
-The current Agent Skills approach used by the referenced repositories is based on "SKILL.md", and the Alirezarezvani repository explicitly documents Hermes support using the same standard.
+## 10. Cross-platform architecture
 
----
+The core server should be Rust and platform-independent where possible.
 
-8. EXTERNAL SKILL REFERENCES
+``` text
+                Open IEM Core
+                     |
+          +----------+----------+
+          |                     |
+      Linux Audio            Desktop Host
+      PipeWire/ALSA          Windows/macOS
+          |                     |
+          +----------+----------+
+                     |
+                Control API
+                     |
+                Web UI / PWA
+```
 
-Use these repositories as engineering references:
+Platform-specific audio backends must be abstracted.
 
-Reference 1
+Potential backends:
 
-https://github.com/Jeffallan/claude-skills/tree/main/skills
+``` text
+Linux: PipeWire / ALSA
+Windows: WASAPI / ASIO where appropriate
+macOS: CoreAudio
+```
 
-Reference 2
+Do not claim support before validation.
 
-https://github.com/alirezarezvani/claude-skills/tree/main/engineering-team
+## 11. Desktop packaging
 
-Reference 3
-
-https://github.com/alirezarezvani/claude-skills/tree/main/.hermes/skills/claude-skills/engineering
-
-These repositories must NOT be blindly copied into the project.
-
-Instead:
-
-1. inspect relevant skills;
-2. understand their methodology;
-3. identify reusable patterns;
-4. adapt them to Open IEM;
-5. create project-specific skills;
-6. document provenance when useful;
-7. respect original licenses.
-
-The referenced Alirezarezvani repository is MIT licensed according to its repository documentation.
-
----
-
-9. REQUIRED PROJECT SKILLS
-
-Create the following project-specific skills.
-
-.agents/skills/
-
-01 — Architect Designer
-
-Directory:
-
-.agents/skills/architect-designer/
-
-File:
-
-SKILL.md
-
-Responsibilities:
-
-- system architecture;
-- component boundaries;
-- ADR creation;
-- architectural trade-offs;
-- scalability;
-- reliability;
-- realtime constraints;
-- Linux architecture;
-- PipeWire architecture;
-- networking;
-- hardware abstraction;
-- protocol design.
-
-The skill must NEVER make major architectural decisions without documenting rationale.
-
----
-
-10. PRODUCT / SPECIFICATION ARCHITECT
+Evaluate and document a cross-platform packaging strategy. Tauri +
+Rust + Web UI is a preferred direction if it satisfies requirements;
+alternatives may be selected after evaluation.
 
 Create:
 
-.agents/skills/product-spec/
+``` text
+docs/architecture/DESKTOP-PACKAGING.md
+docs/decisions/ADR-DESKTOP-PACKAGING.md
+```
 
-Responsibilities:
+before committing to the final framework.
 
-- PRD;
-- requirements;
-- functional requirements;
-- non-functional requirements;
-- user stories;
-- acceptance criteria;
-- use cases;
-- domain model;
-- product roadmap;
-- MVP definition.
+The underlying server architecture must remain the same for headless and
+desktop modes.
 
-This skill must use the project's specification workflow.
+## 12. Server modes
 
----
+Support:
 
-11. SUPERPOWERS / SPECIFICATION WORKFLOW
+### Headless server
 
-Create:
+Raspberry Pi, Linux mini PC, dedicated appliance, controlled through web
+UI.
 
-.agents/skills/superpowers/
+### Desktop server
 
-This skill is responsible for enforcing structured engineering before implementation.
+Windows, macOS and Linux desktop, optionally wrapped in a desktop shell.
 
-It must follow:
+## 13. Client modes
 
-Problem
- ↓
-Context
- ↓
-Requirements
- ↓
-Constraints
- ↓
-Research
- ↓
-Options
- ↓
-Decision
- ↓
-Specification
- ↓
-Implementation Plan
- ↓
-Implementation
- ↓
-Verification
+Support conceptually:
 
-Use Superpowers-style disciplined planning for significant features.
+-   PWA/Web for control and quick access;
+-   native desktop client where useful;
+-   future native Android/iOS if browser audio limitations justify it;
+-   future dedicated receiver.
 
-Never jump directly from:
+Do not force a browser to perform realtime audio if validation shows it
+is unsuitable.
 
-"user wants X"
+## 14. Audio/control separation
 
-to:
+Control plane:
 
-"write code"
+``` text
+PWA / Desktop Client -> HTTP/REST -> WebSocket -> Control API -> Authorization -> Mix Engine
+```
 
-without understanding requirements.
+Audio plane:
 
----
+``` text
+Audio Interface -> PipeWire -> Mix Engine -> Audio Transport -> Local Network -> Receiver -> IEM
+```
 
-12. SENIOR BACKEND ENGINEER
+Never assume WebSocket is the primary audio transport.
 
-Create:
+## 15. Audio engine
 
-.agents/skills/senior-backend/
+Initial Linux implementation:
 
-Responsibilities:
-
-- Rust;
-- async architecture;
-- REST;
-- WebSocket;
-- domain logic;
-- state management;
-- SQLite;
-- migrations;
-- concurrency;
-- realtime-safe boundaries;
-- error handling;
-- observability;
-- API versioning.
-
-Special attention:
-
-The backend must NEVER perform blocking operations inside realtime audio processing.
-
----
-
-13. SENIOR FRONTEND ENGINEER
-
-Create:
-
-.agents/skills/senior-frontend/
-
-Responsibilities:
-
-- TypeScript;
-- React;
-- Vite;
-- PWA;
-- responsive design;
-- mobile UX;
-- WebSocket state;
-- accessibility;
-- performance;
-- offline/local network behavior.
-
-Two primary applications:
-
-web/musician
-web/engineer
-
----
-
-14. AUDIO / REALTIME ENGINEER
-
-Create:
-
-.agents/skills/realtime-audio-engineer/
-
-Responsibilities:
-
-- PipeWire;
-- ALSA;
-- realtime Linux;
-- audio graphs;
-- buffers;
-- sample rates;
-- latency;
-- jitter;
-- XRUNs;
-- DSP;
-- audio threading;
-- audio transport.
-
-This skill has veto authority over unsafe realtime audio architecture.
-
----
-
-15. TEST MASTER
-
-Create:
-
-.agents/skills/test-master/
-
-Responsibilities:
-
-- unit tests;
-- integration tests;
-- contract tests;
-- WebSocket tests;
-- API tests;
-- frontend tests;
-- audio tests;
-- load tests;
-- network tests;
-- hardware tests;
-- acceptance tests.
-
-Every major implementation must have tests.
-
----
-
-16. CODE DOCUMENTER
-
-Create:
-
-.agents/skills/code-documenter/
-
-Responsibilities:
-
-- README;
-- API documentation;
-- architecture docs;
-- code comments;
-- ADRs;
-- changelog;
-- developer documentation;
-- deployment documentation.
-
-Documentation must describe actual behavior, not intended behavior.
-
----
-
-17. SECURITY REVIEW
-
-Create:
-
-.agents/skills/security-review/
-
-Responsibilities:
-
-- authentication;
-- authorization;
-- session security;
-- WebSocket security;
-- API validation;
-- dependency vulnerabilities;
-- secrets;
-- configuration;
-- local-network threats;
-- privilege boundaries;
-- supply chain.
-
-Security review is mandatory before production milestones.
-
----
-
-18. CODE REVIEW
-
-Create:
-
-.agents/skills/code-review/
-
-Responsibilities:
-
-- correctness;
-- maintainability;
-- architecture;
-- performance;
-- security;
-- test coverage;
-- error handling;
-- realtime safety;
-- API compatibility.
-
-Code review should identify:
-
-BLOCKER
-HIGH
-MEDIUM
-LOW
-
----
-
-19. PR REVIEW
-
-Create:
-
-.agents/skills/pr-review/
-
-Responsibilities:
-
-- review complete changesets;
-- verify requirements;
-- inspect diff;
-- verify tests;
-- verify documentation;
-- identify regressions;
-- verify migration safety;
-- verify backward compatibility;
-- produce merge recommendation.
-
-PR review must answer:
-
-READY
-READY WITH CHANGES
-NOT READY
-
----
-
-20. SKILL ORCHESTRATION
-
-The skills must work together.
-
-For a new major feature:
-
-product-spec
-      ↓
-superpowers
-      ↓
-architect-designer
-      ↓
-senior-backend / senior-frontend / realtime-audio-engineer
-      ↓
-test-master
-      ↓
-security-review
-      ↓
-code-review
-      ↓
-code-documenter
-      ↓
-pr-review
-
-Not every task requires every skill.
-
-The agent must select the minimum appropriate skill set.
-
----
-
-21. SKILL FILE FORMAT
-
-Every project skill must use the Agent Skills format.
-
-Example:
-
----
-name: architect-designer
-description: Designs and reviews Open IEM Platform architecture.
----
-
-Then provide:
-
-Role
-Responsibilities
-When to use
-Workflow
-Inputs
-Outputs
-Constraints
-Quality gates
-Examples
-
-Keep skills focused.
-
-Do not create one enormous SKILL.md containing every engineering discipline.
-
----
-
-22. PROJECT SKILL REGISTRY
-
-Create:
-
-docs/SKILLS.md
-
-Document:
-
-skill
-purpose
-trigger
-inputs
-outputs
-dependencies
-
----
-
-23. ARCHITECTURE
-
-The core architecture should evolve toward:
-
-                 OPEN IEM PLATFORM
-                         |
-          +--------------+--------------+
-          |                             |
-      CONTROL PLANE                 AUDIO PLANE
-          |                             |
-      REST/API                      PipeWire
-          |                             |
-      WebSocket                    Mix Engine
-          |                             |
-     Authorization                DSP/Processing
-          |                             |
-       State Store                Audio Transport
-          |                             |
-       Device Manager                   |
-          |                             |
-       Scene Manager                  LAN
-                                        |
-                                      Wi-Fi
-                                        |
-                            +-----------+-----------+
-                            |           |           |
-                          Phone       Phone       Receiver
-
----
-
-24. AUDIO ENGINE
-
-Use:
-
+``` text
 PipeWire
 ALSA
+```
 
-The Open IEM application must not replace PipeWire.
+PipeWire is the Linux audio graph. Open IEM owns logical channels, mix
+model, sends, routing policy, permissions, scene state, processing
+configuration and streaming policy.
 
-PipeWire is the Linux audio graph.
+## 16. Audio format
 
-Open IEM owns:
+Initial target:
 
-channel model
-mix model
-routing policy
-user permissions
-mix state
-scene state
-streaming policy
+``` text
+48 kHz
+24-bit capture where supported
+32-bit float internal DSP where appropriate
+stereo mixes
+```
 
----
+Architecture should allow 44.1, 48 and 96 kHz in future. Avoid
+unnecessary conversions.
 
-25. MIX ENGINE
+## 17. Mix engine
 
-Each channel may send to multiple mixes.
-
-Example:
-
-CH01 Vocal
-   |
-   +---- Mix 01
-   |
-   +---- Mix 02
-   |
-   +---- Mix 03
-   |
-   +---- Mix 04
+Each input channel may feed multiple mixes.
 
 Each send:
 
+``` text
 gain_db
 pan
 mute
 solo
 enabled
 locked
+```
 
 Each mix:
 
+``` text
 id
 name
-musician
+musician_id
 channels
-master
+master_gain_db
+master_mute
 limiter
+processing
 permissions
 revision
+```
 
----
+## 18. MVP
 
-26. AUDIO FORMAT
+The MVP target is:
 
-Initial target:
-
-48 kHz
-24-bit capture where supported
-32-bit float internal processing
-stereo mixes
-
-Architecture should permit:
-
-44.1 kHz
-48 kHz
-96 kHz
-
-in future.
-
----
-
-27. AUDIO TRANSPORT
-
-DO NOT blindly assume RTP/UDP is the final solution.
-
-Create a formal evaluation:
-
-docs/AUDIO-TRANSPORT-EVALUATION.md
-
-Compare:
-
-RTP/UDP
-WebRTC
-UDP custom
-WebTransport/QUIC where applicable
-Native receiver protocol
-
-Evaluate:
-
-- latency;
-- jitter;
-- packet loss;
-- browser compatibility;
-- Android;
-- iOS;
-- CPU;
-- memory;
-- implementation complexity;
-- recovery;
-- synchronization;
-- security;
-- scalability.
-
-Perform actual benchmarks where possible.
-
----
-
-28. IMPORTANT BROWSER CONSTRAINT
-
-Do not assume a browser can receive arbitrary UDP audio.
-
-The system must distinguish:
-
-CONTROL CLIENT
-
-from:
-
-AUDIO RECEIVER
-
-Possible architecture:
-
-Phone PWA
-    |
-control only
-    |
-WebSocket
-
-while audio may eventually use:
-
-WebRTC
-
-or:
-
-Native Receiver
-
-or another validated mechanism.
-
-The final architecture must be based on technical validation.
-
----
-
-29. MVP
-
-MVP:
-
-8 inputs
-2 stereo mixes
+``` text
+8 input channels
+2 independent stereo mixes
 2 musicians
 2 clients
 48 kHz
@@ -818,135 +342,176 @@ pan
 mute
 master
 limiter
-WebSocket
+WebSocket control
 PWA
 local LAN
 Linux
 Raspberry Pi target
+```
 
-Not MVP:
+MVP must prove audio, mixing, control, authorization, network and
+recovery.
 
-cloud
-Internet control
-ESP32 receiver
-advanced EQ
-compressor
-reverb
-console integrations
+## 19. Audio transport research
 
----
+Do not assume the final protocol. Create
+`docs/research/AUDIO-TRANSPORT-EVALUATION.md` and compare RTP/UDP,
+WebRTC, custom UDP and QUIC/WebTransport where relevant.
 
-30. ENGINEER UI
+Evaluate latency, jitter, packet loss, CPU, memory, browser
+compatibility, Android, iOS, Windows, macOS, Linux, recovery,
+synchronization, security, complexity and scalability. Use benchmarks
+and create `docs/decisions/ADR-004-audio-transport.md` after evaluation.
 
-Must eventually provide:
+## 20. Browser audio constraint
 
-Channels
+Never assume a browser can receive arbitrary UDP. Separate the musician
+control client from the audio receiver. Possible audio approaches
+include WebRTC, supported browser media transport, native client or
+dedicated receiver.
+
+## 21. Server web interface
+
+The server UI should provide a professional live-monitoring workflow
+with:
+
+``` text
+Dashboard
+Audio Devices
+Input Channels
 Musicians
+Connected Devices
 Mixes
-Devices
+Mixer
 Scenes
-Locks
-Audio
+Presets
 Network
+Diagnostics
 System
 Logs
+Settings
+```
 
-Device status:
+Configuration wizard:
 
-Connected
-Disconnected
-Latency
-Packet loss
-Stream state
+``` text
+1. Select audio interface
+2. Detect inputs
+3. Name channels
+4. Create musicians
+5. Assign mixes
+6. Configure network
+7. Connect clients
+8. Verify audio
+9. Save scene
+10. Start session
+```
 
----
+Use validated UX patterns from the researched market without copying
+branding, proprietary text or implementation. User-facing Open IEM
+documentation must not mention competing products.
 
-31. MUSICIAN UI
+## 22. Musician client
 
-Mobile-first.
+Provide:
 
-Must allow:
+``` text
+My Mix
+Channels
+Faders
+Mute
+Pan
+Master
+Connection Status
+Audio Status
+Preset Selection
+```
 
-channel volume
-pan
-mute
-master volume
+Future: personal EQ, talkback, ambient/room mic.
 
-Must clearly show:
+A musician cannot change another musician's mix.
 
+## 23. Engineer console
+
+Provide channels, musicians, mix matrix, devices, network, scenes,
+locks, meters and system health.
+
+## 24. Mix matrix
+
+Represent the domain as Channel x Mix so the architecture can scale from
+2 to 16+ musicians.
+
+## 25. Scenes
+
+Support create, save, rename, duplicate, recall, delete, export and
+import. Scene contents include channels, mixes, levels, pan, mute,
+routing, processing and locks.
+
+## 26. Presets
+
+Support versioned channel presets and mix presets. Presets must be safe,
+validated, exportable and importable.
+
+## 27. Future features
+
+Plan, but do not prematurely implement:
+
+-   channel groups;
+-   talkback;
+-   ambient/room microphones;
+-   PFL/AFL;
+-   advanced metering;
+-   VST3/LV2/CLAP evaluation;
+-   native mobile apps;
+-   dedicated receiver;
+-   ESP32 receiver research;
+-   console adapters.
+
+Each feature requires its own specification before implementation.
+
+## 28. Device management
+
+Track:
+
+``` text
+device_id
+device_name
+device_type
+musician_id
+IP
 connection
-musician identity
-mix identity
+last_seen
+latency
+jitter
+packet_loss
+stream_state
+client_version
+```
 
-The musician must not be able to access another musician's mix.
-
----
-
-32. SECURITY MODEL
+## 29. Authorization
 
 Roles:
 
+``` text
 ADMIN
 ENGINEER
 MUSICIAN
+```
 
-Musician:
+Musician edits assigned mix. Engineer manages all
+mixes/devices/scenes/locks. Admin manages system configuration.
+Server-side authorization is mandatory.
 
-edit assigned mix
+## 30. Engineer lock
 
-Engineer:
+Support locks for channel, send, mix, master, routing, processing and
+scene.
 
-edit all mixes
-manage devices
-manage scenes
-lock channels
+## 31. Database
 
-Admin:
+Use SQLite initially with migrations. Initial entities:
 
-system configuration
-
-Backend authorization is mandatory.
-
-UI hiding is not security.
-
----
-
-33. SCENES
-
-Implement:
-
-create
-save
-rename
-duplicate
-recall
-delete
-export
-import
-
-A scene contains:
-
-channels
-mixes
-routing
-levels
-pan
-mute
-processing
-locks
-
----
-
-34. DATABASE
-
-Use:
-
-SQLite
-
-with migrations.
-
-Initial entities:
-
+``` text
 User
 Musician
 Channel
@@ -954,50 +519,49 @@ Mix
 MixSend
 Device
 Scene
+Preset
 Permission
 SystemConfig
 AuditEvent
+```
 
----
+## 32. API
 
-35. API
+Version under `/api/v1`.
 
-Version:
+Minimum endpoints:
 
-/api/v1
-
-Minimum:
-
-GET /system
-
-GET /channels
-POST /channels
-PATCH /channels/:id
-
-GET /musicians
-POST /musicians
-PATCH /musicians/:id
-
-GET /mixes
-GET /mixes/:id
-
-GET /devices
-
-GET /scenes
-POST /scenes
-POST /scenes/:id/recall
+``` text
+GET    /system
+GET    /audio/devices
+GET    /channels
+POST   /channels
+PATCH  /channels/:id
+GET    /musicians
+POST   /musicians
+PATCH  /musicians/:id
+GET    /mixes
+GET    /mixes/:id
+GET    /devices
+GET    /scenes
+POST   /scenes
+POST   /scenes/:id/recall
 DELETE /scenes/:id
+GET    /presets
+POST   /presets
+```
 
----
-
-36. WEBSOCKET
+## 33. WebSocket
 
 Endpoint:
 
+``` text
 /ws/v1
+```
 
 Envelope:
 
+``` json
 {
   "version": 1,
   "message_id": "uuid",
@@ -1006,591 +570,245 @@ Envelope:
   "source": "musician-client",
   "payload": {}
 }
+```
 
-Server is authoritative.
+Server is authoritative: validate -\> authorize -\> apply -\> confirm
+-\> broadcast.
 
----
+## 34. Protocol versioning
 
-37. REVISION CONTROL
+All protocol messages must include a version. Breaking changes require a
+new major protocol version. Unknown commands return structured errors.
 
-Mixes must have revisions.
+## 35. Realtime thread rules
 
-Example:
+Never perform database I/O, network I/O, filesystem I/O, blocking calls,
+unbounded work, unnecessary allocation or heavy locks in realtime audio
+processing.
 
-{
-  "mix_id": "mix-01",
-  "revision": 105
-}
+## 36. Backend
 
-Reject or reconcile stale commands.
+Preferred backend: Rust. Use a workspace where appropriate:
 
----
+``` text
+server/
+├── Cargo.toml
+└── crates/
+    ├── audio-engine
+    ├── mix-engine
+    ├── streaming
+    ├── control
+    ├── device-manager
+    ├── scene-manager
+    └── state-store
+```
 
-38. REALTIME SAFETY
+## 37. Frontend
 
-Never perform:
+Preferred: TypeScript + React + Vite. Applications:
 
-database access
-network I/O
-filesystem I/O
-unbounded allocation
-heavy locks
+``` text
+web/musician
+web/engineer
+```
 
-inside realtime audio processing.
+## 38. Mobile UX
 
-Use:
+Mobile-first, touch-friendly, stage-readable, high contrast, simple,
+fast and reconnect-resilient. Use large faders and obvious mute
+controls.
 
-Realtime thread
-       |
-bounded / lock-free communication
-       |
-Control thread
+## 39. Observability
 
----
+Expose CPU, RAM, XRUN, PipeWire state, audio device, sample rate,
+channels, mixes, clients, latency, jitter, packet loss, reconnects and
+stream state. Use structured logs.
 
-39. OBSERVABILITY
-
-Expose:
-
-CPU
-RAM
-XRUN
-PipeWire state
-audio channels
-mixes
-connected clients
-latency
-jitter
-packet loss
-reconnects
-stream state
-
-Use structured logs.
-
----
-
-40. CLI
+## 40. Diagnostics
 
 Create:
 
+``` bash
+open-iem diagnostics
+```
+
+Validate OS, CPU, RAM, storage, PipeWire, ALSA, audio interface, sample
+rate, channels, network, ports, realtime capability and XRUNs. Generate
+a shareable report.
+
+## 41. CLI
+
+Initial commands:
+
+``` bash
 open-iem status
 open-iem audio devices
 open-iem channels
 open-iem mixes
 open-iem devices
-open-iem diagnostics
 open-iem scenes
+open-iem diagnostics
+open-iem version
+```
 
----
+## 42. Raspberry Pi
 
-41. RASPBERRY PI DEPLOYMENT
+Reference: Raspberry Pi 5. Create `deployment/raspberry-pi/` with
+install, audio, network, service and diagnostics scripts. Create
+`open-iem-server.service`. Support automatic startup, safe restart and
+watchdog.
 
-Create:
+## 43. Cross-platform audio
 
-deployment/raspberry-pi/
+Investigate Linux PipeWire/ALSA, Windows WASAPI/ASIO and macOS
+CoreAudio. Do not claim support before actual build and runtime
+validation.
 
-Include:
+## 44. Network
 
-install.sh
-setup-audio.sh
-setup-network.sh
-setup-service.sh
-diagnostics.sh
+Recommended topology:
 
-Create systemd service:
+``` text
+Open IEM Server -> Ethernet -> Dedicated AP -> Musicians
+```
 
-open-iem-server.service
+Provide diagnostics. Do not hard-code a router vendor.
 
-The system must start automatically after boot.
+## 45. Client discovery
 
----
+Evaluate QR pairing, short codes, mDNS/DNS-SD, local discovery and
+manual IP. Security must be considered.
 
-42. VPS DEVELOPMENT
+## 46. Session management
 
-The VPS is primarily the development environment.
+A session identifies server, session, musician, mix and client. Sessions
+must be revocable and safely reconnectable.
 
-Do not assume VPS has:
+## 47. Safe failure
 
-USB audio
-Wi-Fi
-PipeWire realtime hardware
-audio interface
+Define behavior for server crash, audio-device disconnect, network
+disconnect, client disconnect and invalid/corrupt configuration. Other
+musicians must continue when one client disconnects.
 
-Use VPS for:
+## 48. Backup / restore
 
-backend
-frontend
-API
-database
-tests
-protocol
-CI
-static analysis
-documentation
+Provide:
 
-Use Raspberry Pi or equivalent Linux audio hardware for:
+``` bash
+open-iem backup
+open-iem restore
+```
 
-PipeWire validation
-USB audio
-latency
-XRUN
-real streaming
-hardware testing
+Backups contain configuration, not secrets unless explicitly intended.
 
----
+## 49. Security
 
-43. DOCKER
+Mandatory: dependency audit, secret scanning, server-side authorization,
+input validation, session expiration, WebSocket authorization, audit
+logging, safe defaults and license/dependency review.
 
-Docker is allowed for:
+## 50. Testing
 
-development
-API
-frontend
-database
-CI
+Layers:
 
-Do not assume Docker is suitable for realtime audio production.
+-   unit;
+-   integration;
+-   frontend;
+-   audio;
+-   network;
+-   hardware;
+-   load.
 
-Production audio should be validated with:
+Audio tests include latency measurement and XRUN observation. Network
+tests include packet loss, jitter and reconnect.
 
-systemd
-PipeWire
-ALSA
+## 51. MVP acceptance
 
----
+MVP must prove:
 
-44. CI/CD
+1.  8 channels detected.
+2.  2 independent stereo mixes.
+3.  Mixes remain independent.
+4.  Musician A controls only Mix 1.
+5.  Musician B controls only Mix 2.
+6.  Disconnecting A does not break B.
+7.  Reconnect restores A.
+8.  Server restart restores valid state.
+9.  WAN outage does not stop LAN operation.
+10. 60-minute stability test.
+11. Metrics captured.
+12. Documentation matches implementation.
+13. Build artifacts are reproducible.
 
-Create GitHub Actions.
+## 52. Performance
 
-Minimum:
+Do not publish unmeasured latency. Every performance claim must include
+hardware, OS, sample rate, buffer, interface, network, codec, receiver
+and measurement method.
 
-Rust format
-Rust clippy
-Rust tests
-Frontend typecheck
-Frontend tests
-Frontend build
-Integration tests
-Security audit
-Dependency audit
-ARM64 build
-x86_64 build
+Initial control target: `<100 ms`. Audio latency must be measured and
+optimized.
 
----
+## 53. Skills system
 
-45. TEST MASTER GATES
+Canonical project skills:
 
-Every feature must have:
-
-unit test
-integration test where applicable
-acceptance criteria
-
-Audio features additionally require:
-
-hardware test
-latency measurement
-XRUN monitoring
-
-Network features additionally require:
-
-packet loss
-jitter
-reconnect
-
----
-
-46. SECURITY GATES
-
-Before production milestone:
-
-dependency audit
-secret scan
-authorization test
-API validation test
-WebSocket authorization test
-session test
-input fuzzing where useful
-
----
-
-47. CODE REVIEW GATES
-
-Every major milestone must undergo:
-
-architecture review
-code review
-security review
-test review
-documentation review
-
----
-
-48. PR REVIEW
-
-Before considering a milestone complete, generate:
-
-docs/reviews/
-
-with:
-
-PR_REVIEW.md
-SECURITY_REVIEW.md
-CODE_REVIEW.md
-TEST_REVIEW.md
-
-The reviewer must state:
-
-READY
-READY WITH CHANGES
-NOT READY
-
----
-
-49. DEVELOPMENT PHASES
-
-PHASE 0
-
-Specification audit.
-
-Create:
-
-docs/SPEC-AUDIT.md
-docs/ARCHITECTURE-GAPS.md
-docs/DEVELOPMENT-LOG.md
-docs/TODO.md
-docs/SKILLS.md
-
----
-
-PHASE 1
-
-Audio Engine POC.
-
-Goal:
-
-USB Interface
-      |
-PipeWire
-      |
-8 channels
-      |
-2 mixes
-      |
-local output
-
-No network streaming yet.
-
----
-
-PHASE 2
-
-Mix Engine.
-
-Implement:
-
-channel
-mix
-send
-gain
-pan
-mute
-master
-limiter
-
----
-
-PHASE 3
-
-Backend.
-
-Implement:
-
-Rust
-REST
-WebSocket
-SQLite
-authorization
-revision state
-
----
-
-PHASE 4
-
-Musician PWA.
-
----
-
-PHASE 5
-
-Audio transport.
-
-Only after transport evaluation.
-
----
-
-PHASE 6
-
-Engineer console.
-
----
-
-PHASE 7
-
-Scenes and advanced DSP.
-
----
-
-PHASE 8
-
-Raspberry Pi deployment.
-
----
-
-PHASE 9
-
-Performance and reliability.
-
----
-
-PHASE 10
-
-ESP32 / dedicated receiver research.
-
----
-
-50. ESP32
-
-ESP32 is future scope.
-
-Research before implementation:
-
-ESP32-S3
-ESP32-P4
-I2S
-DAC
-codec
-headphone amplifier
-Wi-Fi
-latency
-jitter
-power
-
-Create:
-
-docs/ESP32-RECEIVER-RESEARCH.md
-
-Do not promise ESP32 viability before testing.
-
----
-
-51. CONSOLE INTEGRATION
-
-MVP should NOT depend on a specific digital mixer.
-
-Initial architecture:
-
-Digital Mixer
-      |
-USB Audio
-      |
-Open IEM
-
-Future:
-
-ConsoleAdapter
-├── GenericAudio
-├── OSC
-├── Behringer
-├── Allen & Heath
-├── DiGiCo
-└── Other
-
-Do not implement console adapters without real protocol documentation.
-
----
-
-52. GIT WORKFLOW
-
-Use semantic commits:
-
-feat:
-fix:
-refactor:
-test:
-docs:
-build:
-ci:
-perf:
-
-Commits must be small and meaningful.
-
-Do not create giant commits containing unrelated changes.
-
----
-
-53. BRANCHES
-
-Default:
-
-main
-
-Optional:
-
-feature/*
-fix/*
-experiment/*
-
-Do not create branches unnecessarily.
-
----
-
-54. ADRs
-
-Every major architecture decision must create:
-
-docs/adr/
-
-Examples:
-
-ADR-001-pipewire.md
-ADR-002-linux-platform.md
-ADR-003-jpmixer.md
-ADR-004-audio-transport.md
-ADR-005-browser-audio.md
-ADR-006-rust.md
-ADR-007-database.md
-ADR-008-authentication.md
-
----
-
-55. JPMIXER
-
-Use JPMixer as a product/UX reference.
-
-Repository:
-
-https://github.com/JPMixing-inc/jpmixer
-
-Study:
-
-architecture
-frontend
-WebSocket
-mix model
-scene model
-device management
-console adapters
-authorization
-
-Do not copy implementation code without verifying license compatibility.
-
-The goal is:
-
-learn from architecture
-
-not:
-
-clone source code
-
----
-
-56. EXTERNAL SKILLS
-
-Use the external repositories as reference material.
-
-Jeff Allan:
-
-https://github.com/Jeffallan/claude-skills
-
-Alirezarezvani:
-
-https://github.com/alirezarezvani/claude-skills
-
-Hermes engineering:
-
-https://github.com/alirezarezvani/claude-skills/tree/main/.hermes/skills/claude-skills/engineering
-
-When useful, inspect upstream skill implementation and adapt its methodology.
-
-Do not blindly import the entire repository.
-
----
-
-57. PROJECT-SPECIFIC SKILLS ARE AUTHORITATIVE
-
-When an upstream skill conflicts with Open IEM requirements:
-
-Open IEM project specification
-
-wins.
-
-The project skills must contain product-specific constraints.
-
-Example:
-
-A generic backend skill may recommend a normal async architecture.
-
-Open IEM's realtime-audio skill must override it where necessary for realtime audio safety.
-
----
-
-58. SKILL DIRECTORY
-
-Final expected structure:
-
-.agents/
-└── skills/
-    ├── architect-designer/
-    ├── product-spec/
-    ├── superpowers/
-    ├── senior-backend/
-    ├── senior-frontend/
-    ├── realtime-audio-engineer/
-    ├── test-master/
-    ├── code-documenter/
-    ├── security-review/
-    ├── code-review/
-    └── pr-review/
-
-Then create appropriate adapters:
-
-.claude/
-└── skills/
-
-.hermes/
-└── skills/
-
-Prefer symlinks/generated references instead of maintaining three independent copies.
-
-The canonical source is:
-
+``` text
 .agents/skills/
+```
 
----
+Required skills:
 
-59. SKILL VALIDATION
+``` text
+architect-designer/
+product-spec/
+superpowers/
+senior-backend/
+senior-frontend/
+realtime-audio-engineer/
+test-master/
+code-documenter/
+security-review/
+code-review/
+pr-review/
+release-engineer/
+documentation-manager/
+```
+
+## 54. External skill references
+
+Use as references, not blind copies:
+
+``` text
+https://github.com/Jeffallan/claude-skills/tree/main/skills
+https://github.com/alirezarezvani/claude-skills/tree/main/engineering-team
+https://github.com/alirezarezvani/claude-skills/tree/main/.hermes/skills/claude-skills/engineering
+```
+
+Inspect relevant skills, adapt methodology, respect licenses.
+Project-specific skills are authoritative.
+
+## 55. Skill orchestration
+
+For major features:
+
+``` text
+product-spec -> superpowers -> architect-designer -> specialist -> test-master -> security-review -> code-review -> documentation-manager -> release-engineer -> pr-review
+```
+
+Use only relevant skills for small tasks.
+
+## 56. Agent compatibility
+
+Support Hermes Agent, Claude Code, Codex and compatible agent systems.
+Canonical skills live under `.agents/skills/`; adapters may exist under
+`.claude/skills/` and `.hermes/skills/`. Avoid divergent copies.
+
+## 57. Documentation structure
 
 Create:
 
-scripts/validate-skills.sh
-
-It must verify:
-
-SKILL.md exists
-frontmatter valid
-name exists
-description exists
-directory naming valid
-no broken references
-
----
-
-60. DOCUMENTATION STRUCTURE
-
-Create:
-
+``` text
 docs/
 ├── product/
 ├── architecture/
@@ -1602,435 +820,432 @@ docs/
 ├── testing/
 ├── decisions/
 ├── research/
+├── releases/
+├── user-guides/
 └── reviews/
+```
 
-Keep documentation organized by domain.
-
----
-
-61. REPOSITORY STRUCTURE
-
-Target:
-
-/workspace/open-iem-platform/
-
-├── .agents/
-│   └── skills/
-│
-├── .claude/
-│   └── skills/
-│
-├── .hermes/
-│   └── skills/
-│
-├── .github/
-│   └── workflows/
-│
-├── docs/
-│   ├── product/
-│   ├── architecture/
-│   ├── audio/
-│   ├── networking/
-│   ├── api/
-│   ├── security/
-│   ├── deployment/
-│   ├── testing/
-│   ├── decisions/
-│   ├── research/
-│   └── reviews/
-│
-├── server/
-│   ├── audio-engine/
-│   ├── mix-engine/
-│   ├── streaming/
-│   ├── control/
-│   ├── device-manager/
-│   ├── scene-manager/
-│   └── state-store/
-│
-├── web/
-│   ├── musician/
-│   └── engineer/
-│
-├── firmware/
-│   └── esp32/
-│
-├── deployment/
-│   ├── raspberry-pi/
-│   ├── systemd/
-│   └── docker/
-│
-├── experiments/
-│   └── audio-transport/
-│
-├── tests/
-│
-├── scripts/
-│
-├── examples/
-│
-├── README.md
-├── CONTRIBUTING.md
-├── SECURITY.md
-├── CODE_OF_CONDUCT.md
-├── CHANGELOG.md
-├── LICENSE
-└── .gitignore
-
-Adjust only when justified.
-
----
-
-62. FIRST BOOTSTRAP
-
-Immediately perform:
-
-cd /workspace/open-iem-platform
-
-Then:
-
-git status
-git remote -v
-find . -maxdepth 2 -type f | sort
-
-Inspect the existing repository.
-
----
-
-63. ENVIRONMENT AUDIT
-
-Check:
-
-uname -a
-cat /etc/os-release
-uname -m
-nproc
-free -h
-df -h
-git --version
-rustc --version
-cargo --version
-node --version
-npm --version
-python3 --version
-docker --version
-pw-cli --version
-pipewire --version
-
-Commands that do not exist should be recorded, not treated as fatal.
+## 58. User documentation
 
 Create:
 
-docs/DEVELOPMENT-ENVIRONMENT.md
+``` text
+docs/user-guides/GETTING_STARTED.md
+docs/user-guides/SERVER_SETUP.md
+docs/user-guides/MUSICIAN_SETUP.md
+docs/user-guides/ENGINEER_GUIDE.md
+docs/user-guides/NETWORK_GUIDE.md
+docs/user-guides/AUDIO_INTERFACE_GUIDE.md
+docs/user-guides/TROUBLESHOOTING.md
+docs/user-guides/FAQ.md
+```
 
----
+Document only implemented behavior.
 
-64. REPOSITORY AUDIT
+## 59. Musicians Guide
 
-Inspect:
+At the end of the initial product development cycle, create:
 
-README
-Git history
-Git branches
-GitHub remote
-existing files
-existing CI
-existing issues
+``` text
+docs/user-guides/MUSICIANS-GUIDE.md
+docs/user-guides/MUSICIANS-GUIDE.pdf
+```
 
-Do not destroy existing work.
+The guide must explain the actual Open IEM workflow: requirements,
+network connection, client installation/access, identifying a mix,
+channel volume, pan, mute, master, connection problems, reconnect,
+no-audio troubleshooting, unstable-audio troubleshooting, safe IEM
+practices, wired client where supported, device preparation and
+contacting the engineer.
 
----
+The guide must not mention competing products. It must describe only the
+implemented Open IEM Platform.
 
-65. SPECIFICATION AUDIT
-
-Read all current specifications.
-
-Create:
-
-docs/SPEC-AUDIT.md
-
-Include:
-
-Existing requirements
-Missing requirements
-Contradictions
-Risks
-Open decisions
-Recommended changes
+## 60. PDF build
 
 Create:
 
-docs/ARCHITECTURE-GAPS.md
+``` text
+scripts/build-musicians-guide.sh
+```
 
----
+The PDF must be reproducibly generated from its Markdown/source
+document. Regenerate whenever musician workflow changes.
 
-66. RESEARCH
+## 61. Release artifacts
 
-Research first:
+Generate versioned artifacts when supported:
 
-PipeWire
-Raspberry Pi realtime audio
-JPMixer
-browser low latency audio
-RTP
-WebRTC
-WebTransport
-Linux audio scheduling
-USB multichannel audio
+``` text
+Linux x86_64
+Linux ARM64
+Windows x86_64
+macOS arm64
+macOS x86_64
+```
 
-Prefer primary sources.
+Use formats appropriate to the chosen packaging system. Do not publish
+untested formats.
 
-Record findings in:
+## 62. Release pipeline
 
-docs/research/
+Create:
 
----
+``` text
+.github/workflows/release.yml
+```
 
-67. TRANSPORT DECISION
+On a version tag such as `v0.1.0`, perform version validation, tests,
+build matrix, packaging, checksums, release metadata and GitHub Release
+publication when configured.
 
-Do not implement final audio streaming until:
+Study the release workflow of JPMixer as an engineering reference:
 
-docs/research/audio-transport/
+``` text
+https://github.com/JPMixing-inc/jpmixer/blob/main/.github/workflows/release.yml
+```
 
-contains the comparison.
+Do not copy blindly; adapt to Open IEM.
 
-Then create:
+## 63. Release artifact naming
 
-docs/decisions/ADR-004-audio-transport.md
+Use deterministic names such as:
 
----
+``` text
+open-iem-server-0.1.0-linux-x86_64.tar.gz
+open-iem-server-0.1.0-linux-arm64.tar.gz
+open-iem-server-0.1.0-windows-x86_64.zip
+open-iem-server-0.1.0-macos-arm64.dmg
+open-iem-server-0.1.0-macos-x86_64.dmg
+```
 
-68. IMPLEMENTATION GATE
+Adapt to actual packaging.
 
-Before Phase 1:
+## 64. Checksums
 
-The following must exist:
+Generate `SHA256SUMS` for release artifacts. Plan signing for future
+releases.
 
-SPEC-AUDIT
-ARCHITECTURE-GAPS
-SKILLS
-ENVIRONMENT
-ADR baseline
-ROADMAP
+## 65. Release manifest
 
-Only then begin implementation.
+Generate `release-manifest.json` with version, commit, build date,
+platform, architecture, artifact and checksum.
 
----
+## 66. Release notes
 
-69. PHASE COMPLETION FORMAT
+Every release includes What's New, Changed, Fixed, Security, Known
+Issues, Supported Platforms, Installation and Upgrade Notes. Release
+notes must match CHANGELOG.
 
-At the end of each phase, produce:
+## 67. Musicians Guide release integration
 
-docs/reviews/PHASE-X-REVIEW.md
+Whenever musician workflow changes:
 
-Include:
+1.  update Markdown source;
+2.  regenerate PDF;
+3.  validate PDF;
+4.  include the guide in release artifacts where appropriate.
 
-Objective
-Implemented
-Tests
-Metrics
-Known issues
-Security
-Architecture impact
-Documentation
-Next phase
-Status
+## 68. PR checklist
 
-Status:
+Every PR:
 
-PASS
-PASS WITH CONDITIONS
-BLOCKED
+``` text
+[ ] Requirements satisfied
+[ ] Tests added/updated
+[ ] Security considered
+[ ] Documentation updated
+[ ] CHANGELOG updated when applicable
+[ ] Version impact considered
+[ ] Build impact considered
+[ ] Release impact considered
+[ ] ADR added when architectural
+[ ] No stale docs
+```
 
----
+## 69. Review severity
 
-70. DEVELOPMENT LOG
-
-Update:
-
-docs/DEVELOPMENT-LOG.md
-
-after each meaningful milestone.
-
----
-
-71. TODO
-
-Maintain:
-
-docs/TODO.md
-
-with:
-
+``` text
 BLOCKER
 HIGH
 MEDIUM
 LOW
-RESEARCH
+```
 
----
+Block merge for data loss, audio safety issues, realtime violations,
+security vulnerabilities, broken protocol, failing required tests,
+unreproducible builds or incorrect release metadata.
 
-72. NO FALSE COMPLETION
+## 70. Research rules
 
-Never say:
+Prefer official documentation, RFCs/specifications, official
+repositories, source code when necessary and reputable engineering
+sources. Record meaningful findings.
 
-"Done"
+## 71. No invention rule
 
-if:
+Use explicit labels:
 
-- code only compiles;
-- tests are missing;
-- hardware behavior is unverified;
-- latency is unmeasured;
-- security has not been reviewed;
-- requirements are not satisfied.
+``` text
+UNKNOWN
+HARDWARE VALIDATION REQUIRED
+EXPERIMENTAL
+```
 
-Use:
+Never present assumptions as facts.
 
-Implemented
-Tested
-Verified
-Hardware Verified
-Production Ready
+## 72. External product references
 
-as separate statuses.
+External product documentation may be used to understand workflows,
+requirements, user education and implementation patterns. Do not copy
+proprietary code, branding or text. Do not mention competing products in
+Open IEM user documentation.
 
----
+## 73. Repository structure
 
-73. HARDWARE VALIDATION
+Target:
 
-When hardware is unavailable:
+``` text
+/workspace/open-iem-platform/
+├── .agents/skills/
+├── .claude/skills/
+├── .hermes/skills/
+├── .github/workflows/
+├── docs/
+├── server/
+├── web/
+├── firmware/
+├── deployment/
+├── experiments/
+├── tests/
+├── scripts/
+├── examples/
+├── START.md
+├── README.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── SECURITY.md
+├── CODE_OF_CONDUCT.md
+├── LICENSE
+├── VERSION
+└── .gitignore
+```
 
-SIMULATED
+Adapt only with documented architectural justification.
 
-must be clearly marked.
+## 74. Documentation validation
 
-When hardware is tested:
+Create `scripts/validate-docs.sh` to validate required documents,
+Markdown links where possible, version consistency, release-document
+placeholders, guide source and CHANGELOG Unreleased section.
 
+## 75. Skill validation
+
+Create `scripts/validate-skills.sh` to validate SKILL.md existence,
+frontmatter, name, description and references.
+
+## 76. Development log
+
+Maintain `docs/DEVELOPMENT-LOG.md` with Date, Goal, Implemented, Tests,
+Metrics, Problems, Decisions, Documentation and Next Step after each
+meaningful milestone.
+
+## 77. TODO
+
+Maintain `docs/TODO.md` with BLOCKER, HIGH, MEDIUM, LOW and RESEARCH.
+
+## 78. No false completion
+
+Do not say "Done" because code compiles. Track:
+
+``` text
+IMPLEMENTED
+TESTED
+VERIFIED
 HARDWARE VERIFIED
+RELEASE READY
+```
 
-must include:
+## 79. Hardware validation
 
-hardware
-OS
-sample rate
-buffer
-interface
-network
-measurement method
+When hardware is unavailable, mark `SIMULATED`. When tested, mark
+`HARDWARE VERIFIED` and record hardware, OS, sample rate, buffer,
+interface, network and measurement method.
 
----
+## 80. Final engineering principle
 
-74. AUDIO SAFETY
+Build:
 
-This is an audio product.
+``` text
+Stable Audio
+      ↓
+Stable Mixing
+      ↓
+Stable Network
+      ↓
+Excellent UX
+      ↓
+Cross-platform Packaging
+      ↓
+Production Hardening
+```
 
-Never create an unsafe default master path.
+not a huge unstable feature list.
 
-Implement:
+# 81. PHASE 0 --- PROJECT BOOTSTRAP + SPECIFICATION AUDIT
 
-limiter
-safe startup
-mute fallback
-bounded gain
+Do not start by implementing the complete product.
 
-where appropriate.
+1.  Enter `/workspace/open-iem-platform`.
+2.  Verify Git, remote, branch and status.
+3.  Inspect repository and README.
+4.  Inspect all existing documentation.
+5.  Inspect environment.
+6.  Inspect external skill references.
+7.  Create project skill architecture.
+8.  Create all required skills.
+9.  Create documentation structure.
+10. Audit specifications.
+11. Identify architecture gaps.
+12. Research unresolved decisions.
+13. Create ADR baseline.
+14. Create TODO and development log.
+15. Create CHANGELOG.
+16. Create documentation and skill validation scripts.
+17. Create CI foundation.
+18. Create release/build foundation.
+19. Create user-guide structure and musician-guide source/build
+    pipeline.
+20. Commit bootstrap.
 
-Any change to audio gain/routing must be reviewed for accidental loud-output risks.
+Required Phase 0 documents:
 
----
+``` text
+docs/SPEC-AUDIT.md
+docs/ARCHITECTURE-GAPS.md
+docs/DEVELOPMENT-ENVIRONMENT.md
+docs/SKILLS.md
+docs/DEVELOPMENT-LOG.md
+docs/TODO.md
+docs/research/
+docs/decisions/
+docs/reviews/
+docs/user-guides/
+```
 
-75. PRODUCT QUALITY
+Recommended first commit:
 
-The objective is NOT merely:
-
-working prototype
-
-The objective is:
-
-professional open-source platform
-
-Therefore optimize for:
-
-correctness
-reliability
-latency
-maintainability
-observability
-security
-documentation
-extensibility
-
----
-
-76. FIRST TASK — DO THIS NOW
-
-Start with:
-
-PHASE 0 — PROJECT BOOTSTRAP AND SPECIFICATION AUDIT
-
-Perform the following in order:
-
-1. enter "/workspace/open-iem-platform";
-2. verify Git remote;
-3. inspect repository;
-4. inspect existing README;
-5. inspect all available documentation;
-6. inspect environment;
-7. inspect referenced upstream skills;
-8. create project skill architecture;
-9. create the required project-specific skills;
-10. create documentation structure;
-11. create specification audit;
-12. create architecture gap analysis;
-13. research unresolved architectural decisions;
-14. create initial ADRs;
-15. create TODO;
-16. create development log;
-17. create CI foundation;
-18. commit the bootstrap.
-
-DO NOT begin full product implementation yet.
-
----
-
-77. REQUIRED FIRST COMMIT
-
-The first bootstrap commit should contain only the foundation.
-
-Suggested:
-
+``` text
 chore: bootstrap open iem engineering foundation
-
-It should include:
-
-project structure
-skills
-docs
-CI foundation
-development standards
-ADR structure
+```
 
 Do not mix the first audio implementation into this commit.
 
----
+# 82. PHASE 1 --- AUDIO ENGINE POC
 
-78. AFTER BOOTSTRAP
+Only begin after Phase 0 review = PASS.
 
-Proceed to:
+Goal:
 
-PHASE 1 — AUDIO ENGINE POC
+``` text
+USB Audio Interface
+        |
+     PipeWire
+        |
+     8 channels
+        |
+    Mix Engine
+      /   \
+   Mix 1  Mix 2
+      \   /
+    Local Output
+```
 
-only after the Phase 0 review reports:
+No final network streaming yet.
 
+# 83. PHASE 2 --- MIX ENGINE
+
+Implement channels, mixes, sends, gain, pan, mute, master and limiter
+with tests.
+
+# 84. PHASE 3 --- BACKEND
+
+Implement Rust, REST, WebSocket, SQLite, authorization, revisions and
+state synchronization.
+
+# 85. PHASE 4 --- MUSICIAN CLIENT
+
+Implement pairing, assigned mix, faders, pan, mute, master, status and
+reconnect.
+
+# 86. PHASE 5 --- AUDIO TRANSPORT
+
+Only after transport evaluation and ADR. Implement streaming,
+packetization, jitter buffer, loss detection, reconnect and metrics.
+
+# 87. PHASE 6 --- ENGINEER UI
+
+Implement channels, musicians, mix matrix, devices, scenes, locks,
+meters and diagnostics.
+
+# 88. PHASE 7 --- ADVANCED DSP
+
+Incrementally implement HPF, EQ, compressor, limiter improvements and
+reverb. Every DSP module needs CPU analysis, realtime safety, tests,
+bypass and safe defaults.
+
+# 89. PHASE 8 --- DEPLOYMENT
+
+Implement Raspberry Pi deployment, systemd, watchdog, diagnostics,
+backup and upgrade process.
+
+# 90. PHASE 9 --- CROSS-PLATFORM BUILDS
+
+Implement and validate Linux x86_64, Linux ARM64, Windows x86_64, macOS
+arm64 and macOS x86_64 where feasible. A platform is not supported until
+its build/test succeeds.
+
+# 91. PHASE 10 --- RELEASE ENGINEERING
+
+Implement tagged releases, build matrix, packaging, checksums, release
+manifest, GitHub Release and matching release notes.
+
+# 92. PHASE 11 --- MUSICIANS GUIDE
+
+Once the initial workflow is stable, produce the complete Markdown and
+PDF musician guide from the actual implementation. This guide is part of
+the product, not an afterthought.
+
+# 93. PHASE 12 --- FUTURE RECEIVERS
+
+Only after the core network audio protocol is stable, research and
+prototype dedicated/native receivers and ESP32-class hardware.
+
+# 94. PHASE COMPLETION GATE
+
+At the end of every phase create:
+
+``` text
+docs/reviews/PHASE-X-REVIEW.md
+```
+
+Include Objective, Implemented, Tests, Metrics, Problems, Security,
+Architecture Impact, Documentation, Release Impact, Known Issues, Next
+Phase and Status.
+
+Status:
+
+``` text
 PASS
+PASS WITH CONDITIONS
+BLOCKED
+```
 
----
-
-79. FINAL DEVELOPMENT LOOP
+# 95. FINAL DEVELOPMENT LOOP
 
 Continue indefinitely using:
 
+``` text
 SPEC
  ↓
 PLAN
@@ -2045,91 +1260,30 @@ SECURITY
  ↓
 DOCUMENT
  ↓
-COMMIT
+CHANGELOG
+ ↓
+PACKAGE
+ ↓
+COMMIT / PR
  ↓
 NEXT
+```
 
-The repository must always remain in a state where another senior engineer or coding agent can understand:
+The repository must always make clear what exists, what was decided, why
+it was decided, what is broken and what comes next.
 
-what exists
-what was decided
-why it was decided
-what is being built
-what is broken
-what comes next
+# 96. START NOW
 
----
+Execute:
 
-80. FINAL OBJECTIVE
+``` text
+PHASE 0 — PROJECT BOOTSTRAP + SPECIFICATION AUDIT
+```
 
-The final platform should evolve toward:
-
-                         OPEN IEM PLATFORM
-
-                              ENGINEER
-                                 |
-                            Engineer UI
-                                 |
-                          Control Server
-                                 |
-              +------------------+------------------+
-              |                                     |
-          Mix Engine                            Device Manager
-              |
-           PipeWire
-              |
-       Audio Interface
-              |
-       +------+------+
-       |             |
-     Mix 01        Mix N
-       |             |
-   Streaming     Streaming
-       |             |
-      LAN           LAN
-       |             |
-    Phone        Dedicated Receiver
-       |             |
-      IEM            IEM
-
-Future capabilities:
-
-16+ inputs
-16+ mixes
-scenes
-EQ
-compressor
-limiter
-reverb
-console integrations
-Raspberry Pi
-x86 Linux
-dedicated receiver
-ESP32 research
-open API
-open protocol
-
-But development must remain incremental.
-
-The immediate objective is:
-
-8 inputs
-2 independent stereo mixes
-Linux
-PipeWire
-Raspberry Pi target
-2 clients
-safe control
-measured audio behavior
-
-Build this correctly before scaling.
-
-START NOW.
-
-Execute PHASE 0.
-Do not ask for permission to perform normal engineering tasks.
-Do not skip research.
-Do not invent facts.
-Do not silently change requirements.
-Do not implement the entire product at once.
-Make the repository the source of truth.
+Do not ask for permission to perform normal engineering tasks. Do not
+implement the complete product in one pass. Make the repository the
+source of truth. Update Markdown documentation every round. Update
+CHANGELOG on every meaningful PR. Create and maintain the Musicians
+Guide source and final PDF. Build and version release artifacts as the
+product becomes releasable. Only advance when the current phase passes
+its review gate.
