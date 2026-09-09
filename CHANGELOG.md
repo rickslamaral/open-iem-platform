@@ -6,8 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added
-- Phase 0: Project bootstrap and specification audit
+### Added — Phase 6
+- Real trickle-ICE candidate injection via `Candidate::from_sdp_string` + `Rtc::add_remote_candidate` in streaming crate (SIMULATED on VPS)
+- Named constants replace magic numbers in streaming crate (`MAX_SDP_BYTES`, `MAX_CANDIDATE_BYTES`, `MAX_USER_ID_BYTES`)
+- HTTP integration test suite for api-server (19 tests: auth, RBAC, CSRF, audio routes, channel controls)
+- Test fixture role casing corrected (`"MUSICIAN"`, `"ADMIN"`, `"ENGINEER"` — SCREAMING_SNAKE_CASE)
+- `axum-test` pinned to `"21"`, `jsonwebtoken` gains `rust_crypto` feature
 - Project directory structure (all planned directories)
 - 11 project-specific agent skills in `.agents/skills/`
 - Documentation structure (`docs/` with all subdirectories)
