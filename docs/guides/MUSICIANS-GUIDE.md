@@ -237,8 +237,9 @@ Para acesso de outros dispositivos na mesma rede:
 # Descobrir IP do servidor
 ip addr show | grep "inet " | grep -v 127.0.0.1
 
-# Iniciar servidor escutando em todas as interfaces (dev only)
-OPEN_IEM_BIND=0.0.0.0:3000 OPEN_IEM_DEV_ALLOW_NON_LOOPBACK=true cargo run
+# Somente rede LAN isolada, com firewall bloqueando acesso externo.
+# HTTP expõe credenciais e tokens; use proxy TLS para qualquer uso real.
+OPENIEM_BIND_ADDR=0.0.0.0:3000 OPENIEM_ALLOW_INSECURE_HTTP=true cargo run
 ```
 
 Músicos na mesma rede acessam: `http://<ip-do-servidor>:5173`
@@ -253,7 +254,7 @@ Músicos na mesma rede acessam: `http://<ip-do-servidor>:5173`
 - **TLS obrigatório:** antes de expor o servidor externamente, configure Caddy ou Nginx como proxy reverso com TLS válido.
 - **Tokens:** access token armazenado apenas em memória React (nunca `localStorage`/`sessionStorage`). Refresh token em cookie httpOnly.
 - **Senhas:** Argon2 (nunca reversível). Nunca compartilhe sua senha.
-- **Rate limiting e CSRF:** validação de header `Origin` ativa para WebSocket e formulários de auth.
+- **Origem/CSRF:** validação de header `Origin` ativa para WebSocket e formulários de autenticação. Rate limiting HTTP geral não está implementado; proteja API com rede isolada e proxy apropriado.
 
 ---
 

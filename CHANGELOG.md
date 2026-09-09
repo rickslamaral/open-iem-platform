@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — Phase 15 follow-up
+- Musician Guide LAN example now uses actual server environment variable names (`OPENIEM_BIND_ADDR` and `OPENIEM_ALLOW_INSECURE_HTTP`).
+
 ### Changed — Phase 15 follow-up
 - README, Musician Guide e pacotes web agora refletem Engineer Console operacional, ownership atômico e versão `0.2.0`.
 - CI deixou de mascarar falhas de instalação, typecheck e teste nos frontends Musician e Engineer; scripts existentes agora são gates obrigatórios.

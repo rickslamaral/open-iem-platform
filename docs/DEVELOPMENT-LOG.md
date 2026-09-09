@@ -4,6 +4,25 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 15 follow-up: correção de configuração documentada
+
+**Branch:** `main`
+**Ambiente:** VPS Linux x86_64; áudio SIMULATED
+
+### Implementado
+
+- Musician Guide corrigido para usar `OPENIEM_BIND_ADDR` e `OPENIEM_ALLOW_INSECURE_HTTP`, nomes reais consumidos por `api-server`.
+- README aponta para review vigente da Phase 15.
+- ADR-008 e TODO refletem autenticação implementada e TLS ainda pendente para exposição externa.
+
+### Verificação
+
+- Testes Rust, clippy, fmt e validação documental repetidos antes do commit.
+- Reviews independentes confirmaram nomes de configuração e ausência de alteração executável.
+- Auditoria Python não executada: scanner prescrito não existe em `/root/scan_patterns.py` nem no repositório.
+
+---
+
 ## 2026-09-09 — Phase 15 follow-up: documentação, versões e CI fail-closed
 
 **Branch:** `main`

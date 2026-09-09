@@ -34,6 +34,11 @@ PipeWire, Opus, mídia WebRTC e telemetria real continuam SIMULATED no VPS. TLS 
 
 Hardware Raspberry Pi 5 permanece não validado.
 
+## Correção posterior
+
+- O exemplo de bind LAN foi corrigido para `OPENIEM_BIND_ADDR` e `OPENIEM_ALLOW_INSECURE_HTTP`, que são os nomes lidos pelo binário atual.
+- README, ADR-008 e TODO foram alinhados ao estado real da autenticação.
+
 ## Veredito do follow-up
 
-Documentação e gate de CI alinhados ao estado real. Entrega não altera mídia, autenticação ou contratos de API.
+Documentação, configuração publicada e gate de CI alinhados ao estado real. Aviso HTTP LAN explicita risco e isolamento; rate limiting HTTP não é alegado. Entrega não altera mídia, autenticação ou contratos de API.
