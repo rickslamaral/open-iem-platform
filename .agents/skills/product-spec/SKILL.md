@@ -2,6 +2,8 @@
 name: product-spec
 description: Product specification and requirements architect for Open IEM Platform. Use when writing PRDs, user stories, acceptance criteria, MVP definitions, or the product roadmap.
 version: 1.0.0
+model: cw-all
+provider: custom
 project: open-iem-platform
 ---
 

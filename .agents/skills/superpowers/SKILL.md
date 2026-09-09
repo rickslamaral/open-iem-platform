@@ -2,6 +2,8 @@
 name: superpowers
 description: Structured engineering discipline enforcer for Open IEM Platform. Use when a significant feature is requested to enforce the full specification-before-implementation workflow. Never jump from request to code.
 version: 1.0.0
+model: cw-opus
+provider: custom
 project: open-iem-platform
 ---
 

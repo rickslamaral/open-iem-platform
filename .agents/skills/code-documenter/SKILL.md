@@ -2,6 +2,8 @@
 name: code-documenter
 description: Documentation engineer for Open IEM Platform. Use when writing or updating README, API docs, architecture docs, ADRs, code comments, changelogs, or deployment guides. Documentation must describe actual behavior.
 version: 1.0.0
+model: cw-free
+provider: custom
 project: open-iem-platform
 ---
 

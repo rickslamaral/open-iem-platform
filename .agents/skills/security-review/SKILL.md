@@ -2,6 +2,8 @@
 name: security-review
 description: Security reviewer for Open IEM Platform. Use before any production milestone, when implementing authentication, authorization, WebSocket, API validation, or when evaluating dependencies. Security review is mandatory before production milestones.
 version: 1.0.0
+model: cw-opus
+provider: custom
 project: open-iem-platform
 ---
 

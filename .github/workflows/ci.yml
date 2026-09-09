@@ -67,7 +67,9 @@ jobs:
       - name: Security audit
         run: |
           if [ -f server/Cargo.lock ]; then
-            cargo audit --file server/Cargo.lock
+            # RUSTSEC-2023-0071: rsa crate (Marvin Attack) — transitively pulled by
+            # jsonwebtoken/rust_crypto; Open IEM uses EdDSA only, RSA never executed.
+            cargo audit --file server/Cargo.lock --ignore RUSTSEC-2023-0071
           else
             echo "No Cargo.lock yet — skipping audit"
           fi

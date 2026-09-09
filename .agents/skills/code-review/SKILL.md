@@ -2,6 +2,8 @@
 name: code-review
 description: Code reviewer for Open IEM Platform. Use when reviewing implementation for correctness, maintainability, architecture compliance, realtime safety, performance, security, and test coverage. Produces findings rated BLOCKER/HIGH/MEDIUM/LOW.
 version: 1.0.0
+model: cw-sonnet
+provider: custom
 project: open-iem-platform
 ---
 
