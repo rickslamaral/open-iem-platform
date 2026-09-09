@@ -32,14 +32,25 @@ function isStateSnapshot(value: unknown): value is StateSnapshot {
   const snapshot = value as StateSnapshot;
   if (snapshot.schema_version !== 1 || !isValidRevision(snapshot.revision)
     || !Array.isArray(snapshot.channels) || !Array.isArray(snapshot.mixes)) return false;
+  const channelIndexes = new Set<number>();
   if (snapshot.channels.some((channel) => !channel || !Number.isInteger(channel.index)
-    || !isFiniteNumber(channel.gain_db) || typeof channel.muted !== 'boolean')) return false;
+    || channel.index < 0 || channel.index >= 8 || channelIndexes.has(channel.index)
+    || !channelIndexes.add(channel.index) || !isFiniteNumber(channel.gain_db)
+    || typeof channel.muted !== 'boolean')) return false;
+  const mixIndexes = new Set<number>();
   return snapshot.mixes.every((mix) => mix && Number.isInteger(mix.index)
+    && mix.index >= 0 && mix.index < 2 && !mixIndexes.has(mix.index)
+    && mixIndexes.add(mix.index)
     && isFiniteNumber(mix.master_gain_db) && typeof mix.master_muted === 'boolean'
-    && Array.isArray(mix.sends) && mix.sends.every((send) => send
-      && Number.isInteger(send.channel_index) && isFiniteNumber(send.gain_db)
-      && isFiniteNumber(send.pan) && send.pan >= -1 && send.pan <= 1
-      && typeof send.muted === 'boolean'));
+    && Array.isArray(mix.sends) && (() => {
+      const sendIndexes = new Set<number>();
+      return mix.sends.every((send) => send
+        && Number.isInteger(send.channel_index) && send.channel_index >= 0
+        && send.channel_index < 8 && !sendIndexes.has(send.channel_index)
+        && sendIndexes.add(send.channel_index) && isFiniteNumber(send.gain_db)
+        && isFiniteNumber(send.pan) && send.pan >= -1 && send.pan <= 1
+        && typeof send.muted === 'boolean');
+    })());
 }
 
 function isServerMessage(value: unknown): value is ServerMessage {
@@ -50,8 +61,12 @@ function isServerMessage(value: unknown): value is ServerMessage {
   }
   if (message.type === 'SendAck') {
     return isValidRevision(message.data?.revision)
-      && Number.isInteger(message.data?.mix_index)
-      && Number.isInteger(message.data?.channel_index)
+      && typeof message.data?.mix_index === 'number'
+      && Number.isInteger(message.data.mix_index)
+      && typeof message.data?.channel_index === 'number'
+      && Number.isInteger(message.data.channel_index)
+      && message.data.mix_index >= 0 && message.data.mix_index < 2
+      && message.data.channel_index >= 0 && message.data.channel_index < 8
       && typeof message.data?.gain_db === 'number'
       && Number.isFinite(message.data.gain_db)
       && typeof message.data?.pan === 'number'
@@ -167,14 +182,20 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
         }
         const msg = payload;
         if (msg.type === 'State' || msg.type === 'SendAck') {
-          latestRevisionRef.current = updateRevision(latestRevisionRef.current, msg.data.revision);
+          if (msg.type === 'State') {
+            latestRevisionRef.current = updateRevision(latestRevisionRef.current, msg.data.revision);
+          }
           setRevision((current) => updateRevision(current, msg.data.revision));
           if (msg.type === 'SendAck') {
             setSnapshot((current) => {
               if (!current || msg.data.revision < current.revision) return current;
+              const mix = current.mixes.find((item) => item.index === msg.data.mix_index);
+              const send = mix?.sends.find((item) => item.channel_index === msg.data.channel_index);
+              if (!mix || !send) return current;
+              latestRevisionRef.current = updateRevision(latestRevisionRef.current, msg.data.revision);
               return {
                 ...current,
-                revision: msg.data.revision,
+                revision: Math.max(current.revision, msg.data.revision),
                 mixes: current.mixes.map((mix) => mix.index !== msg.data.mix_index ? mix : {
                   ...mix,
                   sends: mix.sends.map((send) => send.channel_index !== msg.data.channel_index ? send : {
