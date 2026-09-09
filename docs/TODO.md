@@ -16,7 +16,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [ ] Install PipeWire on target hardware (Raspberry Pi 5) for Phase 1 validation
 - [x] Evaluate audio transport options; WebRTC selected in ADR-004 (Phase 5 signaling scaffold complete)
 - [x] Wire authenticated audio signaling routes and engineer session listing (Phase 5)
-- [x] Establish authentication mechanism decision (ADR-008 — Accepted; implementation pending)
+- [x] Establish authentication mechanism decision (ADR-008 — Accepted and implemented; TLS deployment validation pending)
 - [x] HTTP integration tests for api-server (Phase 6 — 19 tests green)
 - [x] Trickle ICE real injection in Sans-IO loop (Phase 6 — str0m Candidate::from_sdp_string)
 - [x] Biquad EQ real DSP (Phase 7 — TDF2 peaking biquad, RBJ coefficients, no heap)

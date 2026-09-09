@@ -45,5 +45,8 @@ The backend must use a maintained JWT crate configured for EdDSA, Argon2id passw
 - Musician CANNOT access other musician's mix (server-enforced)
 - Token expiry must be enforced
 
+## Implementation status
+Implemented in `server/api-server`: Ed25519 JWT access tokens, rotating opaque refresh tokens, Argon2id password hashing, origin validation and bounded request bodies. HTTPS remains deployment responsibility; non-loopback plaintext HTTP requires explicit isolated-development override.
+
 ## Next Step
-Security-review skill + architect-designer to resolve by Phase 3 start.
+Validate TLS reverse-proxy deployment on Raspberry Pi 5 before external exposure. WebSocket per-message authorization remains required as control-plane coverage expands.
