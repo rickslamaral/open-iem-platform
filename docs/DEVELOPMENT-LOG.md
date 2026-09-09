@@ -4,6 +4,52 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 8: DSP Chain Integration + Admin CLI + Musician Guide PDF
+
+**Branch:** `feat/phase8-dsp-chain`  
+**Tests:** 157 passed (↑ from 152), 0 failed
+
+### Implemented
+
+#### EQ + Compressor wired into Mix::process (`mix-engine/src/mix.rs`)
+- `Mix` struct gains `pub eq: ParametricEq` and `pub compressor: Compressor` fields.
+- `Mix::new()` initializes both disabled (flat EQ, compressor off).
+- `Mix::process()` chain: Sum → `eq.process()` → `compressor.process()` → Master Gain → Limiter.
+- Realtime safety preserved: no allocation, no I/O in process path.
+- 5 new tests: `test_mix_eq_boosts_at_freq`, `test_mix_compressor_reduces_loud`, `test_mix_eq_passthrough_when_disabled`, `test_mix_compressor_passthrough_when_disabled`, `test_mix_chain_order`.
+
+#### Admin CLI (`server/admin-cli/`)
+- Binary crate `open-iem-admin` added to workspace.
+- Commands: `user list`, `user create --name --role`, `user delete --id`, `session list`, `session revoke --token`, `health`.
+- Auth: `--token <JWT>` or `OPEN_IEM_ADMIN_TOKEN` env var.
+- Output: human-readable table (default) or `--json`.
+- Graceful 404 (Phase 9 server routes not yet implemented).
+- `cargo clippy -D warnings` clean.
+
+#### Musician Guide PDF (`docs/guides/MUSICIANS-GUIDE.pdf`)
+- Generated via pandoc 3.1.11.1 + xelatex from `MUSICIANS-GUIDE.md`.
+- 61 KB, PDF 1.5, table of contents.
+- Emoji characters (⚠, ✅, ❌, 🔴) render as blank in lmroman font — cosmetic only, text content complete.
+
+### Test Results
+
+| Crate | Tests |
+|-------|-------|
+| mix-engine | 79 |
+| api-server (integration) | 19 |
+| audio-engine | 20 |
+| control-server | 13 |
+| control-protocol | 7 |
+| doc-tests | 3 |
+| **Total** | **157** |
+
+### Not Yet Done (Phase 9 targets)
+- Admin API server-side routes (`/api/v1/admin/users`, `/api/v1/admin/sessions`).
+- Biquad coefficient validation vs scipy reference.
+- ARM64 CI cross-build improvement.
+
+---
+
 ## 2026-09-09 — Phase 7: Biquad EQ + RMS Compressor DSP
 
 **Branch:** `feat/phase7-dsp` → squash-merge pending  
