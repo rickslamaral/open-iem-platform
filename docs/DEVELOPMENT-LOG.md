@@ -4,6 +4,36 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 17: broadcast de deltas WebSocket
+
+**Branch:** `feat/phase17-ws-broadcast-delta`
+**Ambiente:** VPS Linux x86_64; áudio SIMULATED
+
+### Implementado
+
+- `AppState::event_tx` distribui deltas de gain, pan e mute entre sessões WebSocket.
+- Engineer/Admin recebem `SendAck` não solicitado de outras sessões.
+- Musician recebe apenas deltas do mix atribuído; originador recebe ACK direto sem duplicação.
+- `mix_assignment_lock` coordena ownership, dispatch, publicação e leitura de assignment no filtro outbound.
+- Revisões de mutações preservam ordem de publicação; filtro outbound constrói payload sob lock e libera lock antes de I/O.
+- Teste de integração cobre mutator + observer simultâneos.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all` PASS.
+- `cargo test --manifest-path server/Cargo.toml --all` PASS: 189 testes.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` PASS.
+- `git diff --check` PASS.
+- Revisão independente encontrou e corrigiu ownership sem lock e reorder concorrente.
+
+### Limitações
+
+PipeWire, Opus, mídia WebRTC real, telemetria e runtime ARM64 permanecem SIMULATED/não validados.
+
+---
+
+---
+
 ## 2026-09-09 — Phase 15 follow-up: correção de configuração documentada
 
 **Branch:** `main`
