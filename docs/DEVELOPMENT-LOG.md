@@ -437,3 +437,14 @@ Implemented SQLite mix assignments, JWT `uid`, Engineer/Admin assignment routes,
 Added three HTTP integration tests for assignment, musician ownership denial, and gain validation. Assignment writes now reject slot conflicts without `INSERT OR REPLACE` data loss.
 
 **Verification:** cargo fmt PASS; cargo clippy --all-targets -- -D warnings PASS; cargo test --all PASS: 171 tests, 0 failures.
+
+
+### 2026-09-09 — Phase 11: versioned release pipeline
+
+Implemented `.github/workflows/release.yml` with 6-stage pipeline: version validation gate, quality gate (fmt+clippy+test+audit), Linux x86_64 build, Linux ARM64 cross-compile (Raspberry Pi 5 target), web frontend builds, and GitHub Release with artefacts + SHA-256 checksums.
+
+Bumped workspace version `0.1.0` → `0.2.0`. Aligned `admin-cli` Cargo manifest to workspace. Added `server/.cargo/config.toml` for ARM64 linker.
+
+**Limitations:** ARM64 cross-compiled but SIMULATED — not tested on real Pi hardware. Windows/macOS UNSUPPORTED (toolchain). PipeWire/Opus remain SIMULATED on VPS.
+
+**Verification:** cargo fmt PASS; cargo clippy PASS; cargo test --all PASS: 171 tests, 0 failures. Static scan clean. Independent reviewer: passed=true.
