@@ -43,8 +43,8 @@ Complete WebSocket role-based authorization (Phase 3 HIGH security gate) by addi
 - DB error in master broadcast fan-out silenced via `unwrap_or(None)` — fail-closed, safe, not observable (TODO LOW added).
 - `mix_assignment_lock` held during read-only DB lookup in broadcast fan-out — may contend under load (TODO LOW added).
 
-## Next Phase
-- Tag v0.3.0.
+## Follow-up
+- Publicar `v0.3.1` somente após CI remoto executar e passar todos os gates; execução atual falha antes dos steps e logs não estão acessíveis pelo token atual.
 - Code coverage reporting.
-- Musician Guide PDF generation.
-- ARM64 CI cross-compilation.
+- Validar extração e renderização do Musician Guide PDF quando `pdftotext`/renderizador estiverem disponíveis.
+- Validar ARM64 em Raspberry Pi 5 real.
