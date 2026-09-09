@@ -25,7 +25,7 @@
 
 use crate::{
     auth::JwtClaims,
-    state::{AppState, SendDelta},
+    state::{AppState, MasterDelta, SendDelta},
 };
 use axum::{
     extract::{
@@ -88,6 +88,7 @@ async fn handle_socket(
 
     // Subscribe to broadcast events before entering the loop.
     let mut event_rx = state.event_tx.subscribe();
+    let mut master_event_rx = state.master_event_tx.subscribe();
 
     loop {
         let now = unix_now();
@@ -178,6 +179,7 @@ async fn handle_socket(
 
                         // Remember whether this is a send mutation before consuming the envelope.
                         let is_send_mutation = send_mix_index(&envelope.payload).is_some();
+                        let is_master_mutation = master_mix_index(&envelope.payload).is_some();
 
                         // Dispatch with lock held only for the duration of the call.
                         // Lock is released before any await point.
@@ -220,6 +222,26 @@ async fn handle_socket(
                                     // by lagging receivers).  Log at warn level so operators know
                                     // a delta was dropped rather than silently swallowed.
                                     warn!("broadcast channel full; send delta dropped: {e}");
+                                }
+                            }
+                        }
+                        if is_master_mutation {
+                            if let ServerMessage::MasterAck {
+                                mix_index,
+                                master_gain_db,
+                                master_muted,
+                                revision,
+                            } = &response.payload
+                            {
+                                let delta = MasterDelta {
+                                    mix_index: *mix_index,
+                                    master_gain_db: *master_gain_db,
+                                    master_muted: *master_muted,
+                                    revision: *revision,
+                                    originator_session_id: session_id,
+                                };
+                                if let Err(e) = state.master_event_tx.send(delta) {
+                                    warn!("broadcast channel full; master delta dropped: {e}");
                                 }
                             }
                         }
@@ -309,6 +331,58 @@ async fn handle_socket(
                     }
                 }
             }
+
+            // Outbound master broadcast event from another session.
+            master_event = master_event_rx.recv() => {
+                match master_event {
+                    Ok(delta) => {
+                        // Skip originator.
+                        if delta.originator_session_id == session_id {
+                            continue;
+                        }
+
+                        let assignment_guard = state.mix_assignment_lock.lock().await;
+                        let should_forward = match claims.role {
+                            Role::Admin | Role::Engineer => true,
+                            Role::Musician => {
+                                let assigned = state
+                                    .db
+                                    .get_user_assigned_mix(claims.user_id)
+                                    .unwrap_or(None);
+                                assigned == Some(usize::from(delta.mix_index))
+                            }
+                        };
+
+                        let ack_json = if should_forward {
+                            let ack = Envelope {
+                                version: PROTOCOL_VERSION,
+                                request_id: "server".to_owned(),
+                                payload: ServerMessage::MasterAck {
+                                    mix_index: delta.mix_index,
+                                    master_gain_db: delta.master_gain_db,
+                                    master_muted: delta.master_muted,
+                                    revision: delta.revision,
+                                },
+                            };
+                            serde_json::to_string(&ack).ok()
+                        } else {
+                            None
+                        };
+                        drop(assignment_guard);
+                        if let Some(json) = ack_json {
+                            if socket.send(Message::Text(json.into())).await.is_err() {
+                                break;
+                            }
+                        }
+                    }
+                    Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
+                        warn!(user = %claims.sub, "master broadcast lagged by {n} events; some deltas skipped");
+                    }
+                    Err(tokio::sync::broadcast::error::RecvError::Closed) => {
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -327,10 +401,13 @@ fn check_permission(claims: &JwtClaims, msg: &ClientMessage) -> bool {
             | ClientMessage::SetSendPan { .. }
             | ClientMessage::SetSendMuted { .. },
         ) => true,
-        // Musician: cannot mutate channel gain/mute directly.
+        // Musician: cannot mutate channel gain/mute directly or master gain/mute.
         (
             Role::Musician,
-            ClientMessage::SetChannelGain { .. } | ClientMessage::SetChannelMute { .. },
+            ClientMessage::SetChannelGain { .. }
+            | ClientMessage::SetChannelMute { .. }
+            | ClientMessage::SetMasterGain { .. }
+            | ClientMessage::SetMasterMute { .. },
         ) => false,
     }
 }
@@ -341,6 +418,15 @@ fn send_mix_index(msg: &ClientMessage) -> Option<u8> {
         ClientMessage::SetSendGain { mix_index, .. }
         | ClientMessage::SetSendPan { mix_index, .. }
         | ClientMessage::SetSendMuted { mix_index, .. } => Some(*mix_index),
+        _ => None,
+    }
+}
+
+/// Returns the `mix_index` for master-mutation messages.
+fn master_mix_index(msg: &ClientMessage) -> Option<u8> {
+    match msg {
+        ClientMessage::SetMasterGain { mix_index, .. }
+        | ClientMessage::SetMasterMute { mix_index, .. } => Some(*mix_index),
         _ => None,
     }
 }

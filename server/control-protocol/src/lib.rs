@@ -95,6 +95,20 @@ pub enum ClientMessage {
         /// Mute flag.
         muted: bool,
     },
+    /// Set master gain for a mix. Engineer/Admin only.
+    SetMasterGain {
+        /// Mix slot index.
+        mix_index: u8,
+        /// Master gain in dBFS.
+        gain_db: f32,
+    },
+    /// Set master mute for a mix. Engineer/Admin only.
+    SetMasterMute {
+        /// Mix slot index.
+        mix_index: u8,
+        /// Mute state.
+        muted: bool,
+    },
 }
 
 /// Server-to-client control-plane messages.
@@ -119,6 +133,17 @@ pub enum ServerMessage {
         /// Current mute state.
         muted: bool,
         /// Updated state revision.
+        revision: u64,
+    },
+    /// Acknowledged master mutation.
+    MasterAck {
+        /// Mix slot.
+        mix_index: u8,
+        /// Current master gain in dBFS.
+        master_gain_db: f32,
+        /// Current master mute state.
+        master_muted: bool,
+        /// Updated mix revision.
         revision: u64,
     },
     /// Protocol or request error.
@@ -273,6 +298,47 @@ mod tests {
             pan: 0.0,
             muted: false,
             revision: 42,
+        };
+        let json = serde_json::to_string(&ack).unwrap();
+        let decoded: ServerMessage = serde_json::from_str(&json).unwrap();
+        assert_eq!(decoded, ack);
+    }
+
+    #[test]
+    fn round_trip_set_master_gain() {
+        let envelope = Envelope::new(
+            "req-mg".to_owned(),
+            ClientMessage::SetMasterGain {
+                mix_index: 2,
+                gain_db: -3.0,
+            },
+        );
+        let json = serde_json::to_string(&envelope).unwrap();
+        let decoded = decode_client_message(&json).unwrap();
+        assert_eq!(decoded, envelope);
+    }
+
+    #[test]
+    fn round_trip_set_master_mute() {
+        let envelope = Envelope::new(
+            "req-mm".to_owned(),
+            ClientMessage::SetMasterMute {
+                mix_index: 1,
+                muted: true,
+            },
+        );
+        let json = serde_json::to_string(&envelope).unwrap();
+        let decoded = decode_client_message(&json).unwrap();
+        assert_eq!(decoded, envelope);
+    }
+
+    #[test]
+    fn round_trip_master_ack_server_message() {
+        let ack = ServerMessage::MasterAck {
+            mix_index: 0,
+            master_gain_db: -6.0,
+            master_muted: true,
+            revision: 7,
         };
         let json = serde_json::to_string(&ack).unwrap();
         let decoded: ServerMessage = serde_json::from_str(&json).unwrap();
