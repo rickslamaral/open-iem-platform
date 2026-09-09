@@ -375,6 +375,21 @@ async fn get_without_origin_is_allowed() {
     resp.assert_status_ok();
 }
 
+// ── /api/v1/audio/offer — mix ownership ─────────────────────────────────────
+
+#[tokio::test]
+async fn musician_cannot_offer_unassigned_mix() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "mus7", "pw", Role::Musician);
+    let resp = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"sdp": "invalid-but-never-parsed", "mix_id": "0"}))
+        .await;
+    resp.assert_status(axum::http::StatusCode::FORBIDDEN);
+}
+
 // ── /api/v1/audio/offer — bad SDP payload ──────────────────────────────────
 
 #[tokio::test]

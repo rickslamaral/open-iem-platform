@@ -4,6 +4,31 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 13: signaling ownership hardening
+
+**Branch:** `main`
+**Ambiente:** VPS Linux; mídia SIMULATED
+
+### Implementado
+
+- `POST /api/v1/audio/offer` valida `mix_id` informado por `MUSICIAN` como índice numérico dentro da capacidade e compara com assignment persistido para `uid` autenticado.
+- Músico sem assignment ou apontando para outro mix recebe `403 Forbidden` antes de parsing SDP/criação de sessão.
+- Engineer/Admin preservam operação; ausência de `mix_id` permanece compatível.
+- ADR-009 criado e backlog/status corrigidos.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check` PASS.
+- `cargo test --manifest-path server/Cargo.toml --all` PASS: 173 testes, 0 falhas.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` PASS.
+
+### Limitações
+
+- PipeWire, Opus e mídia WebRTC real continuam não validados no VPS.
+- Rate limit HTTP, limite global de sessões e revogação imediata de access token continuam pendentes; assignment e signaling usam lock compartilhado para evitar TOCTOU.
+
+---
+
 ## 2026-09-09 — Phase 6: Engineer Console dashboard
 
 **Branch:** `main`

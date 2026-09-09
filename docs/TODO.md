@@ -22,7 +22,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Biquad EQ real DSP (Phase 7 — TDF2 peaking biquad, RBJ coefficients, no heap)
 - [x] RMS Compressor real DSP (Phase 7 — stereo-linked, exp-RMS, smoothed gain reduction)
 - [ ] Add ARM64 cross-compilation to CI (requires `aarch64-unknown-linux-gnu` setup)
-- [ ] Musician mix ownership enforcement (requires mix assignment model)
+- [x] Musician mix ownership enforcement (mix sends and audio signaling; Phase 13)
 - [x] Admin API server-side routes (Phase 9 — complete)
 
 ---
@@ -93,7 +93,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Biquad coefficient validation vs Python/scipy (delta ≤ 5×10⁻⁸)
 - [x] npm audit CI job (HIGH severity gate)
 - [x] Admin self-delete protection (policy gate — deferred Phase 10)
-- [ ] Musician mix ownership enforcement (requires mix assignment model)
+- [x] Musician mix ownership enforcement (mix sends and audio signaling; Phase 13)
 
 ## PHASE 8 STATUS
 

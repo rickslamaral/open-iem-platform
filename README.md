@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Phase 6 — Engineer Console** (dashboard scaffold operational; audio pipeline SIMULATED on VPS)
+**Phase 13 — Signaling ownership hardening** (Engineer Console operational; audio pipeline SIMULATED on VPS)
 
 `web/engineer` now provides in-memory-token login, HttpOnly-cookie refresh after 401, authenticated dashboard polling, active WebRTC session listing, state revision display, and Engineer mix assignment/removal. It calls only existing API contracts; user catalog remains Admin-only, so assignment uses numeric user ID. Sessions and audio status remain SIMULATED because VPS has no PipeWire hardware. Real PipeWire capture, Opus delivery, telemetry and full channel snapshot require later Raspberry Pi/API work.
 
