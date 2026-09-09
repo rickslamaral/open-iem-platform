@@ -48,7 +48,7 @@ pub use compressor::Compressor;
 pub use eq::{EqBand, ParametricEq, MAX_EQ_BANDS};
 pub use limiter::Limiter;
 pub use mix::Mix;
-pub use mix_engine::MixEngine;
+pub use mix_engine::{EngineError, MixEngine};
 pub use mix_send::MixSend;
 
 // ---------------------------------------------------------------------------

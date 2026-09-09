@@ -141,4 +141,4 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] JWT numeric user identity (`uid`)
 - [x] Musician-owned send gain/pan/mute routes
 - [x] Ownership and assignment validation
-- [ ] Add dedicated Phase 10 integration coverage for new routes
+- [x] Add dedicated Phase 10 integration coverage for assignment lifecycle and musician ownership routes

@@ -434,4 +434,6 @@ skills validate: 11/11 PASS
 
 Implemented SQLite mix assignments, JWT `uid`, Engineer/Admin assignment routes, musician-owned send gain/pan/mute routes, and control-state mix accessors. VPS validation remains SIMULATED for PipeWire/Opus.
 
-**Verification:** cargo fmt PASS; cargo clippy --all-targets -- -D warnings PASS; cargo test --all PASS: 168 tests, 0 failures.
+Added three HTTP integration tests for assignment, musician ownership denial, and gain validation. Assignment writes now reject slot conflicts without `INSERT OR REPLACE` data loss.
+
+**Verification:** cargo fmt PASS; cargo clippy --all-targets -- -D warnings PASS; cargo test --all PASS: 171 tests, 0 failures.

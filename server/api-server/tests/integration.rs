@@ -20,6 +20,10 @@ use api_server::{
         auth::{create_user, login, logout, refresh},
         channels::{get_state, set_channel_gain, set_channel_mute},
         health::health,
+        mixes::{
+            assign_mix, get_send_state, list_mixes, set_send_gain, set_send_muted, set_send_pan,
+            unassign_mix,
+        },
     },
     security::validate_origin,
     state::AppState,
@@ -34,6 +38,7 @@ use axum::{
 use axum_test::TestServer;
 use control_protocol::Role;
 use control_server::ControlState;
+use mix_engine::Mix;
 use serde_json::{json, Value};
 
 // ── Test-only Ed25519 PEM pair ──────────────────────────────────────────────
@@ -51,6 +56,15 @@ fn build_test_app() -> (TestServer, AppState) {
         JwtKeys::from_ed_pem(TEST_PRIVATE_PEM, TEST_PUBLIC_PEM).expect("test PEM must be valid");
     let db = Db::open_in_memory().expect("in-memory DB must open");
     let state = AppState::new(ControlState::new(), db, jwt);
+    {
+        let mut control = state.control.lock().expect("control lock");
+        control
+            .set_mix(0, Mix::new(0, "Mix 1"))
+            .expect("test mix must configure");
+        control
+            .set_mix(1, Mix::new(1, "Mix 2"))
+            .expect("test mix must configure");
+    }
 
     let protected = Router::new()
         .route("/api/v1/state", get(get_state))
@@ -59,6 +73,27 @@ fn build_test_app() -> (TestServer, AppState) {
         .route("/api/v1/audio/sessions", get(sessions))
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
+        .route("/api/v1/mixes", get(list_mixes))
+        .route(
+            "/api/v1/mixes/{index}/assign",
+            post(assign_mix).delete(unassign_mix),
+        )
+        .route(
+            "/api/v1/mixes/{mix_idx}/sends/{ch_idx}",
+            get(get_send_state),
+        )
+        .route(
+            "/api/v1/mixes/{mix_idx}/sends/{ch_idx}/gain",
+            put(set_send_gain),
+        )
+        .route(
+            "/api/v1/mixes/{mix_idx}/sends/{ch_idx}/pan",
+            put(set_send_pan),
+        )
+        .route(
+            "/api/v1/mixes/{mix_idx}/sends/{ch_idx}/mute",
+            put(set_send_muted),
+        )
         .route("/api/v1/auth/logout", post(logout))
         .route(
             "/api/v1/admin/users",
@@ -256,6 +291,67 @@ async fn admin_can_create_user() {
         .json(&json!({"username": "newuser", "password": "pw2", "role": "MUSICIAN"}))
         .await;
     resp.assert_status(axum::http::StatusCode::CREATED);
+}
+
+// ── Mix assignment and musician ownership ───────────────────────────────────
+
+#[tokio::test]
+async fn engineer_assigns_mix_and_musician_controls_owned_send() {
+    let (server, state) = build_test_app();
+    let engineer = seed_user_and_login(&state, "eng_mix", "pw", Role::Engineer);
+    let musician = seed_user_and_login(&state, "mus_mix", "pw", Role::Musician);
+    let (musician_id, _, _) = state.db.find_user("mus_mix").unwrap();
+
+    let assigned = server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer)
+        .json(&json!({"user_id": musician_id}))
+        .await;
+    assigned.assert_status_ok();
+
+    let updated = server
+        .put("/api/v1/mixes/0/sends/2/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&musician)
+        .json(&json!({"gain_db": -12.0}))
+        .await;
+    updated.assert_status_ok();
+    let body: Value = updated.json();
+    assert_eq!(body["gain_db"], -12.0);
+}
+
+#[tokio::test]
+async fn musician_cannot_control_unassigned_mix() {
+    let (server, state) = build_test_app();
+    let musician = seed_user_and_login(&state, "mus_other", "pw", Role::Musician);
+    let response = server
+        .get("/api/v1/mixes/1/sends/0")
+        .authorization_bearer(&musician)
+        .await;
+    response.assert_status(axum::http::StatusCode::FORBIDDEN);
+}
+
+#[tokio::test]
+async fn musician_send_rejects_invalid_gain() {
+    let (server, state) = build_test_app();
+    let engineer = seed_user_and_login(&state, "eng_invalid", "pw", Role::Engineer);
+    let musician = seed_user_and_login(&state, "mus_invalid", "pw", Role::Musician);
+    let (id, _, _) = state.db.find_user("mus_invalid").unwrap();
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer)
+        .json(&json!({"user_id": id}))
+        .await
+        .assert_status_ok();
+    let response = server
+        .put("/api/v1/mixes/0/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&musician)
+        .json(&json!({"gain_db": 999.0}))
+        .await;
+    response.assert_status(axum::http::StatusCode::BAD_REQUEST);
 }
 
 // ── CSRF / Origin checks ────────────────────────────────────────────────────

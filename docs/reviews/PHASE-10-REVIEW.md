@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-09
 **Branch:** feat/phase10-mix-assignment
-**Status:** PASS — local verification; dedicated route tests remain TODO
+**Status:** PASS — local verification; dedicated assignment and ownership route tests added in final verification round.
 
 ## Delivered
 

@@ -315,14 +315,17 @@ impl Db {
             return Err(ApiError::BadRequest("user already owns a mix".to_owned()));
         }
         conn.execute(
-            "INSERT OR REPLACE INTO mix_assignments (mix_index, user_id) VALUES (?1, ?2)",
+            "INSERT INTO mix_assignments (mix_index, user_id) VALUES (?1, ?2)",
             params![mix_index as i64, user_id],
         )
         .map_err(|e| {
-            if e.to_string().contains("FOREIGN KEY") {
+            let message = e.to_string();
+            if message.contains("FOREIGN KEY") {
                 ApiError::NotFound("user not found".to_owned())
+            } else if message.contains("UNIQUE") || message.contains("PRIMARY KEY") {
+                ApiError::BadRequest("mix already assigned".to_owned())
             } else {
-                ApiError::Internal(e.to_string())
+                ApiError::Internal(message)
             }
         })?;
         Ok(())
