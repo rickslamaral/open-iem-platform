@@ -56,6 +56,24 @@ impl ControlState {
         self.engine.channel(index)
     }
 
+    /// Visit every configured channel with its stable slot index.
+    pub fn for_each_channel(&self, mut visit: impl FnMut(usize, &Channel)) {
+        for index in 0..MAX_CHANNELS {
+            if let Some(channel) = self.engine.channel(index) {
+                visit(index, channel);
+            }
+        }
+    }
+
+    /// Visit every configured mix with its stable slot index.
+    pub fn for_each_mix(&self, mut visit: impl FnMut(usize, &mix_engine::Mix)) {
+        for index in 0..mix_engine::MAX_MIXES {
+            if let Some(mix) = self.engine.mix(index) {
+                visit(index, mix);
+            }
+        }
+    }
+
     /// Dispatch one validated client message.
     ///
     /// Invalid channel indexes produce an error response and do not mutate state.

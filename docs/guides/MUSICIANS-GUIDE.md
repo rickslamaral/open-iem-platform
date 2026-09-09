@@ -276,8 +276,8 @@ Sem atribuição ou tentando outro mix, API retorna `403 Forbidden`. Controles d
 | Criação de usuário via UI | ⚠️ PENDENTE |
 | HTTPS/TLS integrado | ⚠️ PENDENTE (usar proxy externo) |
 | Windows/macOS (servidor) | ⚠️ Não testado |
-| Assignação de mix por músico | ⚠️ PENDENTE (Phase 8) |
-| Enforcement de ownership por MUSICIAN | ⚠️ PENDENTE (Phase 8) |
+| Assignação de mix por músico | ✅ Implementado no backend |
+| Enforcement de ownership por MUSICIAN | ✅ Implementado para sends e signaling; atomicidade de mutações em backlog |
 | Volume master wire-up | ⚠️ PENDENTE |
 
 ---
