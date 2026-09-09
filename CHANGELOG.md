@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 18
+- Musician WebSocket client consumes `SendAck` revisions and ignores `State`/ACK messages older than current revision, preventing stale UI state after delayed broadcasts.
+
 ### Added — Phase 17
 - WebSocket send mutation broadcasts: connected Engineer/Admin sessions receive unsolicited `SendAck` deltas after another session changes gain, pan or mute.
 - Musician sessions receive broadcast deltas only for their currently assigned mix; originator receives only direct acknowledgement.

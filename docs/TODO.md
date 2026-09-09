@@ -115,6 +115,12 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Phase 1 review completed: PASS WITH CONDITIONS
 - [ ] Validate real PipeWire graph on Raspberry Pi 5 (hardware blocker)
 
+## PHASE 18 STATUS
+
+- [x] Musician client accepts `SendAck` revisions
+- [x] Musician client ignores stale `State`/`SendAck` revisions
+- [ ] Add client reconciliation of full channel/send state after revision gap
+
 ## PHASE 17 STATUS
 
 - [x] Broadcast WebSocket deltas for send gain/pan/mute
