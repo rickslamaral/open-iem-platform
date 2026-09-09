@@ -44,10 +44,31 @@ use tracing::info;
 use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
+#[allow(clippy::too_many_lines)]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env())
         .init();
+
+    // Detect legacy env var prefix (OPEN_IEM_*) from before Phase 22 and warn loudly.
+    // These variables are silently ignored by the binary; failing to rename them means
+    // secrets or bind addresses are not applied, which can produce insecure defaults.
+    let legacy_vars = [
+        "OPEN_IEM_BIND",
+        "OPEN_IEM_DEV_ALLOW_NON_LOOPBACK",
+        "OPEN_IEM_DB_PATH",
+        "OPEN_IEM_JWT_PRIVATE_KEY_PATH",
+        "OPEN_IEM_JWT_PUBLIC_KEY_PATH",
+    ];
+    for var in &legacy_vars {
+        if env::var(var).is_ok() {
+            tracing::warn!(
+                "Detected legacy environment variable '{var}'. \
+                 This variable is ignored — rename it to the OPENIEM_* equivalent. \
+                 See server/api-server/src/main.rs for the correct names."
+            );
+        }
+    }
 
     let private_pem_path = env::var("OPENIEM_JWT_PRIVATE_PEM")
         .unwrap_or_else(|_| "keys/ed25519_private.pem".to_owned());

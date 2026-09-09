@@ -794,3 +794,53 @@ Bumped workspace version `0.1.0` → `0.2.0`. Aligned `admin-cli` Cargo manifest
 **Limitations:** PipeWire/Opus remains SIMULATED. ARM64 not hardware-validated.
 
 **Next:** Broadcast state delta on send mutations to all connected clients; HTTPS/TLS gate; add NaN-specific WS test.
+
+
+### 2026-09-09 — Phase 22: TLS deployment configuration + env var correction
+
+**Goal:** Close HIGH security gate from Phase 3 (HTTPS/TLS fail-closed transport). Correct critical docker-compose.yml env var mismatch that broke dev compose.
+
+**Implemented:**
+
+#### docker-compose.yml
+- Renamed all env vars from legacy `OPEN_IEM_*` prefix to `OPENIEM_*` to match api-server binary.
+- Fixed healthcheck URL to `/api/v1/health`.
+- Renamed volume mount from `./secrets` to `./keys`.
+- Added explicit WARNING comment: file is dev-only, production requires Caddy TLS.
+
+#### main.rs (api-server)
+- Added startup `tracing::warn!` for each detected legacy `OPEN_IEM_*` env var, preventing silent misconfiguration.
+- `#[allow(clippy::too_many_lines)]` added to keep `main` under clippy lint budget.
+
+#### deployment/caddy/Caddyfile (new)
+- LAN TLS via mkcert certificate (`auto_https off`).
+- `reverse_proxy 127.0.0.1:8080` with IP forwarding headers.
+- HTTP → HTTPS permanent redirect.
+
+#### deployment/systemd/openiem-server.service (new)
+- Dedicated `openiem` user, loopback bind, no `OPENIEM_ALLOW_INSECURE_HTTP` (fail-closed).
+- Hardening: `NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=strict`, `ProtectHome`, `LimitNOFILE=65536`.
+
+#### deployment/raspberry-pi/README.md (new)
+- Full RPi 5 deployment guide: binary, keys, systemd, Caddy+mkcert, CA trust per OS.
+- Security-critical: mkcert CA key protection (chmod 600, no unencrypted backup, revocation procedure, 2yr 3mo expiry check).
+
+#### docs/adr/ADR-011-tls-deployment.md (new)
+- TLS-at-proxy decision, consequences, alternatives rejected.
+
+#### docs/reviews/PHASE-22-REVIEW.md (new)
+- Security findings addressed: HIGH-01 (rootCA.key protection), MED-01 (compose warning), MED-02 (legacy var warning in binary), MED-03 (cert expiry doc).
+
+**Security review findings (all addressed):**
+- HIGH-01: rootCA.key chmod 600 + revocation doc added to RPi README.
+- MED-01: WARNING comment in docker-compose.yml.
+- MED-02: startup tracing::warn! in main.rs for legacy OPEN_IEM_* vars.
+- MED-03: mkcert cert expiry documented.
+
+**Closes:** HIGH gate from Phase 3 security follow-up.
+
+**Verification:** cargo fmt PASS; cargo clippy --all-targets -D warnings PASS; cargo test --workspace PASS: 199 tests, 0 failures. Static scan clean. Independent code review: passed=true.
+
+**Limitations:** PipeWire/ALSA SIMULATED. ARM64 not hardware-validated. Caddy log sanitization for Sec-WebSocket-Protocol is operator-configurable (LOW finding, documented).
+
+**Next:** Authorize every WebSocket message by role (Phase 3 HIGH remaining); add code coverage reporting; tag v0.3.0.
