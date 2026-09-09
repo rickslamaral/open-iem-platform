@@ -161,6 +161,66 @@ impl Mix {
         self.sends.get(channel_index)?.as_ref()
     }
 
+    /// Alias for reading a send state.
+    #[must_use]
+    pub fn get_send(&self, channel_index: usize) -> Option<&MixSend> {
+        self.send(channel_index)
+    }
+
+    /// Set send gain, creating send when absent.
+    ///
+    /// # Errors
+    /// Returns `MixError::ChannelOutOfRange` for an invalid channel index.
+    pub fn set_send_gain_db(&mut self, channel_index: usize, gain_db: f32) -> Result<(), MixError> {
+        if channel_index >= MAX_CHANNELS {
+            return Err(MixError::ChannelOutOfRange {
+                index: channel_index,
+                max: MAX_CHANNELS,
+            });
+        }
+        let mut send = self.sends[channel_index]
+            .clone()
+            .unwrap_or_else(|| MixSend::new(channel_index as u32, self.id));
+        send.set_gain_db(gain_db);
+        self.set_send(channel_index, send)
+    }
+
+    /// Set send pan, creating send when absent.
+    ///
+    /// # Errors
+    /// Returns `MixError::ChannelOutOfRange` for an invalid channel index.
+    pub fn set_send_pan(&mut self, channel_index: usize, pan: f32) -> Result<(), MixError> {
+        if channel_index >= MAX_CHANNELS {
+            return Err(MixError::ChannelOutOfRange {
+                index: channel_index,
+                max: MAX_CHANNELS,
+            });
+        }
+        let mut send = self.sends[channel_index]
+            .clone()
+            .unwrap_or_else(|| MixSend::new(channel_index as u32, self.id));
+        send.set_pan(pan);
+        self.set_send(channel_index, send)
+    }
+
+    /// Set send mute, creating send when absent.
+    ///
+    /// # Errors
+    /// Returns `MixError::ChannelOutOfRange` for an invalid channel index.
+    pub fn set_send_muted(&mut self, channel_index: usize, muted: bool) -> Result<(), MixError> {
+        if channel_index >= MAX_CHANNELS {
+            return Err(MixError::ChannelOutOfRange {
+                index: channel_index,
+                max: MAX_CHANNELS,
+            });
+        }
+        let mut send = self.sends[channel_index]
+            .clone()
+            .unwrap_or_else(|| MixSend::new(channel_index as u32, self.id));
+        send.set_muted(muted);
+        self.set_send(channel_index, send)
+    }
+
     /// Returns `true` if any send in this mix is soloed.
     #[must_use]
     pub fn has_solo(&self) -> bool {

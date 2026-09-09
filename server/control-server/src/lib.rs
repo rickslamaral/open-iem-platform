@@ -27,6 +27,29 @@ impl ControlState {
         self.engine.revision()
     }
 
+    /// Read a mix, if configured.
+    #[must_use]
+    pub fn mix(&self, index: usize) -> Option<&mix_engine::Mix> {
+        self.engine.mix(index)
+    }
+
+    /// Read a mutable mix, if configured.
+    pub fn mix_mut(&mut self, index: usize) -> Option<&mut mix_engine::Mix> {
+        self.engine.mix_mut(index)
+    }
+
+    /// Add or replace mix configuration.
+    ///
+    /// # Errors
+    /// Returns `mix_engine::EngineError` when index is outside mix slots.
+    pub fn set_mix(
+        &mut self,
+        index: usize,
+        mix: mix_engine::Mix,
+    ) -> Result<(), mix_engine::EngineError> {
+        self.engine.set_mix(index, mix)
+    }
+
     /// Read a channel, if configured.
     #[must_use]
     pub fn channel(&self, index: usize) -> Option<&Channel> {

@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 10
+- Persistent SQLite mix assignments with one mix per user.
+- Engineer/Admin mix assignment API.
+- Musician-owned mix send API for gain, pan, mute, and state reads.
+- Numeric user ID (`uid`) in access JWT claims.
+
+### Security
+- Musician send mutations require assigned mix ownership; channel master controls remain Engineer+.
+
+
 ### Added — Phase 9
 - **Admin API server-side routes** (`server/api-server/src/routes/admin.rs`): 4 endpoints, all require Admin role:
   - `GET /api/v1/admin/users` — list all users (id, username, role)

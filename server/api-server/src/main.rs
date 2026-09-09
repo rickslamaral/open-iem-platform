@@ -21,6 +21,10 @@ use api_server::{
         auth::{create_user, login, logout, refresh},
         channels::{get_state, set_channel_gain, set_channel_mute},
         health::health,
+        mixes::{
+            assign_mix, get_send_state, list_mixes, set_send_gain, set_send_muted, set_send_pan,
+            unassign_mix,
+        },
     },
     security::validate_origin,
     state::AppState,
@@ -77,6 +81,27 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/audio/sessions", get(sessions))
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
+        .route("/api/v1/mixes", get(list_mixes))
+        .route(
+            "/api/v1/mixes/{index}/assign",
+            post(assign_mix).delete(unassign_mix),
+        )
+        .route(
+            "/api/v1/mixes/{mix_idx}/sends/{ch_idx}",
+            get(get_send_state),
+        )
+        .route(
+            "/api/v1/mixes/{mix_idx}/sends/{ch_idx}/gain",
+            put(set_send_gain),
+        )
+        .route(
+            "/api/v1/mixes/{mix_idx}/sends/{ch_idx}/pan",
+            put(set_send_pan),
+        )
+        .route(
+            "/api/v1/mixes/{mix_idx}/sends/{ch_idx}/mute",
+            put(set_send_muted),
+        )
         .route("/api/v1/auth/logout", post(logout))
         .route(
             "/api/v1/admin/users",

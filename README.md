@@ -98,3 +98,8 @@ See [SECURITY.md](SECURITY.md).
 ## License
 
 Apache 2.0 — see [LICENSE](LICENSE).
+
+
+## Estado Phase 10
+
+Mix assignments persist in SQLite. Engineer/Admin assign mix slots; musicians control only sends belonging to assigned mix. Send state and gain/pan/mute routes are protected by JWT role and ownership checks. Audio remains SIMULATED on VPS until PipeWire/Opus validation on Raspberry Pi 5.
