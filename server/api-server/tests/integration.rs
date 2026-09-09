@@ -99,11 +99,12 @@ fn seed_user_and_login(state: &AppState, username: &str, password: &str, role: R
         .db
         .create_user(username, &pw_hash, role)
         .expect("create user must succeed");
-    // Issue a token directly to avoid HTTP round-trip for token-endpoint tests.
+    let (user_id, _, _) = state.db.find_user(username).expect("user must exist");
+    // Issue a token directly to avoid HTTP round-trip for token-endpoint tests;
     // For login-route tests we POST to /api/v1/auth/login instead.
     state
         .jwt
-        .issue(username, role, &uuid::Uuid::new_v4().to_string())
+        .issue(username, user_id, role, &uuid::Uuid::new_v4().to_string())
         .expect("token must be issued")
 }
 

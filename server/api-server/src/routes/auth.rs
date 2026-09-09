@@ -100,7 +100,7 @@ pub async fn login(
     verify_password(&body.password, &pw_hash)?;
 
     let jti = Uuid::new_v4().to_string();
-    let access = state.jwt.issue(&body.username, role, &jti)?;
+    let access = state.jwt.issue(&body.username, user_id, role, &jti)?;
 
     let raw_refresh = generate_refresh_token();
     let family = Uuid::new_v4().to_string();
@@ -158,7 +158,7 @@ pub async fn refresh(
     let user_id = state.db.refresh_token_user(&token_hash, now)?;
     let (username, role) = state.db.find_user_by_id(user_id)?;
     let jti = Uuid::new_v4().to_string();
-    let access = state.jwt.issue(&username, role, &jti)?;
+    let access = state.jwt.issue(&username, user_id, role, &jti)?;
     let raw_new_refresh = generate_refresh_token();
     let expires_at = now + REFRESH_TOKEN_TTL_S;
     let new_token_hash = token_to_storage_key(&raw_new_refresh);

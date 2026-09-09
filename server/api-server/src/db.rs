@@ -1,4 +1,10 @@
 //! SQLite user store.
+
+#![allow(
+    clippy::cast_possible_wrap,
+    clippy::cast_sign_loss,
+    clippy::missing_errors_doc
+)]
 //!
 //! Manages users (username, argon2id password hash, role) and refresh tokens
 //! (opaque SHA-256 hash, expiry, revocation).
@@ -8,7 +14,7 @@
 
 use crate::error::ApiError;
 use control_protocol::Role;
-use rusqlite::{params, Connection};
+use rusqlite::{params, Connection, OptionalExtension};
 use std::sync::{Arc, Mutex};
 
 /// Thread-safe SQLite connection wrapper.
@@ -72,6 +78,12 @@ impl Db {
                 revoked    INTEGER NOT NULL DEFAULT 0,
                 family     TEXT NOT NULL,
                 created_at INTEGER NOT NULL DEFAULT (unixepoch())
+            );
+
+            CREATE TABLE IF NOT EXISTS mix_assignments (
+                mix_index INTEGER PRIMARY KEY,
+                user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+                assigned_at INTEGER NOT NULL DEFAULT (unixepoch())
             );
             ",
         )
@@ -277,6 +289,112 @@ impl Db {
             let role = str_to_role(&role_str)?;
             Ok((username, role))
         })
+    }
+
+    /// Assign a mix slot to a user.
+    ///
+    /// # Errors
+    /// Returns `ApiError::BadRequest` for an invalid mix slot or conflicting assignment.
+    pub fn assign_mix(&self, mix_index: usize, user_id: i64) -> Result<(), ApiError> {
+        if mix_index >= mix_engine::MAX_MIXES || user_id <= 0 {
+            return Err(ApiError::BadRequest("invalid mix assignment".to_owned()));
+        }
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let existing: Option<i64> = conn
+            .query_row(
+                "SELECT mix_index FROM mix_assignments WHERE user_id = ?1",
+                params![user_id],
+                |row| row.get(0),
+            )
+            .optional()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if existing.is_some() {
+            return Err(ApiError::BadRequest("user already owns a mix".to_owned()));
+        }
+        conn.execute(
+            "INSERT OR REPLACE INTO mix_assignments (mix_index, user_id) VALUES (?1, ?2)",
+            params![mix_index as i64, user_id],
+        )
+        .map_err(|e| {
+            if e.to_string().contains("FOREIGN KEY") {
+                ApiError::NotFound("user not found".to_owned())
+            } else {
+                ApiError::Internal(e.to_string())
+            }
+        })?;
+        Ok(())
+    }
+
+    /// Remove assignment from a mix slot.
+    ///
+    /// # Errors
+    /// Returns `ApiError::NotFound` when no assignment exists.
+    pub fn unassign_mix(&self, mix_index: usize) -> Result<(), ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let count = conn
+            .execute(
+                "DELETE FROM mix_assignments WHERE mix_index = ?1",
+                params![mix_index as i64],
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if count == 0 {
+            return Err(ApiError::NotFound("mix assignment not found".to_owned()));
+        }
+        Ok(())
+    }
+
+    /// List all mix assignments with usernames.
+    pub fn list_mix_assignments(&self) -> Result<Vec<(usize, i64, String)>, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let mut stmt = conn.prepare("SELECT m.mix_index, m.user_id, u.username FROM mix_assignments m JOIN users u ON u.id = m.user_id ORDER BY m.mix_index")
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let rows = stmt
+            .query_map([], |row| {
+                Ok((row.get::<_, i64>(0)? as usize, row.get(1)?, row.get(2)?))
+            })
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Return assigned user for a mix slot.
+    pub fn get_mix_assignment(&self, mix_index: usize) -> Result<Option<i64>, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.query_row(
+            "SELECT user_id FROM mix_assignments WHERE mix_index = ?1",
+            params![mix_index as i64],
+            |row| row.get(0),
+        )
+        .optional()
+        .map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Return mix slot assigned to a user.
+    pub fn get_user_assigned_mix(&self, user_id: i64) -> Result<Option<usize>, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.query_row(
+            "SELECT mix_index FROM mix_assignments WHERE user_id = ?1",
+            params![user_id],
+            |row| row.get::<_, i64>(0),
+        )
+        .optional()
+        .map(|v| v.map(|i| i as usize))
+        .map_err(|e| ApiError::Internal(e.to_string()))
     }
 
     /// Revoke all refresh tokens for a user (logout).

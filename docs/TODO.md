@@ -133,3 +133,12 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] ParametricEq stub (passthrough — biquad DSP Phase 7)
 - [x] Compressor stub (passthrough — dynamics DSP Phase 7)
 - [x] 80 tests passing — 0 clippy warnings
+
+
+## PHASE 10 STATUS
+
+- [x] SQLite mix assignment model and Engineer/Admin API
+- [x] JWT numeric user identity (`uid`)
+- [x] Musician-owned send gain/pan/mute routes
+- [x] Ownership and assignment validation
+- [ ] Add dedicated Phase 10 integration coverage for new routes

@@ -27,6 +27,17 @@ impl ControlState {
         self.engine.revision()
     }
 
+    /// Read a mix, if configured.
+    #[must_use]
+    pub fn mix(&self, index: usize) -> Option<&mix_engine::Mix> {
+        self.engine.mix(index)
+    }
+
+    /// Read a mutable mix, if configured.
+    pub fn mix_mut(&mut self, index: usize) -> Option<&mut mix_engine::Mix> {
+        self.engine.mix_mut(index)
+    }
+
     /// Read a channel, if configured.
     #[must_use]
     pub fn channel(&self, index: usize) -> Option<&Channel> {
