@@ -40,11 +40,11 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Phase 15 — Atomicidade de ownership** (Engineer Console operacional; áudio SIMULATED no VPS)
+**Phase 17 — Broadcast de deltas WebSocket** (controle operacional; áudio SIMULATED no VPS)
 
-`mix_assignment_lock` now covers assignment listing, musician send reads/mutations, snapshot, and signaling ownership checks. This closes the assignment-check/update TOCTOU window. `web/engineer` now provides in-memory-token login, HttpOnly-cookie refresh after 401, authenticated dashboard polling, active WebRTC session listing, state revision display, and Engineer mix assignment/removal. It calls only existing API contracts; user catalog remains Admin-only, so assignment uses numeric user ID. Sessions and audio status remain SIMULATED because VPS has no PipeWire hardware. Real PipeWire capture, Opus delivery and live telemetry require later Raspberry Pi work; control snapshot is available through the versioned API contract.
+`/ws/v1` publica ACKs não solicitados para sessões Engineer/Admin após mutações de gain, pan e mute; músicos recebem somente deltas do mix atribuído. Ownership, dispatch e publicação usam `mix_assignment_lock`, com ordenação de mutações e sem manter lock durante I/O de socket. Áudio, sessões WebRTC e telemetria permanecem SIMULATED no VPS.
 
-See [Phase 15 review](docs/reviews/PHASE-15-REVIEW.md).
+See [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md). [Phase 15 review](docs/reviews/PHASE-15-REVIEW.md).
 
 ## Development Phases
 
