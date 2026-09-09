@@ -1,6 +1,6 @@
 # Guia do Músico — Open IEM Platform
 
-> **Versão:** Phase 15 · **Idioma:** pt-BR
+> **Versão:** Phase 20 · **Idioma:** pt-BR
 > Última atualização: 2026-09-09
 
 ---

@@ -4,6 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 20: verificação da reconciliação Musician
+
+**Branch:** `main`
+**Ambiente:** VPS Linux x86_64; áudio SIMULATED
+
+### Implementado
+
+- Testes do hook cobrem snapshot REST autenticado, snapshot aninhado inválido, snapshot atrasado e aplicação de `SendAck`.
+- Cliente usa header `Authorization: Bearer`, cancela fetch no cleanup e valida envelope WebSocket completo com versão e `request_id` limitado.
+- ACK rejeita ganho e pan fora das faixas do servidor.
+
+### Verificação
+
+- Musician typecheck, 32 testes e build: PASS.
+- Rust fmt, 189 testes e clippy `-D warnings`: PASS.
+- `git diff --check`: PASS.
+
+### Limitações
+
+Token WebSocket em query string, TLS, PipeWire/Opus, mídia WebRTC e runtime ARM64 continuam pendentes ou SIMULATED no VPS.
+
+### Próximo
+
+Projetar autenticação WebSocket sem token em URL e avançar TLS fail-closed/hardware Raspberry Pi 5.
+
+---
+
 ## 2026-09-09 — Phase 19: reconciliação completa do cliente Musician
 
 **Branch:** `main`

@@ -115,6 +115,13 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Phase 1 review completed: PASS WITH CONDITIONS
 - [ ] Validate real PipeWire graph on Raspberry Pi 5 (hardware blocker)
 
+## PHASE 20 STATUS
+
+- [x] Add independent hook tests for REST snapshot, malformed nested state, delayed snapshot and `SendAck`
+- [x] Validate WebSocket envelope version/request ID and ACK ranges client-side
+- [x] Abort snapshot fetches when WebSocket connection is cleaned up
+- [ ] Replace WebSocket query-token authentication with cookie or subprotocol authentication
+
 ## PHASE 18 STATUS
 
 - [x] Musician client accepts `SendAck` revisions

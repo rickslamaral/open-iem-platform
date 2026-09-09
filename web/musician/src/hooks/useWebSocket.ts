@@ -2,6 +2,11 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import type { ServerMessage, StateSnapshot } from '../protocol/types';
 import { encodeEnvelope } from '../protocol/envelope';
 import type { ClientMessage } from '../protocol/types';
+import { PROTOCOL_VERSION } from '../protocol/types';
+
+const GAIN_DB_MIN = -144;
+const GAIN_DB_MAX = 12;
+const MAX_REQUEST_ID_BYTES = 128;
 
 export type WsStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
@@ -36,12 +41,15 @@ function isStateSnapshot(value: unknown): value is StateSnapshot {
   if (snapshot.channels.some((channel) => !channel || !Number.isInteger(channel.index)
     || channel.index < 0 || channel.index >= 8 || channelIndexes.has(channel.index)
     || !channelIndexes.add(channel.index) || !isFiniteNumber(channel.gain_db)
+    || channel.gain_db < GAIN_DB_MIN || channel.gain_db > GAIN_DB_MAX
     || typeof channel.muted !== 'boolean')) return false;
   const mixIndexes = new Set<number>();
   return snapshot.mixes.every((mix) => mix && Number.isInteger(mix.index)
     && mix.index >= 0 && mix.index < 2 && !mixIndexes.has(mix.index)
     && mixIndexes.add(mix.index)
-    && isFiniteNumber(mix.master_gain_db) && typeof mix.master_muted === 'boolean'
+    && isFiniteNumber(mix.master_gain_db)
+    && mix.master_gain_db >= GAIN_DB_MIN && mix.master_gain_db <= GAIN_DB_MAX
+    && typeof mix.master_muted === 'boolean'
     && Array.isArray(mix.sends) && (() => {
       const sendIndexes = new Set<number>();
       return mix.sends.every((send) => send
@@ -69,8 +77,10 @@ function isServerMessage(value: unknown): value is ServerMessage {
       && message.data.channel_index >= 0 && message.data.channel_index < 8
       && typeof message.data?.gain_db === 'number'
       && Number.isFinite(message.data.gain_db)
+      && message.data.gain_db >= GAIN_DB_MIN && message.data.gain_db <= GAIN_DB_MAX
       && typeof message.data?.pan === 'number'
       && Number.isFinite(message.data.pan)
+      && message.data.pan >= -1 && message.data.pan <= 1
       && typeof message.data?.muted === 'boolean';
   }
   if (message.type === 'Error') {
@@ -94,10 +104,13 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
   const [snapshot, setSnapshot] = useState<StateSnapshot | null>(null);
   const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const snapshotAbortRef = useRef<AbortController | null>(null);
   const latestRevisionRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
 
   const disconnect = useCallback(() => {
+    snapshotAbortRef.current?.abort();
+    snapshotAbortRef.current = null;
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
@@ -134,6 +147,8 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
     const ws = new WebSocket(url);
     wsRef.current = ws;
 
+    const abortController = new AbortController();
+    snapshotAbortRef.current = abortController;
     let snapshotRequestInFlight = false;
     const refreshSnapshot = async () => {
       if (snapshotRequestInFlight) return;
@@ -141,6 +156,7 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
       try {
         const response = await fetch('/api/v1/state', {
           headers: { Authorization: `Bearer ${token}` },
+          signal: abortController.signal,
         });
         if (!response.ok) throw new Error(`Snapshot failed: ${response.status}`);
         const value: unknown = await response.json();
@@ -173,10 +189,17 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
       if (!mountedRef.current || wsRef.current !== ws) return;
       try {
         const parsed: unknown = JSON.parse(event.data);
-        const payload = parsed && typeof parsed === 'object' && 'payload' in parsed
-          ? (parsed as { payload?: unknown }).payload
-          : undefined;
-        if (!isServerMessage(payload)) {
+        const envelope = parsed && typeof parsed === 'object' ? parsed as {
+          version?: unknown;
+          request_id?: unknown;
+          payload?: unknown;
+        } : null;
+        const payload = envelope?.payload;
+        if (envelope?.version !== PROTOCOL_VERSION
+          || typeof envelope.request_id !== 'string'
+          || envelope.request_id.length === 0
+          || envelope.request_id.length > MAX_REQUEST_ID_BYTES
+          || !isServerMessage(payload)) {
           setError('Malformed server message');
           return;
         }
@@ -233,7 +256,10 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
     };
 
     return () => {
+      abortController.abort();
+      if (snapshotAbortRef.current === abortController) snapshotAbortRef.current = null;
       ws.close();
+      if (wsRef.current === ws) wsRef.current = null;
     };
   }, [token, disconnect]);
 
