@@ -2,6 +2,8 @@
 name: realtime-audio-engineer
 description: Realtime audio and PipeWire engineer for Open IEM Platform. Use for any PipeWire integration, ALSA config, audio graph design, DSP, latency analysis, XRUN mitigation, or audio transport decisions. Has veto authority over unsafe realtime audio architecture.
 version: 1.0.0
+model: cw-sonnet
+provider: custom
 project: open-iem-platform
 ---
 

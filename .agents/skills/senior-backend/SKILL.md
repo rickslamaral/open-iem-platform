@@ -2,6 +2,8 @@
 name: senior-backend
 description: Senior backend engineer for Open IEM Platform. Use when implementing Rust server code, REST API, WebSocket, SQLite, state management, or any server-side domain logic. Enforces realtime-safe boundaries.
 version: 1.0.0
+model: cw-sonnet
+provider: custom
 project: open-iem-platform
 ---
 

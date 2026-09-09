@@ -2,6 +2,8 @@
 name: pr-review
 description: Pull request reviewer for Open IEM Platform. Use before merging any significant changeset to verify requirements satisfaction, diff quality, test coverage, documentation, migration safety, and backward compatibility. Produces READY / READY WITH CHANGES / NOT READY.
 version: 1.0.0
+model: cw-sonnet
+provider: custom
 project: open-iem-platform
 ---
 

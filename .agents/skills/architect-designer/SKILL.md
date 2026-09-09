@@ -2,6 +2,8 @@
 name: architect-designer
 description: Designs and reviews Open IEM Platform architecture. Use when making any system-level design decision, defining component boundaries, creating ADRs, or evaluating architectural trade-offs.
 version: 1.0.0
+model: cw-opus
+provider: custom
 project: open-iem-platform
 ---
 
