@@ -617,3 +617,43 @@ Bumped workspace version `0.1.0` → `0.2.0`. Aligned `admin-cli` Cargo manifest
 **Limitations:** PDF content extraction and rendering remain outside this lightweight validator. PipeWire/Opus and ARM64 runtime remain SIMULATED.
 
 **Next Step:** Add validator to CI, then continue HTTP/WebSocket integration hardening.
+
+### 2026-09-09 — Phase 16: WebSocket send mutations + musician ownership enforcement
+
+**Implemented:**
+
+#### Protocol (control-protocol)
+- `SetSendGain { mix_index: u8, channel_index: u8, gain_db: f32 }` — musician/engineer can set per-channel gain on a mix send
+- `SetSendPan { mix_index: u8, channel_index: u8, pan: f32 }` — pan ±1.0
+- `SetSendMuted { mix_index: u8, channel_index: u8, muted: bool }` — mute toggle
+- `SendAck { mix_index, channel_index, gain_db, pan, muted, revision }` — authoritative echo of post-mutation state
+- `Eq` derive removed from `ServerMessage` (f32 fields incompatible)
+
+#### Dispatch (control-server)
+- `SetSendGain`: validates `gain_db.is_finite()` and `GAIN_DB_MIN..=GAIN_DB_MAX`, else `INVALID_GAIN`
+- `SetSendPan`: validates `pan.is_finite()` and `-1.0..=1.0`, else `INVALID_PAN`
+- `SetSendMuted`: dispatches directly (bool, no range check needed)
+- Missing mix → `MIX_NOT_FOUND`; mix-engine error → `SEND_ERROR`
+- `dispatch` doc: ownership check is caller responsibility
+
+#### WebSocket handler (ws.rs)
+- `check_permission()`: Musician may `GetState`, `SetSendGain`, `SetSendPan`, `SetSendMuted`; blocked from `SetChannelGain`/`SetChannelMute`
+- `send_mix_index()`: extracts `mix_index` from send mutations; `None` for non-send messages
+- Musician ownership gate: `db.get_user_assigned_mix(user_id)` → denied if != requested `mix_index`
+- Lock scope: held only during `dispatch`, released before every `await`
+- `#[allow(clippy::too_many_lines)]` on `handle_socket`
+
+#### channels.rs
+- Exhaustive match: added `SendAck => ApiError::Internal` arm in `set_channel_gain` and `set_channel_mute`
+
+**Tests:** 17 new tests
+- control-protocol: 4 round-trip serde tests
+- control-server: 6 unit tests (ack on success, NaN gain, out-of-range pan, missing mix)
+- api-server integration: 7 WS tests (engineer gain/pan/mute ack; musician denied unassigned; musician allowed assigned; musician denied channel mutation; engineer out-of-range gain)
+
+**Verification:** cargo fmt PASS; cargo clippy --all-targets -D warnings PASS; cargo test --all PASS. Static scan clean. Independent reviewer: passed=true.
+**CI:** PR #30; fmt failure on first push (method chain not collapsed) fixed on second push.
+
+**Limitations:** PipeWire/Opus remains SIMULATED. ARM64 not hardware-validated.
+
+**Next:** Broadcast state delta on send mutations to all connected clients; HTTPS/TLS gate; add NaN-specific WS test.

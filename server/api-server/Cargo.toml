@@ -49,7 +49,7 @@ time = { version = "0.3", features = ["serde", "serde-well-known"] }
 anyhow = "1"
 
 [dev-dependencies]
-axum-test = "21"
+axum-test = { version = "21", features = ["ws"] }
 tokio = { version = "1", features = ["full"] }
 
 [lints]

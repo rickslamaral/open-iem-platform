@@ -48,7 +48,7 @@ impl<T> Envelope<T> {
     }
 }
 
-/// Control-plane message catalog, Phase 3 foundation.
+/// Control-plane message catalog — Phase 3 foundation + Phase 16 send mutations.
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(tag = "type", content = "data")]
 pub enum ClientMessage {
@@ -68,15 +68,57 @@ pub enum ClientMessage {
         /// Mute flag.
         muted: bool,
     },
+    /// Update one send's gain. Musician may only target their assigned mix.
+    SetSendGain {
+        /// Mix slot index.
+        mix_index: u8,
+        /// Channel slot index.
+        channel_index: u8,
+        /// Gain in dBFS.
+        gain_db: f32,
+    },
+    /// Update one send's pan. Musician may only target their assigned mix.
+    SetSendPan {
+        /// Mix slot index.
+        mix_index: u8,
+        /// Channel slot index.
+        channel_index: u8,
+        /// Pan from -1.0 (left) to 1.0 (right).
+        pan: f32,
+    },
+    /// Update one send's mute state. Musician may only target their assigned mix.
+    SetSendMuted {
+        /// Mix slot index.
+        mix_index: u8,
+        /// Channel slot index.
+        channel_index: u8,
+        /// Mute flag.
+        muted: bool,
+    },
 }
 
 /// Server-to-client control-plane messages.
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(tag = "type", content = "data")]
 pub enum ServerMessage {
     /// Current state revision.
     State {
         /// Monotonic state revision.
+        revision: u64,
+    },
+    /// Acknowledged send mutation — echoes current send parameters.
+    SendAck {
+        /// Mix slot.
+        mix_index: u8,
+        /// Channel slot.
+        channel_index: u8,
+        /// Current gain in dBFS.
+        gain_db: f32,
+        /// Current pan.
+        pan: f32,
+        /// Current mute state.
+        muted: bool,
+        /// Updated state revision.
         revision: u64,
     },
     /// Protocol or request error.
@@ -175,5 +217,65 @@ mod tests {
             decode_client_message(&oversized),
             Err(ProtocolError::InvalidRequestId)
         ));
+    }
+
+    #[test]
+    fn round_trip_set_send_gain() {
+        let envelope = Envelope::new(
+            "req-sg".to_owned(),
+            ClientMessage::SetSendGain {
+                mix_index: 0,
+                channel_index: 2,
+                gain_db: -6.0,
+            },
+        );
+        let json = serde_json::to_string(&envelope).unwrap();
+        let decoded = decode_client_message(&json).unwrap();
+        assert_eq!(decoded, envelope);
+    }
+
+    #[test]
+    fn round_trip_set_send_pan() {
+        let envelope = Envelope::new(
+            "req-sp".to_owned(),
+            ClientMessage::SetSendPan {
+                mix_index: 1,
+                channel_index: 0,
+                pan: 0.5,
+            },
+        );
+        let json = serde_json::to_string(&envelope).unwrap();
+        let decoded = decode_client_message(&json).unwrap();
+        assert_eq!(decoded, envelope);
+    }
+
+    #[test]
+    fn round_trip_set_send_muted() {
+        let envelope = Envelope::new(
+            "req-sm".to_owned(),
+            ClientMessage::SetSendMuted {
+                mix_index: 0,
+                channel_index: 3,
+                muted: true,
+            },
+        );
+        let json = serde_json::to_string(&envelope).unwrap();
+        let decoded = decode_client_message(&json).unwrap();
+        assert_eq!(decoded, envelope);
+    }
+
+    #[test]
+    fn round_trip_send_ack_server_message() {
+        let ack = ServerMessage::SendAck {
+            mix_index: 0,
+            channel_index: 2,
+            gain_db: -6.0,
+            pan: 0.0,
+            muted: false,
+            revision: 42,
+        };
+        let json = serde_json::to_string(&ack).unwrap();
+        let decoded: ServerMessage = serde_json::from_str(&json).unwrap();
+        assert_eq!(decoded, ack);
     }
 }
