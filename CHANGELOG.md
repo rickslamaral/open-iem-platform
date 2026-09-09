@@ -6,7 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added — Phase 8
+### Added — Phase 9
+- **Admin API server-side routes** (`server/api-server/src/routes/admin.rs`): 4 endpoints, all require Admin role:
+  - `GET /api/v1/admin/users` — list all users (id, username, role)
+  - `DELETE /api/v1/admin/users/{id}` — delete user by numeric ID (204 / 404)
+  - `GET /api/v1/admin/sessions` — list active (non-revoked, non-expired) refresh-token sessions
+  - `DELETE /api/v1/admin/sessions/{id}` — revoke session by numeric ID (204 / 404)
+- **DB methods** added to `Db`: `list_users`, `delete_user`, `list_active_sessions`, `revoke_session_by_id` — all parameterized, no format-string SQL.
+- **`ApiError::NotFound(String)`** variant added (was `&'static str`); HTTP 404 response.
+- **8 new HTTP integration tests** for all admin endpoints (RBAC enforcement, success paths, 404 paths). api-server: 19 → 27 tests.
+- **3 new DB unit tests**: `list_users_empty_and_populated`, `delete_user_ok_and_not_found`, `list_and_revoke_sessions`.
+- **npm audit job** added to CI (HIGH severity gate, non-blocking until dependencies present).
+- **Biquad coefficient validation** vs Python/scipy: max delta ≈ 5×10⁻⁸ (f32 rounding only), algorithm confirmed identical.
+
+### Fixed — Phase 9
+- **Admin CLI `user create`** command: `--name` → `--username`, added required `--password` arg. Server body now `{username, password, role}` matching `CreateUserRequest`.
+- **Admin CLI `session revoke`** command: `--token: String` → `--id: u64`, dispatches `DELETE /api/v1/admin/sessions/{id}`.
+
+### Changed — Phase 9
+- Total workspace tests: 157 → 168 (+11: 8 integration + 3 DB unit).
+- `GET /api/v1/admin/users` added alongside existing `POST` (combined route).
+
+
 - **EQ + Compressor integrated into `Mix::process`** audio chain: Sum → EQ → Compressor → Master Gain → Limiter. Both are disabled by default (passthrough when disabled).
 - **`Mix` struct fields** `eq: ParametricEq` and `compressor: Compressor` exposed for per-mix DSP configuration.
 - **5 new mix-engine tests** covering EQ boost at frequency, compressor reduction on loud signal, EQ passthrough when disabled, compressor passthrough when disabled, and EQ→Compressor chain order verification.

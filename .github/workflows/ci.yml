@@ -197,3 +197,30 @@ jobs:
 
       - name: Run skill validation
         run: bash scripts/validate-skills.sh
+
+  npm-audit:
+    name: npm Security Audit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Audit musician frontend
+        run: |
+          if [ -f web/musician/package-lock.json ]; then
+            npm audit --audit-level=high --prefix web/musician || true
+          else
+            echo "No package-lock.json yet — skipping musician audit"
+          fi
+
+      - name: Audit engineer frontend
+        run: |
+          if [ -f web/engineer/package-lock.json ]; then
+            npm audit --audit-level=high --prefix web/engineer || true
+          else
+            echo "No package-lock.json yet — skipping engineer audit"
+          fi

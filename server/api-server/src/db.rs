@@ -295,6 +295,109 @@ impl Db {
         .map_err(|e| ApiError::Internal(e.to_string()))?;
         Ok(())
     }
+
+    /// List all users ordered by ID.
+    ///
+    /// # Errors
+    /// Returns `ApiError::Internal` on DB error.
+    pub fn list_users(&self) -> Result<Vec<(i64, String, Role)>, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let mut stmt = conn
+            .prepare("SELECT id, username, role FROM users ORDER BY id")
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let rows = stmt
+            .query_map([], |row| {
+                let id: i64 = row.get(0)?;
+                let username: String = row.get(1)?;
+                let role_str: String = row.get(2)?;
+                Ok((id, username, role_str))
+            })
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let mut users = Vec::new();
+        for row in rows {
+            let (id, username, role_str) = row.map_err(|e| ApiError::Internal(e.to_string()))?;
+            let role = str_to_role(&role_str)?;
+            users.push((id, username, role));
+        }
+        Ok(users)
+    }
+
+    /// Delete a user by ID.
+    ///
+    /// # Errors
+    /// Returns `ApiError::NotFound` if no user with that ID exists.
+    /// Returns `ApiError::Internal` on DB error.
+    pub fn delete_user(&self, user_id: i64) -> Result<(), ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let affected = conn
+            .execute("DELETE FROM users WHERE id = ?1", params![user_id])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if affected == 0 {
+            return Err(ApiError::NotFound(format!("user {user_id} not found")));
+        }
+        Ok(())
+    }
+
+    /// List active (non-revoked, non-expired) refresh token sessions.
+    ///
+    /// # Errors
+    /// Returns `ApiError::Internal` on DB error.
+    pub fn list_active_sessions(&self, now_unix: u64) -> Result<Vec<(i64, i64, u64)>, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let mut stmt = conn
+            .prepare(
+                "SELECT id, user_id, expires_at FROM refresh_tokens \
+                 WHERE revoked = 0 AND expires_at > ?1 ORDER BY id",
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let rows = stmt
+            .query_map(params![now_unix.cast_signed()], |row| {
+                let id: i64 = row.get(0)?;
+                let user_id: i64 = row.get(1)?;
+                let expires_at: i64 = row.get(2)?;
+                Ok((id, user_id, expires_at))
+            })
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let mut sessions = Vec::new();
+        for row in rows {
+            let (id, user_id, expires_at) = row.map_err(|e| ApiError::Internal(e.to_string()))?;
+            sessions.push((id, user_id, expires_at.cast_unsigned()));
+        }
+        Ok(sessions)
+    }
+
+    /// Revoke a specific refresh token session by ID.
+    ///
+    /// # Errors
+    /// Returns `ApiError::NotFound` if no session with that ID exists.
+    /// Returns `ApiError::Internal` on DB error.
+    pub fn revoke_session_by_id(&self, session_id: i64) -> Result<(), ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let affected = conn
+            .execute(
+                "UPDATE refresh_tokens SET revoked = 1 WHERE id = ?1",
+                params![session_id],
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if affected == 0 {
+            return Err(ApiError::NotFound(format!(
+                "session {session_id} not found"
+            )));
+        }
+        Ok(())
+    }
 }
 
 fn role_to_str(role: Role) -> &'static str {
@@ -400,5 +503,45 @@ mod tests {
             .rotate_refresh_token("tokenhash_c", "unused", now + 1000, now)
             .unwrap_err();
         assert!(matches!(err, ApiError::Unauthorized(_)));
+    }
+
+    #[test]
+    fn list_users_empty_and_populated() {
+        let db = setup();
+        let users = db.list_users().unwrap();
+        assert_eq!(users.len(), 0);
+        db.create_user("alice", "hash1", Role::Admin).unwrap();
+        db.create_user("bob", "hash2", Role::Engineer).unwrap();
+        let users = db.list_users().unwrap();
+        assert_eq!(users.len(), 2);
+        assert_eq!(users[0].1, "alice");
+        assert_eq!(users[1].1, "bob");
+    }
+
+    #[test]
+    fn delete_user_ok_and_not_found() {
+        let db = setup();
+        db.create_user("carol", "hash", Role::Musician).unwrap();
+        let (user_id, _, _) = db.find_user("carol").unwrap();
+        db.delete_user(user_id).unwrap();
+        let err = db.delete_user(user_id).unwrap_err();
+        assert!(matches!(err, ApiError::NotFound(_)));
+    }
+
+    #[test]
+    fn list_and_revoke_sessions() {
+        let db = setup();
+        db.create_user("dave", "hash", Role::Musician).unwrap();
+        let (user_id, _, _) = db.find_user("dave").unwrap();
+        let now = 1_000_000_u64;
+        db.store_refresh_token(user_id, "tokenhash_s1", now + 1000, "fam-s1")
+            .unwrap();
+        let sessions = db.list_active_sessions(now).unwrap();
+        assert_eq!(sessions.len(), 1);
+        let (session_id, sid_user, _) = sessions[0];
+        assert_eq!(sid_user, user_id);
+        db.revoke_session_by_id(session_id).unwrap();
+        let sessions = db.list_active_sessions(now).unwrap();
+        assert_eq!(sessions.len(), 0);
     }
 }

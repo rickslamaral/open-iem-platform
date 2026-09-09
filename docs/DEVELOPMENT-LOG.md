@@ -386,3 +386,45 @@ skills validate: 11/11 PASS
 - audio-engine: 20 tests
 - mix-engine: 57 tests (50 original + 7 new limiter tests)
 - doc-tests: 3
+
+### 2026-09-09 — Phase 9: Admin API server-side routes + biquad validation
+
+**Implemented:**
+
+#### Admin API Routes (`server/api-server/src/routes/admin.rs`)
+- 4 new endpoints, all Admin-role-only via `require_min_role`:
+  - `GET /api/v1/admin/users` — list all users (id, username, role)
+  - `DELETE /api/v1/admin/users/{id}` — delete user (204) or not found (404)
+  - `GET /api/v1/admin/sessions` — list active refresh-token sessions
+  - `DELETE /api/v1/admin/sessions/{id}` — revoke session by ID (204/404)
+- All routes in protected Router (behind JWT auth middleware)
+- `ApiError::NotFound(String)` variant added for 404 responses
+
+#### DB Layer (`server/api-server/src/db.rs`)
+- `list_users()` — parameterized SELECT, returns Vec<(i64, String, Role)>
+- `delete_user(user_id: i64)` — DELETE, NotFound if affected==0
+- `list_active_sessions(now_unix: u64)` — non-revoked, non-expired refresh tokens
+- `revoke_session_by_id(session_id: i64)` — UPDATE, NotFound if affected==0
+- Sessions cascade-deleted on user delete (existing FK ON DELETE CASCADE)
+
+#### Admin CLI Fix (`server/admin-cli/src/main.rs`)
+- `user create --username --password --role` (was `--name`)
+- `session revoke --id` (was `--token`, now numeric ID)
+
+#### Testing
+- 8 new HTTP integration tests in api-server/tests/integration.rs
+- 3 new DB unit tests
+- Total: 157 → 168 tests, all green
+
+#### Biquad Validation
+- Python RBJ coefficients vs Rust implementation: max delta 5×10⁻⁸ (f32 rounding only)
+- Identity check (gain=0): b0=1.0, b1=a1, b2=a2 — PASS in both
+
+#### CI
+- Added npm-audit job (HIGH severity gate for musician/engineer frontends)
+
+**Test results:** 168 passed, 0 failed, 0 clippy warnings, code formatted
+- admin-cli: 0 tests (binary)
+- api-server: 27 tests (was 19, +8 admin integration)
+- api-server DB: 16 tests (was 13, +3 admin DB unit)
+- mix-engine: 79 tests, audio-engine: 20 tests, control-server: 13 tests, streaming: 7 tests, doc-tests: 3
