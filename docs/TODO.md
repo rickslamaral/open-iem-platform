@@ -19,6 +19,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Establish authentication mechanism decision (ADR-008 — Accepted and implemented; TLS deployment validation pending)
 - [x] HTTP integration tests for api-server (Phase 6 — 19 tests green)
 - [x] Trickle ICE real injection in Sans-IO loop (Phase 6 — str0m Candidate::from_sdp_string)
+- [x] WebSocket send mutations: SetSendGain/SetSendPan/SetSendMuted with musician ownership enforcement (Phase 16)
 - [x] Biquad EQ real DSP (Phase 7 — TDF2 peaking biquad, RBJ coefficients, no heap)
 - [x] RMS Compressor real DSP (Phase 7 — stereo-linked, exp-RMS, smoothed gain reduction)
 - [ ] Add ARM64 cross-compilation to CI (requires `aarch64-unknown-linux-gnu` setup)
