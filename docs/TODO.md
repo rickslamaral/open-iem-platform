@@ -12,6 +12,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## HIGH
 
+- [ ] Add API snapshot/telemetry contract before expanding Engineer Console
 - [ ] Install PipeWire on target hardware (Raspberry Pi 5) for Phase 1 validation
 - [x] Evaluate audio transport options; WebRTC selected in ADR-004 (Phase 5 signaling scaffold complete)
 - [x] Wire authenticated audio signaling routes and engineer session listing (Phase 5)

@@ -40,11 +40,11 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Phase 5 — Audio Transport** (authenticated signaling routes complete; media pipeline SIMULATED on VPS)
+**Phase 6 — Engineer Console** (dashboard scaffold operational; audio pipeline SIMULATED on VPS)
 
-WebRTC transport selection is accepted in [ADR-004](docs/adr/ADR-004-audio-transport.md). The `server/streaming` crate validates SDP offers, creates one `str0m` peer session per musician, tracks bounded ICE signaling, and defines 48 kHz stereo/20 ms silence-frame contract. `api-server` now exposes authenticated offer and ICE routes plus engineer-only session listing. Real PipeWire capture and Opus frame delivery require Raspberry Pi integration in later phases. VPS has no audio hardware.
+`web/engineer` now provides in-memory-token login, HttpOnly-cookie refresh after 401, authenticated dashboard polling, active WebRTC session listing, state revision display, and Engineer mix assignment/removal. It calls only existing API contracts; user catalog remains Admin-only, so assignment uses numeric user ID. Sessions and audio status remain SIMULATED because VPS has no PipeWire hardware. Real PipeWire capture, Opus delivery, telemetry and full channel snapshot require later Raspberry Pi/API work.
 
-See [Phase 5 specification](docs/specifications/PHASE-5-AUDIO-TRANSPORT.md) and [Phase 5 review](docs/reviews/PHASE-5-REVIEW.md).
+See [Phase 6 review](docs/reviews/PHASE-6-REVIEW.md).
 
 ## Development Phases
 

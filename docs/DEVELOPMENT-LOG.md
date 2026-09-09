@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 6: Engineer Console dashboard
+
+**Branch:** `main`
+**Ambiente:** VPS Linux; áudio SIMULATED
+
+### Implementado
+
+- `web/engineer` ganhou login com token em memória, refresh por cookie HttpOnly após 401, dashboard autenticado, polling de 5 segundos, revision do estado, sessões WebRTC e gestão de assignment dos dois mixes.
+- UI usa somente contratos API existentes. Catálogo de usuários permanece Admin-only; assignment recebe ID numérico.
+- Erros HTTP/rede têm estado visível. Nenhuma métrica, canal ou mídia real é inventada.
+- CSS responsivo próprio e indicador explícito de áudio SIMULATED.
+
+### Verificação
+
+- Frontend: typecheck, 2 testes e build PASS.
+- Backend: fmt, 172 testes e clippy PASS.
+- Documentação: `scripts/validate-docs.sh` PASS.
+
+### Pendências
+
+Snapshot completo, meters, telemetria e PipeWire/Opus dependem de contrato API e validação em Raspberry Pi 5.
+
+---
+
 ## 2026-09-09 — Phase 12: release fixes, Dependabot, self-delete protection, SBOM
 
 **Branch:** `feat/phase12-release-fixes`
