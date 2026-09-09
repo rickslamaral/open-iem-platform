@@ -2,6 +2,8 @@
 name: test-master
 description: Test strategy and implementation master for Open IEM Platform. Use when designing or writing any test — unit, integration, contract, WebSocket, audio, network, load, or acceptance tests.
 version: 1.0.0
+model: cw-sonnet
+provider: custom
 project: open-iem-platform
 ---
 

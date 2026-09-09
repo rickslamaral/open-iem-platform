@@ -1,0 +1,14 @@
+# cargo audit configuration for Open IEM Platform.
+
+# RUSTSEC-2023-0071: Marvin Attack timing side-channel in `rsa` crate.
+# No fixed version available as of 2026-09-09.
+# Impact analysis: Open IEM Platform uses jsonwebtoken v11 with EdDSA (Ed25519)
+# algorithm exclusively — no RSA operations are performed at runtime.
+# The `rsa` crate is compiled as a transitive dependency of `jsonwebtoken`
+# (feature `rust_crypto`) but is NOT reachable through any code path in this project.
+# Risk: NEGLIGIBLE — no RSA key material is held or processed.
+# Re-evaluate when jsonwebtoken publishes a version that removes the `rsa` dep
+# or when a fixed `rsa` version is released.
+[[ignore]]
+id = "RUSTSEC-2023-0071"
+reason = "rsa crate pulled in by jsonwebtoken/rust_crypto but no RSA operations performed; EdDSA used exclusively"

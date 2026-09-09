@@ -2,6 +2,8 @@
 name: senior-frontend
 description: Senior frontend engineer for Open IEM Platform. Use when implementing the musician PWA or engineer console (React, TypeScript, Vite, WebSocket, offline/local-network behavior).
 version: 1.0.0
+model: cw-all
+provider: custom
 project: open-iem-platform
 ---
 
