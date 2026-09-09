@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 14
+- Contrato versionado de snapshot em `GET /api/v1/state`, com canais, mixes e sends filtrados por ownership de músico.
+- `GET /api/v1/telemetry` para Engineer/Admin, reportando backend `simulated` e métricas `null` quando áudio real não está conectado.
+
 ### Security — Phase 13
 - `POST /api/v1/audio/offer` agora valida `mix_id` de músicos contra assignment persistido antes de criar sessão WebRTC.
 

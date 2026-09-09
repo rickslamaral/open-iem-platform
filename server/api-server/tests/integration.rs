@@ -24,6 +24,7 @@ use api_server::{
             assign_mix, get_send_state, list_mixes, set_send_gain, set_send_muted, set_send_pan,
             unassign_mix,
         },
+        telemetry::get_telemetry,
     },
     security::validate_origin,
     state::AppState,
@@ -68,6 +69,7 @@ fn build_test_app() -> (TestServer, AppState) {
 
     let protected = Router::new()
         .route("/api/v1/state", get(get_state))
+        .route("/api/v1/telemetry", get(get_telemetry))
         .route("/api/v1/audio/offer", post(offer))
         .route("/api/v1/audio/ice-candidate", post(ice_candidate))
         .route("/api/v1/audio/sessions", get(sessions))
@@ -265,6 +267,36 @@ async fn musician_can_access_state() {
         .authorization_bearer(token)
         .await;
     resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert_eq!(body["schema_version"], 1);
+    assert_eq!(body["revision"], 2);
+    assert_eq!(body["channels"].as_array().map(Vec::len), Some(0));
+    assert_eq!(body["mixes"].as_array().map(Vec::len), Some(0));
+}
+
+#[tokio::test]
+async fn telemetry_requires_engineer_and_reports_simulated_backend() {
+    let (server, state) = build_test_app();
+    let musician = seed_user_and_login(&state, "telemetry_mus", "pw", Role::Musician);
+    server
+        .get("/api/v1/telemetry")
+        .authorization_bearer(musician)
+        .await
+        .assert_status(axum::http::StatusCode::FORBIDDEN);
+
+    let engineer = seed_user_and_login(&state, "telemetry_eng", "pw", Role::Engineer);
+    let response = server
+        .get("/api/v1/telemetry")
+        .authorization_bearer(engineer)
+        .await;
+    response.assert_status_ok();
+    let body: Value = response.json();
+    assert_eq!(body["schema_version"], 1);
+    assert_eq!(body["availability"], "simulated");
+    assert_eq!(body["backend"], "simulated");
+    assert!(body["sample_rate_hz"].is_null());
+    assert!(body["frames_processed"].is_null());
+    assert!(body["xrun_count"].is_null());
 }
 
 #[tokio::test]

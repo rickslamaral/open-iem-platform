@@ -12,7 +12,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## HIGH
 
-- [ ] Add API snapshot/telemetry contract before expanding Engineer Console
+- [x] Add API snapshot/telemetry contract before expanding Engineer Console (Phase 14; audio metrics remain SIMULATED)
 - [ ] Install PipeWire on target hardware (Raspberry Pi 5) for Phase 1 validation
 - [x] Evaluate audio transport options; WebRTC selected in ADR-004 (Phase 5 signaling scaffold complete)
 - [x] Wire authenticated audio signaling routes and engineer session listing (Phase 5)
@@ -70,7 +70,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] MEDIUM: Bound HTTP request body to 16 KiB; route payload validation remains pending
 - [x] MEDIUM: Parse bind address as SocketAddr and fail closed for non-loopback HTTP without explicit dev override
 - [x] MEDIUM: Preflight refresh token owner and JWT before atomic rotation to avoid token loss on issuance failure
-- [ ] MEDIUM: Enforce musician mix ownership after mix assignment model exists
+- [ ] MEDIUM: Make musician mix ownership checks and send mutations atomic under `mix_assignment_lock`
 
 ## PHASE 7 STATUS
 

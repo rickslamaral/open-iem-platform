@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 14: snapshot e telemetria
+
+**Branch:** `main`
+**Ambiente:** VPS Linux; áudio SIMULATED
+
+### Implementado
+
+- `GET /api/v1/state` agora retorna contrato `schema_version=1` com canais, mixes e sends configurados.
+- Snapshot captura estado sob lock único e serializa a leitura de assignment com `mix_assignment_lock`; rotas de mutação existentes permanecem cobertas pelo backlog de atomicidade.
+- `GET /api/v1/telemetry` exige `ENGINEER` ou `ADMIN`; métricas não conectadas retornam `null` e backend `simulated`.
+- Contrato registrado em `docs/specifications/API-SNAPSHOT-TELEMETRY.md` e ADR-010.
+
+### Verificação
+
+- `cargo fmt --all` PASS.
+- `cargo test --workspace` PASS: 33 testes HTTP, total workspace atualizado.
+- `cargo clippy --workspace --all-targets -- -D warnings` PASS após correções.
+
+### Limitações
+
+- PipeWire, Opus, frames, XRUN e medidores reais permanecem pendentes no VPS.
+
+---
+
 ## 2026-09-09 — Phase 13: signaling ownership hardening
 
 **Branch:** `main`
