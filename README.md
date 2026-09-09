@@ -103,3 +103,17 @@ Apache 2.0 — see [LICENSE](LICENSE).
 ## Estado Phase 10
 
 Mix assignments persist in SQLite. Engineer/Admin assign mix slots; musicians control only sends belonging to assigned mix. Send state and gain/pan/mute routes are protected by JWT role and ownership checks. Audio remains SIMULATED on VPS until PipeWire/Opus validation on Raspberry Pi 5.
+
+## Release v0.2.0 — Versioned Build Pipeline
+
+Release pipeline in `.github/workflows/release.yml`. Push a semver tag (`v0.2.0`) to trigger:
+
+1. **Version consistency gate** — tag must match `[workspace.package].version` in `server/Cargo.toml`.
+2. **Quality gate** — fmt + clippy + tests + cargo-audit (required before any build).
+3. **Linux x86_64 build** — `api-server` + `open-iem-admin` bundled with checksum.
+4. **Linux ARM64 build** — cross-compiled for Raspberry Pi 5; marked SIMULATED until hardware validation.
+5. **Web artefacts** — Musician PWA + Engineer UI dist bundles with checksums.
+6. **GitHub Release** — all artefacts + SHA-256 checksums attached; release notes from CHANGELOG.
+
+> **Note:** PipeWire/Opus audio is SIMULATED on VPS. ARM64 artefact is cross-compiled and untested on real Pi 5 hardware. Mark SIMULATED until physical validation.
+

@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.0] — 2026-09-09
+
+### Added — Phase 11
+- Versioned release pipeline (`release.yml`): semver tag triggers quality gate + multi-target builds + GitHub Release.
+- Linux x86_64 server artefact: `api-server` + `open-iem-admin` + README + LICENSE + CHANGELOG, SHA-256 checksum.
+- Linux ARM64 (aarch64) server artefact: cross-compiled for Raspberry Pi 5 target; SIMULATED on VPS until real Pi validates PipeWire/Opus.
+- Musician PWA and Engineer UI artefacts bundled from `web/musician/dist` and `web/engineer/dist`.
+- Version consistency gate: release workflow rejects if tag version ≠ `[workspace.package].version` in `server/Cargo.toml`.
+- `server/.cargo/config.toml` linker config for ARM64 cross-compilation.
+- `admin-cli` Cargo manifest aligned to workspace semver.
+
+### Changed
+- Workspace `version` bumped `0.1.0` → `0.2.0`.
+
+---
+
 ## [Unreleased]
 
 ### Added — Phase 10

@@ -142,3 +142,19 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Musician-owned send gain/pan/mute routes
 - [x] Ownership and assignment validation
 - [x] Add dedicated Phase 10 integration coverage for assignment lifecycle and musician ownership routes
+
+
+## PHASE 11 STATUS
+
+- [x] Versioned release pipeline `.github/workflows/release.yml`
+- [x] Version consistency gate (tag == workspace version)
+- [x] Quality gate (fmt + clippy + tests + cargo-audit) required before builds
+- [x] Linux x86_64 server artefact with SHA-256
+- [x] Linux ARM64 cross-compile for Raspberry Pi 5 (SIMULATED — not hardware-validated)
+- [x] Musician PWA + Engineer UI artefacts
+- [x] GitHub Release with CHANGELOG excerpt
+- [x] Workspace version bumped to 0.2.0; admin-cli aligned to workspace
+- [ ] Tag v0.2.0 and verify full pipeline on GitHub Actions
+- [ ] Validate ARM64 binary on real Raspberry Pi 5 hardware
+- [ ] Dependabot for Cargo + npm
+- [ ] SBOM generation (cyclonedx / cargo-sbom)
