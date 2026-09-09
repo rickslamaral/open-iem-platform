@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 6 Engineer Console
+- Engineer Console funcional em `web/engineer`: login, refresh por cookie HttpOnly após 401, dashboard autenticado, polling limitado, revisão do estado, sessões WebRTC e atribuição/remoção de mixes.
+- Indicador explícito `SIMULATED` para áudio sem PipeWire no VPS.
+
+### Changed — Phase 6
+- Assignment usa ID numérico porque catálogo de usuários continua restrito à API Admin.
+
 ### Added — Phase 12
 - Admin self-delete protection: `DELETE /api/v1/admin/users/{id}` returns 403 if caller matches target user ID.
 - Dependabot configuration (`.github/dependabot.yml`): Cargo (weekly, limit 5), npm musician/engineer (weekly, limit 3), GitHub Actions (weekly).
