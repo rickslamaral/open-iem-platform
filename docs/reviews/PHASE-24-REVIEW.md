@@ -23,7 +23,7 @@ Corrigir falha real do pipeline de release: `v0.3.0` apontava para commit anteri
 Nenhum código executável alterado. Nenhum secret adicionado. Tag não foi force-pushed.
 
 ## Limitações
-`v0.3.1` ainda não foi commitado, tagueado ou validado no GitHub Actions. ARM64, PipeWire, Opus e WebRTC continuam SIMULATED/não validados no VPS.
+`v0.3.1` foi commitado e tagueado, mas CI/Release falharam imediatamente no GitHub Actions antes de executar steps: CI `34413429554`, Release `34413431504` (reexecução 2). Artefatos não publicados. ARM64, PipeWire, Opus e WebRTC continuam SIMULATED/não validados no VPS.
 
 ## Próximo
-Commit `[verified]`, push, tag `v0.3.1`, CI completo e GitHub Release.
+Investigar indisponibilidade/configuração do GitHub Actions; não declarar release nem merge até CI executar todos os gates e passar.
