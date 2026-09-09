@@ -4,6 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Release 0.3.1: correção do gate de versão
+
+**Branch:** `main`
+**Ambiente:** VPS Linux x86_64; áudio SIMULATED
+
+### Implementado
+
+- Detectado que a tag remota `v0.3.0` apontava para `74e8b91`, anterior ao commit `c41dccd` que sincronizou versões.
+- Versão de workspace Rust, frontends e lockfiles avançada para `0.3.1`.
+- CHANGELOG atualizado para preparar release coerente; não houve reescrita da tag `v0.3.0`.
+
+### Verificação
+
+- Testes e builds locais da rodada anterior: PASS.
+- CI remoto da tag `v0.3.0`: FAIL no job `Validate version consistency`; jobs seguintes foram skipped.
+- Causa real: conteúdo da tag ainda declarava versão `0.2.0`.
+
+### Limitações
+
+`v0.3.0` remoto segue apontando para commit inconsistente. Release `v0.3.1` depende de commit, tag e pipeline novos. ARM64, PipeWire, Opus e mídia WebRTC real seguem não validados no VPS.
+
+### Próximo
+
+Commitar e publicar `v0.3.1`; aguardar CI e Release completos antes de declarar artefatos publicados.
+
+---
+
 ## 2026-09-09 — Phase 21: autenticação WebSocket sem token em URL
 
 **Branch:** `main`

@@ -104,6 +104,10 @@ Apache 2.0 — see [LICENSE](LICENSE).
 
 Mix assignments persist in SQLite. Engineer/Admin assign mix slots; musicians control only sends belonging to assigned mix. Send state and gain/pan/mute routes are protected by JWT role and ownership checks. Audio remains SIMULATED on VPS until PipeWire/Opus validation on Raspberry Pi 5.
 
+## Release v0.3.1 — Versioned Build Pipeline (preparation)
+
+Release pipeline in `.github/workflows/release.yml`. Planned trigger: semver tag (`v0.3.1`). `v0.3.0` remains an inconsistent historical tag: its commit predates synchronized `0.3.0` manifests and failed version validation.
+
 ## Release v0.2.0 — Versioned Build Pipeline
 
 Release pipeline in `.github/workflows/release.yml`. Push a semver tag (`v0.2.0`) to trigger:
