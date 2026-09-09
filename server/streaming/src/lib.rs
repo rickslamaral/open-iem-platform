@@ -2,17 +2,30 @@
 //!
 //! Phase 5 scope: SDP/ICE signaling and session bookkeeping. Audio frames remain
 //! SIMULATED until `PipeWire` and Opus integration in later phases.
+//!
+//! Phase 6 adds:
+//! - Real trickle-ICE candidate injection via `Candidate::from_sdp_string` +
+//!   `Rtc::add_remote_candidate` in the Sans-IO session.
+//! - Oversized candidate rejection (>2048 bytes).
 
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc, time::Instant};
-use str0m::{change::SdpOffer, Rtc};
+use str0m::{Candidate, change::SdpOffer, Rtc};
 use thiserror::Error;
 use tokio::sync::Mutex;
+use tracing::debug;
 
 pub const AUDIO_SAMPLE_RATE: u32 = 48_000;
 pub const AUDIO_CHANNELS: u8 = 2;
 pub const AUDIO_FRAME_DURATION_MS: u32 = 20;
 pub const AUDIO_FRAME_SAMPLES: usize = 960;
+
+/// Maximum SDP body size accepted (16 KiB).
+const MAX_SDP_BYTES: usize = 16 * 1024;
+/// Maximum ICE candidate string size accepted.
+const MAX_CANDIDATE_BYTES: usize = 2048;
+/// Maximum user ID length.
+const MAX_USER_ID_BYTES: usize = 128;
 
 #[derive(Debug, Error)]
 pub enum StreamingError {
@@ -33,6 +46,10 @@ pub struct SessionInfo {
 struct PeerSession {
     user_id: String,
     mix_id: Option<String>,
+    /// Sans-IO WebRTC peer. Holds ICE/DTLS/SRTP state.
+    ///
+    /// SIMULATED on VPS: no real network I/O occurs; candidates are stored for
+    /// future Raspberry Pi use but no `poll_output` loop runs in this phase.
     rtc: Rtc,
 }
 
@@ -58,7 +75,7 @@ impl SessionRegistry {
         sdp: &str,
         mix_id: Option<String>,
     ) -> Result<String, StreamingError> {
-        if user_id.is_empty() || user_id.len() > 128 || sdp.len() > 16 * 1024 {
+        if user_id.is_empty() || user_id.len() > MAX_USER_ID_BYTES || sdp.len() > MAX_SDP_BYTES {
             return Err(StreamingError::InvalidOffer("invalid input bounds".into()));
         }
         let offer = SdpOffer::from_sdp_string(sdp)
@@ -81,23 +98,44 @@ impl SessionRegistry {
         Ok(answer)
     }
 
-    /// Store a trickle ICE candidate after strict size and syntax checks.
-    /// Actual candidate injection occurs in the dedicated Sans-IO drive loop.
+    /// Inject a trickle ICE candidate into the Sans-IO peer session.
+    ///
+    /// The candidate string must start with `candidate:` (no `a=` prefix, no trailing
+    /// newline) and must not exceed 2048 bytes. Only valid RFC 5245 candidate strings
+    /// are accepted; `str0m` validates the full structure.
+    ///
+    /// **SIMULATED on VPS:** the candidate is parsed and stored in the `Rtc` object.
+    /// The `poll_output` drive loop that would actually perform network I/O is deferred
+    /// to the Raspberry Pi / real hardware phase.
     ///
     /// # Errors
     ///
-    /// Returns an error for malformed or oversized candidates, or unknown sessions.
+    /// Returns `StreamingError::InvalidIceCandidate` for malformed, oversized, or
+    /// unparseable candidates, and `StreamingError::SessionNotFound` when no session
+    /// exists for the given user.
     pub async fn add_ice_candidate(
         &self,
         user_id: &str,
         candidate: &str,
     ) -> Result<(), StreamingError> {
-        if candidate.is_empty() || candidate.len() > 2048 || !candidate.starts_with("candidate:") {
+        // Fast structural checks before acquiring the lock.
+        if candidate.is_empty()
+            || candidate.len() > MAX_CANDIDATE_BYTES
+            || !candidate.starts_with("candidate:")
+        {
             return Err(StreamingError::InvalidIceCandidate);
         }
-        if !self.sessions.lock().await.contains_key(user_id) {
-            return Err(StreamingError::SessionNotFound(user_id.to_owned()));
-        }
+
+        let parsed = Candidate::from_sdp_string(candidate)
+            .map_err(|_| StreamingError::InvalidIceCandidate)?;
+
+        let mut sessions = self.sessions.lock().await;
+        let peer = sessions
+            .get_mut(user_id)
+            .ok_or_else(|| StreamingError::SessionNotFound(user_id.to_owned()))?;
+
+        peer.rtc.add_remote_candidate(parsed);
+        debug!(user_id, "trickle ICE candidate added to peer session");
         Ok(())
     }
 
@@ -150,6 +188,10 @@ mod tests {
 
     const VALID_OFFER: &str = "v=0\r\no=- 0 0 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\nc=IN IP4 0.0.0.0\r\na=mid:0\r\na=sendrecv\r\na=rtcp-mux\r\na=ice-ufrag:test\r\na=ice-pwd:testpassword\r\na=fingerprint:sha-256 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00\r\na=setup:actpass\r\na=rtpmap:111 opus/48000/2\r\n";
 
+    /// Valid trickle ICE candidate in RFC 5245 / browser format (`candidate:` prefix, no `a=`).
+    const VALID_CANDIDATE: &str =
+        "candidate:1 1 udp 2113937151 192.168.1.100 49152 typ host generation 0";
+
     #[tokio::test]
     async fn registry_starts_empty() {
         assert_eq!(SessionRegistry::new().len().await, 0);
@@ -185,10 +227,54 @@ mod tests {
 
     #[tokio::test]
     async fn unknown_candidate_rejected() {
-        assert!(SessionRegistry::new()
-            .add_ice_candidate("u", "candidate:1")
+        // "candidate:1" starts with the prefix but no session exists — SessionNotFound
+        let err = SessionRegistry::new()
+            .add_ice_candidate("u", "candidate:1 1 udp 123 127.0.0.1 1234 typ host")
+            .await;
+        assert!(err.is_err());
+    }
+
+    #[tokio::test]
+    async fn malformed_candidate_rejected_before_session_lookup() {
+        // No session for "u", but candidate is malformed — should fail as InvalidIceCandidate
+        // (fast-path check before lock).
+        let registry = SessionRegistry::new();
+        let err = registry.add_ice_candidate("u", "not-a-candidate").await;
+        assert!(matches!(err, Err(StreamingError::InvalidIceCandidate)));
+    }
+
+    #[tokio::test]
+    async fn oversized_candidate_rejected() {
+        let registry = SessionRegistry::new();
+        let big = format!("candidate:{}", "x".repeat(2049));
+        let err = registry.add_ice_candidate("u", &big).await;
+        assert!(matches!(err, Err(StreamingError::InvalidIceCandidate)));
+    }
+
+    #[tokio::test]
+    async fn valid_candidate_injected_after_offer() {
+        let registry = SessionRegistry::new();
+        // Establish a session first.
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
             .await
-            .is_err());
+            .expect("offer must succeed");
+        // Inject a valid trickle ICE candidate.
+        registry
+            .add_ice_candidate("alice", VALID_CANDIDATE)
+            .await
+            .expect("valid candidate must be accepted");
+        // Session still exists.
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn candidate_rejected_when_no_session() {
+        let registry = SessionRegistry::new();
+        let err = registry
+            .add_ice_candidate("no-such-user", VALID_CANDIDATE)
+            .await;
+        assert!(matches!(err, Err(StreamingError::SessionNotFound(_))));
     }
 
     #[test]

@@ -4,6 +4,23 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-08 — Phase 6: Real trickle-ICE injection + HTTP integration tests
+
+**Branch:** `feat/phase6-trickle-ice`
+
+### Implemented
+
+- **streaming crate:** `add_ice_candidate` now performs real RFC 5245 candidate injection via `Candidate::from_sdp_string` + `Rtc::add_remote_candidate` (str0m). Previous stub only checked session existence. SIMULATED on VPS; no `poll_output` I/O loop runs until Raspberry Pi hardware.
+- **streaming crate:** Named constants `MAX_SDP_BYTES`, `MAX_CANDIDATE_BYTES`, `MAX_USER_ID_BYTES` replace inline magic numbers.
+- **streaming crate:** 4 new unit tests: `malformed_candidate_rejected_before_session_lookup`, `oversized_candidate_rejected`, `valid_candidate_injected_after_offer`, `candidate_rejected_when_no_session`.
+- **api-server:** Full HTTP integration test suite added (`server/api-server/tests/integration.rs`) — 19 tests covering health, auth, RBAC (Musician/Engineer/Admin), CSRF/Origin, audio routes, channel controls.
+- **api-server:** Test fixture role casing fixed (`"Musician"` → `"MUSICIAN"`, SCREAMING_SNAKE_CASE); previous fixtures caused 422 instead of testing actual role enforcement.
+- **api-server:** `axum-test` pinned to `"21"` (was `"16"`, resolved to 21.1.0). `jsonwebtoken` gains `rust_crypto` feature.
+
+**Verification:** `cargo test --workspace` — 135 tests passed, 0 failed. Independent reviewer: `passed=true`, no security concerns, no logic errors.
+
+---
+
 ## 2026-09-08 — Phase 5: Audio transport signaling scaffold
 
 **Branch:** `feat/phase5-audio-transport`
