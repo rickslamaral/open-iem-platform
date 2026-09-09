@@ -46,6 +46,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [ ] Create `examples/` with minimal mix scenario
 - [x] Configure Dependabot for dependency updates
 - [ ] Set up code coverage reporting
+- [ ] LOW: Log DB errors in master broadcast fan-out (currently silenced via unwrap_or(None); fail-closed but not observable)
+- [ ] LOW: mix_assignment_lock held during DB read in broadcast fan-out — may contend under load; evaluate read-only lookup without lock
 
 ---
 
@@ -64,7 +66,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## PHASE 3 SECURITY FOLLOW-UP
 
 - [x] HIGH: Add HTTPS/TLS listener and fail-closed transport configuration — **DONE Phase 22** (Caddy config, systemd, RPi5 guide, ADR-011)
-- [ ] HIGH: Authorize every WebSocket message by role and musician mix ownership
+- [x] HIGH: Authorize every WebSocket message by role and musician mix ownership (Phase 23 — SetMasterGain/SetMasterMute RBAC complete; all WS messages now have explicit role checks)
 - [x] HIGH: Enforce WebSocket expiry and rate limits; revocation remains bounded by JWT TTL
 - [x] HIGH: Make refresh rotation atomic in one SQLite transaction
 - [x] MEDIUM: Add Origin/CSRF validation and bounded auth request inputs

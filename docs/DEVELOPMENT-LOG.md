@@ -844,3 +844,47 @@ Bumped workspace version `0.1.0` → `0.2.0`. Aligned `admin-cli` Cargo manifest
 **Limitations:** PipeWire/ALSA SIMULATED. ARM64 not hardware-validated. Caddy log sanitization for Sec-WebSocket-Protocol is operator-configurable (LOW finding, documented).
 
 **Next:** Authorize every WebSocket message by role (Phase 3 HIGH remaining); add code coverage reporting; tag v0.3.0.
+
+---
+
+### 2026-09-09 — Phase 23: WebSocket master gain/mute control with RBAC and broadcast
+
+**Goal:** Complete WebSocket message authorization (Phase 3 HIGH); add SetMasterGain/SetMasterMute commands with MasterAck response and broadcast fan-out.
+
+**Implemented:**
+
+#### control-protocol/src/lib.rs
+- `SetMasterGain { mix_index: u8, gain_db: f32 }` and `SetMasterMute { mix_index: u8, muted: bool }` added to `ClientMessage`.
+- `MasterAck { mix_index, master_gain_db, master_muted, revision }` added to `ServerMessage`.
+- Round-trip serde tests for both new messages and MasterAck.
+
+#### control-server/src/lib.rs
+- `SetMasterGain` dispatch: validates gain_db finite + in [GAIN_DB_MIN, GAIN_DB_MAX]; calls `mix.set_master_gain_db()`; returns `MasterAck`.
+- `SetMasterMute` dispatch: calls `mix.set_master_muted()`; returns `MasterAck`.
+- Unit tests: gain/mute ack on success, INVALID_GAIN for bad gain, MIX_NOT_FOUND for invalid index.
+
+#### api-server/src/state.rs
+- `MasterDelta` struct added (parallel to `SendDelta`).
+- `master_event_tx: broadcast::Sender<MasterDelta>` added to `AppState` (capacity 256).
+
+#### api-server/src/ws.rs
+- `check_permission`: Musician role explicitly blocked from `SetMasterGain` and `SetMasterMute`.
+- `master_mix_index()` helper extracts mix index from master mutation messages.
+- `handle_socket`: subscribes `master_event_rx` before loop; 3-branch `tokio::select!` (recv + send delta + master delta).
+- Master mutations broadcast `MasterDelta`; fan-out filters: Engineer/Admin see all mixes, Musician sees only assigned mix.
+- Originator skipped in broadcast (consistent with send-delta model).
+
+**Tests:**
+- control-protocol: 3 round-trip serde tests (SetMasterGain, SetMasterMute, MasterAck).
+- control-server: 4 unit tests (gain ack, mute ack, INVALID_GAIN, MIX_NOT_FOUND).
+- api-server integration: 7 WS tests (engineer gain/mute ack, musician denied gain/mute, invalid gain, broadcast to other sessions, musician broadcast filter).
+
+**Independent review:** passed=true. Suggestions: DB error logging in fan-out (LOW, documented in TODO); mix_assignment_lock contention in fan-out (LOW, documented in TODO); musician-filtered broadcast test (added).
+
+**Security review findings:** None. All WebSocket messages now have explicit RBAC; closes Phase 3 HIGH item.
+
+**Verification:** cargo fmt PASS; cargo clippy --all-targets -D warnings PASS; cargo test --workspace PASS: 215 tests, 0 failures. Static scan clean. Independent reviewer: passed=true.
+
+**Limitations:** PipeWire/ALSA SIMULATED. ARM64 not hardware-validated.
+
+**Next:** Tag v0.3.0; code coverage reporting; musician-filtered master broadcast test (added this phase); v0.3.0 release notes.
