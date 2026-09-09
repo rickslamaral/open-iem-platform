@@ -30,23 +30,21 @@ use axum::{
 use axum_test::TestServer;
 use control_protocol::Role;
 use control_server::ControlState;
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 
 // ── Test-only Ed25519 PEM pair ──────────────────────────────────────────────
 // Generated once with `openssl genpkey -algorithm ed25519`. These keys are
 // public test-only fixtures; they are never used for production tokens.
 
-const TEST_PRIVATE_PEM: &[u8] =
-    include_bytes!("fixtures/test_ed25519_private.pem");
+const TEST_PRIVATE_PEM: &[u8] = include_bytes!("fixtures/test_ed25519_private.pem");
 
-const TEST_PUBLIC_PEM: &[u8] =
-    include_bytes!("fixtures/test_ed25519_public.pem");
+const TEST_PUBLIC_PEM: &[u8] = include_bytes!("fixtures/test_ed25519_public.pem");
 
 // ── Shared test fixture ────────────────────────────────────────────────────
 
 fn build_test_app() -> (TestServer, AppState) {
-    let jwt = JwtKeys::from_ed_pem(TEST_PRIVATE_PEM, TEST_PUBLIC_PEM)
-        .expect("test PEM must be valid");
+    let jwt =
+        JwtKeys::from_ed_pem(TEST_PRIVATE_PEM, TEST_PUBLIC_PEM).expect("test PEM must be valid");
     let db = Db::open_in_memory().expect("in-memory DB must open");
     let state = AppState::new(ControlState::new(), db, jwt);
 
