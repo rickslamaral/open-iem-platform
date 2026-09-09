@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 23 documentation
+- Guia do Músico atualizado para refletir estado e controles implementados até Phase 23.
+
 ### Fixed — Release 0.3.1 preparation
 - Preparada consistência de versão entre manifests Rust, frontends e lockfiles após `v0.3.0` ter apontado para commit anterior à sincronização.
 - Próximo tag de release deve ser `v0.3.1`; `v0.3.0` remoto permanece imutável e inválido para o gate atual.

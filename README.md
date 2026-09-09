@@ -44,7 +44,7 @@ IEM    IEM    IEM
 
 O cliente Musician envia access token no subprotocolo de autenticação `openiem.bearer.<JWT>` junto de `openiem.v1` durante o upgrade HTTP; `/ws/v1` valida ambos e ecoa somente `openiem.v1`. Query strings não carregam mais tokens. ACKs, snapshot REST, ownership, ordenação e limites permanecem ativos. Áudio, sessões WebRTC e telemetria permanecem SIMULATED no VPS.
 
-See [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md). [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md). [Phase 18 review](docs/reviews/PHASE-18-REVIEW.md). [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
+See [Phase 23 review](docs/reviews/PHASE-23-REVIEW.md). [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md). [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md). [Phase 18 review](docs/reviews/PHASE-18-REVIEW.md). [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
 
 ## Development Phases
 

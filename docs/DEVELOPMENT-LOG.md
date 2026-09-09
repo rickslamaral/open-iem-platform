@@ -4,6 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 23 follow-up: documentação e gates locais
+
+**Branch:** `main`
+**Ambiente:** VPS Linux x86_64; áudio SIMULATED
+
+### Implementado
+
+- Guia do Músico atualizado de Phase 20 para Phase 23.
+- Estado remoto consultado: `v0.3.1` falhou no gate de consistência; CI de `main` falhou antes de executar steps, sem logs acessíveis ao token atual.
+
+### Verificação
+
+- Rust fmt, 159 testes workspace e clippy `-D warnings`: PASS.
+- Musician: `npm ci`, typecheck, 32 testes, build e audit high: PASS.
+- Engineer: `npm ci`, typecheck, 2 testes, build e audit high: PASS.
+- `scripts/validate-skills.sh` e `git diff --check`: PASS.
+
+### Limitações
+
+CI remoto segue BLOCKED por falha de infraestrutura/permissão antes dos steps; causa detalhada não está disponível via API autenticada atual. Release `v0.3.1` não deve ser declarada publicada. PipeWire, Opus, mídia WebRTC real e runtime ARM64 continuam SIMULATED/não validados no VPS.
+
+### Próximo
+
+Publicar mudança documental em branch/PR, corrigir acesso aos logs ou reexecutar CI com token autorizado, depois validar pipeline `v0.3.1`.
+
+---
+
 ## 2026-09-09 — Release 0.3.1: correção do gate de versão
 
 **Branch:** `main`
