@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 20
+- Musician hook tests cover authenticated REST snapshot, malformed nested state, delayed snapshot protection and `SendAck` reconciliation.
+- WebSocket client validates protocol version, bounded request ID, ACK ranges and aborts snapshot fetch during connection cleanup.
+
+### Security — Phase 20
+- REST snapshot uses `Authorization: Bearer <token>`.
+- Invalid ACK gain/pan values and malformed envelopes are rejected before local state mutation.
+- WebSocket query-string token remains a documented limitation until cookie/subprotocol authentication is implemented.
+
 ### Added — Phase 19
 - Musician client reconciles assigned mix snapshot through authenticated `GET /api/v1/state` after WebSocket connection.
 - Nested snapshot validation rejects malformed or non-finite channel, mix and send values.

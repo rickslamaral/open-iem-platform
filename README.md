@@ -40,7 +40,9 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Phase 19 — Reconciliação completa do cliente Musician** (controle operacional; áudio SIMULATED no VPS)
+**Phase 20 — Verificação da reconciliação Musician** (controle operacional; áudio SIMULATED no VPS)
+
+O hook Musician valida envelopes WebSocket completos, faixas de ACK, snapshot REST autenticado e cancela fetch no encerramento da conexão. Testes cobrem snapshot inválido, snapshot atrasado e aplicação de ACK.
 
 `/ws/v1` publica ACKs não solicitados para sessões Engineer/Admin após mutações de gain, pan e mute; músicos recebem somente deltas do mix atribuído. Cliente Musician busca `GET /api/v1/state` após conexão, valida snapshot aninhado, rejeita snapshot atrasado e aplica `SendAck` ao estado local. Mutations aguardam mix atribuído conhecido. Ownership, dispatch e publicação usam `mix_assignment_lock`, com ordenação de mutações e sem manter lock durante I/O de socket. Áudio, sessões WebRTC e telemetria permanecem SIMULATED no VPS.
 
