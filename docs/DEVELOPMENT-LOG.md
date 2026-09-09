@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 15: atomicidade de ownership
+
+**Branch:** `main`
+**Ambiente:** VPS Linux x86_64; áudio SIMULATED
+
+### Implementado
+
+- `mix_assignment_lock` cobre listagem de assignments, leitura de sends e mutações de gain, pan e mute.
+- Ownership é validado sob o mesmo lock usado por assign/unassign, snapshot e signaling.
+- Janela TOCTOU entre assignment persistido e alteração de send foi fechada.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check` PASS.
+- `cargo test --manifest-path server/Cargo.toml --all` PASS: 141 testes.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` PASS.
+
+### Limitações
+
+- PipeWire, Opus, mídia WebRTC e telemetria real permanecem SIMULATED no VPS.
+- TLS de exposição externa continua pendente.
+
+---
+
 ## 2026-09-09 — Phase 14: snapshot e telemetria
 
 **Branch:** `main`

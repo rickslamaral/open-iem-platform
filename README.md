@@ -40,9 +40,9 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Phase 14 — Snapshot e telemetria** (Engineer Console operational; áudio SIMULATED no VPS)
+**Phase 15 — Atomicidade de ownership** (Engineer Console operational; áudio SIMULATED no VPS)
 
-`web/engineer` now provides in-memory-token login, HttpOnly-cookie refresh after 401, authenticated dashboard polling, active WebRTC session listing, state revision display, and Engineer mix assignment/removal. It calls only existing API contracts; user catalog remains Admin-only, so assignment uses numeric user ID. Sessions and audio status remain SIMULATED because VPS has no PipeWire hardware. Real PipeWire capture, Opus delivery and live telemetry require later Raspberry Pi work; control snapshot is available through the versioned API contract.
+`mix_assignment_lock` now covers assignment listing, musician send reads/mutations, snapshot, and signaling ownership checks. This closes the assignment-check/update TOCTOU window. `web/engineer` now provides in-memory-token login, HttpOnly-cookie refresh after 401, authenticated dashboard polling, active WebRTC session listing, state revision display, and Engineer mix assignment/removal. It calls only existing API contracts; user catalog remains Admin-only, so assignment uses numeric user ID. Sessions and audio status remain SIMULATED because VPS has no PipeWire hardware. Real PipeWire capture, Opus delivery and live telemetry require later Raspberry Pi work; control snapshot is available through the versioned API contract.
 
 See [Phase 6 review](docs/reviews/PHASE-6-REVIEW.md).
 
