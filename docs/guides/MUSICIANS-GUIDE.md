@@ -1,6 +1,6 @@
 # Guia do Músico — Open IEM Platform
 
-> **Versão:** Phase 7 · **Idioma:** pt-BR  
+> **Versão:** Phase 15 · **Idioma:** pt-BR
 > Última atualização: 2026-09-09
 
 ---
@@ -101,7 +101,7 @@ Serviços disponíveis:
 
 ## 4. Criação de Usuário Músico
 
-> **PENDENTE:** Interface administrativa para criar usuários via CLI ou painel web ainda não implementada. Crie usuários diretamente via API (requer token ADMIN):
+> A criação de usuários ocorre pela API Admin ou pelo `open-iem-admin`; não há painel web Admin neste momento. O exemplo abaixo exige token ADMIN:
 
 ```bash
 # Exemplo — requer token de administrador no header Authorization
@@ -111,7 +111,7 @@ curl -X POST http://localhost:3000/api/v1/admin/users \
   -d '{"username": "joao", "password": "senha-segura", "role": "MUSICIAN"}'
 ```
 
-> Nota: A rota `/api/v1/admin/users` está **PENDENTE** de implementação. Consulte o engenheiro de sistema para criação de contas no estado atual.
+> A rota `/api/v1/admin/users` está implementada e exige papel `ADMIN`. Para uso repetido, prefira `open-iem-admin user create`.
 
 ---
 
@@ -196,7 +196,7 @@ Para áudio real funcionar, o servidor precisa rodar em hardware Raspberry Pi 5 
 | Acessar mix de outro músico | ❌ | ✅ | ✅ |
 | WebSocket controle | ✅ | ✅ | ✅ |
 
-> Nota: Enforcement de propriedade de mix por músico está **PENDENTE** (depende do modelo de assignação de mixes — Phase 8).
+> Ownership de mix é validado no backend. O músico só acessa sends do mix atribuído; a validação e a mutação ocorrem sob lock compartilhado para evitar TOCTOU.
 
 ---
 
@@ -277,7 +277,7 @@ Sem atribuição ou tentando outro mix, API retorna `403 Forbidden`. Controles d
 | HTTPS/TLS integrado | ⚠️ PENDENTE (usar proxy externo) |
 | Windows/macOS (servidor) | ⚠️ Não testado |
 | Assignação de mix por músico | ✅ Implementado no backend |
-| Enforcement de ownership por MUSICIAN | ✅ Implementado para sends e signaling; atomicidade de mutações em backlog |
+| Enforcement de ownership por MUSICIAN | ✅ Implementado para sends e signaling; mutações protegidas por lock compartilhado |
 | Volume master wire-up | ⚠️ PENDENTE |
 
 ---
