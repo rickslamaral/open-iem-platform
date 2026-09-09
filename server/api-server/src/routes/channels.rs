@@ -254,6 +254,9 @@ pub async fn set_channel_gain(
         ServerMessage::Error { code, message } => {
             Err(ApiError::BadRequest(format!("{code}: {message}")))
         }
+        ServerMessage::SendAck { .. } => {
+            Err(ApiError::Internal("unexpected server message".to_owned()))
+        }
     }
 }
 
@@ -289,6 +292,9 @@ pub async fn set_channel_mute(
         ServerMessage::State { revision } => Ok(Json(serde_json::json!({ "revision": revision }))),
         ServerMessage::Error { code, message } => {
             Err(ApiError::BadRequest(format!("{code}: {message}")))
+        }
+        ServerMessage::SendAck { .. } => {
+            Err(ApiError::Internal("unexpected server message".to_owned()))
         }
     }
 }

@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 16
+- WebSocket send mutations: `SetSendGain`, `SetSendPan`, `SetSendMuted` client messages via `/ws/v1`.
+- `SendAck` server message: echoes current gain_db, pan, muted and state revision after each send mutation.
+- Musician ownership enforcement: ws_handler rejects send mutations targeting a mix not assigned to the authenticated musician.
+- Input validation in dispatch: `gain_db` must be finite and within `GAIN_DB_MIN..=GAIN_DB_MAX`; `pan` must be finite and within ±1.0.
+- 17 new tests (7 WS integration, 6 control-server unit, 4 protocol round-trip).
+- `axum-test` ws feature enabled in api-server dev-dependencies.
+
 ### Fixed — Phase 15 follow-up
 - Musician Guide LAN example now uses actual server environment variable names (`OPENIEM_BIND_ADDR` and `OPENIEM_ALLOW_INSECURE_HTTP`).
 
