@@ -4,6 +4,61 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 7: Biquad EQ + RMS Compressor DSP
+
+**Branch:** `feat/phase7-dsp` → squash-merge pending  
+**Tests:** 152 passed (↑ from 135), 0 failed
+
+### Implemented
+
+#### Biquad Parametric EQ (`mix-engine/src/eq.rs`)
+- Replaced Phase 2 passthrough stub with real Type-II Transposed Direct Form II (TDF2) peaking biquad filter.
+- Coefficients follow Audio EQ Cookbook (RBJ): b0/b1/b2/a1/a2 for peaking filter at configured frequency/gain/Q.
+- `SAMPLE_RATE = 48_000.0` constant; coefficients recomputed on `set_band`.
+- `BiquadCoeffs { b0, b1, b2, a1, a2 }` — `identity()` and `peaking(frequency_hz, gain_db, q)`.
+- `BiquadState { w1_l, w2_l, w1_r, w2_r }` — stereo delay lines inline, zero heap allocation.
+- `ParametricEq::process(&mut self, l, r) -> (f32, f32)` — applies all enabled bands sequentially.
+- API surface maintained: `bands: [EqBand; 4]`, `revision`, `set_band(index, band)`.
+- Breaking change: `process` now `&mut self` (state mutation required for biquad).
+
+#### RMS Compressor (`mix-engine/src/compressor.rs`)
+- Replaced Phase 2 passthrough stub with stereo-linked RMS detector + smoothed gain reduction.
+- Stereo link: detector uses `max(|L|, |R|)`.
+- RMS: exp-moving-average of x² using configurable attack/release coefficients.
+- Gain reduction: `(1 - 1/ratio) * (threshold_db - rms_db)` when RMS above threshold.
+- Smoothed envelope: separate attack/release on gain_reduction_db.
+- New mutators: `set_threshold`, `set_ratio`, `set_attack_ms`, `set_release_ms` — all bump revision.
+- State inline: `rms_state: f32`, `gain_db: f32` — no heap allocation.
+- Disabled: passthrough.
+
+#### Documentation & Infrastructure
+- `docker-compose.yml` — dev environment with api-server, musician-ui, engineer-ui.
+- `docs/guides/MUSICIANS-GUIDE.md` — 14-section guide in pt-BR (server setup, login, mix control, WebRTC status, permissions, diagnostics, LAN, security, limitations).
+- `docs/reviews/PHASE-6-REVIEW.md` — Phase 6 review (was missing).
+- `docs/reviews/PHASE-7-REVIEW.md` — Phase 7 review.
+- CHANGELOG, TODO, DEVELOPMENT-LOG updated.
+- `cargo fmt --all` applied.
+
+### Test Results
+
+| Crate | Tests |
+|-------|-------|
+| mix-engine | 74 |
+| api-server (integration) | 19 |
+| audio-engine | 20 |
+| control-server | 13 |
+| control-protocol | 7 |
+| doc-tests | 3 |
+| **Total** | **152** |
+
+### Not Yet Done (Phase 8 targets)
+- Integrate EQ + Compressor into `Mix::process` audio chain.
+- Admin CLI for user management.
+- Musician Guide PDF generation.
+- EQ coefficient validation vs reference implementation (scipy).
+
+---
+
 ## 2026-09-08 — Phase 6: Real trickle-ICE injection + HTTP integration tests
 
 **Branch:** `feat/phase6-trickle-ice`

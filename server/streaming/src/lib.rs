@@ -10,7 +10,7 @@
 
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc, time::Instant};
-use str0m::{Candidate, change::SdpOffer, Rtc};
+use str0m::{change::SdpOffer, Candidate, Rtc};
 use thiserror::Error;
 use tokio::sync::Mutex;
 use tracing::debug;

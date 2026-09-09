@@ -18,6 +18,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Establish authentication mechanism decision (ADR-008 — Accepted; implementation pending)
 - [x] HTTP integration tests for api-server (Phase 6 — 19 tests green)
 - [x] Trickle ICE real injection in Sans-IO loop (Phase 6 — str0m Candidate::from_sdp_string)
+- [x] Biquad EQ real DSP (Phase 7 — TDF2 peaking biquad, RBJ coefficients, no heap)
+- [x] RMS Compressor real DSP (Phase 7 — stereo-linked, exp-RMS, smoothed gain reduction)
 - [ ] Add ARM64 cross-compilation to CI (requires `aarch64-unknown-linux-gnu` setup)
 
 ---
@@ -26,7 +28,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Initialize Rust workspace (`server/Cargo.toml`)
 - [x] Initialize frontend projects (`web/musician/`, `web/engineer/`) — Phase 4 complete
-- [ ] Create Docker Compose for local development
+- [x] Create Docker Compose for local development
 - [x] Define PipeWire filter node architecture for Mix Engine (pipewire-jack — see docs/research/pipewire-integration.md)
 - [x] Design channel/mix state machine (revision control — implemented in mix-engine)
 - [x] Define WebSocket message type catalog (`server/control-protocol/`; Phase 3 foundation)
@@ -66,6 +68,18 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] MEDIUM: Parse bind address as SocketAddr and fail closed for non-loopback HTTP without explicit dev override
 - [x] MEDIUM: Preflight refresh token owner and JWT before atomic rotation to avoid token loss on issuance failure
 - [ ] MEDIUM: Enforce musician mix ownership after mix assignment model exists
+
+## PHASE 7 STATUS
+
+- [x] Biquad peaking EQ real processing (TDF2, RBJ coefficients, stereo biquad state, 48kHz)
+- [x] Stereo-linked RMS compressor (exp-RMS detector, smoothed gain reduction, mutators)
+- [x] Docker Compose dev environment (api-server, musician-ui, engineer-ui)
+- [x] Musician Guide pt-BR (docs/guides/MUSICIANS-GUIDE.md)
+- [x] PHASE-6-REVIEW.md and PHASE-7-REVIEW.md
+- [ ] Integrate EQ + Compressor into Mix::process audio chain (Phase 8)
+- [ ] Create admin CLI for user management (Phase 8)
+- [ ] Generate Musician Guide PDF (Phase 8 documentation)
+- [ ] Biquad coefficient validation vs reference implementation (Phase 8)
 
 ## PHASE 1 STATUS
 
