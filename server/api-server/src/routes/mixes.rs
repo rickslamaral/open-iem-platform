@@ -111,6 +111,7 @@ pub async fn assign_mix(
     Json(body): Json<AssignRequest>,
 ) -> Result<Json<MixAssignment>, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
+    let _assignment_guard = state.mix_assignment_lock.lock().await;
     if index >= MAX_MIXES || body.user_id <= 0 {
         return Err(ApiError::BadRequest("invalid mix assignment".to_owned()));
     }
@@ -129,6 +130,7 @@ pub async fn unassign_mix(
     Path(index): Path<usize>,
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
+    let _assignment_guard = state.mix_assignment_lock.lock().await;
     state.db.unassign_mix(index)?;
     Ok(StatusCode::NO_CONTENT)
 }

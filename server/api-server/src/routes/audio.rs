@@ -3,14 +3,32 @@
 use crate::{auth::JwtClaims, error::ApiError, middleware::require_min_role, state::AppState};
 use axum::{extract::State, response::IntoResponse, Json};
 use control_protocol::Role;
+use mix_engine::MAX_MIXES;
 use serde::{Deserialize, Serialize};
 use streaming::SessionInfo;
 
 const MAX_MIX_ID_BYTES: usize = 128;
 
-fn validate_mix_id(mix_id: Option<&str>) -> Result<(), ApiError> {
-    if mix_id.is_some_and(|value| value.is_empty() || value.len() > MAX_MIX_ID_BYTES) {
+fn validate_mix_id(
+    mix_id: Option<&str>,
+    claims: &JwtClaims,
+    state: &AppState,
+) -> Result<(), ApiError> {
+    let Some(value) = mix_id else {
+        return Ok(());
+    };
+    if value.is_empty() || value.len() > MAX_MIX_ID_BYTES {
         return Err(ApiError::BadRequest("mix_id has invalid length".to_owned()));
+    }
+    if claims.role == Role::Musician {
+        let mix_index = value
+            .parse::<usize>()
+            .map_err(|_| ApiError::BadRequest("mix_id must be a numeric mix index".to_owned()))?;
+        if mix_index >= MAX_MIXES
+            || state.db.get_user_assigned_mix(claims.user_id)? != Some(mix_index)
+        {
+            return Err(ApiError::Forbidden("musician does not own this mix"));
+        }
     }
     Ok(())
 }
@@ -56,7 +74,8 @@ pub async fn offer(
     Json(body): Json<OfferRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Musician)?;
-    validate_mix_id(body.mix_id.as_deref())?;
+    let _assignment_guard = state.mix_assignment_lock.lock().await;
+    validate_mix_id(body.mix_id.as_deref(), &claims, &state)?;
     let answer = state
         .streaming
         .negotiate_offer(&claims.sub, &body.sdp, body.mix_id)

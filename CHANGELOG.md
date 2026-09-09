@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 13
+- `POST /api/v1/audio/offer` agora valida `mix_id` de músicos contra assignment persistido antes de criar sessão WebRTC.
+
 ### Added — Phase 6 Engineer Console
 - Engineer Console funcional em `web/engineer`: login, refresh por cookie HttpOnly após 401, dashboard autenticado, polling limitado, revisão do estado, sessões WebRTC e atribuição/remoção de mixes.
 - Indicador explícito `SIMULATED` para áudio sem PipeWire no VPS.
