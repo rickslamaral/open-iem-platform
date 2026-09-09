@@ -759,7 +759,10 @@ async fn ws_engineer_set_send_gain_returns_send_ack() {
     let mut ws = server
         .get_websocket("/ws/v1")
         .add_header("Origin", "http://localhost")
-        .authorization_bearer(&token)
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
         .await
         .into_websocket()
         .await;
@@ -787,7 +790,10 @@ async fn ws_engineer_set_send_pan_returns_send_ack() {
     let mut ws = server
         .get_websocket("/ws/v1")
         .add_header("Origin", "http://localhost")
-        .authorization_bearer(&token)
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
         .await
         .into_websocket()
         .await;
@@ -812,7 +818,10 @@ async fn ws_engineer_set_send_muted_returns_send_ack() {
     let mut ws = server
         .get_websocket("/ws/v1")
         .add_header("Origin", "http://localhost")
-        .authorization_bearer(&token)
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
         .await
         .into_websocket()
         .await;
@@ -837,7 +846,10 @@ async fn ws_musician_denied_set_send_gain_on_unassigned_mix() {
     let mut ws = server
         .get_websocket("/ws/v1")
         .add_header("Origin", "http://localhost")
-        .authorization_bearer(&token)
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
         .await
         .into_websocket()
         .await;
@@ -864,7 +876,10 @@ async fn ws_musician_allowed_set_send_gain_on_assigned_mix() {
     let mut ws = server
         .get_websocket("/ws/v1")
         .add_header("Origin", "http://localhost")
-        .authorization_bearer(&token)
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
         .await
         .into_websocket()
         .await;
@@ -889,7 +904,10 @@ async fn ws_musician_denied_channel_gain_mutation() {
     let mut ws = server
         .get_websocket("/ws/v1")
         .add_header("Origin", "http://localhost")
-        .authorization_bearer(&token)
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
         .await
         .into_websocket()
         .await;
@@ -919,7 +937,10 @@ async fn ws_invalid_gain_nan_returns_error() {
     let mut ws = server
         .get_websocket("/ws/v1")
         .add_header("Origin", "http://localhost")
-        .authorization_bearer(&token)
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
         .await
         .into_websocket()
         .await;
@@ -951,7 +972,10 @@ async fn ws_send_mutation_broadcasts_to_other_sessions() {
     let mut mutator = server
         .get_websocket("/ws/v1")
         .add_header("Origin", "http://localhost")
-        .authorization_bearer(&mutator_token)
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{mutator_token}, openiem.v1"),
+        )
         .await
         .into_websocket()
         .await;
@@ -959,7 +983,10 @@ async fn ws_send_mutation_broadcasts_to_other_sessions() {
     let mut observer = server
         .get_websocket("/ws/v1")
         .add_header("Origin", "http://localhost")
-        .authorization_bearer(&observer_token)
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{observer_token}, openiem.v1"),
+        )
         .await
         .into_websocket()
         .await;

@@ -1,6 +1,7 @@
 //! WebSocket handler: `/ws/v1`
 //!
-//! Authenticates via `Authorization: Bearer <token>` header during HTTP upgrade.
+//! Authenticates via `Sec-WebSocket-Protocol: openiem.bearer.<JWT>, openiem.v1` during HTTP upgrade.
+//! Only `openiem.v1` is echoed in the upgrade response; bearer token is never returned.
 //! Each connection dispatches `ClientMessage` frames and receives `ServerMessage` responses.
 //! Connection is closed on:
 //!   - Auth failure
@@ -29,7 +30,7 @@ use crate::{
 use axum::{
     extract::{
         ws::{Message, WebSocket},
-        State, WebSocketUpgrade,
+        Extension, State, WebSocketUpgrade,
     },
     response::IntoResponse,
 };
@@ -59,14 +60,14 @@ const MAX_WS_MESSAGE_BYTES: usize = MAX_MESSAGE_BYTES;
 
 /// `/ws/v1` WebSocket upgrade handler.
 ///
-/// Auth via `Authorization: Bearer <token>` header on the initial HTTP upgrade request.
+/// Auth via `Sec-WebSocket-Protocol: openiem.bearer.<JWT>` on initial HTTP upgrade request.
 /// Rejects with 401 if token is missing or invalid.
 pub async fn ws_handler(
     State(state): State<AppState>,
     ws: WebSocketUpgrade,
-    axum::Extension(claims): axum::Extension<JwtClaims>,
+    Extension(claims): Extension<JwtClaims>,
 ) -> impl IntoResponse {
-    ws.on_upgrade(move |socket| {
+    ws.protocols(["openiem.v1"]).on_upgrade(move |socket| {
         let session_id = u128::from(NEXT_SESSION_ID.fetch_add(1, Ordering::Relaxed));
         handle_socket(socket, state, claims, session_id)
     })

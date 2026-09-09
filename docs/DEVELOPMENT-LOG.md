@@ -4,6 +4,35 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 21: autenticação WebSocket sem token em URL
+
+**Branch:** `main`
+**Ambiente:** VPS Linux x86_64; áudio SIMULATED
+
+### Implementado
+
+- Middleware autentica `/ws/v1` usando `Sec-WebSocket-Protocol: openiem.bearer.<JWT>, openiem.v1`; endpoints HTTP continuam usando `Authorization: Bearer`.
+- `WebSocketUpgrade::protocols` seleciona e ecoa somente `openiem.v1`; bearer não retorna no handshake.
+- Cliente Musician usa URL fixa `/ws/v1` e passa token somente como subprotocolo.
+- Testes cobrem extração de protocolo, ausência de credencial, integração WS e cliente.
+
+### Verificação
+
+- Rust fmt, 41 testes de integração + 19 unitários e clippy `-D warnings`: PASS.
+- Musician: 32 testes, typecheck e build: PASS.
+- Engineer: 2 testes, typecheck e build: PASS.
+- `git diff --check`: PASS.
+
+### Limitações
+
+TLS de exposição externa, PipeWire/Opus, mídia WebRTC real, telemetria e runtime ARM64 continuam pendentes ou SIMULATED no VPS.
+
+### Próximo
+
+Validar TLS fail-closed e deployment no Raspberry Pi 5.
+
+---
+
 ## 2026-09-09 — Phase 20: verificação da reconciliação Musician
 
 **Branch:** `main`

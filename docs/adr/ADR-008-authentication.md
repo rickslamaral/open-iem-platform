@@ -34,7 +34,7 @@ Use username/password login with short-lived Ed25519-signed JWT access tokens an
 - [x] Token refresh: rotating opaque refresh token with reuse detection.
 - [x] Secure token storage: `HttpOnly` + `Secure` + `SameSite=Strict` cookies.
 - [x] HTTPS: mandatory; provision a trusted local certificate/CA for target hardware.
-- [x] WebSocket auth: cookie during initial HTTPS upgrade; never token in URL.
+- WebSocket auth: authenticate `openiem.bearer.<JWT>` plus `openiem.v1` during initial HTTPS upgrade; echo only `openiem.v1`, never token in URL.
 
 ## Implementation dependencies
 The backend must use a maintained JWT crate configured for EdDSA, Argon2id password hashing, a CSPRNG for refresh tokens, and secret-safe handling. Dependency versions require `cargo audit` before production release.
