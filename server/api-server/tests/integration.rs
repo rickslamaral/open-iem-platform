@@ -935,3 +935,56 @@ async fn ws_invalid_gain_nan_returns_error() {
     assert_eq!(resp["payload"]["type"], "Error");
     assert_eq!(resp["payload"]["data"]["code"], "INVALID_GAIN");
 }
+
+// ── WebSocket broadcast: delta received by observer ────────────────────────
+//
+// Two clients connect simultaneously (engineer mutator + engineer observer).
+// Mutator sends SetSendGain; observer must receive an unsolicited SendAck
+// broadcast within a short timeout.
+
+#[tokio::test]
+async fn ws_send_mutation_broadcasts_to_other_sessions() {
+    let (server, state) = build_ws_app();
+    let mutator_token = seed_user_and_login(&state, "eng_broadcast_mut", "pw", Role::Engineer);
+    let observer_token = seed_user_and_login(&state, "eng_broadcast_obs", "pw", Role::Engineer);
+
+    let mut mutator = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&mutator_token)
+        .await
+        .into_websocket()
+        .await;
+
+    let mut observer = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&observer_token)
+        .await
+        .into_websocket()
+        .await;
+
+    // Mutator changes gain on mix 0, channel 1.
+    mutator
+        .send_text(ws_envelope(
+            "SetSendGain",
+            json!({"mix_index": 0, "channel_index": 1, "gain_db": -9.0}),
+        ))
+        .await;
+
+    // Mutator receives its own SendAck.
+    let mutator_resp: Value = mutator.receive_json().await;
+    assert_eq!(mutator_resp["payload"]["type"], "SendAck");
+
+    // Observer must receive an unsolicited broadcast SendAck.
+    let obs_resp: Value =
+        tokio::time::timeout(std::time::Duration::from_secs(5), observer.receive_json())
+            .await
+            .expect("observer did not receive broadcast within 5 s");
+
+    assert_eq!(obs_resp["payload"]["type"], "SendAck");
+    assert_eq!(obs_resp["payload"]["data"]["mix_index"], 0);
+    assert_eq!(obs_resp["payload"]["data"]["channel_index"], 1);
+    let gain: f64 = obs_resp["payload"]["data"]["gain_db"].as_f64().unwrap();
+    assert!((gain - (-9.0)).abs() < 0.001);
+}

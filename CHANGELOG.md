@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 17
+- WebSocket send mutation broadcasts: connected Engineer/Admin sessions receive unsolicited `SendAck` deltas after another session changes gain, pan or mute.
+- Musician sessions receive broadcast deltas only for their currently assigned mix; originator receives only direct acknowledgement.
+- Broadcast integration coverage added for cross-session delivery.
+
+### Security — Phase 17
+- WebSocket send ownership check and dispatch now share `mix_assignment_lock`, closing the assignment TOCTOU window.
+- Broadcast ordering is serialized with assignment/mutation operations; ownership filtering builds payload under lock and releases lock before outbound socket I/O.
+
 ### Added — Phase 16
 - WebSocket send mutations: `SetSendGain`, `SetSendPan`, `SetSendMuted` client messages via `/ws/v1`.
 - `SendAck` server message: echoes current gain_db, pan, muted and state revision after each send mutation.
