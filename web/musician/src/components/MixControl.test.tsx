@@ -6,6 +6,7 @@ import type { UseWebSocketResult } from '../hooks/useWebSocket';
 const mockWs: UseWebSocketResult = {
   status: 'connected',
   revision: 5,
+  snapshot: null,
   error: null,
   send: vi.fn(),
   disconnect: vi.fn(),

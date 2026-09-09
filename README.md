@@ -40,11 +40,11 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Phase 18 — Reconciliação de revisão no cliente** (controle operacional; áudio SIMULATED no VPS)
+**Phase 19 — Reconciliação completa do cliente Musician** (controle operacional; áudio SIMULATED no VPS)
 
-`/ws/v1` publica ACKs não solicitados para sessões Engineer/Admin após mutações de gain, pan e mute; músicos recebem somente deltas do mix atribuído. Clientes Musician aceitam `State` e `SendAck` somente quando revisão não regride, evitando que mensagens atrasadas façam UI exibir estado antigo. Ownership, dispatch e publicação usam `mix_assignment_lock`, com ordenação de mutações e sem manter lock durante I/O de socket. Áudio, sessões WebRTC e telemetria permanecem SIMULATED no VPS.
+`/ws/v1` publica ACKs não solicitados para sessões Engineer/Admin após mutações de gain, pan e mute; músicos recebem somente deltas do mix atribuído. Cliente Musician busca `GET /api/v1/state` após conexão, valida snapshot aninhado, rejeita snapshot atrasado e aplica `SendAck` ao estado local. Mutations aguardam mix atribuído conhecido. Ownership, dispatch e publicação usam `mix_assignment_lock`, com ordenação de mutações e sem manter lock durante I/O de socket. Áudio, sessões WebRTC e telemetria permanecem SIMULATED no VPS.
 
-See [Phase 18 review](docs/reviews/PHASE-18-REVIEW.md). [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
+See [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md). [Phase 18 review](docs/reviews/PHASE-18-REVIEW.md). [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
 
 ## Development Phases
 
