@@ -733,9 +733,7 @@ fn build_ws_app() -> (axum_test::TestServer, AppState) {
         .layer(middleware::from_fn(validate_origin));
 
     // WebSocket tests require the HTTP transport (not mock).
-    let server = axum_test::TestServer::builder()
-        .http_transport()
-        .build(app);
+    let server = axum_test::TestServer::builder().http_transport().build(app);
 
     (server, state)
 }
