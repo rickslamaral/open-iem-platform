@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Phase 21 — Autenticação WebSocket sem token em URL** (controle operacional; áudio SIMULATED no VPS)
+**Phase 23 — Controle master WebSocket com RBAC** (controle operacional; áudio SIMULATED no VPS)
 
 O cliente Musician envia access token no subprotocolo de autenticação `openiem.bearer.<JWT>` junto de `openiem.v1` durante o upgrade HTTP; `/ws/v1` valida ambos e ecoa somente `openiem.v1`. Query strings não carregam mais tokens. ACKs, snapshot REST, ownership, ordenação e limites permanecem ativos. Áudio, sessões WebRTC e telemetria permanecem SIMULATED no VPS.
 

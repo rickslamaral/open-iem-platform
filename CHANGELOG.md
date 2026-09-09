@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Release 0.3.0 preparation
+- Sincronizadas versões Rust e frontend com tag `v0.3.0`; pipeline de release agora pode validar consistência.
+
 ### Added — Phase 23
 - `SetMasterGain { mix_index, gain_db }` WebSocket client message: sets master gain for a mix (Engineer/Admin only).
 - `SetMasterMute { mix_index, muted }` WebSocket client message: sets master mute for a mix (Engineer/Admin only).

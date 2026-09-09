@@ -200,4 +200,5 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] SBOM: cargo-sbom in release pipeline, best-effort non-blocking
 
 - [x] SBOM generation (cargo-sbom in release pipeline)
-- [ ] Tag v0.3.0 and verify full pipeline on GitHub Actions
+- [x] Sincronizar versões com tag v0.3.0 após falha do gate de consistência
+- [ ] Reapontar tag v0.3.0 e verificar pipeline completo no GitHub Actions

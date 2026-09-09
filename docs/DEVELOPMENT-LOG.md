@@ -847,6 +847,20 @@ Bumped workspace version `0.1.0` → `0.2.0`. Aligned `admin-cli` Cargo manifest
 
 ---
 
+### 2026-09-09 — Release 0.3.0 version synchronization
+
+**Goal:** Corrigir falha real do pipeline: tag `v0.3.0` não correspondia às versões do workspace Rust e dos dois frontends.
+
+**Implemented:** Sincronizada versão `0.3.0` em `server/Cargo.toml`, `web/musician/package.json`, `web/musician/package-lock.json`, `web/engineer/package.json` e `web/engineer/package-lock.json`. README atualizado para Phase 23.
+
+**Tests:** Skill validation PASS; `cargo fmt --all -- --check` PASS; `cargo clippy --all-targets -- -D warnings` PASS; `cargo test --all` PASS (215 testes); ambos frontends: `npm ci`, typecheck, testes (34 total) e build PASS.
+
+**Problems:** GitHub CI e Release anteriores falharam no primeiro job por inconsistência `v0.3.0`/`0.2.0`. Logs detalhados indisponíveis via token GitHub, mas estado e validação local confirmam causa no gate de versão.
+
+**Next:** Reapontar tag `v0.3.0` para commit sincronizado e verificar CI/Release reais.
+
+---
+
 ### 2026-09-09 — Phase 23: WebSocket master gain/mute control with RBAC and broadcast
 
 **Goal:** Complete WebSocket message authorization (Phase 3 HIGH); add SetMasterGain/SetMasterMute commands with MasterAck response and broadcast fan-out.
