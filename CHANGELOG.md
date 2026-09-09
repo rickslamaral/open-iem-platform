@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Added — Phase 12
+- Admin self-delete protection: `DELETE /api/v1/admin/users/{id}` returns 403 if caller matches target user ID.
+- Dependabot configuration (`.github/dependabot.yml`): Cargo (weekly, limit 5), npm musician/engineer (weekly, limit 3), GitHub Actions (weekly).
+- SBOM generation in release pipeline (`cargo-sbom`, best-effort, non-blocking); output `open-iem-server-<ver>-sbom.json` attached to GitHub Release.
+
+### Fixed — Phase 12
+- Release artifact naming bug: `build-server-x86`, `build-server-arm64`, `build-web` jobs now have `needs: [quality-gate, validate-version]` so version string is populated in artifact filenames.
+
+---
+
 ## [0.2.0] — 2026-09-09
 
 ### Added — Phase 11

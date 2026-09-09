@@ -117,3 +117,10 @@ Release pipeline in `.github/workflows/release.yml`. Push a semver tag (`v0.2.0`
 
 > **Note:** PipeWire/Opus audio is SIMULATED on VPS. ARM64 artefact is cross-compiled and untested on real Pi 5 hardware. Mark SIMULATED until physical validation.
 
+## Phase 12 — Security & Automation
+
+- **Dependabot** enabled for Cargo, npm (musician/engineer), and GitHub Actions — weekly updates.
+- **Admin self-delete protection** — `DELETE /api/v1/admin/users/{id}` returns 403 if caller's UID matches target.
+- **SBOM** — `cargo-sbom` generates `open-iem-server-<ver>-sbom.json` in release pipeline (best-effort, non-blocking).
+- **Artifact naming fix** — build jobs now depend on `validate-version` so version is non-empty in filenames.
+

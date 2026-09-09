@@ -4,9 +4,28 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 12: release fixes, Dependabot, self-delete protection, SBOM
+
+**Branch:** `feat/phase12-release-fixes`
+**Tests:** 172 passed (↑ from 171), 0 failed
+
+### Implemented
+
+Fixed artifact naming bug in release pipeline (`validate-version` not in build job needs chain). Build jobs `build-server-x86`, `build-server-arm64`, `build-web` now have `needs: [quality-gate, validate-version]` so `${{ needs.validate-version.outputs.version }}` resolves correctly.
+
+Added Dependabot for Cargo, npm (musician/engineer), and GitHub Actions in `.github/dependabot.yml`.
+
+Admin self-delete protection: `DELETE /api/v1/admin/users/{id}` returns 403 Forbidden if caller's `uid` matches the path ID. Integration test `admin_cannot_delete_own_account` added.
+
+SBOM generation added to release pipeline (best-effort, `continue-on-error: true`): installs `cargo-sbom` and generates `open-iem-server-<ver>-sbom.json`, uploaded as artifact and included in GitHub Release.
+
+**Verification:** cargo fmt PASS; cargo clippy PASS; cargo test --all PASS: 172 tests, 0 failures.
+
+---
+
 ## 2026-09-09 — Phase 8: DSP Chain Integration + Admin CLI + Musician Guide PDF
 
-**Branch:** `feat/phase8-dsp-chain`  
+**Branch:** `feat/phase8-dsp-chain`
 **Tests:** 157 passed (↑ from 152), 0 failed
 
 ### Implemented

@@ -42,7 +42,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Set up `cargo audit` in CI (Phase 8 — existing job)
 - [x] Set up `npm audit` in CI (Phase 9 — npm-audit job added)
 - [ ] Create `examples/` with minimal mix scenario
-- [ ] Configure Dependabot for dependency updates
+- [x] Configure Dependabot for dependency updates
 - [ ] Set up code coverage reporting
 
 ---
@@ -91,7 +91,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Admin CLI fix: --username/--password for user create, --id for session revoke
 - [x] Biquad coefficient validation vs Python/scipy (delta ≤ 5×10⁻⁸)
 - [x] npm audit CI job (HIGH severity gate)
-- [ ] Admin self-delete protection (policy gate — deferred Phase 10)
+- [x] Admin self-delete protection (policy gate — deferred Phase 10)
 - [ ] Musician mix ownership enforcement (requires mix assignment model)
 
 ## PHASE 8 STATUS
@@ -156,5 +156,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Workspace version bumped to 0.2.0; admin-cli aligned to workspace
 - [ ] Tag v0.2.0 and verify full pipeline on GitHub Actions
 - [ ] Validate ARM64 binary on real Raspberry Pi 5 hardware
-- [ ] Dependabot for Cargo + npm
-- [ ] SBOM generation (cyclonedx / cargo-sbom)
+- [x] Dependabot for Cargo + npm
+
+## PHASE 12 STATUS
+
+- [x] Fix release artifact naming (validate-version chain in build jobs)
+- [x] Dependabot: Cargo + npm (musician/engineer) + GitHub Actions, weekly
+- [x] Admin self-delete protection: 403 when caller deletes own UID
+- [x] SBOM: cargo-sbom in release pipeline, best-effort non-blocking
+
+- [x] SBOM generation (cargo-sbom in release pipeline)
+- [ ] Tag v0.3.0 and verify full pipeline on GitHub Actions
