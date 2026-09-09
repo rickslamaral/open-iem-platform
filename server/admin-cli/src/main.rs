@@ -71,9 +71,12 @@ enum UserCommands {
     List,
     /// Create a new user.
     Create {
-        /// Display name for the new user.
+        /// Username for the new user.
         #[arg(long)]
-        name: String,
+        username: String,
+        /// Password for the new user.
+        #[arg(long)]
+        password: String,
         /// Role for the new user (e.g. engineer, musician, admin).
         #[arg(long)]
         role: String,
@@ -90,11 +93,11 @@ enum UserCommands {
 enum SessionCommands {
     /// List active sessions.
     List,
-    /// Revoke an active session by token.
+    /// Revoke an active session by ID.
     Revoke {
-        /// Session token to revoke.
+        /// Session ID to revoke.
         #[arg(long)]
-        token: String,
+        id: u64,
     },
 }
 
@@ -256,17 +259,19 @@ fn main() {
         Commands::Health => admin.get("/api/v1/health"),
         Commands::User { action } => match action {
             UserCommands::List => admin.get("/api/v1/admin/users"),
-            UserCommands::Create { name, role } => admin.post(
+            UserCommands::Create {
+                username,
+                password,
+                role,
+            } => admin.post(
                 "/api/v1/admin/users",
-                &serde_json::json!({ "name": name, "role": role }),
+                &serde_json::json!({ "username": username, "password": password, "role": role }),
             ),
             UserCommands::Delete { id } => admin.delete(&format!("/api/v1/admin/users/{id}")),
         },
         Commands::Session { action } => match action {
             SessionCommands::List => admin.get("/api/v1/admin/sessions"),
-            SessionCommands::Revoke { token } => {
-                admin.delete(&format!("/api/v1/admin/sessions/{token}"))
-            }
+            SessionCommands::Revoke { id } => admin.delete(&format!("/api/v1/admin/sessions/{id}")),
         },
     };
 

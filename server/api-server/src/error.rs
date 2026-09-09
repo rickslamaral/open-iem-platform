@@ -17,7 +17,7 @@ pub enum ApiError {
 
     /// Resource not found.
     #[error("not found: {0}")]
-    NotFound(&'static str),
+    NotFound(String),
 
     /// Bad request payload.
     #[error("bad request: {0}")]

@@ -12,6 +12,10 @@ use api_server::{
     db::Db,
     middleware::jwt_auth,
     routes::{
+        admin::{
+            delete_user as admin_delete_user, list_sessions as admin_list_sessions,
+            list_users as admin_list_users, revoke_session as admin_revoke_session,
+        },
         audio::{ice_candidate, offer, sessions},
         auth::{create_user, login, logout, refresh},
         channels::{get_state, set_channel_gain, set_channel_mute},
@@ -56,7 +60,19 @@ fn build_test_app() -> (TestServer, AppState) {
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
         .route("/api/v1/auth/logout", post(logout))
-        .route("/api/v1/admin/users", post(create_user))
+        .route(
+            "/api/v1/admin/users",
+            get(admin_list_users).post(create_user),
+        )
+        .route(
+            "/api/v1/admin/users/{id}",
+            axum::routing::delete(admin_delete_user),
+        )
+        .route("/api/v1/admin/sessions", get(admin_list_sessions))
+        .route(
+            "/api/v1/admin/sessions/{id}",
+            axum::routing::delete(admin_revoke_session),
+        )
         .route("/ws/v1", get(ws_handler))
         .layer(middleware::from_fn_with_state(state.clone(), jwt_auth));
 
@@ -332,4 +348,148 @@ async fn set_mute_with_valid_payload_returns_200() {
         .json(&json!({"muted": true}))
         .await;
     resp.assert_status_ok();
+}
+
+// ── Admin: user listing ──────────────────────────────────────────────────────
+
+#[tokio::test]
+async fn admin_list_users_returns_all_users() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "admin_lu1", "pw", Role::Admin);
+    let pw_hash = hash_password("pw2").unwrap();
+    state
+        .db
+        .create_user("musician_lu1", &pw_hash, Role::Musician)
+        .unwrap();
+    let resp = server
+        .get("/api/v1/admin/users")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    let arr = body.as_array().expect("should be array");
+    assert!(arr.len() >= 2);
+    let usernames: Vec<&str> = arr.iter().filter_map(|u| u["username"].as_str()).collect();
+    assert!(usernames.contains(&"admin_lu1"));
+    assert!(usernames.contains(&"musician_lu1"));
+}
+
+#[tokio::test]
+async fn admin_list_users_rejected_for_non_admin() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_lu1", "pw", Role::Engineer);
+    let resp = server
+        .get("/api/v1/admin/users")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::FORBIDDEN);
+}
+
+// ── Admin: user deletion ─────────────────────────────────────────────────────
+
+#[tokio::test]
+async fn admin_delete_user_returns_204() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "admin_du1", "pw", Role::Admin);
+    let pw_hash = hash_password("pw").unwrap();
+    state
+        .db
+        .create_user("todelete1", &pw_hash, Role::Musician)
+        .unwrap();
+    let (user_id, _, _) = state.db.find_user("todelete1").unwrap();
+    let resp = server
+        .delete(&format!("/api/v1/admin/users/{user_id}"))
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::NO_CONTENT);
+    assert!(state.db.find_user("todelete1").is_err());
+}
+
+#[tokio::test]
+async fn admin_delete_nonexistent_user_returns_404() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "admin_du2", "pw", Role::Admin);
+    let resp = server
+        .delete("/api/v1/admin/users/99999")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::NOT_FOUND);
+}
+
+// ── Admin: session listing ───────────────────────────────────────────────────
+
+#[tokio::test]
+async fn admin_list_sessions_returns_active_sessions() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "admin_sl1", "pw", Role::Admin);
+    let resp = server
+        .get("/api/v1/admin/sessions")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert!(body.is_array());
+}
+
+#[tokio::test]
+async fn admin_list_sessions_rejected_for_musician() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "mus_sl1", "pw", Role::Musician);
+    let resp = server
+        .get("/api/v1/admin/sessions")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::FORBIDDEN);
+}
+
+// ── Admin: session revocation ────────────────────────────────────────────────
+
+#[tokio::test]
+async fn admin_revoke_nonexistent_session_returns_404() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "admin_sr1", "pw", Role::Admin);
+    let resp = server
+        .delete("/api/v1/admin/sessions/99999")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::NOT_FOUND);
+}
+
+#[tokio::test]
+async fn admin_revoke_session_by_id_returns_204() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "admin_sr2", "pw", Role::Admin);
+    // Directly store a refresh token so we have a known session ID to revoke.
+    let (user_id, _, _) = state.db.find_user("admin_sr2").unwrap();
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    state
+        .db
+        .store_refresh_token(user_id, "test_tok_hash_sr2", now + 3600, "fam-sr2")
+        .unwrap();
+    // List sessions to find the ID we just stored.
+    let sessions = state.db.list_active_sessions(now).unwrap();
+    let session_id = sessions
+        .iter()
+        .find(|(_, uid, _)| *uid == user_id)
+        .map(|(id, _, _)| *id)
+        .expect("session must exist");
+    let resp = server
+        .delete(&format!("/api/v1/admin/sessions/{session_id}"))
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::NO_CONTENT);
+    // Verify session is now revoked (not in active list).
+    let after = state.db.list_active_sessions(now).unwrap();
+    assert!(!after.iter().any(|(id, _, _)| *id == session_id));
 }

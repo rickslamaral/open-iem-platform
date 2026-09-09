@@ -21,6 +21,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Biquad EQ real DSP (Phase 7 — TDF2 peaking biquad, RBJ coefficients, no heap)
 - [x] RMS Compressor real DSP (Phase 7 — stereo-linked, exp-RMS, smoothed gain reduction)
 - [ ] Add ARM64 cross-compilation to CI (requires `aarch64-unknown-linux-gnu` setup)
+- [ ] Musician mix ownership enforcement (requires mix assignment model)
+- [x] Admin API server-side routes (Phase 9 — complete)
 
 ---
 
@@ -37,8 +39,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## LOW
 
-- [ ] Set up `cargo audit` in CI
-- [ ] Set up `npm audit` in CI
+- [x] Set up `cargo audit` in CI (Phase 8 — existing job)
+- [x] Set up `npm audit` in CI (Phase 9 — npm-audit job added)
 - [ ] Create `examples/` with minimal mix scenario
 - [ ] Configure Dependabot for dependency updates
 - [ ] Set up code coverage reporting
@@ -78,6 +80,19 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] PHASE-6-REVIEW.md and PHASE-7-REVIEW.md
 - [x] Integrate EQ + Compressor into Mix::process audio chain (Phase 8)
 - [x] Create admin CLI for user management (Phase 8)
+
+## PHASE 9 STATUS
+
+- [x] Admin API server-side routes: GET/DELETE /api/v1/admin/users, GET/DELETE /api/v1/admin/sessions
+- [x] DB methods: list_users, delete_user, list_active_sessions, revoke_session_by_id
+- [x] ApiError::NotFound(String) variant
+- [x] 8 HTTP integration tests for admin endpoints
+- [x] 3 DB unit tests for new methods
+- [x] Admin CLI fix: --username/--password for user create, --id for session revoke
+- [x] Biquad coefficient validation vs Python/scipy (delta ≤ 5×10⁻⁸)
+- [x] npm audit CI job (HIGH severity gate)
+- [ ] Admin self-delete protection (policy gate — deferred Phase 10)
+- [ ] Musician mix ownership enforcement (requires mix assignment model)
 
 ## PHASE 8 STATUS
 
