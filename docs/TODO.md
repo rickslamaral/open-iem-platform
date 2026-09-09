@@ -156,6 +156,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] GitHub Release with CHANGELOG excerpt
 - [x] Workspace version bumped to 0.2.0; admin-cli aligned to workspace
 - [ ] Tag v0.2.0 and verify full pipeline on GitHub Actions
+- [ ] Tag v0.3.0 after release version review and verify full pipeline on GitHub Actions
 - [ ] Validate ARM64 binary on real Raspberry Pi 5 hardware
 - [x] Dependabot for Cargo + npm
 

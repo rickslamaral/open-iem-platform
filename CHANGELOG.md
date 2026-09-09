@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 15 follow-up
+- README, Musician Guide e pacotes web agora refletem Engineer Console operacional, ownership atômico e versão `0.2.0`.
+- CI deixou de mascarar falhas de instalação, typecheck e teste nos frontends Musician e Engineer; scripts existentes agora são gates obrigatórios.
+- Quality gate de release executa typecheck, testes e `npm audit` dos dois frontends.
+
 ### Security — Phase 15
 - `mix_assignment_lock` agora cobre ownership e leitura/mutação de sends, fechando janela TOCTOU entre assignment persistido e alteração de estado.
 

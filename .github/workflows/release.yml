@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+\\.[0-9]+\\.[0-9]+"
 
 permissions:
   contents: write
@@ -38,15 +38,17 @@ jobs:
             exit 1
           fi
 
-      - name: Check musician frontend version matches tag
+      - name: Check frontend versions match tag
         run: |
           VERSION="${{ steps.extract.outputs.version }}"
-          PKG_VERSION=$(node -p "require('./web/musician/package.json').version")
-          echo "Musician pkg version: ${PKG_VERSION}"
-          if [ "${PKG_VERSION}" != "${VERSION}" ]; then
-            echo "WARNING: musician package.json version (${PKG_VERSION}) != tag (${VERSION})"
-            # Non-fatal: frontend versions may lag; only block on Cargo workspace
-          fi
+          for PACKAGE in web/musician/package.json web/engineer/package.json; do
+            PKG_VERSION=$(node -p "require('./${PACKAGE}').version")
+            echo "${PACKAGE} version: ${PKG_VERSION}"
+            if [ "${PKG_VERSION}" != "${VERSION}" ]; then
+              echo "ERROR: ${PACKAGE} version (${PKG_VERSION}) does not match tag (${VERSION})"
+              exit 1
+            fi
+          done
 
   # ──────────────────────────────────────────────
   # 2. Quality gate (same as CI but required for release)
@@ -90,6 +92,25 @@ jobs:
           # RUSTSEC-2023-0071: rsa crate (Marvin Attack) — transitively pulled by
           # jsonwebtoken/rust_crypto; Open IEM uses EdDSA only, RSA never executed.
           cargo audit --file server/Cargo.lock --ignore RUSTSEC-2023-0071
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Verify musician frontend
+        run: |
+          npm ci --prefix web/musician
+          npm run typecheck --prefix web/musician
+          npm test --prefix web/musician -- --run
+          npm audit --audit-level=high --prefix web/musician
+
+      - name: Verify engineer frontend
+        run: |
+          npm ci --prefix web/engineer
+          npm run typecheck --prefix web/engineer
+          npm test --prefix web/engineer -- --run
+          npm audit --audit-level=high --prefix web/engineer
 
   # ──────────────────────────────────────────────
   # 3. Build server — Linux x86_64

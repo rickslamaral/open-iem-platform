@@ -4,6 +4,28 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 15 follow-up: documentação, versões e CI fail-closed
+
+**Branch:** `main`
+**Ambiente:** VPS Linux x86_64; áudio SIMULATED
+
+### Implementado
+
+- README e Musician Guide corrigidos para refletir Engineer Console, API Admin e ownership já entregues.
+- Versão `0.2.0` sincronizada nos dois frontends e lockfiles.
+- CI dos frontends Musician e Engineer deixou de converter falhas de instalação, typecheck e teste em sucesso silencioso.
+- Quality gate de release agora executa typecheck, testes e `npm audit` dos dois frontends antes dos builds.
+
+### Verificação executada
+
+- Rust fmt, testes workspace e clippy `-D warnings` PASS.
+- Musician: typecheck, 25 testes, build e `npm audit --audit-level=high` PASS.
+- Engineer: typecheck, 2 testes, build e `npm audit --audit-level=high` PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --cached --check` PASS.
+- PDF regenerado via pandoc/xelatex; `file` confirma PDF 1.5. Extração não validada: `pdftotext` ausente no VPS.
+
+---
+
 ## 2026-09-09 — Phase 15: atomicidade de ownership
 
 **Branch:** `main`

@@ -128,24 +128,13 @@ jobs:
           cache-dependency-path: web/musician/package-lock.json
 
       - name: Install deps
-        run: |
-          if [ -f web/musician/package.json ]; then
-            npm ci --prefix web/musician
-          else
-            echo "No package.json yet — skipping"
-          fi
+        run: npm ci --prefix web/musician
 
       - name: Typecheck
-        run: |
-          if [ -f web/musician/package.json ]; then
-            npm run typecheck --prefix web/musician 2>/dev/null || npm run tsc --prefix web/musician 2>/dev/null || echo "No typecheck script yet"
-          fi
+        run: npm run typecheck --prefix web/musician
 
       - name: Test
-        run: |
-          if [ -f web/musician/package.json ]; then
-            npm test --prefix web/musician -- --run 2>/dev/null || echo "No tests yet"
-          fi
+        run: npm test --prefix web/musician -- --run
 
       - name: Build
         run: |
@@ -166,24 +155,13 @@ jobs:
           cache-dependency-path: web/engineer/package-lock.json
 
       - name: Install deps
-        run: |
-          if [ -f web/engineer/package.json ]; then
-            npm ci --prefix web/engineer
-          else
-            echo "No package.json yet — skipping"
-          fi
+        run: npm ci --prefix web/engineer
 
       - name: Typecheck
-        run: |
-          if [ -f web/engineer/package.json ]; then
-            npm run typecheck --prefix web/engineer 2>/dev/null || echo "No typecheck script yet"
-          fi
+        run: npm run typecheck --prefix web/engineer
 
       - name: Test
-        run: |
-          if [ -f web/engineer/package.json ]; then
-            npm test --prefix web/engineer -- --run 2>/dev/null || echo "No tests yet"
-          fi
+        run: npm test --prefix web/engineer -- --run
 
       - name: Build
         run: |
@@ -214,7 +192,7 @@ jobs:
       - name: Audit musician frontend
         run: |
           if [ -f web/musician/package-lock.json ]; then
-            npm audit --audit-level=high --prefix web/musician || true
+            npm audit --audit-level=high --prefix web/musician
           else
             echo "No package-lock.json yet — skipping musician audit"
           fi
@@ -222,7 +200,7 @@ jobs:
       - name: Audit engineer frontend
         run: |
           if [ -f web/engineer/package-lock.json ]; then
-            npm audit --audit-level=high --prefix web/engineer || true
+            npm audit --audit-level=high --prefix web/engineer
           else
             echo "No package-lock.json yet — skipping engineer audit"
           fi
