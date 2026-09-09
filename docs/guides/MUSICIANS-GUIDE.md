@@ -257,6 +257,17 @@ Músicos na mesma rede acessam: `http://<ip-do-servidor>:5173`
 
 ---
 
+## Mix atribuído e controles
+
+Cada músico pode receber um único mix pelo engenheiro/admin. Após atribuição, músico pode ler e alterar somente sends do próprio mix:
+
+- `GET /api/v1/mixes/{mix_idx}/sends/{ch_idx}`
+- `PUT /api/v1/mixes/{mix_idx}/sends/{ch_idx}/gain`
+- `PUT /api/v1/mixes/{mix_idx}/sends/{ch_idx}/pan`
+- `PUT /api/v1/mixes/{mix_idx}/sends/{ch_idx}/mute`
+
+Sem atribuição ou tentando outro mix, API retorna `403 Forbidden`. Controles de canal continuam restritos a Engineer/Admin. Áudio continua `SIMULATED` no VPS até validação real de PipeWire/Opus no Raspberry Pi 5.
+
 ## 13. Limitações Conhecidas
 
 | Item | Estado |

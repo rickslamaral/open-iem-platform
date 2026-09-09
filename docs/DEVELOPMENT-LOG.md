@@ -428,3 +428,12 @@ skills validate: 11/11 PASS
 - api-server: 27 tests (was 19, +8 admin integration)
 - api-server DB: 16 tests (was 13, +3 admin DB unit)
 - mix-engine: 79 tests, audio-engine: 20 tests, control-server: 13 tests, streaming: 7 tests, doc-tests: 3
+
+
+### 2026-09-09 — Phase 10: mix assignment and ownership enforcement
+
+Implemented SQLite mix assignments, JWT `uid`, Engineer/Admin assignment routes, musician-owned send gain/pan/mute routes, and control-state mix accessors. VPS validation remains SIMULATED for PipeWire/Opus.
+
+Added three HTTP integration tests for assignment, musician ownership denial, and gain validation. Assignment writes now reject slot conflicts without `INSERT OR REPLACE` data loss.
+
+**Verification:** cargo fmt PASS; cargo clippy --all-targets -- -D warnings PASS; cargo test --all PASS: 171 tests, 0 failures.

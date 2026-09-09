@@ -72,6 +72,7 @@ mod tests {
     fn claims_with_role(role: Role) -> JwtClaims {
         JwtClaims {
             sub: "test".to_owned(),
+            user_id: 1,
             role,
             jti: "jti".to_owned(),
             iss: "iss".to_owned(),

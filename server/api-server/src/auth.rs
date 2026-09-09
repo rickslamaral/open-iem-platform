@@ -26,6 +26,9 @@ pub const REFRESH_TOKEN_TTL_S: u64 = 12 * 60 * 60;
 pub struct JwtClaims {
     /// Subject — username.
     pub sub: String,
+    /// Numeric user ID (DB primary key). Included as "uid" claim.
+    #[serde(rename = "uid")]
+    pub user_id: i64,
     /// Role.
     pub role: Role,
     /// JWT ID (unique per token — for revocation).
@@ -65,10 +68,17 @@ impl JwtKeys {
     ///
     /// # Errors
     /// Returns `ApiError::Internal` if signing fails.
-    pub fn issue(&self, username: &str, role: Role, jti: &str) -> Result<String, ApiError> {
+    pub fn issue(
+        &self,
+        username: &str,
+        user_id: i64,
+        role: Role,
+        jti: &str,
+    ) -> Result<String, ApiError> {
         let now = unix_now();
         let claims = JwtClaims {
             sub: username.to_owned(),
+            user_id,
             role,
             jti: jti.to_owned(),
             iss: JWT_ISSUER.to_owned(),
