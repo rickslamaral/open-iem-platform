@@ -1,0 +1,46 @@
+# Open IEM Platform — Caddyfile (LAN / Raspberry Pi 5)
+#
+# Copy this to your Raspberry Pi 5 as /etc/caddy/Caddyfile.
+#
+# Prerequisites:
+#   1. Install Caddy:  https://caddyserver.com/docs/install#debian-ubuntu-raspbian
+#   2. Install mkcert: https://github.com/FiloSottile/mkcert
+#   3. Generate a local CA and certificate:
+#        mkcert -install
+#        mkcert iem.local 192.168.1.x  # adjust to Pi's LAN IP
+#        # This produces iem.local+1.pem and iem.local+1-key.pem
+#        # Place them at the paths below.
+#   4. On each musician/engineer device, install the mkcert CA:
+#        # Copy $(mkcert -CAROOT)/rootCA.pem to the device and trust it.
+#
+# Security:
+#   - api-server binds only to 127.0.0.1:8080; never exposed directly.
+#   - OPENIEM_ALLOW_INSECURE_HTTP must be unset or "false" in production.
+#   - Adjust 'iem.local' and IP to match your local network.
+
+{
+    # Disable automatic ACME — using mkcert certificate for LAN.
+    # Remove this block and the tls directive below for internet-facing ACME.
+    auto_https off
+}
+
+iem.local {
+    # Serve HTTPS with mkcert-issued LAN certificate.
+    tls /etc/caddy/certs/iem.local.pem /etc/caddy/certs/iem.local-key.pem
+
+    # Proxy all traffic to api-server on loopback.
+    reverse_proxy 127.0.0.1:8080 {
+        # Forward real client IP for logging and rate limiting.
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # WebSocket upgrade is transparently proxied by Caddy.
+    # No additional configuration needed for /ws/v1.
+}
+
+# Optional: redirect plain HTTP to HTTPS.
+http://iem.local {
+    redir https://iem.local{uri} permanent
+}

@@ -13,8 +13,16 @@ version: "3.9"
 #   Musician PWA:    http://localhost:5173  (Vite dev server)
 #   Engineer UI:     http://localhost:5174  (Vite dev server)
 #
+# Environment variables match api-server binary exactly (see server/api-server/src/main.rs):
+#   OPENIEM_JWT_PRIVATE_PEM  — path to Ed25519 private key PEM
+#   OPENIEM_JWT_PUBLIC_PEM   — path to Ed25519 public key PEM
+#   OPENIEM_DB_PATH          — path to SQLite database file
+#   OPENIEM_BIND_ADDR        — bind address (default 127.0.0.1:8080)
+#   OPENIEM_ALLOW_INSECURE_HTTP — set "true" for non-loopback HTTP in isolated dev
+#
 # Security note: HTTP only — localhost/LAN dev exception.
 # Before any external exposure, terminate TLS via Caddy or Nginx.
+# See deployment/caddy/ and docs/deployment/TLS.md.
 
 services:
   api-server:
@@ -25,22 +33,26 @@ services:
     ports:
       - "3000:3000"
     environment:
-      # Dev-only: loopback bind, HTTP, allow non-loopback with OPEN_IEM_DEV_ALLOW_NON_LOOPBACK
-      OPEN_IEM_BIND: "0.0.0.0:3000"
-      OPEN_IEM_DEV_ALLOW_NON_LOOPBACK: "true"
-      OPEN_IEM_DB_PATH: "/data/open-iem.db"
+      # Dev-only: non-loopback HTTP allowed inside isolated dev network.
+      # Never set OPENIEM_ALLOW_INSECURE_HTTP=true on an internet-facing host.
+      # WARNING: This compose file is for development only. Do not use in production.
+      # Production requires Caddy TLS proxy; see deployment/caddy/ and deployment/raspberry-pi/README.md.
+      OPENIEM_BIND_ADDR: "0.0.0.0:3000"
+      OPENIEM_ALLOW_INSECURE_HTTP: "true"
+      OPENIEM_DB_PATH: "/data/openiem.db"
       # Keys must be mounted at runtime — never committed.
-      # Generate with: openssl genpkey -algorithm ed25519 -out jwt_private.pem
-      #                openssl pkey -in jwt_private.pem -pubout -out jwt_public.pem
-      OPEN_IEM_JWT_PRIVATE_KEY_PATH: "/secrets/jwt_private.pem"
-      OPEN_IEM_JWT_PUBLIC_KEY_PATH: "/secrets/jwt_public.pem"
-      RUST_LOG: "open_iem=debug,tower_http=info"
+      # Generate with:
+      #   openssl genpkey -algorithm ed25519 -out keys/ed25519_private.pem
+      #   openssl pkey -in keys/ed25519_private.pem -pubout -out keys/ed25519_public.pem
+      OPENIEM_JWT_PRIVATE_PEM: "/secrets/ed25519_private.pem"
+      OPENIEM_JWT_PUBLIC_PEM: "/secrets/ed25519_public.pem"
+      RUST_LOG: "api_server=debug,tower_http=info"
     volumes:
       - api-data:/data
-      - ./secrets:/secrets:ro
+      - ./keys:/secrets:ro
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/health"]
       interval: 10s
       timeout: 5s
       retries: 3

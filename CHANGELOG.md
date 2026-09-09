@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 22
+- `deployment/caddy/Caddyfile`: LAN TLS configuration using mkcert certificate; `reverse_proxy` to `127.0.0.1:8080`; HTTP → HTTPS redirect; `X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto` headers forwarded.
+- `deployment/systemd/openiem-server.service`: production systemd service with dedicated `openiem` user, loopback bind, `NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=strict`, `ProtectHome`, `LimitNOFILE=65536`, `Restart=on-failure`.
+- `deployment/raspberry-pi/README.md`: step-by-step RPi 5 deployment guide (binary install, key generation, systemd, Caddy+mkcert, CA trust per OS), mkcert CA private key protection instructions (chmod 600, no unencrypted backups, revocation procedure, certificate expiry check).
+- `docs/adr/ADR-011-tls-deployment.md`: TLS-at-proxy strategy decision; consequences and alternatives rejected.
+
+### Changed — Phase 22
+- `docker-compose.yml`: corrected env var prefix from `OPEN_IEM_*` to `OPENIEM_*` to match server binary (`OPENIEM_BIND_ADDR`, `OPENIEM_ALLOW_INSECURE_HTTP`, `OPENIEM_DB_PATH`, `OPENIEM_JWT_PRIVATE_PEM`, `OPENIEM_JWT_PUBLIC_PEM`); healthcheck URL fixed to `/api/v1/health`; volume mount renamed from `./secrets` to `./keys`; added explicit WARNING that this file is dev-only.
+- `server/api-server/src/main.rs`: startup `tracing::warn!` emitted for each detected legacy `OPEN_IEM_*` environment variable, preventing silent misconfiguration in environments that have not migrated.
+
+### Security — Phase 22
+- `OPENIEM_ALLOW_INSECURE_HTTP` is absent from the production systemd service, enforcing fail-closed HTTP-on-non-loopback behavior.
+- Documented mkcert CA private key protection requirements: `rootCA.key` must be `chmod 600`, excluded from unencrypted backups, with revocation instructions.
+- Closes HIGH gate from Phase 3 security follow-up: HTTPS/TLS listener and fail-closed transport configuration.
+
 ### Changed — Phase 21
 - WebSocket authentication moved from URL query parameters to negotiated `Sec-WebSocket-Protocol: openiem.bearer.<JWT>`.
 - Server selects and echoes authenticated subprotocol during `/ws/v1` upgrade; missing or empty credentials are rejected.

@@ -63,7 +63,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## PHASE 3 SECURITY FOLLOW-UP
 
-- [ ] HIGH: Add HTTPS/TLS listener and fail-closed transport configuration
+- [x] HIGH: Add HTTPS/TLS listener and fail-closed transport configuration — **DONE Phase 22** (Caddy config, systemd, RPi5 guide, ADR-011)
 - [ ] HIGH: Authorize every WebSocket message by role and musician mix ownership
 - [x] HIGH: Enforce WebSocket expiry and rate limits; revocation remains bounded by JWT TTL
 - [x] HIGH: Make refresh rotation atomic in one SQLite transaction

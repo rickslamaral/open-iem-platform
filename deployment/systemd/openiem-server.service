@@ -1,0 +1,51 @@
+[Unit]
+Description=Open IEM API Server
+Documentation=https://github.com/rickslamaral/open-iem-platform
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+User=openiem
+Group=openiem
+WorkingDirectory=/opt/openiem
+
+# Binary installed at /usr/local/bin/api-server by the release package.
+ExecStart=/usr/local/bin/api-server
+
+# Required: Ed25519 JWT keys. Generate with:
+#   openssl genpkey -algorithm ed25519 -out /etc/openiem/keys/ed25519_private.pem
+#   openssl pkey -in /etc/openiem/keys/ed25519_private.pem -pubout -out /etc/openiem/keys/ed25519_public.pem
+#   chmod 600 /etc/openiem/keys/ed25519_private.pem
+#   chown openiem:openiem /etc/openiem/keys/ed25519_private.pem
+Environment=OPENIEM_JWT_PRIVATE_PEM=/etc/openiem/keys/ed25519_private.pem
+Environment=OPENIEM_JWT_PUBLIC_PEM=/etc/openiem/keys/ed25519_public.pem
+
+# SQLite database — writable by openiem user.
+Environment=OPENIEM_DB_PATH=/var/lib/openiem/openiem.db
+
+# Bind to loopback only; Caddy terminates TLS and proxies to this port.
+Environment=OPENIEM_BIND_ADDR=127.0.0.1:8080
+
+# OPENIEM_ALLOW_INSECURE_HTTP is intentionally NOT set here.
+# Omitting it means non-loopback HTTP is rejected (fail-closed).
+
+# Logging
+Environment=RUST_LOG=api_server=info,tower_http=warn
+
+# Restart policy
+Restart=on-failure
+RestartSec=5s
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/openiem
+
+# Limit file descriptors (WebSocket connections)
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
