@@ -4,6 +4,24 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 18: reconciliação de revisão no cliente Musician
+
+**Branch:** `main`
+**Ambiente:** VPS Linux x86_64; áudio SIMULATED
+
+### Implementado
+
+- Tipos TypeScript agora representam `SendAck` do protocolo server.
+- `useWebSocket` atualiza revisão para `State` e `SendAck` somente quando valor recebido não é mais antigo que revisão atual.
+- Teste cobre ACK, mensagem `State` atrasada, payload inválido e disconnect manual.
+- Validação runtime rejeita revisões e payloads `SendAck` inválidos; handlers de sockets antigos são ignorados, revisão reseta ao reconectar e disconnect atualiza status.
+
+### Limitações
+
+A UI ainda não reconstrói canais/sends a partir de deltas nem solicita snapshot quando detecta lacuna de revisão. PipeWire, Opus, mídia WebRTC real, telemetria e runtime ARM64 continuam SIMULATED/não validados.
+
+---
+
 ## 2026-09-09 — Phase 17: broadcast de deltas WebSocket
 
 **Branch:** `feat/phase17-ws-broadcast-delta`

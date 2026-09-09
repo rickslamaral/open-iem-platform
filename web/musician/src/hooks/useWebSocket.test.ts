@@ -71,6 +71,35 @@ describe('useWebSocket', () => {
     expect(result.current.revision).toBe(42);
   });
 
+  it('updates revision from SendAck and ignores stale messages', () => {
+    const { result } = renderHook(() => useWebSocket('test-token'));
+    act(() => {
+      MockWebSocket.instances[0]?.onmessage?.({
+        data: JSON.stringify({ payload: { type: 'SendAck', data: {
+          mix_index: 0, channel_index: 1, gain_db: -3, pan: 0, muted: false, revision: 8,
+        } } }),
+      });
+    });
+    expect(result.current.revision).toBe(8);
+    act(() => {
+      MockWebSocket.instances[0]?.onmessage?.({
+        data: JSON.stringify({ payload: { type: 'State', data: { revision: 7 } } }),
+      });
+    });
+    expect(result.current.revision).toBe(8);
+  });
+
+  it('rejects malformed server revisions', () => {
+    const { result } = renderHook(() => useWebSocket('test-token'));
+    act(() => {
+      MockWebSocket.instances[0]?.onmessage?.({
+        data: JSON.stringify({ payload: { type: 'SendAck', data: { revision: '8' } } }),
+      });
+    });
+    expect(result.current.revision).toBeNull();
+    expect(result.current.error).toBe('Malformed server message');
+  });
+
   it('sets error on TOKEN_EXPIRED', () => {
     const { result } = renderHook(() => useWebSocket('test-token'));
     act(() => {
@@ -85,6 +114,12 @@ describe('useWebSocket', () => {
     });
     expect(result.current.status).toBe('disconnected');
     expect(result.current.error).toMatch(/expired/i);
+  });
+
+  it('sets disconnected on manual disconnect', () => {
+    const { result } = renderHook(() => useWebSocket('test-token'));
+    act(() => result.current.disconnect());
+    expect(result.current.status).toBe('disconnected');
   });
 
   it('transitions to error on ws error', () => {

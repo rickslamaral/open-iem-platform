@@ -40,11 +40,11 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Phase 17 — Broadcast de deltas WebSocket** (controle operacional; áudio SIMULATED no VPS)
+**Phase 18 — Reconciliação de revisão no cliente** (controle operacional; áudio SIMULATED no VPS)
 
-`/ws/v1` publica ACKs não solicitados para sessões Engineer/Admin após mutações de gain, pan e mute; músicos recebem somente deltas do mix atribuído. Ownership, dispatch e publicação usam `mix_assignment_lock`, com ordenação de mutações e sem manter lock durante I/O de socket. Áudio, sessões WebRTC e telemetria permanecem SIMULATED no VPS.
+`/ws/v1` publica ACKs não solicitados para sessões Engineer/Admin após mutações de gain, pan e mute; músicos recebem somente deltas do mix atribuído. Clientes Musician aceitam `State` e `SendAck` somente quando revisão não regride, evitando que mensagens atrasadas façam UI exibir estado antigo. Ownership, dispatch e publicação usam `mix_assignment_lock`, com ordenação de mutações e sem manter lock durante I/O de socket. Áudio, sessões WebRTC e telemetria permanecem SIMULATED no VPS.
 
-See [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md). [Phase 15 review](docs/reviews/PHASE-15-REVIEW.md).
+See [Phase 18 review](docs/reviews/PHASE-18-REVIEW.md). [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
 
 ## Development Phases
 

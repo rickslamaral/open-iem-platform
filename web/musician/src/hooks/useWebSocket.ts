@@ -13,6 +13,37 @@ export interface UseWebSocketResult {
   disconnect: () => void;
 }
 
+function isValidRevision(value: unknown): value is number {
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+}
+
+function updateRevision(current: number | null, candidate: unknown): number | null {
+  if (!isValidRevision(candidate)) return current;
+  return current === null || candidate >= current ? candidate : current;
+}
+
+function isServerMessage(value: unknown): value is ServerMessage {
+  if (!value || typeof value !== 'object') return false;
+  const message = value as { type?: unknown; data?: Record<string, unknown> };
+  if (message.type === 'State') {
+    return isValidRevision(message.data?.revision);
+  }
+  if (message.type === 'SendAck') {
+    return isValidRevision(message.data?.revision)
+      && Number.isInteger(message.data?.mix_index)
+      && Number.isInteger(message.data?.channel_index)
+      && typeof message.data?.gain_db === 'number'
+      && Number.isFinite(message.data.gain_db)
+      && typeof message.data?.pan === 'number'
+      && Number.isFinite(message.data.pan)
+      && typeof message.data?.muted === 'boolean';
+  }
+  if (message.type === 'Error') {
+    return typeof message.data?.code === 'string' && typeof message.data.message === 'string';
+  }
+  return false;
+}
+
 /**
  * WebSocket hook for Open IEM control plane.
  *
@@ -34,6 +65,7 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
       wsRef.current.close();
       wsRef.current = null;
     }
+    setStatus('disconnected');
   }, []);
 
   const send = useCallback((msg: ClientMessage) => {
@@ -58,12 +90,13 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
 
     const url = `/ws/v1?token=${encodeURIComponent(token)}`;
     setStatus('connecting');
+    setRevision(null);
 
     const ws = new WebSocket(url);
     wsRef.current = ws;
 
     ws.onopen = () => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current || wsRef.current !== ws) return;
       setStatus('connected');
       setError(null);
       // Request initial state
@@ -71,12 +104,19 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
     };
 
     ws.onmessage = (event: MessageEvent<string>) => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current || wsRef.current !== ws) return;
       try {
-        const parsed = JSON.parse(event.data) as { payload: ServerMessage };
-        const msg = parsed.payload;
-        if (msg.type === 'State') {
-          setRevision(msg.data.revision);
+        const parsed: unknown = JSON.parse(event.data);
+        const payload = parsed && typeof parsed === 'object' && 'payload' in parsed
+          ? (parsed as { payload?: unknown }).payload
+          : undefined;
+        if (!isServerMessage(payload)) {
+          setError('Malformed server message');
+          return;
+        }
+        const msg = payload;
+        if (msg.type === 'State' || msg.type === 'SendAck') {
+          setRevision((current) => updateRevision(current, msg.data.revision));
         } else if (msg.type === 'Error') {
           if (msg.data.code === 'TOKEN_EXPIRED') {
             setStatus('disconnected');
@@ -91,13 +131,13 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
     };
 
     ws.onerror = () => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current || wsRef.current !== ws) return;
       setStatus('error');
       setError('WebSocket connection error');
     };
 
     ws.onclose = () => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current || wsRef.current !== ws) return;
       setStatus('disconnected');
     };
 

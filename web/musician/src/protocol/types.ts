@@ -15,7 +15,18 @@ export type ClientMessage =
 
 export type ServerMessage =
   | { type: 'State'; data: { revision: number } }
-  | { type: 'Error'; data: { code: string; message: string } }
+  | {
+      type: 'SendAck';
+      data: {
+        mix_index: number;
+        channel_index: number;
+        gain_db: number;
+        pan: number;
+        muted: boolean;
+        revision: number;
+      };
+    }
+  | { type: 'Error'; data: { code: string; message: string } };
 
 // Auth API shapes
 export interface LoginRequest {
