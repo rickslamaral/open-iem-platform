@@ -14,7 +14,7 @@ All significant milestones documented here in reverse chronological order.
 - Cliente Musician busca snapshot autenticado em `GET /api/v1/state` depois de abrir WebSocket.
 - Validação runtime cobre estrutura aninhada, revisões, índices, tipos, finitude e limites de pan.
 - Referência monotônica rejeita snapshot REST atrasado após ACK/State mais novo.
-- `SendAck` atualiza send no snapshot local; mutations usam `SetSendGain`/`SetSendMuted` e não assumem mix 0.
+- `SendAck` valida alvo e atualiza send no snapshot local; mutations usam `SetSendGain`/`SetSendMuted` e não assumem mix 0.
 - Tipos TypeScript refletem snapshot e comandos server-side.
 
 ### Verificação
