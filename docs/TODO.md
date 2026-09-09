@@ -70,7 +70,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] MEDIUM: Bound HTTP request body to 16 KiB; route payload validation remains pending
 - [x] MEDIUM: Parse bind address as SocketAddr and fail closed for non-loopback HTTP without explicit dev override
 - [x] MEDIUM: Preflight refresh token owner and JWT before atomic rotation to avoid token loss on issuance failure
-- [ ] MEDIUM: Make musician mix ownership checks and send mutations atomic under `mix_assignment_lock`
+- [x] MEDIUM: Make musician mix ownership checks and send mutations atomic under `mix_assignment_lock` (Phase 15)
 
 ## PHASE 7 STATUS
 

@@ -90,6 +90,7 @@ pub async fn list_mixes(
     axum::Extension(claims): axum::Extension<JwtClaims>,
 ) -> Result<Json<Vec<MixAssignment>>, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
+    let _assignment_guard = state.mix_assignment_lock.lock().await;
     Ok(Json(
         state
             .db
@@ -172,6 +173,7 @@ pub async fn get_send_state(
     Path((mix_index, channel_index)): Path<(usize, usize)>,
 ) -> Result<Json<SendState>, ApiError> {
     validate_indexes(mix_index, channel_index)?;
+    let _assignment_guard = state.mix_assignment_lock.lock().await;
     check_mix_ownership(&claims, mix_index, &state.db)?;
     Ok(Json(read_state(&state, mix_index, channel_index)?))
 }
@@ -183,6 +185,7 @@ pub async fn set_send_gain(
     Json(body): Json<GainRequest>,
 ) -> Result<Json<SendState>, ApiError> {
     validate_indexes(mix_index, channel_index)?;
+    let _assignment_guard = state.mix_assignment_lock.lock().await;
     check_mix_ownership(&claims, mix_index, &state.db)?;
     if !body.gain_db.is_finite() || !(GAIN_DB_MIN..=GAIN_DB_MAX).contains(&body.gain_db) {
         return Err(ApiError::BadRequest("gain_db out of range".to_owned()));
@@ -207,6 +210,7 @@ pub async fn set_send_pan(
     Json(body): Json<PanRequest>,
 ) -> Result<Json<SendState>, ApiError> {
     validate_indexes(mix_index, channel_index)?;
+    let _assignment_guard = state.mix_assignment_lock.lock().await;
     check_mix_ownership(&claims, mix_index, &state.db)?;
     if !body.pan.is_finite() || !(-1.0..=1.0).contains(&body.pan) {
         return Err(ApiError::BadRequest("pan out of range".to_owned()));
@@ -231,6 +235,7 @@ pub async fn set_send_muted(
     Json(body): Json<MuteRequest>,
 ) -> Result<Json<SendState>, ApiError> {
     validate_indexes(mix_index, channel_index)?;
+    let _assignment_guard = state.mix_assignment_lock.lock().await;
     check_mix_ownership(&claims, mix_index, &state.db)?;
     {
         let mut ctrl = state
