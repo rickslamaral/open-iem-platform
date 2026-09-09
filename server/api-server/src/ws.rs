@@ -1,6 +1,6 @@
 //! WebSocket handler: `/ws/v1`
 //!
-//! Authenticates via `Authorization: Bearer` header during HTTP upgrade.
+//! Authenticates via `Authorization: Bearer <token>` header during HTTP upgrade.
 //! Each connection dispatches `ClientMessage` frames and receives `ServerMessage` responses.
 //! Connection is closed on:
 //!   - Auth failure
@@ -39,7 +39,7 @@ const MAX_WS_MESSAGE_BYTES: usize = MAX_MESSAGE_BYTES;
 
 /// `/ws/v1` WebSocket upgrade handler.
 ///
-/// Auth via `Authorization: Bearer` header on the initial HTTP upgrade request.
+/// Auth via `Authorization: Bearer <token>` header on the initial HTTP upgrade request.
 /// Rejects with 401 if token is missing or invalid.
 pub async fn ws_handler(
     State(state): State<AppState>,
@@ -49,6 +49,9 @@ pub async fn ws_handler(
     ws.on_upgrade(move |socket| handle_socket(socket, state, claims))
 }
 
+/// Long-running WebSocket I/O loop. The loop body is intentionally contained here
+/// to keep the borrow checker happy with `socket` across await points.
+#[allow(clippy::too_many_lines)]
 async fn handle_socket(mut socket: WebSocket, state: AppState, claims: JwtClaims) {
     debug!(user = %claims.sub, role = ?claims.role, "WebSocket connected");
     let mut window_started = unix_now();
@@ -109,17 +112,26 @@ async fn handle_socket(mut socket: WebSocket, state: AppState, claims: JwtClaims
                     Ok(env) => env,
                 };
 
-                let permitted = match (&claims.role, &envelope.payload) {
-                    (Role::Admin | Role::Engineer, _)
-                    | (Role::Musician, ClientMessage::GetState) => true,
-                    (
-                        Role::Musician,
-                        ClientMessage::SetChannelGain { .. } | ClientMessage::SetChannelMute { .. },
-                    ) => false,
-                };
+                // Role-based permission check — also covers send mutations.
+                let permitted = check_permission(&claims, &envelope.payload);
                 if !permitted {
-                    send_error(&mut socket, "FORBIDDEN", "role cannot mutate control state").await;
+                    send_error(&mut socket, "FORBIDDEN", "role cannot perform this action").await;
                     continue;
+                }
+
+                // Musician ownership check for send mutations.
+                if claims.role == Role::Musician {
+                    if let Some(mix_index) = send_mix_index(&envelope.payload) {
+                        let assigned = state
+                            .db
+                            .get_user_assigned_mix(claims.user_id)
+                            .unwrap_or(None);
+                        if assigned != Some(usize::from(mix_index)) {
+                            send_error(&mut socket, "FORBIDDEN", "musician does not own this mix")
+                                .await;
+                            continue;
+                        }
+                    }
                 }
 
                 // Dispatch with lock held only for the duration of the call.
@@ -161,6 +173,36 @@ async fn handle_socket(mut socket: WebSocket, state: AppState, claims: JwtClaims
     }
 
     debug!(user = %claims.sub, "WebSocket disconnected");
+}
+
+/// Returns true when the role is allowed to send this message.
+fn check_permission(claims: &JwtClaims, msg: &ClientMessage) -> bool {
+    match (&claims.role, msg) {
+        // Admin/Engineer may send any message; Musician may read state and mutate own sends.
+        (Role::Admin | Role::Engineer, _)
+        | (
+            Role::Musician,
+            ClientMessage::GetState
+            | ClientMessage::SetSendGain { .. }
+            | ClientMessage::SetSendPan { .. }
+            | ClientMessage::SetSendMuted { .. },
+        ) => true,
+        // Musician: cannot mutate channel gain/mute directly.
+        (
+            Role::Musician,
+            ClientMessage::SetChannelGain { .. } | ClientMessage::SetChannelMute { .. },
+        ) => false,
+    }
+}
+
+/// Returns the `mix_index` for send-mutation messages so the caller can check ownership.
+fn send_mix_index(msg: &ClientMessage) -> Option<u8> {
+    match msg {
+        ClientMessage::SetSendGain { mix_index, .. }
+        | ClientMessage::SetSendPan { mix_index, .. }
+        | ClientMessage::SetSendMuted { mix_index, .. } => Some(*mix_index),
+        _ => None,
+    }
 }
 
 async fn send_error(socket: &mut WebSocket, code: &str, message: &str) {

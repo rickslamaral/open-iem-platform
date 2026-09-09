@@ -652,3 +652,288 @@ async fn admin_revoke_session_by_id_returns_204() {
     let after = state.db.list_active_sessions(now).unwrap();
     assert!(!after.iter().any(|(id, _, _)| *id == session_id));
 }
+
+// ── WebSocket: send mutations ────────────────────────────────────────────────
+//
+// These tests exercise the ws_handler through axum-test's HTTP transport,
+// which supports WebSocket upgrades.  Each test creates a fresh app state so
+// mix configuration and DB state are isolated.
+
+fn build_ws_app() -> (axum_test::TestServer, AppState) {
+    let jwt =
+        JwtKeys::from_ed_pem(TEST_PRIVATE_PEM, TEST_PUBLIC_PEM).expect("test PEM must be valid");
+    let db = Db::open_in_memory().expect("in-memory DB must open");
+    let state = AppState::new(ControlState::new(), db, jwt);
+    {
+        let mut control = state.control.lock().expect("control lock");
+        control
+            .set_mix(0, Mix::new(0, "Mix WS 1"))
+            .expect("set mix 0");
+        control
+            .set_mix(1, Mix::new(1, "Mix WS 2"))
+            .expect("set mix 1");
+    }
+
+    let protected = Router::new()
+        .route("/api/v1/state", get(get_state))
+        .route("/api/v1/telemetry", get(get_telemetry))
+        .route("/api/v1/audio/offer", post(offer))
+        .route("/api/v1/audio/ice-candidate", post(ice_candidate))
+        .route("/api/v1/audio/sessions", get(sessions))
+        .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
+        .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
+        .route("/api/v1/mixes", get(list_mixes))
+        .route(
+            "/api/v1/mixes/{index}/assign",
+            post(assign_mix).delete(unassign_mix),
+        )
+        .route(
+            "/api/v1/mixes/{mix_idx}/sends/{ch_idx}",
+            get(get_send_state),
+        )
+        .route(
+            "/api/v1/mixes/{mix_idx}/sends/{ch_idx}/gain",
+            put(set_send_gain),
+        )
+        .route(
+            "/api/v1/mixes/{mix_idx}/sends/{ch_idx}/pan",
+            put(set_send_pan),
+        )
+        .route(
+            "/api/v1/mixes/{mix_idx}/sends/{ch_idx}/mute",
+            put(set_send_muted),
+        )
+        .route("/api/v1/auth/logout", post(logout))
+        .route(
+            "/api/v1/admin/users",
+            get(admin_list_users).post(create_user),
+        )
+        .route(
+            "/api/v1/admin/users/{id}",
+            axum::routing::delete(admin_delete_user),
+        )
+        .route("/api/v1/admin/sessions", get(admin_list_sessions))
+        .route(
+            "/api/v1/admin/sessions/{id}",
+            axum::routing::delete(admin_revoke_session),
+        )
+        .route("/ws/v1", get(ws_handler))
+        .layer(middleware::from_fn_with_state(state.clone(), jwt_auth));
+
+    let public = Router::new()
+        .route("/api/v1/health", get(health))
+        .route("/api/v1/auth/login", post(login))
+        .route("/api/v1/auth/refresh", post(refresh));
+
+    let app = Router::new()
+        .merge(protected)
+        .merge(public)
+        .with_state(state.clone())
+        .layer(DefaultBodyLimit::max(16 * 1024))
+        .layer(middleware::from_fn(validate_origin));
+
+    // WebSocket tests require the HTTP transport (not mock).
+    let server = axum_test::TestServer::builder()
+        .http_transport()
+        .build(app);
+
+    (server, state)
+}
+
+#[allow(clippy::needless_pass_by_value)]
+fn ws_envelope(msg_type: &str, data: Value) -> String {
+    serde_json::to_string(&json!({
+        "version": 1,
+        "request_id": "test-req-1",
+        "payload": {
+            "type": msg_type,
+            "data": data
+        }
+    }))
+    .unwrap()
+}
+
+#[tokio::test]
+async fn ws_engineer_set_send_gain_returns_send_ack() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_ws1", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetSendGain",
+        json!({"mix_index": 0, "channel_index": 0, "gain_db": -6.0}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "SendAck");
+    let data = &resp["payload"]["data"];
+    assert_eq!(data["mix_index"], 0);
+    assert_eq!(data["channel_index"], 0);
+    let gain: f64 = data["gain_db"].as_f64().unwrap();
+    assert!((gain - (-6.0)).abs() < 0.001);
+}
+
+#[tokio::test]
+async fn ws_engineer_set_send_pan_returns_send_ack() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_ws2", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetSendPan",
+        json!({"mix_index": 0, "channel_index": 1, "pan": 0.5}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "SendAck");
+    let pan: f64 = resp["payload"]["data"]["pan"].as_f64().unwrap();
+    assert!((pan - 0.5).abs() < 0.001);
+}
+
+#[tokio::test]
+async fn ws_engineer_set_send_muted_returns_send_ack() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_ws3", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetSendMuted",
+        json!({"mix_index": 0, "channel_index": 2, "muted": true}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "SendAck");
+    assert_eq!(resp["payload"]["data"]["muted"], true);
+}
+
+#[tokio::test]
+async fn ws_musician_denied_set_send_gain_on_unassigned_mix() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "mus_ws1", "pw", Role::Musician);
+    // Musician has NO mix assignment — any send mutation must be rejected.
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetSendGain",
+        json!({"mix_index": 0, "channel_index": 0, "gain_db": 0.0}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "Error");
+    assert_eq!(resp["payload"]["data"]["code"], "FORBIDDEN");
+}
+
+#[tokio::test]
+async fn ws_musician_allowed_set_send_gain_on_assigned_mix() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "mus_ws2", "pw", Role::Musician);
+    // Assign mix 1 to the musician.
+    let (user_id, _, _) = state.db.find_user("mus_ws2").unwrap();
+    state.db.assign_mix(1, user_id).unwrap();
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetSendGain",
+        json!({"mix_index": 1, "channel_index": 0, "gain_db": -3.0}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "SendAck");
+    let gain: f64 = resp["payload"]["data"]["gain_db"].as_f64().unwrap();
+    assert!((gain - (-3.0)).abs() < 0.001);
+}
+
+#[tokio::test]
+async fn ws_musician_denied_channel_gain_mutation() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "mus_ws3", "pw", Role::Musician);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await
+        .into_websocket()
+        .await;
+
+    // Musician cannot call SetChannelGain
+    let msg = serde_json::to_string(&json!({
+        "version": 1,
+        "request_id": "test-req-ch",
+        "payload": {
+            "type": "SetChannelGain",
+            "data": {"channel": 0, "gain_db": 0.0}
+        }
+    }))
+    .unwrap();
+    ws.send_text(msg).await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "Error");
+    assert_eq!(resp["payload"]["data"]["code"], "FORBIDDEN");
+}
+
+#[tokio::test]
+async fn ws_invalid_gain_nan_returns_error() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_ws4", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await
+        .into_websocket()
+        .await;
+
+    // Send a non-finite gain_db (NaN cannot serialize, use 999.0 out-of-range)
+    ws.send_text(ws_envelope(
+        "SetSendGain",
+        json!({"mix_index": 0, "channel_index": 0, "gain_db": 200.0}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "Error");
+    assert_eq!(resp["payload"]["data"]["code"], "INVALID_GAIN");
+}
