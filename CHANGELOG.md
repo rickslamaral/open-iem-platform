@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 23
+- `SetMasterGain { mix_index, gain_db }` WebSocket client message: sets master gain for a mix (Engineer/Admin only).
+- `SetMasterMute { mix_index, muted }` WebSocket client message: sets master mute for a mix (Engineer/Admin only).
+- `MasterAck { mix_index, master_gain_db, master_muted, revision }` server response for master mutations.
+- `MasterDelta` broadcast event: all sessions receive unsolicited `MasterAck` after any master mutation; Musician sessions receive only for their assigned mix.
+- `master_event_tx` broadcast channel (capacity 256) in `AppState` for `MasterDelta` events.
+- Integration tests: `ws_engineer_set_master_gain_returns_master_ack`, `ws_engineer_set_master_mute_returns_master_ack`, `ws_musician_denied_set_master_gain`, `ws_musician_denied_set_master_mute`, `ws_engineer_set_master_gain_invalid_gain_returns_error`, `ws_master_mutation_broadcasts_to_other_sessions`, `ws_master_broadcast_filtered_by_musician_assignment`.
+
+### Security — Phase 23
+- Musician role cannot send `SetMasterGain` or `SetMasterMute`; `check_permission` returns `false` for both with explicit match arm.
+- Master mutation broadcast filtered by role and mix assignment, consistent with send-delta RBAC model.
+
 ### Added — Phase 22
 - `deployment/caddy/Caddyfile`: LAN TLS configuration using mkcert certificate; `reverse_proxy` to `127.0.0.1:8080`; HTTP → HTTPS redirect; `X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto` headers forwarded.
 - `deployment/systemd/openiem-server.service`: production systemd service with dedicated `openiem` user, loopback bind, `NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=strict`, `ProtectHome`, `LimitNOFILE=65536`, `Restart=on-failure`.

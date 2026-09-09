@@ -1015,3 +1015,273 @@ async fn ws_send_mutation_broadcasts_to_other_sessions() {
     let gain: f64 = obs_resp["payload"]["data"]["gain_db"].as_f64().unwrap();
     assert!((gain - (-9.0)).abs() < 0.001);
 }
+
+// ── Phase 23: WebSocket master gain / mute ──────────────────────────────────
+
+#[tokio::test]
+async fn ws_engineer_set_master_gain_returns_master_ack() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_mg1", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetMasterGain",
+        json!({"mix_index": 0, "gain_db": -6.0}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "MasterAck");
+    let data = &resp["payload"]["data"];
+    assert_eq!(data["mix_index"], 0);
+    let gain: f64 = data["master_gain_db"].as_f64().unwrap();
+    assert!((gain - (-6.0)).abs() < 0.001);
+    assert_eq!(data["master_muted"], false);
+}
+
+#[tokio::test]
+async fn ws_engineer_set_master_mute_returns_master_ack() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_mm1", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetMasterMute",
+        json!({"mix_index": 0, "muted": true}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "MasterAck");
+    assert_eq!(resp["payload"]["data"]["master_muted"], true);
+}
+
+#[tokio::test]
+async fn ws_musician_denied_set_master_gain() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "mus_mg1", "pw", Role::Musician);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetMasterGain",
+        json!({"mix_index": 0, "gain_db": 0.0}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "Error");
+    assert_eq!(resp["payload"]["data"]["code"], "FORBIDDEN");
+}
+
+#[tokio::test]
+async fn ws_musician_denied_set_master_mute() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "mus_mm1", "pw", Role::Musician);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetMasterMute",
+        json!({"mix_index": 0, "muted": true}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "Error");
+    assert_eq!(resp["payload"]["data"]["code"], "FORBIDDEN");
+}
+
+#[tokio::test]
+async fn ws_engineer_set_master_gain_invalid_gain_returns_error() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_mg_inv", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetMasterGain",
+        json!({"mix_index": 0, "gain_db": 999.0}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "Error");
+    assert_eq!(resp["payload"]["data"]["code"], "INVALID_GAIN");
+}
+
+#[tokio::test]
+async fn ws_master_mutation_broadcasts_to_other_sessions() {
+    let (server, state) = build_ws_app();
+    let mutator_token = seed_user_and_login(&state, "eng_master_mut", "pw", Role::Engineer);
+    let observer_token = seed_user_and_login(&state, "eng_master_obs", "pw", Role::Engineer);
+
+    let mut mutator = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{mutator_token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    let mut observer = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{observer_token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    mutator
+        .send_text(ws_envelope(
+            "SetMasterGain",
+            json!({"mix_index": 0, "gain_db": -12.0}),
+        ))
+        .await;
+
+    // Mutator receives its own MasterAck.
+    let mutator_resp: Value = mutator.receive_json().await;
+    assert_eq!(mutator_resp["payload"]["type"], "MasterAck");
+
+    // Observer must receive an unsolicited broadcast MasterAck.
+    let obs_resp: Value =
+        tokio::time::timeout(std::time::Duration::from_secs(5), observer.receive_json())
+            .await
+            .expect("observer did not receive broadcast within 5 s");
+
+    assert_eq!(obs_resp["payload"]["type"], "MasterAck");
+    assert_eq!(obs_resp["payload"]["data"]["mix_index"], 0);
+    let gain: f64 = obs_resp["payload"]["data"]["master_gain_db"]
+        .as_f64()
+        .unwrap();
+    assert!((gain - (-12.0)).abs() < 0.001);
+}
+
+// ── WebSocket master broadcast: Musician receives only own mix ─────────────
+
+#[tokio::test]
+async fn ws_master_broadcast_filtered_by_musician_assignment() {
+    let (server, state) = build_ws_app();
+    let eng_token = seed_user_and_login(&state, "eng_mf_mut", "pw", Role::Engineer);
+    let mus0_token = seed_user_and_login(&state, "mus_mf_0", "pw", Role::Musician);
+    let mus1_token = seed_user_and_login(&state, "mus_mf_1", "pw", Role::Musician);
+
+    let (mus0_id, _, _) = state.db.find_user("mus_mf_0").unwrap();
+    let (mus1_id, _, _) = state.db.find_user("mus_mf_1").unwrap();
+    state.db.assign_mix(0, mus0_id).unwrap();
+    state.db.assign_mix(1, mus1_id).unwrap();
+
+    let mut eng = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{eng_token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    let mut mus0 = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{mus0_token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    let mut mus1 = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{mus1_token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    eng.send_text(ws_envelope(
+        "SetMasterGain",
+        json!({"mix_index": 0, "gain_db": -6.0}),
+    ))
+    .await;
+
+    let eng_resp: Value = eng.receive_json().await;
+    assert_eq!(eng_resp["payload"]["type"], "MasterAck");
+
+    // Musician on mix 0 must receive broadcast.
+    let mus0_resp: Value =
+        tokio::time::timeout(std::time::Duration::from_secs(5), mus0.receive_json())
+            .await
+            .expect("musician 0 must receive master broadcast for own mix");
+    assert_eq!(mus0_resp["payload"]["type"], "MasterAck");
+    assert_eq!(mus0_resp["payload"]["data"]["mix_index"], 0);
+
+    // Musician on mix 1 must NOT receive broadcast for mix 0.
+    let mus1_no_recv: Result<_, _> = tokio::time::timeout(
+        std::time::Duration::from_millis(500),
+        mus1.receive_json::<Value>(),
+    )
+    .await;
+    assert!(
+        mus1_no_recv.is_err(),
+        "musician assigned to mix 1 must NOT receive master broadcast for mix 0"
+    );
+}

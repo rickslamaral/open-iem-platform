@@ -83,6 +83,7 @@ impl ControlState {
     /// Invalid channel/mix indexes or out-of-range values produce an error
     /// response and do not mutate state.
     #[must_use]
+    #[allow(clippy::too_many_lines)]
     pub fn dispatch(&mut self, request: Envelope<ClientMessage>) -> Envelope<ServerMessage> {
         let response = if request.version == PROTOCOL_VERSION {
             match request.payload {
@@ -145,6 +146,58 @@ impl ControlState {
                     channel_index,
                     muted,
                 } => self.update_send_muted(mix_index, channel_index, muted),
+                ClientMessage::SetMasterGain { mix_index, gain_db } => {
+                    if !gain_db.is_finite() || !(GAIN_DB_MIN..=GAIN_DB_MAX).contains(&gain_db) {
+                        return Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: request.request_id,
+                            payload: ServerMessage::Error {
+                                code: "INVALID_GAIN".to_owned(),
+                                message: format!(
+                                    "gain_db must be finite and between {GAIN_DB_MIN} and {GAIN_DB_MAX} dB"
+                                ),
+                            },
+                        };
+                    }
+                    let mix_i = usize::from(mix_index);
+                    let Some(mix) = self.engine.mix_mut(mix_i) else {
+                        return Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: request.request_id,
+                            payload: ServerMessage::Error {
+                                code: "MIX_NOT_FOUND".to_owned(),
+                                message: format!("mix slot {mix_i} not configured"),
+                            },
+                        };
+                    };
+                    mix.set_master_gain_db(gain_db);
+                    ServerMessage::MasterAck {
+                        mix_index,
+                        master_gain_db: mix.master_gain_db(),
+                        master_muted: mix.master_muted,
+                        revision: mix.revision(),
+                    }
+                }
+                ClientMessage::SetMasterMute { mix_index, muted } => {
+                    let mix_i = usize::from(mix_index);
+                    let Some(mix) = self.engine.mix_mut(mix_i) else {
+                        return Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: request.request_id,
+                            payload: ServerMessage::Error {
+                                code: "MIX_NOT_FOUND".to_owned(),
+                                message: format!("mix slot {mix_i} not configured"),
+                            },
+                        };
+                    };
+                    mix.set_master_muted(muted);
+                    ServerMessage::MasterAck {
+                        mix_index,
+                        master_gain_db: mix.master_gain_db(),
+                        master_muted: mix.master_muted,
+                        revision: mix.revision(),
+                    }
+                }
             }
         } else {
             ServerMessage::Error {
@@ -468,6 +521,96 @@ mod tests {
         assert!(matches!(
             resp.payload,
             ServerMessage::Error { ref code, .. } if code == "INVALID_PAN"
+        ));
+    }
+
+    // --- Phase 23: master gain / mute dispatch ---
+
+    #[test]
+    fn set_master_gain_returns_master_ack() {
+        let mut state = state_with_mix();
+        let resp = state.dispatch(request(ClientMessage::SetMasterGain {
+            mix_index: 0,
+            gain_db: -6.0,
+        }));
+        match resp.payload {
+            ServerMessage::MasterAck {
+                mix_index,
+                master_gain_db,
+                master_muted,
+                revision,
+            } => {
+                assert_eq!(mix_index, 0);
+                assert!((master_gain_db - (-6.0)).abs() < 1e-5);
+                assert!(!master_muted);
+                assert_eq!(revision, 1);
+            }
+            other => panic!("expected MasterAck, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn set_master_mute_returns_master_ack() {
+        let mut state = state_with_mix();
+        let resp = state.dispatch(request(ClientMessage::SetMasterMute {
+            mix_index: 0,
+            muted: true,
+        }));
+        match resp.payload {
+            ServerMessage::MasterAck { master_muted, .. } => assert!(master_muted),
+            other => panic!("expected MasterAck, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn set_master_gain_nan_returns_error() {
+        let mut state = state_with_mix();
+        let resp = state.dispatch(request(ClientMessage::SetMasterGain {
+            mix_index: 0,
+            gain_db: f32::NAN,
+        }));
+        assert!(matches!(
+            resp.payload,
+            ServerMessage::Error { ref code, .. } if code == "INVALID_GAIN"
+        ));
+    }
+
+    #[test]
+    fn set_master_gain_out_of_range_returns_error() {
+        let mut state = state_with_mix();
+        let resp = state.dispatch(request(ClientMessage::SetMasterGain {
+            mix_index: 0,
+            gain_db: 999.0,
+        }));
+        assert!(matches!(
+            resp.payload,
+            ServerMessage::Error { ref code, .. } if code == "INVALID_GAIN"
+        ));
+    }
+
+    #[test]
+    fn set_master_gain_missing_mix_returns_error() {
+        let mut state = ControlState::new(); // no mixes
+        let resp = state.dispatch(request(ClientMessage::SetMasterGain {
+            mix_index: 0,
+            gain_db: 0.0,
+        }));
+        assert!(matches!(
+            resp.payload,
+            ServerMessage::Error { ref code, .. } if code == "MIX_NOT_FOUND"
+        ));
+    }
+
+    #[test]
+    fn set_master_mute_missing_mix_returns_error() {
+        let mut state = ControlState::new(); // no mixes
+        let resp = state.dispatch(request(ClientMessage::SetMasterMute {
+            mix_index: 0,
+            muted: true,
+        }));
+        assert!(matches!(
+            resp.payload,
+            ServerMessage::Error { ref code, .. } if code == "MIX_NOT_FOUND"
         ));
     }
 }
