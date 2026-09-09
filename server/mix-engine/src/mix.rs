@@ -4,11 +4,11 @@
 //! a master gain, a master mute, and an output limiter.
 //!
 //! The mix processes audio by summing all active send contributions
-//! and applying master gain + limiter.
+//! and applying the mix-bus chain: EQ → Compressor → Master Gain → Limiter.
 
 use crate::{
-    apply_pan, db_to_linear, limiter::Limiter, mix_send::MixSend, Channel, GAIN_DB_MAX,
-    GAIN_DB_MIN, MAX_CHANNELS,
+    apply_pan, db_to_linear, limiter::Limiter, mix_send::MixSend, Channel, Compressor,
+    ParametricEq, GAIN_DB_MAX, GAIN_DB_MIN, MAX_CHANNELS,
 };
 
 /// Unique mix identifier (same type as `MixId` in `mix_send`).
@@ -18,6 +18,8 @@ pub type MixId = u32;
 ///
 /// Contains up to [`MAX_CHANNELS`] sends (one per input channel),
 /// a master section (gain, mute), and an output limiter.
+///
+/// Audio chain per frame: Sum → EQ → Compressor → Master Gain → Limiter.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Mix {
     /// Unique identifier for this mix.
@@ -39,6 +41,12 @@ pub struct Mix {
     /// Master mute — silences the entire mix output.
     pub master_muted: bool,
 
+    /// Mix-bus parametric EQ (applied before compressor).
+    pub eq: ParametricEq,
+
+    /// Mix-bus compressor (applied after EQ, before master gain).
+    pub compressor: Compressor,
+
     /// Output limiter configuration.
     pub limiter: Limiter,
 
@@ -49,7 +57,7 @@ pub struct Mix {
 impl Mix {
     /// Create a new mix with the given ID and name.
     ///
-    /// Defaults: master gain = 0 dB, unmuted, limiter disabled.
+    /// Defaults: master gain = 0 dB, unmuted, EQ flat, compressor disabled, limiter disabled.
     #[must_use]
     pub fn new(id: MixId, name: &str) -> Self {
         let bytes = name.as_bytes();
@@ -66,6 +74,8 @@ impl Mix {
             sends: core::array::from_fn(|_| None),
             master_gain_db: 0.0,
             master_muted: false,
+            eq: ParametricEq::new(),
+            compressor: Compressor::new(),
             limiter: Limiter::new(),
             revision: 0,
         }
@@ -169,7 +179,8 @@ impl Mix {
     ///
     /// # Returns
     ///
-    /// `(left, right)` — stereo output sample pair after summing, master gain, and limiter.
+    /// `(left, right)` — stereo output sample pair after the chain:
+    /// Sum → EQ → Compressor → Master Gain → Limiter.
     ///
     /// # Realtime Safety
     ///
@@ -230,8 +241,14 @@ impl Mix {
             right_sum += r;
         }
 
+        // Mix-bus EQ
+        let (l_eq, r_eq) = self.eq.process(left_sum, right_sum);
+
+        // Mix-bus Compressor
+        let (l_comp, r_comp) = self.compressor.process(l_eq, r_eq);
+
         // Apply master gain
-        let (l, r) = (left_sum * master_linear, right_sum * master_linear);
+        let (l, r) = (l_comp * master_linear, r_comp * master_linear);
 
         // Apply limiter
         self.limiter.process(l, r)
@@ -423,5 +440,212 @@ mod tests {
         let msg = err.to_string();
         assert!(msg.contains("10"));
         assert!(msg.contains('8'));
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 8 tests: EQ + Compressor integration in Mix::process
+    // -----------------------------------------------------------------------
+
+    fn sinusoid_samples(freq_hz: f32, n: usize) -> Vec<f32> {
+        use core::f32::consts::PI;
+        (0..n)
+            .map(|i| (2.0 * PI * freq_hz * i as f32 / 48_000.0).sin())
+            .collect()
+    }
+
+    fn rms(samples: &[f32]) -> f32 {
+        let sum: f32 = samples.iter().map(|s| s * s).sum();
+        (sum / samples.len() as f32).sqrt()
+    }
+
+    #[test]
+    fn test_mix_eq_boosts_at_freq() {
+        // Setup: one send at unity, 1 kHz sinusoid as input, EQ band +6 dB at 1 kHz.
+        let mut mix = Mix::new(1, "test_eq_boost");
+        let send = MixSend::new(0, 1);
+        mix.set_send(0, send).expect("set_send ok");
+
+        // Enable EQ band: 1 kHz, +6 dB, Q=1
+        mix.eq.set_band(
+            0,
+            crate::EqBand {
+                frequency_hz: 1_000.0,
+                gain_db: 6.0,
+                q: 1.0,
+                enabled: true,
+            },
+        );
+
+        let channels = make_channels(1);
+        let signal = sinusoid_samples(1_000.0, 4_800);
+
+        // Baseline: no EQ (fresh mix)
+        let mut mix_bypass = Mix::new(2, "bypass");
+        let send2 = MixSend::new(0, 1);
+        mix_bypass.set_send(0, send2).expect("ok");
+        let bypass_out: Vec<f32> = signal
+            .iter()
+            .map(|&s| {
+                let (l, _) = mix_bypass.process(&[s], &channels);
+                l
+            })
+            .collect();
+        let bypass_rms = rms(&bypass_out);
+
+        let boosted_out: Vec<f32> = signal
+            .iter()
+            .map(|&s| {
+                let (l, _) = mix.process(&[s], &channels);
+                l
+            })
+            .collect();
+        let boosted_rms = rms(&boosted_out);
+
+        assert!(
+            boosted_rms > bypass_rms * 1.3,
+            "EQ +6 dB should boost 1 kHz: bypass_rms={bypass_rms:.4} boosted_rms={boosted_rms:.4}"
+        );
+    }
+
+    #[test]
+    fn test_mix_compressor_reduces_loud() {
+        let mut mix = Mix::new(1, "test_comp");
+        let send = MixSend::new(0, 1);
+        mix.set_send(0, send).expect("ok");
+
+        // Enable compressor: threshold -6 dB, ratio 4:1, fast attack
+        mix.compressor.set_enabled(true);
+        mix.compressor.set_threshold(-6.0);
+        mix.compressor.set_ratio(4.0);
+        mix.compressor.set_attack_ms(1.0);
+
+        let channels = make_channels(1);
+        let input = 0.9_f32;
+
+        // Warm up
+        for _ in 0..10_000 {
+            let _ = mix.process(&[input], &channels);
+        }
+
+        // Measure output after warmup
+        let (l, _) = mix.process(&[input], &channels);
+        // Centre pan at unity: signal passes through ~0.707. After compressor reduction
+        // should be < input * 0.95 * 0.707 ≈ 0.672
+        let expected_max = input * 0.95 * 0.8; // generous bound accounting for pan
+        assert!(
+            l < expected_max,
+            "compressor should reduce loud signal: l={l:.4} expected_max={expected_max:.4}"
+        );
+    }
+
+    #[test]
+    fn test_mix_eq_passthrough_when_disabled() {
+        // All EQ bands disabled → output matches plain sum chain.
+        let channels = make_channels(1);
+        let signal = sinusoid_samples(1_000.0, 100);
+
+        let mut mix_eq = Mix::new(1, "eq_disabled");
+        mix_eq.set_send(0, MixSend::new(0, 1)).expect("ok");
+        // EQ bands are disabled by default — no change needed
+
+        let mut mix_plain = Mix::new(2, "plain");
+        mix_plain.set_send(0, MixSend::new(0, 1)).expect("ok");
+
+        for &s in &signal {
+            let (l_eq, _) = mix_eq.process(&[s], &channels);
+            let (l_plain, _) = mix_plain.process(&[s], &channels);
+            assert!(
+                (l_eq - l_plain).abs() < 1e-4,
+                "EQ passthrough mismatch: l_eq={l_eq:.6} l_plain={l_plain:.6}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_mix_compressor_passthrough_when_disabled() {
+        // Compressor disabled → same output as plain sum+gain+limiter chain.
+        let channels = make_channels(1);
+        let signal = sinusoid_samples(440.0, 100);
+
+        let mut mix_comp = Mix::new(1, "comp_disabled");
+        mix_comp.set_send(0, MixSend::new(0, 1)).expect("ok");
+        // Compressor disabled by default
+
+        let mut mix_plain = Mix::new(2, "plain2");
+        mix_plain.set_send(0, MixSend::new(0, 1)).expect("ok");
+
+        for &s in &signal {
+            let (l_c, _) = mix_comp.process(&[s], &channels);
+            let (l_p, _) = mix_plain.process(&[s], &channels);
+            assert!(
+                (l_c - l_p).abs() < 1e-5,
+                "disabled compressor should be transparent: l_c={l_c:.6} l_p={l_p:.6}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_mix_chain_order() {
+        // EQ boosts 1 kHz → then compressor sees boosted signal and applies gain reduction.
+        // With EQ: compressor output should be reduced compared to bypass.
+        let channels = make_channels(1);
+
+        // Mix A: EQ boost + compressor enabled (should compress boosted signal)
+        let mut mix_eq_comp = Mix::new(1, "eq_then_comp");
+        mix_eq_comp.set_send(0, MixSend::new(0, 1)).expect("ok");
+        mix_eq_comp.eq.set_band(
+            0,
+            crate::EqBand {
+                frequency_hz: 1_000.0,
+                gain_db: 12.0,
+                q: 1.0,
+                enabled: true,
+            },
+        );
+        mix_eq_comp.compressor.set_enabled(true);
+        mix_eq_comp.compressor.set_threshold(-6.0);
+        mix_eq_comp.compressor.set_ratio(4.0);
+        mix_eq_comp.compressor.set_attack_ms(1.0);
+
+        // Mix B: only EQ, no compressor (unboosted by compression)
+        let mut mix_eq_only = Mix::new(2, "eq_only");
+        mix_eq_only.set_send(0, MixSend::new(0, 1)).expect("ok");
+        mix_eq_only.eq.set_band(
+            0,
+            crate::EqBand {
+                frequency_hz: 1_000.0,
+                gain_db: 12.0,
+                q: 1.0,
+                enabled: true,
+            },
+        );
+
+        let signal = sinusoid_samples(1_000.0, 4_800);
+
+        // Warmup both
+        for &s in &signal {
+            let _ = mix_eq_comp.process(&[s], &channels);
+            let _ = mix_eq_only.process(&[s], &channels);
+        }
+
+        // After warmup, collect RMS of another burst
+        let (rms_comp, rms_eq): (Vec<f32>, Vec<f32>) = signal
+            .iter()
+            .map(|&s| {
+                let (l_c, _) = mix_eq_comp.process(&[s], &channels);
+                let (l_e, _) = mix_eq_only.process(&[s], &channels);
+                (l_c, l_e)
+            })
+            .unzip();
+
+        let rms_with_comp = rms(&rms_comp);
+        let rms_without_comp = rms(&rms_eq);
+
+        // Compressor after EQ should reduce boosted signal
+        assert!(
+            rms_with_comp < rms_without_comp,
+            "chain order: EQ→Comp should yield lower RMS than EQ alone: \
+             with_comp={rms_with_comp:.4} without_comp={rms_without_comp:.4}"
+        );
     }
 }

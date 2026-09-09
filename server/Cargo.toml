@@ -7,6 +7,7 @@ members = [
     "control-server",
     "api-server",
     "streaming",
+    "admin-cli",
 ]
 
 [workspace.dependencies]

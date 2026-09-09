@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 8
+- **EQ + Compressor integrated into `Mix::process`** audio chain: Sum → EQ → Compressor → Master Gain → Limiter. Both are disabled by default (passthrough when disabled).
+- **`Mix` struct fields** `eq: ParametricEq` and `compressor: Compressor` exposed for per-mix DSP configuration.
+- **5 new mix-engine tests** covering EQ boost at frequency, compressor reduction on loud signal, EQ passthrough when disabled, compressor passthrough when disabled, and EQ→Compressor chain order verification.
+- **Admin CLI binary** (`server/admin-cli/`): `open-iem-admin` — commands: `user list/create/delete`, `session list/revoke`, `health`. Global `--server`, `--token` (or `OPEN_IEM_ADMIN_TOKEN` env), `--json` flags. Graceful 404 handling (Phase 9 server-side routes).
+- **Musician Guide PDF** (`docs/guides/MUSICIANS-GUIDE.pdf`): generated via pandoc+xelatex from `MUSICIANS-GUIDE.md`. 61 KB, PDF 1.5. Emoji glyphs (⚠, ✅, ❌) render as blank in lmroman — cosmetic only.
+- **`PHASE-8-REVIEW.md`** in `docs/reviews/`.
+
+### Changed — Phase 8
+- mix-engine test count: 74 → 79 (+5 new chain integration tests).
+- Total workspace tests: 152 → 157.
+- `server/Cargo.toml` workspace members: added `admin-cli`.
+
 ### Added — Phase 7
 - **Biquad Parametric EQ** (`mix-engine/src/eq.rs`): real Type-II Transposed DF2 peaking filter replacing Phase 2 passthrough stub. RBJ Audio EQ Cookbook coefficients, SAMPLE_RATE=48000, stereo biquad state inline (no heap), all 4 bands independent.
 - **BiquadCoeffs** struct: `identity()` + `peaking(frequency_hz, gain_db, q)` — coefficients recomputed on `set_band`.

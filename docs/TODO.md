@@ -76,10 +76,21 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Docker Compose dev environment (api-server, musician-ui, engineer-ui)
 - [x] Musician Guide pt-BR (docs/guides/MUSICIANS-GUIDE.md)
 - [x] PHASE-6-REVIEW.md and PHASE-7-REVIEW.md
-- [ ] Integrate EQ + Compressor into Mix::process audio chain (Phase 8)
-- [ ] Create admin CLI for user management (Phase 8)
-- [ ] Generate Musician Guide PDF (Phase 8 documentation)
-- [ ] Biquad coefficient validation vs reference implementation (Phase 8)
+- [x] Integrate EQ + Compressor into Mix::process audio chain (Phase 8)
+- [x] Create admin CLI for user management (Phase 8)
+
+## PHASE 8 STATUS
+
+- [x] EQ + Compressor wired into Mix::process chain (Sum → EQ → Comp → Master Gain → Limiter)
+- [x] Mix struct exposes `eq: ParametricEq` and `compressor: Compressor` fields
+- [x] 5 new mix-engine integration tests (EQ boost, compressor reduction, passthrough, chain order)
+- [x] Admin CLI binary (`server/admin-cli/`) — user/session/health commands, JSON/table output
+- [x] Musician Guide PDF (`docs/guides/MUSICIANS-GUIDE.pdf`) — pandoc+xelatex, 61 KB
+- [x] PHASE-8-REVIEW.md
+- [ ] Admin API server-side routes (Phase 9)
+- [ ] Biquad coefficient validation vs reference implementation (scipy)
+- [ ] Generate Musician Guide PDF (Phase 8 documentation) — DONE Phase 8
+- [ ] Biquad coefficient validation vs reference implementation (Phase 8) — deferred Phase 9
 
 ## PHASE 1 STATUS
 
