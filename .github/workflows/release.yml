@@ -97,7 +97,7 @@ jobs:
   build-server-x86:
     name: Build server (Linux x86_64)
     runs-on: ubuntu-24.04
-    needs: quality-gate
+    needs: [quality-gate, validate-version]
     steps:
       - uses: actions/checkout@v4
 
@@ -119,6 +119,17 @@ jobs:
           cargo build --manifest-path server/Cargo.toml --release \
             --bin api-server \
             --bin open-iem-admin
+
+      - name: Generate SBOM (best-effort)
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          if cargo install cargo-sbom --locked 2>/dev/null; then
+            cargo sbom --manifest-path server/Cargo.toml > "open-iem-server-${VERSION}-sbom.json" \
+              || echo "WARNING: cargo-sbom run failed; skipping SBOM"
+          else
+            echo "WARNING: cargo-sbom install failed; skipping SBOM"
+          fi
+        continue-on-error: true
 
       - name: Package server artefact
         run: |
@@ -142,6 +153,7 @@ jobs:
           path: |
             open-iem-server-*.tar.gz
             open-iem-server-*.tar.gz.sha256
+            open-iem-server-*-sbom.json
 
   # ──────────────────────────────────────────────
   # 4. Build server — Linux ARM64 (Raspberry Pi 5 target)
@@ -149,7 +161,7 @@ jobs:
   build-server-arm64:
     name: Build server (Linux ARM64)
     runs-on: ubuntu-24.04
-    needs: quality-gate
+    needs: [quality-gate, validate-version]
     steps:
       - uses: actions/checkout@v4
 
@@ -209,7 +221,7 @@ jobs:
   build-web:
     name: Build web frontends
     runs-on: ubuntu-24.04
-    needs: quality-gate
+    needs: [quality-gate, validate-version]
     steps:
       - uses: actions/checkout@v4
 
@@ -304,5 +316,6 @@ jobs:
           files: |
             dist/*.tar.gz
             dist/*.sha256
+            dist/*.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -517,7 +517,22 @@ async fn admin_delete_nonexistent_user_returns_404() {
     resp.assert_status(axum::http::StatusCode::NOT_FOUND);
 }
 
-// ── Admin: session listing ───────────────────────────────────────────────────
+// ── Admin: self-delete protection ───────────────────────────────────────────
+
+#[tokio::test]
+async fn admin_cannot_delete_own_account() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "admin_self", "pw", Role::Admin);
+    let (caller_id, _, _) = state.db.find_user("admin_self").unwrap();
+    let resp = server
+        .delete(&format!("/api/v1/admin/users/{caller_id}"))
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::FORBIDDEN);
+    let body: Value = resp.json();
+    assert_eq!(body["code"], "FORBIDDEN");
+}
 
 #[tokio::test]
 async fn admin_list_sessions_returns_active_sessions() {

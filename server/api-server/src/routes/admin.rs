@@ -67,6 +67,7 @@ pub async fn list_users(
 ///
 /// # Errors
 /// Returns `ApiError::Forbidden` if caller is not Admin.
+/// Returns `ApiError::Forbidden` if caller attempts to delete their own account.
 /// Returns `ApiError::NotFound` if user does not exist.
 /// Returns `ApiError::Internal` on DB error.
 pub async fn delete_user(
@@ -75,6 +76,9 @@ pub async fn delete_user(
     Path(user_id): Path<i64>,
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Admin)?;
+    if user_id == claims.user_id {
+        return Err(ApiError::Forbidden("Cannot delete your own account"));
+    }
     state.db.delete_user(user_id)?;
     Ok(StatusCode::NO_CONTENT)
 }
