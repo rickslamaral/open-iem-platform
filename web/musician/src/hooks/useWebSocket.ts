@@ -92,11 +92,9 @@ function isServerMessage(value: unknown): value is ServerMessage {
 /**
  * WebSocket hook for Open IEM control plane.
  *
- * Token is passed as a URL query parameter because browser WebSocket API
- * does not support custom headers. This is a known limitation documented
- * in docs/security/WEBSOCKET-TOKEN-TRANSPORT.md.
- * Mitigations: token is short-lived (15 min), TLS mandatory in production,
- * connection is LAN-only.
+ * Token is sent in a negotiated WebSocket subprotocol because browser WebSocket
+ * API does not allow custom headers. Server authenticates `openiem.bearer.<JWT>`
+ * and echoes only `openiem.v1` as selected protocol during upgrade.
  */
 export function useWebSocket(token: string | null): UseWebSocketResult {
   const [status, setStatus] = useState<WsStatus>('disconnected');
@@ -138,13 +136,14 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
       return;
     }
 
-    const url = `/ws/v1?token=${encodeURIComponent(token)}`;
+    const url = '/ws/v1';
+    const protocols = [`openiem.bearer.${token}`, 'openiem.v1'];
     setStatus('connecting');
     setRevision(null);
     latestRevisionRef.current = null;
     setSnapshot(null);
 
-    const ws = new WebSocket(url);
+    const ws = new WebSocket(url, protocols);
     wsRef.current = ws;
 
     const abortController = new AbortController();

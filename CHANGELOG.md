@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 21
+- WebSocket authentication moved from URL query parameters to negotiated `Sec-WebSocket-Protocol: openiem.bearer.<JWT>`.
+- Server selects and echoes authenticated subprotocol during `/ws/v1` upgrade; missing or empty credentials are rejected.
+
+### Security — Phase 21
+- Access tokens no longer appear in WebSocket URLs, reducing exposure through proxy/access logs and browser history.
+
 ### Added — Phase 20
 - Musician hook tests cover authenticated REST snapshot, malformed nested state, delayed snapshot protection and `SendAck` reconciliation.
 - WebSocket client validates protocol version, bounded request ID, ACK ranges and aborts snapshot fetch during connection cleanup.

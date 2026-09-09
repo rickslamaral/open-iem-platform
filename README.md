@@ -40,13 +40,11 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Phase 20 — Verificação da reconciliação Musician** (controle operacional; áudio SIMULATED no VPS)
+**Phase 21 — Autenticação WebSocket sem token em URL** (controle operacional; áudio SIMULATED no VPS)
 
-O hook Musician valida envelopes WebSocket completos, faixas de ACK, snapshot REST autenticado e cancela fetch no encerramento da conexão. Testes cobrem snapshot inválido, snapshot atrasado e aplicação de ACK.
+O cliente Musician envia access token no subprotocolo de autenticação `openiem.bearer.<JWT>` junto de `openiem.v1` durante o upgrade HTTP; `/ws/v1` valida ambos e ecoa somente `openiem.v1`. Query strings não carregam mais tokens. ACKs, snapshot REST, ownership, ordenação e limites permanecem ativos. Áudio, sessões WebRTC e telemetria permanecem SIMULATED no VPS.
 
-`/ws/v1` publica ACKs não solicitados para sessões Engineer/Admin após mutações de gain, pan e mute; músicos recebem somente deltas do mix atribuído. Cliente Musician busca `GET /api/v1/state` após conexão, valida snapshot aninhado, rejeita snapshot atrasado e aplica `SendAck` ao estado local. Mutations aguardam mix atribuído conhecido. Ownership, dispatch e publicação usam `mix_assignment_lock`, com ordenação de mutações e sem manter lock durante I/O de socket. Áudio, sessões WebRTC e telemetria permanecem SIMULATED no VPS.
-
-See [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md). [Phase 18 review](docs/reviews/PHASE-18-REVIEW.md). [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
+See [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md). [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md). [Phase 18 review](docs/reviews/PHASE-18-REVIEW.md). [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
 
 ## Development Phases
 

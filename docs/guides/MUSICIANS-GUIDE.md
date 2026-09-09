@@ -162,6 +162,9 @@ Authorization: Bearer <token>
 ```
 
 **WebSocket (`/ws/v1`):**
+
+O navegador envia o access token no subprotocolo `openiem.bearer.<JWT>` junto de `openiem.v1`; servidor ecoa somente `openiem.v1`. O token não fica na URL. Conexão externa exige HTTPS.
+
 ```json
 { "type": "SetChannelGain", "data": { "channel": 2, "gain_db": -6.0 } }
 { "type": "SetChannelMute", "data": { "channel": 2, "muted": false } }

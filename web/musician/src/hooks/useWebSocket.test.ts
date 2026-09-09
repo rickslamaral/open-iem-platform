@@ -12,7 +12,7 @@ class MockWebSocket {
   onclose: (() => void) | null = null;
   sent: string[] = [];
 
-  constructor(public url: string) {
+  constructor(public url: string, public protocols?: string | string[]) {
     MockWebSocket.instances.push(this);
   }
 
@@ -80,6 +80,8 @@ describe('useWebSocket', () => {
     });
     await waitFor(() => expect(result.current.snapshot?.revision).toBe(5));
 
+    expect(MockWebSocket.instances[0]?.url).toBe('/ws/v1');
+    expect(MockWebSocket.instances[0]?.protocols).toEqual(['openiem.bearer.test-token', 'openiem.v1']);
     expect(fetchMock).toHaveBeenCalledWith('/api/v1/state', expect.objectContaining({
       headers: { Authorization: 'Bearer test-token' },
       signal: expect.any(AbortSignal),
