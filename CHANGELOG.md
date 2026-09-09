@@ -32,8 +32,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [Unreleased]
-
 ### Added — Phase 10
 - Persistent SQLite mix assignments with one mix per user.
 - Engineer/Admin mix assignment API.
