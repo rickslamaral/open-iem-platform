@@ -13,6 +13,10 @@ use api_server::{
     db::Db,
     middleware::jwt_auth,
     routes::{
+        admin::{
+            delete_user as admin_delete_user, list_sessions as admin_list_sessions,
+            list_users as admin_list_users, revoke_session as admin_revoke_session,
+        },
         audio::{ice_candidate, offer, sessions},
         auth::{create_user, login, logout, refresh},
         channels::{get_state, set_channel_gain, set_channel_mute},
@@ -74,7 +78,19 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
         .route("/api/v1/auth/logout", post(logout))
-        .route("/api/v1/admin/users", post(create_user))
+        .route(
+            "/api/v1/admin/users",
+            get(admin_list_users).post(create_user),
+        )
+        .route(
+            "/api/v1/admin/users/{id}",
+            axum::routing::delete(admin_delete_user),
+        )
+        .route("/api/v1/admin/sessions", get(admin_list_sessions))
+        .route(
+            "/api/v1/admin/sessions/{id}",
+            axum::routing::delete(admin_revoke_session),
+        )
         .route("/ws/v1", get(ws_handler))
         .layer(middleware::from_fn_with_state(state.clone(), jwt_auth));
 
