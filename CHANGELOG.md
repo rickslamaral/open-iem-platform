@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 19
+- Musician client reconciles assigned mix snapshot through authenticated `GET /api/v1/state` after WebSocket connection.
+- Nested snapshot validation rejects malformed or non-finite channel, mix and send values.
+- `SendAck` updates local send state; stale REST snapshots are rejected by monotonic revision tracking.
+
 ### Changed — Phase 18
 - Musician WebSocket client consumes `SendAck` revisions and ignores `State`/ACK messages older than current revision, preventing stale UI state after delayed broadcasts.
 

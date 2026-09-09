@@ -10,8 +10,32 @@ export interface Envelope<T> {
 
 export type ClientMessage =
   | { type: 'GetState' }
+  | { type: 'SetSendGain'; data: { mix_index: number; channel_index: number; gain_db: number } }
+  | { type: 'SetSendPan'; data: { mix_index: number; channel_index: number; pan: number } }
+  | { type: 'SetSendMuted'; data: { mix_index: number; channel_index: number; muted: boolean } }
   | { type: 'SetChannelGain'; data: { channel: number; gain_db: number } }
   | { type: 'SetChannelMute'; data: { channel: number; muted: boolean } }
+
+export interface StateSnapshot {
+  schema_version: 1
+  revision: number
+  channels: Array<{
+    index: number
+    gain_db: number
+    muted: boolean
+  }>
+  mixes: Array<{
+    index: number
+    master_gain_db: number
+    master_muted: boolean
+    sends: Array<{
+      channel_index: number
+      gain_db: number
+      pan: number
+      muted: boolean
+    }>
+  }>
+}
 
 export type ServerMessage =
   | { type: 'State'; data: { revision: number } }

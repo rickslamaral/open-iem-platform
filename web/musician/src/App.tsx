@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Login } from './components/Login';
 import { MixControl } from './components/MixControl';
 import { ConnectionStatus } from './components/ConnectionStatus';
@@ -25,6 +25,18 @@ export default function App() {
 
   const ws = useWebSocket(token);
 
+  useEffect(() => {
+    if (!ws.snapshot) return;
+    const mix = ws.snapshot.mixes[0];
+    if (!mix) return;
+    const sendsByChannel = new Map(mix.sends.map((send) => [send.channel_index, send]));
+    setChannels((current) => current.map((channel, index) => {
+      const send = sendsByChannel.get(index);
+      return send ? { gainDb: send.gain_db, muted: send.muted } : channel;
+    }));
+    setMasterGainDb(mix.master_gain_db);
+  }, [ws.snapshot]);
+
   const handleLogin = useCallback(async (username: string, password: string) => {
     setLoginError(null);
     try {
@@ -45,20 +57,24 @@ export default function App() {
 
   const handleChannelGain = useCallback(
     (ch: number, gainDb: number) => {
+      const mixIndex = ws.snapshot?.mixes[0]?.index;
+      if (mixIndex === undefined) return;
       setChannels((prev) =>
         prev.map((c, i) => (i === ch ? { ...c, gainDb } : c)),
       );
-      ws.send({ type: 'SetChannelGain', data: { channel: ch, gain_db: gainDb } });
+      ws.send({ type: 'SetSendGain', data: { mix_index: mixIndex, channel_index: ch, gain_db: gainDb } });
     },
     [ws],
   );
 
   const handleChannelMute = useCallback(
     (ch: number, muted: boolean) => {
+      const mixIndex = ws.snapshot?.mixes[0]?.index;
+      if (mixIndex === undefined) return;
       setChannels((prev) =>
         prev.map((c, i) => (i === ch ? { ...c, muted } : c)),
       );
-      ws.send({ type: 'SetChannelMute', data: { channel: ch, muted } });
+      ws.send({ type: 'SetSendMuted', data: { mix_index: mixIndex, channel_index: ch, muted } });
     },
     [ws],
   );

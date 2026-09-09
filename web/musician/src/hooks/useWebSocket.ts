@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import type { ServerMessage } from '../protocol/types';
+import type { ServerMessage, StateSnapshot } from '../protocol/types';
 import { encodeEnvelope } from '../protocol/envelope';
 import type { ClientMessage } from '../protocol/types';
 
@@ -8,6 +8,7 @@ export type WsStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 export interface UseWebSocketResult {
   status: WsStatus;
   revision: number | null;
+  snapshot: StateSnapshot | null;
   error: string | null;
   send: (msg: ClientMessage) => void;
   disconnect: () => void;
@@ -20,6 +21,25 @@ function isValidRevision(value: unknown): value is number {
 function updateRevision(current: number | null, candidate: unknown): number | null {
   if (!isValidRevision(candidate)) return current;
   return current === null || candidate >= current ? candidate : current;
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function isStateSnapshot(value: unknown): value is StateSnapshot {
+  if (!value || typeof value !== 'object') return false;
+  const snapshot = value as StateSnapshot;
+  if (snapshot.schema_version !== 1 || !isValidRevision(snapshot.revision)
+    || !Array.isArray(snapshot.channels) || !Array.isArray(snapshot.mixes)) return false;
+  if (snapshot.channels.some((channel) => !channel || !Number.isInteger(channel.index)
+    || !isFiniteNumber(channel.gain_db) || typeof channel.muted !== 'boolean')) return false;
+  return snapshot.mixes.every((mix) => mix && Number.isInteger(mix.index)
+    && isFiniteNumber(mix.master_gain_db) && typeof mix.master_muted === 'boolean'
+    && Array.isArray(mix.sends) && mix.sends.every((send) => send
+      && Number.isInteger(send.channel_index) && isFiniteNumber(send.gain_db)
+      && isFiniteNumber(send.pan) && send.pan >= -1 && send.pan <= 1
+      && typeof send.muted === 'boolean'));
 }
 
 function isServerMessage(value: unknown): value is ServerMessage {
@@ -56,8 +76,10 @@ function isServerMessage(value: unknown): value is ServerMessage {
 export function useWebSocket(token: string | null): UseWebSocketResult {
   const [status, setStatus] = useState<WsStatus>('disconnected');
   const [revision, setRevision] = useState<number | null>(null);
+  const [snapshot, setSnapshot] = useState<StateSnapshot | null>(null);
   const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const latestRevisionRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
 
   const disconnect = useCallback(() => {
@@ -91,16 +113,45 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
     const url = `/ws/v1?token=${encodeURIComponent(token)}`;
     setStatus('connecting');
     setRevision(null);
+    latestRevisionRef.current = null;
+    setSnapshot(null);
 
     const ws = new WebSocket(url);
     wsRef.current = ws;
+
+    let snapshotRequestInFlight = false;
+    const refreshSnapshot = async () => {
+      if (snapshotRequestInFlight) return;
+      snapshotRequestInFlight = true;
+      try {
+        const response = await fetch('/api/v1/state', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) throw new Error(`Snapshot failed: ${response.status}`);
+        const value: unknown = await response.json();
+        if (!isStateSnapshot(value)) throw new Error('Malformed state snapshot');
+        if (!mountedRef.current || wsRef.current !== ws) return;
+        const latestRevision = latestRevisionRef.current;
+        if (latestRevision !== null && value.revision < latestRevision) return;
+        setSnapshot((current) => current === null || value.revision >= current.revision ? value : current);
+        latestRevisionRef.current = value.revision;
+        setRevision((current) => updateRevision(current, value.revision));
+      } catch (err) {
+        if (mountedRef.current && wsRef.current === ws) {
+          setError(err instanceof Error ? err.message : 'Snapshot failed');
+        }
+      } finally {
+        snapshotRequestInFlight = false;
+      }
+    };
 
     ws.onopen = () => {
       if (!mountedRef.current || wsRef.current !== ws) return;
       setStatus('connected');
       setError(null);
-      // Request initial state
+      // Request initial state over WS, then reconcile full state over REST.
       ws.send(encodeEnvelope({ type: 'GetState' }));
+      void refreshSnapshot();
     };
 
     ws.onmessage = (event: MessageEvent<string>) => {
@@ -116,7 +167,26 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
         }
         const msg = payload;
         if (msg.type === 'State' || msg.type === 'SendAck') {
+          latestRevisionRef.current = updateRevision(latestRevisionRef.current, msg.data.revision);
           setRevision((current) => updateRevision(current, msg.data.revision));
+          if (msg.type === 'SendAck') {
+            setSnapshot((current) => {
+              if (!current || msg.data.revision < current.revision) return current;
+              return {
+                ...current,
+                revision: msg.data.revision,
+                mixes: current.mixes.map((mix) => mix.index !== msg.data.mix_index ? mix : {
+                  ...mix,
+                  sends: mix.sends.map((send) => send.channel_index !== msg.data.channel_index ? send : {
+                    ...send,
+                    gain_db: msg.data.gain_db,
+                    pan: msg.data.pan,
+                    muted: msg.data.muted,
+                  }),
+                }),
+              };
+            });
+          }
         } else if (msg.type === 'Error') {
           if (msg.data.code === 'TOKEN_EXPIRED') {
             setStatus('disconnected');
@@ -146,5 +216,5 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
     };
   }, [token, disconnect]);
 
-  return { status, revision, error, send, disconnect };
+  return { status, revision, snapshot, error, send, disconnect };
 }

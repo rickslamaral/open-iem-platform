@@ -4,6 +4,39 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 19: reconciliação completa do cliente Musician
+
+**Branch:** `main`
+**Ambiente:** VPS Linux x86_64; áudio SIMULATED
+
+### Implementado
+
+- Cliente Musician busca snapshot autenticado em `GET /api/v1/state` depois de abrir WebSocket.
+- Validação runtime cobre estrutura aninhada, revisões, índices, tipos, finitude e limites de pan.
+- Referência monotônica rejeita snapshot REST atrasado após ACK/State mais novo.
+- `SendAck` atualiza send no snapshot local; mutations usam `SetSendGain`/`SetSendMuted` e não assumem mix 0.
+- Tipos TypeScript refletem snapshot e comandos server-side.
+
+### Verificação
+
+- `npm run typecheck` PASS.
+- `npm test -- --run` PASS: 28 testes.
+- `npm run build` PASS.
+- `git diff --check` PASS.
+- Revisão independente detectou falhas iniciais; correções aplicadas. Nova rodada pendente após documentação.
+
+### Limitações
+
+Testes ainda não cobrem corrida assíncrona de fetch em browser real. PipeWire, Opus, mídia WebRTC real, telemetria e runtime ARM64 continuam SIMULATED/não validados no VPS.
+
+### Próximo
+
+Testes específicos de reconciliação; depois TLS fail-closed e validação Raspberry Pi 5.
+
+---
+
+---
+
 ## 2026-09-09 — Phase 18: reconciliação de revisão no cliente Musician
 
 **Branch:** `main`

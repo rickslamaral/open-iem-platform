@@ -119,7 +119,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Musician client accepts `SendAck` revisions
 - [x] Musician client ignores stale `State`/`SendAck` revisions
-- [ ] Add client reconciliation of full channel/send state after revision gap
+- [x] Add client reconciliation of full channel/send state after revision gap (Phase 19; REST snapshot + SendAck application)
 
 ## PHASE 17 STATUS
 
