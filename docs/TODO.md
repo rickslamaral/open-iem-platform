@@ -64,7 +64,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] WebSocket keepalive: server Ping/ Pong timeout and bounded socket sends — Phase 24 (timing integration test remains pending)
 - [ ] LOW: WebSocket keepalive: add deterministic short-interval integration tests without waiting 30/60 seconds — política de timeout extraída e helper unitário coberto; loop WS ainda pendente
 - [x] LOW: WebSocket protocol control coverage: client Ping/Pong payload preservation and binary-frame rejection (Phase 24 follow-up)
-- [x] LOW: WebSocket rate quota counts application Text messages only; control frames do not consume quota (Phase 24 follow-up)
+- [x] LOW: WebSocket rate quota counts every inbound frame, including control frames, preventing Ping/Pong flood bypass (Phase 24 follow-up)
 - [x] MEDIUM: Enforce process-wide WebSocket connection quota (64 permits); per-user/IP quotas and post-issuance JWT revocation checks remain pending
 - [ ] LOW: Add explicit WebSocket logging redaction policy and generic client-facing protocol errors
 

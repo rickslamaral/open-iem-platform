@@ -26,7 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added — Phase 24 WebSocket resilience
 - Added integration coverage for client Ping/Pong payload preservation and binary-frame rejection.
-- WebSocket rate limiting now counts application Text messages only; Ping, Pong and Close control frames do not consume application quota.
+- WebSocket rate limiting counts every inbound frame, including control frames, preventing Ping/Pong floods from bypassing the per-connection quota.
 - Added fail-closed integration coverage when the musician ownership database lookup fails.
 - Added server-initiated WebSocket Ping every 30 seconds and `CONNECTION_TIMEOUT` after 60 seconds without Pong.
 - Bounded every WebSocket send operation to 10 seconds, preventing stalled clients from retaining handler tasks indefinitely.

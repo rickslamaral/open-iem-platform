@@ -25,7 +25,7 @@ All significant milestones documented here in reverse chronological order.
 
 ### Limitações
 
-- Quotas por usuário/IP, revogação pós-emissão de JWT e teste de saturação do limite continuam pendentes.
+- Quota por conexão agora inclui todo frame recebido, inclusive control frames; quotas por usuário/IP, revogação pós-emissão de JWT e teste de saturação do limite continuam pendentes.
 - CI remoto, PipeWire, mídia WebRTC real e ARM64 em Raspberry Pi permanecem não validados.
 
 ---

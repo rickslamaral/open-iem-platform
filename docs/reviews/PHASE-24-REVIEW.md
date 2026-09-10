@@ -61,7 +61,7 @@ O helper destrutivo usado para fault injection de autorização é compilado som
 - Loop WebSocket ainda usa intervalos de produção de 30/60 segundos; teste temporal de integração continua pendente.
 
 ## Segurança e limites restantes
-- Quotas por usuário/IP e revogação pós-emissão de JWT ainda não implementadas.
+- Quota por conexão conta todo frame recebido, incluindo control frames; quotas por usuário/IP e revogação pós-emissão de JWT ainda não implementadas.
 - Revogar sessão refresh ou excluir usuário não derruba access JWT já emitido até expiração.
 - CLI administrativo ainda exige disciplina operacional para não expor token/senha em argv e não deve ser usado sobre HTTP remoto.
 - Nenhum secret adicionado.
