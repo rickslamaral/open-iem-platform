@@ -40,8 +40,7 @@ compatibility, CPU overhead, and implementation complexity.
 
 Implemented in Phase 5 via `server/streaming/` crate using `str0m`.
 
-**Secondary transport: RTP/UDP** — for dedicated hardware receivers (ESP32 etc.,
-Phase 10). Not implemented in Phase 5.
+**Secondary transport: RTP/UDP** — only for a future dedicated receiver if measured technical requirements justify it. Not implemented in Phase 5.
 
 **Rejected: WebTransport/QUIC** — incomplete iOS/Safari support as of 2026-09;
 no built-in media layer; re-evaluate in Phase 8+.
@@ -81,7 +80,7 @@ sockets.
   including mix processing on LAN).
 - ICE candidates exchanged via trickle ICE HTTP endpoint to minimize negotiation
   time.
-- Phase 10 adds RTP/UDP path for ESP32 clients where lowest latency is required.
+- A future dedicated receiver may use RTP/UDP only if measured requirements justify it and a dedicated ADR approves the design.
 
 ---
 

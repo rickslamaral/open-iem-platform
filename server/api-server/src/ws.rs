@@ -205,6 +205,19 @@ async fn handle_socket(
         tokio::select! {
             // Server keepalive. A Pong within the last 60 seconds keeps session alive.
             _ = keepalive.tick() => {
+                let Some(session_id_db) = claims.session_id else {
+                    break;
+                };
+                if let Ok(true) = state.db.is_access_session_active(
+                    &claims.jti,
+                    claims.user_id,
+                    session_id_db,
+                    unix_now(),
+                ) {
+                } else {
+                    send_error(&mut socket, "SESSION_REVOKED", "session revoked").await;
+                    break;
+                }
                 if keepalive_state.expired(Instant::now()) {
                     send_error(&mut socket, "CONNECTION_TIMEOUT", "WebSocket pong timeout").await;
                     break;
@@ -240,6 +253,19 @@ async fn handle_socket(
                 let now = unix_now();
                 if now >= claims.exp {
                     send_error(&mut socket, "TOKEN_EXPIRED", "access token expired").await;
+                    break;
+                }
+                let Some(session_id_db) = claims.session_id else {
+                    break;
+                };
+                if let Ok(true) = state.db.is_access_session_active(
+                    &claims.jti,
+                    claims.user_id,
+                    session_id_db,
+                    now,
+                ) {
+                } else {
+                    send_error(&mut socket, "SESSION_REVOKED", "session revoked").await;
                     break;
                 }
                 if now.saturating_sub(window_started) >= 60 {

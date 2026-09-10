@@ -80,6 +80,15 @@ impl Db {
                 created_at INTEGER NOT NULL DEFAULT (unixepoch())
             );
 
+            CREATE TABLE IF NOT EXISTS access_sessions (
+                jti        TEXT PRIMARY KEY,
+                user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                session_id INTEGER NOT NULL REFERENCES refresh_tokens(id) ON DELETE CASCADE,
+                expires_at INTEGER NOT NULL,
+                revoked    INTEGER NOT NULL DEFAULT 0,
+                created_at INTEGER NOT NULL DEFAULT (unixepoch())
+            );
+
             CREATE TABLE IF NOT EXISTS mix_assignments (
                 mix_index INTEGER PRIMARY KEY,
                 user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
@@ -166,6 +175,176 @@ impl Db {
         Ok(())
     }
 
+    /// Return newly created refresh-token session ID.
+    pub fn store_refresh_token_with_id(
+        &self,
+        user_id: i64,
+        token_hash: &str,
+        expires_at: u64,
+        family: &str,
+    ) -> Result<i64, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute("INSERT INTO refresh_tokens (user_id, token_hash, expires_at, family) VALUES (?1, ?2, ?3, ?4)", params![user_id, token_hash, expires_at.cast_signed(), family]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok(conn.last_insert_rowid())
+    }
+
+    /// Return refresh session ID by token hash.
+    pub fn refresh_token_session_id(&self, token_hash: &str) -> Result<i64, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.query_row(
+            "SELECT id FROM refresh_tokens WHERE token_hash = ?1",
+            params![token_hash],
+            |row| row.get(0),
+        )
+        .map_err(|_| ApiError::Unauthorized("refresh token not found"))
+    }
+
+    /// Persist access JWT mapping.
+    pub fn store_access_session(
+        &self,
+        jti: &str,
+        user_id: i64,
+        session_id: i64,
+        expires_at: u64,
+    ) -> Result<(), ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute("INSERT INTO access_sessions (jti, user_id, session_id, expires_at) VALUES (?1, ?2, ?3, ?4)", params![jti, user_id, session_id, expires_at.cast_signed()]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok(())
+    }
+
+    /// Atomically create refresh session and its access-token mapping.
+    pub fn create_session_with_access(
+        &self,
+        user_id: i64,
+        token_hash: &str,
+        refresh_expires_at: u64,
+        family: &str,
+        jti: &str,
+        access_expires_at: u64,
+    ) -> Result<i64, ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("INSERT INTO refresh_tokens (user_id, token_hash, expires_at, family) VALUES (?1, ?2, ?3, ?4)", params![user_id, token_hash, refresh_expires_at.cast_signed(), family]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        let session_id = tx.last_insert_rowid();
+        tx.execute("INSERT INTO access_sessions (jti, user_id, session_id, expires_at) VALUES (?1, ?2, ?3, ?4)", params![jti, user_id, session_id, access_expires_at.cast_signed()]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok(session_id)
+    }
+
+    /// Remove newly-created login session when JWT signing fails.
+    pub fn cleanup_session_after_signing_failure(
+        &self,
+        token_hash: &str,
+        jti: &str,
+    ) -> Result<(), ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("DELETE FROM access_sessions WHERE jti = ?1", params![jti])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "DELETE FROM refresh_tokens WHERE token_hash = ?1",
+            params![token_hash],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Restore old refresh token and remove replacement after JWT signing fails.
+    pub fn restore_refresh_after_signing_failure(
+        &self,
+        old_token_hash: &str,
+        new_token_hash: &str,
+        jti: &str,
+    ) -> Result<(), ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("DELETE FROM access_sessions WHERE jti = ?1", params![jti])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "DELETE FROM refresh_tokens WHERE token_hash = ?1",
+            params![new_token_hash],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE refresh_tokens SET revoked = 0 WHERE token_hash = ?1",
+            params![old_token_hash],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE access_sessions SET revoked = 0 WHERE session_id = (SELECT id FROM refresh_tokens WHERE token_hash = ?1)",
+            params![old_token_hash],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Check access JWT mapping, user existence, expiry, and revocation.
+    pub fn is_access_session_active(
+        &self,
+        jti: &str,
+        user_id: i64,
+        session_id: i64,
+        now_unix: u64,
+    ) -> Result<bool, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.query_row("SELECT EXISTS(SELECT 1 FROM access_sessions a JOIN refresh_tokens r ON r.id = a.session_id JOIN users u ON u.id = a.user_id WHERE a.jti = ?1 AND a.user_id = ?2 AND a.session_id = ?3 AND a.revoked = 0 AND a.expires_at > ?4 AND r.revoked = 0 AND r.expires_at > ?4)", params![jti, user_id, session_id, now_unix.cast_signed()], |row| row.get(0)).map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Revoke access mappings associated with refresh sessions.
+    pub fn revoke_access_for_user(&self, user_id: i64) -> Result<(), ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute(
+            "UPDATE access_sessions SET revoked = 1 WHERE user_id = ?1",
+            params![user_id],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok(())
+    }
+
+    /// Revoke access mapping by JWT ID.
+    pub fn revoke_access_jti(&self, jti: &str) -> Result<(), ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute(
+            "UPDATE access_sessions SET revoked = 1 WHERE jti = ?1",
+            params![jti],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok(())
+    }
+
     /// Look up refresh-token owner before rotation without mutating token state.
     ///
     /// # Errors
@@ -188,23 +367,31 @@ impl Db {
     /// # Errors
     /// Returns `ApiError::Unauthorized` when token is unknown; database failures are internal errors.
     pub fn revoke_refresh_family(&self, token_hash: &str) -> Result<(), ApiError> {
-        let conn = self
+        let mut conn = self
             .conn
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
-        let family: String = conn
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let family: String = tx
             .query_row(
                 "SELECT family FROM refresh_tokens WHERE token_hash = ?1",
                 params![token_hash],
                 |row| row.get(0),
             )
             .map_err(|_| ApiError::Unauthorized("invalid refresh token"))?;
-        conn.execute(
+        tx.execute(
             "UPDATE refresh_tokens SET revoked = 1 WHERE family = ?1",
             params![family],
         )
         .map_err(|e| ApiError::Internal(e.to_string()))?;
-        Ok(())
+        tx.execute(
+            "UPDATE access_sessions SET revoked = 1 WHERE session_id IN (SELECT id FROM refresh_tokens WHERE family = ?1)",
+            params![family],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
     }
 
     /// Validate and rotate a refresh token.
@@ -221,6 +408,47 @@ impl Db {
         new_expires_at: u64,
         now_unix: u64,
     ) -> Result<(i64, String), ApiError> {
+        self.rotate_refresh_token_with_access(
+            token_hash,
+            new_token_hash,
+            new_expires_at,
+            now_unix,
+            None,
+            None,
+        )
+    }
+
+    /// Rotate refresh token and persist access mapping in same transaction.
+    pub fn rotate_refresh_token_with_access(
+        &self,
+        token_hash: &str,
+        new_token_hash: &str,
+        new_expires_at: u64,
+        now_unix: u64,
+        jti: Option<&str>,
+        access_expires_at: Option<u64>,
+    ) -> Result<(i64, String), ApiError> {
+        self.rotate_refresh_token_with_access_id(
+            token_hash,
+            new_token_hash,
+            new_expires_at,
+            now_unix,
+            jti,
+            access_expires_at,
+        )
+        .map(|(user_id, family, _)| (user_id, family))
+    }
+
+    /// Rotate refresh token and return replacement session ID.
+    pub fn rotate_refresh_token_with_access_id(
+        &self,
+        token_hash: &str,
+        new_token_hash: &str,
+        new_expires_at: u64,
+        now_unix: u64,
+        jti: Option<&str>,
+        access_expires_at: Option<u64>,
+    ) -> Result<(i64, String, i64), ApiError> {
         let mut conn = self
             .conn
             .lock()
@@ -243,6 +471,11 @@ impl Db {
                 params![family],
             )
             .map_err(|e| ApiError::Internal(e.to_string()))?;
+            tx.execute(
+                "UPDATE access_sessions SET revoked = 1 WHERE session_id IN (SELECT id FROM refresh_tokens WHERE family = ?1)",
+                params![family],
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
             tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
             return Err(ApiError::Unauthorized(
                 "refresh token reuse detected — family revoked",
@@ -258,12 +491,27 @@ impl Db {
         )
         .map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.execute(
+            "UPDATE access_sessions SET revoked = 1 WHERE session_id = ?1",
+            params![tok_id],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
             "INSERT INTO refresh_tokens (user_id, token_hash, expires_at, family) VALUES (?1, ?2, ?3, ?4)",
             params![user_id, new_token_hash, new_expires_at.cast_signed(), family],
         )
         .map_err(|e| ApiError::Internal(e.to_string()))?;
+        // Capture refresh_tokens.id before inserting access_sessions. SQLite's
+        // last_insert_rowid() would otherwise return the mapping row ID.
+        let new_session_id = tx.last_insert_rowid();
+        if let (Some(jti), Some(access_expires_at)) = (jti, access_expires_at) {
+            tx.execute(
+                "INSERT INTO access_sessions (jti, user_id, session_id, expires_at) VALUES (?1, ?2, ?3, ?4)",
+                params![jti, user_id, new_session_id, access_expires_at.cast_signed()],
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        }
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
-        Ok((user_id, family))
+        Ok((user_id, family, new_session_id))
     }
 
     /// Find a user by numeric ID. Returns `(username, role)`.
@@ -414,21 +662,72 @@ impl Db {
         .map_err(|e| ApiError::Internal(e.to_string()))
     }
 
-    /// Revoke all refresh tokens for a user (logout).
-    ///
-    /// # Errors
-    /// Returns `ApiError::Internal` on DB error.
+    /// Revoke all refresh and access sessions for user atomically.
     pub fn revoke_all_for_user(&self, user_id: i64) -> Result<(), ApiError> {
-        let conn = self
+        let mut conn = self
             .conn
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
-        conn.execute(
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
             "UPDATE refresh_tokens SET revoked = 1 WHERE user_id = ?1",
             params![user_id],
         )
         .map_err(|e| ApiError::Internal(e.to_string()))?;
-        Ok(())
+        tx.execute(
+            "UPDATE access_sessions SET revoked = 1 WHERE user_id = ?1",
+            params![user_id],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Revoke all sessions and delete user atomically.
+    pub fn delete_user_with_sessions(&self, user_id: i64) -> Result<(), ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let affected = tx
+            .execute("DELETE FROM users WHERE id = ?1", params![user_id])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if affected == 0 {
+            return Err(ApiError::NotFound(format!("user {user_id} not found")));
+        }
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Revoke refresh and access session atomically.
+    pub fn revoke_session_by_id(&self, session_id: i64) -> Result<(), ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let affected = tx
+            .execute(
+                "UPDATE refresh_tokens SET revoked = 1 WHERE id = ?1",
+                params![session_id],
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE access_sessions SET revoked = 1 WHERE session_id = ?1",
+            params![session_id],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if affected == 0 {
+            return Err(ApiError::NotFound(format!(
+                "session {session_id} not found"
+            )));
+        }
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
     }
 
     /// List all users ordered by ID.
@@ -509,30 +808,6 @@ impl Db {
         }
         Ok(sessions)
     }
-
-    /// Revoke a specific refresh token session by ID.
-    ///
-    /// # Errors
-    /// Returns `ApiError::NotFound` if no session with that ID exists.
-    /// Returns `ApiError::Internal` on DB error.
-    pub fn revoke_session_by_id(&self, session_id: i64) -> Result<(), ApiError> {
-        let conn = self
-            .conn
-            .lock()
-            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
-        let affected = conn
-            .execute(
-                "UPDATE refresh_tokens SET revoked = 1 WHERE id = ?1",
-                params![session_id],
-            )
-            .map_err(|e| ApiError::Internal(e.to_string()))?;
-        if affected == 0 {
-            return Err(ApiError::NotFound(format!(
-                "session {session_id} not found"
-            )));
-        }
-        Ok(())
-    }
 }
 
 fn role_to_str(role: Role) -> &'static str {
@@ -608,21 +883,46 @@ mod tests {
     }
 
     #[test]
-    fn refresh_token_reuse_revokes_family() {
+    fn refresh_token_reuse_revokes_family_and_access() {
         let db = setup();
         db.create_user("dave", "hash", Role::Musician).unwrap();
         let (user_id, _, _) = db.find_user("dave").unwrap();
         let now = 1_000_000_u64;
-        db.store_refresh_token(user_id, "tokenhash_b", now + 1000, "fam-2")
+        let old_session_id = db
+            .create_session_with_access(
+                user_id,
+                "tokenhash_b",
+                now + 1000,
+                "fam-2",
+                "access-jti-old",
+                now + 1000,
+            )
             .unwrap();
-        // First rotation — ok
-        db.rotate_refresh_token("tokenhash_b", "tokenhash_b_new", now + 1000, now)
+        let (_, _, new_session_id) = db
+            .rotate_refresh_token_with_access_id(
+                "tokenhash_b",
+                "tokenhash_b_new",
+                now + 1000,
+                now,
+                Some("access-jti-new"),
+                Some(now + 1000),
+            )
             .unwrap();
-        // Reuse — should fail and revoke family
+        assert!(!db
+            .is_access_session_active("access-jti-old", user_id, old_session_id, now)
+            .unwrap());
+        assert!(db
+            .is_access_session_active("access-jti-new", user_id, new_session_id, now)
+            .unwrap());
+
+        // Reuse — should fail, revoke family, and invalidate all linked access.
         let err = db
             .rotate_refresh_token("tokenhash_b", "unused", now + 1000, now)
             .unwrap_err();
         assert!(matches!(err, ApiError::Unauthorized(_)));
+        assert!(!db
+            .is_access_session_active("access-jti-new", user_id, new_session_id, now)
+            .unwrap());
     }
 
     #[test]

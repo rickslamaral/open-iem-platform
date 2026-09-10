@@ -78,7 +78,7 @@
 | R-02 | PipeWire API stability | MEDIUM | Pin PipeWire version in deployment, document tested version |
 | R-03 | Realtime constraints on Raspberry Pi 5 without PREEMPT_RT kernel | MEDIUM | Research RPi5 RT kernel availability |
 | R-04 | Browser WebRTC for audio has significant implementation complexity | MEDIUM | Evaluate native receiver as alternative |
-| R-05 | ESP32 receiver viability unproven | LOW | Research gate in place (Phase 10 only after research) |
+| R-05 | Dedicated receiver need is unproven | LOW | Keep conditional; require measured technical justification and ADR before research |
 | R-06 | Supply chain: Rust crate ecosystem dependencies | LOW | `cargo audit` in CI, pin dependency versions |
 
 ---

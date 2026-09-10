@@ -79,7 +79,7 @@ pub async fn delete_user(
     if user_id == claims.user_id {
         return Err(ApiError::Forbidden("Cannot delete your own account"));
     }
-    state.db.delete_user(user_id)?;
+    state.db.delete_user_with_sessions(user_id)?;
     Ok(StatusCode::NO_CONTENT)
 }
 

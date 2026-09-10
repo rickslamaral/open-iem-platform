@@ -84,7 +84,7 @@ local LAN
 Linux / Raspberry Pi target
 ```
 
-**Not MVP:** cloud, Internet control, ESP32, EQ, compressor, reverb, console integrations.
+**Not MVP:** cloud, Internet control, advanced EQ, compressor, reverb, console integrations.
 
 ## Quality Gates
 

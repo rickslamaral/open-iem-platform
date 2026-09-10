@@ -31,7 +31,7 @@ Limitações:
 - Quota vale somente dentro de cada processo. Múltiplas réplicas exigem coordenador compartilhado.
 - Clientes atrás de NAT compartilham quota por IP.
 - Falhas de autenticação `/ws/v1` agora têm limiter local bounded: 5 por IP em 60 segundos, com no máximo 4.096 IPs retidos; HTTP 429 usa `Retry-After: 5`.
-- Revogação de access JWT emitido permanece decisão separada e pendente.
+- Revogação pós-emissão de access JWT foi implementada na Phase 31 com associação persistida à sessão refresh; validação CI e hardware continuam pendentes.
 
 ## Validação
 

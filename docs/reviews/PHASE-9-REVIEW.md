@@ -97,7 +97,7 @@ No hardware-dependent changes. All admin routes run in server logic; no audio pa
 
 ## Next Phase (Phase 10)
 
-- ESP32-S3/P4 research (I2S, DAC, Wi-Fi, latency, power budget)
+- Future dedicated receiver research only if measured requirements justify it
 - Musician mix ownership enforcement (after mix assignment model)
 - WebSocket message authorization by role and musician ownership
 - TLS configuration (Caddy/Nginx before external exposure)

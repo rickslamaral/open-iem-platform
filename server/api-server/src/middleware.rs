@@ -15,8 +15,15 @@ use axum::{
 use control_protocol::Role;
 use std::{
     net::{IpAddr, SocketAddr},
-    time::Instant,
+    time::{Instant, SystemTime, UNIX_EPOCH},
 };
+
+fn unix_now() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs()
+}
 
 fn websocket_peer_ip(req: &Request) -> Result<Option<IpAddr>, ApiError> {
     if req.uri().path() != "/ws/v1" {
@@ -62,6 +69,18 @@ pub async fn jwt_auth(
     };
     let token = token.to_owned();
     let claims = state.jwt.verify(&token)?;
+    let session_id = claims
+        .session_id
+        .ok_or(ApiError::Unauthorized("token missing session association"))?;
+    if !state
+        .db
+        .is_access_session_active(&claims.jti, claims.user_id, session_id, unix_now())?
+    {
+        return Err(ApiError::Unauthorized("access session revoked or unknown"));
+    }
+    if session_id <= 0 {
+        return Err(ApiError::Unauthorized("invalid session association"));
+    }
     if let Some(attempt) = auth_attempt.as_mut() {
         attempt.mark_success();
     }
@@ -160,6 +179,7 @@ mod tests {
             user_id: 1,
             role,
             jti: "jti".to_owned(),
+            session_id: Some(1),
             iss: "iss".to_owned(),
             aud: "aud".to_owned(),
             iat: 0,

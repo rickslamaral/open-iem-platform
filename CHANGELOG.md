@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 31 JWT post-issuance revocation (working tree only)
+- Added persistent access-session mappings tied to refresh sessions, with middleware validation of JWT ID, user, session, expiry, user existence and revocation state.
+- Refresh rotation revokes old access mappings; logout, admin session revoke, replay detection and user deletion invalidate related access mappings.
+- Established WebSocket connections re-check access-session state on inbound messages and keepalive ticks, returning `SESSION_REVOKED` before closing.
+- Local verification: `cargo fmt --all -- --check`, `cargo test -p api-server --test integration` (57 passed), and `cargo clippy -p api-server --all-targets -- -D warnings` pass. Workspace test/clippy are blocked by missing `jack.pc`; CI remains blocked and changes are not merged or released.
+
 ### Changed — Phase 30 Docker Compose development
 - Added development Dockerfiles for `api-server`, Musician PWA and Engineer UI.
 - Removed stale Compose build target that did not exist in the development image.

@@ -2,6 +2,24 @@
 
 # START.md --- Master Engineering Bootstrap & Development Specification
 
+## Estado canônico atual
+
+As 13 fases canônicas permanecem fixas. A Phase 31 é o trabalho incremental atual no working tree, ainda não commitado nem mergeado; as fases incrementais 27–31 não substituem nem renumeram as fases canônicas.
+
+```text
+Concluídas: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 6
+Parciais:   Phase 5, Phase 7
+Pendentes:  Phase 8, Phase 9, Phase 10, Phase 11, Phase 12
+Progresso:  6/13 fases concluídas
+```
+
+Targets atuais: Windows x64, Linux x64 e Raspberry Pi 5 ARM64. Suporte validado permanece limitado ao que possui evidência local; Windows nativo, áudio Linux real e runtime Raspberry Pi 5 ainda exigem validação. macOS, Android e iPadOS permanecem evolução futura/backlog. O core de áudio deve permanecer independente de plataforma; nenhum target vira claim de suporte sem validação.
+
+Estado de implementação: o backend Linux usa integração feature-gated JACK/PipeWire e ainda requer validação de hardware; backend nativo Windows WASAPI/ASIO ainda não está implementado; runtime Raspberry Pi 5 ARM64 ainda não foi validado.
+
+Receiver dedicado é somente possibilidade futura, condicionada a requisito técnico medido, análise, ADR e protótipo.
+
+
 ## 1. Agent mission
 
 You are the autonomous engineering team responsible for designing,
@@ -61,7 +79,7 @@ multichannel input, independent stereo mixes, musician self-service
 mixing, engineer control, scenes, presets, channel groups, EQ,
 compressor, limiter, optional reverb, meters, diagnostics, network
 monitoring, Linux, Windows, macOS where technically possible, Raspberry
-Pi, x86_64 mini PCs, future dedicated receivers, future ESP32 research,
+Pi, x86_64 mini PCs, future dedicated receivers when justified by measured technical requirements,
 open API, open protocol and console integrations.
 
 Do not implement the whole vision at once.
@@ -464,7 +482,6 @@ Plan, but do not prematurely implement:
 -   VST3/LV2/CLAP evaluation;
 -   native mobile apps;
 -   dedicated receiver;
--   ESP32 receiver research;
 -   console adapters.
 
 Each feature requires its own specification before implementation.
@@ -1219,7 +1236,7 @@ the product, not an afterthought.
 # 93. PHASE 12 --- FUTURE RECEIVERS
 
 Only after the core network audio protocol is stable, research and
-prototype dedicated/native receivers and ESP32-class hardware.
+prototype dedicated/native receivers when justified by measured technical requirements.
 
 # 94. PHASE COMPLETION GATE
 
@@ -1301,7 +1318,7 @@ its review gate.
 
 # Extended Operating Requirements (received 2026-09-10)
 
-## Extended requirement 48 — Makefile and Local Developer Interface — Mandatory
+## 97. Extended requirement — Makefile and Local Developer Interface — Mandatory
 
 Required targets:
 
@@ -1346,7 +1363,7 @@ Avoid duplicated business logic between Makefile, CLI and scripts.
 
 ---
 
-## Extended requirement 49 — CLI / Make Parity
+## 98. Extended requirement — CLI / Make Parity
 
 The CLI and Makefile should expose equivalent developer workflows.
 
@@ -1381,7 +1398,7 @@ If the existing convention is coherent, preserve it and document it.
 
 ---
 
-## Extended requirement 50 — Environment Validation
+## 99. Extended requirement — Environment Validation
 
 Maintain a single source of truth for environment validation. Detect, where relevant:
 
@@ -1417,7 +1434,7 @@ Do not blindly install dependencies.
 
 ---
 
-## Extended requirement 51 — Linux Audio Permissions
+## 100. Extended requirement — Linux Audio Permissions
 
 Native Linux audio must use least privilege. Investigate actual requirements for:
 
@@ -1440,7 +1457,7 @@ Do not run the whole server as root unless a demonstrated requirement exists.
 
 ---
 
-## Extended requirement 52 — GitHub Actions / Runner Diagnostics
+## 101. Extended requirement — GitHub Actions / Runner Diagnostics
 
 When CI fails immediately, inspect infrastructure before changing application code.
 
@@ -1487,7 +1504,7 @@ until evidence proves otherwise.
 
 ---
 
-## Extended requirement 53 — GitHub Actions Permissions — Least Privilege
+## 102. Extended requirement — GitHub Actions Permissions — Least Privilege
 
 Normal CI should use the minimum permissions necessary, for example:
 
@@ -1522,7 +1539,7 @@ Document every permission beyond read-only repository access:
 
 ---
 
-## Extended requirement 54 — CI Workflow Structure
+## 103. Extended requirement — CI Workflow Structure
 
 Prefer separate concerns where useful:
 
@@ -1579,7 +1596,7 @@ Never publish a release if required gates fail.
 
 ---
 
-## Extended requirement 55 — Release Blocking Rules
+## 104. Extended requirement — Release Blocking Rules
 
 A release is blocked when:
 
@@ -1598,7 +1615,7 @@ Never force a merge, recreate a tag, or weaken a gate merely to make a release a
 
 ---
 
-## Extended requirement 56 — Version Consistency
+## 105. Extended requirement — Version Consistency
 
 The root `VERSION` is authoritative unless an ADR explicitly defines another source of truth.
 
@@ -1621,7 +1638,7 @@ Use `vX.Y.Z` for Git tags.
 
 ---
 
-## Extended requirement 57 — Release Manifest and Checksums
+## 106. Extended requirement — Release Manifest and Checksums
 
 Every release should produce a machine-readable manifest and:
 
@@ -1647,7 +1664,7 @@ Never fabricate metadata. Verify checksums before publication where practical. F
 
 ---
 
-## Extended requirement 58 — Installation / Upgrade / Uninstallation
+## 107. Extended requirement — Installation / Upgrade / Uninstallation
 
 Every supported package/install mechanism must document:
 
@@ -1664,7 +1681,7 @@ Do not leave services, permissions, or files behind without documentation. Provi
 
 ---
 
-## Extended requirement 59 — Configuration Management
+## 108. Extended requirement — Configuration Management
 
 Separate:
 
@@ -1681,7 +1698,7 @@ Never commit secrets. Prefer environment variables or documented configuration m
 
 ---
 
-## Extended requirement 60 — Observability and Health
+## 109. Extended requirement — Observability and Health
 
 Expose, where implemented:
 
@@ -1704,7 +1721,7 @@ Never expose fake metrics. Use `UNKNOWN` when a metric is not implemented or mea
 
 ---
 
-## Extended requirement 61 — Failure and Recovery
+## 110. Extended requirement — Failure and Recovery
 
 Define behavior for:
 
@@ -1724,7 +1741,7 @@ Prefer safe recovery. For audio failures, prevent unexpected loud output.
 
 ---
 
-## Extended requirement 62 — Safe Audio Defaults
+## 111. Extended requirement — Safe Audio Defaults
 
 Hearing safety is a product requirement. Evaluate protections such as:
 
@@ -1739,7 +1756,7 @@ Do not claim a hearing-safety guarantee. The musicians guide must state that use
 
 ---
 
-## Extended requirement 63 — Dependency Management
+## 112. Extended requirement — Dependency Management
 
 Dependencies must be explicitly declared, auditable, license-compatible, and security-reviewed where practical.
 
@@ -1763,7 +1780,7 @@ Before adding dependencies consider:
 
 ---
 
-## Extended requirement 64 — Documentation and Skills Validation
+## 113. Extended requirement — Documentation and Skills Validation
 
 Validate documentation for:
 
@@ -1784,7 +1801,7 @@ If validation tooling is missing and its creation is justified, add it.
 
 ---
 
-## Extended requirement 65 — Development Log / TODO / Architecture Gaps
+## 114. Extended requirement — Development Log / TODO / Architecture Gaps
 
 Maintain `docs/DEVELOPMENT-LOG.md` with date, phase, objective, work, tests, validation, architecture decisions, issues, documentation changes, and next step.
 
@@ -1804,7 +1821,7 @@ Never hide unresolved architecture problems.
 
 ---
 
-## Extended requirement 66 — Release Incident Procedure
+## 115. Extended requirement — Release Incident Procedure
 
 When a release is blocked:
 
@@ -1831,7 +1848,7 @@ Do not repeatedly rerun a workflow without investigating the underlying cause.
 
 ---
 
-## Extended requirement 67 — Phase Continuity for Existing Releases
+## 116. Extended requirement — Phase Continuity for Existing Releases
 
 If the repository is already beyond an earlier phase, do not restart it.
 
@@ -1850,7 +1867,7 @@ Fix CI/release infrastructure first, rerun the required workflows, verify assets
 
 ---
 
-## Extended requirement 68 — Automated Development-Loop Reporting
+## 117. Extended requirement — Automated Development-Loop Reporting
 
 Every development-loop report should state:
 
@@ -1874,7 +1891,7 @@ If blocked, explicitly state `BLOCKED` and the precise reason. Never report over
 
 ---
 
-## Extended requirement 69 — Repository Hygiene
+## 118. Extended requirement — Repository Hygiene
 
 Before completing a cycle:
 
@@ -1891,7 +1908,7 @@ Keep `.gitignore` current. Do not commit generated artifacts unless intentionall
 
 ---
 
-## Extended requirement 70 — Definition of Done
+## 119. Extended requirement — Definition of Done
 
 A feature is not done merely because code exists.
 
@@ -1915,7 +1932,7 @@ Use `PASS WITH CONDITIONS` for documented non-critical limitations.
 
 ---
 
-## Extended requirement 71 — Final Operating Rule
+## 120. Extended requirement — Final Operating Rule
 
 Always work from evidence:
 
@@ -1930,7 +1947,7 @@ Never replace evidence with assumptions.
 
 ---
 
-## Extended requirement 78 — Backlog as a Living Engineering Plan
+## 121. Extended requirement — Backlog as a Living Engineering Plan
 
 `docs/TODO.md` is the authoritative project backlog, while this START.md is the operating contract.
 
@@ -1977,7 +1994,7 @@ If a technically valuable idea is not appropriate for the current phase, add it 
 
 ---
 
-## Extended requirement 79 — Requirements Traceability
+## 122. Extended requirement — Requirements Traceability
 
 For important requirements maintain traceability:
 
@@ -2007,7 +2024,7 @@ Do not claim a requirement is complete merely because source files exist.
 
 ---
 
-## Extended requirement 80 — Definition of Ready
+## 123. Extended requirement — Definition of Ready
 
 Before starting a non-trivial task, verify:
 
@@ -2025,7 +2042,7 @@ If important information is missing, mark the task `BLOCKED` or `VALIDATION REQU
 
 ---
 
-## Extended requirement 81 — Branch and Pull Request Strategy
+## 124. Extended requirement — Branch and Pull Request Strategy
 
 Prefer short-lived branches for substantive changes:
 
@@ -2088,7 +2105,7 @@ PR descriptions should state:
 
 ---
 
-## Extended requirement 82 — Audio Test Harness
+## 125. Extended requirement — Audio Test Harness
 
 The project must develop a repeatable audio test harness so the Mix Engine can be validated without requiring physical hardware for every test.
 
@@ -2136,7 +2153,7 @@ The harness must not replace physical audio validation.
 
 ---
 
-## Extended requirement 83 — Audio Performance and Benchmarking
+## 126. Extended requirement — Audio Performance and Benchmarking
 
 Performance claims must be backed by reproducible measurements.
 
@@ -2167,7 +2184,7 @@ Do not publish target or observed numbers as facts until measured.
 
 ---
 
-## Extended requirement 84 — Hardware Validation Matrix
+## 127. Extended requirement — Hardware Validation Matrix
 
 Maintain a matrix distinguishing simulation, software validation and hardware validation.
 
@@ -2186,7 +2203,7 @@ Never turn `SIMULATED`, `BUILD`, or `TEST` into `SUPPORTED` without appropriate 
 
 ---
 
-## Extended requirement 85 — Audio Clock, Drift and Synchronization
+## 128. Extended requirement — Audio Clock, Drift and Synchronization
 
 The architecture must explicitly address clocking before claiming multi-device synchronized audio.
 
@@ -2218,7 +2235,7 @@ Do not assume independent device clocks remain synchronized indefinitely.
 
 ---
 
-## Extended requirement 86 — Pairing and Device Identity
+## 129. Extended requirement — Pairing and Device Identity
 
 Define a secure device pairing flow before allowing arbitrary clients to control mixes.
 
@@ -2253,7 +2270,7 @@ A client must never be able to select another musician's mix merely by changing 
 
 ---
 
-## Extended requirement 87 — API and WebSocket Compatibility
+## 130. Extended requirement — API and WebSocket Compatibility
 
 The public control API and protocol must be versioned.
 
@@ -2282,7 +2299,7 @@ Breaking protocol changes require an ADR and migration strategy.
 
 ---
 
-## Extended requirement 88 — State Synchronization
+## 131. Extended requirement — State Synchronization
 
 The engineer UI, musician clients and server must have a clear authoritative-state model.
 
@@ -2325,7 +2342,7 @@ Do not silently overwrite newer state with stale client state.
 
 ---
 
-## Extended requirement 89 — Release Recovery and Existing Releases
+## 132. Extended requirement — Release Recovery and Existing Releases
 
 When an existing release is blocked, recover it instead of recreating history.
 
@@ -2363,7 +2380,7 @@ If a release has no assets, it is not considered complete merely because the Git
 
 ---
 
-## Extended requirement 90 — GitHub Actions Runner Failure Diagnosis
+## 133. Extended requirement — GitHub Actions Runner Failure Diagnosis
 
 When a workflow fails immediately, especially when all jobs fail with empty logs, distinguish runner/platform/configuration failure from application failure.
 
@@ -2393,7 +2410,7 @@ Repository and organization settings can independently restrict whether Actions 
 
 ---
 
-## Extended requirement 91 — GitHub Actions Permission Policy
+## 134. Extended requirement — GitHub Actions Permission Policy
 
 Prefer least privilege.
 
@@ -2431,7 +2448,7 @@ GitHub's documentation states that specifying individual permissions causes unsp
 
 ---
 
-## Extended requirement 92 — Configuration and Database Migration Safety
+## 135. Extended requirement — Configuration and Database Migration Safety
 
 SQLite schema changes must use versioned migrations.
 
@@ -2458,7 +2475,7 @@ Backup/restore procedures must be tested before being described as production-re
 
 ---
 
-## Extended requirement 93 — Backup, Restore and Recovery Validation
+## 136. Extended requirement — Backup, Restore and Recovery Validation
 
 The production deployment must eventually support safe recovery of important state.
 
@@ -2492,7 +2509,7 @@ A backup mechanism is not considered production-ready until restoration has been
 
 ---
 
-## Extended requirement 94 — Security Threat Model
+## 137. Extended requirement — Security Threat Model
 
 Maintain a lightweight threat model covering:
 
@@ -2524,7 +2541,7 @@ Do not assume the local network is inherently trusted.
 
 ---
 
-## Extended requirement 95 — Supply Chain and Release Integrity
+## 138. Extended requirement — Supply Chain and Release Integrity
 
 Evaluate adding:
 
@@ -2550,7 +2567,7 @@ checksums
 
 ---
 
-## Extended requirement 96 — Crash Handling and Recovery
+## 139. Extended requirement — Crash Handling and Recovery
 
 The server must eventually define behavior for:
 
@@ -2571,7 +2588,7 @@ Do not claim crash recovery until it has been tested.
 
 ---
 
-## Extended requirement 97 — Network Fault Injection
+## 140. Extended requirement — Network Fault Injection
 
 Before declaring audio transport production-ready, create repeatable tests for:
 
@@ -2591,7 +2608,7 @@ Use simulation for initial development and hardware/network validation before pr
 
 ---
 
-## Extended requirement 98 — Safe Audio Failure Policy
+## 141. Extended requirement — Safe Audio Failure Policy
 
 For uncertain routing or recovery conditions, prefer safe behavior.
 
@@ -2609,7 +2626,7 @@ The system must not claim to guarantee hearing safety. User documentation must e
 
 ---
 
-## Extended requirement 99 — Telemetry and Privacy Decision
+## 142. Extended requirement — Telemetry and Privacy Decision
 
 Explicitly decide whether the product sends telemetry.
 
@@ -2634,7 +2651,7 @@ If telemetry is introduced in the future, create an ADR covering:
 
 ---
 
-## Extended requirement 100 — Accessibility and Internationalization
+## 143. Extended requirement — Accessibility and Internationalization
 
 For the PWA, evaluate baseline accessibility:
 
@@ -2652,7 +2669,7 @@ If not implemented, record as a backlog item rather than claiming support.
 
 ---
 
-## Extended requirement 101 — Architecture Fitness Review
+## 144. Extended requirement — Architecture Fitness Review
 
 At the end of major phases, verify that implementation still respects the core architecture:
 
@@ -2683,7 +2700,7 @@ If architectural drift is detected, record it in `docs/ARCHITECTURE-GAPS.md` and
 
 ---
 
-## Extended requirement 102 — Final Extended Operating Contract
+## 145. Extended requirement — Final Extended Operating Contract
 
 Hermes must continuously maintain four layers of truth:
 

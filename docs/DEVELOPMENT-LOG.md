@@ -4,6 +4,29 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — Phase 31 — JWT post-issuance revocation
+
+**Status:** local implementation, uncommitted/unmerged; CI blocked; not released.
+
+### Implemented
+
+- Persistent access-session mappings bind JWT `jti`, user ID and refresh-session ID.
+- HTTP middleware rejects revoked, rotated, expired, deleted-user or unknown access mappings.
+- Refresh rotation, logout, admin session revoke, replay-family revoke and user deletion invalidate access mappings.
+- Established WebSocket connections re-check mapping state on inbound messages and keepalive ticks; revocation returns `SESSION_REVOKED` and closes loop.
+
+### Verification
+
+- Added focused integration regressions for refresh rotation, session revoke, user deletion and established WebSocket revocation.
+- `cargo fmt --all -- --check`: PASS.
+- `cargo test -p api-server --test integration`: PASS — 57 passed, 0 failed.
+- `cargo clippy -p api-server --all-targets -- -D warnings`: PASS.
+- `cargo test --workspace`: BLOCKED by missing system dependency `jack` (`jack.pc` / `jack-sys`); api-server integration tests pass independently.
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: BLOCKED by same missing `jack` system dependency.
+- CI remains blocked before workflow steps; no release claim.
+
+---
+
 ## 2026-09-10 — Phase 30 Docker Compose development images
 
 **Phase:** 30 — local development packaging
