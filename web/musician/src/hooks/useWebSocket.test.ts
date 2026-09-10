@@ -91,7 +91,9 @@ describe('useWebSocket', () => {
 
   it('does not let delayed snapshot overwrite revision received before first snapshot', async () => {
     let resolveSnapshot!: (value: unknown) => void;
-    vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise((resolve) => { resolveSnapshot = resolve; })));
+    vi.stubGlobal('fetch', vi.fn()
+      .mockReturnValueOnce(new Promise((resolve) => { resolveSnapshot = resolve; }))
+      .mockResolvedValue({ ok: true, json: async () => makeSnapshot(11) }));
     const { result } = renderHook(() => useWebSocket('test-token'));
 
     act(() => MockWebSocket.instances[0]?.onopen?.());
@@ -106,7 +108,7 @@ describe('useWebSocket', () => {
     await act(async () => resolveSnapshot({ ok: true, json: async () => makeSnapshot(10) }));
 
     expect(result.current.revision).toBe(11);
-    expect(result.current.snapshot).toBeNull();
+    await waitFor(() => expect(result.current.snapshot?.revision).toBe(11));
   });
 
   it('rejects snapshot with invalid nested send', async () => {

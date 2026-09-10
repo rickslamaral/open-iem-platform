@@ -30,7 +30,7 @@ services:
       context: ./server
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       # Dev-only: non-loopback HTTP allowed inside isolated dev network.
       # Never set OPENIEM_ALLOW_INSECURE_HTTP=true on an internet-facing host.

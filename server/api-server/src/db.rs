@@ -269,9 +269,8 @@ impl Db {
     }
 
     /// Restore old refresh token and remove replacement after JWT signing fails.
-    pub fn restore_refresh_after_signing_failure(
+    pub fn discard_refresh_after_signing_failure(
         &self,
-        old_token_hash: &str,
         new_token_hash: &str,
         jti: &str,
     ) -> Result<(), ApiError> {
@@ -289,16 +288,9 @@ impl Db {
             params![new_token_hash],
         )
         .map_err(|e| ApiError::Internal(e.to_string()))?;
-        tx.execute(
-            "UPDATE refresh_tokens SET revoked = 0 WHERE token_hash = ?1",
-            params![old_token_hash],
-        )
-        .map_err(|e| ApiError::Internal(e.to_string()))?;
-        tx.execute(
-            "UPDATE access_sessions SET revoked = 0 WHERE session_id = (SELECT id FROM refresh_tokens WHERE token_hash = ?1)",
-            params![old_token_hash],
-        )
-        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        // Never reactivate old state here. A concurrent logout, replay
+        // detection, admin revoke, or user deletion may have revoked it after
+        // rotation; rollback must fail closed rather than resurrect access.
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
     }
 
@@ -347,19 +339,19 @@ impl Db {
 
     /// Look up refresh-token owner before rotation without mutating token state.
     ///
-    /// # Errors
-    /// Returns `ApiError::Unauthorized` if token is not found, revoked, or expired.
-    pub fn refresh_token_user(&self, token_hash: &str, now_unix: u64) -> Result<i64, ApiError> {
+    /// This intentionally ignores revoked/expired state so rotation can handle
+    /// replay detection and revoke the entire token family.
+    pub fn refresh_token_owner(&self, token_hash: &str) -> Result<i64, ApiError> {
         let conn = self
             .conn
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
         conn.query_row(
-            "SELECT user_id FROM refresh_tokens WHERE token_hash = ?1 AND revoked = 0 AND expires_at > ?2",
-            params![token_hash, now_unix.cast_signed()],
+            "SELECT user_id FROM refresh_tokens WHERE token_hash = ?1",
+            params![token_hash],
             |row| row.get(0),
         )
-        .map_err(|_| ApiError::Unauthorized("invalid or expired refresh token"))
+        .map_err(|_| ApiError::Unauthorized("invalid refresh token"))
     }
 
     /// Revoke refresh-token family after replay detection.

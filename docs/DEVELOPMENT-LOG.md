@@ -4,9 +4,23 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
-## 2026-09-10 — Phase 31 — JWT post-issuance revocation
+## 2026-09-10 — Phase 31 follow-up — fail-closed rollback and snapshot baseline
 
 **Status:** local implementation, uncommitted/unmerged; CI blocked; not released.
+
+### Implementado
+
+- Refresh resolve owner before rotation; missing user no longer consumes valid refresh token.
+- Signing-failure cleanup discards replacement mapping/token without reactivating old revoked state.
+- HTTP `ApiError::Internal` responses now return generic message; details stay server-side.
+- Musician keeps delayed REST snapshot as baseline when WebSocket revision advanced first.
+
+### Verificação
+
+- `cargo test -p api-server --test integration`: PASS — 57 passed, 0 failed.
+- `cargo clippy -p api-server --all-targets -- -D warnings`: PASS.
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check`: PASS.
+- Musician frontend: `npm test -- --run --reporter=dot`: PASS — 34 passed. A prior default invocation timed out at 120 s; reporter mode completed in 2.32 s.
 
 ### Implemented
 

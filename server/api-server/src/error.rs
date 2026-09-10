@@ -52,9 +52,13 @@ impl IntoResponse for ApiError {
             ApiError::Forbidden(_) => (StatusCode::FORBIDDEN, "FORBIDDEN"),
             ApiError::TooManyRequests => (StatusCode::TOO_MANY_REQUESTS, "TOO_MANY_REQUESTS"),
         };
+        let message = match &self {
+            ApiError::Internal(_) => "internal server error".to_owned(),
+            _ => self.to_string(),
+        };
         let body = Json(ErrorBody {
             code: code.to_owned(),
-            message: self.to_string(),
+            message,
         });
         let mut response = (status, body).into_response();
         if matches!(&self, ApiError::TooManyRequests) {

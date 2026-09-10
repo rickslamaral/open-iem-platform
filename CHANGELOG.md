@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Security — Phase 31 JWT post-issuance revocation (working tree only)
 - Added persistent access-session mappings tied to refresh sessions, with middleware validation of JWT ID, user, session, expiry, user existence and revocation state.
+- Fixed refresh failure rollback so it discards replacement state without resurrecting a concurrently revoked refresh session.
+- Resolved refresh owner before rotation, preventing a missing user lookup from consuming a valid refresh token.
+- Redacted internal error details from HTTP response bodies.
+- Musician client now retains delayed REST snapshot as baseline when WebSocket revision already advanced before initial snapshot.
 - Refresh rotation revokes old access mappings; logout, admin session revoke, replay detection and user deletion invalidate related access mappings.
 - Established WebSocket connections re-check access-session state on inbound messages and keepalive ticks, returning `SESSION_REVOKED` before closing.
 - Local verification: `cargo fmt --all -- --check`, `cargo test -p api-server --test integration` (57 passed), and `cargo clippy -p api-server --all-targets -- -D warnings` pass. Workspace test/clippy are blocked by missing `jack.pc`; CI remains blocked and changes are not merged or released.

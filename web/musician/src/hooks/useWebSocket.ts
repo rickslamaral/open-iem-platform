@@ -160,12 +160,15 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
     snapshotAbortRef.current = abortController;
     let snapshotRequestInFlight = false;
     let snapshotRefreshQueued = false;
+    let snapshotReconciliationAttempts = 0;
+    const MAX_SNAPSHOT_RECONCILIATION_ATTEMPTS = 3;
     const refreshSnapshot = async () => {
       if (snapshotRequestInFlight) {
         snapshotRefreshQueued = true;
         return;
       }
       snapshotRequestInFlight = true;
+      snapshotReconciliationAttempts += 1;
       try {
         const response = await fetch('/api/v1/state', {
           headers: { Authorization: `Bearer ${token}` },
@@ -176,7 +179,17 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
         if (!isStateSnapshot(value)) throw new Error('Malformed state snapshot');
         if (!mountedRef.current || wsRef.current !== ws) return;
         const latestRevision = latestRevisionRef.current;
-        if (latestRevision !== null && value.revision < latestRevision) return;
+        if (latestRevision !== null && value.revision < latestRevision) {
+          // ACK/state may arrive before initial REST snapshot. Keep fetched
+          // state as baseline, then refetch authoritative state so mutation
+          // data received before snapshot is not lost.
+          setSnapshot((current) => current ?? value);
+          if (snapshotReconciliationAttempts < MAX_SNAPSHOT_RECONCILIATION_ATTEMPTS) {
+            snapshotRefreshQueued = true;
+          }
+          return;
+        }
+        snapshotReconciliationAttempts = 0;
         setSnapshot((current) => current === null || value.revision >= current.revision ? value : current);
         latestRevisionRef.current = value.revision;
         setRevision((current) => updateRevision(current, value.revision));
@@ -186,7 +199,9 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
         }
       } finally {
         snapshotRequestInFlight = false;
-        if (snapshotRefreshQueued && !abortController.signal.aborted) {
+        if (snapshotRefreshQueued
+          && !abortController.signal.aborted
+          && snapshotReconciliationAttempts < MAX_SNAPSHOT_RECONCILIATION_ATTEMPTS) {
           snapshotRefreshQueued = false;
           void refreshSnapshot();
         }

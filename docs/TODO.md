@@ -97,7 +97,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] HIGH: Add HTTPS/TLS listener and fail-closed transport configuration — **DONE Phase 22** (Caddy config, systemd, RPi5 guide, ADR-011)
 - [x] HIGH: Authorize every WebSocket message by role and musician mix ownership (Phase 23 — SetMasterGain/SetMasterMute RBAC complete; all WS messages now have explicit role checks)
-- [x] HIGH: Enforce WebSocket expiry and rate limits; revocation remains bounded by JWT TTL
+- [x] HIGH: Enforce WebSocket expiry, rate limits and post-issuance revocation through persistent access-session mappings (Phase 31); revocation is checked on handshake, messages and keepalive ticks
 - [x] HIGH: Make refresh rotation atomic in one SQLite transaction
 - [x] MEDIUM: Add Origin/CSRF validation and bounded auth request inputs
 - [x] MEDIUM: Bound HTTP request body to 16 KiB; route payload validation remains pending
@@ -174,7 +174,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Musician mix ownership filtering for broadcasts
 - [x] Assignment lock coordination and integration coverage
 - [x] Independent security/code review; findings fixed
-- [ ] Add client-side revision ordering/reconciliation for missed or lagged broadcasts
+- [x] Add client-side revision ordering/reconciliation for missed or lagged broadcasts — Phase 27; stale revisions ignored and lagged snapshots reconciled
 
 ## COMPLETED
 

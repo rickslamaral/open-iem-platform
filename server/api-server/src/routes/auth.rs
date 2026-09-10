@@ -172,11 +172,15 @@ pub async fn refresh(
 
     let now = unix_now();
     let token_hash = token_to_storage_key(raw_refresh);
+    // Resolve owner before rotation. A post-rotation lookup failure would
+    // consume the refresh token without a usable replacement.
+    let user_id = state.db.refresh_token_owner(&token_hash)?;
+    let (username, role) = state.db.find_user_by_id(user_id)?;
     let jti = Uuid::new_v4().to_string();
     let raw_new_refresh = generate_refresh_token();
     let expires_at = now + REFRESH_TOKEN_TTL_S;
     let new_token_hash = token_to_storage_key(&raw_new_refresh);
-    let (user_id, _, new_session_id) = state.db.rotate_refresh_token_with_access_id(
+    let (_, _, new_session_id) = state.db.rotate_refresh_token_with_access_id(
         &token_hash,
         &new_token_hash,
         expires_at,
@@ -184,7 +188,6 @@ pub async fn refresh(
         Some(&jti),
         Some(now + crate::auth::ACCESS_TOKEN_TTL_S),
     )?;
-    let (username, role) = state.db.find_user_by_id(user_id)?;
     let access =
         match state
             .jwt
@@ -192,11 +195,9 @@ pub async fn refresh(
         {
             Ok(access) => access,
             Err(error) => {
-                state.db.restore_refresh_after_signing_failure(
-                    &token_hash,
-                    &new_token_hash,
-                    &jti,
-                )?;
+                state
+                    .db
+                    .discard_refresh_after_signing_failure(&new_token_hash, &jti)?;
                 return Err(error);
             }
         };
