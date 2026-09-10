@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Documentation
+- Added `docs/guides/WINDOWS-DOCKER-GUIDE.md` with Windows 10/11 + Docker Desktop prerequisites, JWT key generation, planned local smoke test, cleanup, troubleshooting and explicit audio validation limits.
+- Documented Compose as BLOCKED until its three referenced Dockerfiles exist; no Windows Docker runtime support is claimed.
+
 ### Security — Failed WebSocket authentication limiting
 - Added bounded in-process per-peer-IP limiting for failed `/ws/v1` authentication: 5 failures per 60-second window and at most 4,096 retained IP entries.
 - Successful authenticated WebSocket upgrades do not consume failure budget; peer IP comes only from `ConnectInfo<SocketAddr>`.

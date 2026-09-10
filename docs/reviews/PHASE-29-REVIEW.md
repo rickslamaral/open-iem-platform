@@ -1,24 +1,37 @@
-# Phase 29 Review — Failed WebSocket Authentication Limiting
+# Phase 29 Review — Limitação de falhas de autenticação WebSocket
 
-## Status
+**Data:** 2026-09-10
+**Estado:** implementação local validada; merge bloqueado por CI remoto sem runner
+**Escopo:** limitar tentativas inválidas de autenticação em `/ws/v1`.
 
-Implemented locally. Remote CI unavailable; GitHub Actions run `34509968438` failed before steps with `runner_id=0`.
+## Implementação real
 
-## Scope
+- Limiter em memória por IP do peer TCP obtido de `ConnectInfo<SocketAddr>`.
+- Limite de 5 falhas em janela de 60 segundos.
+- Estado limitado a 4.096 IPs, com remoção do IP menos recentemente observado quando possível.
+- Apenas falhas de protocolo ou token inválido consomem orçamento.
+- Autenticação bem-sucedida não consome orçamento.
+- Bloqueio retorna HTTP 429 e `Retry-After: 5`.
+- Cabeçalhos encaminhados não definem identidade do peer.
 
-`/ws/v1` failed authenticated upgrade attempts only. Five failures per peer IP per 60-second window trigger HTTP 429 with `Retry-After: 5`. Limiter retains at most 4,096 IP entries and evicts least-recently-observed state at capacity.
+## Verificação
 
-Successful authenticated WebSocket requests do not consume failure budget. Peer identity comes only from request extension `ConnectInfo<SocketAddr>`; forwarded headers are ignored.
-
-## Validation
-
-- Deterministic unit tests cover threshold, window reset and bounded state.
 - `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
-- `cargo test -p api-server --all-targets --no-fail-fast`: PASS — 38 unit tests and 52 integration tests.
-- `cargo clippy -p api-server --all-targets -- -D warnings`: PASS.
-- `scripts/validate-docs.sh` and `git diff --check`: PASS.
-- Remote CI remains unavailable; run `34509968438` failed before steps with `runner_id=0`.
+- `cargo test --manifest-path server/Cargo.toml --all --no-fail-fast`: PASS — 231 testes Rust e 3 doc-tests.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- Testes determinísticos cobrem threshold, reset da janela, eviction e concorrência.
+- `git diff --check`: PASS.
+- `scripts/validate-docs.sh`: PASS na rodada anterior documentada.
+- `scripts/validate-skills.sh`: PASS na rodada anterior documentada.
 
-## Limitations
+## Segurança e limitações
 
-Limiter is process-local. Distributed deployments need shared coordination. JWT revocation after issuance remains separate policy.
+- Limiter é local ao processo. Não fornece coordenação entre réplicas.
+- IP real atrás de proxy exige configuração confiável no proxy; `X-Forwarded-For` não é aceito como prova pelo serviço.
+- Revogação pós-emissão de JWT permanece limitada ao TTL do token.
+- PipeWire, mídia WebRTC real, latência, XRUN e runtime ARM64 em Raspberry Pi 5 continuam não validados no VPS.
+- CI remoto continua bloqueado antes dos steps por ausência/permissão de runner (`runner_id=0`); portanto não há evidência de CI verde nem release pronta.
+
+## Decisão
+
+**PASS local com bloqueio operacional:** código e testes locais passam; merge e release aguardam CI remoto executável.

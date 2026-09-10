@@ -4,6 +4,25 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — Windows/Docker documentation audit
+
+**Phase:** documentation follow-up
+
+### Implementado
+
+- Guia Windows + Docker Desktop adicionada em `docs/guides/WINDOWS-DOCKER-GUIDE.md`.
+- Auditoria confirmou que `docker-compose.yml` referencia três Dockerfiles ausentes; guia e CHANGELOG agora marcam Compose como `BLOCKED`, sem alegar runtime validado.
+- README, TODO e review da Phase 29 atualizados.
+
+### Verificação
+
+- Cargo workspace: testes e clippy passam.
+- Musician: 34 testes e build passam.
+- Engineer: 2 testes e build passam.
+- CI remoto continua bloqueado antes dos steps por `runner_id=0`.
+
+---
+
 ## 2026-09-10 — Bounded failed WebSocket authentication limiting
 
 **Phase:** 29 — WebSocket security follow-up

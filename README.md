@@ -44,7 +44,7 @@ IEM    IEM    IEM
 
 O cliente Musician envia access token no subprotocolo de autenticação `openiem.bearer.<JWT>` junto de `openiem.v1` durante o upgrade HTTP; `/ws/v1` valida ambos e ecoa somente `openiem.v1`. Query strings não carregam mais tokens. Erros após envelope válido preservam `request_id`; erros de parsing usam `server`. ACKs, snapshot REST, ownership, ordenação, revisão monotônica antes de aplicar `State`/`SendAck`/`MasterAck`, limites de mensagem/frame de 16 KiB aplicados no upgrade (com teste de transporte para mensagem Text acima do limite), keepalive Ping/Pong com desafio correlacionado (30 s / timeout 60 s), máquina de estados sem falso timeout após Pong válido e teste determinístico com relógio pausado, rejeição de frames binários, limite process-wide de 64 conexões, quotas de 4 conexões por usuário e 16 por IP com reserva atômica e liberação RAII, sinalização de ressincronização após lag de broadcast, limiter bounded de 5 falhas de autenticação por IP a cada 60 s (com 4.096 entradas máximas) e logs de falha de consulta de ownership permanecem ativos. Áudio, sessões WebRTC reais, PipeWire e runtime ARM64 em Raspberry Pi continuam `SIMULATED`/não validados.
 
-Ver [Phase 27 review](docs/reviews/PHASE-27-REVIEW.md), [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
+Ver [Phase 29 review](docs/reviews/PHASE-29-REVIEW.md), [Phase 27 review](docs/reviews/PHASE-27-REVIEW.md), [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
 
 ## Development Phases
 
@@ -88,6 +88,7 @@ scripts/              — Development utilities
 - [Skills Registry](docs/SKILLS.md)
 - [TODO](docs/TODO.md)
 - [Development Log](docs/DEVELOPMENT-LOG.md)
+- [Windows + Docker Desktop Guide](docs/guides/WINDOWS-DOCKER-GUIDE.md)
 - [ADR Index](docs/adr/)
 
 ## Contributing
