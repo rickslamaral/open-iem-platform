@@ -10,10 +10,11 @@ Preservar `request_id` em erros gerados depois de envelope WebSocket válido, ma
 
 ## Verificação
 - `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
-- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 219 testes.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 220 testes.
 - `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
 - `git diff --check`: PASS.
-- Reviews independentes encontraram bypass de liveness por Pong não solicitado e replay de desafio; corrigidos com payload novo por Ping e teste unitário de correspondência.
+- Review independente encontrou falso timeout após Pong válido; corrigido com `KeepaliveTracker`, que só expira desafio pendente, e teste determinístico de regressão.
+- Reviews independentes anteriores encontraram bypass de liveness por Pong não solicitado e replay de desafio; corrigidos com payload novo por Ping e teste unitário de correspondência.
 - Frontends Musician/Engineer: typecheck, testes e build PASS nesta rodada.
 
 ## Limitações

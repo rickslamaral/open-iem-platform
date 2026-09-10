@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — WebSocket keepalive state machine
+- Keepalive timeout now applies only while a Pong challenge is outstanding; a valid Pong cannot cause a later false timeout before the next Ping.
+
 ### Security — WebSocket keepalive challenge correlation
 - Server now accepts Pong for liveness only when payload matches outstanding server Ping; unsolicited or stale Pong frames cannot bypass timeout.
 

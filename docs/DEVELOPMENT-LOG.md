@@ -4,6 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — WebSocket keepalive state-machine correction
+
+**Phase:** 26 — WebSocket resilience follow-up
+
+### Implementado
+
+- Extraído `KeepaliveTracker` para manter desafio pendente, instante do Ping e validação de Pong em uma máquina de estados explícita.
+- Timeout só é avaliado enquanto existe Pong pendente; Pong válido não provoca falso timeout no intervalo seguinte.
+- Teste determinístico cobre timeout, Pong incorreto, Pong correlacionado e ausência de falso timeout após Pong válido.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 220 testes.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+
+### Limitações
+
+Teste temporal do loop WebSocket ainda pendente. CI remoto segue falhando antes dos steps por runner/permissão. PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
+
+### Próximo
+
+Rever diff atual com agentes independentes e investigar runner GitHub.
+
+---
+
 ## 2026-09-10 — WebSocket keepalive challenge correlation
 
 **Phase:** 26 — WebSocket resilience follow-up
