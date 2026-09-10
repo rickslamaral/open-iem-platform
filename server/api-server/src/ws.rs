@@ -40,12 +40,19 @@ use control_protocol::{
 };
 use std::{
     sync::atomic::{AtomicU64, Ordering},
-    time::{Duration, SystemTime, UNIX_EPOCH},
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 
 static NEXT_SESSION_ID: AtomicU64 = AtomicU64::new(1);
 
 const MAX_MESSAGES_PER_MINUTE: u32 = 120;
+const MAX_SOCKET_SEND_WAIT: Duration = Duration::from_secs(10);
+
+async fn send_with_timeout(socket: &mut WebSocket, message: Message) -> bool {
+    tokio::time::timeout(MAX_SOCKET_SEND_WAIT, socket.send(message))
+        .await
+        .is_ok_and(|result| result.is_ok())
+}
 
 fn unix_now() -> u64 {
     SystemTime::now()
@@ -96,6 +103,12 @@ async fn handle_socket(
     debug!(user = %claims.sub, role = ?claims.role, "WebSocket connected");
     let mut window_started = unix_now();
     let mut message_count = 0_u32;
+    let mut keepalive = tokio::time::interval_at(
+        tokio::time::Instant::now() + Duration::from_secs(30),
+        Duration::from_secs(30),
+    );
+    keepalive.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
+    let mut last_pong = Instant::now();
 
     // Subscribe to broadcast events before entering the loop.
     let mut event_rx = state.event_tx.subscribe();
@@ -110,6 +123,17 @@ async fn handle_socket(
         let remaining = claims.exp - now;
 
         tokio::select! {
+            // Server keepalive. A Pong within the last 60 seconds keeps session alive.
+            _ = keepalive.tick() => {
+                if last_pong.elapsed() >= Duration::from_secs(60) {
+                    send_error(&mut socket, "CONNECTION_TIMEOUT", "WebSocket pong timeout").await;
+                    break;
+                }
+                if !send_with_timeout(&mut socket, Message::Ping(Vec::new().into())).await {
+                    break;
+                }
+            }
+
             // Inbound message from client.
             recv = tokio::time::timeout(Duration::from_secs(remaining), socket.recv()) => {
                 let msg = match recv {
@@ -263,7 +287,7 @@ async fn handle_socket(
                             }
                         };
 
-                        if socket.send(Message::Text(json.into())).await.is_err() {
+                        if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
                             break;
                         }
                     }
@@ -272,9 +296,14 @@ async fn handle_socket(
                         break;
                     }
                     Message::Ping(payload) => {
-                        let _ = socket.send(Message::Pong(payload)).await;
+                        if !send_with_timeout(&mut socket, Message::Pong(payload)).await {
+                            break;
+                        }
                     }
-                    _ => {}
+                    Message::Pong(_) => {
+                        last_pong = Instant::now();
+                    }
+                    Message::Binary(_) => {}
                 }
             }
 
@@ -322,7 +351,7 @@ async fn handle_socket(
                         };
                         drop(assignment_guard);
                         if let Some(json) = ack_json {
-                            if socket.send(Message::Text(json.into())).await.is_err() {
+                            if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
                                 break;
                             }
                         }
@@ -373,7 +402,7 @@ async fn handle_socket(
                         };
                         drop(assignment_guard);
                         if let Some(json) = ack_json {
-                            if socket.send(Message::Text(json.into())).await.is_err() {
+                            if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
                                 break;
                             }
                         }
@@ -444,6 +473,6 @@ async fn send_error(socket: &mut WebSocket, code: &str, message: &str) {
         },
     };
     if let Ok(json) = serde_json::to_string(&envelope) {
-        let _ = socket.send(Message::Text(json.into())).await;
+        let _ = send_with_timeout(socket, Message::Text(json.into())).await;
     }
 }

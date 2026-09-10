@@ -48,6 +48,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [ ] Set up code coverage reporting
 - [x] LOW: Log DB errors in master broadcast fan-out (fail-closed and observable)
 - [ ] LOW: mix_assignment_lock held during DB read in broadcast fan-out — may contend under load; evaluate read-only lookup without lock
+- [x] LOW: Test DB failure during musician WebSocket ownership lookup — fail-closed coverage added Phase 24
+- [x] WebSocket keepalive: server Ping/ Pong timeout and bounded socket sends — Phase 24 (timing integration test remains pending)
+- [ ] WebSocket keepalive: add deterministic short-interval integration tests without waiting 30/60 seconds
 
 ---
 
@@ -189,7 +192,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Workspace version bumped to 0.2.0; admin-cli aligned to workspace
 - [ ] Tag v0.2.0 and verify full pipeline on GitHub Actions
 - [x] Investigate `v0.3.0` release gate failure; tag points to pre-sync commit
-- [ ] Publish `v0.3.1` and verify full pipeline on GitHub Actions — CI remoto falha antes dos steps; logs bloqueados por permissão do token atual
+- [ ] Publish `v0.3.1` and verify full pipeline on GitHub Actions — código local validado; CI remoto falha antes dos steps; logs bloqueados por permissão do token atual
 - [ ] Validate ARM64 binary on real Raspberry Pi 5 hardware
 - [x] Dependabot for Cargo + npm
 

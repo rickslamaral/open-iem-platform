@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 24 WebSocket resilience
+- Added fail-closed integration coverage when the musician ownership database lookup fails.
+- Added server-initiated WebSocket Ping every 30 seconds and `CONNECTION_TIMEOUT` after 60 seconds without Pong.
+- Bounded every WebSocket send operation to 10 seconds, preventing stalled clients from retaining handler tasks indefinitely.
+
+### Fixed — Phase 24 audit follow-up
+- Stabilized WebSocket broadcast integration tests by yielding after observer handshake, preventing scheduler-dependent false failures.
+- Confirmed local Rust workspace and both frontend quality gates pass; real PipeWire, WebRTC media and Raspberry Pi ARM64 runtime remain unvalidated.
+
+### CI — Phase 24
+- ARM64 cross-compilation configuration already contains the Rust target, cross-linker package and linker environment; no workflow change required.
+- GitHub-hosted CI remains blocked before steps execute because runners are not allocated; local gates are the verified result.
+
 ### Fixed — Phase 23 follow-up
 - WebSocket ownership lookup now logs database failures and denies forwarding/mutation instead of silently collapsing errors to `None`.
 

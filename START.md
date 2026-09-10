@@ -1274,11 +1274,20 @@ it was decided, what is broken and what comes next.
 
 # 96. START NOW
 
-Execute:
+DO NOT RESTART THE PROJECT.
 
-``` text
-PHASE 0 — PROJECT BOOTSTRAP + SPECIFICATION AUDIT
-```
+AUDIT THE CURRENT STATE FIRST.
+
+Understand what has already been implemented.
+Validate what actually works.
+Identify architectural deviations.
+Preserve valid work.
+Refactor where necessary.
+Update documentation.
+Run Devil's Advocate.
+Fix substantive issues.
+Determine the real current phase.
+Then continue development from that state.
 
 Do not ask for permission to perform normal engineering tasks. Do not
 implement the complete product in one pass. Make the repository the

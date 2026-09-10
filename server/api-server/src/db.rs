@@ -384,6 +384,20 @@ impl Db {
         .map_err(|e| ApiError::Internal(e.to_string()))
     }
 
+    /// Test-only fault injection for fail-closed authorization tests.
+    ///
+    /// Debug-only so destructive test plumbing cannot ship in release builds.
+    #[cfg(debug_assertions)]
+    #[doc(hidden)]
+    pub fn drop_mix_assignments_table_for_test(&self) -> Result<(), ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute_batch("DROP TABLE mix_assignments")
+            .map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
     /// Return mix slot assigned to a user.
     pub fn get_user_assigned_mix(&self, user_id: i64) -> Result<Option<usize>, ApiError> {
         let conn = self

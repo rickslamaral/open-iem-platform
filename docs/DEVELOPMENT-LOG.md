@@ -4,6 +4,38 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-09 — Phase 24 audit: estado real e estabilização de testes
+
+**Branch:** `main`
+**Ambiente:** Linux x86_64; PipeWire, mídia WebRTC e ARM64 real não disponíveis
+
+### Implementado
+
+- Auditou estado existente sem reiniciar o projeto; `main` está em `8db59da` e PR #38 já foi mergeada.
+- Adicionado teste de falha SQLite no lookup de ownership WebSocket; autorização permanece fail-closed.
+- Adicionado keepalive Ping/Pong e timeout de inatividade no WebSocket.
+- Todas as escritas WebSocket agora têm timeout de 10 segundos contra clientes lentos.
+- Estabilizados testes de broadcast WebSocket após handshake, evitando corrida do scheduler.
+
+### Verificação
+
+- Rust workspace: testes PASS — 49 integração API + crates; clippy e fmt PASS.
+- Musician: typecheck, 32 testes e build PASS.
+- Engineer: typecheck, 2 testes e build PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+
+### Devil's Advocate / limitações
+
+- CI remoto ainda bloqueado antes dos steps por infraestrutura/permissão; não declarar release `v0.3.1` pronta.
+- PipeWire real, mídia WebRTC, ARM64 em Raspberry Pi 5, latência e estabilidade de 60 minutos continuam `SIMULATED`/`HARDWARE VALIDATION REQUIRED`.
+- Testes locais de broadcast eram scheduler-dependent; correção só estabiliza o teste, não prova transporte de áudio real.
+
+### Próximo
+
+Desbloquear GitHub Actions com credencial/permissão válida; executar CI real; depois validar artefato ARM64 no Raspberry Pi 5 antes de release.
+
+---
+
 ## 2026-09-09 — Phase 23 follow-up: observabilidade de ownership WebSocket
 
 **Branch:** `fix/phase23-ownership-observability`

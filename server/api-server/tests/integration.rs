@@ -838,6 +838,36 @@ async fn ws_engineer_set_send_muted_returns_send_ack() {
 }
 
 #[tokio::test]
+async fn ws_musician_db_failure_denies_set_send_gain() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "mus_ws_db_failure", "pw", Role::Musician);
+    // Drop ownership table after authentication. Lookup now returns DB error;
+    // authorization must fail closed rather than allowing the mutation.
+    state.db.drop_mix_assignments_table_for_test().unwrap();
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetSendGain",
+        json!({"mix_index": 0, "channel_index": 0, "gain_db": 0.0}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "Error");
+    assert_eq!(resp["payload"]["data"]["code"], "FORBIDDEN");
+}
+
+#[tokio::test]
 async fn ws_musician_denied_set_send_gain_on_unassigned_mix() {
     let (server, state) = build_ws_app();
     let token = seed_user_and_login(&state, "mus_ws1", "pw", Role::Musician);
@@ -990,6 +1020,11 @@ async fn ws_send_mutation_broadcasts_to_other_sessions() {
         .await
         .into_websocket()
         .await;
+
+    // The handshake completes before the handler task necessarily reaches
+    // broadcast subscription. Yield once so the observer cannot miss the
+    // first delta due to test scheduling rather than application behavior.
+    tokio::task::yield_now().await;
 
     // Mutator changes gain on mix 0, channel 1.
     mutator
@@ -1184,6 +1219,10 @@ async fn ws_master_mutation_broadcasts_to_other_sessions() {
         .await
         .into_websocket()
         .await;
+
+    // Let observer handler subscribe before mutation; handshake and task
+    // scheduling are separate in axum-test.
+    tokio::task::yield_now().await;
 
     mutator
         .send_text(ws_envelope(
