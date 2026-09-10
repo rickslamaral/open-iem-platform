@@ -67,6 +67,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] LOW: Testar rejeição de frame/mensagem acima de 16 KiB via integração WebSocket — teste de transporte confirma encerramento para mensagem Text acima do limite (Phase 26 follow-up)
 - [ ] LOW: WebSocket: revogação pós-emissão de JWT — access token permanece válido até expiração; avaliar checagem bounded por sessão/IP/user quota
 - [x] LOW: WebSocket: quotas agregadas por usuário/IP — 4 por usuário, 16 por IP, 64 global; reserva atômica e liberação RAII (Phase 28)
+- [x] HIGH: Limitar falhas de autenticação `/ws/v1` por IP — 5 falhas por janela de 60 s; estado bounded em memória, peer via `ConnectInfo<SocketAddr>` (Phase 29)
 - [x] LOW: WebSocket: ressincronização após broadcast lag — servidor emite `State` com revisão autoritativa; Musician refaz snapshot REST (Phase 27); revisão monotônica cobre ACK antes do primeiro snapshot
 - [x] LOW: WebSocket protocol control coverage: client Ping/Pong payload preservation and binary-frame rejection (Phase 24 follow-up)
 - [x] LOW: WebSocket rate quota counts every inbound frame, including control frames, preventing Ping/Pong flood bypass (Phase 24 follow-up)

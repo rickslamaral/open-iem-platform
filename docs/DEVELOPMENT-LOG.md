@@ -4,6 +4,29 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — Bounded failed WebSocket authentication limiting
+
+**Phase:** 29 — WebSocket security follow-up
+
+### Implementado
+
+- Adicionado limiter em memória bounded para falhas de autenticação de `/ws/v1`: 5 falhas por IP em janela de 60 segundos.
+- Estado limitado a 4.096 IPs; entrada menos recentemente observada é removida quando limite é atingido.
+- Apenas falhas de protocolo/token inválido contam. Requests WebSocket autenticados com sucesso não consomem orçamento.
+- IP vem exclusivamente de `ConnectInfo<SocketAddr>`; cabeçalhos encaminhados não são confiáveis.
+- Após threshold, resposta retorna HTTP 429 com `Retry-After: 5`.
+
+### Verificação
+
+- Testes unitários determinísticos cobrem threshold, reset de janela e limite de estado.
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test -p api-server --all-targets --no-fail-fast`: PASS — 38 unitários e 52 integração.
+- `cargo clippy -p api-server --all-targets -- -D warnings`: PASS.
+- `scripts/validate-docs.sh` e `git diff --check`: PASS.
+- CI remoto permanece indisponível; run `34509968438` falhou antes dos steps com `runner_id=0`.
+
+---
+
 ## 2026-09-10 — WebSocket admission quotas
 
 **Phase:** 28 — WebSocket connection fairness

@@ -40,9 +40,9 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Phase 27 — Ressincronização WebSocket e estado de mix** (código local validado; release bloqueada por CI remoto)
+**Phase 29 — Limitação de falhas de autenticação WebSocket** (código local validado; release bloqueada por CI remoto)
 
-O cliente Musician envia access token no subprotocolo de autenticação `openiem.bearer.<JWT>` junto de `openiem.v1` durante o upgrade HTTP; `/ws/v1` valida ambos e ecoa somente `openiem.v1`. Query strings não carregam mais tokens. Erros após envelope válido preservam `request_id`; erros de parsing usam `server`. ACKs, snapshot REST, ownership, ordenação, revisão monotônica antes de aplicar `State`/`SendAck`/`MasterAck`, limites de mensagem/frame de 16 KiB aplicados no upgrade (com teste de transporte para mensagem Text acima do limite), keepalive Ping/Pong com desafio correlacionado (30 s / timeout 60 s), máquina de estados sem falso timeout após Pong válido e teste determinístico com relógio pausado, rejeição de frames binários, limite process-wide de 64 conexões, quotas de 4 conexões por usuário e 16 por IP com reserva atômica e liberação RAII, sinalização de ressincronização após lag de broadcast e logs de falha de consulta de ownership permanecem ativos. Áudio, sessões WebRTC reais, PipeWire e runtime ARM64 em Raspberry Pi continuam `SIMULATED`/não validados.
+O cliente Musician envia access token no subprotocolo de autenticação `openiem.bearer.<JWT>` junto de `openiem.v1` durante o upgrade HTTP; `/ws/v1` valida ambos e ecoa somente `openiem.v1`. Query strings não carregam mais tokens. Erros após envelope válido preservam `request_id`; erros de parsing usam `server`. ACKs, snapshot REST, ownership, ordenação, revisão monotônica antes de aplicar `State`/`SendAck`/`MasterAck`, limites de mensagem/frame de 16 KiB aplicados no upgrade (com teste de transporte para mensagem Text acima do limite), keepalive Ping/Pong com desafio correlacionado (30 s / timeout 60 s), máquina de estados sem falso timeout após Pong válido e teste determinístico com relógio pausado, rejeição de frames binários, limite process-wide de 64 conexões, quotas de 4 conexões por usuário e 16 por IP com reserva atômica e liberação RAII, sinalização de ressincronização após lag de broadcast, limiter bounded de 5 falhas de autenticação por IP a cada 60 s (com 4.096 entradas máximas) e logs de falha de consulta de ownership permanecem ativos. Áudio, sessões WebRTC reais, PipeWire e runtime ARM64 em Raspberry Pi continuam `SIMULATED`/não validados.
 
 Ver [Phase 27 review](docs/reviews/PHASE-27-REVIEW.md), [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
 
@@ -63,6 +63,7 @@ Ver [Phase 27 review](docs/reviews/PHASE-27-REVIEW.md), [Phase 24 review](docs/r
 | 10 | ESP32 / Dedicated Receiver Research | ⏳ Pending |
 | 27 | WebSocket State Recovery | ✅ Local implementation; CI blocked |
 | 28 | WebSocket Connection Fairness | ✅ Local implementation; CI blocked |
+| 29 | WebSocket Failed-Auth Limiting | ✅ Local implementation; CI blocked |
 
 ## Repository Structure
 

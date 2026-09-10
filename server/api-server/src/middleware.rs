@@ -7,12 +7,28 @@
 
 use crate::{auth::JwtClaims, error::ApiError, state::AppState};
 use axum::{
-    extract::{Request, State},
+    extract::{connect_info::ConnectInfo, Request, State},
     http::{header, HeaderMap},
     middleware::Next,
     response::Response,
 };
 use control_protocol::Role;
+use std::{
+    net::{IpAddr, SocketAddr},
+    time::Instant,
+};
+
+fn websocket_peer_ip(req: &Request) -> Result<Option<IpAddr>, ApiError> {
+    if req.uri().path() != "/ws/v1" {
+        return Ok(None);
+    }
+    req.extensions()
+        .get::<ConnectInfo<SocketAddr>>()
+        .map(|ConnectInfo(peer)| Some(peer.ip()))
+        .ok_or(ApiError::Unauthorized(
+            "missing peer connection information",
+        ))
+}
 
 /// Extract and verify JWT from `Authorization: Bearer` header.
 ///
@@ -26,13 +42,30 @@ pub async fn jwt_auth(
     mut req: Request,
     next: Next,
 ) -> Result<Response, ApiError> {
-    let token = if req.uri().path() == "/ws/v1" {
-        extract_websocket_token(req.headers())?
+    let is_websocket = req.uri().path() == "/ws/v1";
+    let peer_ip = websocket_peer_ip(&req)?;
+    let mut auth_attempt = peer_ip.and_then(|ip| {
+        state
+            .websocket_auth_failures
+            .begin_attempt(ip, Instant::now())
+    });
+    if peer_ip.is_some() && auth_attempt.is_none() {
+        return Err(ApiError::TooManyRequests);
+    }
+    let token = if is_websocket {
+        match extract_websocket_token(req.headers()) {
+            Ok(token) => token,
+            Err(error) => return Err(error),
+        }
     } else {
         extract_bearer(req.headers())?
     };
     let token = token.to_owned();
     let claims = state.jwt.verify(&token)?;
+    if let Some(attempt) = auth_attempt.as_mut() {
+        attempt.mark_success();
+    }
+    drop(auth_attempt);
     req.extensions_mut().insert(token);
     req.extensions_mut().insert(claims);
     Ok(next.run(req).await)
@@ -156,6 +189,27 @@ mod tests {
         assert!(require_min_role(&c, Role::Musician).is_ok());
         assert!(require_min_role(&c, Role::Engineer).is_err());
         assert!(require_min_role(&c, Role::Admin).is_err());
+    }
+
+    #[test]
+    fn websocket_auth_requires_connect_info() {
+        let request = Request::builder()
+            .uri("/ws/v1")
+            .body(axum::body::Body::empty())
+            .unwrap();
+        assert_eq!(
+            websocket_peer_ip(&request).unwrap_err().to_string(),
+            "unauthorized: missing peer connection information"
+        );
+    }
+
+    #[test]
+    fn non_websocket_auth_does_not_require_connect_info() {
+        let request = Request::builder()
+            .uri("/api/v1/health")
+            .body(axum::body::Body::empty())
+            .unwrap();
+        assert_eq!(websocket_peer_ip(&request).unwrap(), None);
     }
 
     #[test]

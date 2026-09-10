@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Failed WebSocket authentication limiting
+- Added bounded in-process per-peer-IP limiting for failed `/ws/v1` authentication: 5 failures per 60-second window and at most 4,096 retained IP entries.
+- Successful authenticated WebSocket upgrades do not consume failure budget; peer IP comes only from `ConnectInfo<SocketAddr>`.
+- Blocked attempts return HTTP 429 with `Retry-After: 5`.
+
 ### Security — WebSocket admission quotas
 - Added atomic in-process quotas of 4 upgraded connections per authenticated user and 16 per peer IP, alongside the global limit of 64.
 - Quota reservations use RAII release when WebSocket handlers end; quota rejections return HTTP 429 with `Retry-After: 5`.

@@ -4,6 +4,7 @@ use std::{
     collections::HashMap,
     net::IpAddr,
     sync::{Arc, Mutex},
+    time::{Duration, Instant},
 };
 
 /// Maximum concurrently upgraded WebSocket connections per process.
@@ -12,6 +13,123 @@ pub const MAX_WEBSOCKET_CONNECTIONS: usize = 64;
 pub const MAX_WEBSOCKET_CONNECTIONS_PER_USER: usize = 4;
 /// Maximum concurrently upgraded WebSocket connections per peer IP address.
 pub const MAX_WEBSOCKET_CONNECTIONS_PER_IP: usize = 16;
+
+/// Failed `/ws/v1` authentications allowed per peer IP in one window.
+pub const MAX_WEBSOCKET_AUTH_FAILURES_PER_IP: u32 = 5;
+/// Duration over which failed `/ws/v1` authentications are counted.
+pub const WEBSOCKET_AUTH_FAILURE_WINDOW: Duration = Duration::from_secs(60);
+/// Maximum number of peer IP entries retained by authentication limiter.
+pub const MAX_WEBSOCKET_AUTH_FAILURE_IPS: usize = 4096;
+
+#[derive(Debug, Default)]
+struct FailedAuthEntry {
+    failures: u32,
+    reservations: u32,
+    window_start: Option<Instant>,
+    last_seen: Option<Instant>,
+}
+
+/// Bounded in-memory limiter for failed WebSocket authentication attempts.
+#[derive(Clone, Debug, Default)]
+pub struct WebSocketAuthFailureLimiter {
+    state: Arc<Mutex<HashMap<IpAddr, FailedAuthEntry>>>,
+}
+
+/// Reservation for one WebSocket authentication attempt.
+pub struct WebSocketAuthAttempt {
+    limiter: WebSocketAuthFailureLimiter,
+    ip: IpAddr,
+    admitted_at: Instant,
+    successful: bool,
+}
+
+impl WebSocketAuthAttempt {
+    /// Mark authentication successful so reservation does not consume failure budget.
+    pub fn mark_success(&mut self) {
+        self.successful = true;
+    }
+}
+
+impl Drop for WebSocketAuthAttempt {
+    fn drop(&mut self) {
+        self.limiter
+            .finish_attempt(self.ip, self.successful, self.admitted_at);
+    }
+}
+
+impl WebSocketAuthFailureLimiter {
+    /// Atomically reserve one authentication attempt, or reject at the threshold.
+    ///
+    /// Reservation records failure on drop unless marked successful. This closes
+    /// the check-then-record race between concurrent authentication requests.
+    ///
+    /// # Errors
+    /// Returns `None` when this peer reached the failure threshold.
+    ///
+    /// # Panics
+    /// Panics if limiter mutex poisoned by a prior panic.
+    #[must_use]
+    pub fn begin_attempt(&self, ip: IpAddr, now: Instant) -> Option<WebSocketAuthAttempt> {
+        let mut state = self
+            .state
+            .lock()
+            .expect("WebSocket auth limiter lock poisoned");
+        if !state.contains_key(&ip) && state.len() >= MAX_WEBSOCKET_AUTH_FAILURE_IPS {
+            let oldest = state
+                .iter()
+                .filter(|(_, entry)| entry.reservations == 0)
+                .min_by_key(|(address, entry)| (entry.last_seen, **address))
+                .map(|(address, _)| *address)?;
+            state.remove(&oldest);
+        }
+        let entry = state.entry(ip).or_default();
+        if now.duration_since(entry.window_start.unwrap_or(now)) >= WEBSOCKET_AUTH_FAILURE_WINDOW {
+            entry.failures = 0;
+            entry.window_start = Some(now);
+        }
+        if entry.failures.saturating_add(entry.reservations) >= MAX_WEBSOCKET_AUTH_FAILURES_PER_IP {
+            return None;
+        }
+        entry.window_start.get_or_insert(now);
+        entry.last_seen = Some(now);
+        entry.reservations += 1;
+        Some(WebSocketAuthAttempt {
+            limiter: self.clone(),
+            ip,
+            admitted_at: now,
+            successful: false,
+        })
+    }
+
+    fn finish_attempt(&self, ip: IpAddr, successful: bool, now: Instant) {
+        let mut state = self
+            .state
+            .lock()
+            .expect("WebSocket auth limiter lock poisoned");
+        let Some(entry) = state.get_mut(&ip) else {
+            return;
+        };
+        entry.reservations = entry.reservations.saturating_sub(1);
+        if !successful {
+            if now.duration_since(entry.window_start.unwrap_or(now))
+                >= WEBSOCKET_AUTH_FAILURE_WINDOW
+            {
+                entry.failures = 0;
+                entry.window_start = Some(now);
+            }
+            entry.failures = entry.failures.saturating_add(1);
+            entry.last_seen = Some(now);
+        }
+    }
+
+    #[cfg(test)]
+    fn entry_count(&self) -> usize {
+        self.state
+            .lock()
+            .expect("WebSocket auth limiter lock poisoned")
+            .len()
+    }
+}
 
 #[derive(Debug, Default)]
 struct QuotaState {
@@ -123,6 +241,108 @@ mod tests {
 
     fn ip() -> IpAddr {
         IpAddr::V4(Ipv4Addr::new(192, 0, 2, 1))
+    }
+
+    #[test]
+    fn failed_auth_limiter_blocks_after_threshold_and_resets() {
+        let limiter = WebSocketAuthFailureLimiter::default();
+        let start = Instant::now();
+        for _ in 0..MAX_WEBSOCKET_AUTH_FAILURES_PER_IP {
+            drop(limiter.begin_attempt(ip(), start).expect("reserve"));
+        }
+        assert!(limiter.begin_attempt(ip(), start).is_none());
+        assert!(limiter
+            .begin_attempt(ip(), start + WEBSOCKET_AUTH_FAILURE_WINDOW)
+            .is_some());
+    }
+
+    #[test]
+    fn failed_auth_limiter_evicts_oldest_ip_at_bound() {
+        let limiter = WebSocketAuthFailureLimiter::default();
+        let start = Instant::now();
+        for value in 0..MAX_WEBSOCKET_AUTH_FAILURE_IPS {
+            drop(
+                limiter
+                    .begin_attempt(
+                        IpAddr::V4(Ipv4Addr::new(198, 51, (value / 256) as u8, value as u8)),
+                        start + Duration::from_secs(value as u64),
+                    )
+                    .expect("reserve"),
+            );
+        }
+        let newest = IpAddr::V4(Ipv4Addr::new(203, 0, 113, 1));
+        drop(limiter.begin_attempt(newest, start + Duration::from_secs(10_000)));
+        assert_eq!(limiter.entry_count(), MAX_WEBSOCKET_AUTH_FAILURE_IPS);
+        assert!(limiter
+            .begin_attempt(newest, start + Duration::from_secs(10_000))
+            .is_some());
+    }
+
+    #[test]
+    fn full_table_rejects_new_ip_without_evicting_active_entry() {
+        let limiter = WebSocketAuthFailureLimiter::default();
+        let start = Instant::now();
+        let original_ip = ip();
+        let original = limiter.begin_attempt(original_ip, start).expect("reserve");
+        let mut attempts = vec![original];
+        for value in 1..MAX_WEBSOCKET_AUTH_FAILURE_IPS {
+            attempts.push(
+                limiter
+                    .begin_attempt(
+                        IpAddr::V4(Ipv4Addr::new(198, 51, (value / 256) as u8, value as u8)),
+                        start,
+                    )
+                    .expect("reserve"),
+            );
+        }
+        assert_eq!(limiter.entry_count(), MAX_WEBSOCKET_AUTH_FAILURE_IPS);
+        assert!(limiter
+            .begin_attempt(IpAddr::V4(Ipv4Addr::new(203, 0, 113, 1)), start)
+            .is_none());
+
+        drop(attempts);
+        for _ in 0..MAX_WEBSOCKET_AUTH_FAILURES_PER_IP - 1 {
+            drop(limiter.begin_attempt(original_ip, start).expect("reserve"));
+        }
+        assert!(limiter.begin_attempt(original_ip, start).is_none());
+    }
+
+    #[test]
+    fn successful_attempt_does_not_consume_budget() {
+        let limiter = WebSocketAuthFailureLimiter::default();
+        let start = Instant::now();
+        for _ in 0..100 {
+            let mut attempt = limiter.begin_attempt(ip(), start).expect("reserve");
+            attempt.mark_success();
+        }
+        for _ in 0..MAX_WEBSOCKET_AUTH_FAILURES_PER_IP {
+            drop(limiter.begin_attempt(ip(), start).expect("reserve"));
+        }
+        assert!(limiter.begin_attempt(ip(), start).is_none());
+    }
+
+    #[test]
+    fn concurrent_reservations_never_exceed_failure_limit() {
+        let limiter = Arc::new(WebSocketAuthFailureLimiter::default());
+        let barrier = Arc::new(Barrier::new(32));
+        let threads: Vec<_> = (0..32)
+            .map(|_| {
+                let limiter = Arc::clone(&limiter);
+                let barrier = Arc::clone(&barrier);
+                thread::spawn(move || {
+                    barrier.wait();
+                    limiter.begin_attempt(ip(), Instant::now())
+                })
+            })
+            .collect();
+        let attempts: Vec<_> = threads
+            .into_iter()
+            .map(|thread| thread.join().unwrap())
+            .collect();
+        assert_eq!(
+            attempts.iter().filter(|attempt| attempt.is_some()).count(),
+            MAX_WEBSOCKET_AUTH_FAILURES_PER_IP as usize
+        );
     }
 
     #[test]
