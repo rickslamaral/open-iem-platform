@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 33 CI branch trigger
+- Added `feat/**` to CI push triggers. Current development branch is `feat/phase24-ws-resilience`; prior workflow matched `feature/**` but not `feat/**`.
+- Remote runner remains blocked before workflow steps (`steps=[]`); this change does not claim CI success.
+
 ### Tests — Phase 32 deterministic audio harness
 - Added `server/audio-engine/tests/deterministic_harness.rs` as a deterministic `SIMULATED` audio-engine integration harness.
 - Harness covers determinism, mix isolation, gain, pan, mute, limiter bounds and finite samples.

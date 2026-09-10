@@ -4,6 +4,27 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — Phase 33 — CI branch trigger diagnosis
+
+**Status:** workflow corrigido localmente; CI remoto ainda bloqueado; sem merge ou release.
+
+### Implementado
+
+- Adicionado padrão `feat/**` aos gatilhos de push do `.github/workflows/ci.yml`.
+- Correção cobre branch canônica atual `feat/phase24-ws-resilience`, que não correspondia ao padrão anterior `feature/**`.
+
+### Verificação
+
+- YAML do workflow alterado sem erro de sintaxe detectado pelo editor.
+- Runs remotos `34540976629` e `34541036272` continuam falhando em todos os jobs com `steps=[]`; evidência aponta bloqueio de runner antes da execução.
+- Nenhuma conclusão de CI, release ou suporte de hardware foi declarada.
+
+### Próximo passo
+
+Desbloquear runner/permissões GitHub e repetir CI real; depois executar gates completos antes de merge.
+
+---
+
 ## 2026-09-10 — Phase 32 — deterministic audio harness
 
 **Status:** testes locais passam; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

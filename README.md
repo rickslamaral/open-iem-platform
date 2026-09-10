@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 32 — harness determinístico do áudio**. Teste local adicionado em `server/audio-engine/tests/deterministic_harness.rs`; PR #40 aberto; CI remoto continua bloqueado antes dos steps; sem merge ou release.
+**Fase incremental atual: Phase 33 — diagnóstico de CI para branch `feat/**`**. O workflow agora dispara também em branches `feat/**`; PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps; sem merge ou release.
 
 **Phase 32 — harness determinístico do áudio** (verificação local passa; PR #40 aberto; CI bloqueado; não mergeado)
 
@@ -97,6 +97,7 @@ scripts/              — Development utilities
 - [Windows + Docker Desktop Guide](docs/guides/WINDOWS-DOCKER-GUIDE.md)
 - [ADR Index](docs/adr/)
 - [Interface CLI](docs/CLI.md)
+- [Review da Phase 33](docs/reviews/PHASE-33-REVIEW.md)
 - [Review da Phase 32](docs/reviews/PHASE-32-REVIEW.md)
 - [Review da Phase 31](docs/reviews/PHASE-31-REVIEW.md)
 
