@@ -6,7 +6,7 @@ All significant milestones documented here in reverse chronological order.
 
 ## 2026-09-09 — Phase 23 follow-up: observabilidade de ownership WebSocket
 
-**Branch:** `main`
+**Branch:** `fix/phase23-ownership-observability`
 **Ambiente:** VPS Linux x86_64; áudio SIMULATED
 
 ### Implementado
@@ -18,7 +18,7 @@ All significant milestones documented here in reverse chronological order.
 ### Verificação
 
 - `cargo fmt --manifest-path server/Cargo.toml --all -- --check`: PASS.
-- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 172 testes.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 215 testes.
 - `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
 - `scripts/validate-skills.sh`, `scripts/validate-docs.sh` e `git diff --check`: PASS.
 - Reviews independentes de segurança e código: PASS; sem concerns de segurança ou erros lógicos.

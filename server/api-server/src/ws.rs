@@ -60,7 +60,7 @@ fn musician_assigned_to_mix(state: &AppState, user_id: i64, mix_index: u8) -> bo
     match state.db.get_user_assigned_mix(user_id) {
         Ok(assigned) => assigned == Some(usize::from(mix_index)),
         Err(error) => {
-            warn!(user_id, mix_index, %error, "failed to read musician mix assignment");
+            warn!(%error, "failed to read musician mix assignment; denying access");
             false
         }
     }
