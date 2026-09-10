@@ -4,6 +4,32 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — Phase 30 Docker Compose development images
+
+**Phase:** 30 — local development packaging
+
+### Implementado
+
+- Adicionados `server/Dockerfile.dev`, `web/musician/Dockerfile.dev` e `web/engineer/Dockerfile.dev`.
+- Imagens usam toolchains oficiais, dependências instaladas durante build e servidores expostos nas portas documentadas.
+- Removido `target: api-server` obsoleto do Compose; imagem API agora usa estágio único.
+- Chaves JWT continuam montadas somente em runtime via `./keys` e HTTP inseguro permanece explicitamente restrito a desenvolvimento isolado.
+
+### Verificação
+
+- `docker compose config`: PASS; emite apenas aviso de atributo `version` obsoleto.
+- Workspace Rust: testes e clippy PASS.
+- Musician: 34 testes e build PASS.
+- Engineer: 2 testes e build PASS.
+- Build real das imagens Docker não executado nesta rodada: daemon Docker/chaves JWT locais não disponíveis para validação completa.
+- CI remoto continua bloqueado antes dos steps por `runner_id=0`.
+
+### Limitações
+
+Docker runtime, PipeWire, WebRTC media, ARM64 real no Raspberry Pi e release continuam não validados.
+
+---
+
 ## 2026-09-10 — Windows/Docker documentation audit
 
 **Phase:** documentation follow-up

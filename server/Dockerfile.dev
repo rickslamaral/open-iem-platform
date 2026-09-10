@@ -1,0 +1,13 @@
+# Development image only. Audio remains SIMULATED on VPS.
+FROM rust:1.89-bookworm
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends --yes curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+COPY . .
+RUN cargo build --package api-server
+
+EXPOSE 3000
+CMD ["cargo", "run", "--package", "api-server"]

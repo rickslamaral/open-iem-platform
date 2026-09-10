@@ -1,6 +1,6 @@
 # Open IEM Platform no Windows via Docker Desktop
 
-Guia de preparação para Windows 10/11. O repositório contém configuração Compose planejada, mas os três Dockerfiles referenciados atualmente não existem; portanto `docker compose up --build` está **BLOCKED** até esses arquivos serem adicionados. Use comandos nativos para validar software enquanto isso.
+Guia de preparação para Windows 10/11. O repositório contém Compose e Dockerfiles de desenvolvimento para API e UIs. `docker compose config` foi validado; build e startup completos dependem de Docker Desktop ativo e chaves JWT locais. Use somente em ambiente isolado.
 
 > **Limite:** Windows não valida servidor de áudio. PipeWire, ALSA, áudio real, WebRTC de mídia, latência, runtime ARM64 e Raspberry Pi continuam `SIMULATED` ou não validados. Use Raspberry Pi 5/Linux para validação de hardware.
 
@@ -67,7 +67,7 @@ Nunca faça commit de `keys/`. Nunca envie chaves privadas por chat ou GitHub.
 
 ## 4. Subir ambiente local
 
-**Estado atual: BLOCKED.** `docker-compose.yml` referencia `server/Dockerfile.dev`, `web/musician/Dockerfile.dev` e `web/engineer/Dockerfile.dev`, mas esses arquivos ainda não existem no repositório. Não há evidência de que o Compose suba nesta revisão.
+**Estado atual: configuração desbloqueada; runtime não validado.** Os três Dockerfiles existem e `docker compose config` passa. O build completo precisa de Docker Desktop ativo; esta rodada não validou startup dos containers.
 
 **Segurança:** configuração Compose usa `OPENIEM_BIND_ADDR=0.0.0.0:3000`, `OPENIEM_ALLOW_INSECURE_HTTP=true` e publica HTTP sem TLS. Isso serve somente para localhost ou LAN isolada. Não encaminhe porta 3000 à Internet nem use em produção; exposição externa exige Caddy/Nginx com TLS conforme `deployment/caddy/`.
 
@@ -91,7 +91,7 @@ docker compose up --build -d
 
 ## 5. Acessar interfaces
 
-**Disponibilidade atual: BLOCKED pelo Compose ausente.** URLs abaixo são os endpoints planejados em `docker-compose.yml`; não foram validados neste workspace.
+**Disponibilidade atual: não validada em runtime.** URLs abaixo são os endpoints definidos em `docker-compose.yml`; `docker compose config` passou, mas containers não foram iniciados nesta rodada.
 
 Abra no navegador Windows:
 
@@ -127,7 +127,7 @@ docker compose logs -f api-server
 
 ## 6. Fluxo de smoke test
 
-**Estado atual: não executável via Docker Compose**, pois os Dockerfiles estão ausentes. Após desbloqueio, o fluxo de controle planejado é:
+**Estado atual: fluxo definido, ainda não executado nesta rodada.** O smoke test abaixo valida somente plano de controle; o fluxo requer Docker Desktop ativo e chaves JWT locais:
 
 1. Inicie a stack e confirme `api-server` saudável.
 2. Crie usuário e atribua mix usando procedimento documentado do backend/admin CLI; Engineer UI não oferece criação administrativa completa.
@@ -225,12 +225,12 @@ Mantenha o projeto dentro do filesystem Linux do WSL, por exemplo `~/open-iem-pl
 
 | Capacidade | Windows + Docker Desktop |
 |---|---|
-| API REST | Planejado; Docker Compose BLOCKED |
-| JWT e autorização | Planejado; Docker Compose BLOCKED |
-| SQLite | Planejado; Docker Compose BLOCKED |
-| WebSocket e ressincronização | Planejado; Docker Compose BLOCKED |
-| Musician PWA | Planejado; Docker Compose BLOCKED |
-| Engineer UI | Planejado; Docker Compose BLOCKED |
+| API REST | Implementado; Docker runtime não validado nesta rodada |
+| JWT e autorização | Implementado; requer chaves runtime; Docker runtime não validado |
+| SQLite | Implementado; Docker runtime não validado nesta rodada |
+| WebSocket e ressincronização | Implementado; Docker runtime não validado nesta rodada |
+| Musician PWA | Implementado; Docker runtime não validado nesta rodada |
+| Engineer UI | Implementado; Docker runtime não validado nesta rodada |
 | PipeWire/ALSA | Não validado |
 | Áudio real | Não validado |
 | WebRTC media real | Não validado |

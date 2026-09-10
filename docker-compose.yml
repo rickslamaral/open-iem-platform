@@ -29,7 +29,6 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile.dev
-      target: api-server
     ports:
       - "3000:3000"
     environment:
