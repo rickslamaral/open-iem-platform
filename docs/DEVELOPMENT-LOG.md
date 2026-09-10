@@ -21,7 +21,7 @@ All significant milestones documented here in reverse chronological order.
 ### Limitações
 
 - Harness não cobre hardware, desempenho realtime ou stop/start.
-- CI remoto continua bloqueado antes dos steps. PR #40 permanece aberto; não há merge ou release.
+- CI remoto continua bloqueado antes dos steps. O novo run `34540976629` falhou em 8 jobs com `steps=[]`; PR #40 permanece aberto; não há merge ou release.
 
 ---
 
