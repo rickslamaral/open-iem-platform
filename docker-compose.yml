@@ -1,5 +1,3 @@
-version: "3.9"
-
 # Open IEM Platform — Local Development Compose
 #
 # TARGET: VPS / developer workstation. No audio hardware required.

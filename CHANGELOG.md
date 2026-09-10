@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Compose compatibility cleanup
+- Removed obsolete top-level `version` field from `docker-compose.yml`; modern Compose no longer emits the compatibility warning.
+- Compose remains development-only and runtime validation remains pending.
+
 ### Security — Phase 31 JWT post-issuance revocation (working tree only)
 - Added persistent access-session mappings tied to refresh sessions, with middleware validation of JWT ID, user, session, expiry, user existence and revocation state.
 - Fixed refresh failure rollback so it discards replacement state without resurrecting a concurrently revoked refresh session.

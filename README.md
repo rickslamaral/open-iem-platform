@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 31 — JWT post-issuance revocation + fail-closed follow-up**. Implementação e testes locais estão no working tree, ainda não commitados/mergeados; release permanece bloqueada por CI remoto.
+**Fase incremental atual: Phase 31 — JWT post-issuance revocation + fail-closed follow-up**. Implementação, remoção do campo Compose obsoleto e testes locais estão no working tree, ainda não commitados/mergeados; release permanece bloqueada por CI remoto.
 
 **Phase 31 — JWT post-issuance revocation + fail-closed follow-up** (local verification passes; CI blocked; not merged)
 

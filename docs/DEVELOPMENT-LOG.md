@@ -4,6 +4,23 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — Compose compatibility cleanup
+
+**Status:** local implementation, uncommitted/unmerged; CI blocked; not released.
+
+### Implementado
+
+- Removido campo top-level `version` obsoleto de `docker-compose.yml`.
+- README e CHANGELOG registram que Compose continua dev-only e sem runtime validado.
+
+### Verificação
+
+- `docker compose config`: PASS, sem aviso de atributo `version` obsoleto.
+- `git diff --check`: PASS.
+- Docker build/startup, PipeWire, WebRTC media e Raspberry Pi continuam não validados.
+
+---
+
 ## 2026-09-10 — Phase 31 follow-up — fail-closed rollback and snapshot baseline
 
 **Status:** local implementation, uncommitted/unmerged; CI blocked; not released.
