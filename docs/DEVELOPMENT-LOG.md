@@ -4,6 +4,32 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — WebSocket admission quotas
+
+**Phase:** 28 — WebSocket connection fairness
+
+### Implementado
+
+- Adicionadas quotas atômicas em memória para 64 conexões por processo, 4 por usuário autenticado e 16 por IP do peer TCP.
+- Reserva usa `ConnectInfo<SocketAddr>` e guarda RAII; descarte libera contadores mesmo em encerramento normal ou erro.
+- Quota global retorna HTTP 503; quota de usuário/IP retorna HTTP 429, sempre com `Retry-After: 5`.
+- `X-Forwarded-For` não é confiável e não é usado.
+- Testes unitários cobrem aceitação, rejeição, liberação, rollback e concorrência.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — suite completa.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+- Reviews independentes: PASS, sem blockers de segurança ou lógica.
+
+### Limitações
+
+Quota é local ao processo; múltiplas instâncias exigem coordenador compartilhado. Revogação pós-emissão de JWT, rate limit de tentativas inválidas, PipeWire, WebRTC real, runtime ARM64 no Raspberry Pi e CI remoto continuam pendentes/bloqueados.
+
+---
+
 ## 2026-09-10 — WebSocket keepalive loop timing coverage
 
 **Phase:** 27 — WebSocket resilience follow-up

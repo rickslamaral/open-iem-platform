@@ -4,10 +4,9 @@ use crate::{auth::JwtKeys, db::Db};
 use control_server::ControlState;
 use std::sync::{Arc, Mutex};
 use streaming::SessionRegistry;
-use tokio::sync::{broadcast, Mutex as AsyncMutex, Semaphore};
+use tokio::sync::{broadcast, Mutex as AsyncMutex};
 
-/// Maximum number of concurrently upgraded WebSocket connections per process.
-pub const MAX_WEBSOCKET_CONNECTIONS: usize = 64;
+pub use crate::quota::MAX_WEBSOCKET_CONNECTIONS;
 
 /// State-delta event broadcast to all connected WebSocket sessions after a
 /// send mutation (gain / pan / mute).  Each session filters by role and
@@ -66,8 +65,8 @@ pub struct AppState {
     pub event_tx: broadcast::Sender<SendDelta>,
     /// Broadcast channel for master mutations (gain / mute on the mix bus).
     pub master_event_tx: broadcast::Sender<MasterDelta>,
-    /// Global cap on upgraded WebSocket connections.
-    pub websocket_connections: Arc<Semaphore>,
+    /// Shared quotas for upgraded WebSocket connections.
+    pub websocket_connections: crate::quota::WebSocketQuota,
 }
 
 impl AppState {
@@ -85,7 +84,7 @@ impl AppState {
             mix_assignment_lock: Arc::new(AsyncMutex::new(())),
             event_tx,
             master_event_tx,
-            websocket_connections: Arc::new(Semaphore::new(MAX_WEBSOCKET_CONNECTIONS)),
+            websocket_connections: crate::quota::WebSocketQuota::default(),
         }
     }
 }

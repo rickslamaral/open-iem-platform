@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — WebSocket admission quotas
+- Added atomic in-process quotas of 4 upgraded connections per authenticated user and 16 per peer IP, alongside the global limit of 64.
+- Quota reservations use RAII release when WebSocket handlers end; quota rejections return HTTP 429 with `Retry-After: 5`.
+- Peer identity comes from `ConnectInfo<SocketAddr>`; forwarded headers are not trusted.
+
 ### Tests — WebSocket keepalive loop
 - Added deterministic paused-clock coverage for the 30-second Ping interval and 60-second Pong timeout boundary.
 

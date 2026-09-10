@@ -10,7 +10,9 @@
 //!   - Server shutdown
 //!
 //! The process accepts at most `MAX_WEBSOCKET_CONNECTIONS` upgraded connections;
-//! excess upgrades receive HTTP 503 with `Retry-After: 5`.
+//! each authenticated user is limited to four connections and each peer IP to
+//! sixteen connections; excess upgrades receive HTTP 503 or HTTP 429 with
+//! `Retry-After: 5`.
 //!
 //! ## Broadcast model
 //!
@@ -28,10 +30,12 @@
 
 use crate::{
     auth::JwtClaims,
+    quota::QuotaRejection,
     state::{AppState, MasterDelta, SendDelta},
 };
 use axum::{
     extract::{
+        connect_info::ConnectInfo,
         ws::{Message, WebSocket},
         Extension, State, WebSocketUpgrade,
     },
@@ -45,7 +49,6 @@ use std::{
     sync::atomic::{AtomicU64, Ordering},
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
-use tokio::sync::OwnedSemaphorePermit;
 use tokio::time::Instant;
 
 static NEXT_SESSION_ID: AtomicU64 = AtomicU64::new(1);
@@ -122,16 +125,39 @@ const MAX_WS_MESSAGE_BYTES: usize = MAX_MESSAGE_BYTES;
 /// Rejects with 401 if token is missing or invalid.
 pub async fn ws_handler(
     State(state): State<AppState>,
+    ConnectInfo(peer): ConnectInfo<std::net::SocketAddr>,
     ws: WebSocketUpgrade,
     Extension(claims): Extension<JwtClaims>,
 ) -> Response {
-    let Ok(permit) = state.websocket_connections.clone().try_acquire_owned() else {
-        return (
-            axum::http::StatusCode::SERVICE_UNAVAILABLE,
-            [(axum::http::header::RETRY_AFTER, "5")],
-            "WebSocket connection limit reached",
-        )
-            .into_response();
+    let permit = match state
+        .websocket_connections
+        .try_reserve(claims.user_id, peer.ip())
+    {
+        Ok(permit) => permit,
+        Err(QuotaRejection::Global) => {
+            return (
+                axum::http::StatusCode::SERVICE_UNAVAILABLE,
+                [(axum::http::header::RETRY_AFTER, "5")],
+                "WebSocket connection limit reached",
+            )
+                .into_response();
+        }
+        Err(QuotaRejection::User) => {
+            return (
+                axum::http::StatusCode::TOO_MANY_REQUESTS,
+                [(axum::http::header::RETRY_AFTER, "5")],
+                "WebSocket user connection limit reached",
+            )
+                .into_response();
+        }
+        Err(QuotaRejection::Ip) => {
+            return (
+                axum::http::StatusCode::TOO_MANY_REQUESTS,
+                [(axum::http::header::RETRY_AFTER, "5")],
+                "WebSocket IP connection limit reached",
+            )
+                .into_response();
+        }
     };
     ws.max_message_size(MAX_WS_MESSAGE_BYTES)
         .max_frame_size(MAX_WS_MESSAGE_BYTES)
@@ -151,7 +177,7 @@ async fn handle_socket(
     state: AppState,
     claims: JwtClaims,
     session_id: u128,
-    _connection_permit: OwnedSemaphorePermit,
+    _connection_permit: crate::quota::WebSocketQuotaGuard,
 ) {
     debug!(user = %claims.sub, role = ?claims.role, "WebSocket connected");
     let mut window_started = unix_now();

@@ -10,6 +10,7 @@ pub mod auth;
 pub mod db;
 pub mod error;
 pub mod middleware;
+pub mod quota;
 pub mod routes;
 pub mod security;
 pub mod state;

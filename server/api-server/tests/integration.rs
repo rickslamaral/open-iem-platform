@@ -31,7 +31,7 @@ use api_server::{
     ws::ws_handler,
 };
 use axum::{
-    extract::DefaultBodyLimit,
+    extract::{connect_info::ConnectInfo, DefaultBodyLimit},
     middleware,
     routing::{get, post, put},
     Router,
@@ -123,6 +123,10 @@ fn build_test_app() -> (TestServer, AppState) {
         .merge(protected)
         .merge(public)
         .with_state(state.clone())
+        .layer(axum::Extension(ConnectInfo(std::net::SocketAddr::from((
+            [127, 0, 0, 1],
+            8080,
+        )))))
         .layer(DefaultBodyLimit::max(16 * 1024))
         .layer(middleware::from_fn(validate_origin));
 
@@ -730,6 +734,10 @@ fn build_ws_app() -> (axum_test::TestServer, AppState) {
         .merge(protected)
         .merge(public)
         .with_state(state.clone())
+        .layer(axum::Extension(ConnectInfo(std::net::SocketAddr::from((
+            [127, 0, 0, 1],
+            8080,
+        )))))
         .layer(DefaultBodyLimit::max(16 * 1024))
         .layer(middleware::from_fn(validate_origin));
 
