@@ -33,6 +33,9 @@ pub struct JwtClaims {
     pub role: Role,
     /// JWT ID (unique per token — for revocation).
     pub jti: String,
+    /// Refresh-token session ID associated with access token.
+    #[serde(default)]
+    pub session_id: Option<i64>,
     /// Issuer.
     pub iss: String,
     /// Audience.
@@ -75,12 +78,28 @@ impl JwtKeys {
         role: Role,
         jti: &str,
     ) -> Result<String, ApiError> {
+        self.issue_with_session(username, user_id, role, jti, None)
+    }
+
+    /// Issue access token with persistent refresh session association.
+    ///
+    /// # Errors
+    /// Returns `ApiError::Internal` if signing fails.
+    pub fn issue_with_session(
+        &self,
+        username: &str,
+        user_id: i64,
+        role: Role,
+        jti: &str,
+        session_id: Option<i64>,
+    ) -> Result<String, ApiError> {
         let now = unix_now();
         let claims = JwtClaims {
             sub: username.to_owned(),
             user_id,
             role,
             jti: jti.to_owned(),
+            session_id,
             iss: JWT_ISSUER.to_owned(),
             aud: JWT_AUDIENCE.to_owned(),
             iat: now,

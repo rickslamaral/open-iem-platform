@@ -201,7 +201,7 @@ Custom binary protocol over UDP: minimal header (sequence number, timestamp, mix
 
 **Assessment:**
 - Maximum control, maximum implementation burden.
-- Appropriate only for dedicated hardware receivers (future ESP32 receiver).
+- Appropriate only for a future dedicated receiver when measured requirements justify it.
 - Not suitable for phone/browser clients.
 
 ---
@@ -241,9 +241,9 @@ Phase 1 does NOT include audio transport. Focus: local mix engine only.
 4. `webrtc.rs` crate is production-ready for Rust servers.
 5. iOS + Android both supported natively via WebRTC library.
 
-**Secondary: RTP/UDP** for dedicated hardware receivers (ESP32, future Phase 10).
+**Secondary: RTP/UDP** for a future dedicated receiver only when measured requirements justify it.
 
-**Tertiary: Custom UDP** for ESP32 if RTP overhead is problematic on constrained hardware.
+**Tertiary: Custom UDP** only if a future dedicated receiver has measured constraints that make RTP unsuitable.
 
 **Reject for now: WebTransport** — iOS/Safari support incomplete; adds TLS complexity without a media stack; re-evaluate in Phase 5 when browser support matures.
 

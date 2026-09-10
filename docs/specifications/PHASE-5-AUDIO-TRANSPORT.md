@@ -27,7 +27,7 @@ WebRTC, WebTransport/QUIC, Custom UDP) and recommended:
 
 - **Primary:** WebRTC — sole standard that allows a PWA on Android/iOS to
   receive audio without a native app.
-- **Secondary:** RTP/UDP — for dedicated hardware receivers (ESP32, Phase 10).
+- **Secondary:** RTP/UDP — somente para receiver dedicado futuro, caso requisito técnico medido justifique essa arquitetura.
 
 ### 2.2 VPS environment (Phase 5)
 The VPS has no PipeWire. All audio processing is **SIMULATED**. The transport
@@ -42,7 +42,7 @@ flows after Pi integration (Phase 9+).
 - Real PipeWire audio capture (Phase 9)
 - Actual Opus encoding (Phase 7 DSP / Phase 9 pipeline)
 - Multi-peer SFU scheduling (Phase 8)
-- ESP32 RTP path (Phase 10)
+- Receiver dedicado ou transporte alternativo sem justificativa técnica medida
 
 ---
 

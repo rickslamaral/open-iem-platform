@@ -7,7 +7,7 @@ Accepted
 Open IEM Platform needs a host OS. The product targets live sound engineers who need a cost-effective, reliable audio server for stage use.
 
 ## Decision
-Linux (ARM64 and x86_64) is the only supported server platform.
+Linux ARM64/x86_64 is the only currently validated server platform. Windows x64 and Raspberry Pi 5 ARM64 remain project targets, not validated support claims, until native audio/runtime validation completes.
 
 Reference hardware: Raspberry Pi 5 (ARM64).
 Alternative hardware: Intel N100/N150, other x86_64 mini PCs.
@@ -27,7 +27,7 @@ Alternative hardware: Intel N100/N150, other x86_64 mini PCs.
 - ARM64 + x86_64 covers all likely deployment scenarios
 
 **Negative:**
-- No macOS or Windows support (by design — not a gap)
+- macOS remains future/backlog; Windows target remains unvalidated until a native backend exists
 - Cross-compilation required for ARM64 builds on x86_64 CI
 
 ## Constraints

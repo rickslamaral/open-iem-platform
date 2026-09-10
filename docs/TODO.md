@@ -6,7 +6,22 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## BLOCKER
 
-- None currently.
+- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — sem CI remoto não há release `v0.3.1`.
+
+## READY / CURRENT PHASE
+
+- [x] P1 — JWT pós-emissão revogável — Phase 31 — access-session mappings checked by middleware and WebSocket message/keepalive loops; local verification passes, CI remains blocked.
+
+- [x] P1 — Corrigir Docker Compose dev — Phase 30 — Dockerfiles de desenvolvimento adicionados para API e UIs; `docker compose config` passa. Build completo depende de chaves JWT locais e daemon Docker disponível.
+- [ ] P1 — Implementar CLI `iem` com paridade documentada ao Makefile — status NOT STARTED — depende de definir binário/instalação oficial.
+- [ ] P1 — Criar harness de áudio determinístico — status READY — cobre sinais sintéticos, isolamento, ganho, pan, mute, limiter e recuperação; não substitui hardware.
+- [ ] P1 — Criar matriz formal de validação Docker/Linux/Raspberry Pi — status READY — depende de hardware Raspberry Pi 5.
+- [ ] P1 — Adicionar sincronização de observabilidade ao desenvolvimento — status READY — métricas não implementadas devem permanecer `UNKNOWN`, não fake.
+
+## BLOCKED / VALIDATION REQUIRED
+
+- [ ] P0 — Validar PipeWire/ALSA e áudio real no Raspberry Pi 5 — status HARDWARE VALIDATION REQUIRED.
+- [ ] P0 — Validar mídia WebRTC, latência, jitter, perda e recuperação — status HARDWARE VALIDATION REQUIRED.
 
 ---
 
@@ -48,6 +63,20 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [ ] Set up code coverage reporting
 - [x] LOW: Log DB errors in master broadcast fan-out (fail-closed and observable)
 - [ ] LOW: mix_assignment_lock held during DB read in broadcast fan-out — may contend under load; evaluate read-only lookup without lock
+- [x] LOW: Test DB failure during musician WebSocket ownership lookup — fail-closed coverage added Phase 24
+- [x] WebSocket keepalive: server Ping/Pong timeout and bounded socket sends — Phase 24 (policy timing covered; transport timing integration remains pending)
+- [x] LOW: WebSocket keepalive: add deterministic state-machine coverage without waiting 30/60 seconds — tracker e loop cobrem timeout pendente, Pong incorreto, Pong correlacionado, ausência de falso timeout após Pong válido e fronteiras do intervalo 30 s/timeout 60 s
+- [x] LOW: Aplicar limite de 16 KiB em mensagem/frame no `WebSocketUpgrade`, antes da alocação do payload — Phase 26 follow-up
+- [x] LOW: Testar rejeição de frame/mensagem acima de 16 KiB via integração WebSocket — teste de transporte confirma encerramento para mensagem Text acima do limite (Phase 26 follow-up)
+- [x] LOW: WebSocket: revogação pós-emissão de JWT — Phase 31; middleware, keepalive e mensagens revalidam access-session mapping persistido
+- [x] LOW: WebSocket: quotas agregadas por usuário/IP — 4 por usuário, 16 por IP, 64 global; reserva atômica e liberação RAII (Phase 28)
+- [x] HIGH: Limitar falhas de autenticação `/ws/v1` por IP — 5 falhas por janela de 60 s; estado bounded em memória, peer via `ConnectInfo<SocketAddr>` (Phase 29)
+- [x] LOW: WebSocket: ressincronização após broadcast lag — servidor emite `State` com revisão autoritativa; Musician refaz snapshot REST (Phase 27); revisão monotônica cobre ACK antes do primeiro snapshot
+- [x] LOW: WebSocket protocol control coverage: client Ping/Pong payload preservation and binary-frame rejection (Phase 24 follow-up)
+- [x] LOW: WebSocket rate quota counts every inbound frame, including control frames, preventing Ping/Pong flood bypass (Phase 24 follow-up)
+- [x] MEDIUM: Enforce process-wide WebSocket connection quota (64 permits); per-user/IP quotas and post-issuance JWT revocation checks implemented in Phases 28/31
+- [x] LOW: Add explicit WebSocket logging redaction policy and generic client-facing protocol errors — Phase 25; parser/transport details redacted, normal close classified separately
+- [x] LOW: Preserve validated WebSocket `request_id` in authorization errors — Phase 26; invalid envelopes use synthetic `server`
 
 ---
 
@@ -55,10 +84,11 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] **Audio Transport** — Preliminary evaluation complete (docs/research/audio-transport/EVALUATION.md); WebRTC selected as primary; final benchmarks deferred to Phase 5
 - [ ] **Browser Audio Constraint** — Verify what browsers can receive (WebRTC vs native receiver architecture)
-- [ ] **ESP32-S3 / ESP32-P4** — I2S, DAC, Wi-Fi, latency, power budget (Phase 10)
 - [x] **PipeWire filter node API** — pipewire-jack selected for Phase 1 (docs/research/pipewire-integration.md)
 - [ ] **Raspberry Pi 5 realtime tuning** — PREEMPT_RT kernel, PipeWire latency config, USB audio device selection
 - [ ] **JPMixer architecture** — Study WebSocket/scene/mix model as UX reference (verify license before using code)
+- [ ] **Windows x64 audio backend** — Implement and validate WASAPI/ASIO backend; current server backend is not native Windows audio.
+- [ ] **Platform validation matrix** — Keep Windows x64, Linux x64 and Raspberry Pi 5 ARM64 evidence separate; macOS, Android and iPadOS remain future/backlog.
 - [x] **Linux realtime scheduling** — PipeWire+rtkit for Phase 1; hybrid in Phase 2 (docs/research/realtime-scheduling.md)
 
 ---
@@ -67,7 +97,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] HIGH: Add HTTPS/TLS listener and fail-closed transport configuration — **DONE Phase 22** (Caddy config, systemd, RPi5 guide, ADR-011)
 - [x] HIGH: Authorize every WebSocket message by role and musician mix ownership (Phase 23 — SetMasterGain/SetMasterMute RBAC complete; all WS messages now have explicit role checks)
-- [x] HIGH: Enforce WebSocket expiry and rate limits; revocation remains bounded by JWT TTL
+- [x] HIGH: Enforce WebSocket expiry, rate limits and post-issuance revocation through persistent access-session mappings (Phase 31); revocation is checked on handshake, messages and keepalive ticks
 - [x] HIGH: Make refresh rotation atomic in one SQLite transaction
 - [x] MEDIUM: Add Origin/CSRF validation and bounded auth request inputs
 - [x] MEDIUM: Bound HTTP request body to 16 KiB; route payload validation remains pending
@@ -144,7 +174,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Musician mix ownership filtering for broadcasts
 - [x] Assignment lock coordination and integration coverage
 - [x] Independent security/code review; findings fixed
-- [ ] Add client-side revision ordering/reconciliation for missed or lagged broadcasts
+- [x] Add client-side revision ordering/reconciliation for missed or lagged broadcasts — Phase 27; stale revisions ignored and lagged snapshots reconciled
 
 ## COMPLETED
 
@@ -189,7 +219,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Workspace version bumped to 0.2.0; admin-cli aligned to workspace
 - [ ] Tag v0.2.0 and verify full pipeline on GitHub Actions
 - [x] Investigate `v0.3.0` release gate failure; tag points to pre-sync commit
-- [ ] Publish `v0.3.1` and verify full pipeline on GitHub Actions — CI remoto falha antes dos steps; logs bloqueados por permissão do token atual
+- [ ] Publish `v0.3.1` and verify full pipeline on GitHub Actions — código local validado; CI remoto falha antes dos steps; logs bloqueados por permissão do token atual
 - [ ] Validate ARM64 binary on real Raspberry Pi 5 hardware
 - [x] Dependabot for Cargo + npm
 

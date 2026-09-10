@@ -6,6 +6,8 @@ use std::sync::{Arc, Mutex};
 use streaming::SessionRegistry;
 use tokio::sync::{broadcast, Mutex as AsyncMutex};
 
+pub use crate::quota::MAX_WEBSOCKET_CONNECTIONS;
+
 /// State-delta event broadcast to all connected WebSocket sessions after a
 /// send mutation (gain / pan / mute).  Each session filters by role and
 /// mix ownership before forwarding to the client.
@@ -63,6 +65,10 @@ pub struct AppState {
     pub event_tx: broadcast::Sender<SendDelta>,
     /// Broadcast channel for master mutations (gain / mute on the mix bus).
     pub master_event_tx: broadcast::Sender<MasterDelta>,
+    /// Shared quotas for upgraded WebSocket connections.
+    pub websocket_connections: crate::quota::WebSocketQuota,
+    /// Bounded failed-authentication limiter for WebSocket upgrades.
+    pub websocket_auth_failures: crate::quota::WebSocketAuthFailureLimiter,
 }
 
 impl AppState {
@@ -80,6 +86,8 @@ impl AppState {
             mix_assignment_lock: Arc::new(AsyncMutex::new(())),
             event_tx,
             master_event_tx,
+            websocket_connections: crate::quota::WebSocketQuota::default(),
+            websocket_auth_failures: crate::quota::WebSocketAuthFailureLimiter::default(),
         }
     }
 }

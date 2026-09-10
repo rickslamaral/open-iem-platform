@@ -8,7 +8,7 @@
 //! no sensitive information (test-only, never used for real tokens).
 
 use api_server::{
-    auth::{hash_password, JwtKeys},
+    auth::{generate_refresh_token, hash_password, token_to_storage_key, JwtKeys},
     db::Db,
     middleware::jwt_auth,
     routes::{
@@ -31,12 +31,13 @@ use api_server::{
     ws::ws_handler,
 };
 use axum::{
-    extract::DefaultBodyLimit,
+    extract::{connect_info::ConnectInfo, DefaultBodyLimit},
     middleware,
     routing::{get, post, put},
     Router,
 };
-use axum_test::TestServer;
+use axum_test::{TestServer, WsMessage};
+use bytes::Bytes;
 use control_protocol::Role;
 use control_server::ControlState;
 use mix_engine::Mix;
@@ -122,6 +123,10 @@ fn build_test_app() -> (TestServer, AppState) {
         .merge(protected)
         .merge(public)
         .with_state(state.clone())
+        .layer(axum::Extension(ConnectInfo(std::net::SocketAddr::from((
+            [127, 0, 0, 1],
+            8080,
+        )))))
         .layer(DefaultBodyLimit::max(16 * 1024))
         .layer(middleware::from_fn(validate_origin));
 
@@ -137,11 +142,23 @@ fn seed_user_and_login(state: &AppState, username: &str, password: &str, role: R
         .create_user(username, &pw_hash, role)
         .expect("create user must succeed");
     let (user_id, _, _) = state.db.find_user(username).expect("user must exist");
-    // Issue a token directly to avoid HTTP round-trip for token-endpoint tests;
-    // For login-route tests we POST to /api/v1/auth/login instead.
+    // Issue token directly, while preserving persistent session association.
+    let jti = uuid::Uuid::new_v4().to_string();
+    let raw_refresh = generate_refresh_token();
+    let session_id = state
+        .db
+        .create_session_with_access(
+            user_id,
+            &token_to_storage_key(&raw_refresh),
+            4_000_000_000,
+            &uuid::Uuid::new_v4().to_string(),
+            &jti,
+            4_000_000_000,
+        )
+        .expect("session must be created");
     state
         .jwt
-        .issue(username, user_id, role, &uuid::Uuid::new_v4().to_string())
+        .issue_with_session(username, user_id, role, &jti, Some(session_id))
         .expect("token must be issued")
 }
 
@@ -175,6 +192,59 @@ async fn login_with_valid_credentials_returns_200() {
     resp.assert_status_ok();
     let body: Value = resp.json();
     assert!(body["access_token"].is_string());
+}
+
+#[tokio::test]
+async fn refresh_replay_revokes_replacement_access_token() {
+    let (server, state) = build_test_app();
+    let pw_hash = hash_password("pass123").expect("hash");
+    state
+        .db
+        .create_user("refresh_replay", &pw_hash, Role::Musician)
+        .expect("create user");
+
+    let login_response = server
+        .post("/api/v1/auth/login")
+        .add_header("Origin", "http://localhost")
+        .json(&json!({"username": "refresh_replay", "password": "pass123"}))
+        .await;
+    login_response.assert_status_ok();
+    let cookie = login_response
+        .headers()
+        .get("set-cookie")
+        .expect("login must set refresh cookie")
+        .to_str()
+        .expect("cookie must be valid header")
+        .split(';')
+        .next()
+        .expect("cookie pair must exist")
+        .to_owned();
+
+    let refresh_response = server
+        .post("/api/v1/auth/refresh")
+        .add_header("Origin", "http://localhost")
+        .add_header("Cookie", cookie.clone())
+        .await;
+    refresh_response.assert_status_ok();
+    let replacement_access: Value = refresh_response.json();
+    let replacement_access = replacement_access["access_token"]
+        .as_str()
+        .expect("refresh must return access token")
+        .to_owned();
+
+    let replay_response = server
+        .post("/api/v1/auth/refresh")
+        .add_header("Origin", "http://localhost")
+        .add_header("Cookie", cookie)
+        .await;
+    replay_response.assert_status(axum::http::StatusCode::UNAUTHORIZED);
+
+    server
+        .get("/api/v1/state")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(replacement_access)
+        .await
+        .assert_status(axum::http::StatusCode::UNAUTHORIZED);
 }
 
 #[tokio::test]
@@ -653,6 +723,121 @@ async fn admin_revoke_session_by_id_returns_204() {
     assert!(!after.iter().any(|(id, _, _)| *id == session_id));
 }
 
+// ── Phase 31: post-issuance revocation ───────────────────────────────────────
+
+#[tokio::test]
+async fn refresh_rotation_invalidates_old_access_mapping() {
+    let (_server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "phase31_rotation", "pw", Role::Engineer);
+    let old_claims = state.jwt.verify(&token).expect("old token must verify");
+    let old_refresh = generate_refresh_token();
+    let old_hash = token_to_storage_key(&old_refresh);
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .expect("clock must be after epoch")
+        .as_secs();
+    let (user_id, _, _) = state.db.find_user("phase31_rotation").unwrap();
+    let old_session_id = state
+        .db
+        .create_session_with_access(
+            user_id,
+            &old_hash,
+            now + 3600,
+            "phase31-family",
+            "phase31-old-jti",
+            now + 3600,
+        )
+        .unwrap();
+    assert!(state
+        .db
+        .is_access_session_active("phase31-old-jti", user_id, old_session_id, now)
+        .unwrap());
+
+    let new_hash = token_to_storage_key(&generate_refresh_token());
+    let (rotated_user_id, _, new_session_id) = state
+        .db
+        .rotate_refresh_token_with_access_id(
+            &old_hash,
+            &new_hash,
+            now + 3600,
+            now,
+            Some("phase31-new-jti"),
+            Some(now + 3600),
+        )
+        .unwrap();
+
+    assert_eq!(rotated_user_id, user_id);
+    assert_eq!(old_claims.user_id, user_id);
+    assert!(!state
+        .db
+        .is_access_session_active("phase31-old-jti", user_id, old_session_id, now)
+        .unwrap());
+    assert!(state
+        .db
+        .is_access_session_active("phase31-new-jti", user_id, new_session_id, now)
+        .unwrap());
+}
+
+#[tokio::test]
+async fn session_revoke_invalidates_access_middleware_mapping() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "phase31_session", "pw", Role::Engineer);
+    let claims = state.jwt.verify(&token).unwrap();
+    state
+        .db
+        .revoke_session_by_id(claims.session_id.unwrap())
+        .unwrap();
+
+    let response = server
+        .get("/api/v1/state")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await;
+    response.assert_status(axum::http::StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn user_deletion_invalidates_access_middleware_mapping() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "phase31_deleted", "pw", Role::Engineer);
+    let claims = state.jwt.verify(&token).unwrap();
+    state.db.delete_user_with_sessions(claims.user_id).unwrap();
+
+    let response = server
+        .get("/api/v1/state")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&token)
+        .await;
+    response.assert_status(axum::http::StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn established_websocket_rejects_message_after_session_revocation() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "phase31_ws", "pw", Role::Engineer);
+    let claims = state.jwt.verify(&token).unwrap();
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    state
+        .db
+        .revoke_session_by_id(claims.session_id.unwrap())
+        .unwrap();
+    ws.send_message(WsMessage::Text(ws_envelope("GetState", json!({})).into()))
+        .await;
+    let response: Value = ws.receive_json().await;
+    assert_eq!(response["payload"]["type"], "Error");
+    assert_eq!(response["payload"]["data"]["code"], "SESSION_REVOKED");
+}
+
 // ── WebSocket: send mutations ────────────────────────────────────────────────
 //
 // These tests exercise the ws_handler through axum-test's HTTP transport,
@@ -729,6 +914,10 @@ fn build_ws_app() -> (axum_test::TestServer, AppState) {
         .merge(protected)
         .merge(public)
         .with_state(state.clone())
+        .layer(axum::Extension(ConnectInfo(std::net::SocketAddr::from((
+            [127, 0, 0, 1],
+            8080,
+        )))))
         .layer(DefaultBodyLimit::max(16 * 1024))
         .layer(middleware::from_fn(validate_origin));
 
@@ -749,6 +938,89 @@ fn ws_envelope(msg_type: &str, data: Value) -> String {
         }
     }))
     .unwrap()
+}
+
+#[tokio::test]
+async fn ws_binary_frame_returns_protocol_error_and_closes() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_ws_binary", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_message(WsMessage::Binary(Bytes::from_static(b"invalid")))
+        .await;
+    let response: Value = ws.receive_json().await;
+    assert_eq!(response["payload"]["type"], "Error");
+    assert_eq!(response["payload"]["data"]["code"], "INVALID_MESSAGE");
+}
+
+#[tokio::test]
+async fn ws_oversized_text_message_is_rejected_by_upgrade_limit() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_ws_oversized", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    let oversized = "x".repeat(16 * 1024 + 1);
+    ws.send_message(WsMessage::Text(oversized.into())).await;
+
+    let receive = tokio::spawn(async move { ws.receive_message().await });
+    let panic = receive
+        .await
+        .expect_err("oversized message must terminate WebSocket transport");
+    assert!(panic.is_panic());
+    let panic_message = panic.into_panic();
+    let panic_message = panic_message
+        .downcast_ref::<String>()
+        .map(String::as_str)
+        .or_else(|| panic_message.downcast_ref::<&str>().copied())
+        .unwrap_or_default();
+    assert!(
+        panic_message.contains("Connection reset without closing handshake"),
+        "unexpected WebSocket rejection: {panic_message}"
+    );
+}
+
+#[tokio::test]
+async fn ws_client_ping_receives_matching_pong() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_ws_ping", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    let payload = Bytes::from_static(b"keepalive-test");
+    ws.send_message(WsMessage::Ping(payload.clone())).await;
+    match ws.receive_message().await {
+        WsMessage::Pong(received) => assert_eq!(received, payload),
+        other => panic!("expected Pong, got {other:?}"),
+    }
 }
 
 #[tokio::test]
@@ -838,6 +1110,36 @@ async fn ws_engineer_set_send_muted_returns_send_ack() {
 }
 
 #[tokio::test]
+async fn ws_musician_db_failure_denies_set_send_gain() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "mus_ws_db_failure", "pw", Role::Musician);
+    // Drop ownership table after authentication. Lookup now returns DB error;
+    // authorization must fail closed rather than allowing the mutation.
+    state.db.drop_mix_assignments_table_for_test().unwrap();
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetSendGain",
+        json!({"mix_index": 0, "channel_index": 0, "gain_db": 0.0}),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "Error");
+    assert_eq!(resp["payload"]["data"]["code"], "FORBIDDEN");
+}
+
+#[tokio::test]
 async fn ws_musician_denied_set_send_gain_on_unassigned_mix() {
     let (server, state) = build_ws_app();
     let token = seed_user_and_login(&state, "mus_ws1", "pw", Role::Musician);
@@ -863,6 +1165,7 @@ async fn ws_musician_denied_set_send_gain_on_unassigned_mix() {
     let resp: Value = ws.receive_json().await;
     assert_eq!(resp["payload"]["type"], "Error");
     assert_eq!(resp["payload"]["data"]["code"], "FORBIDDEN");
+    assert_eq!(resp["request_id"], "test-req-1");
 }
 
 #[tokio::test]
@@ -990,6 +1293,17 @@ async fn ws_send_mutation_broadcasts_to_other_sessions() {
         .await
         .into_websocket()
         .await;
+
+    // Prove observer handler reached its receive loop. Subscription happens
+    // before that loop, so this removes handshake/task-scheduling ambiguity.
+    observer
+        .send_text(ws_envelope(
+            "SetSendGain",
+            json!({"mix_index": 0, "channel_index": 1, "gain_db": 999.0}),
+        ))
+        .await;
+    let observer_ready: Value = observer.receive_json().await;
+    assert_eq!(observer_ready["payload"]["type"], "Error");
 
     // Mutator changes gain on mix 0, channel 1.
     mutator
@@ -1184,6 +1498,16 @@ async fn ws_master_mutation_broadcasts_to_other_sessions() {
         .await
         .into_websocket()
         .await;
+
+    // Prove observer handler reached its receive loop before mutation.
+    observer
+        .send_text(ws_envelope(
+            "SetMasterGain",
+            json!({"mix_index": 0, "gain_db": 999.0}),
+        ))
+        .await;
+    let observer_ready: Value = observer.receive_json().await;
+    assert_eq!(observer_ready["payload"]["type"], "Error");
 
     mutator
         .send_text(ws_envelope(

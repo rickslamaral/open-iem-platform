@@ -6,6 +6,97 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 31 JWT post-issuance revocation (working tree only)
+- Added persistent access-session mappings tied to refresh sessions, with middleware validation of JWT ID, user, session, expiry, user existence and revocation state.
+- Fixed refresh failure rollback so it discards replacement state without resurrecting a concurrently revoked refresh session.
+- Resolved refresh owner before rotation, preventing a missing user lookup from consuming a valid refresh token.
+- Redacted internal error details from HTTP response bodies.
+- Musician client now retains delayed REST snapshot as baseline when WebSocket revision already advanced before initial snapshot.
+- Refresh rotation revokes old access mappings; logout, admin session revoke, replay detection and user deletion invalidate related access mappings.
+- Established WebSocket connections re-check access-session state on inbound messages and keepalive ticks, returning `SESSION_REVOKED` before closing.
+- Local verification: `cargo fmt --all -- --check`, `cargo test -p api-server --test integration` (57 passed), and `cargo clippy -p api-server --all-targets -- -D warnings` pass. Workspace test/clippy are blocked by missing `jack.pc`; CI remains blocked and changes are not merged or released.
+
+### Changed — Phase 30 Docker Compose development
+- Added development Dockerfiles for `api-server`, Musician PWA and Engineer UI.
+- Removed stale Compose build target that did not exist in the development image.
+- Compose remains development-only: HTTP is explicitly insecure, JWT keys are runtime-mounted, and audio is SIMULATED.
+
+### Documentation
+- Added `docs/guides/WINDOWS-DOCKER-GUIDE.md` with Windows 10/11 + Docker Desktop prerequisites, JWT key generation, planned local smoke test, cleanup, troubleshooting and explicit audio validation limits.
+- Documented Compose as development-only; Docker runtime and Windows support remain unvalidated, with no runtime support claim.
+
+### Security — Failed WebSocket authentication limiting
+- Added bounded in-process per-peer-IP limiting for failed `/ws/v1` authentication: 5 failures per 60-second window and at most 4,096 retained IP entries.
+- Successful authenticated WebSocket upgrades do not consume failure budget; peer IP comes only from `ConnectInfo<SocketAddr>`.
+- Blocked attempts return HTTP 429 with `Retry-After: 5`.
+
+### Security — WebSocket admission quotas
+- Added atomic in-process quotas of 4 upgraded connections per authenticated user and 16 per peer IP, alongside the global limit of 64.
+- Quota reservations use RAII release when WebSocket handlers end; quota rejections return HTTP 429 with `Retry-After: 5`.
+- Peer identity comes from `ConnectInfo<SocketAddr>`; forwarded headers are not trusted.
+
+### Tests — WebSocket keepalive loop
+- Added deterministic paused-clock coverage for the 30-second Ping interval and 60-second Pong timeout boundary.
+
+### Fixed — WebSocket state recovery race
+- Musician now records accepted revisions before applying ACK state, preventing a delayed initial REST snapshot from regressing the revision observed over WebSocket.
+
+### Fixed — WebSocket state recovery
+- Broadcast lag now emits an authoritative `State` revision notice; Musician refetches authenticated REST snapshot to recover missed deltas.
+- Musician client now validates and applies `MasterAck` broadcasts to its local mix snapshot.
+
+### Tests — WebSocket frame limits
+- Added integration coverage proving oversized Text messages terminate transport before application parsing.
+
+### Security — WebSocket frame limits
+- Applied the 16 KiB protocol limit during WebSocket upgrade for both messages and frames, preventing oversized payload allocation before application validation.
+
+### Fixed — WebSocket keepalive state machine
+- Keepalive timeout now applies only while a Pong challenge is outstanding; a valid Pong cannot cause a later false timeout before the next Ping.
+
+### Security — WebSocket keepalive challenge correlation
+- Server now accepts Pong for liveness only when payload matches outstanding server Ping; unsolicited or stale Pong frames cannot bypass timeout.
+
+### Changed — WebSocket error correlation
+- Errors returned after successful envelope validation preserve originating `request_id`; parser failures continue using `server`.
+
+### Security — WebSocket error redaction
+- WebSocket protocol failures now expose stable generic codes/messages; parser and transport details stay server-side.
+- Normal peer closes and receive failures no longer masquerade as JWT expiration.
+
+### Security — WebSocket connection cap
+- Added a process-wide semaphore limiting upgraded WebSocket connections to 64; excess upgrades return HTTP 503 with `Retry-After: 5`.
+
+### Changed — WebSocket keepalive
+- Extracted keepalive intervals and timeout into named policy constants; added boundary unit tests for timeout evaluation.
+
+### Added — Local developer interface
+- Added root `Makefile` with documented build, test, lint, docs, validation, diagnostics and lifecycle targets.
+- Added `scripts/validate-environment.sh` with explicit `OK`, `OPTIONAL`, `SIMULATED` and `HARDWARE VALIDATION REQUIRED` states.
+
+### Changed — Engineering contract
+- Extended `START.md` with CI diagnostics, release blocking, recovery, hardware validation, traceability, audio test harness and architecture fitness requirements.
+- Clarified `make run-local` as local API execution with simulated audio; it does not bypass server configuration.
+- Docker Compose diagnostics now verify the Compose plugin or standalone executable instead of inferring support from Docker alone.
+
+### Security — WebSocket protocol
+- Binary WebSocket frames now receive `INVALID_MESSAGE` and close the connection instead of being silently discarded.
+
+### Added — Phase 24 WebSocket resilience
+- Added integration coverage for client Ping/Pong payload preservation and binary-frame rejection.
+- WebSocket rate limiting counts every inbound frame, including control frames, preventing Ping/Pong floods from bypassing the per-connection quota.
+- Added fail-closed integration coverage when the musician ownership database lookup fails.
+- Added server-initiated WebSocket Ping every 30 seconds and `CONNECTION_TIMEOUT` after 60 seconds without Pong.
+- Bounded every WebSocket send operation to 10 seconds, preventing stalled clients from retaining handler tasks indefinitely.
+
+### Fixed — Phase 24 audit follow-up
+- Stabilized WebSocket broadcast integration tests by yielding after observer handshake, preventing scheduler-dependent false failures.
+- Confirmed local Rust workspace and both frontend quality gates pass; real PipeWire, WebRTC media and Raspberry Pi ARM64 runtime remain unvalidated.
+
+### CI — Phase 24
+- ARM64 cross-compilation configuration already contains the Rust target, cross-linker package and linker environment; no workflow change required.
+- GitHub-hosted CI remains blocked before steps execute because runners are not allocated; local gates are the verified result.
+
 ### Fixed — Phase 23 follow-up
 - WebSocket ownership lookup now logs database failures and denies forwarding/mutation instead of silently collapsing errors to `None`.
 

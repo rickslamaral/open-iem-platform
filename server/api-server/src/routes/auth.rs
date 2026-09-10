@@ -100,15 +100,32 @@ pub async fn login(
     verify_password(&body.password, &pw_hash)?;
 
     let jti = Uuid::new_v4().to_string();
-    let access = state.jwt.issue(&body.username, user_id, role, &jti)?;
-
     let raw_refresh = generate_refresh_token();
     let family = Uuid::new_v4().to_string();
-    let expires_at = unix_now() + REFRESH_TOKEN_TTL_S;
+    let now = unix_now();
+    let expires_at = now + REFRESH_TOKEN_TTL_S;
     let token_hash = token_to_storage_key(&raw_refresh);
-    state
-        .db
-        .store_refresh_token(user_id, &token_hash, expires_at, &family)?;
+    let session_id = state.db.create_session_with_access(
+        user_id,
+        &token_hash,
+        expires_at,
+        &family,
+        &jti,
+        now + crate::auth::ACCESS_TOKEN_TTL_S,
+    )?;
+    let access =
+        match state
+            .jwt
+            .issue_with_session(&body.username, user_id, role, &jti, Some(session_id))
+        {
+            Ok(access) => access,
+            Err(error) => {
+                state
+                    .db
+                    .cleanup_session_after_signing_failure(&token_hash, &jti)?;
+                return Err(error);
+            }
+        };
 
     Ok((
         StatusCode::OK,
@@ -155,17 +172,35 @@ pub async fn refresh(
 
     let now = unix_now();
     let token_hash = token_to_storage_key(raw_refresh);
-    let user_id = state.db.refresh_token_user(&token_hash, now)?;
+    // Resolve owner before rotation. A post-rotation lookup failure would
+    // consume the refresh token without a usable replacement.
+    let user_id = state.db.refresh_token_owner(&token_hash)?;
     let (username, role) = state.db.find_user_by_id(user_id)?;
     let jti = Uuid::new_v4().to_string();
-    let access = state.jwt.issue(&username, user_id, role, &jti)?;
     let raw_new_refresh = generate_refresh_token();
     let expires_at = now + REFRESH_TOKEN_TTL_S;
     let new_token_hash = token_to_storage_key(&raw_new_refresh);
-    let (_rotated_user_id, _family) =
-        state
-            .db
-            .rotate_refresh_token(&token_hash, &new_token_hash, expires_at, now)?;
+    let (_, _, new_session_id) = state.db.rotate_refresh_token_with_access_id(
+        &token_hash,
+        &new_token_hash,
+        expires_at,
+        now,
+        Some(&jti),
+        Some(now + crate::auth::ACCESS_TOKEN_TTL_S),
+    )?;
+    let access =
+        match state
+            .jwt
+            .issue_with_session(&username, user_id, role, &jti, Some(new_session_id))
+        {
+            Ok(access) => access,
+            Err(error) => {
+                state
+                    .db
+                    .discard_refresh_after_signing_failure(&new_token_hash, &jti)?;
+                return Err(error);
+            }
+        };
 
     Ok((
         StatusCode::OK,
