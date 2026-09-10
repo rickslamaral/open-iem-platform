@@ -38,8 +38,8 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use control_protocol::{
-    decode_client_message, ClientMessage, Envelope, Role, ServerMessage, MAX_MESSAGE_BYTES,
-    PROTOCOL_VERSION,
+    decode_client_message, ClientMessage, Envelope, ProtocolError, Role, ServerMessage,
+    MAX_MESSAGE_BYTES, PROTOCOL_VERSION,
 };
 use std::{
     sync::atomic::{AtomicU64, Ordering},
@@ -160,11 +160,15 @@ async fn handle_socket(
             recv = tokio::time::timeout(Duration::from_secs(remaining), socket.recv()) => {
                 let msg = match recv {
                     Ok(Some(Ok(m))) => m,
-                    Ok(Some(Err(e))) => {
-                        warn!("WebSocket recv error: {e}");
+                    Ok(Some(Err(_))) => {
+                        warn!(session_id, "WebSocket receive failed");
                         break;
                     }
-                    Ok(None) | Err(_) => {
+                    Ok(None) => {
+                        debug!(session_id, "WebSocket peer closed connection");
+                        break;
+                    }
+                    Err(_) => {
                         send_error(&mut socket, "TOKEN_EXPIRED", "access token expired").await;
                         break;
                     }
@@ -199,8 +203,9 @@ async fn handle_socket(
                         }
 
                         let envelope = match decode_client_message(&text) {
-                            Err(e) => {
-                                send_error(&mut socket, "PROTOCOL_ERROR", &e.to_string()).await;
+                            Err(error) => {
+                                let (code, message) = public_protocol_error(&error);
+                                send_error(&mut socket, code, message).await;
                                 break;
                             }
                             Ok(env) => env,
@@ -488,6 +493,17 @@ fn master_mix_index(msg: &ClientMessage) -> Option<u8> {
     }
 }
 
+fn public_protocol_error(error: &ProtocolError) -> (&'static str, &'static str) {
+    match error {
+        ProtocolError::InvalidJson(_) => ("INVALID_JSON", "invalid WebSocket message"),
+        ProtocolError::UnsupportedVersion(_) => {
+            ("UNSUPPORTED_VERSION", "unsupported protocol version")
+        }
+        ProtocolError::InvalidRequestId => ("INVALID_REQUEST_ID", "invalid request id"),
+        ProtocolError::MessageTooLarge => ("MESSAGE_TOO_LARGE", "message exceeds protocol limit"),
+    }
+}
+
 async fn send_error(socket: &mut WebSocket, code: &str, message: &str) {
     let envelope = Envelope {
         version: PROTOCOL_VERSION,
@@ -504,7 +520,8 @@ async fn send_error(socket: &mut WebSocket, code: &str, message: &str) {
 
 #[cfg(test)]
 mod tests {
-    use super::{keepalive_expired, KEEPALIVE_TIMEOUT};
+    use super::{keepalive_expired, public_protocol_error, KEEPALIVE_TIMEOUT};
+    use control_protocol::ProtocolError;
     use tokio::time::{Duration, Instant};
 
     #[test]
@@ -520,5 +537,22 @@ mod tests {
     fn keepalive_expires_at_timeout() {
         let last_pong = Instant::now();
         assert!(keepalive_expired(last_pong, last_pong + KEEPALIVE_TIMEOUT));
+    }
+
+    #[test]
+    fn protocol_errors_expose_stable_public_messages_only() {
+        let (code, message) = public_protocol_error(&ProtocolError::InvalidJson(
+            serde_json::from_str::<serde_json::Value>("{secret-token").unwrap_err(),
+        ));
+        assert_eq!(
+            (code, message),
+            ("INVALID_JSON", "invalid WebSocket message")
+        );
+
+        let (code, message) = public_protocol_error(&ProtocolError::UnsupportedVersion(99));
+        assert_eq!(
+            (code, message),
+            ("UNSUPPORTED_VERSION", "unsupported protocol version")
+        );
     }
 }

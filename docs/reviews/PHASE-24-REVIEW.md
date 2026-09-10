@@ -66,5 +66,11 @@ O helper destrutivo usado para fault injection de autorização é compilado som
 - CLI administrativo ainda exige disciplina operacional para não expor token/senha em argv e não deve ser usado sobre HTTP remoto.
 - Nenhum secret adicionado.
 
+## Follow-up Phase 25 — redação de erros e observabilidade
+- Erros de protocolo WebSocket agora usam códigos/mensagens genéricos (`INVALID_JSON`, `UNSUPPORTED_VERSION`, `INVALID_REQUEST_ID`, `MESSAGE_TOO_LARGE`); detalhes de parser não são enviados.
+- Falha de transporte e fechamento normal não são classificados como expiração JWT.
+- Logs de recebimento não incluem erro bruto; usam `session_id`.
+- Teste unitário confirma que conteúdo inválido não vaza na mensagem pública.
+
 ## Próximo
-Investigar indisponibilidade/configuração do GitHub Actions; não declarar release nem merge até CI executar todos os gates e passar.
+Investigar indisponibilidade/configuração do GitHub Actions; não declarar release nem merge até CI executar todos os gates e passar. Depois corrigir correlação de `request_id` em erros após envelope validado e implementar ressincronização após perda de broadcast.

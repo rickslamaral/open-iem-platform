@@ -4,6 +4,29 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — WebSocket protocol error redaction
+
+**Phase:** 25 — WebSocket observability hardening
+
+### Implementado
+
+- Erros de decodificação agora usam códigos e mensagens públicas estáveis; detalhes de `serde_json`, versão recebida e conteúdo inválido não saem para o cliente.
+- Logs de falha de recebimento não incluem texto bruto do erro; conexão usa `session_id` para correlação.
+- Fechamento normal do peer e falha de transporte foram separados de expiração JWT; somente timeout real de leitura envia `TOKEN_EXPIRED`.
+- Adicionado teste unitário de não vazamento de detalhes de parser.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 218 testes.
+- PipeWire, mídia WebRTC real, ARM64 em Raspberry Pi e CI remoto continuam não validados.
+
+### Próximo
+
+Corrigir correlação de `request_id` em erros após envelope validado; depois implementar ressincronização após perda de broadcast.
+
+---
+
 ## 2026-09-10 — WebSocket connection cap
 
 **Phase:** 24 — release hardening

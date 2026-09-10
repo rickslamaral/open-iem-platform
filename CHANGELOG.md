@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — WebSocket error redaction
+- WebSocket protocol failures now expose stable generic codes/messages; parser and transport details stay server-side.
+- Normal peer closes and receive failures no longer masquerade as JWT expiration.
+
 ### Security — WebSocket connection cap
 - Added a process-wide semaphore limiting upgraded WebSocket connections to 64; excess upgrades return HTTP 503 with `Retry-After: 5`.
 

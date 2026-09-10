@@ -66,7 +66,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] LOW: WebSocket protocol control coverage: client Ping/Pong payload preservation and binary-frame rejection (Phase 24 follow-up)
 - [x] LOW: WebSocket rate quota counts every inbound frame, including control frames, preventing Ping/Pong flood bypass (Phase 24 follow-up)
 - [x] MEDIUM: Enforce process-wide WebSocket connection quota (64 permits); per-user/IP quotas and post-issuance JWT revocation checks remain pending
-- [ ] LOW: Add explicit WebSocket logging redaction policy and generic client-facing protocol errors
+- [x] LOW: Add explicit WebSocket logging redaction policy and generic client-facing protocol errors — Phase 25; parser/transport details redacted, normal close classified separately
 
 ---
 
