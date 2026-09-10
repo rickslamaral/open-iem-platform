@@ -13,7 +13,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] P1 — JWT pós-emissão revogável — Phase 31 — access-session mappings checked by middleware and WebSocket message/keepalive loops; local verification passes, CI remains blocked.
 
 - [x] P1 — Corrigir Docker Compose dev — Phase 30 — Dockerfiles de desenvolvimento adicionados para API e UIs; `docker compose config` passa sem aviso de `version` obsoleto. Build completo depende de chaves JWT locais e daemon Docker disponível.
-- [ ] P1 — Implementar CLI `iem` com paridade documentada ao Makefile — status NOT STARTED — depende de definir binário/instalação oficial.
+- [ ] P1 — Implementar CLI `iem` com paridade documentada ao Makefile — status NOT STARTED — depende de definir binário/instalação oficial; contrato atual documentado em `docs/CLI.md`.
 - [ ] P1 — Criar harness de áudio determinístico — status READY — cobre sinais sintéticos, isolamento, ganho, pan, mute, limiter e recuperação; não substitui hardware.
 - [ ] P1 — Criar matriz formal de validação Docker/Linux/Raspberry Pi — status READY — depende de hardware Raspberry Pi 5.
 - [ ] P1 — Adicionar sincronização de observabilidade ao desenvolvimento — status READY — métricas não implementadas devem permanecer `UNKNOWN`, não fake.

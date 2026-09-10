@@ -4,9 +4,42 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — Phase 31 review and CLI contract audit
+
+**Status:** documentação atualizada; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado.
+
+### Objetivo
+
+Reconciliar documentação com commits reais e registrar contrato da interface local antes de implementar um binário `iem`.
+
+### Implementado
+
+- README e CHANGELOG deixam de chamar mudanças commitadas de working tree.
+- Criada revisão `docs/reviews/PHASE-31-REVIEW.md`.
+- Criado `docs/CLI.md`, distinguindo Makefile, `open-iem-admin` existente e `iem` ainda não implementado.
+- TODO mantém CLI `iem` como `NOT STARTED`.
+
+### Verificação
+
+- Estado Git local limpo antes da edição; documentação editada sem código executável.
+- Runs remotos 34532261471 e 34532315872 falharam com `steps=[]` e `runner_id=0`.
+- API de Actions retorna HTTP 403 para o token disponível; causa de configuração do runner não pôde ser confirmada.
+
+### Decisões e limitações
+
+- Não trocar `ubuntu-24.04` por `ubuntu-latest` sem evidência; falha ocorre antes dos steps.
+- Não criar alias `iem` antes de definir instalação, códigos de saída e compatibilidade.
+- PipeWire, WebRTC media e Raspberry Pi 5 continuam `SIMULATED`/`HARDWARE VALIDATION REQUIRED`.
+
+### Próximo passo
+
+Validar documentação e gates locais; depois investigar desbloqueio do GitHub Actions com credencial/permissão adequada.
+
+---
+
 ## 2026-09-10 — Compose compatibility cleanup
 
-**Status:** local implementation, uncommitted/unmerged; CI blocked; not released.
+**Status:** implementação commitada nesta branch; PR #40 aberto; CI bloqueado antes dos steps; não lançado.
 
 ### Implementado
 
