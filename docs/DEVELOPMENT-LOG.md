@@ -4,6 +4,32 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — WebSocket control-frame coverage and quota hardening
+
+**Phase:** 24 — release hardening
+
+### Implementado
+
+- Quota por minuto agora contabiliza somente mensagens `Text` de aplicação; `Ping`, `Pong` e `Close` não consomem limite.
+- Adicionados testes de integração para preservação de payload em `Ping`/`Pong` e rejeição fail-closed de frame binário com `INVALID_MESSAGE`.
+- Atualizados README, CHANGELOG, TODO e review da Phase 24.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --package api-server --test integration ws_ -- --nocapture`: PASS — 18 testes.
+
+### Limitações
+
+- Testes temporais determinísticos de keepalive ainda pendentes; intervalos de produção seguem 30/60 segundos.
+- CI GitHub continua falhando antes dos steps por indisponibilidade/permissão de runner. PipeWire, WebRTC media e ARM64 real seguem não validados.
+
+### Próximo
+
+Extrair política de keepalive para teste com relógio controlado; depois investigar desbloqueio real do runner GitHub.
+
+---
+
 ## 2026-09-10 — Extended engineering contract and local developer interface
 
 **Phase:** 24 — release hardening

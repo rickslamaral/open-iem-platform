@@ -36,7 +36,8 @@ use axum::{
     routing::{get, post, put},
     Router,
 };
-use axum_test::TestServer;
+use axum_test::{TestServer, WsMessage};
+use bytes::Bytes;
 use control_protocol::Role;
 use control_server::ControlState;
 use mix_engine::Mix;
@@ -749,6 +750,53 @@ fn ws_envelope(msg_type: &str, data: Value) -> String {
         }
     }))
     .unwrap()
+}
+
+#[tokio::test]
+async fn ws_binary_frame_returns_protocol_error_and_closes() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_ws_binary", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_message(WsMessage::Binary(Bytes::from_static(b"invalid")))
+        .await;
+    let response: Value = ws.receive_json().await;
+    assert_eq!(response["payload"]["type"], "Error");
+    assert_eq!(response["payload"]["data"]["code"], "INVALID_MESSAGE");
+}
+
+#[tokio::test]
+async fn ws_client_ping_receives_matching_pong() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_ws_ping", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    let payload = Bytes::from_static(b"keepalive-test");
+    ws.send_message(WsMessage::Ping(payload.clone())).await;
+    match ws.receive_message().await {
+        WsMessage::Pong(received) => assert_eq!(received, payload),
+        other => panic!("expected Pong, got {other:?}"),
+    }
 }
 
 #[tokio::test]

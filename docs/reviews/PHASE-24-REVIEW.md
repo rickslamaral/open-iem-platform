@@ -15,7 +15,8 @@ Corrigir falha real do pipeline de release: `v0.3.0` apontava para commit anteri
 - `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
 - `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
 - `cargo test --manifest-path server/Cargo.toml --all`: 216 testes PASS, 0 falhas.
-- Keepalive timing tests deterministic ainda pendentes; intervalos de produção são 30/60 segundos.
+- Testes de protocolo Ping/Pong e frame binário: PASS; testes temporais determinísticos de keepalive ainda pendentes, pois intervalos de produção são 30/60 segundos.
+- Quota WebSocket agora conta somente mensagens Text de aplicação; control frames não consomem limite.
 - PipeWire, WebRTC media, ARM64 runtime e GitHub Actions continuam não validados nesta máquina.
 
 ## Auditoria de estado (09/09/2026)

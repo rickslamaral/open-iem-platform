@@ -153,18 +153,17 @@ async fn handle_socket(
                     send_error(&mut socket, "TOKEN_EXPIRED", "access token expired").await;
                     break;
                 }
-                if now.saturating_sub(window_started) >= 60 {
-                    window_started = now;
-                    message_count = 0;
-                }
-                message_count = message_count.saturating_add(1);
-                if message_count > MAX_MESSAGES_PER_MINUTE {
-                    send_error(&mut socket, "RATE_LIMITED", "too many messages").await;
-                    break;
-                }
-
                 match msg {
                     Message::Text(text) => {
+                        if now.saturating_sub(window_started) >= 60 {
+                            window_started = now;
+                            message_count = 0;
+                        }
+                        message_count = message_count.saturating_add(1);
+                        if message_count > MAX_MESSAGES_PER_MINUTE {
+                            send_error(&mut socket, "RATE_LIMITED", "too many messages").await;
+                            break;
+                        }
                         if text.len() > MAX_WS_MESSAGE_BYTES {
                             warn!("WebSocket message too large: {} bytes", text.len());
                             send_error(
