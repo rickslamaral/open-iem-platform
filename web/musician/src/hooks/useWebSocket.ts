@@ -222,8 +222,8 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
         }
         const msg = payload;
         if (msg.type === 'State' || msg.type === 'SendAck' || msg.type === 'MasterAck') {
+          latestRevisionRef.current = updateRevision(latestRevisionRef.current, msg.data.revision);
           if (msg.type === 'State') {
-            latestRevisionRef.current = updateRevision(latestRevisionRef.current, msg.data.revision);
             void refreshSnapshot();
           }
           setRevision((current) => updateRevision(current, msg.data.revision));

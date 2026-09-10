@@ -4,6 +4,25 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — WebSocket ACK revision race correction
+
+**Phase:** 27 — WebSocket resilience follow-up
+
+### Implementado
+
+- Revisão monotônica do Musician agora registra `State`, `SendAck` e `MasterAck` aceitos antes de atualizar snapshot.
+- Snapshot REST inicial atrasado não pode mais rebaixar revisão observada por ACK WebSocket recebido antes dele.
+- Adicionado teste determinístico da corrida ACK antes do primeiro snapshot.
+
+### Verificação
+
+- Musician: 34 testes, typecheck e build: PASS.
+- `scripts/validate-docs.sh` e `scripts/validate-skills.sh`: PASS.
+- CI remoto continua falhando antes dos steps por runner/permissão.
+- PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
+
+---
+
 ## 2026-09-10 — WebSocket state recovery after broadcast lag
 
 **Phase:** 27 — WebSocket resilience follow-up

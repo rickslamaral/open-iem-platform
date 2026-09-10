@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — WebSocket state recovery race
+- Musician now records accepted revisions before applying ACK state, preventing a delayed initial REST snapshot from regressing the revision observed over WebSocket.
+
 ### Fixed — WebSocket state recovery
 - Broadcast lag now emits an authoritative `State` revision notice; Musician refetches authenticated REST snapshot to recover missed deltas.
 - Musician client now validates and applies `MasterAck` broadcasts to its local mix snapshot.

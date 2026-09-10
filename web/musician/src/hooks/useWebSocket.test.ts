@@ -89,6 +89,26 @@ describe('useWebSocket', () => {
     expect(MockWebSocket.instances[0]?.sent).toHaveLength(1);
   });
 
+  it('does not let delayed snapshot overwrite revision received before first snapshot', async () => {
+    let resolveSnapshot!: (value: unknown) => void;
+    vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise((resolve) => { resolveSnapshot = resolve; })));
+    const { result } = renderHook(() => useWebSocket('test-token'));
+
+    act(() => MockWebSocket.instances[0]?.onopen?.());
+    act(() => MockWebSocket.instances[0]?.onmessage?.({ data: JSON.stringify({
+      version: 1,
+      request_id: '00000000-0000-4000-8000-000000000001',
+      payload: { type: 'MasterAck', data: {
+        mix_index: 0, master_gain_db: -6, master_muted: true, revision: 11,
+      } },
+    }) }));
+
+    await act(async () => resolveSnapshot({ ok: true, json: async () => makeSnapshot(10) }));
+
+    expect(result.current.revision).toBe(11);
+    expect(result.current.snapshot).toBeNull();
+  });
+
   it('rejects snapshot with invalid nested send', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,

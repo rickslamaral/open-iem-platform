@@ -14,6 +14,7 @@ Recuperar estado autoritativo quando um cliente perde eventos de broadcast e cor
 - Musician refaz `GET /api/v1/state` autenticado ao receber `State`.
 - Requests de snapshot concorrentes são enfileirados em uma única nova tentativa, evitando perder sinal de ressincronização enquanto request anterior está em voo.
 - `MasterAck` é validado e aplicado ao mix correspondente no snapshot local.
+- Revisão monotônica é atualizada antes de aplicar qualquer `State`, `SendAck` ou `MasterAck`, protegendo contra snapshot REST atrasado antes do primeiro snapshot válido.
 - Lock de estado poisoned encerra ressincronização com log, sem panic no handler.
 
 ## Verificação

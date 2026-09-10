@@ -66,7 +66,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] LOW: Aplicar limite de 16 KiB em mensagem/frame no `WebSocketUpgrade`, antes da alocação do payload — Phase 26 follow-up
 - [x] LOW: Testar rejeição de frame/mensagem acima de 16 KiB via integração WebSocket — teste de transporte confirma encerramento para mensagem Text acima do limite (Phase 26 follow-up)
 - [ ] LOW: WebSocket: revogação pós-emissão de JWT — access token permanece válido até expiração; avaliar checagem bounded por sessão/IP/user quota
-- [x] LOW: WebSocket: ressincronização após broadcast lag — servidor emite `State` com revisão autoritativa; Musician refaz snapshot REST (Phase 27)
+- [x] LOW: WebSocket: ressincronização após broadcast lag — servidor emite `State` com revisão autoritativa; Musician refaz snapshot REST (Phase 27); revisão monotônica cobre ACK antes do primeiro snapshot
 - [x] LOW: WebSocket protocol control coverage: client Ping/Pong payload preservation and binary-frame rejection (Phase 24 follow-up)
 - [x] LOW: WebSocket rate quota counts every inbound frame, including control frames, preventing Ping/Pong flood bypass (Phase 24 follow-up)
 - [x] MEDIUM: Enforce process-wide WebSocket connection quota (64 permits); per-user/IP quotas and post-issuance JWT revocation checks remain pending
