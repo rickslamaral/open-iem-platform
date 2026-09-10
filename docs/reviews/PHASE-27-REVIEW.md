@@ -38,7 +38,7 @@ Recuperar estado autoritativo quando um cliente perde eventos de broadcast e cor
 
 - CI GitHub remoto falha antes dos steps; artefatos e merge não podem ser declarados validados.
 - PipeWire, mídia WebRTC real e runtime ARM64 em Raspberry Pi continuam `SIMULATED`/não validados.
-- Revogação pós-emissão de JWT, quotas por usuário/IP e teste temporal do loop WebSocket seguem pendentes.
+- Revogação pós-emissão de JWT e quotas por usuário/IP seguem pendentes. O teste temporal determinístico da política de keepalive foi adicionado; teste de transporte WebSocket real ainda não existe.
 
 ## Decisão
 

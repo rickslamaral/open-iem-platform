@@ -4,6 +4,28 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — WebSocket keepalive loop timing coverage
+
+**Phase:** 27 — WebSocket resilience follow-up
+
+### Implementado
+
+- Adicionado teste determinístico com relógio Tokio pausado para validar primeiro Ping em 30 s, timeout de Pong somente após 60 s pendente e comportamento de intervalo com desafio ainda aberto.
+- Habilitada feature `tokio/test-util` somente nas dependências de teste do `api-server`.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- Testes unitários de WebSocket: 3 PASS.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- `git diff --check`: PASS.
+
+### Limitações
+
+Teste valida política temporal isolada, não loop de transporte WebSocket real. CI remoto, PipeWire, mídia WebRTC e ARM64 Raspberry Pi continuam não validados.
+
+---
+
 ## 2026-09-10 — WebSocket ACK revision race correction
 
 **Phase:** 27 — WebSocket resilience follow-up

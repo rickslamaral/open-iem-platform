@@ -612,7 +612,33 @@ async fn send_error_with_request(
 mod tests {
     use super::{public_protocol_error, KeepaliveTracker, KEEPALIVE_TIMEOUT};
     use control_protocol::ProtocolError;
-    use tokio::time::{Duration, Instant};
+    use tokio::time::{advance, interval_at, Duration, Instant, MissedTickBehavior};
+
+    #[tokio::test(start_paused = true)]
+    async fn keepalive_loop_policy_is_deterministic_at_interval_boundaries() {
+        let mut interval = interval_at(
+            Instant::now() + Duration::from_secs(30),
+            Duration::from_secs(30),
+        );
+        interval.set_missed_tick_behavior(MissedTickBehavior::Delay);
+        let mut tracker = KeepaliveTracker::default();
+        let sent_at = Instant::now();
+
+        advance(Duration::from_secs(30)).await;
+        interval.tick().await;
+        assert!(tracker.should_send_ping());
+        tracker.record_ping(b"challenge".to_vec(), sent_at + Duration::from_secs(30));
+
+        advance(Duration::from_secs(29)).await;
+        assert!(!tracker.expired(sent_at + Duration::from_secs(59)));
+        advance(Duration::from_secs(1)).await;
+        assert!(!tracker.expired(sent_at + KEEPALIVE_TIMEOUT));
+        assert!(tracker.expired(sent_at + Duration::from_secs(90)));
+
+        advance(Duration::from_secs(30)).await;
+        interval.tick().await;
+        assert!(!tracker.should_send_ping());
+    }
 
     #[test]
     fn keepalive_tracker_covers_timeout_and_correlated_pong() {

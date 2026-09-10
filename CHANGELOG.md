@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Tests — WebSocket keepalive loop
+- Added deterministic paused-clock coverage for the 30-second Ping interval and 60-second Pong timeout boundary.
+
 ### Fixed — WebSocket state recovery race
 - Musician now records accepted revisions before applying ACK state, preventing a delayed initial REST snapshot from regressing the revision observed over WebSocket.
 

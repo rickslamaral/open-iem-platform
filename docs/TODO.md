@@ -61,8 +61,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] LOW: Log DB errors in master broadcast fan-out (fail-closed and observable)
 - [ ] LOW: mix_assignment_lock held during DB read in broadcast fan-out — may contend under load; evaluate read-only lookup without lock
 - [x] LOW: Test DB failure during musician WebSocket ownership lookup — fail-closed coverage added Phase 24
-- [x] WebSocket keepalive: server Ping/ Pong timeout and bounded socket sends — Phase 24 (timing integration test remains pending)
-- [x] LOW: WebSocket keepalive: add deterministic state-machine coverage without waiting 30/60 seconds — tracker cobre timeout pendente, Pong incorreto, Pong correlacionado e ausência de falso timeout após Pong válido; loop WS temporal ainda pendente
+- [x] WebSocket keepalive: server Ping/Pong timeout and bounded socket sends — Phase 24 (policy timing covered; transport timing integration remains pending)
+- [x] LOW: WebSocket keepalive: add deterministic state-machine coverage without waiting 30/60 seconds — tracker e loop cobrem timeout pendente, Pong incorreto, Pong correlacionado, ausência de falso timeout após Pong válido e fronteiras do intervalo 30 s/timeout 60 s
 - [x] LOW: Aplicar limite de 16 KiB em mensagem/frame no `WebSocketUpgrade`, antes da alocação do payload — Phase 26 follow-up
 - [x] LOW: Testar rejeição de frame/mensagem acima de 16 KiB via integração WebSocket — teste de transporte confirma encerramento para mensagem Text acima do limite (Phase 26 follow-up)
 - [ ] LOW: WebSocket: revogação pós-emissão de JWT — access token permanece válido até expiração; avaliar checagem bounded por sessão/IP/user quota
