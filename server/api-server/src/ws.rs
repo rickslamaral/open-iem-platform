@@ -53,7 +53,18 @@ fn unix_now() -> u64 {
         .unwrap_or_default()
         .as_secs()
 }
+
 use tracing::{debug, warn};
+
+fn musician_assigned_to_mix(state: &AppState, user_id: i64, mix_index: u8) -> bool {
+    match state.db.get_user_assigned_mix(user_id) {
+        Ok(assigned) => assigned == Some(usize::from(mix_index)),
+        Err(error) => {
+            warn!(user_id, mix_index, %error, "failed to read musician mix assignment");
+            false
+        }
+    }
+}
 
 /// Maximum WebSocket message size in bytes (16 KiB).
 const MAX_WS_MESSAGE_BYTES: usize = MAX_MESSAGE_BYTES;
@@ -161,11 +172,7 @@ async fn handle_socket(
                         let assignment_guard = state.mix_assignment_lock.lock().await;
                         let musician_owns_send = if claims.role == Role::Musician {
                             send_mix_index(&envelope.payload).is_none_or(|mix_index| {
-                                state
-                                    .db
-                                    .get_user_assigned_mix(claims.user_id)
-                                    .unwrap_or(None)
-                                    == Some(usize::from(mix_index))
+                                musician_assigned_to_mix(&state, claims.user_id, mix_index)
                             })
                         } else {
                             true
@@ -289,13 +296,11 @@ async fn handle_socket(
                         //  - Musician sees deltas only for their assigned mix.
                         let should_forward = match claims.role {
                             Role::Admin | Role::Engineer => true,
-                            Role::Musician => {
-                                let assigned = state
-                                    .db
-                                    .get_user_assigned_mix(claims.user_id)
-                                    .unwrap_or(None);
-                                assigned == Some(usize::from(delta.mix_index))
-                            }
+                            Role::Musician => musician_assigned_to_mix(
+                                &state,
+                                claims.user_id,
+                                delta.mix_index,
+                            )
                         };
 
                         let ack_json = if should_forward {
@@ -344,13 +349,11 @@ async fn handle_socket(
                         let assignment_guard = state.mix_assignment_lock.lock().await;
                         let should_forward = match claims.role {
                             Role::Admin | Role::Engineer => true,
-                            Role::Musician => {
-                                let assigned = state
-                                    .db
-                                    .get_user_assigned_mix(claims.user_id)
-                                    .unwrap_or(None);
-                                assigned == Some(usize::from(delta.mix_index))
-                            }
+                            Role::Musician => musician_assigned_to_mix(
+                                &state,
+                                claims.user_id,
+                                delta.mix_index,
+                            )
                         };
 
                         let ack_json = if should_forward {
