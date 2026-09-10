@@ -6,7 +6,19 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## BLOCKER
 
-- None currently.
+- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — sem CI remoto não há release `v0.3.1`.
+
+## READY / CURRENT PHASE
+
+- [ ] P1 — Implementar CLI `iem` com paridade documentada ao Makefile — status NOT STARTED — depende de definir binário/instalação oficial.
+- [ ] P1 — Criar harness de áudio determinístico — status READY — cobre sinais sintéticos, isolamento, ganho, pan, mute, limiter e recuperação; não substitui hardware.
+- [ ] P1 — Criar matriz formal de validação Docker/Linux/Raspberry Pi — status READY — depende de hardware Raspberry Pi 5.
+- [ ] P1 — Adicionar sincronização de observabilidade ao desenvolvimento — status READY — métricas não implementadas devem permanecer `UNKNOWN`, não fake.
+
+## BLOCKED / VALIDATION REQUIRED
+
+- [ ] P0 — Validar PipeWire/ALSA e áudio real no Raspberry Pi 5 — status HARDWARE VALIDATION REQUIRED.
+- [ ] P0 — Validar mídia WebRTC, latência, jitter, perda e recuperação — status HARDWARE VALIDATION REQUIRED.
 
 ---
 

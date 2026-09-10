@@ -4,6 +4,35 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — Extended engineering contract and local developer interface
+
+**Phase:** 24 — release hardening
+
+### Implementado
+
+- Incorporados requisitos adicionais de continuidade, CI diagnostics, release blocking, hardware matrix, traceability, audio harness, recovery e architecture fitness em `START.md`, preservando regra de auditar antes de continuar.
+- Criado `Makefile` root com targets locais exigidos; comandos não implementados não são simulados.
+- Criado `scripts/validate-environment.sh` com estados explícitos para ferramentas, PipeWire, hardware e WebRTC.
+- Atualizado backlog com CLI `iem`, harness de áudio e validações físicas como itens rastreáveis.
+
+### Verificação
+
+- `make help`: PASS.
+- `make install`: PASS.
+- `make diagnostics`: PASS; PipeWire/ALSA e Raspberry Pi marcados `HARDWARE VALIDATION REQUIRED`.
+- `scripts/validate-docs.sh`: PASS.
+- `git diff --check`: PASS.
+
+### Próximo
+
+Desbloquear CI remoto; depois implementar CLI `iem` e harness de áudio conforme backlog, sem avançar release por suposição.
+
+---
+
+## 2026-09-09 — Phase 24 audit: estado real e estabilização de testes
+
+---
+
 ## 2026-09-09 — Phase 24 audit: estado real e estabilização de testes
 
 **Branch:** `main`

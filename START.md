@@ -1296,3 +1296,1420 @@ CHANGELOG on every meaningful PR. Create and maintain the Musicians
 Guide source and final PDF. Build and version release artifacts as the
 product becomes releasable. Only advance when the current phase passes
 its review gate.
+
+---
+
+# Extended Operating Requirements (received 2026-09-10)
+
+## Extended requirement 48 — Makefile and Local Developer Interface — Mandatory
+
+Required targets:
+
+```bash
+make help
+make install
+make run
+make run-local
+make up
+make down
+make logs
+make status
+make lint
+make fmt
+make test
+make test-unit
+make test-integration
+make build
+make package
+make diagnostics
+make docs
+make validate
+make clean
+```
+
+Rules:
+- `make run` runs natively where supported.
+- `make run-local` may use local simulation/dev services.
+- `make up` may start project development dependencies.
+- `make down` stops only project-owned development resources.
+- `make logs` exposes useful service logs.
+- `make status` reports runtime/build state.
+- `make fmt` formats supported code.
+- `make lint` fails on relevant lint errors.
+- `make test` runs the appropriate test suites.
+- `make build` builds the project.
+- `make package` reports packages only when they were actually produced.
+- `make validate` runs project validation gates.
+- `make clean` removes generated artifacts without deleting source or user configuration.
+
+Avoid duplicated business logic between Makefile, CLI and scripts.
+
+---
+
+## Extended requirement 49 — CLI / Make Parity
+
+The CLI and Makefile should expose equivalent developer workflows.
+
+Expected mapping:
+
+```text
+make install      ↔ iem install
+make run          ↔ iem run-local / iem up
+make lint         ↔ iem lint
+make test         ↔ iem test
+make build        ↔ iem build
+make package      ↔ iem package
+make clean        ↔ iem clean
+make diagnostics  ↔ iem diagnostics
+make status       ↔ iem status
+```
+
+Differences must be documented. `iem help` must list stable commands. CLI exit codes must be deterministic and CI-friendly.
+
+Suggested convention:
+
+```text
+0 = success
+1 = general failure
+2 = invalid usage
+3 = dependency/environment failure
+4 = validation failure
+5 = runtime/service failure
+```
+
+If the existing convention is coherent, preserve it and document it.
+
+---
+
+## Extended requirement 50 — Environment Validation
+
+Maintain a single source of truth for environment validation. Detect, where relevant:
+
+- OS
+- CPU architecture
+- kernel version
+- libc
+- Rust/Cargo
+- Node.js
+- required package manager
+- Docker/Compose
+- PipeWire
+- ALSA
+- required Linux packages
+- compiler/build tools
+- memory/storage
+- network capabilities
+- audio permissions
+- realtime scheduling capabilities
+
+Use explicit states:
+
+```text
+OK
+MISSING
+INCOMPATIBLE
+OPTIONAL
+NOT APPLICABLE
+HARDWARE VALIDATION REQUIRED
+```
+
+Do not blindly install dependencies.
+
+---
+
+## Extended requirement 51 — Linux Audio Permissions
+
+Native Linux audio must use least privilege. Investigate actual requirements for:
+
+- ALSA device access
+- PipeWire user-session/socket access
+- realtime scheduling
+- memory locking
+- USB device access
+- network ports
+
+Do not automatically add groups/capabilities unless required. For every required permission document:
+
+1. why it is required
+2. exact group/capability
+3. least-privilege alternative
+4. verification command
+5. removal/revert procedure
+
+Do not run the whole server as root unless a demonstrated requirement exists.
+
+---
+
+## Extended requirement 52 — GitHub Actions / Runner Diagnostics
+
+When CI fails immediately, inspect infrastructure before changing application code.
+
+Inspect all `.github/workflows/*.yml` for:
+
+- syntax
+- triggers
+- dependencies
+- `runs-on`
+- permissions
+- environments
+- secrets
+- action versions
+- reusable workflows
+- matrices
+- runner groups
+- self-hosted labels
+
+For GitHub-hosted execution, prefer a valid label such as:
+
+```yaml
+runs-on: ubuntu-latest
+```
+
+Do not use self-hosted labels unless the corresponding runner exists and is documented.
+
+Also inspect:
+
+- repository Actions settings
+- organization Actions settings
+- GitHub-hosted runner availability
+- runner groups
+- repository access to runner groups
+- workflow approval requirements
+- Actions policy restrictions
+- environment protection rules
+- GitHub service status when relevant
+
+If all jobs fail immediately, have empty logs, or never reach the first executable step, classify the incident as potentially:
+
+`RUNNER / PLATFORM / CONFIGURATION FAILURE`
+
+until evidence proves otherwise.
+
+---
+
+## Extended requirement 53 — GitHub Actions Permissions — Least Privilege
+
+Normal CI should use the minimum permissions necessary, for example:
+
+```yaml
+permissions:
+  contents: read
+```
+
+A release job that creates or updates GitHub Releases may require:
+
+```yaml
+permissions:
+  contents: write
+```
+
+Do not use:
+
+```yaml
+permissions: write-all
+```
+
+unless a documented and validated requirement exists.
+
+Prefer the standard `GITHUB_TOKEN` when sufficient; do not introduce a Personal Access Token unnecessarily.
+
+Document every permission beyond read-only repository access:
+
+- permission
+- job
+- reason
+- security impact
+
+---
+
+## Extended requirement 54 — CI Workflow Structure
+
+Prefer separate concerns where useful:
+
+```text
+.github/workflows/
+├── ci.yml
+├── release.yml
+└── docs.yml
+```
+
+Typical CI:
+
+```text
+checkout
+  ↓
+environment
+  ↓
+format
+  ↓
+lint
+  ↓
+unit tests
+  ↓
+integration tests
+  ↓
+frontend checks
+  ↓
+security/audit
+  ↓
+build
+```
+
+Typical release:
+
+```text
+tag
+  ↓
+validate
+  ↓
+build matrix
+  ↓
+package
+  ↓
+test artifacts
+  ↓
+checksums
+  ↓
+manifest
+  ↓
+publish GitHub Release
+```
+
+Never publish a release if required gates fail.
+
+---
+
+## Extended requirement 55 — Release Blocking Rules
+
+A release is blocked when:
+
+- required CI fails
+- release workflow fails
+- expected artifacts are missing
+- checksums are missing/invalid
+- release manifest is invalid
+- package installation/validation fails
+- version metadata disagrees
+- security gates fail
+- release documentation is stale
+- required hardware validation is represented as complete without evidence
+
+Never force a merge, recreate a tag, or weaken a gate merely to make a release appear successful.
+
+---
+
+## Extended requirement 56 — Version Consistency
+
+The root `VERSION` is authoritative unless an ADR explicitly defines another source of truth.
+
+Verify consistency among:
+
+```text
+VERSION
+Cargo.toml / Cargo.lock where applicable
+package.json where applicable
+application metadata
+CLI output
+package filenames
+release-manifest.json
+Git tag
+GitHub Release
+release documentation
+```
+
+Use `vX.Y.Z` for Git tags.
+
+---
+
+## Extended requirement 57 — Release Manifest and Checksums
+
+Every release should produce a machine-readable manifest and:
+
+```text
+SHA256SUMS
+```
+
+Example manifest shape:
+
+```json
+{
+  "project": "open-iem-platform",
+  "version": "0.0.0",
+  "commit": "unknown",
+  "build_date": "unknown",
+  "artifacts": [],
+  "checksums": [],
+  "targets": []
+}
+```
+
+Never fabricate metadata. Verify checksums before publication where practical. Fail the release if an expected artifact is missing.
+
+---
+
+## Extended requirement 58 — Installation / Upgrade / Uninstallation
+
+Every supported package/install mechanism must document:
+
+- installation
+- configuration
+- startup
+- upgrade
+- uninstall
+- rollback where supported
+- logs
+- diagnostics
+
+Do not leave services, permissions, or files behind without documentation. Provide an explicit uninstall path for system services.
+
+---
+
+## Extended requirement 59 — Configuration Management
+
+Separate:
+
+```text
+source code
+build configuration
+default configuration
+user configuration
+secrets
+runtime state
+```
+
+Never commit secrets. Prefer environment variables or documented configuration mechanisms for secrets. Never overwrite user configuration during upgrades without a migration strategy.
+
+---
+
+## Extended requirement 60 — Observability and Health
+
+Expose, where implemented:
+
+- health
+- readiness
+- audio engine state
+- active audio device
+- channel count
+- mix count
+- client count
+- connection state
+- XRUNs
+- CPU
+- memory
+- network state
+- packet statistics
+- version
+
+Never expose fake metrics. Use `UNKNOWN` when a metric is not implemented or measurable.
+
+---
+
+## Extended requirement 61 — Failure and Recovery
+
+Define behavior for:
+
+- audio device disconnect
+- PipeWire restart
+- server restart
+- network interruption
+- client disconnect/reconnect
+- packet loss/reordering
+- malformed messages
+- stale revisions
+- database failure
+- configuration corruption
+- process crash
+
+Prefer safe recovery. For audio failures, prevent unexpected loud output.
+
+---
+
+## Extended requirement 62 — Safe Audio Defaults
+
+Hearing safety is a product requirement. Evaluate protections such as:
+
+- conservative startup levels
+- master limits
+- limiter
+- safe reconnect behavior
+- mute on uncertain routing
+- protection against sudden gain jumps
+
+Do not claim a hearing-safety guarantee. The musicians guide must state that users remain responsible for safe listening levels.
+
+---
+
+## Extended requirement 63 — Dependency Management
+
+Dependencies must be explicitly declared, auditable, license-compatible, and security-reviewed where practical.
+
+Run appropriate tooling such as:
+
+```text
+npm audit
+cargo audit
+```
+
+and equivalent scanners when applicable.
+
+Before adding dependencies consider:
+
+- license
+- maintenance
+- security posture
+- runtime cost
+- realtime suitability
+- platform support
+
+---
+
+## Extended requirement 64 — Documentation and Skills Validation
+
+Validate documentation for:
+
+- broken internal links
+- stale paths
+- unsupported claims
+- version mismatches
+- commands that no longer work
+- missing referenced files
+- stale architecture diagrams
+- stale phase status
+
+Use `scripts/validate-docs.sh` when present.
+
+Use `scripts/validate-skills.sh` when present. Validate required skills, metadata, attribution, licenses, Hermes compatibility, and accidental duplicate/conflicting copies.
+
+If validation tooling is missing and its creation is justified, add it.
+
+---
+
+## Extended requirement 65 — Development Log / TODO / Architecture Gaps
+
+Maintain `docs/DEVELOPMENT-LOG.md` with date, phase, objective, work, tests, validation, architecture decisions, issues, documentation changes, and next step.
+
+Maintain `docs/TODO.md` and `docs/ARCHITECTURE-GAPS.md` with explicit states where useful:
+
+```text
+P0 / P1 / P2 / P3
+NOT STARTED
+IN PROGRESS
+BLOCKED
+EXPERIMENTAL
+VALIDATION REQUIRED
+DONE
+```
+
+Never hide unresolved architecture problems.
+
+---
+
+## Extended requirement 66 — Release Incident Procedure
+
+When a release is blocked:
+
+```text
+1. Capture workflow/run ID
+2. Inspect workflow YAML
+3. Inspect runner selection
+4. Inspect Actions settings
+5. Inspect permissions
+6. Inspect environments
+7. Inspect runner groups
+8. Inspect logs
+9. Determine whether the job actually started
+10. Classify infrastructure vs code failure
+11. Fix root cause
+12. Rerun
+13. Validate artifacts
+14. Verify GitHub Release
+15. Update documentation
+16. Complete phase review
+```
+
+Do not repeatedly rerun a workflow without investigating the underlying cause.
+
+---
+
+## Extended requirement 67 — Phase Continuity for Existing Releases
+
+If the repository is already beyond an earlier phase, do not restart it.
+
+Audit evidence, verify tests/documentation/release state, resolve blockers, and continue from the real phase.
+
+If a release exists without assets because CI/release Actions are blocked:
+
+```text
+Do NOT recreate the release.
+Do NOT recreate the tag.
+Do NOT mark the release complete.
+Do NOT advance solely because local tests pass.
+```
+
+Fix CI/release infrastructure first, rerun the required workflows, verify assets/checksums/manifest, then update documentation and phase review.
+
+---
+
+## Extended requirement 68 — Automated Development-Loop Reporting
+
+Every development-loop report should state:
+
+```text
+Phase
+Branch
+Commit
+Working tree
+Implementation
+Tests
+Security
+CI
+Release
+Hardware validation
+Documentation
+Blockers
+Next action
+```
+
+If blocked, explicitly state `BLOCKED` and the precise reason. Never report overall success when a release gate is broken.
+
+---
+
+## Extended requirement 69 — Repository Hygiene
+
+Before completing a cycle:
+
+```bash
+git status
+git diff
+git diff --cached
+git ls-files
+```
+
+Check for secrets, temporary files, local databases, logs, credentials, build artifacts, and machine-specific configuration.
+
+Keep `.gitignore` current. Do not commit generated artifacts unless intentionally tracked.
+
+---
+
+## Extended requirement 70 — Definition of Done
+
+A feature is not done merely because code exists.
+
+As applicable, completion requires:
+
+- implementation
+- tests
+- formatting/lint
+- build validation
+- security review
+- Devil's Advocate review
+- documentation
+- changelog update
+- ADR when needed
+- phase impact assessment
+- release impact assessment
+
+Hardware-dependent features remain `HARDWARE VALIDATION REQUIRED` until actually validated.
+
+Use `PASS WITH CONDITIONS` for documented non-critical limitations.
+
+---
+
+## Extended requirement 71 — Final Operating Rule
+
+Always work from evidence:
+
+```text
+Measure.
+Validate.
+Document.
+Then decide.
+```
+
+Never replace evidence with assumptions.
+
+---
+
+## Extended requirement 78 — Backlog as a Living Engineering Plan
+
+`docs/TODO.md` is the authoritative project backlog, while this START.md is the operating contract.
+
+Hermes must not attempt to implement every requirement in START.md at once. During every audit it must translate newly discovered work into backlog items and prioritize them.
+
+Each significant backlog item should contain, where applicable:
+
+- ID
+- title
+- phase
+- priority
+- status
+- dependencies
+- acceptance criteria
+- validation required
+- hardware validation requirement
+- related ADR
+- related tests
+- related documentation
+- release impact
+
+Recommended statuses:
+
+```text
+NOT STARTED
+READY
+IN PROGRESS
+BLOCKED
+VALIDATION REQUIRED
+DONE
+DEFERRED
+```
+
+Recommended priorities:
+
+```text
+P0 = release/product blocker
+P1 = required for current phase
+P2 = important future work
+P3 = optional/future enhancement
+```
+
+If a technically valuable idea is not appropriate for the current phase, add it to the backlog instead of implementing it prematurely.
+
+---
+
+## Extended requirement 79 — Requirements Traceability
+
+For important requirements maintain traceability:
+
+```text
+Requirement
+    ↓
+Backlog Item
+    ↓
+Implementation
+    ↓
+Test
+    ↓
+Documentation
+    ↓
+Release
+```
+
+The project should be able to answer:
+
+- Where is this requirement implemented?
+- Which tests prove it?
+- Which documentation describes it?
+- Which phase introduced it?
+- Which release contains it?
+
+Do not claim a requirement is complete merely because source files exist.
+
+---
+
+## Extended requirement 80 — Definition of Ready
+
+Before starting a non-trivial task, verify:
+
+- objective is understood
+- acceptance criteria exist
+- dependencies are known
+- architectural impact is understood
+- required hardware is identified
+- required credentials are identified
+- test strategy exists
+- documentation impact is known
+- release impact is known
+
+If important information is missing, mark the task `BLOCKED` or `VALIDATION REQUIRED` rather than inventing requirements.
+
+---
+
+## Extended requirement 81 — Branch and Pull Request Strategy
+
+Prefer short-lived branches for substantive changes:
+
+```text
+main
+ ├── feat/*
+ ├── fix/*
+ ├── refactor/*
+ ├── test/*
+ ├── docs/*
+ ├── ci/*
+ └── release/*
+```
+
+Normal flow:
+
+```text
+branch
+  ↓
+implementation
+  ↓
+tests
+  ↓
+security review
+  ↓
+code review
+  ↓
+Devil's Advocate
+  ↓
+CI
+  ↓
+PR
+  ↓
+merge
+```
+
+Direct commits to `main` may be used only for small, low-risk maintenance when the repository policy permits it.
+
+Do not bypass branch protection or required CI checks.
+
+Before creating a PR, inspect:
+
+```bash
+git status
+git diff
+git log --oneline -20
+```
+
+PR descriptions should state:
+
+- objective
+- implementation
+- tests
+- security impact
+- architecture impact
+- documentation changes
+- known limitations
+- hardware validation status
+- release impact
+
+---
+
+## Extended requirement 82 — Audio Test Harness
+
+The project must develop a repeatable audio test harness so the Mix Engine can be validated without requiring physical hardware for every test.
+
+The harness should eventually support deterministic signals such as:
+
+- silence
+- sine wave
+- impulse
+- white/noise test signal where appropriate
+- clipping input
+- multiple simultaneous channels
+
+Validate at minimum:
+
+- channel isolation
+- gain
+- pan
+- mute
+- master
+- send levels
+- independent mixes
+- limiter behavior
+- clipping behavior
+- sample-rate handling
+- buffer behavior
+- reset/recovery behavior
+
+Conceptual flow:
+
+```text
+Generated Input
+      ↓
+Audio Engine
+      ↓
+Mix Engine
+      ↓
+Expected Output
+      ↓
+Automated Analysis
+      ↓
+PASS / FAIL
+```
+
+The harness must not replace physical audio validation.
+
+---
+
+## Extended requirement 83 — Audio Performance and Benchmarking
+
+Performance claims must be backed by reproducible measurements.
+
+Maintain benchmark documentation where useful:
+
+```text
+docs/benchmarks/
+├── AUDIO-LATENCY.md
+├── CPU-MEMORY.md
+├── XRUNS.md
+├── NETWORK-JITTER.md
+└── TRANSPORT.md
+```
+
+Measure where applicable:
+
+- end-to-end latency
+- processing latency
+- CPU utilization
+- memory utilization
+- XRUNs
+- jitter
+- packet loss
+- reconnect time
+- synchronization error
+
+Do not publish target or observed numbers as facts until measured.
+
+---
+
+## Extended requirement 84 — Hardware Validation Matrix
+
+Maintain a matrix distinguishing simulation, software validation and hardware validation.
+
+Example:
+
+| Capability | Docker | Linux x86_64 | Raspberry Pi | Windows | macOS | Android | iPadOS |
+|---|---|---|---|---|---|---|---|
+| Mix Engine | TEST | TEST | TEST | TEST | TEST | EXPERIMENTAL | EXPERIMENTAL |
+| PipeWire | SIMULATED/NA | TEST | HARDWARE VALIDATION REQUIRED | N/A | N/A | N/A | N/A |
+| USB Audio | SIMULATED | TEST | HARDWARE VALIDATION REQUIRED | TBD | TBD | EXPERIMENTAL | EXPERIMENTAL |
+| Audio Transport | SIMULATED | TEST | HARDWARE VALIDATION REQUIRED | TBD | TBD | TBD | TBD |
+
+Adapt the matrix to actual evidence.
+
+Never turn `SIMULATED`, `BUILD`, or `TEST` into `SUPPORTED` without appropriate validation.
+
+---
+
+## Extended requirement 85 — Audio Clock, Drift and Synchronization
+
+The architecture must explicitly address clocking before claiming multi-device synchronized audio.
+
+Investigate:
+
+- audio interface clock
+- server clock
+- receiver clock
+- clock drift
+- timestamping
+- buffer drift
+- resampling
+- synchronization strategy
+- multiple receiver synchronization
+- behavior after network interruptions
+- recovery from clock divergence
+
+Create an ADR before committing to a synchronization architecture.
+
+If unresolved:
+
+`UNKNOWN`
+
+If physical validation is needed:
+
+`HARDWARE VALIDATION REQUIRED`
+
+Do not assume independent device clocks remain synchronized indefinitely.
+
+---
+
+## Extended requirement 86 — Pairing and Device Identity
+
+Define a secure device pairing flow before allowing arbitrary clients to control mixes.
+
+Conceptual flow:
+
+```text
+New Device
+    ↓
+Pairing
+    ↓
+Authentication
+    ↓
+Device Identity
+    ↓
+Musician Assignment
+    ↓
+Authorized Mix
+```
+
+The design should address:
+
+- pairing code/token
+- device identity
+- revocation
+- reassignment
+- expired pairing
+- duplicate devices
+- lost devices
+- authorization after reconnect
+
+A client must never be able to select another musician's mix merely by changing a client-side identifier.
+
+---
+
+## Extended requirement 87 — API and WebSocket Compatibility
+
+The public control API and protocol must be versioned.
+
+Current namespaces:
+
+```text
+/api/v1
+/ws/v1
+```
+
+Define policy for:
+
+- backward compatibility
+- breaking changes
+- deprecation
+- client/server version mismatch
+- message versioning
+- unknown message types
+- unknown fields
+- stale revisions
+- reconnect synchronization
+
+Future native clients and receivers must not require uncontrolled protocol forks.
+
+Breaking protocol changes require an ADR and migration strategy.
+
+---
+
+## Extended requirement 88 — State Synchronization
+
+The engineer UI, musician clients and server must have a clear authoritative-state model.
+
+Required principles:
+
+```text
+Server = authoritative state
+Client = local representation
+```
+
+For state-changing commands:
+
+```text
+command
+  ↓
+validate
+  ↓
+authorize
+  ↓
+apply
+  ↓
+increment revision
+  ↓
+ack/confirm
+  ↓
+broadcast authoritative state
+```
+
+Handle:
+
+- simultaneous edits
+- stale clients
+- lost WebSocket messages
+- reconnect
+- duplicate commands
+- out-of-order commands
+- optimistic UI rollback
+
+Do not silently overwrite newer state with stale client state.
+
+---
+
+## Extended requirement 89 — Release Recovery and Existing Releases
+
+When an existing release is blocked, recover it instead of recreating history.
+
+Example:
+
+```text
+Existing tag/release
+       ↓
+CI failure
+       ↓
+DO NOT recreate tag
+       ↓
+DO NOT delete release
+       ↓
+Diagnose root cause
+       ↓
+Fix CI/configuration
+       ↓
+Rerun
+       ↓
+Validate artifacts
+       ↓
+Validate checksums
+       ↓
+Validate manifest
+       ↓
+Publish/attach assets
+       ↓
+Update documentation
+```
+
+Do not force merges or disable gates merely to obtain a green pipeline.
+
+If a release has no assets, it is not considered complete merely because the GitHub Release object exists.
+
+---
+
+## Extended requirement 90 — GitHub Actions Runner Failure Diagnosis
+
+When a workflow fails immediately, especially when all jobs fail with empty logs, distinguish runner/platform/configuration failure from application failure.
+
+Inspect:
+
+- workflow syntax
+- `runs-on`
+- runner availability
+- self-hosted labels
+- runner groups
+- repository access to runner groups
+- GitHub-hosted runner eligibility
+- Actions enabled state
+- allowed actions policy
+- workflow execution protections
+- organization policies
+- environment protections
+- required approvals
+- `GITHUB_TOKEN` permissions
+- reusable workflow permissions
+
+Do not modify application code to compensate for a runner that never started.
+
+GitHub documents that `permissions` can be scoped at workflow or job level and that specifying permissions limits unspecified permissions; use least privilege. For release publication, `contents: write` may be required, while normal CI commonly needs only read access. citeturn0search0turn0search7
+
+Repository and organization settings can independently restrict whether Actions are enabled, which actions are allowed, and workflow execution. Verify these settings when jobs fail before execution. citeturn0search1turn0search3
+
+---
+
+## Extended requirement 91 — GitHub Actions Permission Policy
+
+Prefer least privilege.
+
+Normal CI example:
+
+```yaml
+permissions:
+  contents: read
+```
+
+Release job example, only when required:
+
+```yaml
+permissions:
+  contents: write
+```
+
+Do not default to:
+
+```yaml
+permissions: write-all
+```
+
+Do not request a PAT when `GITHUB_TOKEN` is sufficient.
+
+If a permission is required, document:
+
+- workflow
+- job
+- permission
+- reason
+- security impact
+
+GitHub's documentation states that specifying individual permissions causes unspecified permissions to become `none`, which supports a least-privilege approach. citeturn0search0
+
+---
+
+## Extended requirement 92 — Configuration and Database Migration Safety
+
+SQLite schema changes must use versioned migrations.
+
+Every migration must define:
+
+- version
+- forward migration
+- validation
+- compatibility impact
+- rollback strategy where feasible
+
+Configuration changes must be versioned where necessary.
+
+Upgrades must not silently destroy:
+
+- users
+- device assignments
+- scenes
+- presets
+- permissions
+- system configuration
+
+Backup/restore procedures must be tested before being described as production-ready.
+
+---
+
+## Extended requirement 93 — Backup, Restore and Recovery Validation
+
+The production deployment must eventually support safe recovery of important state.
+
+Evaluate backup/restore for:
+
+- SQLite database
+- scenes
+- presets
+- configuration
+- certificates/identities where applicable
+
+Validate:
+
+```text
+backup
+  ↓
+clean environment
+  ↓
+restore
+  ↓
+validate schema
+  ↓
+validate state
+  ↓
+start service
+  ↓
+functional test
+```
+
+A backup mechanism is not considered production-ready until restoration has been tested.
+
+---
+
+## Extended requirement 94 — Security Threat Model
+
+Maintain a lightweight threat model covering:
+
+- unauthorized musician control
+- unauthorized engineer control
+- stolen/lost client device
+- malicious local-network client
+- malformed WebSocket messages
+- malformed audio packets
+- replayed commands
+- stale authentication
+- compromised server
+- malicious package/update
+- dependency compromise
+- exposed management interface
+
+Document trust boundaries between:
+
+```text
+Audio Interface
+Server
+Control Clients
+Audio Receivers
+Local Network
+Internet/Cloud, if ever introduced
+```
+
+Do not assume the local network is inherently trusted.
+
+---
+
+## Extended requirement 95 — Supply Chain and Release Integrity
+
+Evaluate adding:
+
+- SBOM generation
+- dependency license report
+- dependency vulnerability report
+- artifact checksums
+- artifact provenance/attestation where practical
+- signed releases where practical
+
+Do not make supply-chain features mandatory for the MVP if they block core development, but add them to the backlog with appropriate priority.
+
+Release artifacts must be traceable to:
+
+```text
+version
+commit
+workflow run
+build target
+source
+checksums
+```
+
+---
+
+## Extended requirement 96 — Crash Handling and Recovery
+
+The server must eventually define behavior for:
+
+- process crash
+- audio backend crash
+- PipeWire restart
+- device disconnect
+- database failure
+- corrupted configuration
+- network failure
+- client failure
+
+Production Raspberry Pi deployment should use appropriate service supervision.
+
+Recovery must favor safe audio behavior and avoid unexpected loud output.
+
+Do not claim crash recovery until it has been tested.
+
+---
+
+## Extended requirement 97 — Network Fault Injection
+
+Before declaring audio transport production-ready, create repeatable tests for:
+
+- packet loss
+- packet duplication
+- packet reordering
+- jitter
+- temporary network outage
+- reconnection
+- congestion
+- malformed packets
+- delayed packets
+- receiver restart
+- server restart
+
+Use simulation for initial development and hardware/network validation before production claims.
+
+---
+
+## Extended requirement 98 — Safe Audio Failure Policy
+
+For uncertain routing or recovery conditions, prefer safe behavior.
+
+Evaluate:
+
+- startup mute
+- reconnect mute
+- master level limits
+- limiter
+- protection against sudden gain jumps
+- safe handling of stale state
+- safe scene recall
+
+The system must not claim to guarantee hearing safety. User documentation must emphasize responsible listening levels.
+
+---
+
+## Extended requirement 99 — Telemetry and Privacy Decision
+
+Explicitly decide whether the product sends telemetry.
+
+The default architecture is local-first.
+
+Unless explicitly implemented and documented:
+
+- do not send usage telemetry
+- do not send audio content to cloud services
+- do not collect unnecessary personal data
+- do not require Internet connectivity for live audio
+
+If telemetry is introduced in the future, create an ADR covering:
+
+- data collected
+- purpose
+- retention
+- opt-in/opt-out
+- security
+- privacy impact
+- offline behavior
+
+---
+
+## Extended requirement 100 — Accessibility and Internationalization
+
+For the PWA, evaluate baseline accessibility:
+
+- keyboard navigation
+- focus states
+- readable labels
+- accessible controls
+- sufficient contrast
+- screen-reader semantics where practical
+- touch-friendly controls
+
+Internationalization may remain future work unless required by the product, but text must not be unnecessarily hard-coded into architecture that would prevent future localization.
+
+If not implemented, record as a backlog item rather than claiming support.
+
+---
+
+## Extended requirement 101 — Architecture Fitness Review
+
+At the end of major phases, verify that implementation still respects the core architecture:
+
+```text
+Platform-independent Core
+          ↓
+Audio Abstraction
+          ↓
+Platform Backend
+```
+
+and:
+
+```text
+Control Plane ≠ Audio Plane
+```
+
+Look specifically for accidental coupling such as:
+
+- Mix Engine importing PipeWire-specific code
+- business logic in HTTP handlers
+- UI becoming authoritative state
+- database operations inside realtime code
+- network operations inside realtime callbacks
+- platform-specific assumptions leaking into core
+
+If architectural drift is detected, record it in `docs/ARCHITECTURE-GAPS.md` and fix or backlog it.
+
+---
+
+## Extended requirement 102 — Final Extended Operating Contract
+
+Hermes must continuously maintain four layers of truth:
+
+```text
+START.md
+  = engineering operating contract
+
+Architecture / ADRs
+  = architectural decisions
+
+docs/TODO.md
+  = executable backlog
+
+Code + Tests + CI
+  = implementation evidence
+```
+
+If these disagree:
+
+1. inspect evidence
+2. identify the discrepancy
+3. document it
+4. determine the technically justified correction
+5. update the appropriate source of truth
+6. validate again
+
+Never silently let contradictory documentation, code and tests accumulate.
+
+The objective is not to maximize the number of files or features. The objective is to produce a validated, maintainable, secure and reproducible real-time IEM platform.

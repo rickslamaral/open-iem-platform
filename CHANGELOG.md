@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Local developer interface
+- Added root `Makefile` with documented build, test, lint, docs, validation, diagnostics and lifecycle targets.
+- Added `scripts/validate-environment.sh` with explicit `OK`, `OPTIONAL`, `SIMULATED` and `HARDWARE VALIDATION REQUIRED` states.
+
+### Changed — Engineering contract
+- Extended `START.md` with CI diagnostics, release blocking, recovery, hardware validation, traceability, audio test harness and architecture fitness requirements.
+
 ### Added — Phase 24 WebSocket resilience
 - Added fail-closed integration coverage when the musician ownership database lookup fails.
 - Added server-initiated WebSocket Ping every 30 seconds and `CONNECTION_TIMEOUT` after 60 seconds without Pong.
