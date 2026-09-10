@@ -16,7 +16,7 @@ All significant milestones documented here in reverse chronological order.
 ### Verificação
 
 - YAML do workflow alterado sem erro de sintaxe detectado pelo editor.
-- Runs remotos `34540976629` e `34541036272` continuam falhando em todos os jobs com `steps=[]`; evidência aponta bloqueio de runner antes da execução.
+- Runs remotos `34540976629`, `34541036272` e novo push `34543057940` falharam em todos os jobs com `steps=[]`; evidência aponta bloqueio de runner antes da execução.
 - Nenhuma conclusão de CI, release ou suporte de hardware foi declarada.
 
 ### Próximo passo
