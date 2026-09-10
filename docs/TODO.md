@@ -46,7 +46,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [ ] Create `examples/` with minimal mix scenario
 - [x] Configure Dependabot for dependency updates
 - [ ] Set up code coverage reporting
-- [ ] LOW: Log DB errors in master broadcast fan-out (currently silenced via unwrap_or(None); fail-closed but not observable)
+- [x] LOW: Log DB errors in master broadcast fan-out (fail-closed and observable)
 - [ ] LOW: mix_assignment_lock held during DB read in broadcast fan-out — may contend under load; evaluate read-only lookup without lock
 
 ---

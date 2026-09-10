@@ -39,9 +39,11 @@ Complete WebSocket role-based authorization (Phase 3 HIGH security gate) by addi
 - docs/DEVELOPMENT-LOG.md updated.
 - This review document created.
 
+## Follow-up applied
+- DB errors during musician ownership lookup now emit structured `warn!` logs and remain fail-closed. No ownership is granted when lookup fails.
+
 ## Known Issues / Low Priority
-- DB error in master broadcast fan-out silenced via `unwrap_or(None)` — fail-closed, safe, not observable (TODO LOW added).
-- `mix_assignment_lock` held during read-only DB lookup in broadcast fan-out — may contend under load (TODO LOW added).
+- `mix_assignment_lock` held during read-only DB lookup in broadcast fan-out — may contend under load (TODO LOW remains).
 
 ## Follow-up
 - Publicar `v0.3.1` somente após CI remoto executar e passar todos os gates; execução atual falha antes dos steps e logs não estão acessíveis pelo token atual.
