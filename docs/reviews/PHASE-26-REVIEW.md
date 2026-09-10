@@ -13,7 +13,9 @@ Preservar `request_id` em erros gerados depois de envelope WebSocket válido, ma
 - `cargo test --manifest-path server/Cargo.toml --all`: PASS — 220 testes.
 - `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
 - `git diff --check`: PASS.
+- `WebSocketUpgrade` aplica `max_message_size` e `max_frame_size` de 16 KiB antes do handler, fechando a janela de alocação permissiva dos defaults do Axum.
 - Review independente encontrou falso timeout após Pong válido; corrigido com `KeepaliveTracker`, que só expira desafio pendente, e teste determinístico de regressão.
+- Review independente posterior identificou defaults permissivos de tamanho no upgrade; corrigidos nesta rodada.
 - Reviews independentes anteriores encontraram bypass de liveness por Pong não solicitado e replay de desafio; corrigidos com payload novo por Ping e teste unitário de correspondência.
 - Frontends Musician/Engineer: typecheck, testes e build PASS nesta rodada.
 

@@ -4,6 +4,27 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — WebSocket upgrade frame-size enforcement
+
+**Phase:** 26 — WebSocket resilience follow-up
+
+### Implementado
+
+- Configurados `max_message_size` e `max_frame_size` do `WebSocketUpgrade` para 16 KiB.
+- O limite agora bloqueia payloads antes da alocação excessiva e complementa a validação manual de mensagens de texto.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 220 testes.
+- Review independente identificou o risco de defaults permissivos do Axum; corrigido nesta rodada.
+
+### Limitações
+
+CI remoto segue falhando antes dos steps por runner/permissão. PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
+
+---
+
 ## 2026-09-10 — WebSocket keepalive state-machine correction
 
 **Phase:** 26 — WebSocket resilience follow-up

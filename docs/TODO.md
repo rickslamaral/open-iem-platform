@@ -63,6 +63,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] LOW: Test DB failure during musician WebSocket ownership lookup — fail-closed coverage added Phase 24
 - [x] WebSocket keepalive: server Ping/ Pong timeout and bounded socket sends — Phase 24 (timing integration test remains pending)
 - [x] LOW: WebSocket keepalive: add deterministic state-machine coverage without waiting 30/60 seconds — tracker cobre timeout pendente, Pong incorreto, Pong correlacionado e ausência de falso timeout após Pong válido; loop WS temporal ainda pendente
+- [x] LOW: Aplicar limite de 16 KiB em mensagem/frame no `WebSocketUpgrade`, antes da alocação do payload — Phase 26 follow-up
+- [ ] LOW: Testar rejeição de frame/mensagem acima de 16 KiB via integração WebSocket — contrato do upgrade ainda sem cobertura dedicada
+- [ ] LOW: WebSocket: revogação pós-emissão de JWT — access token permanece válido até expiração; avaliar checagem bounded por sessão/IP/user quota
 - [x] LOW: WebSocket protocol control coverage: client Ping/Pong payload preservation and binary-frame rejection (Phase 24 follow-up)
 - [x] LOW: WebSocket rate quota counts every inbound frame, including control frames, preventing Ping/Pong flood bypass (Phase 24 follow-up)
 - [x] MEDIUM: Enforce process-wide WebSocket connection quota (64 permits); per-user/IP quotas and post-issuance JWT revocation checks remain pending

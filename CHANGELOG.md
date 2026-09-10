@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — WebSocket frame limits
+- Applied the 16 KiB protocol limit during WebSocket upgrade for both messages and frames, preventing oversized payload allocation before application validation.
+
 ### Fixed — WebSocket keepalive state machine
 - Keepalive timeout now applies only while a Pong challenge is outstanding; a valid Pong cannot cause a later false timeout before the next Ping.
 

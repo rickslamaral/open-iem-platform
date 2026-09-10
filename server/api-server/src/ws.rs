@@ -133,7 +133,9 @@ pub async fn ws_handler(
         )
             .into_response();
     };
-    ws.protocols(["openiem.v1"])
+    ws.max_message_size(MAX_WS_MESSAGE_BYTES)
+        .max_frame_size(MAX_WS_MESSAGE_BYTES)
+        .protocols(["openiem.v1"])
         .on_upgrade(move |socket| {
             let session_id = u128::from(NEXT_SESSION_ID.fetch_add(1, Ordering::Relaxed));
             handle_socket(socket, state, claims, session_id, permit)
