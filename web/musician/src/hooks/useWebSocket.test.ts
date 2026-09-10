@@ -89,6 +89,28 @@ describe('useWebSocket', () => {
     expect(MockWebSocket.instances[0]?.sent).toHaveLength(1);
   });
 
+  it('does not let delayed snapshot overwrite revision received before first snapshot', async () => {
+    let resolveSnapshot!: (value: unknown) => void;
+    vi.stubGlobal('fetch', vi.fn()
+      .mockReturnValueOnce(new Promise((resolve) => { resolveSnapshot = resolve; }))
+      .mockResolvedValue({ ok: true, json: async () => makeSnapshot(11) }));
+    const { result } = renderHook(() => useWebSocket('test-token'));
+
+    act(() => MockWebSocket.instances[0]?.onopen?.());
+    act(() => MockWebSocket.instances[0]?.onmessage?.({ data: JSON.stringify({
+      version: 1,
+      request_id: '00000000-0000-4000-8000-000000000001',
+      payload: { type: 'MasterAck', data: {
+        mix_index: 0, master_gain_db: -6, master_muted: true, revision: 11,
+      } },
+    }) }));
+
+    await act(async () => resolveSnapshot({ ok: true, json: async () => makeSnapshot(10) }));
+
+    expect(result.current.revision).toBe(11);
+    await waitFor(() => expect(result.current.snapshot?.revision).toBe(11));
+  });
+
   it('rejects snapshot with invalid nested send', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
@@ -145,6 +167,26 @@ describe('useWebSocket', () => {
     expect(result.current.snapshot?.revision).toBe(6);
     expect(result.current.snapshot?.mixes[0]?.sends[0]).toMatchObject({
       gain_db: 6, pan: -0.25, muted: true,
+    });
+  });
+
+  it('applies MasterAck values to matching snapshot mix', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => makeSnapshot(5) }));
+    const { result } = renderHook(() => useWebSocket('test-token'));
+    act(() => MockWebSocket.instances[0]?.onopen?.());
+    await waitFor(() => expect(result.current.snapshot).not.toBeNull());
+
+    act(() => MockWebSocket.instances[0]?.onmessage?.({ data: JSON.stringify({
+      version: 1,
+      request_id: '00000000-0000-4000-8000-000000000001',
+      payload: { type: 'MasterAck', data: {
+        mix_index: 0, master_gain_db: -6, master_muted: true, revision: 6,
+      } },
+    }) }));
+
+    expect(result.current.snapshot?.revision).toBe(6);
+    expect(result.current.snapshot?.mixes[0]).toMatchObject({
+      master_gain_db: -6, master_muted: true,
     });
   });
 

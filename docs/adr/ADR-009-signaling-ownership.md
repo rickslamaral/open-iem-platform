@@ -25,5 +25,5 @@ A validação ocorre antes de SDP parsing e antes de criar/substituir sessão.
 - Mantém API compatível para Engineer/Admin e ofertas sem mix explícito.
 - O contrato ainda precisa resolver `mix_id` para um identificador de mix
   canônico antes de ativar PipeWire/Opus real.
-- Rate limiting, limite global de sessões e revogação imediata de access token
-  continuam pendentes e não são mascarados por esta decisão.
+- Rate limiting, limite global de sessões e revogação pós-emissão de access token
+  são tratados por decisões posteriores (Phases 28/29/31); não são mascarados por esta decisão.

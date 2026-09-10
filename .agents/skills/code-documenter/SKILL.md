@@ -49,7 +49,7 @@ docs/
 ├── deployment/       — RPi, systemd, Docker, install guides
 ├── testing/          — test strategy, coverage reports
 ├── decisions/        — ADRs (cross-linked from docs/adr/)
-├── research/         — transport eval, ESP32 research
+├── research/         — transport evaluation and architecture research
 └── reviews/          — phase reviews, PR reviews, security reviews
 ```
 

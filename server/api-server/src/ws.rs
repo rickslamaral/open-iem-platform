@@ -9,6 +9,11 @@
 //!   - Message too large
 //!   - Server shutdown
 //!
+//! The process accepts at most `MAX_WEBSOCKET_CONNECTIONS` upgraded connections;
+//! each authenticated user is limited to four connections and each peer IP to
+//! sixteen connections; excess upgrades receive HTTP 503 or HTTP 429 with
+//! `Retry-After: 5`.
+//!
 //! ## Broadcast model
 //!
 //! After a successful send mutation (`SetSendGain`, `SetSendPan`, `SetSendMuted`)
@@ -25,27 +30,72 @@
 
 use crate::{
     auth::JwtClaims,
+    quota::QuotaRejection,
     state::{AppState, MasterDelta, SendDelta},
 };
 use axum::{
     extract::{
+        connect_info::ConnectInfo,
         ws::{Message, WebSocket},
         Extension, State, WebSocketUpgrade,
     },
-    response::IntoResponse,
+    response::{IntoResponse, Response},
 };
 use control_protocol::{
-    decode_client_message, ClientMessage, Envelope, Role, ServerMessage, MAX_MESSAGE_BYTES,
-    PROTOCOL_VERSION,
+    decode_client_message, ClientMessage, Envelope, ProtocolError, Role, ServerMessage,
+    MAX_MESSAGE_BYTES, PROTOCOL_VERSION,
 };
 use std::{
     sync::atomic::{AtomicU64, Ordering},
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
+use tokio::time::Instant;
 
 static NEXT_SESSION_ID: AtomicU64 = AtomicU64::new(1);
 
 const MAX_MESSAGES_PER_MINUTE: u32 = 120;
+const KEEPALIVE_INTERVAL: Duration = Duration::from_secs(30);
+const KEEPALIVE_TIMEOUT: Duration = Duration::from_secs(60);
+const MAX_SOCKET_SEND_WAIT: Duration = Duration::from_secs(10);
+
+#[derive(Debug, Default)]
+struct KeepaliveTracker {
+    ping_sent_at: Option<Instant>,
+    expected_pong: Option<Vec<u8>>,
+}
+
+impl KeepaliveTracker {
+    fn expired(&self, now: Instant) -> bool {
+        self.expected_pong.is_some()
+            && self
+                .ping_sent_at
+                .is_some_and(|sent| now.saturating_duration_since(sent) >= KEEPALIVE_TIMEOUT)
+    }
+
+    fn should_send_ping(&self) -> bool {
+        self.expected_pong.is_none()
+    }
+
+    fn record_ping(&mut self, payload: Vec<u8>, now: Instant) {
+        self.ping_sent_at = Some(now);
+        self.expected_pong = Some(payload);
+    }
+
+    fn receive_pong(&mut self, payload: &[u8], now: Instant) -> bool {
+        if self.expected_pong.as_deref() != Some(payload) {
+            return false;
+        }
+        self.ping_sent_at = Some(now);
+        self.expected_pong = None;
+        true
+    }
+}
+
+async fn send_with_timeout(socket: &mut WebSocket, message: Message) -> bool {
+    tokio::time::timeout(MAX_SOCKET_SEND_WAIT, socket.send(message))
+        .await
+        .is_ok_and(|result| result.is_ok())
+}
 
 fn unix_now() -> u64 {
     SystemTime::now()
@@ -75,13 +125,48 @@ const MAX_WS_MESSAGE_BYTES: usize = MAX_MESSAGE_BYTES;
 /// Rejects with 401 if token is missing or invalid.
 pub async fn ws_handler(
     State(state): State<AppState>,
+    ConnectInfo(peer): ConnectInfo<std::net::SocketAddr>,
     ws: WebSocketUpgrade,
     Extension(claims): Extension<JwtClaims>,
-) -> impl IntoResponse {
-    ws.protocols(["openiem.v1"]).on_upgrade(move |socket| {
-        let session_id = u128::from(NEXT_SESSION_ID.fetch_add(1, Ordering::Relaxed));
-        handle_socket(socket, state, claims, session_id)
-    })
+) -> Response {
+    let permit = match state
+        .websocket_connections
+        .try_reserve(claims.user_id, peer.ip())
+    {
+        Ok(permit) => permit,
+        Err(QuotaRejection::Global) => {
+            return (
+                axum::http::StatusCode::SERVICE_UNAVAILABLE,
+                [(axum::http::header::RETRY_AFTER, "5")],
+                "WebSocket connection limit reached",
+            )
+                .into_response();
+        }
+        Err(QuotaRejection::User) => {
+            return (
+                axum::http::StatusCode::TOO_MANY_REQUESTS,
+                [(axum::http::header::RETRY_AFTER, "5")],
+                "WebSocket user connection limit reached",
+            )
+                .into_response();
+        }
+        Err(QuotaRejection::Ip) => {
+            return (
+                axum::http::StatusCode::TOO_MANY_REQUESTS,
+                [(axum::http::header::RETRY_AFTER, "5")],
+                "WebSocket IP connection limit reached",
+            )
+                .into_response();
+        }
+    };
+    ws.max_message_size(MAX_WS_MESSAGE_BYTES)
+        .max_frame_size(MAX_WS_MESSAGE_BYTES)
+        .protocols(["openiem.v1"])
+        .on_upgrade(move |socket| {
+            let session_id = u128::from(NEXT_SESSION_ID.fetch_add(1, Ordering::Relaxed));
+            handle_socket(socket, state, claims, session_id, permit)
+        })
+        .into_response()
 }
 
 /// Long-running WebSocket I/O loop. The loop body is intentionally contained here
@@ -92,10 +177,18 @@ async fn handle_socket(
     state: AppState,
     claims: JwtClaims,
     session_id: u128,
+    _connection_permit: crate::quota::WebSocketQuotaGuard,
 ) {
     debug!(user = %claims.sub, role = ?claims.role, "WebSocket connected");
     let mut window_started = unix_now();
     let mut message_count = 0_u32;
+    let mut keepalive = tokio::time::interval_at(
+        tokio::time::Instant::now() + KEEPALIVE_INTERVAL,
+        KEEPALIVE_INTERVAL,
+    );
+    keepalive.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
+    let mut keepalive_state = KeepaliveTracker::default();
+    let mut ping_sequence = 0_u64;
 
     // Subscribe to broadcast events before entering the loop.
     let mut event_rx = state.event_tx.subscribe();
@@ -110,15 +203,48 @@ async fn handle_socket(
         let remaining = claims.exp - now;
 
         tokio::select! {
+            // Server keepalive. A Pong within the last 60 seconds keeps session alive.
+            _ = keepalive.tick() => {
+                let Some(session_id_db) = claims.session_id else {
+                    break;
+                };
+                if let Ok(true) = state.db.is_access_session_active(
+                    &claims.jti,
+                    claims.user_id,
+                    session_id_db,
+                    unix_now(),
+                ) {
+                } else {
+                    send_error(&mut socket, "SESSION_REVOKED", "session revoked").await;
+                    break;
+                }
+                if keepalive_state.expired(Instant::now()) {
+                    send_error(&mut socket, "CONNECTION_TIMEOUT", "WebSocket pong timeout").await;
+                    break;
+                }
+                if keepalive_state.should_send_ping() {
+                    ping_sequence = ping_sequence.wrapping_add(1);
+                    let payload = format!("openiem-keepalive-{session_id}-{ping_sequence}").into_bytes();
+                    if !send_with_timeout(&mut socket, Message::Ping(payload.clone().into())).await {
+                        break;
+                    }
+                    keepalive_state.record_ping(payload, Instant::now());
+                }
+            }
+
             // Inbound message from client.
             recv = tokio::time::timeout(Duration::from_secs(remaining), socket.recv()) => {
                 let msg = match recv {
                     Ok(Some(Ok(m))) => m,
-                    Ok(Some(Err(e))) => {
-                        warn!("WebSocket recv error: {e}");
+                    Ok(Some(Err(_))) => {
+                        warn!(session_id, "WebSocket receive failed");
                         break;
                     }
-                    Ok(None) | Err(_) => {
+                    Ok(None) => {
+                        debug!(session_id, "WebSocket peer closed connection");
+                        break;
+                    }
+                    Err(_) => {
                         send_error(&mut socket, "TOKEN_EXPIRED", "access token expired").await;
                         break;
                     }
@@ -127,6 +253,19 @@ async fn handle_socket(
                 let now = unix_now();
                 if now >= claims.exp {
                     send_error(&mut socket, "TOKEN_EXPIRED", "access token expired").await;
+                    break;
+                }
+                let Some(session_id_db) = claims.session_id else {
+                    break;
+                };
+                if let Ok(true) = state.db.is_access_session_active(
+                    &claims.jti,
+                    claims.user_id,
+                    session_id_db,
+                    now,
+                ) {
+                } else {
+                    send_error(&mut socket, "SESSION_REVOKED", "session revoked").await;
                     break;
                 }
                 if now.saturating_sub(window_started) >= 60 {
@@ -153,17 +292,25 @@ async fn handle_socket(
                         }
 
                         let envelope = match decode_client_message(&text) {
-                            Err(e) => {
-                                send_error(&mut socket, "PROTOCOL_ERROR", &e.to_string()).await;
+                            Err(error) => {
+                                let (code, message) = public_protocol_error(&error);
+                                send_error_with_request(&mut socket, "server", code, message).await;
                                 break;
                             }
                             Ok(env) => env,
                         };
+                        let request_id = envelope.request_id.clone();
 
                         // Role-based permission check — also covers send mutations.
                         let permitted = check_permission(&claims, &envelope.payload);
                         if !permitted {
-                            send_error(&mut socket, "FORBIDDEN", "role cannot perform this action").await;
+                            send_error_with_request(
+                                &mut socket,
+                                &request_id,
+                                "FORBIDDEN",
+                                "role cannot perform this action",
+                            )
+                            .await;
                             continue;
                         }
 
@@ -179,8 +326,13 @@ async fn handle_socket(
                         };
                         if !musician_owns_send {
                             drop(assignment_guard);
-                            send_error(&mut socket, "FORBIDDEN", "musician does not own this mix")
-                                .await;
+                            send_error_with_request(
+                                &mut socket,
+                                &request_id,
+                                "FORBIDDEN",
+                                "musician does not own this mix",
+                            )
+                            .await;
                             continue;
                         }
 
@@ -263,7 +415,7 @@ async fn handle_socket(
                             }
                         };
 
-                        if socket.send(Message::Text(json.into())).await.is_err() {
+                        if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
                             break;
                         }
                     }
@@ -272,9 +424,17 @@ async fn handle_socket(
                         break;
                     }
                     Message::Ping(payload) => {
-                        let _ = socket.send(Message::Pong(payload)).await;
+                        if !send_with_timeout(&mut socket, Message::Pong(payload)).await {
+                            break;
+                        }
                     }
-                    _ => {}
+                    Message::Pong(payload) => {
+                        keepalive_state.receive_pong(payload.as_ref(), Instant::now());
+                    }
+                    Message::Binary(_) => {
+                        send_error(&mut socket, "INVALID_MESSAGE", "binary WebSocket frames are not supported").await;
+                        break;
+                    }
                 }
             }
 
@@ -322,13 +482,29 @@ async fn handle_socket(
                         };
                         drop(assignment_guard);
                         if let Some(json) = ack_json {
-                            if socket.send(Message::Text(json.into())).await.is_err() {
+                            if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
                                 break;
                             }
                         }
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
                         warn!(user = %claims.sub, "broadcast lagged by {n} events; some deltas skipped");
+                        let revision = if let Ok(control) = state.control.lock() {
+                            control.revision()
+                        } else {
+                            warn!(session_id, "control state lock poisoned during resync");
+                            break;
+                        };
+                        let state_notice = Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: "server".to_owned(),
+                            payload: ServerMessage::State { revision },
+                        };
+                        if let Ok(json) = serde_json::to_string(&state_notice) {
+                            if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
+                                break;
+                            }
+                        }
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Closed) => {
                         // Server shutting down.
@@ -373,13 +549,29 @@ async fn handle_socket(
                         };
                         drop(assignment_guard);
                         if let Some(json) = ack_json {
-                            if socket.send(Message::Text(json.into())).await.is_err() {
+                            if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
                                 break;
                             }
                         }
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
                         warn!(user = %claims.sub, "master broadcast lagged by {n} events; some deltas skipped");
+                        let revision = if let Ok(control) = state.control.lock() {
+                            control.revision()
+                        } else {
+                            warn!(session_id, "control state lock poisoned during resync");
+                            break;
+                        };
+                        let state_notice = Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: "server".to_owned(),
+                            payload: ServerMessage::State { revision },
+                        };
+                        if let Ok(json) = serde_json::to_string(&state_notice) {
+                            if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
+                                break;
+                            }
+                        }
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Closed) => {
                         break;
@@ -434,16 +626,103 @@ fn master_mix_index(msg: &ClientMessage) -> Option<u8> {
     }
 }
 
+fn public_protocol_error(error: &ProtocolError) -> (&'static str, &'static str) {
+    match error {
+        ProtocolError::InvalidJson(_) => ("INVALID_JSON", "invalid WebSocket message"),
+        ProtocolError::UnsupportedVersion(_) => {
+            ("UNSUPPORTED_VERSION", "unsupported protocol version")
+        }
+        ProtocolError::InvalidRequestId => ("INVALID_REQUEST_ID", "invalid request id"),
+        ProtocolError::MessageTooLarge => ("MESSAGE_TOO_LARGE", "message exceeds protocol limit"),
+    }
+}
+
 async fn send_error(socket: &mut WebSocket, code: &str, message: &str) {
+    send_error_with_request(socket, "server", code, message).await;
+}
+
+async fn send_error_with_request(
+    socket: &mut WebSocket,
+    request_id: &str,
+    code: &str,
+    message: &str,
+) {
     let envelope = Envelope {
         version: PROTOCOL_VERSION,
-        request_id: "server".to_owned(),
+        request_id: request_id.to_owned(),
         payload: ServerMessage::Error {
             code: code.to_owned(),
             message: message.to_owned(),
         },
     };
     if let Ok(json) = serde_json::to_string(&envelope) {
-        let _ = socket.send(Message::Text(json.into())).await;
+        let _ = send_with_timeout(socket, Message::Text(json.into())).await;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{public_protocol_error, KeepaliveTracker, KEEPALIVE_TIMEOUT};
+    use control_protocol::ProtocolError;
+    use tokio::time::{advance, interval_at, Duration, Instant, MissedTickBehavior};
+
+    #[tokio::test(start_paused = true)]
+    async fn keepalive_loop_policy_is_deterministic_at_interval_boundaries() {
+        let mut interval = interval_at(
+            Instant::now() + Duration::from_secs(30),
+            Duration::from_secs(30),
+        );
+        interval.set_missed_tick_behavior(MissedTickBehavior::Delay);
+        let mut tracker = KeepaliveTracker::default();
+        let sent_at = Instant::now();
+
+        advance(Duration::from_secs(30)).await;
+        interval.tick().await;
+        assert!(tracker.should_send_ping());
+        tracker.record_ping(b"challenge".to_vec(), sent_at + Duration::from_secs(30));
+
+        advance(Duration::from_secs(29)).await;
+        assert!(!tracker.expired(sent_at + Duration::from_secs(59)));
+        advance(Duration::from_secs(1)).await;
+        assert!(!tracker.expired(sent_at + KEEPALIVE_TIMEOUT));
+        assert!(tracker.expired(sent_at + Duration::from_secs(90)));
+
+        advance(Duration::from_secs(30)).await;
+        interval.tick().await;
+        assert!(!tracker.should_send_ping());
+    }
+
+    #[test]
+    fn keepalive_tracker_covers_timeout_and_correlated_pong() {
+        let sent_at = Instant::now();
+        let mut tracker = KeepaliveTracker::default();
+        assert!(tracker.should_send_ping());
+        tracker.record_ping(b"expected".to_vec(), sent_at);
+        assert!(!tracker.should_send_ping());
+        assert!(!tracker.expired(sent_at + KEEPALIVE_TIMEOUT - Duration::from_millis(1)));
+        assert!(tracker.expired(sent_at + KEEPALIVE_TIMEOUT));
+        assert!(!tracker.receive_pong(b"wrong", sent_at));
+        assert!(tracker.expired(sent_at + KEEPALIVE_TIMEOUT));
+        assert!(tracker.receive_pong(b"expected", sent_at));
+        assert!(!tracker.receive_pong(b"expected", sent_at));
+        assert!(tracker.should_send_ping());
+        assert!(!tracker.expired(sent_at + KEEPALIVE_TIMEOUT));
+    }
+
+    #[test]
+    fn protocol_errors_expose_stable_public_messages_only() {
+        let (code, message) = public_protocol_error(&ProtocolError::InvalidJson(
+            serde_json::from_str::<serde_json::Value>("{secret-token").unwrap_err(),
+        ));
+        assert_eq!(
+            (code, message),
+            ("INVALID_JSON", "invalid WebSocket message")
+        );
+
+        let (code, message) = public_protocol_error(&ProtocolError::UnsupportedVersion(99));
+        assert_eq!(
+            (code, message),
+            ("UNSUPPORTED_VERSION", "unsupported protocol version")
+        );
     }
 }

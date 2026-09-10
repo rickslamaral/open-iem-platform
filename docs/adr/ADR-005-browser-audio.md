@@ -6,7 +6,7 @@ Proposed — PENDING RESEARCH
 ## Context
 Browsers (mobile and desktop) cannot receive arbitrary UDP audio streams. WebRTC is the standard browser audio API for real-time audio receive. However, WebRTC adds significant implementation complexity (ICE, DTLS, SRTP, SDP negotiation).
 
-Alternative: dedicated native receiver (Android app, iOS app, ESP32 hardware) that can use lower-level protocols.
+Alternative: dedicated native receiver that can use lower-level protocols, only if measured requirements justify it.
 
 This creates a two-tier architecture decision:
 1. Control plane: always WebSocket/PWA (browser compatible)
@@ -43,4 +43,4 @@ Pro: Separation of concerns. Con: Two components on device.
 ## Constraints
 - **DO NOT** assume phone browser can receive UDP audio
 - MVP may use WebRTC as the path of least resistance for browser support
-- Native receiver is a Phase 10+ concern (ESP32 research)
+- Dedicated receiver remains conditional backlog work; it requires measured technical justification and an ADR

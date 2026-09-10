@@ -4,6 +4,490 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — Phase 31 follow-up — fail-closed rollback and snapshot baseline
+
+**Status:** local implementation, uncommitted/unmerged; CI blocked; not released.
+
+### Implementado
+
+- Refresh resolve owner before rotation; missing user no longer consumes valid refresh token.
+- Signing-failure cleanup discards replacement mapping/token without reactivating old revoked state.
+- HTTP `ApiError::Internal` responses now return generic message; details stay server-side.
+- Musician keeps delayed REST snapshot as baseline when WebSocket revision advanced first.
+
+### Verificação
+
+- `cargo test -p api-server --test integration`: PASS — 57 passed, 0 failed.
+- `cargo clippy -p api-server --all-targets -- -D warnings`: PASS.
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check`: PASS.
+- Musician frontend: `npm test -- --run --reporter=dot`: PASS — 34 passed. A prior default invocation timed out at 120 s; reporter mode completed in 2.32 s.
+
+### Implemented
+
+- Persistent access-session mappings bind JWT `jti`, user ID and refresh-session ID.
+- HTTP middleware rejects revoked, rotated, expired, deleted-user or unknown access mappings.
+- Refresh rotation, logout, admin session revoke, replay-family revoke and user deletion invalidate access mappings.
+- Established WebSocket connections re-check mapping state on inbound messages and keepalive ticks; revocation returns `SESSION_REVOKED` and closes loop.
+
+### Verification
+
+- Added focused integration regressions for refresh rotation, session revoke, user deletion and established WebSocket revocation.
+- `cargo fmt --all -- --check`: PASS.
+- `cargo test -p api-server --test integration`: PASS — 57 passed, 0 failed.
+- `cargo clippy -p api-server --all-targets -- -D warnings`: PASS.
+- `cargo test --workspace`: BLOCKED by missing system dependency `jack` (`jack.pc` / `jack-sys`); api-server integration tests pass independently.
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: BLOCKED by same missing `jack` system dependency.
+- CI remains blocked before workflow steps; no release claim.
+
+---
+
+## 2026-09-10 — Phase 30 Docker Compose development images
+
+**Phase:** 30 — local development packaging
+
+### Implementado
+
+- Adicionados `server/Dockerfile.dev`, `web/musician/Dockerfile.dev` e `web/engineer/Dockerfile.dev`.
+- Imagens usam toolchains oficiais, dependências instaladas durante build e servidores expostos nas portas documentadas.
+- Removido `target: api-server` obsoleto do Compose; imagem API agora usa estágio único.
+- Chaves JWT continuam montadas somente em runtime via `./keys` e HTTP inseguro permanece explicitamente restrito a desenvolvimento isolado.
+
+### Verificação
+
+- `docker compose config`: PASS; emite apenas aviso de atributo `version` obsoleto.
+- Workspace Rust: testes e clippy PASS.
+- Musician: 34 testes e build PASS.
+- Engineer: 2 testes e build PASS.
+- Build real das imagens Docker não executado nesta rodada: daemon Docker/chaves JWT locais não disponíveis para validação completa.
+- CI remoto continua bloqueado antes dos steps por `runner_id=0`.
+
+### Limitações
+
+Docker runtime, PipeWire, WebRTC media, ARM64 real no Raspberry Pi e release continuam não validados.
+
+---
+
+## 2026-09-10 — Windows/Docker documentation audit
+
+**Phase:** documentation follow-up
+
+### Implementado
+
+- Guia Windows + Docker Desktop adicionada em `docs/guides/WINDOWS-DOCKER-GUIDE.md`.
+- Auditoria confirmou que `docker-compose.yml` referencia três Dockerfiles ausentes; guia e CHANGELOG agora marcam Compose como `BLOCKED`, sem alegar runtime validado.
+- README, TODO e review da Phase 29 atualizados.
+
+### Verificação
+
+- Cargo workspace: testes e clippy passam.
+- Musician: 34 testes e build passam.
+- Engineer: 2 testes e build passam.
+- CI remoto continua bloqueado antes dos steps por `runner_id=0`.
+
+---
+
+## 2026-09-10 — Bounded failed WebSocket authentication limiting
+
+**Phase:** 29 — WebSocket security follow-up
+
+### Implementado
+
+- Adicionado limiter em memória bounded para falhas de autenticação de `/ws/v1`: 5 falhas por IP em janela de 60 segundos.
+- Estado limitado a 4.096 IPs; entrada menos recentemente observada é removida quando limite é atingido.
+- Apenas falhas de protocolo/token inválido contam. Requests WebSocket autenticados com sucesso não consomem orçamento.
+- IP vem exclusivamente de `ConnectInfo<SocketAddr>`; cabeçalhos encaminhados não são confiáveis.
+- Após threshold, resposta retorna HTTP 429 com `Retry-After: 5`.
+
+### Verificação
+
+- Testes unitários determinísticos cobrem threshold, reset de janela e limite de estado.
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test -p api-server --all-targets --no-fail-fast`: PASS — 38 unitários e 52 integração.
+- `cargo clippy -p api-server --all-targets -- -D warnings`: PASS.
+- `scripts/validate-docs.sh` e `git diff --check`: PASS.
+- CI remoto permanece indisponível; run `34509968438` falhou antes dos steps com `runner_id=0`.
+
+---
+
+## 2026-09-10 — WebSocket admission quotas
+
+**Phase:** 28 — WebSocket connection fairness
+
+### Implementado
+
+- Adicionadas quotas atômicas em memória para 64 conexões por processo, 4 por usuário autenticado e 16 por IP do peer TCP.
+- Reserva usa `ConnectInfo<SocketAddr>` e guarda RAII; descarte libera contadores mesmo em encerramento normal ou erro.
+- Quota global retorna HTTP 503; quota de usuário/IP retorna HTTP 429, sempre com `Retry-After: 5`.
+- `X-Forwarded-For` não é confiável e não é usado.
+- Testes unitários cobrem aceitação, rejeição, liberação, rollback e concorrência.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — suite completa.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+- Reviews independentes: PASS, sem blockers de segurança ou lógica.
+
+### Limitações
+
+Quota é local ao processo; múltiplas instâncias exigem coordenador compartilhado. Revogação pós-emissão de JWT, rate limit de tentativas inválidas, PipeWire, WebRTC real, runtime ARM64 no Raspberry Pi e CI remoto continuam pendentes/bloqueados.
+
+---
+
+## 2026-09-10 — WebSocket keepalive loop timing coverage
+
+**Phase:** 27 — WebSocket resilience follow-up
+
+### Implementado
+
+- Adicionado teste determinístico com relógio Tokio pausado para validar primeiro Ping em 30 s, timeout de Pong somente após 60 s pendente e comportamento de intervalo com desafio ainda aberto.
+- Habilitada feature `tokio/test-util` somente nas dependências de teste do `api-server`.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- Testes unitários de WebSocket: 3 PASS.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- `git diff --check`: PASS.
+
+### Limitações
+
+Teste valida política temporal isolada, não loop de transporte WebSocket real. CI remoto, PipeWire, mídia WebRTC e ARM64 Raspberry Pi continuam não validados.
+
+---
+
+## 2026-09-10 — WebSocket ACK revision race correction
+
+**Phase:** 27 — WebSocket resilience follow-up
+
+### Implementado
+
+- Revisão monotônica do Musician agora registra `State`, `SendAck` e `MasterAck` aceitos antes de atualizar snapshot.
+- Snapshot REST inicial atrasado não pode mais rebaixar revisão observada por ACK WebSocket recebido antes dele.
+- Adicionado teste determinístico da corrida ACK antes do primeiro snapshot.
+
+### Verificação
+
+- Musician: 34 testes, typecheck e build: PASS.
+- `scripts/validate-docs.sh` e `scripts/validate-skills.sh`: PASS.
+- CI remoto continua falhando antes dos steps por runner/permissão.
+- PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
+
+---
+
+## 2026-09-10 — WebSocket state recovery after broadcast lag
+
+**Phase:** 27 — WebSocket resilience follow-up
+
+### Implementado
+
+- Broadcast `Lagged` em canais de send/master agora envia `State` com revisão autoritativa.
+- Musician refaz snapshot REST autenticado ao receber `State`, recuperando deltas perdidos.
+- Musician valida e aplica `MasterAck` recebido de broadcasts no snapshot local.
+- Adicionado teste do hook para atualização de master.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 218 testes Rust e 3 doc-tests.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- Musician typecheck, 33 testes e build: PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+- CI remoto segue bloqueado antes dos steps por runner/permissão.
+- PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
+
+---
+
+## 2026-09-10 — WebSocket oversized-message transport coverage
+
+**Phase:** 26 — WebSocket resilience follow-up
+
+### Implementado
+
+- Adicionado teste de integração que envia mensagem Text com `16 * 1024 + 1` bytes.
+- O teste confirma encerramento do transporte pelo limite do `WebSocketUpgrade`, antes do parser da aplicação.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- Teste dedicado: PASS.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- Primeira execução revelou comportamento real do `axum-test`: conexão é resetada sem handshake de fechamento; teste foi ajustado para validar erro de recebimento, sem inventar `Close`.
+
+### Limitações
+
+Cobertura valida mensagem Text não fragmentada. Frame binário oversized e mensagem fragmentada acima do limite continuam pendentes. CI remoto, PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
+
+---
+
+## 2026-09-10 — WebSocket upgrade frame-size enforcement
+
+**Phase:** 26 — WebSocket resilience follow-up
+
+### Implementado
+
+- Configurados `max_message_size` e `max_frame_size` do `WebSocketUpgrade` para 16 KiB.
+- O limite agora bloqueia payloads antes da alocação excessiva e complementa a validação manual de mensagens de texto.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 220 testes.
+- Review independente identificou o risco de defaults permissivos do Axum; corrigido nesta rodada.
+
+### Limitações
+
+CI remoto segue falhando antes dos steps por runner/permissão. PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
+
+---
+
+
+## 2026-09-10 — WebSocket keepalive state-machine correction
+
+**Phase:** 26 — WebSocket resilience follow-up
+
+### Implementado
+
+- Extraído `KeepaliveTracker` para manter desafio pendente, instante do Ping e validação de Pong em uma máquina de estados explícita.
+- Timeout só é avaliado enquanto existe Pong pendente; Pong válido não provoca falso timeout no intervalo seguinte.
+- Teste determinístico cobre timeout, Pong incorreto, Pong correlacionado e ausência de falso timeout após Pong válido.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 220 testes.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+
+### Limitações
+
+Teste temporal do loop WebSocket ainda pendente. CI remoto segue falhando antes dos steps por runner/permissão. PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
+
+### Próximo
+
+Rever diff atual com agentes independentes e investigar runner GitHub.
+
+---
+
+## 2026-09-10 — WebSocket keepalive challenge correlation
+
+**Phase:** 26 — WebSocket resilience follow-up
+
+### Implementado
+
+- Servidor envia Ping com payload por sessão e registra desafio pendente.
+- Somente Pong com payload exatamente igual ao último Ping enviado atualiza liveness; Pong não solicitado ou obsoleto não estende conexão.
+- Adicionado teste unitário para rejeição de Pong não solicitado e payload incorreto.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 219 testes.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- Frontends Musician/Engineer já validados nesta rodada: typecheck, testes e build PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+
+### Limitações
+
+Teste temporal do loop WebSocket ainda pendente. CI remoto segue falhando antes dos steps por runner/permissão. PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
+
+### Próximo
+
+Adicionar teste temporal determinístico do loop sem esperar 30/60 segundos; depois investigar runner GitHub.
+
+---
+
+
+## 2026-09-10 — WebSocket request correlation
+
+**Phase:** 26 — WebSocket error correlation
+
+### Implementado
+
+- Erros `FORBIDDEN` gerados após envelope válido agora preservam `request_id` original, incluindo rejeições de RBAC e ownership.
+- Erros de parsing continuam usando `request_id` sintético `server`, pois entrada inválida não fornece correlação confiável.
+- Adicionado teste de integração para correlação em rejeição de ownership.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 218 testes.
+- `git diff --check`: PASS.
+- Reviews independentes: falha inicial encontrada no caminho de ownership; corrigida antes da entrega.
+
+### Limitações
+
+CI remoto continua bloqueado antes dos steps. PipeWire, mídia WebRTC real e ARM64 em Raspberry Pi permanecem não validados.
+
+### Próximo
+
+Desbloquear runner GitHub; depois implementar ressincronização explícita após perda de broadcast.
+
+---
+
+## 2026-09-10 — WebSocket protocol error redaction
+
+**Phase:** 25 — WebSocket observability hardening
+
+### Implementado
+
+- Erros de decodificação agora usam códigos e mensagens públicas estáveis; detalhes de `serde_json`, versão recebida e conteúdo inválido não saem para o cliente.
+- Logs de falha de recebimento não incluem texto bruto do erro; conexão usa `session_id` para correlação.
+- Fechamento normal do peer e falha de transporte foram separados de expiração JWT; somente timeout real de leitura envia `TOKEN_EXPIRED`.
+- Adicionado teste unitário de não vazamento de detalhes de parser.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 218 testes.
+- PipeWire, mídia WebRTC real, ARM64 em Raspberry Pi e CI remoto continuam não validados.
+
+### Próximo
+
+Corrigir correlação de `request_id` em erros após envelope validado; depois implementar ressincronização após perda de broadcast.
+
+---
+
+## 2026-09-10 — WebSocket connection cap
+
+**Phase:** 24 — release hardening
+
+### Implementado
+
+- Adicionado limite process-wide de 64 conexões WebSocket atualizadas com `tokio::sync::Semaphore`.
+- Permissão é reservada antes do upgrade e mantida pelo handler; liberação ocorre no disconnect.
+- Excesso recebe HTTP 503 e `Retry-After: 5`.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check`: PASS.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 216 testes.
+- Frontends Musician: typecheck, 32 testes e build PASS.
+- Frontend Engineer: typecheck, 2 testes e build PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+
+### Limitações
+
+- Quota por conexão agora inclui todo frame recebido, inclusive control frames; quotas por usuário/IP, revogação pós-emissão de JWT e teste de saturação do limite continuam pendentes.
+- CI remoto, PipeWire, mídia WebRTC real e ARM64 em Raspberry Pi permanecem não validados.
+
+---
+
+## 2026-09-10 — Keepalive policy extracted and unit-tested
+
+**Phase:** 24 — release hardening
+
+### Implementado
+
+- Extraídos intervalos de keepalive para constantes nomeadas.
+- Adicionado helper puro `keepalive_expired` com testes de fronteira no timeout de 60 segundos.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --package api-server --lib --tests ws_ -- --nocapture`: PASS — 20 testes relevantes (18 integração + 2 unitários).
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- `git diff --check`: PASS.
+
+### Limitações
+
+- Testes de loop WebSocket com relógio controlado ainda não existem; transporte real, PipeWire e ARM64 permanecem não validados.
+
+---
+
+## 2026-09-10 — WebSocket control-frame coverage and quota hardening
+
+**Phase:** 24 — release hardening
+
+### Implementado
+
+- Quota por minuto agora contabiliza somente mensagens `Text` de aplicação; `Ping`, `Pong` e `Close` não consomem limite.
+- Adicionados testes de integração para preservação de payload em `Ping`/`Pong` e rejeição fail-closed de frame binário com `INVALID_MESSAGE`.
+- Atualizados README, CHANGELOG, TODO e review da Phase 24.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --package api-server --test integration ws_ -- --nocapture`: PASS — 18 testes.
+
+### Limitações
+
+- Testes temporais determinísticos de keepalive ainda pendentes; intervalos de produção seguem 30/60 segundos.
+- CI GitHub continua falhando antes dos steps por indisponibilidade/permissão de runner. PipeWire, WebRTC media e ARM64 real seguem não validados.
+
+### Próximo
+
+Extrair política de keepalive para teste com relógio controlado; depois investigar desbloqueio real do runner GitHub.
+
+---
+
+## 2026-09-10 — Extended engineering contract and local developer interface
+
+**Phase:** 24 — release hardening
+
+### Implementado
+
+- Incorporados requisitos adicionais de continuidade, CI diagnostics, release blocking, hardware matrix, traceability, audio harness, recovery e architecture fitness em `START.md`, preservando regra de auditar antes de continuar.
+- Criado `Makefile` root com targets locais exigidos; comandos não implementados não são simulados.
+- Criado `scripts/validate-environment.sh` com estados explícitos para ferramentas, PipeWire, hardware e WebRTC.
+- Atualizado backlog com CLI `iem`, harness de áudio e validações físicas como itens rastreáveis.
+
+### Verificação
+
+- `make help`: PASS.
+- `make install`: PASS.
+- `make diagnostics`: PASS; Docker Compose detectado, PipeWire/ALSA e Raspberry Pi marcados `HARDWARE VALIDATION REQUIRED`.
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check`: PASS.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 216 testes executados nesta rodada.
+- `scripts/validate-docs.sh`, `bash -n scripts/validate-environment.sh` e `git diff --check`: PASS.
+
+### Revisão independente
+
+- Test Agent: MEDIUM — keepalive ainda sem teste temporal; `run-local` não é simulação isolada.
+- Security Review: sem BLOCKER/HIGH; MEDIUM — limite global de conexões e revogação pós-emissão ainda pendentes; binary frames antes eram descartados silenciosamente e agora fecham fail-closed.
+- Code Review: corrigidos diagnóstico falso de Compose, nomenclatura enganosa de `run-local` e entrada duplicada no log.
+
+### Próximo
+
+Desbloquear CI remoto; depois implementar CLI `iem` e harness de áudio conforme backlog, sem avançar release por suposição.
+
+---
+
+## 2026-09-09 — Phase 24 audit: estado real e estabilização de testes
+
+**Branch:** `main`
+**Ambiente:** Linux x86_64; PipeWire, mídia WebRTC e ARM64 real não disponíveis
+
+### Implementado
+
+- Auditou estado existente sem reiniciar o projeto; `main` está em `8db59da` e PR #38 já foi mergeada.
+- Adicionado teste de falha SQLite no lookup de ownership WebSocket; autorização permanece fail-closed.
+- Adicionado keepalive Ping/Pong e timeout de inatividade no WebSocket.
+- Todas as escritas WebSocket agora têm timeout de 10 segundos contra clientes lentos.
+- Estabilizados testes de broadcast WebSocket após handshake, evitando corrida do scheduler.
+
+### Verificação
+
+- Rust workspace: testes PASS — 49 integração API + crates; clippy e fmt PASS.
+- Musician: typecheck, 32 testes e build PASS.
+- Engineer: typecheck, 2 testes e build PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+
+### Devil's Advocate / limitações
+
+- CI remoto ainda bloqueado antes dos steps por infraestrutura/permissão; não declarar release `v0.3.1` pronta.
+- PipeWire real, mídia WebRTC, ARM64 em Raspberry Pi 5, latência e estabilidade de 60 minutos continuam `SIMULATED`/`HARDWARE VALIDATION REQUIRED`.
+- Testes locais de broadcast eram scheduler-dependent; correção só estabiliza o teste, não prova transporte de áudio real.
+
+### Próximo
+
+Desbloquear GitHub Actions com credencial/permissão válida; executar CI real; depois validar artefato ARM64 no Raspberry Pi 5 antes de release.
+
+---
+
 ## 2026-09-09 — Phase 23 follow-up: observabilidade de ownership WebSocket
 
 **Branch:** `fix/phase23-ownership-observability`

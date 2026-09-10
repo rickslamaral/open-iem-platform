@@ -30,6 +30,10 @@ pub enum ApiError {
     /// RBAC: insufficient permissions.
     #[error("forbidden: {0}")]
     Forbidden(&'static str),
+
+    /// Too many failed authentication attempts.
+    #[error("too many requests")]
+    TooManyRequests,
 }
 
 #[derive(Serialize)]
@@ -46,11 +50,23 @@ impl IntoResponse for ApiError {
             ApiError::BadRequest(_) => (StatusCode::BAD_REQUEST, "BAD_REQUEST"),
             ApiError::Internal(_) => (StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_ERROR"),
             ApiError::Forbidden(_) => (StatusCode::FORBIDDEN, "FORBIDDEN"),
+            ApiError::TooManyRequests => (StatusCode::TOO_MANY_REQUESTS, "TOO_MANY_REQUESTS"),
+        };
+        let message = match &self {
+            ApiError::Internal(_) => "internal server error".to_owned(),
+            _ => self.to_string(),
         };
         let body = Json(ErrorBody {
             code: code.to_owned(),
-            message: self.to_string(),
+            message,
         });
-        (status, body).into_response()
+        let mut response = (status, body).into_response();
+        if matches!(&self, ApiError::TooManyRequests) {
+            response.headers_mut().insert(
+                axum::http::header::RETRY_AFTER,
+                axum::http::HeaderValue::from_static("5"),
+            );
+        }
+        response
     }
 }
