@@ -941,6 +941,7 @@ async fn ws_musician_denied_set_send_gain_on_unassigned_mix() {
     let resp: Value = ws.receive_json().await;
     assert_eq!(resp["payload"]["type"], "Error");
     assert_eq!(resp["payload"]["data"]["code"], "FORBIDDEN");
+    assert_eq!(resp["request_id"], "test-req-1");
 }
 
 #[tokio::test]

@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — WebSocket error correlation
+- Errors returned after successful envelope validation preserve originating `request_id`; parser failures continue using `server`.
+
 ### Security — WebSocket error redaction
 - WebSocket protocol failures now expose stable generic codes/messages; parser and transport details stay server-side.
 - Normal peer closes and receive failures no longer masquerade as JWT expiration.

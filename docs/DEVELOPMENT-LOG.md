@@ -4,6 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — WebSocket request correlation
+
+**Phase:** 26 — WebSocket error correlation
+
+### Implementado
+
+- Erros `FORBIDDEN` gerados após envelope válido agora preservam `request_id` original, incluindo rejeições de RBAC e ownership.
+- Erros de parsing continuam usando `request_id` sintético `server`, pois entrada inválida não fornece correlação confiável.
+- Adicionado teste de integração para correlação em rejeição de ownership.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 218 testes.
+- `git diff --check`: PASS.
+- Reviews independentes: falha inicial encontrada no caminho de ownership; corrigida antes da entrega.
+
+### Limitações
+
+CI remoto continua bloqueado antes dos steps. PipeWire, mídia WebRTC real e ARM64 em Raspberry Pi permanecem não validados.
+
+### Próximo
+
+Desbloquear runner GitHub; depois implementar ressincronização explícita após perda de broadcast.
+
+---
+
 ## 2026-09-10 — WebSocket protocol error redaction
 
 **Phase:** 25 — WebSocket observability hardening

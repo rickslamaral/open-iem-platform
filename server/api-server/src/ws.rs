@@ -205,16 +205,23 @@ async fn handle_socket(
                         let envelope = match decode_client_message(&text) {
                             Err(error) => {
                                 let (code, message) = public_protocol_error(&error);
-                                send_error(&mut socket, code, message).await;
+                                send_error_with_request(&mut socket, "server", code, message).await;
                                 break;
                             }
                             Ok(env) => env,
                         };
+                        let request_id = envelope.request_id.clone();
 
                         // Role-based permission check — also covers send mutations.
                         let permitted = check_permission(&claims, &envelope.payload);
                         if !permitted {
-                            send_error(&mut socket, "FORBIDDEN", "role cannot perform this action").await;
+                            send_error_with_request(
+                                &mut socket,
+                                &request_id,
+                                "FORBIDDEN",
+                                "role cannot perform this action",
+                            )
+                            .await;
                             continue;
                         }
 
@@ -230,8 +237,13 @@ async fn handle_socket(
                         };
                         if !musician_owns_send {
                             drop(assignment_guard);
-                            send_error(&mut socket, "FORBIDDEN", "musician does not own this mix")
-                                .await;
+                            send_error_with_request(
+                                &mut socket,
+                                &request_id,
+                                "FORBIDDEN",
+                                "musician does not own this mix",
+                            )
+                            .await;
                             continue;
                         }
 
@@ -505,9 +517,18 @@ fn public_protocol_error(error: &ProtocolError) -> (&'static str, &'static str) 
 }
 
 async fn send_error(socket: &mut WebSocket, code: &str, message: &str) {
+    send_error_with_request(socket, "server", code, message).await;
+}
+
+async fn send_error_with_request(
+    socket: &mut WebSocket,
+    request_id: &str,
+    code: &str,
+    message: &str,
+) {
     let envelope = Envelope {
         version: PROTOCOL_VERSION,
-        request_id: "server".to_owned(),
+        request_id: request_id.to_owned(),
         payload: ServerMessage::Error {
             code: code.to_owned(),
             message: message.to_owned(),

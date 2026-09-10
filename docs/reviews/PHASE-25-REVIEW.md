@@ -1,5 +1,7 @@
 # Phase 25 Review — Redação de erros e observabilidade WebSocket
 
+> Follow-up Phase 26: erros após envelope válido agora preservam `request_id`; ver [PHASE-26-REVIEW.md](PHASE-26-REVIEW.md).
+
 ## Objetivo
 Remover vazamento de detalhes de parser/transportes no protocolo WebSocket e separar encerramentos normais de expiração JWT.
 
