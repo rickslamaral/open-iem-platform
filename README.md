@@ -40,13 +40,13 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 31 — JWT post-issuance revocation + fail-closed follow-up**. Implementação está commitada nesta branch e aguarda merge no PR #40; release permanece bloqueada por CI remoto sem jobs executados.
+**Fase incremental atual: Phase 32 — harness determinístico do áudio**. Teste local adicionado em `server/audio-engine/tests/deterministic_harness.rs`; PR #40 aberto; CI remoto continua bloqueado antes dos steps; sem merge ou release.
 
-**Phase 31 — JWT post-issuance revocation + fail-closed follow-up** (local verification passes; PR #40 open; CI blocked; not merged)
+**Phase 32 — harness determinístico do áudio** (verificação local passa; PR #40 aberto; CI bloqueado; não mergeado)
 
-O cliente Musician envia access token no subprotocolo de autenticação `openiem.bearer.<JWT>` junto de `openiem.v1` durante o upgrade HTTP; `/ws/v1` valida ambos e ecoa somente `openiem.v1`. Query strings não carregam mais tokens. Erros após envelope válido preservam `request_id`; erros de parsing usam `server`. ACKs, snapshot REST, ownership, ordenação, revisão monotônica antes de aplicar `State`/`SendAck`/`MasterAck`, limites de mensagem/frame de 16 KiB aplicados no upgrade (com teste de transporte para mensagem Text acima do limite), keepalive Ping/Pong com desafio correlacionado (30 s / timeout 60 s), máquina de estados sem falso timeout após Pong válido e teste determinístico com relógio pausado, rejeição de frames binários, limite process-wide de 64 conexões, quotas de 4 conexões por usuário e 16 por IP com reserva atômica e liberação RAII, sinalização de ressincronização após lag de broadcast, limiter bounded de 5 falhas de autenticação por IP a cada 60 s (com 4.096 entradas máximas) e logs de falha de consulta de ownership permanecem ativos. Áudio, sessões WebRTC reais, PipeWire e runtime ARM64 em Raspberry Pi continuam `SIMULATED`/não validados.
+O harness `SIMULATED` cobre determinismo, isolamento entre mixes, ganho, pan, mute, limiter e finitude das amostras. `cargo fmt --all -- --check` e `cargo test -p audio-engine` passaram: 20 testes unitários, 4 testes de integração e doc-tests. O harness não cobre hardware, desempenho realtime ou stop/start. Áudio real, PipeWire e runtime ARM64 em Raspberry Pi continuam não validados.
 
-Ver [Phase 29 review](docs/reviews/PHASE-29-REVIEW.md), [Phase 27 review](docs/reviews/PHASE-27-REVIEW.md), [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
+Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/reviews/PHASE-31-REVIEW.md), [Phase 29 review](docs/reviews/PHASE-29-REVIEW.md), [Phase 27 review](docs/reviews/PHASE-27-REVIEW.md), [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
 
 ## Development Phases
 
@@ -70,6 +70,7 @@ Ver [Phase 29 review](docs/reviews/PHASE-29-REVIEW.md), [Phase 27 review](docs/r
 | 29 | WebSocket Failed-Auth Limiting | ✅ Local implementation; CI blocked |
 | 30 | Docker Compose development | ✅ Configuration validated; runtime pending |
 | 31 | JWT post-issuance revocation | ✅ Local implementation and tests; CI blocked; unmerged |
+| 32 | Deterministic audio harness | ✅ Local tests pass; CI blocked; unmerged |
 
 ## Repository Structure
 
@@ -96,6 +97,7 @@ scripts/              — Development utilities
 - [Windows + Docker Desktop Guide](docs/guides/WINDOWS-DOCKER-GUIDE.md)
 - [ADR Index](docs/adr/)
 - [Interface CLI](docs/CLI.md)
+- [Review da Phase 32](docs/reviews/PHASE-32-REVIEW.md)
 - [Review da Phase 31](docs/reviews/PHASE-31-REVIEW.md)
 
 ## Contributing

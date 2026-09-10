@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Tests — Phase 32 deterministic audio harness
+- Added `server/audio-engine/tests/deterministic_harness.rs` as a deterministic `SIMULATED` audio-engine integration harness.
+- Harness covers determinism, mix isolation, gain, pan, mute, limiter bounds and finite samples.
+- Local verification passes: `cargo fmt --all -- --check` and `cargo test -p audio-engine` — 20 unit tests, 4 integration tests and doc-tests.
+- Harness does not cover hardware, realtime performance or stop/start. Remote CI remains blocked before steps; PR #40 is open; no merge or release.
+
 ### Changed — Compose compatibility cleanup
 - Removed obsolete top-level `version` field from `docker-compose.yml`; modern Compose no longer emits the compatibility warning.
 - Compose remains development-only and runtime validation remains pending.

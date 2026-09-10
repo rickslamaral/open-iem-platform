@@ -4,6 +4,27 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — Phase 32 — deterministic audio harness
+
+**Status:** testes locais passam; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Adicionado `server/audio-engine/tests/deterministic_harness.rs`, harness de integração `SIMULATED` sem hardware, rede ou valores de relógio de parede nas asserções de áudio.
+- Harness cobre determinismo, isolamento entre mixes, ganho, pan, mute, limiter e finitude das amostras.
+
+### Verificação
+
+- `cargo fmt --all -- --check`: PASS.
+- `cargo test -p audio-engine`: PASS — 20 testes unitários, 4 testes de integração e doc-tests.
+
+### Limitações
+
+- Harness não cobre hardware, desempenho realtime ou stop/start.
+- CI remoto continua bloqueado antes dos steps. PR #40 permanece aberto; não há merge ou release.
+
+---
+
 ## 2026-09-10 — Phase 31 review and CLI contract audit
 
 **Status:** documentação atualizada; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado.
