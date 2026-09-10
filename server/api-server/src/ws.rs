@@ -40,13 +40,20 @@ use control_protocol::{
 };
 use std::{
     sync::atomic::{AtomicU64, Ordering},
-    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
+use tokio::time::Instant;
 
 static NEXT_SESSION_ID: AtomicU64 = AtomicU64::new(1);
 
 const MAX_MESSAGES_PER_MINUTE: u32 = 120;
+const KEEPALIVE_INTERVAL: Duration = Duration::from_secs(30);
+const KEEPALIVE_TIMEOUT: Duration = Duration::from_secs(60);
 const MAX_SOCKET_SEND_WAIT: Duration = Duration::from_secs(10);
+
+fn keepalive_expired(last_pong: Instant, now: Instant) -> bool {
+    now.saturating_duration_since(last_pong) >= KEEPALIVE_TIMEOUT
+}
 
 async fn send_with_timeout(socket: &mut WebSocket, message: Message) -> bool {
     tokio::time::timeout(MAX_SOCKET_SEND_WAIT, socket.send(message))
@@ -104,8 +111,8 @@ async fn handle_socket(
     let mut window_started = unix_now();
     let mut message_count = 0_u32;
     let mut keepalive = tokio::time::interval_at(
-        tokio::time::Instant::now() + Duration::from_secs(30),
-        Duration::from_secs(30),
+        tokio::time::Instant::now() + KEEPALIVE_INTERVAL,
+        KEEPALIVE_INTERVAL,
     );
     keepalive.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
     let mut last_pong = Instant::now();
@@ -125,7 +132,7 @@ async fn handle_socket(
         tokio::select! {
             // Server keepalive. A Pong within the last 60 seconds keeps session alive.
             _ = keepalive.tick() => {
-                if last_pong.elapsed() >= Duration::from_secs(60) {
+                if keepalive_expired(last_pong, Instant::now()) {
                     send_error(&mut socket, "CONNECTION_TIMEOUT", "WebSocket pong timeout").await;
                     break;
                 }
@@ -476,5 +483,26 @@ async fn send_error(socket: &mut WebSocket, code: &str, message: &str) {
     };
     if let Ok(json) = serde_json::to_string(&envelope) {
         let _ = send_with_timeout(socket, Message::Text(json.into())).await;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{keepalive_expired, KEEPALIVE_TIMEOUT};
+    use tokio::time::{Duration, Instant};
+
+    #[test]
+    fn keepalive_is_not_expired_before_timeout() {
+        let last_pong = Instant::now();
+        assert!(!keepalive_expired(
+            last_pong,
+            last_pong + KEEPALIVE_TIMEOUT - Duration::from_millis(1),
+        ));
+    }
+
+    #[test]
+    fn keepalive_expires_at_timeout() {
+        let last_pong = Instant::now();
+        assert!(keepalive_expired(last_pong, last_pong + KEEPALIVE_TIMEOUT));
     }
 }

@@ -53,5 +53,10 @@ O helper destrutivo usado para fault injection de autorização é compilado som
 - Removida entrada duplicada no Development Log.
 - Reviews independentes registraram ausência de testes temporais de keepalive e backlog para quota de conexões, revogação pós-emissão e redaction explícito.
 
+## Follow-up desta rodada
+- Política de keepalive extraída para `KEEPALIVE_INTERVAL`/`KEEPALIVE_TIMEOUT`.
+- Helper puro `keepalive_expired` cobre fronteiras antes e exatamente no timeout.
+- Loop WebSocket ainda usa intervalos de produção de 30/60 segundos; teste temporal de integração continua pendente.
+
 ## Próximo
 Investigar indisponibilidade/configuração do GitHub Actions; não declarar release nem merge até CI executar todos os gates e passar.

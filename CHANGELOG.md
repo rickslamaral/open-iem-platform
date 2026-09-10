@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — WebSocket keepalive
+- Extracted keepalive intervals and timeout into named policy constants; added boundary unit tests for timeout evaluation.
+
 ### Added — Local developer interface
 - Added root `Makefile` with documented build, test, lint, docs, validation, diagnostics and lifecycle targets.
 - Added `scripts/validate-environment.sh` with explicit `OK`, `OPTIONAL`, `SIMULATED` and `HARDWARE VALIDATION REQUIRED` states.

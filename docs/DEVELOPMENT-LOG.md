@@ -4,6 +4,28 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — Keepalive policy extracted and unit-tested
+
+**Phase:** 24 — release hardening
+
+### Implementado
+
+- Extraídos intervalos de keepalive para constantes nomeadas.
+- Adicionado helper puro `keepalive_expired` com testes de fronteira no timeout de 60 segundos.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --package api-server --lib --tests ws_ -- --nocapture`: PASS — 20 testes relevantes (18 integração + 2 unitários).
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- `git diff --check`: PASS.
+
+### Limitações
+
+- Testes de loop WebSocket com relógio controlado ainda não existem; transporte real, PipeWire e ARM64 permanecem não validados.
+
+---
+
 ## 2026-09-10 — WebSocket control-frame coverage and quota hardening
 
 **Phase:** 24 — release hardening
