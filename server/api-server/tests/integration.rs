@@ -1021,10 +1021,16 @@ async fn ws_send_mutation_broadcasts_to_other_sessions() {
         .into_websocket()
         .await;
 
-    // The handshake completes before the handler task necessarily reaches
-    // broadcast subscription. Yield once so the observer cannot miss the
-    // first delta due to test scheduling rather than application behavior.
-    tokio::task::yield_now().await;
+    // Prove observer handler reached its receive loop. Subscription happens
+    // before that loop, so this removes handshake/task-scheduling ambiguity.
+    observer
+        .send_text(ws_envelope(
+            "SetSendGain",
+            json!({"mix_index": 0, "channel_index": 1, "gain_db": 999.0}),
+        ))
+        .await;
+    let observer_ready: Value = observer.receive_json().await;
+    assert_eq!(observer_ready["payload"]["type"], "Error");
 
     // Mutator changes gain on mix 0, channel 1.
     mutator
@@ -1220,9 +1226,15 @@ async fn ws_master_mutation_broadcasts_to_other_sessions() {
         .into_websocket()
         .await;
 
-    // Let observer handler subscribe before mutation; handshake and task
-    // scheduling are separate in axum-test.
-    tokio::task::yield_now().await;
+    // Prove observer handler reached its receive loop before mutation.
+    observer
+        .send_text(ws_envelope(
+            "SetMasterGain",
+            json!({"mix_index": 0, "gain_db": 999.0}),
+        ))
+        .await;
+    let observer_ready: Value = observer.receive_json().await;
+    assert_eq!(observer_ready["payload"]["type"], "Error");
 
     mutator
         .send_text(ws_envelope(
