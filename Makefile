@@ -10,7 +10,7 @@ help:
 	@printf '%s\n' 'Open IEM Platform developer targets:'
 	@printf '%s\n' '  make install          validate required local tools'
 	@printf '%s\n' '  make run              run API server natively (requires config)'
-	@printf '%s\n' '  make run-local        run local development simulation'
+	@printf '%s\n' '  make run-local        run API server with local development configuration'
 	@printf '%s\n' '  make up/down/logs     manage project-owned compose services'
 	@printf '%s\n' '  make status           report repository and build state'
 	@printf '%s\n' '  make lint/fmt         lint or format Rust and frontends'
@@ -32,7 +32,7 @@ run:
 	@cargo run --manifest-path $(SERVER_MANIFEST) --bin api-server
 
 run-local:
-	@echo 'Local simulation is not a separate server mode yet; starting API server with current environment.'
+	@echo 'Starting API server with current local development environment; audio remains SIMULATED.'
 	@cargo run --manifest-path $(SERVER_MANIFEST) --bin api-server
 
 up:

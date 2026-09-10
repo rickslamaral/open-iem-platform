@@ -19,17 +19,21 @@ All significant milestones documented here in reverse chronological order.
 
 - `make help`: PASS.
 - `make install`: PASS.
-- `make diagnostics`: PASS; PipeWire/ALSA e Raspberry Pi marcados `HARDWARE VALIDATION REQUIRED`.
-- `scripts/validate-docs.sh`: PASS.
-- `git diff --check`: PASS.
+- `make diagnostics`: PASS; Docker Compose detectado, PipeWire/ALSA e Raspberry Pi marcados `HARDWARE VALIDATION REQUIRED`.
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check`: PASS.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 216 testes executados nesta rodada.
+- `scripts/validate-docs.sh`, `bash -n scripts/validate-environment.sh` e `git diff --check`: PASS.
+
+### Revisão independente
+
+- Test Agent: MEDIUM — keepalive ainda sem teste temporal; `run-local` não é simulação isolada.
+- Security Review: sem BLOCKER/HIGH; MEDIUM — limite global de conexões e revogação pós-emissão ainda pendentes; binary frames antes eram descartados silenciosamente e agora fecham fail-closed.
+- Code Review: corrigidos diagnóstico falso de Compose, nomenclatura enganosa de `run-local` e entrada duplicada no log.
 
 ### Próximo
 
 Desbloquear CI remoto; depois implementar CLI `iem` e harness de áudio conforme backlog, sem avançar release por suposição.
-
----
-
-## 2026-09-09 — Phase 24 audit: estado real e estabilização de testes
 
 ---
 

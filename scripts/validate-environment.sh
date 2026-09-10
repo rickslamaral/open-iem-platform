@@ -22,7 +22,13 @@ check 'Rust/Cargo' cargo required
 check 'Node.js' node required
 check 'npm' npm required
 check 'Docker' docker optional
-check 'Docker Compose' docker optional
+if docker compose version >/dev/null 2>&1; then
+  printf 'OK: Docker Compose (%s)\n' "$(docker compose version --short 2>/dev/null || printf 'plugin')"
+elif command -v docker-compose >/dev/null 2>&1; then
+  printf 'OK: Docker Compose (%s)\n' "$(command -v docker-compose)"
+else
+  printf 'OPTIONAL: Docker Compose not installed\n'
+fi
 check 'PipeWire' pw-cli optional
 check 'ALSA utilities' aplay optional
 

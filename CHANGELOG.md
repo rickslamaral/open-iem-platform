@@ -12,6 +12,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed — Engineering contract
 - Extended `START.md` with CI diagnostics, release blocking, recovery, hardware validation, traceability, audio test harness and architecture fitness requirements.
+- Clarified `make run-local` as local API execution with simulated audio; it does not bypass server configuration.
+- Docker Compose diagnostics now verify the Compose plugin or standalone executable instead of inferring support from Docker alone.
+
+### Security — WebSocket protocol
+- Binary WebSocket frames now receive `INVALID_MESSAGE` and close the connection instead of being silently discarded.
 
 ### Added — Phase 24 WebSocket resilience
 - Added fail-closed integration coverage when the musician ownership database lookup fails.

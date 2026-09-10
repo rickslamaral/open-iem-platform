@@ -45,5 +45,12 @@ O helper destrutivo usado para fault injection de autorização é compilado som
 ## Limitações
 `v0.3.1` foi commitado e tagueado, mas CI/Release falharam imediatamente no GitHub Actions antes de executar steps: CI `34413429554`, Release `34413431504` (reexecução 2). Artefatos não publicados. ARM64, PipeWire, Opus e WebRTC continuam SIMULATED/não validados no VPS.
 
+## Follow-up desta rodada
+- Corrigido diagnóstico de Docker Compose para verificar plugin ou executável standalone.
+- `make run-local` agora descreve execução local com áudio SIMULATED; não finge fornecer configuração ou servidor de simulação separado.
+- Frames WebSocket binários agora retornam `INVALID_MESSAGE` e encerram conexão, alinhando implementação com contrato fail-closed.
+- Removida entrada duplicada no Development Log.
+- Reviews independentes registraram ausência de testes temporais de keepalive e backlog para quota de conexões, revogação pós-emissão e redaction explícito.
+
 ## Próximo
 Investigar indisponibilidade/configuração do GitHub Actions; não declarar release nem merge até CI executar todos os gates e passar.

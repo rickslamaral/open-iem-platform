@@ -62,7 +62,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [ ] LOW: mix_assignment_lock held during DB read in broadcast fan-out — may contend under load; evaluate read-only lookup without lock
 - [x] LOW: Test DB failure during musician WebSocket ownership lookup — fail-closed coverage added Phase 24
 - [x] WebSocket keepalive: server Ping/ Pong timeout and bounded socket sends — Phase 24 (timing integration test remains pending)
-- [ ] WebSocket keepalive: add deterministic short-interval integration tests without waiting 30/60 seconds
+- [ ] LOW: WebSocket keepalive: add deterministic short-interval integration tests without waiting 30/60 seconds
+- [ ] MEDIUM: Enforce WebSocket connection quotas and post-issuance JWT revocation checks
+- [ ] LOW: Add explicit WebSocket logging redaction policy and generic client-facing protocol errors
 
 ---
 

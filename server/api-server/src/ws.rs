@@ -303,7 +303,10 @@ async fn handle_socket(
                     Message::Pong(_) => {
                         last_pong = Instant::now();
                     }
-                    Message::Binary(_) => {}
+                    Message::Binary(_) => {
+                        send_error(&mut socket, "INVALID_MESSAGE", "binary WebSocket frames are not supported").await;
+                        break;
+                    }
                 }
             }
 
