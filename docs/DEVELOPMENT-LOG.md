@@ -4,6 +4,32 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — WebSocket connection cap
+
+**Phase:** 24 — release hardening
+
+### Implementado
+
+- Adicionado limite process-wide de 64 conexões WebSocket atualizadas com `tokio::sync::Semaphore`.
+- Permissão é reservada antes do upgrade e mantida pelo handler; liberação ocorre no disconnect.
+- Excesso recebe HTTP 503 e `Retry-After: 5`.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check`: PASS.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 216 testes.
+- Frontends Musician: typecheck, 32 testes e build PASS.
+- Frontend Engineer: typecheck, 2 testes e build PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+
+### Limitações
+
+- Quotas por usuário/IP, revogação pós-emissão de JWT e teste de saturação do limite continuam pendentes.
+- CI remoto, PipeWire, mídia WebRTC real e ARM64 em Raspberry Pi permanecem não validados.
+
+---
+
 ## 2026-09-10 — Keepalive policy extracted and unit-tested
 
 **Phase:** 24 — release hardening

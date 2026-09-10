@@ -56,7 +56,15 @@ O helper destrutivo usado para fault injection de autorização é compilado som
 ## Follow-up desta rodada
 - Política de keepalive extraída para `KEEPALIVE_INTERVAL`/`KEEPALIVE_TIMEOUT`.
 - Helper puro `keepalive_expired` cobre fronteiras antes e exatamente no timeout.
+- Adicionado `MAX_WEBSOCKET_CONNECTIONS = 64` com `Semaphore`; upgrades acima do limite retornam HTTP 503 e `Retry-After: 5`.
+- Permissão acompanha conexão até o fim do handler, evitando vazamento de slots.
 - Loop WebSocket ainda usa intervalos de produção de 30/60 segundos; teste temporal de integração continua pendente.
+
+## Segurança e limites restantes
+- Quotas por usuário/IP e revogação pós-emissão de JWT ainda não implementadas.
+- Revogar sessão refresh ou excluir usuário não derruba access JWT já emitido até expiração.
+- CLI administrativo ainda exige disciplina operacional para não expor token/senha em argv e não deve ser usado sobre HTTP remoto.
+- Nenhum secret adicionado.
 
 ## Próximo
 Investigar indisponibilidade/configuração do GitHub Actions; não declarar release nem merge até CI executar todos os gates e passar.

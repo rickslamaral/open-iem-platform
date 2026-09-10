@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — WebSocket connection cap
+- Added a process-wide semaphore limiting upgraded WebSocket connections to 64; excess upgrades return HTTP 503 with `Retry-After: 5`.
+
 ### Changed — WebSocket keepalive
 - Extracted keepalive intervals and timeout into named policy constants; added boundary unit tests for timeout evaluation.
 

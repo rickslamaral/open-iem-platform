@@ -9,6 +9,9 @@
 //!   - Message too large
 //!   - Server shutdown
 //!
+//! The process accepts at most `MAX_WEBSOCKET_CONNECTIONS` upgraded connections;
+//! excess upgrades receive HTTP 503 with `Retry-After: 5`.
+//!
 //! ## Broadcast model
 //!
 //! After a successful send mutation (`SetSendGain`, `SetSendPan`, `SetSendMuted`)
@@ -32,7 +35,7 @@ use axum::{
         ws::{Message, WebSocket},
         Extension, State, WebSocketUpgrade,
     },
-    response::IntoResponse,
+    response::{IntoResponse, Response},
 };
 use control_protocol::{
     decode_client_message, ClientMessage, Envelope, Role, ServerMessage, MAX_MESSAGE_BYTES,
@@ -42,6 +45,7 @@ use std::{
     sync::atomic::{AtomicU64, Ordering},
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
+use tokio::sync::OwnedSemaphorePermit;
 use tokio::time::Instant;
 
 static NEXT_SESSION_ID: AtomicU64 = AtomicU64::new(1);
@@ -91,11 +95,21 @@ pub async fn ws_handler(
     State(state): State<AppState>,
     ws: WebSocketUpgrade,
     Extension(claims): Extension<JwtClaims>,
-) -> impl IntoResponse {
-    ws.protocols(["openiem.v1"]).on_upgrade(move |socket| {
-        let session_id = u128::from(NEXT_SESSION_ID.fetch_add(1, Ordering::Relaxed));
-        handle_socket(socket, state, claims, session_id)
-    })
+) -> Response {
+    let Ok(permit) = state.websocket_connections.clone().try_acquire_owned() else {
+        return (
+            axum::http::StatusCode::SERVICE_UNAVAILABLE,
+            [(axum::http::header::RETRY_AFTER, "5")],
+            "WebSocket connection limit reached",
+        )
+            .into_response();
+    };
+    ws.protocols(["openiem.v1"])
+        .on_upgrade(move |socket| {
+            let session_id = u128::from(NEXT_SESSION_ID.fetch_add(1, Ordering::Relaxed));
+            handle_socket(socket, state, claims, session_id, permit)
+        })
+        .into_response()
 }
 
 /// Long-running WebSocket I/O loop. The loop body is intentionally contained here
@@ -106,6 +120,7 @@ async fn handle_socket(
     state: AppState,
     claims: JwtClaims,
     session_id: u128,
+    _connection_permit: OwnedSemaphorePermit,
 ) {
     debug!(user = %claims.sub, role = ?claims.role, "WebSocket connected");
     let mut window_started = unix_now();

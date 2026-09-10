@@ -42,7 +42,7 @@ IEM    IEM    IEM
 
 **Phase 24 — Release hardening e auditoria de estado** (código local validado; release bloqueada por CI remoto)
 
-O cliente Musician envia access token no subprotocolo de autenticação `openiem.bearer.<JWT>` junto de `openiem.v1` durante o upgrade HTTP; `/ws/v1` valida ambos e ecoa somente `openiem.v1`. Query strings não carregam mais tokens. ACKs, snapshot REST, ownership, ordenação, limites, keepalive Ping/Pong (30 s / timeout 60 s), rejeição de frames binários e logs de falha de consulta de ownership permanecem ativos. Áudio, sessões WebRTC reais, PipeWire e runtime ARM64 em Raspberry Pi continuam `SIMULATED`/não validados.
+O cliente Musician envia access token no subprotocolo de autenticação `openiem.bearer.<JWT>` junto de `openiem.v1` durante o upgrade HTTP; `/ws/v1` valida ambos e ecoa somente `openiem.v1`. Query strings não carregam mais tokens. ACKs, snapshot REST, ownership, ordenação, limites, keepalive Ping/Pong (30 s / timeout 60 s), rejeição de frames binários, limite process-wide de 64 conexões e logs de falha de consulta de ownership permanecem ativos. Áudio, sessões WebRTC reais, PipeWire e runtime ARM64 em Raspberry Pi continuam `SIMULATED`/não validados.
 
 Ver [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 23 review](docs/reviews/PHASE-23-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
 
