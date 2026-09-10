@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — WebSocket keepalive challenge correlation
+- Server now accepts Pong for liveness only when payload matches outstanding server Ping; unsolicited or stale Pong frames cannot bypass timeout.
+
 ### Changed — WebSocket error correlation
 - Errors returned after successful envelope validation preserve originating `request_id`; parser failures continue using `server`.
 

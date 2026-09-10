@@ -10,9 +10,11 @@ Preservar `request_id` em erros gerados depois de envelope WebSocket válido, ma
 
 ## Verificação
 - `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
-- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 218 testes.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 219 testes.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
 - `git diff --check`: PASS.
-- Reviews independentes: correção confirmada após ajuste do caminho de ownership; sem concerns de segurança.
+- Reviews independentes encontraram bypass de liveness por Pong não solicitado e replay de desafio; corrigidos com payload novo por Ping e teste unitário de correspondência.
+- Frontends Musician/Engineer: typecheck, testes e build PASS nesta rodada.
 
 ## Limitações
 CI GitHub Actions continua falhando antes dos steps por runner/permissão. PipeWire, mídia WebRTC real e runtime ARM64 Raspberry Pi continuam não validados no VPS.

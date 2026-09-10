@@ -55,8 +55,12 @@ const KEEPALIVE_INTERVAL: Duration = Duration::from_secs(30);
 const KEEPALIVE_TIMEOUT: Duration = Duration::from_secs(60);
 const MAX_SOCKET_SEND_WAIT: Duration = Duration::from_secs(10);
 
-fn keepalive_expired(last_pong: Instant, now: Instant) -> bool {
-    now.saturating_duration_since(last_pong) >= KEEPALIVE_TIMEOUT
+fn keepalive_expired(ping_sent: Instant, now: Instant) -> bool {
+    now.saturating_duration_since(ping_sent) >= KEEPALIVE_TIMEOUT
+}
+
+fn keepalive_pong_matches(expected: Option<&[u8]>, received: &[u8]) -> bool {
+    expected.is_some_and(|payload| payload == received)
 }
 
 async fn send_with_timeout(socket: &mut WebSocket, message: Message) -> bool {
@@ -130,7 +134,9 @@ async fn handle_socket(
         KEEPALIVE_INTERVAL,
     );
     keepalive.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
-    let mut last_pong = Instant::now();
+    let mut last_ping = Instant::now();
+    let mut ping_sequence = 0_u64;
+    let mut expected_pong: Option<Vec<u8>> = None;
 
     // Subscribe to broadcast events before entering the loop.
     let mut event_rx = state.event_tx.subscribe();
@@ -147,12 +153,18 @@ async fn handle_socket(
         tokio::select! {
             // Server keepalive. A Pong within the last 60 seconds keeps session alive.
             _ = keepalive.tick() => {
-                if keepalive_expired(last_pong, Instant::now()) {
+                if expected_pong.as_ref().is_some_and(|_| keepalive_expired(last_ping, Instant::now())) {
                     send_error(&mut socket, "CONNECTION_TIMEOUT", "WebSocket pong timeout").await;
                     break;
                 }
-                if !send_with_timeout(&mut socket, Message::Ping(Vec::new().into())).await {
-                    break;
+                if expected_pong.is_none() {
+                    ping_sequence = ping_sequence.wrapping_add(1);
+                    let payload = format!("openiem-keepalive-{session_id}-{ping_sequence}").into_bytes();
+                    if !send_with_timeout(&mut socket, Message::Ping(payload.clone().into())).await {
+                        break;
+                    }
+                    last_ping = Instant::now();
+                    expected_pong = Some(payload);
                 }
             }
 
@@ -339,8 +351,11 @@ async fn handle_socket(
                             break;
                         }
                     }
-                    Message::Pong(_) => {
-                        last_pong = Instant::now();
+                    Message::Pong(payload) => {
+                        if keepalive_pong_matches(expected_pong.as_deref(), payload.as_ref()) {
+                            expected_pong = None;
+                            last_ping = Instant::now();
+                        }
                     }
                     Message::Binary(_) => {
                         send_error(&mut socket, "INVALID_MESSAGE", "binary WebSocket frames are not supported").await;
@@ -541,7 +556,9 @@ async fn send_error_with_request(
 
 #[cfg(test)]
 mod tests {
-    use super::{keepalive_expired, public_protocol_error, KEEPALIVE_TIMEOUT};
+    use super::{
+        keepalive_expired, keepalive_pong_matches, public_protocol_error, KEEPALIVE_TIMEOUT,
+    };
     use control_protocol::ProtocolError;
     use tokio::time::{Duration, Instant};
 
@@ -556,8 +573,15 @@ mod tests {
 
     #[test]
     fn keepalive_expires_at_timeout() {
-        let last_pong = Instant::now();
-        assert!(keepalive_expired(last_pong, last_pong + KEEPALIVE_TIMEOUT));
+        let last_ping = Instant::now();
+        assert!(keepalive_expired(last_ping, last_ping + KEEPALIVE_TIMEOUT));
+    }
+
+    #[test]
+    fn unsolicited_pong_does_not_satisfy_keepalive() {
+        assert!(!keepalive_pong_matches(None, b"unsolicited"));
+        assert!(!keepalive_pong_matches(Some(b"expected"), b"wrong"));
+        assert!(keepalive_pong_matches(Some(b"expected"), b"expected"));
     }
 
     #[test]

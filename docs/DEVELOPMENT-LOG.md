@@ -4,6 +4,35 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — WebSocket keepalive challenge correlation
+
+**Phase:** 26 — WebSocket resilience follow-up
+
+### Implementado
+
+- Servidor envia Ping com payload por sessão e registra desafio pendente.
+- Somente Pong com payload exatamente igual ao último Ping enviado atualiza liveness; Pong não solicitado ou obsoleto não estende conexão.
+- Adicionado teste unitário para rejeição de Pong não solicitado e payload incorreto.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 219 testes.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- Frontends Musician/Engineer já validados nesta rodada: typecheck, testes e build PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+
+### Limitações
+
+Teste temporal do loop WebSocket ainda pendente. CI remoto segue falhando antes dos steps por runner/permissão. PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
+
+### Próximo
+
+Adicionar teste temporal determinístico do loop sem esperar 30/60 segundos; depois investigar runner GitHub.
+
+---
+
+
 ## 2026-09-10 — WebSocket request correlation
 
 **Phase:** 26 — WebSocket error correlation
