@@ -4,6 +4,29 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — WebSocket state recovery after broadcast lag
+
+**Phase:** 27 — WebSocket resilience follow-up
+
+### Implementado
+
+- Broadcast `Lagged` em canais de send/master agora envia `State` com revisão autoritativa.
+- Musician refaz snapshot REST autenticado ao receber `State`, recuperando deltas perdidos.
+- Musician valida e aplica `MasterAck` recebido de broadcasts no snapshot local.
+- Adicionado teste do hook para atualização de master.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — 218 testes Rust e 3 doc-tests.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- Musician typecheck, 33 testes e build: PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+- CI remoto segue bloqueado antes dos steps por runner/permissão.
+- PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
+
+---
+
 ## 2026-09-10 — WebSocket oversized-message transport coverage
 
 **Phase:** 26 — WebSocket resilience follow-up

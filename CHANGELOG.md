@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — WebSocket state recovery
+- Broadcast lag now emits an authoritative `State` revision notice; Musician refetches authenticated REST snapshot to recover missed deltas.
+- Musician client now validates and applies `MasterAck` broadcasts to its local mix snapshot.
+
 ### Tests — WebSocket frame limits
 - Added integration coverage proving oversized Text messages terminate transport before application parsing.
 

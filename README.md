@@ -40,11 +40,11 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Phase 26 — Resiliência e correlação de erros WebSocket** (código local validado; release bloqueada por CI remoto)
+**Phase 27 — Ressincronização WebSocket e estado de mix** (código local validado; release bloqueada por CI remoto)
 
-O cliente Musician envia access token no subprotocolo de autenticação `openiem.bearer.<JWT>` junto de `openiem.v1` durante o upgrade HTTP; `/ws/v1` valida ambos e ecoa somente `openiem.v1`. Query strings não carregam mais tokens. Erros após envelope válido preservam `request_id`; erros de parsing usam `server`. ACKs, snapshot REST, ownership, ordenação, limites de mensagem/frame de 16 KiB aplicados no upgrade (com teste de transporte para mensagem Text acima do limite), keepalive Ping/Pong com desafio correlacionado (30 s / timeout 60 s) e máquina de estados sem falso timeout após Pong válido, rejeição de frames binários, limite process-wide de 64 conexões e logs de falha de consulta de ownership permanecem ativos. Áudio, sessões WebRTC reais, PipeWire e runtime ARM64 em Raspberry Pi continuam `SIMULATED`/não validados.
+O cliente Musician envia access token no subprotocolo de autenticação `openiem.bearer.<JWT>` junto de `openiem.v1` durante o upgrade HTTP; `/ws/v1` valida ambos e ecoa somente `openiem.v1`. Query strings não carregam mais tokens. Erros após envelope válido preservam `request_id`; erros de parsing usam `server`. ACKs, snapshot REST, ownership, ordenação, limites de mensagem/frame de 16 KiB aplicados no upgrade (com teste de transporte para mensagem Text acima do limite), keepalive Ping/Pong com desafio correlacionado (30 s / timeout 60 s) e máquina de estados sem falso timeout após Pong válido, rejeição de frames binários, limite process-wide de 64 conexões, sinalização de ressincronização após lag de broadcast e logs de falha de consulta de ownership permanecem ativos. Áudio, sessões WebRTC reais, PipeWire e runtime ARM64 em Raspberry Pi continuam `SIMULATED`/não validados.
 
-Ver [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 23 review](docs/reviews/PHASE-23-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
+Ver [Phase 27 review](docs/reviews/PHASE-27-REVIEW.md), [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
 
 ## Development Phases
 
@@ -61,6 +61,7 @@ Ver [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 23 review](docs/r
 | 8 | Raspberry Pi Deployment | ⏳ Pending |
 | 9 | Performance & Reliability | ⏳ Pending |
 | 10 | ESP32 / Dedicated Receiver Research | ⏳ Pending |
+| 27 | WebSocket State Recovery | ✅ Local implementation; CI blocked |
 
 ## Repository Structure
 

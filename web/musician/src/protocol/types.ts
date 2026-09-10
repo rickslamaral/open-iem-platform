@@ -50,6 +50,15 @@ export type ServerMessage =
         revision: number;
       };
     }
+  | {
+      type: 'MasterAck';
+      data: {
+        mix_index: number;
+        master_gain_db: number;
+        master_muted: boolean;
+        revision: number;
+      };
+    }
   | { type: 'Error'; data: { code: string; message: string } };
 
 // Auth API shapes

@@ -148,6 +148,26 @@ describe('useWebSocket', () => {
     });
   });
 
+  it('applies MasterAck values to matching snapshot mix', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => makeSnapshot(5) }));
+    const { result } = renderHook(() => useWebSocket('test-token'));
+    act(() => MockWebSocket.instances[0]?.onopen?.());
+    await waitFor(() => expect(result.current.snapshot).not.toBeNull());
+
+    act(() => MockWebSocket.instances[0]?.onmessage?.({ data: JSON.stringify({
+      version: 1,
+      request_id: '00000000-0000-4000-8000-000000000001',
+      payload: { type: 'MasterAck', data: {
+        mix_index: 0, master_gain_db: -6, master_muted: true, revision: 6,
+      } },
+    }) }));
+
+    expect(result.current.snapshot?.revision).toBe(6);
+    expect(result.current.snapshot?.mixes[0]).toMatchObject({
+      master_gain_db: -6, master_muted: true,
+    });
+  });
+
   it('updates revision on State message', () => {
     const { result } = renderHook(() => useWebSocket('test-token'));
     act(() => {

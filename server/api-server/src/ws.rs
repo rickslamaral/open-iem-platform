@@ -437,6 +437,22 @@ async fn handle_socket(
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
                         warn!(user = %claims.sub, "broadcast lagged by {n} events; some deltas skipped");
+                        let revision = if let Ok(control) = state.control.lock() {
+                            control.revision()
+                        } else {
+                            warn!(session_id, "control state lock poisoned during resync");
+                            break;
+                        };
+                        let state_notice = Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: "server".to_owned(),
+                            payload: ServerMessage::State { revision },
+                        };
+                        if let Ok(json) = serde_json::to_string(&state_notice) {
+                            if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
+                                break;
+                            }
+                        }
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Closed) => {
                         // Server shutting down.
@@ -488,6 +504,22 @@ async fn handle_socket(
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
                         warn!(user = %claims.sub, "master broadcast lagged by {n} events; some deltas skipped");
+                        let revision = if let Ok(control) = state.control.lock() {
+                            control.revision()
+                        } else {
+                            warn!(session_id, "control state lock poisoned during resync");
+                            break;
+                        };
+                        let state_notice = Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: "server".to_owned(),
+                            payload: ServerMessage::State { revision },
+                        };
+                        if let Ok(json) = serde_json::to_string(&state_notice) {
+                            if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
+                                break;
+                            }
+                        }
                     }
                     Err(tokio::sync::broadcast::error::RecvError::Closed) => {
                         break;

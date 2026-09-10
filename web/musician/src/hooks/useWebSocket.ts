@@ -83,6 +83,16 @@ function isServerMessage(value: unknown): value is ServerMessage {
       && message.data.pan >= -1 && message.data.pan <= 1
       && typeof message.data?.muted === 'boolean';
   }
+  if (message.type === 'MasterAck') {
+    return isValidRevision(message.data?.revision)
+      && typeof message.data?.mix_index === 'number'
+      && Number.isInteger(message.data.mix_index)
+      && message.data.mix_index >= 0 && message.data.mix_index < 2
+      && isFiniteNumber(message.data?.master_gain_db)
+      && message.data.master_gain_db >= GAIN_DB_MIN
+      && message.data.master_gain_db <= GAIN_DB_MAX
+      && typeof message.data?.master_muted === 'boolean';
+  }
   if (message.type === 'Error') {
     return typeof message.data?.code === 'string' && typeof message.data.message === 'string';
   }
@@ -149,8 +159,12 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
     const abortController = new AbortController();
     snapshotAbortRef.current = abortController;
     let snapshotRequestInFlight = false;
+    let snapshotRefreshQueued = false;
     const refreshSnapshot = async () => {
-      if (snapshotRequestInFlight) return;
+      if (snapshotRequestInFlight) {
+        snapshotRefreshQueued = true;
+        return;
+      }
       snapshotRequestInFlight = true;
       try {
         const response = await fetch('/api/v1/state', {
@@ -172,6 +186,10 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
         }
       } finally {
         snapshotRequestInFlight = false;
+        if (snapshotRefreshQueued && !abortController.signal.aborted) {
+          snapshotRefreshQueued = false;
+          void refreshSnapshot();
+        }
       }
     };
 
@@ -203,12 +221,29 @@ export function useWebSocket(token: string | null): UseWebSocketResult {
           return;
         }
         const msg = payload;
-        if (msg.type === 'State' || msg.type === 'SendAck') {
+        if (msg.type === 'State' || msg.type === 'SendAck' || msg.type === 'MasterAck') {
           if (msg.type === 'State') {
             latestRevisionRef.current = updateRevision(latestRevisionRef.current, msg.data.revision);
+            void refreshSnapshot();
           }
           setRevision((current) => updateRevision(current, msg.data.revision));
-          if (msg.type === 'SendAck') {
+          if (msg.type === 'MasterAck') {
+            setSnapshot((current) => {
+              if (!current || msg.data.revision < current.revision) return current;
+              const mix = current.mixes.find((item) => item.index === msg.data.mix_index);
+              if (!mix) return current;
+              latestRevisionRef.current = updateRevision(latestRevisionRef.current, msg.data.revision);
+              return {
+                ...current,
+                revision: Math.max(current.revision, msg.data.revision),
+                mixes: current.mixes.map((item) => item.index !== msg.data.mix_index ? item : {
+                  ...item,
+                  master_gain_db: msg.data.master_gain_db,
+                  master_muted: msg.data.master_muted,
+                }),
+              };
+            });
+          } else if (msg.type === 'SendAck') {
             setSnapshot((current) => {
               if (!current || msg.data.revision < current.revision) return current;
               const mix = current.mixes.find((item) => item.index === msg.data.mix_index);

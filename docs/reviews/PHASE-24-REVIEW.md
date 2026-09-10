@@ -16,7 +16,7 @@ Corrigir falha real do pipeline de release: `v0.3.0` apontava para commit anteri
 - `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
 - `cargo test --manifest-path server/Cargo.toml --all`: 216 testes PASS, 0 falhas.
 - Testes de protocolo Ping/Pong e frame binário: PASS; testes temporais determinísticos de keepalive ainda pendentes, pois intervalos de produção são 30/60 segundos.
-- Quota WebSocket agora conta somente mensagens Text de aplicação; control frames não consomem limite.
+- Quota WebSocket conta todo frame recebido, incluindo control frames; quotas por usuário/IP continuam pendentes.
 - PipeWire, WebRTC media, ARM64 runtime e GitHub Actions continuam não validados nesta máquina.
 
 ## Auditoria de estado (09/09/2026)
@@ -72,5 +72,11 @@ O helper destrutivo usado para fault injection de autorização é compilado som
 - Logs de recebimento não incluem erro bruto; usam `session_id`.
 - Teste unitário confirma que conteúdo inválido não vaza na mensagem pública.
 
+## Phase 27 follow-up — recuperação de estado após lag
+- `RecvError::Lagged` em ambos canais de broadcast agora envia `State` com revisão autoritativa.
+- Musician refaz `GET /api/v1/state` ao receber `State`, com proteção contra snapshots atrasados já existente.
+- Musician valida e aplica `MasterAck` no snapshot local.
+- Teste do hook cobre atualização de master por `MasterAck`.
+
 ## Próximo
-Investigar indisponibilidade/configuração do GitHub Actions; não declarar release nem merge até CI executar todos os gates e passar. Depois corrigir correlação de `request_id` em erros após envelope validado e implementar ressincronização após perda de broadcast.
+Investigar indisponibilidade/configuração do GitHub Actions; não declarar release nem merge até CI executar todos os gates e passar. Revogação pós-emissão de JWT, quotas por usuário/IP e teste temporal do loop continuam pendentes.
