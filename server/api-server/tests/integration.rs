@@ -776,6 +776,42 @@ async fn ws_binary_frame_returns_protocol_error_and_closes() {
 }
 
 #[tokio::test]
+async fn ws_oversized_text_message_is_rejected_by_upgrade_limit() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_ws_oversized", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    let oversized = "x".repeat(16 * 1024 + 1);
+    ws.send_message(WsMessage::Text(oversized.into())).await;
+
+    let receive = tokio::spawn(async move { ws.receive_message().await });
+    let panic = receive
+        .await
+        .expect_err("oversized message must terminate WebSocket transport");
+    assert!(panic.is_panic());
+    let panic_message = panic.into_panic();
+    let panic_message = panic_message
+        .downcast_ref::<String>()
+        .map(String::as_str)
+        .or_else(|| panic_message.downcast_ref::<&str>().copied())
+        .unwrap_or_default();
+    assert!(
+        panic_message.contains("Connection reset without closing handshake"),
+        "unexpected WebSocket rejection: {panic_message}"
+    );
+}
+
+#[tokio::test]
 async fn ws_client_ping_receives_matching_pong() {
     let (server, state) = build_ws_app();
     let token = seed_user_and_login(&state, "eng_ws_ping", "pw", Role::Engineer);

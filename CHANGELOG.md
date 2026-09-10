@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Tests — WebSocket frame limits
+- Added integration coverage proving oversized Text messages terminate transport before application parsing.
+
 ### Security — WebSocket frame limits
 - Applied the 16 KiB protocol limit during WebSocket upgrade for both messages and frames, preventing oversized payload allocation before application validation.
 

@@ -4,6 +4,28 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — WebSocket oversized-message transport coverage
+
+**Phase:** 26 — WebSocket resilience follow-up
+
+### Implementado
+
+- Adicionado teste de integração que envia mensagem Text com `16 * 1024 + 1` bytes.
+- O teste confirma encerramento do transporte pelo limite do `WebSocketUpgrade`, antes do parser da aplicação.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- Teste dedicado: PASS.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- Primeira execução revelou comportamento real do `axum-test`: conexão é resetada sem handshake de fechamento; teste foi ajustado para validar erro de recebimento, sem inventar `Close`.
+
+### Limitações
+
+Cobertura valida mensagem Text não fragmentada. Frame binário oversized e mensagem fragmentada acima do limite continuam pendentes. CI remoto, PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
+
+---
+
 ## 2026-09-10 — WebSocket upgrade frame-size enforcement
 
 **Phase:** 26 — WebSocket resilience follow-up
@@ -24,6 +46,7 @@ All significant milestones documented here in reverse chronological order.
 CI remoto segue falhando antes dos steps por runner/permissão. PipeWire, mídia WebRTC real e ARM64 Raspberry Pi permanecem não validados.
 
 ---
+
 
 ## 2026-09-10 — WebSocket keepalive state-machine correction
 
