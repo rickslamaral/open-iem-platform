@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — Phase 23 follow-up
+- WebSocket ownership lookup now logs database failures and denies forwarding/mutation instead of silently collapsing errors to `None`.
+
 ### Changed — Phase 23 documentation
 - Guia do Músico atualizado para refletir estado e controles implementados até Phase 23.
 
