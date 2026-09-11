@@ -6,7 +6,7 @@ All significant milestones documented here in reverse chronological order.
 
 ## 2026-09-11 — Phase 38 — consistência documental da CLI
 
-**Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+**Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps (run `34572824987`); não mergeado; não lançado.
 
 ### Implementado
 
