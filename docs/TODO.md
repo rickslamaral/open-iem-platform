@@ -8,11 +8,11 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — workflow agora cobre branches `feat/**`; runs remotos ainda falham antes dos steps com `runner_id=0`; sem CI remoto não há release `v0.3.1`.
 
-## Phase 44 — correção do gate de whitespace
+## Phase 45 — correção do label de runner
 
-- [x] Remover trailing whitespace das reviews Phases 37–39 e matriz de validação.
-- [x] Confirmar `git diff --check origin/main...HEAD` sem findings.
-- [ ] Desbloquear runner GitHub Actions; último run remoto `34603073532` falha antes dos steps.
+- [x] Trocar `ubuntu-24.04` por `ubuntu-latest` em todos os jobs CI.
+- [ ] Confirmar execução real dos jobs após push; run anterior `34605340696` falhou antes dos steps com `runner_id=0`.
+- [ ] Desbloquear GitHub Actions/runner; sem CI remoto verde não há release `v0.3.1`.
 
 ## Phase 43 — verification gates
 

@@ -9,7 +9,7 @@ on:
 jobs:
   rust-check:
     name: Rust Format + Clippy + Tests
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -54,7 +54,7 @@ jobs:
 
   rust-security-audit:
     name: Rust Security Audit
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -79,7 +79,7 @@ jobs:
 
   rust-build-x86:
     name: Rust Build (x86_64)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -96,7 +96,7 @@ jobs:
 
   rust-build-arm64:
     name: Rust Build (ARM64 cross)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -120,7 +120,7 @@ jobs:
 
   frontend-musician:
     name: Frontend Musician (typecheck + test + build)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -147,7 +147,7 @@ jobs:
 
   frontend-engineer:
     name: Frontend Engineer (typecheck + test + build)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -174,7 +174,7 @@ jobs:
 
   validate-skills:
     name: Validate Agent Skills
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -183,7 +183,7 @@ jobs:
 
   npm-audit:
     name: npm Security Audit
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -210,7 +210,7 @@ jobs:
 
   documentation:
     name: Documentation and package gates
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:

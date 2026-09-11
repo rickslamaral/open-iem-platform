@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — Phase 45 GitHub Actions runner label
+- Trocado `runs-on: ubuntu-24.04` por `runs-on: ubuntu-latest` em todos os jobs de CI; runs anteriores falharam antes dos steps com `runner_id=0`.
+- CI remoto e release continuam bloqueados até execução real confirmar todos os gates.
+
 ### Fixed — Phase 44 documentation whitespace gate
 - Removido trailing whitespace introduzido em reviews das Phases 37–39 e na matriz de validação de plataforma.
 - `git diff --check origin/main...HEAD` passa localmente; CI remoto continua bloqueado antes dos steps por ausência de runner executável.

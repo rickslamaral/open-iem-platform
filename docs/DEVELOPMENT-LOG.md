@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 45 — correção do label de runner
+
+**Status:** implementação local; PR #40 aberto; CI remoto ainda não reexecutado; não mergeado; não lançado.
+
+### Implementado
+
+- Alterado `runs-on` de `ubuntu-24.04` para `ubuntu-latest` nos nove jobs do CI.
+- README, CHANGELOG, START, TODO e review atualizados.
+
+### Verificação
+
+- Revisão da API GitHub confirmou todos os jobs anteriores com `runner_id=0`, sem steps executados (`34605340696`).
+- `git diff --check` e gates locais pendentes antes do commit.
+
+### Limitações
+
+Token atual não permite consultar runners/configuração Actions (HTTP 403). CI remoto, hardware PipeWire/ALSA, mídia WebRTC, Raspberry Pi 5 e release continuam não validados.
+
+### Próximo passo
+
+Commit, push e observar novo run CI; não fazer merge enquanto gates não estiverem verdes.
+
+---
+
 ## 2026-09-11 — Phase 44 — correção do gate de whitespace documental
 
 **Status:** correção local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
