@@ -24,7 +24,7 @@ Token atual não permite consultar runners/configuração Actions (HTTP 403). CI
 
 ### Próximo passo
 
-Commit, push e observar novo run CI; não fazer merge enquanto gates não estiverem verdes.
+Investigar desbloqueio de runner/permissões Actions com administrador; não fazer merge enquanto gates remotos não estiverem verdes.
 
 ---
 

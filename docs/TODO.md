@@ -12,7 +12,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Trocar `ubuntu-24.04` por `ubuntu-latest` em todos os jobs CI.
 - [x] Confirmar resultado após push: run `34607886129` falhou antes dos steps em todos os jobs com `runner_id=0` e `steps=[]`.
-- [ ] Desbloquear GitHub Actions/runner; runs `34607886129` e `34610969113` falharam pré-steps (`runner_id=0`, `steps=[]`); API de permissões e runners retorna HTTP 403 para token atual; sem CI remoto verde não há release `v0.3.1`.
+- [ ] Desbloquear GitHub Actions/runner; runs `34611098109` e `34611094092` também falharam pré-steps (`runner_id=0`, `steps=[]`); API de permissões e runners retorna HTTP 403 para token atual; sem CI remoto verde não há release `v0.3.1`.
 
 ## Phase 43 — verification gates
 
