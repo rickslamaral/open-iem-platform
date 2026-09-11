@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — CI status refresh (2026-09-11)
+- Runs `34656659602` (PR) e `34656657286` (push) falharam antes dos steps; os jobs terminaram sem `runner_id` executável. Nenhum claim de CI verde, merge ou release foi feito.
+
 ### Fixed — Phase 56 Caddyfile temporary-directory lifetime (2026-09-11)
 - Mantida área temporária do certificado até concluir cópia e instalação do Caddyfile; limpeza antecipada fazia o bloco documentado falhar antes de `sudo install`.
 

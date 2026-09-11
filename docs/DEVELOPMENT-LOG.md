@@ -4,6 +4,25 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — CI status refresh pós-Phase 56
+
+**Status:** documentação atualizada; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Verificação real
+
+- Run PR `34656659602` e push `34656657286` falharam antes dos steps.
+- Os 9 jobs do PR terminaram com `steps=[]`; não houve execução de runner nem resultado de teste remoto.
+- API de runners permanece inacessível ao token atual com HTTP 403.
+- `make test`: PASS — Rust, frontends e harness `SIMULATED`.
+- `make validate`: PASS — Rust, frontends, documentação, PDF e skills.
+- `git diff --check`: PASS antes desta atualização documental.
+
+### Decisão
+
+Não fazer merge, release ou alegação de CI verde. Próximo bloqueio é GitHub Actions/runner; depois executar CI real e validar attestation, instalação ARM64 e Raspberry Pi 5.
+
+---
+
 ## 2026-09-11 — Phase 56 — correção do lifetime do diretório temporário do Caddyfile
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
