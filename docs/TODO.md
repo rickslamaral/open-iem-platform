@@ -8,6 +8,13 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — CI e release usam `ubuntu-latest`, mas runs remotos ainda falham antes dos steps com `runner_id=0`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 50 — hardening do instalador ARM64
+
+- [x] Fazer download em diretório temporário com `set -euo pipefail` e limpeza automática.
+- [x] Validar tag SemVer antes de construir URL/caminhos.
+- [x] Rejeitar traversal, caminhos absolutos, symlinks e hard links antes da extração.
+- [ ] Validar instalação em Raspberry Pi 5 real após publicação de release.
+
 ## Phase 49 — correção do guia de instalação ARM64
 
 - [x] Alinhar nome e caminho do artefato Raspberry Pi ao workflow de release.

@@ -18,16 +18,44 @@
 Download the ARM64 release artifact from GitHub Releases:
 
 ```bash
+set -euo pipefail
+
 # Replace VERSION with a published release tag.
 VERSION=v0.3.1
+[[ "${VERSION}" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] \
+  || { printf 'Invalid release tag: %s\n' "${VERSION}" >&2; exit 1; }
 ARCHIVE="open-iem-server-${VERSION#v}-aarch64-linux.tar.gz"
 RELEASE_URL="https://github.com/rickslamaral/open-iem-platform/releases/download/${VERSION}"
-curl --fail --show-error --location --remote-name "${RELEASE_URL}/${ARCHIVE}"
-curl --fail --show-error --location --remote-name "${RELEASE_URL}/${ARCHIVE}.sha256"
-# Abort unless downloaded archive matches published SHA-256 checksum.
-sha256sum --check "${ARCHIVE}.sha256"
-tar -xzf "${ARCHIVE}"
-sudo install -o root -g root -m 755 "open-iem-server-${VERSION#v}-aarch64-linux/api-server" /usr/local/bin/api-server
+WORK_DIR=$(mktemp -d)
+trap 'rm -rf -- "${WORK_DIR}"' EXIT
+ARCHIVE_PATH="${WORK_DIR}/${ARCHIVE}"
+CHECKSUM_PATH="${ARCHIVE_PATH}.sha256"
+
+curl --fail --silent --show-error --location --output "${ARCHIVE_PATH}" "${RELEASE_URL}/${ARCHIVE}"
+curl --fail --silent --show-error --location --output "${CHECKSUM_PATH}" "${RELEASE_URL}/${ARCHIVE}.sha256"
+# Checksum file names archive by basename; verify exact downloaded file.
+( cd "${WORK_DIR}" && sha256sum --check "${ARCHIVE}.sha256" )
+
+# Reject absolute paths, parent traversal, symlinks and hard links before extraction.
+tar -tzf "${ARCHIVE_PATH}" > "${WORK_DIR}/members"
+while IFS= read -r member; do
+  case "${member}" in
+    /*|../*|*/../*|..|*/..)
+      printf 'Unsafe archive member: %s\n' "${member}" >&2
+      exit 1
+      ;;
+  esac
+done < "${WORK_DIR}/members"
+if tar -tvzf "${ARCHIVE_PATH}" | grep -Eq '^[[:space:]]*[slh]| -> | link to '; then
+  printf 'Archive contains symlink or hard link\n' >&2
+  exit 1
+fi
+
+EXTRACT_DIR="${WORK_DIR}/open-iem-server-${VERSION#v}-aarch64-linux"
+tar --extract --file "${ARCHIVE_PATH}" --directory "${WORK_DIR}" --no-same-owner --no-same-permissions
+[[ -f "${EXTRACT_DIR}/api-server" && ! -L "${EXTRACT_DIR}/api-server" ]] \
+  || { printf 'Archive missing regular api-server binary\n' >&2; exit 1; }
+sudo install -o root -g root -m 755 "${EXTRACT_DIR}/api-server" /usr/local/bin/api-server
 ```
 
 ## 2. Create service user and directories

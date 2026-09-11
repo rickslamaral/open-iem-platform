@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 49 — correção do guia de instalação ARM64.** O guia Raspberry Pi agora usa nome e layout reais do artefato produzido pelo workflow de release. CI e release continuam usando `ubuntu-latest`; isso não prova disponibilidade de runner. Os runs `34629146025` (PR) e `34629141792` (push) falharam antes dos steps, com `runner_id=0` e `steps=[]`. PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md), [review da Phase 49](docs/reviews/PHASE-49-REVIEW.md), [Phase 48](docs/reviews/PHASE-48-REVIEW.md) e [Phase 47](docs/reviews/PHASE-47-REVIEW.md).
+**Fase incremental atual: Phase 50 — hardening do instalador ARM64.** O guia Raspberry Pi usa nome/layout reais do artefato, falha fechado em downloads, valida tag/checksum e rejeita archive inseguro antes da extração. CI e release continuam usando `ubuntu-latest`; isso não prova disponibilidade de runner. Os runs `34631436905` (PR) e `34631433904` (push) falharam antes dos steps, com `runner_id=0` e `steps=[]`. PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md), [review da Phase 50](docs/reviews/PHASE-50-REVIEW.md), [Phase 49](docs/reviews/PHASE-49-REVIEW.md), [Phase 48](docs/reviews/PHASE-48-REVIEW.md) e [Phase 47](docs/reviews/PHASE-47-REVIEW.md).
 
 **Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 

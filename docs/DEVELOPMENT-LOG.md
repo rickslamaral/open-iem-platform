@@ -4,6 +4,29 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 50 — hardening do instalador ARM64
+
+**Status:** correção local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Instalador valida tag `vX.Y.Z` sem zeros à esquerda, usa `set -euo pipefail` e baixa arquivos para diretório temporário exclusivo.
+- Falhas HTTP, checksum inválido e arquivo ausente interrompem fluxo antes de instalação privilegiada.
+- Membros de archive com caminho absoluto, traversal, symlink ou hard link são rejeitados antes da extração.
+- `api-server` precisa existir como arquivo regular no diretório esperado antes de `sudo install`.
+
+### Verificação
+
+- `make test`: PASS — Rust, frontend e harness de áudio determinístico.
+- `bash scripts/validate-docs.sh`, `bash scripts/validate-pdf.sh`, `bash scripts/validate-skills.sh`, `bash -n` do bloco de instalação e `git diff --check`: PASS.
+- Review independente encontrou gaps de automação e riscos no fluxo anterior; correção aplicada e revalidação local executada.
+
+### Limitações
+
+Checksum continua sendo baixado do mesmo release HTTPS e não substitui assinatura/autenticidade independente. Nenhum release foi publicado. CI remoto segue falhando antes dos steps com `runner_id=0`; instalação, runtime ARM64, PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 permanecem não validados.
+
+---
+
 ## 2026-09-11 — Phase 49 — correção do guia de instalação ARM64
 
 **Status:** documentação corrigida localmente; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.

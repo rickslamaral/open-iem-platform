@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 50 Raspberry Pi installer hardening
+- O fluxo de instalação ARM64 agora falha fechado com `set -euo pipefail`, valida tag SemVer, usa diretório temporário e remove artefatos ao sair.
+- Download verifica HTTP, checksum do arquivo exato e rejeita membros de archive com traversal, caminhos absolutos, symlinks ou hard links antes da extração.
+- Nenhum claim novo de autenticidade do release, execução ARM64 ou hardware Raspberry Pi foi adicionado.
+
 ### Fixed — Phase 49 Raspberry Pi ARM64 installation guide
 - Corrigidos nome e caminho do artefato ARM64 no guia de deployment para coincidir com `.github/workflows/release.yml`.
 - O comando de instalação agora baixa e valida checksum com `sha256sum --check` antes de extrair e instalar `api-server` dentro do diretório versionado.
