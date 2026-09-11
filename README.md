@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 45 — correção do label de runner do GitHub Actions.** Todos os jobs agora usam `ubuntu-latest`; os runs `34614028392` e `34614025997` também falharam antes dos steps em todos os jobs, com `runner_id=0` e `steps=[]`. PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md) e [review da Phase 45](docs/reviews/PHASE-45-REVIEW.md).
+**Fase incremental atual: Phase 46 — alinhamento do runner de release.** CI e release agora usam `ubuntu-latest`; isso corrige inconsistência de configuração, mas não prova disponibilidade de runner. Os runs `34614028392` e `34614025997` falharam antes dos steps, com `runner_id=0` e `steps=[]`. PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md) e [review da Phase 46](docs/reviews/PHASE-46-REVIEW.md).
 
 **Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 

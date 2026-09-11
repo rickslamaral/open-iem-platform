@@ -4,6 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 46 — alinhamento do runner de release
+
+**Status:** implementação local; PR #40 aberto; CI remoto falhou antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Alterado `runs-on` de `ubuntu-24.04` para `ubuntu-latest` nos seis jobs de `.github/workflows/release.yml`.
+- Mantidos inalterados permissões, gates, dependências, artefatos e gatilho semver.
+- README, CHANGELOG, TODO e review da Phase 46 atualizados.
+
+### Verificação
+
+- Validação estrutural confirmou seis jobs de release em `ubuntu-latest` e nenhum `ubuntu-24.04`.
+- Gates locais Rust, documentação, PDF e skills executaram; `cargo audit` manteve o residual documentado `RUSTSEC-2023-0071`.
+- `git diff --check origin/main...HEAD` passou sobre o diff completo antes do commit.
+
+### Limitações
+
+Runs `34614028392` e `34614025997` falharam antes dos steps com `runner_id=0` e `steps=[]`; token atual recebe HTTP 403 ao consultar runners/permissões. CI remoto, release, hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 permanecem não validados.
+
+### Próximo passo
+
+Executar CI e workflow de release quando administrador desbloquear runner/permissões. Não fazer merge ou publicar release antes de gates remotos verdes.
+
+---
+
+
 ## 2026-09-11 — Phase 45 — correção do label de runner
 
 **Status:** implementação commitada; PR #40 aberto; CI remoto falhou antes dos steps; não mergeado; não lançado.

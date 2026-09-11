@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 46 release runner alignment
+- Alinhados seis jobs de `.github/workflows/release.yml` ao `ubuntu-latest` já usado pelo CI.
+- A alteração não prova disponibilidade do runner: os runs remotos anteriores falharam antes dos steps com `runner_id=0`; release continua bloqueada até execução real.
+
 ### Fixed — Phase 45 GitHub Actions runner label
 - Trocado `runs-on: ubuntu-24.04` por `runs-on: ubuntu-latest` em todos os jobs de CI; runs anteriores falharam antes dos steps com `runner_id=0`.
 - Os runs `34614028392` e `34614025997` também falharam antes dos steps em todos os jobs com `runner_id=0` e `steps=[]`; CI remoto e release continuam bloqueados.
