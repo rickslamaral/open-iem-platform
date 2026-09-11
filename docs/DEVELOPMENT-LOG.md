@@ -4,6 +4,28 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 48 — pinning imutável das actions
+
+**Status:** implementação local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Fixadas actions de CI/release em commits SHA completos, incluindo `dtolnay/rust-toolchain` na revisão atual de `stable`.
+- Comentários de versão mantidos para revisão humana sem depender de tags mutáveis.
+- Atualizados README, CHANGELOG, TODO e review da Phase 48.
+
+### Verificação
+
+- SHAs confirmados com `git ls-remote` nos repositórios upstream.
+- `make test`: PASS — Rust, frontend e harness de áudio determinístico.
+- `bash scripts/validate-docs.sh`, `bash scripts/validate-pdf.sh`, `bash scripts/validate-skills.sh` e `git diff --check`: PASS.
+
+### Limitações
+
+CI remoto segue falhando antes dos steps com `runner_id=0` e `steps=[]`; hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+
+---
+
 ## 2026-09-11 — Phase 47 — hardening dos workflows de release
 
 **Status:** implementação local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.

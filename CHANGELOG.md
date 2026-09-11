@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 48 immutable GitHub Actions pinning
+- Fixadas actions de CI/release em commits SHA completos, reduzindo risco de retagging upstream.
+- CI remoto continua não validado por falha pré-steps do runner.
+
 ### Security — Phase 47 workflow permission and tag validation hardening
 - Restringidas permissões padrão de CI e jobs de build/release a `contents: read`.
 - Mantida escrita GitHub Release somente no job publicador.

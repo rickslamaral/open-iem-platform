@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 47 — hardening de permissões e validação de tags do workflow de release.** CI e release agora usam `ubuntu-latest`; `docs/CLI.md` lista `make test-audio` e o validador PDF restringe entradas a `docs/guides`; isso não prova disponibilidade de runner. Os runs `34626195615` (PR) e `34626191122` (push) falharam antes dos steps, com `runner_id=0` e `steps=[]`. PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md) e [review da Phase 47](docs/reviews/PHASE-47-REVIEW.md) e [Phase 46](docs/reviews/PHASE-46-REVIEW.md).
+**Fase incremental atual: Phase 48 — pinning imutável das actions de CI/release.** Actions de terceiros usadas por CI e release agora apontam para commits SHA completos; comentários preservam versões legíveis. CI e release continuam usando `ubuntu-latest`; isso não prova disponibilidade de runner. Os runs `34626273153` (PR) e `34626269353` (push) falharam antes dos steps, com `runner_id=0` e `steps=[]`. PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md), [review da Phase 48](docs/reviews/PHASE-48-REVIEW.md), [Phase 47](docs/reviews/PHASE-47-REVIEW.md) e [Phase 46](docs/reviews/PHASE-46-REVIEW.md).
 
 **Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 
