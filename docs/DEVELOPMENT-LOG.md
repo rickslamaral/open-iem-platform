@@ -4,6 +4,29 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 42 — validação reproduzível do Musician Guide PDF
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Criado `scripts/validate-pdf.sh` para validar existência, extração de texto e renderização do PDF.
+- `pdftotext` é preferido; `mutool` cobre VPS sem Poppler.
+- `make docs` agora executa validação documental e validação do PDF.
+- README, CHANGELOG e TODO registram o novo gate.
+
+### Verificação
+
+- `mutool draw -F txt`: extração local disponível.
+- `mutool draw -r 120`: renderização local disponível.
+- `bash scripts/validate-pdf.sh`: será executado no gate local desta rodada.
+
+### Limitações
+
+PDF não valida hardware, PipeWire, WebRTC media ou runtime ARM64. CI remoto segue bloqueado antes dos steps; run `34597175306` falhou com jobs sem steps e sem runner atribuído.
+
+---
+
 ## 2026-09-11 — Phase 41 — pacote documental do Musician Guide
 
 **Status:** documentação local atualizada; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

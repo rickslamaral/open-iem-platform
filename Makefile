@@ -87,6 +87,7 @@ diagnostics:
 
 docs:
 	@bash scripts/validate-docs.sh
+	@bash scripts/validate-pdf.sh
 
 validate: lint test docs
 	@bash scripts/validate-skills.sh

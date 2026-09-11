@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 41 — pacote documental do Musician Guide.** Guia Markdown e PDF foram regenerados/alinhados ao estado real. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps (runs `34594953314` e `34594948336`); sem merge ou release. Validação de texto/renderização do PDF está bloqueada neste VPS por ausência de `pdftotext`. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md) e [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md).
+**Fase incremental atual: Phase 42 — validação reproduzível do Musician Guide PDF.** O alvo `make docs` agora valida existência, extração de texto e renderização do PDF; usa `pdftotext` quando disponível e `mutool` como fallback. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps (run `34597175306`); sem merge ou release. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md) e [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md).
 
 **Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 

@@ -1,7 +1,7 @@
 # Phase 41 Review — pacote documental do Musician Guide
 
 **Data:** 2026-09-11
-**Estado:** documentação local atualizada; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+**Estado:** documentação local atualizada; Phase 42 adicionou gate reproduzível; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
 
 ## Objetivo
 

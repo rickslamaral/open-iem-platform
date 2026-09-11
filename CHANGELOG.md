@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Tooling — Phase 42 reproducible Musician Guide PDF validation
+- `make docs` agora valida extração textual e renderização do Musician Guide PDF.
+- `scripts/validate-pdf.sh` usa `pdftotext` ou fallback `mutool`, sem depender de pacote específico no VPS.
+- Nenhum claim novo de suporte para PipeWire, WebRTC media ou Raspberry Pi 5.
+
 ### Documentation — Phase 41 Musician Guide package refresh
 - Atualizada versão/data de `docs/guides/MUSICIANS-GUIDE.md` para refletir estado atual do projeto.
 - Regenerado `docs/guides/MUSICIANS-GUIDE.pdf` a partir do guia Markdown; PDF continua limitado ao comportamento real e marca áudio como `SIMULATED`.
