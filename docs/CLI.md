@@ -46,7 +46,7 @@ O binário `open-iem-admin` é construído pelo crate `server/admin-cli`:
 cargo run --manifest-path server/Cargo.toml --bin open-iem-admin -- --help
 ```
 
-Ele gerencia usuários, sessões e health através da API administrativa. Token pode vir de `--token` ou `OPEN_IEM_ADMIN_TOKEN`. Nunca registre token em shell history, documentação ou Git.
+Ele gerencia usuários, sessões e health através da API administrativa. Token pode vir de `--token` ou `OPEN_IEM_ADMIN_TOKEN`. HTTP é permitido somente para loopback; servidor remoto exige HTTPS. Nunca registre token em shell history, documentação ou Git.
 
 ## Paridade planejada para `iem`
 

@@ -130,8 +130,20 @@ impl AdminClient {
         self.token.as_deref().map(|t| format!("Bearer {t}"))
     }
 
+    fn request_url(&self, path: &str) -> Result<String, String> {
+        let base = reqwest::Url::parse(&self.base).map_err(|_| "invalid server URL".to_string())?;
+        let local_http = matches!(base.scheme(), "http")
+            && matches!(base.host_str(), Some("localhost" | "127.0.0.1" | "::1"));
+        if base.scheme() != "https" && !local_http {
+            return Err(
+                "server URL must use HTTPS; HTTP is allowed only for localhost".to_string(),
+            );
+        }
+        Ok(format!("{}{}", self.base.trim_end_matches('/'), path))
+    }
+
     fn get(&self, path: &str) -> Result<Value, String> {
-        let url = format!("{}{}", self.base, path);
+        let url = self.request_url(path)?;
         let mut req = self.client.get(&url);
         if let Some(auth) = self.auth_header() {
             req = req.header("Authorization", auth);
@@ -141,7 +153,7 @@ impl AdminClient {
     }
 
     fn post(&self, path: &str, body: &Value) -> Result<Value, String> {
-        let url = format!("{}{}", self.base, path);
+        let url = self.request_url(path)?;
         let mut req = self.client.post(&url).json(body);
         if let Some(auth) = self.auth_header() {
             req = req.header("Authorization", auth);
@@ -151,7 +163,7 @@ impl AdminClient {
     }
 
     fn delete(&self, path: &str) -> Result<Value, String> {
-        let url = format!("{}{}", self.base, path);
+        let url = self.request_url(path)?;
         let mut req = self.client.delete(&url);
         if let Some(auth) = self.auth_header() {
             req = req.header("Authorization", auth);
@@ -170,10 +182,7 @@ impl AdminClient {
             401 | 403 => Err(format!(
                 "Authentication error (HTTP {status}): check --token or OPEN_IEM_ADMIN_TOKEN"
             )),
-            404 => Err(
-                "Not yet implemented on server (HTTP 404): this endpoint is planned for Phase 9"
-                    .to_string(),
-            ),
+            404 => Err(format!("Resource not found (HTTP {status})")),
             _ => {
                 let body: Value = resp
                     .json()
@@ -199,6 +208,20 @@ impl AdminClient {
 // Table rendering
 // ---------------------------------------------------------------------------
 
+fn table_keys(rows: &[Value]) -> Vec<String> {
+    let mut keys = Vec::new();
+    for row in rows {
+        if let Value::Object(map) = row {
+            for key in map.keys() {
+                if !keys.iter().any(|existing| existing == key) {
+                    keys.push(key.clone());
+                }
+            }
+        }
+    }
+    keys
+}
+
 fn print_table(value: &Value) {
     match value {
         Value::Array(rows) => {
@@ -206,9 +229,15 @@ fn print_table(value: &Value) {
                 println!("(no results)");
                 return;
             }
-            // Collect all keys from first object
-            if let Some(Value::Object(first)) = rows.first() {
-                let keys: Vec<&str> = first.keys().map(String::as_str).collect();
+            let keys = table_keys(rows);
+            if keys.is_empty() {
+                // Non-object array
+                for item in rows {
+                    println!("{item}");
+                }
+            } else {
+                let key_refs: Vec<&str> = keys.iter().map(String::as_str).collect();
+                let keys = key_refs;
                 // Header
                 let header: Vec<String> = keys.iter().map(|k| k.to_uppercase()).collect();
                 println!("{}", header.join("  |  "));
@@ -228,11 +257,6 @@ fn print_table(value: &Value) {
                         println!("{}", vals.join("  |  "));
                     }
                 }
-            } else {
-                // Non-object array
-                for item in rows {
-                    println!("{item}");
-                }
             }
         }
         Value::Object(map) => {
@@ -244,6 +268,28 @@ fn print_table(value: &Value) {
             }
         }
         other => println!("{other}"),
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::items_after_test_module)]
+mod tests {
+    use super::table_keys;
+    use serde_json::json;
+
+    #[test]
+    fn table_keys_preserves_union_in_first_seen_order() {
+        let rows = vec![
+            json!({"id": 1, "name": "alice"}),
+            json!({"id": 2, "role": "musician"}),
+        ];
+        assert_eq!(table_keys(&rows), vec!["id", "name", "role"]);
+    }
+
+    #[test]
+    fn table_keys_ignores_non_object_rows() {
+        let rows = vec![json!(null), json!(42), json!({"id": 1})];
+        assert_eq!(table_keys(&rows), vec!["id"]);
     }
 }
 

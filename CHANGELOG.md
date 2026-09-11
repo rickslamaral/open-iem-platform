@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 34 Admin CLI output correctness
+- `open-iem-admin` accepts HTTP only for localhost and requires HTTPS for remote server URLs, preventing Bearer token transmission over cleartext networks.
+- JSON table output now includes union of fields across all object rows instead of dropping fields absent from first row.
+- HTTP 404 errors now report generic resource-not-found status without stale implementation claims.
+- Local verification: admin-cli tests and clippy pass; remote CI remains blocked before workflow steps.
+
 ### Changed — Phase 33 CI branch trigger
 - Added `feat/**` to CI push triggers. Current development branch is `feat/phase24-ws-resilience`; prior workflow matched `feature/**` but not `feat/**`.
 - Remote runner remains blocked before workflow steps (`steps=[]`); this change does not claim CI success.

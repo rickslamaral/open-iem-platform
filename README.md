@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 33 — diagnóstico de CI para branch `feat/**`**. O workflow agora dispara também em branches `feat/**`; PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps; sem merge ou release.
+**Fase incremental atual: Phase 34 — correção de saída do CLI administrativo**. `open-iem-admin` agora exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps; sem merge ou release.
 
 **Phase 32 — harness determinístico do áudio** (verificação local passa; PR #40 aberto; CI bloqueado; não mergeado)
 
@@ -71,6 +71,8 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 30 | Docker Compose development | ✅ Configuration validated; runtime pending |
 | 31 | JWT post-issuance revocation | ✅ Local implementation and tests; CI blocked; unmerged |
 | 32 | Deterministic audio harness | ✅ Local tests pass; CI blocked; unmerged |
+| 33 | CI branch trigger diagnosis | ✅ Local correction; CI remote blocked |
+| 34 | Admin CLI output correctness | ✅ Local tests pass; CI blocked; unmerged |
 
 ## Repository Structure
 

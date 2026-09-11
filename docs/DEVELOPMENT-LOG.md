@@ -4,6 +4,32 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-10 — Phase 34 — CLI output correctness
+
+**Status:** implementação local verificada; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- `open-iem-admin` aceita HTTP somente para `localhost`, `127.0.0.1` e `::1`; URLs remotas exigem HTTPS antes de qualquer request ou envio de Bearer token.
+- Tabelas JSON coletam união de campos de todos objetos, evitando perda de colunas quando primeira linha tem schema parcial.
+- HTTP 404 agora retorna erro genérico de recurso ausente, sem afirmar que endpoint implementado ainda está planejado.
+- Testes unitários cobrem união de campos e descarte de linhas não-objeto.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml -p admin-cli`: PASS — 2 testes.
+- `cargo clippy --manifest-path server/Cargo.toml -p admin-cli --all-targets -- -D warnings`: PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+- Review independente encontrou inicialmente risco de Bearer sobre HTTP remoto; correção aplicada. Nova revisão ainda necessária antes do commit.
+
+### Limitações
+
+- CI remoto continua falhando antes dos steps com `runner_id=0`; não há evidência de execução GitHub Actions.
+- API, PipeWire, WebRTC media e Raspberry Pi 5 permanecem não validados nesta fase.
+
+---
+
 ## 2026-09-10 — Phase 33 — CI branch trigger diagnosis
 
 **Status:** workflow corrigido localmente; CI remoto ainda bloqueado; sem merge ou release.
