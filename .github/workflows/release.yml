@@ -125,6 +125,10 @@ jobs:
   build-server-x86:
     name: Build server (Linux x86_64)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     needs: [quality-gate, validate-version]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -175,6 +179,11 @@ jobs:
           echo "Artefact: ${DIR}.tar.gz"
           cat "${DIR}.tar.gz.sha256"
 
+      - name: Attest server archive provenance
+        uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
+        with:
+          subject-path: open-iem-server-*.tar.gz
+
       - name: Upload artefact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -190,6 +199,10 @@ jobs:
   build-server-arm64:
     name: Build server (Linux ARM64)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     needs: [quality-gate, validate-version]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -236,6 +249,11 @@ jobs:
           sha256sum "${DIR}.tar.gz" > "${DIR}.tar.gz.sha256"
           echo "Artefact: ${DIR}.tar.gz"
           cat "${DIR}.tar.gz.sha256"
+
+      - name: Attest server archive provenance
+        uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
+        with:
+          subject-path: open-iem-server-*.tar.gz
 
       - name: Upload artefact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

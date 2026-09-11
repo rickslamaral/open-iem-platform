@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 54 artifact provenance attestation (2026-09-11)
+- O workflow de release agora gera attestations Sigstore/GitHub para archives de servidor x86_64 e ARM64 antes do upload.
+- Jobs de build recebem somente `id-token: write` e `attestations: write` necessários ao provenance; CI remoto e hardware continuam não validados.
+
 ### Changed — Phase 53 CI status refresh (2026-09-11)
 - Registrados runs `34645508776` (PR) e `34645504292` (push), ambos falhando antes dos steps; os 9 jobs do PR retornaram `runner_id=0` e `steps=[]`.
 - PR #40 e release permanecem bloqueados; nenhum claim de CI verde ou artefato publicado foi adicionado.

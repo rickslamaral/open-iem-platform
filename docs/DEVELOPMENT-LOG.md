@@ -4,6 +4,34 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 54 — provenance de artefatos de release
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado; não mergeado; não lançado.
+
+### Implementado
+
+- Added attestation Sigstore/GitHub para archives de servidor x86_64 e ARM64 antes do upload.
+- Fixada `actions/attest-build-provenance@v2` por SHA completo.
+- Permissões de build limitadas a `contents: read`, `id-token: write` e `attestations: write`.
+- Atualizados README, START, CHANGELOG, TODO e review da Phase 54.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py`: PASS — 7 testes.
+- `make test`: PASS — Rust, frontends e harness `SIMULATED`.
+- `make validate`: PASS — documentação, PDF e skills.
+- `cargo fmt`, `cargo clippy` e `git diff --check`: PASS.
+
+### Limitações
+
+GitHub Actions continua falhando antes dos steps com `runner_id=0`; attestation remota ainda não foi publicada nem verificada. Nenhum release foi publicado. Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC permanecem não validados.
+
+### Próximo passo
+
+Desbloquear runner; executar CI; verificar attestation dos archives antes de merge/release.
+
+---
+
 ## 2026-09-11 — Phase 53 CI status refresh
 
 **Status:** implementação local; PR #40 aberto; não mergeado; não lançado.

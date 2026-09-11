@@ -8,6 +8,12 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34645508776` (PR) e `34645504292` (push) falharam antes dos steps; os 9 jobs do PR retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 54 — provenance de artefatos de release
+
+- [x] Gerar attestation de provenance para archives de servidor x86_64 e ARM64 antes do upload.
+- [ ] Validar publicação e verificação da attestation após desbloquear GitHub Actions.
+- [ ] Desbloquear CI remoto antes de merge/release.
+
 ## Phase 53 — validação de archives de release
 
 - [x] Validar archives de servidor x86_64/ARM64 antes de checksum/upload; rejeitar traversal, links, membros inesperados e binários ausentes.
