@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 49 — correção do guia de instalação ARM64
+
+**Status:** documentação corrigida localmente; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Alinhado `deployment/raspberry-pi/README.md` ao nome real gerado por `.github/workflows/release.yml`: `open-iem-server-<versão>-aarch64-linux.tar.gz`.
+- Corrigido caminho do binário `api-server` após extração do diretório versionado.
+- O guia agora baixa o checksum publicado, usa `sha256sum --check` e aborta antes da extração se integridade falhar.
+- `curl` usa modo fail-closed para erros HTTP.
+- Atualizados CHANGELOG, TODO e review da Phase 49.
+
+### Verificação
+
+- Validação textual confirmou que URL, arquivo baixado, checksum, arquivo extraído e caminho instalado usam o mesmo nome de artefato.
+- `bash scripts/validate-docs.sh`, `bash scripts/validate-pdf.sh`, `bash scripts/validate-skills.sh` e `git diff --check` executados nesta rodada.
+
+### Limitações
+
+Nenhum release foi publicado. CI remoto continua falhando antes dos steps por `runner_id=0`; instalação, runtime ARM64, PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 permanecem não validados.
+
+---
+
+
 ## 2026-09-11 — Phase 48 — pinning imutável das actions
 
 **Status:** implementação local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.

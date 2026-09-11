@@ -8,6 +8,11 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — CI e release usam `ubuntu-latest`, mas runs remotos ainda falham antes dos steps com `runner_id=0`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 49 — correção do guia de instalação ARM64
+
+- [x] Alinhar nome e caminho do artefato Raspberry Pi ao workflow de release.
+- [ ] Executar instalação em Raspberry Pi 5 real após publicação de release; runtime ARM64 continua não validado.
+
 ## Phase 48 — pinning imutável das actions
 
 - [x] Fixar actions de terceiros de CI e release em commits SHA completos, com comentários de versão.

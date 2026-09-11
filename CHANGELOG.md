@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — Phase 49 Raspberry Pi ARM64 installation guide
+- Corrigidos nome e caminho do artefato ARM64 no guia de deployment para coincidir com `.github/workflows/release.yml`.
+- O comando de instalação agora baixa e valida checksum com `sha256sum --check` antes de extrair e instalar `api-server` dentro do diretório versionado.
+- `curl` falha explicitamente em erros HTTP antes da instalação.
+- Nenhum artefato foi publicado; release e CI remoto seguem bloqueados por falha pré-steps do runner.
+
 ### Security — Phase 48 immutable GitHub Actions pinning
 - Fixadas actions de CI/release em commits SHA completos, reduzindo risco de retagging upstream.
 - CI remoto continua não validado por falha pré-steps do runner.

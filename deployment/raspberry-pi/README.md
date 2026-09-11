@@ -18,13 +18,16 @@
 Download the ARM64 release artifact from GitHub Releases:
 
 ```bash
-# Replace VERSION with the release tag (e.g., v0.2.0)
-VERSION=v0.2.0
-curl -LO https://github.com/rickslamaral/open-iem-platform/releases/download/${VERSION}/api-server-aarch64-unknown-linux-gnu-${VERSION}.tar.gz
-# Verify SHA-256 checksum against the release page before installing
-sha256sum api-server-aarch64-unknown-linux-gnu-${VERSION}.tar.gz
-tar -xzf api-server-aarch64-unknown-linux-gnu-${VERSION}.tar.gz
-sudo install -o root -g root -m 755 api-server /usr/local/bin/api-server
+# Replace VERSION with a published release tag.
+VERSION=v0.3.1
+ARCHIVE="open-iem-server-${VERSION#v}-aarch64-linux.tar.gz"
+RELEASE_URL="https://github.com/rickslamaral/open-iem-platform/releases/download/${VERSION}"
+curl --fail --show-error --location --remote-name "${RELEASE_URL}/${ARCHIVE}"
+curl --fail --show-error --location --remote-name "${RELEASE_URL}/${ARCHIVE}.sha256"
+# Abort unless downloaded archive matches published SHA-256 checksum.
+sha256sum --check "${ARCHIVE}.sha256"
+tar -xzf "${ARCHIVE}"
+sudo install -o root -g root -m 755 "open-iem-server-${VERSION#v}-aarch64-linux/api-server" /usr/local/bin/api-server
 ```
 
 ## 2. Create service user and directories
