@@ -6,7 +6,7 @@ All significant milestones documented here in reverse chronological order.
 
 ## 2026-09-11 — Phase 53 — validação estrutural de archives de release
 
-**Status:** implementação local; PR #40 aberto; CI remoto falha pré-steps; não mergeado; não lançado.
+**Status:** commit `15cc584`; PR #40 aberto; CI remoto falhou pré-steps no run `34642754837`; não mergeado; não lançado.
 
 ### Implementado
 
