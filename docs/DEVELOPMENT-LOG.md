@@ -23,7 +23,7 @@ All significant milestones documented here in reverse chronological order.
 
 ### Limitações
 
-Actions de terceiros ainda usam referências mutáveis por tag; pinning integral por SHA permanece follow-up. CI remoto continua bloqueado antes dos steps (`runner_id=0`, `steps=[]`); hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+Actions de terceiros ainda usam referências mutáveis por tag; pinning integral por SHA permanece follow-up. Após o push, runs `34626195615` (PR) e `34626191122` (push) falharam antes dos steps (`runner_id=0`, `steps=[]`); hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
 
 ---
 
