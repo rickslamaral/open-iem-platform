@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 47 workflow permission and tag validation hardening
+- Restringidas permissões padrão de CI e jobs de build/release a `contents: read`.
+- Mantida escrita GitHub Release somente no job publicador.
+- Corrigido filtro candidato de tags e adicionada validação exata `vX.Y.Z` sem zeros à esquerda antes de qualquer build.
+- CI remoto continua não validado por falha pré-steps do runner.
+
 ### Fixed — Phase 46 verification follow-up
 - Documentado `make test-audio` em `docs/CLI.md`, mantendo contrato CLI alinhado ao Makefile.
 - `scripts/validate-pdf.sh` agora aceita somente PDFs existentes sob `docs/guides`, evitando validação fora do escopo do repositório.

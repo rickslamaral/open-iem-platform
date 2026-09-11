@@ -4,6 +4,29 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 47 — hardening dos workflows de release
+
+**Status:** implementação local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Corrigido filtro glob de tags em `.github/workflows/release.yml`.
+- `validate-version` agora rejeita tags que não correspondem exatamente a `vX.Y.Z`, incluindo componentes numéricos com zero à esquerda.
+- CI e jobs de leitura de release receberam `contents: read`; escrita ficou restrita a `github-release`.
+- Atualizados README, CHANGELOG, TODO e review da Phase 47.
+
+### Verificação
+
+- `make test`: PASS — Rust e frontends.
+- `bash scripts/validate-docs.sh`, `bash scripts/validate-pdf.sh`, `bash scripts/validate-skills.sh` e `git diff --check`: PASS.
+- Revisão independente encontrou filtro de tag inválido e permissões amplas; ambos corrigidos.
+
+### Limitações
+
+Actions de terceiros ainda usam referências mutáveis por tag; pinning integral por SHA permanece follow-up. CI remoto continua bloqueado antes dos steps (`runner_id=0`, `steps=[]`); hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+
+---
+
 ## 2026-09-11 — Phase 46 follow-up — correções apontadas em revisão independente
 
 **Status:** correção local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

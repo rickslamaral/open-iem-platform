@@ -2,11 +2,12 @@ name: Release
 
 on:
   push:
+    # Glob selects candidate tags; validate-version enforces exact SemVer.
     tags:
-      - "v[0-9]+\\.[0-9]+\\.[0-9]+"
+      - "v[0-9]*.[0-9]*.[0-9]*"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   # ──────────────────────────────────────────────
@@ -20,10 +21,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Extract tag version
+      - name: Extract and validate tag version
         id: extract
         run: |
           TAG="${GITHUB_REF_NAME}"
+          if [[ ! "${TAG}" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "ERROR: tag is not an exact SemVer release tag: ${TAG}"
+            exit 1
+          fi
           VERSION="${TAG#v}"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Tag: ${TAG} → version: ${VERSION}"
@@ -295,6 +300,8 @@ jobs:
   github-release:
     name: Publish GitHub Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs:
       - validate-version
       - build-server-x86

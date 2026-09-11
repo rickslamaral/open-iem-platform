@@ -8,6 +8,13 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — CI e release usam `ubuntu-latest`, mas runs remotos ainda falham antes dos steps com `runner_id=0`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 47 — hardening dos workflows
+
+- [x] Corrigir filtro de tags semver do workflow de release e reforçar validação exata no job `validate-version`.
+- [x] Restringir permissões GitHub Actions; escrita limitada ao job `github-release`.
+- [ ] Pin de actions de terceiros por SHA completo; avaliar com Dependabot.
+- [ ] Executar CI/release após desbloqueio do runner; não publicar artefato sem gates reais.
+
 ## Phase 46 — alinhamento do runner de release
 
 - [x] Corrigir follow-up de revisão: documentar `make test-audio` e restringir validação PDF a `docs/guides`.
