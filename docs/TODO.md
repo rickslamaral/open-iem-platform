@@ -60,6 +60,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Set up `cargo audit` in CI (Phase 8 — existing job)
 - [x] Set up `npm audit` in CI (Phase 9 — npm-audit job added)
 - [ ] Create `examples/` with minimal mix scenario
+- [x] Include deterministic `audio-engine` integration harness in `make test` — Phase 39
 - [x] Configure Dependabot for dependency updates
 - [ ] Set up code coverage reporting
 - [x] LOW: Log DB errors in master broadcast fan-out (fail-closed and observable)

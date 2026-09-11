@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 38 — consistência documental da CLI.** `docs/CLI.md` agora reflete o binário `iem` implementado, versão `0.3.1` e oito comandos fixos. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps (run `34572824987`); sem merge ou release. Ver [contrato CLI](docs/CLI.md) e [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md).
+**Fase incremental atual: Phase 39 — cobertura do harness de áudio no Makefile.** `make test` agora executa também o harness determinístico `SIMULATED` do `audio-engine`, com alvo independente `make test-audio`. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps (run `34572824987`); sem merge ou release. Ver [contrato CLI](docs/CLI.md) e [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md).
 
 **Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 

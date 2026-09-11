@@ -4,7 +4,7 @@ SHELL := /usr/bin/env bash
 PROJECT := open-iem-platform
 SERVER_MANIFEST := server/Cargo.toml
 
-.PHONY: help install run run-local up down logs status lint fmt test test-unit test-integration build package diagnostics docs validate clean
+.PHONY: help install run run-local up down logs status lint fmt test test-unit test-integration test-audio build package diagnostics docs validate clean
 
 help:
 	@printf '%s\n' 'Open IEM Platform developer targets:'
@@ -14,7 +14,8 @@ help:
 	@printf '%s\n' '  make up/down/logs     manage project-owned compose services'
 	@printf '%s\n' '  make status           report repository and build state'
 	@printf '%s\n' '  make lint/fmt         lint or format Rust and frontends'
-	@printf '%s\n' '  make test             run Rust and frontend tests'
+	@printf '%s\n' '  make test             run Rust and frontend tests, including simulated audio harness'
+	@printf '%s\n' '  make test-audio       run deterministic SIMULATED audio integration tests'
 	@printf '%s\n' '  make build            build Rust and frontend artifacts'
 	@printf '%s\n' '  make package          report package outputs (none until release packaging)'
 	@printf '%s\n' '  make diagnostics      report environment validation state'
@@ -61,7 +62,7 @@ lint:
 	@npm run typecheck --prefix web/musician
 	@npm run typecheck --prefix web/engineer
 
-test: test-unit test-integration
+test: test-unit test-integration test-audio
 	@npm test --prefix web/musician -- --run
 	@npm test --prefix web/engineer -- --run
 
@@ -70,6 +71,9 @@ test-unit:
 
 test-integration:
 	@cargo test --manifest-path $(SERVER_MANIFEST) --package api-server --test integration
+
+test-audio:
+	@cargo test --manifest-path $(SERVER_MANIFEST) --package audio-engine --test deterministic_harness
 
 build:
 	@cargo build --manifest-path $(SERVER_MANIFEST) --workspace

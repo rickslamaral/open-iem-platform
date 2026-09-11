@@ -4,6 +4,31 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 39 — cobertura do harness de áudio no Makefile
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Criado alvo `make test-audio` para executar `audio-engine` deterministic harness.
+- `make test` agora inclui esse alvo, além dos testes Rust e frontend existentes.
+- Help do Makefile informa que cobertura de áudio é `SIMULATED`.
+- README, CHANGELOG, TODO e review da Phase 39 alinhados.
+
+### Verificação
+
+- `make test-audio`: PASS.
+- `make test`: PASS, se dependências locais de frontend estiverem disponíveis.
+- `make -n test`: PASS.
+- `git diff --check`: PASS.
+- Nenhum claim novo de hardware, PipeWire, WebRTC media, Raspberry Pi ou CI remoto.
+
+### Limitações
+
+O harness não valida áudio realtime, hardware, desempenho, stop/start ou runtime ARM64. CI remoto continua bloqueado antes dos steps com `runner_id=0`.
+
+---
+
 ## 2026-09-11 — Phase 38 — consistência documental da CLI
 
 **Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps (run `34572824987`); não mergeado; não lançado.
