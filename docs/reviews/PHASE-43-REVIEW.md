@@ -1,5 +1,7 @@
 # Phase 43 Review — gates de verificação e consistência documental
 
+> Correção posterior: Phase 44 removeu trailing whitespace que fazia o gate documental do diff completo falhar.
+
 **Data:** 2026-09-11
 **Estado:** implementação local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
 

@@ -4,6 +4,27 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 44 — correção do gate de whitespace documental
+
+**Status:** correção local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Removido trailing whitespace de `docs/reviews/PHASE-37-REVIEW.md`, `PHASE-38-REVIEW.md`, `PHASE-39-REVIEW.md` e `docs/validation/PLATFORM-VALIDATION-MATRIX.md`.
+- README, CHANGELOG e TODO alinhados ao estado real.
+
+### Verificação
+
+- `git diff --cached --check`: PASS antes do commit; o diff completo contra `origin/main` deve ser revalidado após commit.
+- Testes Rust, clippy, typecheck/test/build dos dois frontends, docs, PDF e skills: PASS localmente.
+- Review independente encontrou e confirmou a falha de whitespace; nenhuma correção de segurança foi aplicada por falta de evidência reproduzível para fixture de teste já existente.
+
+### Limitações
+
+- GitHub Actions continua falhando antes dos steps por ausência de runner executável (`34603073532`). PipeWire/ALSA, WebRTC media, Raspberry Pi 5 e release permanecem não validados.
+
+---
+
 ## 2026-09-11 — Phase 43 — gates de verificação e consistência documental
 
 **Status:** implementação local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.

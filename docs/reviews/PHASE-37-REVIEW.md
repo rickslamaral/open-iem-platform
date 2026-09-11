@@ -1,6 +1,6 @@
 # Phase 37 Review — Matriz de validação de plataforma
 
-**Data:** 2026-09-11  
+**Data:** 2026-09-11
 **Estado:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
 
 ## Objetivo

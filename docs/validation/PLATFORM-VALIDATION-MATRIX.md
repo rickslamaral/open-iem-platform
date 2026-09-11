@@ -1,7 +1,7 @@
 # Matriz de validação de plataforma
 
-**Data:** 2026-09-11  
-**Escopo:** evidência executada para Open IEM Platform.  
+**Data:** 2026-09-11
+**Escopo:** evidência executada para Open IEM Platform.
 **Regra:** `PASS` exige comando executado e resultado registrado; `PASS parcial` significa que somente componentes explicitamente listados passaram; `CONFIG VALIDATED` cobre parsing/configuração, não runtime; `SIMULATED` não é suporte; `PENDING` exige ambiente ou hardware ausente.
 
 ## Estado atual

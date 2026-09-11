@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 43 — gates de documentação, lockfile Rust e reconciliação de ADRs.** CI agora valida documentação, PDF, skills e whitespace; `server/Cargo.lock` fecha entrada para auditoria de dependências; ADRs duplicados foram renumerados. PR #40 permanece aberto; CI remoto ainda falha antes dos steps (run `34599888854`); sem merge ou release. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md) e [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md).
+**Fase incremental atual: Phase 44 — correção do gate de whitespace documental.** O diff completo da branch agora passa `git diff --check`; CI remoto ainda falha antes dos steps por ausência de runner executável (run `34603073532`). PR #40 permanece aberto; sem merge ou release. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md) e [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md).
 
 **Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 

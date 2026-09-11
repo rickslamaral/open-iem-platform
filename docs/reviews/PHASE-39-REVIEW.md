@@ -1,6 +1,6 @@
 # Phase 39 Review — cobertura do harness de áudio no Makefile
 
-**Data:** 2026-09-11  
+**Data:** 2026-09-11
 **Estado:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
 
 ## Objetivo

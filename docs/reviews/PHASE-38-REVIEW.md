@@ -1,6 +1,6 @@
 # Phase 38 Review — consistência documental da CLI
 
-**Data:** 2026-09-11  
+**Data:** 2026-09-11
 **Estado:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps (run `34572824987`); não mergeado; não lançado.
 
 ## Objetivo
