@@ -19,7 +19,7 @@ Atualizar guia e PDF para refletir comportamento real atual, sem transformar rec
 - `bash scripts/validate-docs.sh`: PASS.
 - `bash scripts/validate-skills.sh`: PASS.
 - `git diff --check`: PASS.
-- Extração de texto/renderização completa: BLOCKED; `pdftotext` ausente no VPS. `pdftoppm` existe e iniciou renderização, mas comando combinado parou na ausência do extrator.
+- Extração de texto: BLOCKED; `pdftotext` ausente no VPS. Renderização não foi executada no comando combinado porque a cadeia parou antes no extrator ausente.
 
 ## Segurança e limites
 
