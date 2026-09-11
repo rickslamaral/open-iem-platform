@@ -143,12 +143,16 @@ sudo chmod 600 "$CA_ROOT/rootCA.key"
 
 # Generate LAN certificate (adjust IPs to your Pi's LAN IP)
 LAN_IP=$(hostname -I | awk '{print $1}')
-sudo mkdir -p /etc/caddy/certs
-mkcert -cert-file /etc/caddy/certs/iem.local.pem \
-       -key-file /etc/caddy/certs/iem.local-key.pem \
-       iem.local $LAN_IP
-sudo chmod 644 /etc/caddy/certs/iem.local.pem
-sudo chmod 600 /etc/caddy/certs/iem.local-key.pem
+CERT_WORK_DIR=$(mktemp -d)
+trap 'rm -rf -- "${CERT_WORK_DIR}"' EXIT
+mkcert -cert-file "${CERT_WORK_DIR}/iem.local.pem" \
+       -key-file "${CERT_WORK_DIR}/iem.local-key.pem" \
+       iem.local "$LAN_IP"
+sudo install -d -o root -g caddy -m 0750 /etc/caddy/certs
+sudo install -o root -g caddy -m 0644 "${CERT_WORK_DIR}/iem.local.pem" /etc/caddy/certs/iem.local.pem
+sudo install -o root -g caddy -m 0640 "${CERT_WORK_DIR}/iem.local-key.pem" /etc/caddy/certs/iem.local-key.pem
+rm -rf -- "${CERT_WORK_DIR}"
+trap - EXIT
 
 # Install Caddyfile
 sudo cp deployment/caddy/Caddyfile /etc/caddy/Caddyfile

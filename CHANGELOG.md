@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 52 verification follow-up
+- Admin CLI não segue redirects HTTP(S), impedindo downgrade TLS e vazamento de Bearer token para destino redirecionado.
+- `cargo-audit` foi fixado na versão `0.22.2` nos workflows CI e release.
+- Geração de certificado LAN usa diretório temporário e instala arquivos com ownership/modos explícitos; áudio, CI remoto e hardware continuam não validados.
+
 ### Security — Phase 51 ARM64 deployment hardening
 - Downloads do instalador restringem redirects a HTTPS.
 - Diretórios de serviço recebem ownership e modos explícitos; chaves JWT são geradas em diretório temporário e instaladas com permissões restritas.

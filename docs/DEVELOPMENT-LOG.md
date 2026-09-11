@@ -4,6 +4,29 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 52 — follow-up de verificação independente
+
+**Status:** correção local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Admin CLI desativa redirects do `reqwest`, preservando a política HTTPS/loopback e evitando downgrade com Bearer token.
+- `cargo-audit` fixado em `0.22.2` nos workflows CI e release.
+- Certificados LAN gerados em diretório temporário; instalação usa `sudo install` com ownership explícito e chave privada `0640` para o grupo `caddy`.
+- Corrigidas inconsistências documentais de `make fmt` e da tabela de fases do README.
+
+### Verificação
+
+- `make validate`: PASS — Rust, frontends, documentação, PDF, skills e diff check.
+- Reviews independentes: test-master PASS; security-review encontrou e confirmou correções acima; code-review encontrou inconsistências documentais, corrigidas.
+- CI remoto continua falhando pré-steps com `runner_id=0`; não há hardware ARM64/PipeWire validado.
+
+### Limitações
+
+Arquivo de checksum continua sem assinatura independente; validação robusta de archives maliciosos e execução em Raspberry Pi 5 permanecem pendentes. Nenhum release foi publicado.
+
+---
+
 ## 2026-09-11 — Phase 51 — hardening do fluxo de deployment ARM64
 
 **Status:** correção local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.

@@ -79,6 +79,8 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 38 | CLI documentation consistency | ✅ Local validation; CI blocked |
 | 39 | Makefile audio harness coverage | ✅ Local validation; CI blocked |
 | 40 | Compose rebuild and localhost UI binding | ✅ Local validation; CI blocked |
+| 41–51 | Documentation, release and ARM64 deployment hardening | ✅ Local validation; CI blocked; hardware pending |
+| 52 | Verification follow-up: redirects, CI tool pins and TLS file installation | 🔄 Local implementation; CI blocked |
 
 ## Repository Structure
 

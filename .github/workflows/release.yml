@@ -90,7 +90,7 @@ jobs:
         run: cargo test --manifest-path server/Cargo.toml --all
 
       - name: Install cargo-audit
-        run: cargo install cargo-audit --locked
+        run: cargo install cargo-audit --version 0.22.2 --locked
 
       - name: Security audit
         run: |

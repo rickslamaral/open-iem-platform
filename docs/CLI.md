@@ -33,7 +33,7 @@ make validate
 make clean
 ```
 
-`make run` e `make run-local` iniciam o `api-server` nativo e exigem configuração local. `run-local` não cria um ambiente de simulação isolado; áudio permanece `SIMULATED` no VPS.
+`make run` e `make run-local` iniciam o `api-server` nativo e exigem configuração local. `run-local` não cria um ambiente de simulação isolado; áudio permanece `SIMULATED` no VPS. `make fmt` formata somente o workspace Rust; frontends não têm alvo de formatação neste Makefile.
 
 `make up`, `down` e `logs` usam Docker Compose para recursos de desenvolvimento do projeto. `make up` reconstrói imagens com `--build`; as UIs ficam vinculadas a localhost no Compose atual. Não significam suporte de produção.
 

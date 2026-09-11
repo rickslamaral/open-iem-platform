@@ -116,6 +116,9 @@ impl AdminClient {
     fn new(base: String, token: Option<String>, json_output: bool) -> Self {
         let client = Client::builder()
             .timeout(std::time::Duration::from_secs(10))
+            // Never follow a redirect: request_url's HTTPS/loopback policy must
+            // apply to every request, not only the initial URL.
+            .redirect(reqwest::redirect::Policy::none())
             .build()
             .unwrap_or_default();
         Self {
