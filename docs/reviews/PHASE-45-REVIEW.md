@@ -16,7 +16,7 @@ Corrigir seleção de runner que fazia todos os jobs CI falharem antes dos steps
 
 - Nenhum job usa `ubuntu-24.04` ou label `self-hosted`.
 - `git diff --check` e validações locais passam antes deste commit.
-- Push executado; runs `34611098109` e `34611094092` também falharam em todos os nove jobs com `runner_id=0` e `steps=[]`.
+- Push executado; runs `34614028392` e `34614025997` também falharam em todos os nove jobs com `runner_id=0` e `steps=[]`.
 
 ## Limitações
 

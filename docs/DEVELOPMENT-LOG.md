@@ -45,7 +45,7 @@ Investigar desbloqueio de runner/permissões Actions com administrador; não faz
 
 ### Limitações
 
-- Runs `34607886129` e `34610969113` falharam antes dos steps em todos os jobs, com `runner_id=0` e `steps=[]`. API de permissões e runners retorna HTTP 403 para token atual. PipeWire/ALSA, WebRTC media, Raspberry Pi 5 e release permanecem não validados.
+- Runs `34614028392` e `34614025997` falharam antes dos steps em todos os jobs, com `runner_id=0` e `steps=[]`. API de permissões e runners retorna HTTP 403 para token atual. PipeWire/ALSA, WebRTC media, Raspberry Pi 5 e release permanecem não validados.
 
 ---
 
