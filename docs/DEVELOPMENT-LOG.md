@@ -45,7 +45,7 @@ Commit, push e observar novo run CI; não fazer merge enquanto gates não estive
 
 ### Limitações
 
-- GitHub Actions continua falhando antes dos steps por ausência de runner executável (`34603073532`). PipeWire/ALSA, WebRTC media, Raspberry Pi 5 e release permanecem não validados.
+- Runs `34607886129` e `34610969113` falharam antes dos steps em todos os jobs, com `runner_id=0` e `steps=[]`. API de permissões e runners retorna HTTP 403 para token atual. PipeWire/ALSA, WebRTC media, Raspberry Pi 5 e release permanecem não validados.
 
 ---
 

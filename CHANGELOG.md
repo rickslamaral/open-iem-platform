@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed — Phase 45 GitHub Actions runner label
 - Trocado `runs-on: ubuntu-24.04` por `runs-on: ubuntu-latest` em todos os jobs de CI; runs anteriores falharam antes dos steps com `runner_id=0`.
-- Novo run `34607886129` falhou antes dos steps em todos os jobs com `runner_id=0` e `steps=[]`; CI remoto e release continuam bloqueados.
+- Os runs `34607886129` e `34610969113` falharam antes dos steps em todos os jobs com `runner_id=0` e `steps=[]`; CI remoto e release continuam bloqueados.
 
 ### Fixed — Phase 44 documentation whitespace gate
 - Removido trailing whitespace introduzido em reviews das Phases 37–39 e na matriz de validação de plataforma.
