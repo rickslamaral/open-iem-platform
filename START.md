@@ -4,7 +4,7 @@
 
 ## Estado canônico atual
 
-As 13 fases canônicas permanecem fixas. A Phase 46 é o trabalho incremental atual na branch; as fases incrementais 27–46 não substituem nem renumeram as fases canônicas.
+As 13 fases canônicas permanecem fixas. A Phase 51 é o trabalho incremental atual na branch; as fases incrementais 27–51 não substituem nem renumeram as fases canônicas.
 
 ```text
 Concluídas: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 6

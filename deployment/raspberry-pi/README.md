@@ -31,8 +31,10 @@ trap 'rm -rf -- "${WORK_DIR}"' EXIT
 ARCHIVE_PATH="${WORK_DIR}/${ARCHIVE}"
 CHECKSUM_PATH="${ARCHIVE_PATH}.sha256"
 
-curl --fail --silent --show-error --location --output "${ARCHIVE_PATH}" "${RELEASE_URL}/${ARCHIVE}"
-curl --fail --silent --show-error --location --output "${CHECKSUM_PATH}" "${RELEASE_URL}/${ARCHIVE}.sha256"
+curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+  --output "${ARCHIVE_PATH}" "${RELEASE_URL}/${ARCHIVE}"
+curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+  --output "${CHECKSUM_PATH}" "${RELEASE_URL}/${ARCHIVE}.sha256"
 # Checksum file names archive by basename; verify exact downloaded file.
 ( cd "${WORK_DIR}" && sha256sum --check "${ARCHIVE}.sha256" )
 
@@ -61,25 +63,47 @@ sudo install -o root -g root -m 755 "${EXTRACT_DIR}/api-server" /usr/local/bin/a
 ## 2. Create service user and directories
 
 ```bash
+set -euo pipefail
 sudo useradd --system --no-create-home --shell /usr/sbin/nologin openiem
-sudo mkdir -p /etc/openiem/keys /var/lib/openiem /opt/openiem
-sudo chown openiem:openiem /var/lib/openiem /opt/openiem
+sudo install -d -o root -g openiem -m 0750 /etc/openiem
+sudo install -d -o root -g openiem -m 0750 /etc/openiem/keys
+sudo install -d -o openiem -g openiem -m 0750 /var/lib/openiem /opt/openiem
 ```
 
 ## 3. Generate JWT keys
 
 ```bash
-sudo openssl genpkey -algorithm ed25519 -out /etc/openiem/keys/ed25519_private.pem
-sudo openssl pkey -in /etc/openiem/keys/ed25519_private.pem -pubout -out /etc/openiem/keys/ed25519_public.pem
-sudo chmod 600 /etc/openiem/keys/ed25519_private.pem
-sudo chmod 644 /etc/openiem/keys/ed25519_public.pem
-sudo chown openiem:openiem /etc/openiem/keys/ed25519_private.pem /etc/openiem/keys/ed25519_public.pem
+set -euo pipefail
+sudo install -d -o root -g openiem -m 0750 /etc/openiem/keys
+KEY_WORK_DIR=$(mktemp -d)
+trap 'rm -rf -- "${KEY_WORK_DIR}"' EXIT
+sudo openssl genpkey -algorithm ed25519 -out "${KEY_WORK_DIR}/ed25519_private.pem"
+sudo openssl pkey -in "${KEY_WORK_DIR}/ed25519_private.pem" -pubout -out "${KEY_WORK_DIR}/ed25519_public.pem"
+sudo install -o openiem -g openiem -m 0600 "${KEY_WORK_DIR}/ed25519_private.pem" /etc/openiem/keys/ed25519_private.pem
+sudo install -o openiem -g openiem -m 0644 "${KEY_WORK_DIR}/ed25519_public.pem" /etc/openiem/keys/ed25519_public.pem
 ```
 
 ## 4. Install systemd service
 
+Execute from a trusted clone of this repository. Resolve repository root before using deployment files:
+
 ```bash
-sudo cp deployment/systemd/openiem-server.service /etc/systemd/system/
+set -euo pipefail
+REPO_ROOT=$(git rev-parse --show-toplevel)
+SERVICE_FILE="${REPO_ROOT}/deployment/systemd/openiem-server.service"
+[[ -f "${SERVICE_FILE}" && ! -L "${SERVICE_FILE}" ]] \
+  || { printf 'Missing regular systemd unit: %s\n' "${SERVICE_FILE}" >&2; exit 1; }
+systemd-analyze verify "${SERVICE_FILE}"
+sudo install -o root -g root -m 0644 "${SERVICE_FILE}" /etc/systemd/system/openiem-server.service
+if ! [[ -f /etc/systemd/system/openiem-server.service && ! -L /etc/systemd/system/openiem-server.service ]]; then
+  printf 'Installed systemd unit is not a regular file\n' >&2
+  sudo rm -f /etc/systemd/system/openiem-server.service
+  exit 1
+fi
+if ! systemd-analyze verify /etc/systemd/system/openiem-server.service; then
+  sudo rm -f /etc/systemd/system/openiem-server.service
+  exit 1
+fi
 sudo systemctl daemon-reload
 sudo systemctl enable openiem-server
 sudo systemctl start openiem-server
@@ -89,10 +113,13 @@ sudo systemctl status openiem-server
 ## 5. Install Caddy and configure TLS
 
 ```bash
+set -euo pipefail
 # Install Caddy (Debian/Ubuntu/Raspbian)
 sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+  'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+  'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list >/dev/null
 sudo apt update && sudo apt install caddy
 
 # Install mkcert

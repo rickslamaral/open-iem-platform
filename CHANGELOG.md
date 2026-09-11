@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 51 ARM64 deployment hardening
+- Downloads do instalador restringem redirects a HTTPS.
+- Diretórios de serviço recebem ownership e modos explícitos; chaves JWT são geradas em diretório temporário e instaladas com permissões restritas.
+- Unit systemd é resolvida a partir de clone confiável, validada e instalada com `install`; nenhum claim novo de execução em Raspberry Pi foi feito.
+
 ### Security — Phase 50 Raspberry Pi installer hardening
 - O fluxo de instalação ARM64 agora falha fechado com `set -euo pipefail`, valida tag SemVer, usa diretório temporário e remove artefatos ao sair.
 - Download verifica HTTP, checksum do arquivo exato e rejeita membros de archive com traversal, caminhos absolutos, symlinks ou hard links antes da extração.

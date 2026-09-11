@@ -4,6 +4,29 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 51 — hardening do fluxo de deployment ARM64
+
+**Status:** correção local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Downloads do instalador restringem redirects para HTTPS.
+- Diretórios `/etc/openiem`, `/etc/openiem/keys`, `/var/lib/openiem` e `/opt/openiem` recebem ownership e modos explícitos; `/etc/openiem` e `/etc/openiem/keys` usam grupo `openiem` para permitir acesso do serviço.
+- Chaves JWT são geradas em diretório temporário limpo por `trap` e instaladas via `sudo install` com modos restritos.
+- Unit systemd é obtida de clone Git confiável, validada como arquivo regular por `systemd-analyze verify` e instalada com ownership root.
+
+### Verificação
+
+- Extração dos blocos Bash e `bash -n`: PASS.
+- `git diff --check`: PASS.
+- `make test`, validações de documentação/PDF/skills e reviews independentes: executar antes do commit.
+
+### Limitações
+
+CI remoto segue falhando antes dos steps com `runner_id=0`; últimos runs observados `34634194257` (PR) e `34634188913` (push). Nenhum release foi publicado. Instalação, runtime ARM64, PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 permanecem não validados.
+
+---
+
 ## 2026-09-11 — Phase 50 — hardening do instalador ARM64
 
 **Status:** correção local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.

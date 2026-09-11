@@ -8,6 +8,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — CI e release usam `ubuntu-latest`, mas runs remotos ainda falham antes dos steps com `runner_id=0`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 51 — hardening do fluxo de deployment ARM64
+
+- [x] Restringir redirects de download a HTTPS.
+- [x] Criar diretórios de serviço com ownership e modos explícitos.
+- [x] Gerar chaves JWT em diretório temporário e instalar com permissões restritas.
+- [x] Resolver e validar unit systemd a partir de clone confiável antes da instalação.
+- [ ] Validar instalação em Raspberry Pi 5 real após publicação de release.
+
 ## Phase 50 — hardening do instalador ARM64
 
 - [x] Fazer download em diretório temporário com `set -euo pipefail` e limpeza automática.
