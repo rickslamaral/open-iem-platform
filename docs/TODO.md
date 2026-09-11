@@ -11,8 +11,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## Phase 53 — validação de archives de release
 
 - [x] Validar archives de servidor x86_64/ARM64 antes de checksum/upload; rejeitar traversal, links, membros inesperados e binários ausentes.
-- [x] Adicionar testes offline determinísticos do validador.
-- [ ] Adicionar validação automatizada de archive malicioso e testar instalação em Raspberry Pi 5 real.
+- [x] Adicionar testes offline determinísticos, casos maliciosos e contrato CLI do validador.
+- [x] Fazer instalador ARM64 exigir e instalar `api-server` e `open-iem-admin`.
 - [ ] Adotar assinatura independente para autenticar artefatos de release.
 - [ ] Desbloquear CI remoto antes de merge/release.
 

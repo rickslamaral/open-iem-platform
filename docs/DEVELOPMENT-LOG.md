@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 53 follow-up — gates de release fail-closed
+
+**Status:** implementação local; PR #40 aberto; CI remoto falha pré-steps; não mergeado; não lançado.
+
+### Implementado
+
+- Validador de archive rejeita basenames obrigatórios fora da allowlist.
+- Teste CLI adicionado; suíte do validador agora tem 7 testes.
+- Empacotamento web falha quando `dist/` de Musician ou Engineer falta.
+- Upload web usa `if-no-files-found: error`.
+- Guia ARM64 exige e instala `api-server` e `open-iem-admin`.
+
+### Verificação
+
+- `make test`: PASS — Rust, frontends e harness SIMULATED.
+- `make validate`: PASS — documentação, PDF e skills.
+- Reviews independentes: findings de gate corrigidos localmente; assinatura independente, CI remoto e hardware seguem pendentes.
+
+### Próximo passo
+
+Executar re-review após atualização documental; não fazer merge ou release até CI remoto executar gates reais.
+
+---
+
 ## 2026-09-11 — Phase 53 — validação estrutural de archives de release
 
 **Status:** commit `15cc584`; PR #40 aberto; CI remoto falhou pré-steps no run `34642754837`; não mergeado; não lançado.

@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 53 — validação estrutural de archives de release.** O workflow valida archives de servidor x86_64 e ARM64 antes de checksum/upload, rejeitando traversal, links, membros inesperados e binários ausentes. CI remoto e hardware continuam não validados. O guia Raspberry Pi restringe redirects do `curl` a HTTPS, incluindo downloads Caddy, cria diretórios com ownership/permissões explícitos, gera chaves em diretório temporário e instala a unit systemd somente a partir de clone confiável validado. CI e release continuam usando `ubuntu-latest`; isso não prova disponibilidade de runner. O run mais recente `34634194257` (PR) e o push `34634188913` falharam antes dos steps; PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [review da Phase 53](docs/reviews/PHASE-53-REVIEW.md), [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md), [review da Phase 51](docs/reviews/PHASE-51-REVIEW.md), [Phase 50](docs/reviews/PHASE-50-REVIEW.md), [Phase 49](docs/reviews/PHASE-49-REVIEW.md) e [Phase 48](docs/reviews/PHASE-48-REVIEW.md).
+**Fase incremental atual: Phase 53 — validação estrutural de archives de release.** O workflow valida archives de servidor x86_64 e ARM64 antes de checksum/upload, rejeitando traversal, links, membros inesperados e binários ausentes. O empacotamento web agora falha se qualquer `dist/` faltar e uploads exigem arquivos. CI remoto e hardware continuam não validados. O guia Raspberry Pi restringe redirects do `curl` a HTTPS, valida os dois binários e instala ambos. CI e release continuam usando `ubuntu-latest`; isso não prova disponibilidade de runner. Os runs mais recentes `34642807972` (PR) e `34642802085` (push) falharam antes dos steps; PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [review da Phase 53](docs/reviews/PHASE-53-REVIEW.md), [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md), [review da Phase 51](docs/reviews/PHASE-51-REVIEW.md), [Phase 50](docs/reviews/PHASE-50-REVIEW.md), [Phase 49](docs/reviews/PHASE-49-REVIEW.md) e [Phase 48](docs/reviews/PHASE-48-REVIEW.md).
 
 **Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 
@@ -80,7 +80,8 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 39 | Makefile audio harness coverage | ✅ Local validation; CI blocked |
 | 40 | Compose rebuild and localhost UI binding | ✅ Local validation; CI blocked |
 | 41–51 | Documentation, release and ARM64 deployment hardening | ✅ Local validation; CI blocked; hardware pending |
-| 52 | Verification follow-up: redirects, CI tool pins and TLS file installation | 🔄 Local implementation; CI blocked |
+| 52 | Verification follow-up: redirects, CI tool pins and TLS file installation | ✅ Local validation; CI blocked |
+| 53 | Release archive validation | 🔄 Local implementation; CI blocked |
 
 ## Repository Structure
 

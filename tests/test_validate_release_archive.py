@@ -100,3 +100,16 @@ def test_unexpected_file_fails(tmp_path):
         assert "unexpected archive member" in str(exc)
     else:
         raise AssertionError("unexpected archive member accepted")
+
+
+def test_unknown_required_basename_fails_cli(tmp_path):
+    archive = tmp_path / "valid.tar.gz"
+    make_archive(archive, valid_members())
+    result = __import__("subprocess").run(
+        ["python3", "scripts/validate-release-archive.py", str(archive), "not-allowlisted"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 2
+    assert "required basenames are not allowed" in result.stderr

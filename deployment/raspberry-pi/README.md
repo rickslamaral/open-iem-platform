@@ -57,7 +57,10 @@ EXTRACT_DIR="${WORK_DIR}/open-iem-server-${VERSION#v}-aarch64-linux"
 tar --extract --file "${ARCHIVE_PATH}" --directory "${WORK_DIR}" --no-same-owner --no-same-permissions
 [[ -f "${EXTRACT_DIR}/api-server" && ! -L "${EXTRACT_DIR}/api-server" ]] \
   || { printf 'Archive missing regular api-server binary\n' >&2; exit 1; }
+[[ -f "${EXTRACT_DIR}/open-iem-admin" && ! -L "${EXTRACT_DIR}/open-iem-admin" ]] \
+  || { printf 'Archive missing regular open-iem-admin binary\n' >&2; exit 1; }
 sudo install -o root -g root -m 755 "${EXTRACT_DIR}/api-server" /usr/local/bin/api-server
+sudo install -o root -g root -m 755 "${EXTRACT_DIR}/open-iem-admin" /usr/local/bin/open-iem-admin
 ```
 
 ## 2. Create service user and directories

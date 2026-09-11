@@ -276,22 +276,20 @@ jobs:
 
       - name: Package web artefacts
         run: |
+          set -euo pipefail
           VERSION="${{ needs.validate-version.outputs.version }}"
-          # Musician PWA
-          if [ -d web/musician/dist ]; then
-            tar -czf "open-iem-musician-pwa-${VERSION}.tar.gz" -C web/musician dist
-            sha256sum "open-iem-musician-pwa-${VERSION}.tar.gz" > "open-iem-musician-pwa-${VERSION}.tar.gz.sha256"
-          fi
-          # Engineer UI
-          if [ -d web/engineer/dist ]; then
-            tar -czf "open-iem-engineer-ui-${VERSION}.tar.gz" -C web/engineer dist
-            sha256sum "open-iem-engineer-ui-${VERSION}.tar.gz" > "open-iem-engineer-ui-${VERSION}.tar.gz.sha256"
-          fi
+          test -d web/musician/dist
+          test -d web/engineer/dist
+          tar -czf "open-iem-musician-pwa-${VERSION}.tar.gz" -C web/musician dist
+          sha256sum "open-iem-musician-pwa-${VERSION}.tar.gz" > "open-iem-musician-pwa-${VERSION}.tar.gz.sha256"
+          tar -czf "open-iem-engineer-ui-${VERSION}.tar.gz" -C web/engineer dist
+          sha256sum "open-iem-engineer-ui-${VERSION}.tar.gz" > "open-iem-engineer-ui-${VERSION}.tar.gz.sha256"
 
       - name: Upload web artefacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: web-dist
+          if-no-files-found: error
           path: |
             open-iem-musician-pwa-*.tar.gz
             open-iem-musician-pwa-*.tar.gz.sha256

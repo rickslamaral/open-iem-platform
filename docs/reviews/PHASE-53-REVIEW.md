@@ -17,7 +17,8 @@ Rejeitar archives de servidor estruturalmente perigosos antes de checksum, uploa
 
 ## Verificação
 
-- Teste dedicado: PASS — 5 testes (`python3 -m pytest -q tests/test_validate_release_archive.py`).
+- Teste dedicado: PASS — 7 testes (`python3 -m pytest -q tests/test_validate_release_archive.py`).
+- Follow-up: CLI rejeita basenames obrigatórios fora da allowlist; empacotamento web falha quando qualquer `dist/` está ausente; upload rejeita conjunto vazio.
 - CI remoto: BLOCKED antes dos steps, `runner_id=0`.
 
 ## Segurança

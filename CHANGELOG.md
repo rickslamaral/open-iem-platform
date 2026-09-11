@@ -8,7 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Security — Phase 53 release archive validation
 - O workflow de release valida archives de servidor x86_64 e ARM64 antes do checksum/upload, rejeitando traversal, links, arquivos inesperados e binários ausentes.
-- Validador offline e testes determinísticos adicionados; assinatura independente continua pendente.
+- Empacotamento web falha quando qualquer `dist/` esperado está ausente; uploads falham quando não encontram arquivos.
+- Validador CLI rejeita basenames obrigatórios fora da allowlist; testes determinísticos agora cobrem esse contrato.
+- Assinatura independente continua pendente.
 
 ### Security — Phase 52 verification follow-up
 - Admin CLI não segue redirects HTTP(S), impedindo downgrade TLS e vazamento de Bearer token para destino redirecionado.

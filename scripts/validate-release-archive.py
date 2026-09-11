@@ -64,8 +64,15 @@ def main() -> int:
     parser.add_argument("archive", type=pathlib.Path)
     parser.add_argument("required", nargs="+", help="required regular file basenames")
     args = parser.parse_args()
+    required = set(args.required)
+    unknown_required = required - ALLOWED_FILES
+    if unknown_required:
+        parser.error(
+            "required basenames are not allowed: "
+            + ", ".join(sorted(unknown_required))
+        )
     try:
-        validate(args.archive, set(args.required))
+        validate(args.archive, required)
     except (OSError, tarfile.TarError, ValueError) as exc:
         print(f"archive validation failed: {exc}")
         return 1
