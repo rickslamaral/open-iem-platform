@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Documentation — Phase 41 Musician Guide package refresh
+- Atualizada versão/data de `docs/guides/MUSICIANS-GUIDE.md` para refletir estado atual do projeto.
+- Regenerado `docs/guides/MUSICIANS-GUIDE.pdf` a partir do guia Markdown; PDF continua limitado ao comportamento real e marca áudio como `SIMULATED`.
+- Validação de texto/renderização do PDF ficou bloqueada neste VPS: `pdftotext` não está instalado; geração via Pandoc/XeLaTeX foi executada.
+
 ### Changed — Phase 40 Compose rebuild safety
 - `make up` agora usa `docker compose up -d --build`, evitando iniciar imagens locais obsoletas.
 - Compose continua restrito a desenvolvimento; HTTP e áudio `SIMULATED` não mudaram.

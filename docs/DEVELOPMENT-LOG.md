@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 41 — pacote documental do Musician Guide
+
+**Status:** documentação local atualizada; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Atualizada versão/data de `docs/guides/MUSICIANS-GUIDE.md` para Phase 41.
+- Regenerado `docs/guides/MUSICIANS-GUIDE.pdf` com Pandoc + XeLaTeX a partir do Markdown atual.
+- README, CHANGELOG e TODO registram estado e limitação real.
+
+### Verificação
+
+- `pandoc ... --pdf-engine=xelatex`: PASS; PDF regenerado.
+- Renderização de página foi iniciada com `pdftoppm`, mas validação textual falhou porque `pdftotext` não está instalado no VPS.
+- `bash scripts/validate-docs.sh`: PASS.
+- `bash scripts/validate-skills.sh`: PASS.
+- `git diff --check`: PASS.
+
+### Limitações
+
+PDF não pode receber validação completa de extração de texto neste ambiente até instalar `pdftotext`. PipeWire, WebRTC media, runtime ARM64 e hardware Raspberry Pi 5 continuam não validados. CI remoto continua bloqueado antes dos steps; runs `34594953314` e `34594948336` falharam com jobs sem steps.
+
+---
+
 ## 2026-09-11 — Phase 40 — segurança operacional do Compose e rebuild explícito
 
 **Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

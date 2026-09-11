@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 40 — segurança operacional do alvo Compose.** `make up` agora reconstrói imagens com `docker compose up -d --build`, evitando iniciar imagens obsoletas após alterações locais. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps (runs `34592421607` e `34592418106`); sem merge ou release. Ver [contrato CLI](docs/CLI.md) e [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md).
+**Fase incremental atual: Phase 41 — pacote documental do Musician Guide.** Guia Markdown e PDF foram regenerados/alinhados ao estado real. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps (runs `34594953314` e `34594948336`); sem merge ou release. Validação de texto/renderização do PDF está bloqueada neste VPS por ausência de `pdftotext`. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md) e [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md).
 
 **Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 
