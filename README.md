@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 37 — matriz de validação de plataforma.** Matriz separa evidência local, configuração validada, estados `SIMULATED`, `PENDING` e suporte não implementado. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps; sem merge ou release. Ver [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md).
+**Fase incremental atual: Phase 38 — consistência documental da CLI.** `docs/CLI.md` agora reflete o binário `iem` implementado, versão `0.3.1` e oito comandos fixos. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps; sem merge ou release. Ver [contrato CLI](docs/CLI.md) e [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md).
 
 **Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 
@@ -76,6 +76,7 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 33 | CI branch trigger diagnosis | ✅ Local correction; CI remote blocked |
 | 34 | Admin CLI output correctness | ✅ Local tests pass; CI blocked; unmerged |
 | 35 | Developer CLI `iem` | ✅ Local tests pass; CI blocked; unmerged |
+| 38 | CLI documentation consistency | ✅ Local validation; CI blocked; unmerged |
 
 ## Repository Structure
 

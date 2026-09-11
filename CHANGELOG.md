@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 38 CLI documentation consistency
+- Corrected `docs/CLI.md` and development history to reflect implemented `iem` behavior, version `0.3.1`, fixed command set and current limits.
+
 ### Added — Phase 37 platform validation matrix
 - Added `docs/validation/PLATFORM-VALIDATION-MATRIX.md` with evidence boundaries for VPS Linux, Docker Compose, Raspberry Pi 5 ARM64, Windows Docker Desktop, native Windows audio and future macOS work.
 - Hardware, realtime audio, WebRTC media and ARM64 runtime remain `PENDING` or `SIMULATED` until executed on target hardware.

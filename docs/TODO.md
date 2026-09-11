@@ -13,7 +13,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] P1 — JWT pós-emissão revogável — Phase 31 — access-session mappings checked by middleware and WebSocket message/keepalive loops; local verification passes, CI remains blocked.
 
 - [x] P1 — Corrigir Docker Compose dev — Phase 30 — Dockerfiles de desenvolvimento adicionados para API e UIs; `docker compose config` passa sem aviso de `version` obsoleto. Build completo depende de chaves JWT locais e daemon Docker disponível.
-- [x] P1 — Implementar CLI `iem` com paridade documentada ao Makefile — Phase 35 — dispatcher tipado para help/status/diagnostics/docs/test/build/up/down; sem instalação global e sem `iem run`.
+- [x] P1 — Implementar CLI `iem` com paridade documentada ao Makefile — Phase 35 — dispatcher tipado para help/status/diagnostics/docs/test/build/up/down; versão `0.3.1`; sem instalação global e sem `iem run`.
 - [x] P1 — Corrigir saída do `open-iem-admin` — Phase 34 — HTTPS obrigatório fora de localhost, tabelas preservam união de colunas e 404 não afirma recurso planejado.
 - [x] P1 — Criar harness de áudio determinístico — Phase 32 — cobre determinismo, sinais sintéticos, isolamento, ganho, pan, mute, limiter e finitude; não substitui hardware. Recuperação stop/start permanece follow-up.
 - [x] P1 — Criar matriz formal de validação Docker/Linux/Raspberry Pi — Phase 37 — matriz publicada; execução em Raspberry Pi 5 continua pendente.

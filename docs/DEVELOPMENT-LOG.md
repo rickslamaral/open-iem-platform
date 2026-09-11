@@ -4,6 +4,26 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 38 — consistência documental da CLI
+
+**Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- `docs/CLI.md` passou a declarar `iem` como implementado, com oito comandos fixos e versão `0.3.1`.
+- Removida linguagem obsoleta de planejamento e `NOT STARTED`.
+- README, CHANGELOG, TODO e esta trilha foram alinhados ao binário real.
+
+### Verificação
+
+- `cargo test --manifest-path server/Cargo.toml -p admin-cli`: PASS — 3 testes.
+- `cargo run --quiet --manifest-path server/Cargo.toml --bin iem -- --version`: PASS — `iem 0.3.1`.
+- `bash scripts/validate-docs.sh`: PASS.
+- `git diff --check`: PASS.
+- Nenhum claim novo de hardware, áudio realtime ou CI remoto.
+
+---
+
 ## 2026-09-11 — Phase 37 — matriz de validação de plataforma
 
 **Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
@@ -180,8 +200,8 @@ Reconciliar documentação com commits reais e registrar contrato da interface l
 
 - README e CHANGELOG deixam de chamar mudanças commitadas de working tree.
 - Criada revisão `docs/reviews/PHASE-31-REVIEW.md`.
-- Criado `docs/CLI.md`, distinguindo Makefile, `open-iem-admin` existente e `iem` ainda não implementado.
-- TODO mantém CLI `iem` como `NOT STARTED`.
+- Criado `docs/CLI.md`, distinguindo Makefile, `open-iem-admin` existente e o contrato implementado de `iem`.
+- Corrigido estado documental da CLI: `iem` implementado com oito comandos fixos e versão `0.3.1`; instalação global e pacote continuam fora do escopo.
 
 ### Verificação
 

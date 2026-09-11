@@ -59,11 +59,11 @@ cargo run --manifest-path server/Cargo.toml --bin iem -- status
 
 Comandos suportados: `help`, `status`, `diagnostics`, `docs`, `test`, `build`, `up` e `down`. Cada comando chama somente alvo fixo do Makefile. `iem run` permanece fora do contrato. Falhas do `make` preservam código de saída não-zero.
 
-## Paridade planejada para `iem`
+## Paridade implementada para `iem`
 
-Implementação futura deve definir, testar e documentar contrato antes de criar alias ou pacote:
+`iem` despacha somente alvos fixos do Makefile. Não aceita comandos arbitrários, shell ou argumentos adicionais:
 
-| Comando futuro | Workflow equivalente atual |
+| Comando | Workflow equivalente atual |
 |---|---|
 | `iem help` | `make help` |
 | `iem status` | `make status` |
@@ -74,12 +74,14 @@ Implementação futura deve definir, testar e documentar contrato antes de criar
 | `iem up` | `make up` |
 | `iem down` | `make down` |
 
-`iem run` não entra no contrato inicial: execução depende de configuração, chaves JWT, rede e modo de áudio. A implementação também precisa definir instalação, códigos de saída, logs, Windows/Linux/Raspberry Pi e rollback de pacote.
+## Limites do contrato
+
+`iem run` não entra no contrato inicial: execução depende de configuração, chaves JWT, rede e modo de áudio. Instalação global, empacotamento e suporte adicional de plataforma exigem especificação própria.
 
 ## Status de validação
 
 - Makefile: interface local implementada.
 - `open-iem-admin`: binário implementado; uso depende de API configurada.
-- `iem`: `NOT STARTED`.
+- `iem`: implementado; versão `iem 0.3.1`; oito comandos fixos; sem instalação global ou pacote de release.
 - CI remoto: `BLOCKED`; runs recentes falharam antes dos steps com `runner_id=0`.
 - PipeWire, WebRTC media e Raspberry Pi 5: `HARDWARE VALIDATION REQUIRED`.
