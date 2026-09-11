@@ -4,6 +4,29 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 37 — matriz de validação de plataforma
+
+**Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Criada `docs/validation/PLATFORM-VALIDATION-MATRIX.md` para separar evidência de configuração, `SIMULATED`, `PENDING` e suporte não implementado.
+- Registrados targets Linux x86_64, Docker Compose, Raspberry Pi 5 ARM64, Windows via Docker Desktop, Windows áudio nativo e macOS.
+- Definidos gates de hardware para PipeWire/ALSA, WebRTC media, latência, XRUNs, perda, recuperação e TLS.
+- Atualizados README, CHANGELOG, TODO e review da Phase 37.
+
+### Verificação
+
+- `bash scripts/validate-docs.sh`: PASS.
+- `bash scripts/validate-skills.sh`: PASS.
+- `git diff --check`: PASS.
+- Nenhum teste de Raspberry Pi, PipeWire, áudio realtime ou WebRTC media foi alegado.
+
+### Limitações
+
+- Run CI `34557388136` falhou com oito jobs sem steps executados; GitHub reporta `runner_id=0`.
+- Fechamento de deployment e mídia depende de Raspberry Pi 5 real.
+
 ## 2026-09-11 — Phase 35 — CLI de desenvolvimento `iem`
 
 **Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
@@ -29,6 +52,29 @@ All significant milestones documented here in reverse chronological order.
 ### Limitações
 
 - `up`/`down` exigem Docker Compose; `test`/`build` exigem toolchains.
+- PipeWire, WebRTC media e Raspberry Pi 5 continuam não validados.
+
+---
+
+---
+
+## 2026-09-11 — Phase 36 — telemetria no Engineer Console
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Engineer Console passou a consultar `GET /api/v1/telemetry` junto com dados do dashboard.
+- Backend e contador de XRUNs aparecem nos cards operacionais.
+- Métrica `null` permanece `UNKNOWN`; nenhuma disponibilidade de áudio foi inventada.
+- Criada revisão `docs/reviews/PHASE-36-REVIEW.md`.
+
+### Verificação
+
+- `npm test --prefix web/engineer -- --run --reporter=dot`: PASS — 2 testes.
+- `npm run typecheck --prefix web/engineer`: PASS.
+- `npm run build --prefix web/engineer`: PASS — Vite produziu `dist/`.
+- `git diff --check`: PASS.
 - PipeWire, WebRTC media e Raspberry Pi 5 continuam não validados.
 
 ---

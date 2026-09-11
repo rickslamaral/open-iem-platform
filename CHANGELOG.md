@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 37 platform validation matrix
+- Added `docs/validation/PLATFORM-VALIDATION-MATRIX.md` with evidence boundaries for VPS Linux, Docker Compose, Raspberry Pi 5 ARM64, Windows Docker Desktop, native Windows audio and future macOS work.
+- Hardware, realtime audio, WebRTC media and ARM64 runtime remain `PENDING` or `SIMULATED` until executed on target hardware.
+
 ### Changed — Phase 36 Engineer Console telemetry
 - Engineer Console now reads `/api/v1/telemetry` and displays backend plus XRUN count.
 - Unknown metrics remain `UNKNOWN`; VPS audio remains `SIMULATED`.

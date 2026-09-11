@@ -16,7 +16,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] P1 — Implementar CLI `iem` com paridade documentada ao Makefile — Phase 35 — dispatcher tipado para help/status/diagnostics/docs/test/build/up/down; sem instalação global e sem `iem run`.
 - [x] P1 — Corrigir saída do `open-iem-admin` — Phase 34 — HTTPS obrigatório fora de localhost, tabelas preservam união de colunas e 404 não afirma recurso planejado.
 - [x] P1 — Criar harness de áudio determinístico — Phase 32 — cobre determinismo, sinais sintéticos, isolamento, ganho, pan, mute, limiter e finitude; não substitui hardware. Recuperação stop/start permanece follow-up.
-- [ ] P1 — Criar matriz formal de validação Docker/Linux/Raspberry Pi — status READY — depende de hardware Raspberry Pi 5.
+- [x] P1 — Criar matriz formal de validação Docker/Linux/Raspberry Pi — Phase 37 — matriz publicada; execução em Raspberry Pi 5 continua pendente.
 - [x] P1 — Adicionar sincronização de observabilidade ao desenvolvimento — Phase 36 — Engineer Console consulta telemetria e mantém métricas desconhecidas como `UNKNOWN`; áudio real segue pendente.
 
 ## BLOCKED / VALIDATION REQUIRED
