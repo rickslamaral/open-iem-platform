@@ -10,7 +10,8 @@ beforeEach(() => {
     .mockReturnValueOnce(json({ access_token: 'test-token' }))
     .mockReturnValueOnce(json({ sessions: [] }))
     .mockReturnValueOnce(json([{ mix_index: 0, user_id: 7, username: 'cantor' }]))
-    .mockReturnValueOnce(json({ revision: 12 })));
+    .mockReturnValueOnce(json({ revision: 12 }))
+    .mockReturnValueOnce(json({ availability: 'simulated', backend: 'simulated', sample_rate_hz: null, frames_processed: null, xrun_count: null })));
 });
 
 describe('Engineer Console', () => {
@@ -23,6 +24,8 @@ describe('Engineer Console', () => {
     expect(screen.getByText('Áudio SIMULATED')).toBeTruthy();
     expect(await screen.findByText('cantor (ID 7)')).toBeTruthy();
     expect(screen.getByText('12')).toBeTruthy();
+    expect(screen.getByText('XRUNs')).toBeTruthy();
+    expect(screen.getByText('UNKNOWN')).toBeTruthy();
   });
 
   it('exibe falha de API ao carregar dashboard', async () => {
@@ -30,7 +33,8 @@ describe('Engineer Console', () => {
       .mockReturnValueOnce(json({ access_token: 'test-token' }))
       .mockReturnValueOnce(json({}, 503))
       .mockReturnValueOnce(json([]))
-      .mockReturnValueOnce(json({ revision: 0 })));
+      .mockReturnValueOnce(json({ revision: 0 }))
+      .mockReturnValueOnce(json({ availability: 'simulated', backend: 'simulated', sample_rate_hz: null, frames_processed: null, xrun_count: null })));
     render(<App />);
     fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'engineer' } });
     fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'password' } });

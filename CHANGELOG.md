@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 36 Engineer Console telemetry
+- Engineer Console now reads `/api/v1/telemetry` and displays backend plus XRUN count.
+- Unknown metrics remain `UNKNOWN`; VPS audio remains `SIMULATED`.
+- Local frontend tests pass; remote CI remains blocked before workflow steps.
+
 ### Added — Phase 35 developer CLI `iem`
 - Added `iem` binary dispatching fixed `help`, `status`, `diagnostics`, `docs`, `test`, `build`, `up` and `down` commands to existing Makefile targets.
 - Preserves child exit codes and rejects arbitrary shell arguments by construction.

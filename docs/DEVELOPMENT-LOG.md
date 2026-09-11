@@ -33,6 +33,27 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 36 — telemetria no Engineer Console
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Engineer Console passou a consultar `GET /api/v1/telemetry` junto com dados do dashboard.
+- Backend e contador de XRUNs aparecem nos cards operacionais.
+- Métrica `null` permanece `UNKNOWN`; nenhuma disponibilidade de áudio foi inventada.
+- Criada revisão `docs/reviews/PHASE-36-REVIEW.md`.
+
+### Verificação
+
+- `npm test --prefix web/engineer -- --run --reporter=dot`: PASS — 2 testes.
+- `npm run typecheck --prefix web/engineer`: PASS.
+- `npm run build --prefix web/engineer`: PASS — Vite produziu `dist/`.
+- `git diff --check`: PASS.
+- PipeWire, WebRTC media e Raspberry Pi 5 continuam não validados.
+
+---
+
 ## 2026-09-10 — Phase 34 — CLI output correctness
 
 **Status:** implementação local verificada; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

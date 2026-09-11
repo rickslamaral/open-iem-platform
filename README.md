@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 35 — CLI de desenvolvimento `iem`**. `iem` despacha comandos fixos para o Makefile, propaga códigos de saída e não implementa `run` nem instalação global. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps; sem merge ou release.
+**Fase incremental atual: Phase 36 — telemetria no Engineer Console.** Console consulta contrato `/api/v1/telemetry`, mostra backend e XRUNs sem converter `null` em zero. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps; sem merge ou release.
 
 **Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 
