@@ -11,9 +11,9 @@ help:
 	@printf '%s\n' '  make install          validate required local tools'
 	@printf '%s\n' '  make run              run API server natively (requires config)'
 	@printf '%s\n' '  make run-local        run API server with local development configuration'
-	@printf '%s\n' '  make up/down/logs     manage project-owned compose services'
+	@printf '%s\n' '  make up/down/logs     manage project-owned compose services (up rebuilds images)'
 	@printf '%s\n' '  make status           report repository and build state'
-	@printf '%s\n' '  make lint/fmt         lint or format Rust and frontends'
+	@printf '%s\n' '  make lint/fmt         lint Rust and typecheck/format supported frontends'
 	@printf '%s\n' '  make test             run Rust and frontend tests, including simulated audio harness'
 	@printf '%s\n' '  make test-audio       run deterministic SIMULATED audio integration tests'
 	@printf '%s\n' '  make build            build Rust and frontend artifacts'
@@ -37,7 +37,7 @@ run-local:
 	@cargo run --manifest-path $(SERVER_MANIFEST) --bin api-server
 
 up:
-	@docker compose up -d
+	@docker compose up -d --build
 
 down:
 	@docker compose down
@@ -53,8 +53,6 @@ status:
 
 fmt:
 	@cargo fmt --manifest-path $(SERVER_MANIFEST) --all
-	@npm run format --prefix web/musician --if-present
-	@npm run format --prefix web/engineer --if-present
 
 lint:
 	@cargo fmt --manifest-path $(SERVER_MANIFEST) --all -- --check

@@ -94,8 +94,10 @@ docker compose up --build
 
 Serviços disponíveis:
 - API: `http://localhost:3000`
-- Musician PWA: `http://localhost:5173`
-- Engineer UI: `http://localhost:5174`
+- Musician PWA: `http://localhost:5173` (localhost do host)
+- Engineer UI: `http://localhost:5174` (localhost do host)
+
+As portas das UIs são vinculadas a `127.0.0.1` pelo Compose atual; para acesso por outro dispositivo, configuração de rede explícita e TLS/rede isolada são necessários.
 
 ---
 

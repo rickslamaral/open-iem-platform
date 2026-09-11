@@ -34,7 +34,7 @@ make clean
 
 `make run` e `make run-local` iniciam o `api-server` nativo e exigem configuração local. `run-local` não cria um ambiente de simulação isolado; áudio permanece `SIMULATED` no VPS.
 
-`make up`, `down` e `logs` usam Docker Compose para recursos de desenvolvimento do projeto. Não significam suporte de produção.
+`make up`, `down` e `logs` usam Docker Compose para recursos de desenvolvimento do projeto. `make up` reconstrói imagens com `--build`; as UIs ficam vinculadas a localhost no Compose atual. Não significam suporte de produção.
 
 `make package` informa que nenhum pacote de release foi produzido localmente. Artefatos de release continuam condicionados ao pipeline CI.
 

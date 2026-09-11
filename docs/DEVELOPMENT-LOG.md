@@ -4,6 +4,32 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 40 — segurança operacional do Compose e rebuild explícito
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- `make up` agora executa `docker compose up -d --build`, evitando iniciar imagens obsoletas após alterações em código, Dockerfiles ou dependências.
+- Portas dos UIs Compose foram limitadas a `127.0.0.1`, evitando exposição acidental dos servidores Vite de desenvolvimento.
+- `make fmt` não reporta formatação frontend como executada quando os projetos não possuem script `format`.
+- README, CHANGELOG, TODO e review da Phase 40 alinhados.
+
+### Verificação
+
+- `docker compose config`: PASS.
+- `make -n up`: PASS; confirma `--build`.
+- `make test-audio`: PASS — 4 testes.
+- `bash scripts/validate-docs.sh`: PASS.
+- `bash scripts/validate-skills.sh`: PASS.
+- `git diff --check`: PASS.
+
+### Limitações
+
+Compose continua desenvolvimento-only, com HTTP inseguro explicitamente configurado e áudio `SIMULATED`. CI remoto continua bloqueado antes dos steps; nenhuma validação de Docker runtime, TLS, PipeWire, WebRTC media ou Raspberry Pi 5 foi alegada.
+
+---
+
 ## 2026-09-11 — Phase 39 — cobertura do harness de áudio no Makefile
 
 **Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

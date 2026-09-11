@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 40 Compose rebuild safety
+- `make up` agora usa `docker compose up -d --build`, evitando iniciar imagens locais obsoletas.
+- Compose continua restrito a desenvolvimento; HTTP e áudio `SIMULATED` não mudaram.
+
 ### Changed — Phase 39 Makefile audio harness coverage
 - `make test` now runs the deterministic `SIMULATED` `audio-engine` integration harness.
 - Added standalone `make test-audio` target for focused audio verification.

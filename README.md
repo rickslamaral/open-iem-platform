@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 39 — cobertura do harness de áudio no Makefile.** `make test` agora executa também o harness determinístico `SIMULATED` do `audio-engine`, com alvo independente `make test-audio`. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps (run `34572824987`); sem merge ou release. Ver [contrato CLI](docs/CLI.md) e [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md).
+**Fase incremental atual: Phase 40 — segurança operacional do alvo Compose.** `make up` agora reconstrói imagens com `docker compose up -d --build`, evitando iniciar imagens obsoletas após alterações locais. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps (runs `34592421607` e `34592418106`); sem merge ou release. Ver [contrato CLI](docs/CLI.md) e [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md).
 
 **Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 
@@ -76,7 +76,9 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 33 | CI branch trigger diagnosis | ✅ Local correction; CI remote blocked |
 | 34 | Admin CLI output correctness | ✅ Local tests pass; CI blocked; unmerged |
 | 35 | Developer CLI `iem` | ✅ Local tests pass; CI blocked; unmerged |
-| 38 | CLI documentation consistency | ✅ Local validation; CI blocked; unmerged |
+| 38 | CLI documentation consistency | ✅ Local validation; CI blocked |
+| 39 | Makefile audio harness coverage | ✅ Local validation; CI blocked |
+| 40 | Compose rebuild and localhost UI binding | ✅ Local validation; CI blocked |
 
 ## Repository Structure
 
