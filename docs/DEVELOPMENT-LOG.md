@@ -22,7 +22,7 @@ All significant milestones documented here in reverse chronological order.
 
 ### Limitações
 
-CI remoto segue falhando antes dos steps com `runner_id=0` e `steps=[]`; hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+CI remoto segue falhando antes dos steps com `runner_id=0` e `steps=[]`; após push, runs `34629014531` (PR) e `34629009541` (push) falharam; hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
 
 ---
 

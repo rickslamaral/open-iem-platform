@@ -21,7 +21,7 @@ Eliminar referências mutáveis de actions de terceiros nos workflows de CI e re
 
 ## Limitações
 
-CI remoto segue falhando antes dos steps com `runner_id=0` e `steps=[]`. Hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+CI remoto segue falhando antes dos steps com `runner_id=0` e `steps=[]`; após push, runs `34629014531` (PR) e `34629009541` (push) falharam. Hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
 
 ## Decisão
 
