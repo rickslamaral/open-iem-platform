@@ -11,8 +11,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## Phase 45 — correção do label de runner
 
 - [x] Trocar `ubuntu-24.04` por `ubuntu-latest` em todos os jobs CI.
-- [ ] Confirmar execução real dos jobs após push; run anterior `34605340696` falhou antes dos steps com `runner_id=0`.
-- [ ] Desbloquear GitHub Actions/runner; sem CI remoto verde não há release `v0.3.1`.
+- [x] Confirmar resultado após push: run `34607886129` falhou antes dos steps em todos os jobs com `runner_id=0` e `steps=[]`.
+- [ ] Desbloquear GitHub Actions/runner; API de permissões e runners retorna HTTP 403 para token atual; sem CI remoto verde não há release `v0.3.1`.
 
 ## Phase 43 — verification gates
 

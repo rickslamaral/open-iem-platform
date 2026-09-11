@@ -6,7 +6,7 @@ All significant milestones documented here in reverse chronological order.
 
 ## 2026-09-11 — Phase 45 — correção do label de runner
 
-**Status:** implementação local; PR #40 aberto; CI remoto ainda não reexecutado; não mergeado; não lançado.
+**Status:** implementação commitada; PR #40 aberto; CI remoto falhou antes dos steps; não mergeado; não lançado.
 
 ### Implementado
 
