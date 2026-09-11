@@ -22,6 +22,7 @@ make status
 make lint
 make fmt
 make test
+make test-audio
 make test-unit
 make test-integration
 make build

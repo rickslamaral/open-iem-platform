@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 46 — alinhamento do runner de release.** CI e release agora usam `ubuntu-latest`; isso corrige inconsistência de configuração, mas não prova disponibilidade de runner. Os runs `34614028392` e `34614025997` falharam antes dos steps, com `runner_id=0` e `steps=[]`. PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md) e [review da Phase 46](docs/reviews/PHASE-46-REVIEW.md).
+**Fase incremental atual: Phase 46 — alinhamento do runner de release e follow-up de verificação.** CI e release agora usam `ubuntu-latest`; `docs/CLI.md` lista `make test-audio` e o validador PDF restringe entradas a `docs/guides`; isso não prova disponibilidade de runner. Os runs `34614028392` e `34614025997` falharam antes dos steps, com `runner_id=0` e `steps=[]`. PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md) e [review da Phase 46](docs/reviews/PHASE-46-REVIEW.md).
 
 **Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 

@@ -4,6 +4,26 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 46 follow-up — correções apontadas em revisão independente
+
+**Status:** correção local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Adicionado `make test-audio` à lista de comandos documentada em `docs/CLI.md`.
+- Restringido `scripts/validate-pdf.sh` a caminhos PDF existentes sob `docs/guides`, com resolução canônica para rejeitar traversal e arquivos fora do escopo.
+
+### Verificação
+
+- `make test` passou: Rust, frontend e harness de áudio determinístico.
+- `bash scripts/validate-docs.sh`, `bash scripts/validate-pdf.sh`, `bash scripts/validate-skills.sh` e `git diff --check` passaram.
+
+### Limitações
+
+CI remoto segue falhando antes dos steps (`runner_id=0`, `steps=[]`); `cargo clippy --all-features` permanece bloqueado pela ausência local de `jack.pc`. Hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+
+---
+
 ## 2026-09-11 — Phase 46 — alinhamento do runner de release
 
 **Status:** implementação local; PR #40 aberto; CI remoto falhou antes dos steps; não mergeado; não lançado.

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — Phase 46 verification follow-up
+- Documentado `make test-audio` em `docs/CLI.md`, mantendo contrato CLI alinhado ao Makefile.
+- `scripts/validate-pdf.sh` agora aceita somente PDFs existentes sob `docs/guides`, evitando validação fora do escopo do repositório.
+
 ### Changed — Phase 46 release runner alignment
 - Alinhados seis jobs de `.github/workflows/release.yml` ao `ubuntu-latest` já usado pelo CI.
 - A alteração não prova disponibilidade do runner: os runs remotos anteriores falharam antes dos steps com `runner_id=0`; release continua bloqueada até execução real.

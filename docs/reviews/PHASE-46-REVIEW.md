@@ -24,6 +24,11 @@ Alinhar workflow de release ao runner `ubuntu-latest` já usado no CI, removendo
 
 `ubuntu-latest` é alias móvel e não prova runner disponível. Runs remotos `34614028392` e `34614025997` falharam antes dos steps com `runner_id=0` e `steps=[]`. Token atual não permite consultar configuração de runners (HTTP 403). Não há evidência de CI verde, release publicada, hardware PipeWire/ALSA, mídia WebRTC ou Raspberry Pi 5.
 
+## Follow-up da revisão independente
+
+- `docs/CLI.md` agora lista `make test-audio`, alinhando documentação ao Makefile.
+- `scripts/validate-pdf.sh` agora resolve e restringe o arquivo a `docs/guides/*.pdf`, rejeitando traversal e caminhos externos.
+
 ## Decisão
 
 **BLOCKED:** mudança de configuração consistente e validada localmente. Merge e release aguardam execução remota real com todos os gates verdes.

@@ -10,6 +10,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## Phase 46 — alinhamento do runner de release
 
+- [x] Corrigir follow-up de revisão: documentar `make test-audio` e restringir validação PDF a `docs/guides`.
 - [x] Trocar `ubuntu-24.04` por `ubuntu-latest` nos seis jobs de `.github/workflows/release.yml`.
 - [ ] Executar workflow de release após desbloqueio do runner; validar gates, artefatos e checksums sem publicar artefato não testado.
 

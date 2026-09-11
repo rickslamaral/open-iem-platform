@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PDF="${1:-docs/guides/MUSICIANS-GUIDE.pdf}"
-if [[ "$PDF" == -* ]]; then
-  printf 'PDF path must not begin with a dash: %s\n' "$PDF" >&2
+REPO_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
+PDF_INPUT="${1:-docs/guides/MUSICIANS-GUIDE.pdf}"
+if [[ "$PDF_INPUT" == -* ]]; then
+  printf 'PDF path must not begin with a dash: %s\n' "$PDF_INPUT" >&2
+  exit 2
+fi
+PDF="$(realpath -e -- "$REPO_ROOT/$PDF_INPUT" 2>/dev/null || true)"
+DOCS_GUIDES_ROOT="$REPO_ROOT/docs/guides/"
+if [[ -z "$PDF" || "$PDF" != "$DOCS_GUIDES_ROOT"*.pdf ]]; then
+  printf 'PDF path must resolve under docs/guides and end in .pdf: %s\n' "$PDF_INPUT" >&2
   exit 2
 fi
 if [[ ! -s "$PDF" ]]; then
-  printf 'PDF missing or empty: %s\n' "$PDF" >&2
+  printf 'PDF missing or empty: %s\n' "$PDF_INPUT" >&2
   exit 1
 fi
 
