@@ -4,6 +4,35 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 35 — CLI de desenvolvimento `iem`
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Criado `server/admin-cli/src/bin/iem.rs` como dispatcher tipado para alvos existentes do Makefile.
+- Comandos suportados: `help`, `status`, `diagnostics`, `docs`, `test`, `build`, `up` e `down`.
+- Execução usa `Command::new("make")`, sem shell e sem entrada arbitrária.
+- Código de saída do alvo é preservado; falha para iniciar `make` retorna 127.
+- `iem run`, instalação global, pacote e suporte de plataforma não foram inventados.
+- Atualizados README, CHANGELOG, TODO, `docs/CLI.md` e review da Phase 35.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check`: PASS.
+- `cargo test --manifest-path server/Cargo.toml -p admin-cli`: PASS — 3 testes.
+- `cargo clippy --manifest-path server/Cargo.toml -p admin-cli --all-targets -- -D warnings`: PASS.
+- `iem --help`, `iem docs` e rejeição de `iem run`: PASS; `iem run` retorna exit 2.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+- CI remoto permanece bloqueado antes dos steps com `runner_id=0`; não há evidência de execução GitHub Actions.
+
+### Limitações
+
+- `up`/`down` exigem Docker Compose; `test`/`build` exigem toolchains.
+- PipeWire, WebRTC media e Raspberry Pi 5 continuam não validados.
+
+---
+
 ## 2026-09-10 — Phase 34 — CLI output correctness
 
 **Status:** implementação local verificada; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

@@ -40,7 +40,9 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 34 — correção de saída do CLI administrativo**. `open-iem-admin` agora exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps; sem merge ou release.
+**Fase incremental atual: Phase 35 — CLI de desenvolvimento `iem`**. `iem` despacha comandos fixos para o Makefile, propaga códigos de saída e não implementa `run` nem instalação global. PR #40 permanece aberto; CI remoto continua bloqueado antes dos steps; sem merge ou release.
+
+**Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
 
 **Phase 32 — harness determinístico do áudio** (verificação local passa; PR #40 aberto; CI bloqueado; não mergeado)
 
@@ -73,6 +75,7 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 32 | Deterministic audio harness | ✅ Local tests pass; CI blocked; unmerged |
 | 33 | CI branch trigger diagnosis | ✅ Local correction; CI remote blocked |
 | 34 | Admin CLI output correctness | ✅ Local tests pass; CI blocked; unmerged |
+| 35 | Developer CLI `iem` | ✅ Local tests pass; CI blocked; unmerged |
 
 ## Repository Structure
 

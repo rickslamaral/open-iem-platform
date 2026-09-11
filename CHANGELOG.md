@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 35 developer CLI `iem`
+- Added `iem` binary dispatching fixed `help`, `status`, `diagnostics`, `docs`, `test`, `build`, `up` and `down` commands to existing Makefile targets.
+- Preserves child exit codes and rejects arbitrary shell arguments by construction.
+- No global installation, release package or `iem run` support is provided.
+- Local verification: admin-cli tests, clippy, formatting, docs/skills validation and `iem --help` pass; remote CI remains blocked before steps.
+
 ### Changed — Phase 34 Admin CLI output correctness
 - `open-iem-admin` accepts HTTP only for localhost and requires HTTPS for remote server URLs, preventing Bearer token transmission over cleartext networks.
 - JSON table output now includes union of fields across all object rows instead of dropping fields absent from first row.

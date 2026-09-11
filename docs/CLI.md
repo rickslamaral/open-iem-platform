@@ -2,9 +2,9 @@
 
 ## Estado real
 
-A interface oficial de desenvolvimento é o `Makefile`. O binário administrativo existente chama-se `open-iem-admin`.
+A interface oficial de desenvolvimento é o `Makefile`. O binário administrativo existente chama-se `open-iem-admin`. O binário `iem` agora despacha comandos tipados para alvos existentes do Makefile.
 
-O binário geral `iem` **ainda não existe**. Não há instalação oficial, pacote, compatibilidade de OS nem suporte de hardware a declarar para esse nome.
+`iem` não possui instalação global nem pacote de release. Execute o binário via Cargo na raiz do repositório; compatibilidade de OS e suporte de hardware seguem limitados às validações documentadas.
 
 ## Makefile atual
 
@@ -47,6 +47,17 @@ cargo run --manifest-path server/Cargo.toml --bin open-iem-admin -- --help
 ```
 
 Ele gerencia usuários, sessões e health através da API administrativa. Token pode vir de `--token` ou `OPEN_IEM_ADMIN_TOKEN`. HTTP é permitido somente para loopback; servidor remoto exige HTTPS. Nunca registre token em shell history, documentação ou Git.
+
+## CLI `iem`
+
+Construir e executar na raiz:
+
+```bash
+cargo run --manifest-path server/Cargo.toml --bin iem -- --help
+cargo run --manifest-path server/Cargo.toml --bin iem -- status
+```
+
+Comandos suportados: `help`, `status`, `diagnostics`, `docs`, `test`, `build`, `up` e `down`. Cada comando chama somente alvo fixo do Makefile. `iem run` permanece fora do contrato. Falhas do `make` preservam código de saída não-zero.
 
 ## Paridade planejada para `iem`
 
