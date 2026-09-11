@@ -4,6 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 56 — correção do lifetime do diretório temporário do Caddyfile
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Removida limpeza antecipada de `CERT_WORK_DIR` no guia Raspberry Pi.
+- Cópia segura do Caddyfile agora ocorre antes da limpeza do diretório temporário.
+- Atualizados README, START, CHANGELOG, TODO e review da Phase 56.
+
+### Verificação
+
+- `make test`: PASS.
+- `make validate`: PASS.
+- `git diff --check` e `bash -n` do bloco Bash: PASS.
+- Dois reviews independentes: PASS, sem findings de segurança ou lógica.
+
+### Limitações
+
+Caddy, instalação real, runtime ARM64, PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados. GitHub Actions falha antes dos steps com `runner_id=0`.
+
+### Próximo passo
+
+Desbloquear runner/permissões Actions; executar CI real. Depois validar instalação e áudio no Raspberry Pi 5.
+
+---
+
 ## 2026-09-11 — Phase 55 — hardening de caminho no deployment
 
 **Status:** implementação local; commit `71d931e`; PR #40 aberto; CI remoto bloqueado; não mergeado; não lançado.

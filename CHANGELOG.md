@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — Phase 56 Caddyfile temporary-directory lifetime (2026-09-11)
+- Mantida área temporária do certificado até concluir cópia e instalação do Caddyfile; limpeza antecipada fazia o bloco documentado falhar antes de `sudo install`.
+
 ### Security — Phase 55 deployment path hardening (2026-09-11)
 - O guia Raspberry Pi resolve Caddyfile a partir da raiz confiável do clone, rejeita symlink e instala com `install` e modo explícito.
 - README agora registra Phase 54 na tabela incremental e marca Phase 53 como validação local concluída; CI remoto continua bloqueado.

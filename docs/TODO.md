@@ -8,6 +8,12 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34652471047` (PR) e `34652466951` (push) falharam antes dos steps; os 9 jobs do PR retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 56 — correção do lifetime do diretório temporário do Caddyfile
+
+- [x] Manter `CERT_WORK_DIR` até concluir cópia e instalação do Caddyfile.
+- [ ] Validar `caddy validate` e instalação em Raspberry Pi 5 real.
+- [ ] Desbloquear CI remoto antes de merge/release.
+
 ## Phase 55 — hardening de caminho no deployment
 
 - [x] Resolver Caddyfile a partir da raiz confiável do clone.

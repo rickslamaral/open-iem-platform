@@ -40,7 +40,9 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 54 — provenance de artefatos de release.** O workflow gera attestation Sigstore/GitHub para archives de servidor x86_64 e ARM64 antes do upload, com permissões mínimas de OIDC; CI remoto e hardware continuam não validados. Ver [review da Phase 54](docs/reviews/PHASE-54-REVIEW.md).
+**Fase incremental atual: Phase 56 — correção do lifetime do diretório temporário do Caddyfile.** A limpeza prematura removida do guia Raspberry Pi permite concluir cópia e instalação do Caddyfile; CI remoto e hardware continuam não validados. Ver [review da Phase 56](docs/reviews/PHASE-56-REVIEW.md).
+
+**Phase 54 — provenance de artefatos de release.** O workflow gera attestation Sigstore/GitHub para archives de servidor x86_64 e ARM64 antes do upload, com permissões mínimas de OIDC; CI remoto e hardware continuam não validados. Ver [review da Phase 54](docs/reviews/PHASE-54-REVIEW.md).
 
 **Phase 53 — validação estrutural de archives de release.** O workflow valida archives de servidor x86_64 e ARM64 antes de checksum/upload, rejeitando traversal, links, membros inesperados e binários ausentes. O empacotamento web agora falha se qualquer `dist/` faltar e uploads exigem arquivos. CI remoto e hardware continuam não validados. O guia Raspberry Pi restringe redirects do `curl` a HTTPS, valida os dois binários e instala ambos. CI e release continuam usando `ubuntu-latest`; isso não prova disponibilidade de runner. Os runs mais recentes `34645508776` (PR) e `34645504292` (push) falharam antes dos steps; todos os 9 jobs do PR terminaram com `runner_id=0` e `steps=[]`; PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [review da Phase 53](docs/reviews/PHASE-53-REVIEW.md), [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md), [review da Phase 51](docs/reviews/PHASE-51-REVIEW.md), [Phase 50](docs/reviews/PHASE-50-REVIEW.md), [Phase 49](docs/reviews/PHASE-49-REVIEW.md) e [Phase 48](docs/reviews/PHASE-48-REVIEW.md).
 

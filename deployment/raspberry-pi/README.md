@@ -155,8 +155,6 @@ mkcert -cert-file "${CERT_WORK_DIR}/iem.local.pem" \
 sudo install -d -o root -g caddy -m 0750 /etc/caddy/certs
 sudo install -o root -g caddy -m 0644 "${CERT_WORK_DIR}/iem.local.pem" /etc/caddy/certs/iem.local.pem
 sudo install -o root -g caddy -m 0640 "${CERT_WORK_DIR}/iem.local-key.pem" /etc/caddy/certs/iem.local-key.pem
-rm -rf -- "${CERT_WORK_DIR}"
-trap - EXIT
 
 # Copy Caddyfile through an unprivileged descriptor, then install fixed temp file
 CADDYFILE="${REPO_ROOT}/deployment/caddy/Caddyfile"
