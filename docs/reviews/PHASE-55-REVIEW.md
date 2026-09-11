@@ -1,7 +1,9 @@
 # Phase 55 Review — hardening de caminho no deployment
 
 **Data:** 2026-09-11
-**Status:** PASS WITH CONDITIONS — implementação local; PR #40 aberto; CI remoto bloqueado; não mergeado.
+**Status:** PASS WITH CONDITIONS — implementação local; commit `71d931e`; PR #40 aberto; CI remoto bloqueado; não mergeado.
+
+Run pós-push `34654997321` falhou antes dos steps nos 9 jobs (`runner_id=0`, `steps=[]`).
 
 ## Objetivo
 

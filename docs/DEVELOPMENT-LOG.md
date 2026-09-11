@@ -6,7 +6,11 @@ All significant milestones documented here in reverse chronological order.
 
 ## 2026-09-11 — Phase 55 — hardening de caminho no deployment
 
-**Status:** implementação local; PR #40 aberto; CI remoto bloqueado; não mergeado; não lançado.
+**Status:** implementação local; commit `71d931e`; PR #40 aberto; CI remoto bloqueado; não mergeado; não lançado.
+
+### CI remoto pós-push
+
+Run `34654997321` falhou antes dos steps em todos os 9 jobs; `runner_id=0` e `steps=[]`. O bloqueio é infraestrutura/permissão do GitHub Actions, não falha de teste do código.
 
 ### Implementado
 
