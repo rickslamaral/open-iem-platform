@@ -117,6 +117,7 @@ sudo systemctl status openiem-server
 
 ```bash
 set -euo pipefail
+REPO_ROOT=$(git rev-parse --show-toplevel)
 # Install Caddy (Debian/Ubuntu/Raspbian)
 sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
 curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
@@ -157,8 +158,24 @@ sudo install -o root -g caddy -m 0640 "${CERT_WORK_DIR}/iem.local-key.pem" /etc/
 rm -rf -- "${CERT_WORK_DIR}"
 trap - EXIT
 
-# Install Caddyfile
-sudo cp deployment/caddy/Caddyfile /etc/caddy/Caddyfile
+# Copy Caddyfile through an unprivileged descriptor, then install fixed temp file
+CADDYFILE="${REPO_ROOT}/deployment/caddy/Caddyfile"
+CADDYFILE_WORK="${CERT_WORK_DIR}/Caddyfile"
+python3 - "${CADDYFILE}" "${CADDYFILE_WORK}" <<'PY'
+import os
+import shutil
+import stat
+import sys
+
+source_fd = os.open(sys.argv[1], os.O_RDONLY | os.O_NOFOLLOW)
+if not stat.S_ISREG(os.fstat(source_fd).st_mode):
+    os.close(source_fd)
+    raise SystemExit(f"Caddyfile is not a regular file: {sys.argv[1]}")
+with os.fdopen(source_fd, "rb") as source, open(sys.argv[2], "xb") as target:
+    shutil.copyfileobj(source, target)
+PY
+sudo install -o root -g root -m 0644 "${CADDYFILE_WORK}" /etc/caddy/Caddyfile
+rm -f -- "${CADDYFILE_WORK}"
 # Edit /etc/caddy/Caddyfile: replace 'iem.local' with your Pi's LAN IP if mDNS is unavailable.
 sudo systemctl restart caddy
 sudo systemctl status caddy

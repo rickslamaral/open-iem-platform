@@ -6,7 +6,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## BLOCKER
 
-- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34645508776` (PR) e `34645504292` (push) falharam antes dos steps; os 9 jobs do PR retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
+- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34652471047` (PR) e `34652466951` (push) falharam antes dos steps; os 9 jobs do PR retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
+
+## Phase 55 — hardening de caminho no deployment
+
+- [x] Resolver Caddyfile a partir da raiz confiável do clone.
+- [x] Rejeitar Caddyfile symlink antes de instalação privilegiada.
+- [ ] Validar `caddy validate` e instalação em Raspberry Pi 5 real.
+- [ ] Desbloquear CI remoto antes de merge/release.
 
 ## Phase 54 — provenance de artefatos de release
 

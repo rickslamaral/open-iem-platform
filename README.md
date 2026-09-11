@@ -83,7 +83,9 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 40 | Compose rebuild and localhost UI binding | ✅ Local validation; CI blocked |
 | 41–51 | Documentation, release and ARM64 deployment hardening | ✅ Local validation; CI blocked; hardware pending |
 | 52 | Verification follow-up: redirects, CI tool pins and TLS file installation | ✅ Local validation; CI blocked |
-| 53 | Release archive validation | 🔄 Local implementation; CI blocked |
+| 53 | Release archive validation | ✅ Local validation; CI blocked |
+| 54 | Release artifact provenance | 🔄 Local workflow implementation; CI blocked |
+| 55 | Deployment path hardening | ✅ Local validation; CI blocked; hardware pending |
 
 ## Repository Structure
 

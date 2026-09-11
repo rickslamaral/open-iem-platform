@@ -4,6 +4,34 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 55 — hardening de caminho no deployment
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado; não mergeado; não lançado.
+
+### Implementado
+
+- Guia Raspberry Pi resolve `deployment/caddy/Caddyfile` a partir de `REPO_ROOT`, em vez de depender do diretório corrente.
+- Guia rejeita symlink e instala Caddyfile com `sudo install`, ownership root e modo `0644`.
+- README registra Phase 54 na tabela incremental e marca Phase 53 como validação local concluída.
+- TODO registra Phase 55 e os runs remotos mais recentes.
+
+### Verificação
+
+- `make test`: PASS — Rust, frontends e harness `SIMULATED`.
+- `make validate`: PASS — documentação, PDF e skills.
+- `cargo fmt`, `cargo clippy`, frontend typecheck e `git diff --check`: PASS.
+- Review independente: sem finding de segurança no diff; encontrada e corrigida inconsistência da tabela de fases; gap relativo a caminho do Caddyfile corrigido.
+
+### Limitações
+
+`caddy validate`, instalação e runtime ARM64 não foram executados neste VPS. GitHub Actions continua falhando antes dos steps (`runner_id=0`, `steps=[]`) nos runs `34652471047` e `34652466951`. Nenhum release, attestation remota ou hardware Raspberry Pi foi validado.
+
+### Próximo passo
+
+Desbloquear runner/permissões Actions; executar CI e verificar attestation. Depois validar instalação e áudio no Raspberry Pi 5.
+
+---
+
 ## 2026-09-11 — Phase 54 — provenance de artefatos de release
 
 **Status:** implementação local; PR #40 aberto; CI remoto bloqueado; não mergeado; não lançado.
