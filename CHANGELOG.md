@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 53 release archive validation
+- O workflow de release valida archives de servidor x86_64 e ARM64 antes do checksum/upload, rejeitando traversal, links, arquivos inesperados e binários ausentes.
+- Validador offline e testes determinísticos adicionados; assinatura independente continua pendente.
+
 ### Security — Phase 52 verification follow-up
 - Admin CLI não segue redirects HTTP(S), impedindo downgrade TLS e vazamento de Bearer token para destino redirecionado.
 - `cargo-audit` foi fixado na versão `0.22.2` nos workflows CI e release.

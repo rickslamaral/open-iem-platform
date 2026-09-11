@@ -170,6 +170,7 @@ jobs:
           cp README.md LICENSE "${DIR}/"
           cp CHANGELOG.md "${DIR}/" || true
           tar -czf "${DIR}.tar.gz" "${DIR}"
+          python3 scripts/validate-release-archive.py "${DIR}.tar.gz" api-server open-iem-admin
           sha256sum "${DIR}.tar.gz" > "${DIR}.tar.gz.sha256"
           echo "Artefact: ${DIR}.tar.gz"
           cat "${DIR}.tar.gz.sha256"
@@ -231,6 +232,7 @@ jobs:
           cp README.md LICENSE "${DIR}/"
           cp CHANGELOG.md "${DIR}/" || true
           tar -czf "${DIR}.tar.gz" "${DIR}"
+          python3 scripts/validate-release-archive.py "${DIR}.tar.gz" api-server open-iem-admin
           sha256sum "${DIR}.tar.gz" > "${DIR}.tar.gz.sha256"
           echo "Artefact: ${DIR}.tar.gz"
           cat "${DIR}.tar.gz.sha256"

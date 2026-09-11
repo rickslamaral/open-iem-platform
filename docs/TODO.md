@@ -8,6 +8,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — CI e release usam `ubuntu-latest`, mas runs remotos ainda falham antes dos steps com `runner_id=0`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 53 — validação de archives de release
+
+- [x] Validar archives de servidor x86_64/ARM64 antes de checksum/upload; rejeitar traversal, links, membros inesperados e binários ausentes.
+- [x] Adicionar testes offline determinísticos do validador.
+- [ ] Adicionar validação automatizada de archive malicioso e testar instalação em Raspberry Pi 5 real.
+- [ ] Adotar assinatura independente para autenticar artefatos de release.
+- [ ] Desbloquear CI remoto antes de merge/release.
+
 ## Phase 52 — follow-up de verificação
 
 - [x] Impedir redirects no Admin CLI para preservar política HTTPS/loopback em cada requisição.

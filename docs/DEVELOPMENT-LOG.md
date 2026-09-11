@@ -4,6 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 53 — validação estrutural de archives de release
+
+**Status:** implementação local; PR #40 aberto; CI remoto falha pré-steps; não mergeado; não lançado.
+
+### Implementado
+
+- Criado `scripts/validate-release-archive.py` para validar archives de servidor antes do upload.
+- Archives devem conter um diretório raiz único, somente arquivos regulares allowlisted e binários `api-server`/`open-iem-admin`.
+- Traversal, caminhos absolutos, links, arquivos especiais, membros inesperados e binários ausentes são rejeitados.
+- Workflow de release executa validador em artefatos x86_64 e ARM64 antes de gerar checksum.
+- Testes offline cobrem archive válido, traversal, symlink e membro inesperado.
+
+### Verificação
+
+- Teste dedicado do validador: PASS — 5 testes (`python3 -m pytest -q tests/test_validate_release_archive.py`).
+- CI remoto segue falhando antes dos steps, com `runner_id=0`; hardware ARM64/PipeWire continua não validado.
+
+### Limitações
+
+Validação estrutural não autentica origem. Assinatura independente, execução em Raspberry Pi 5 e CI remoto continuam pendentes.
+
+### Próximo passo
+
+Executar gates locais completos; depois revisar diff com agentes independentes. Não fazer merge/release até CI real executar.
+
+---
+
 ## 2026-09-11 — Phase 52 — follow-up de verificação independente
 
 **Status:** correção local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
