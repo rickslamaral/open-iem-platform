@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 53 CI status refresh (2026-09-11)
+- Registrados runs `34645508776` (PR) e `34645504292` (push), ambos falhando antes dos steps; os 9 jobs do PR retornaram `runner_id=0` e `steps=[]`.
+- PR #40 e release permanecem bloqueados; nenhum claim de CI verde ou artefato publicado foi adicionado.
+
 ### Security — Phase 53 release archive validation
 - O workflow de release valida archives de servidor x86_64 e ARM64 antes do checksum/upload, rejeitando traversal, links, arquivos inesperados e binários ausentes.
 - Empacotamento web falha quando qualquer `dist/` esperado está ausente; uploads falham quando não encontram arquivos.

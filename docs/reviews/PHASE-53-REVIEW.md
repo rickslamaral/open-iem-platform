@@ -1,7 +1,7 @@
 # Phase 53 Review — validação estrutural de archives de release
 
 **Data:** 2026-09-11
-**Status:** PASS WITH CONDITIONS — implementação local; PR #40 aberto; não mergeado.
+**Status:** PASS WITH CONDITIONS — implementação local; PR #40 aberto; CI remoto bloqueado; não mergeado.
 
 ## Objetivo
 

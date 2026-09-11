@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 53 CI status refresh
+
+**Status:** implementação local; PR #40 aberto; não mergeado; não lançado.
+
+### Verificação
+
+- GitHub run `34645508776` (PR) e push `34645504292` falharam antes dos steps.
+- Todos os 9 jobs do PR terminaram com `runner_id=0` e `steps=[]`; incidente classificado como `RUNNER / PLATFORM / CONFIGURATION FAILURE`.
+- `make test`: PASS — Rust, frontends e harness `SIMULATED`.
+- `make validate`: PASS — documentação, PDF e skills.
+- `cargo fmt --all -- --check` e `cargo clippy --workspace --all-targets -- -D warnings`: PASS.
+- `npm run lint`: indisponível nos dois frontends; scripts `lint` não existem. `npm audit` não foi executado por causa do loop fail-fast.
+- Scanner `/root/scan_patterns.py` não existe neste ambiente; nenhum resultado foi inventado.
+
+### Documentação
+
+README, CHANGELOG e este log atualizados com estado real dos runs.
+
+### Próximo passo
+
+Desbloquear runner/permissões Actions. Não fazer merge ou release antes de CI remoto executar gates reais.
+
+---
+
 ## 2026-09-11 — Phase 53 follow-up — gates de release fail-closed
 
 **Status:** implementação local; PR #40 aberto; CI remoto falha pré-steps; não mergeado; não lançado.
