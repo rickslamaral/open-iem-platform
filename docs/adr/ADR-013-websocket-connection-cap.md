@@ -1,4 +1,4 @@
-# ADR-012 — Limite process-wide de conexões WebSocket
+# ADR-013 — Limite process-wide de conexões WebSocket
 
 - **Status:** Accepted
 - **Data:** 2026-09-10

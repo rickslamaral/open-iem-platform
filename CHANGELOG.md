@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### CI / Security — Phase 43 verification gates
+- Adicionado `server/Cargo.lock` para permitir auditoria reproduzível de dependências Rust.
+- CI agora valida documentação, PDF, skills e whitespace.
+- ADRs duplicados foram renumerados para preservar identificadores únicos.
+- CI remoto continua sem runner executável; nenhuma release foi publicada.
+
 ### Tooling — Phase 42 reproducible Musician Guide PDF validation
 - `make docs` agora valida extração textual e renderização do Musician Guide PDF.
 - `scripts/validate-pdf.sh` usa `pdftotext` ou fallback `mutool`, sem depender de pacote específico no VPS.

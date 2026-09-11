@@ -68,7 +68,10 @@ jobs:
         run: |
           if [ -f server/Cargo.lock ]; then
             # RUSTSEC-2023-0071: rsa crate (Marvin Attack) — transitively pulled by
-            # jsonwebtoken/rust_crypto; Open IEM uses EdDSA only, RSA never executed.
+            # jsonwebtoken/rust_crypto. Open IEM uses EdDSA only; prove no RSA/HS
+            # JWT algorithm is configured before accepting this documented residual.
+            ! grep -RE 'Algorithm::(RSA|HS|ES|RS|PS)' server/api-server/src/auth.rs
+            grep -q 'Algorithm::EdDSA' server/api-server/src/auth.rs
             cargo audit --file server/Cargo.lock --ignore RUSTSEC-2023-0071
           else
             echo "No Cargo.lock yet — skipping audit"
@@ -203,4 +206,39 @@ jobs:
             npm audit --audit-level=high --prefix web/engineer
           else
             echo "No package-lock.json yet — skipping engineer audit"
+          fi
+
+  documentation:
+    name: Documentation and package gates
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install PDF tools
+        run: sudo apt-get update && sudo apt-get install -y mupdf-tools
+
+      - name: Validate documentation
+        run: bash scripts/validate-docs.sh
+
+      - name: Validate Musician Guide PDF
+        run: bash scripts/validate-pdf.sh
+
+      - name: Validate agent skills
+        run: bash scripts/validate-skills.sh
+
+      - name: Check whitespace
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          if [ "${EVENT_NAME}" = "pull_request" ]; then
+            git diff --check "${BASE_SHA}...${HEAD_SHA}"
+          elif [ "${BEFORE_SHA}" != "0000000000000000000000000000000000000000" ]; then
+            git diff --check "${BEFORE_SHA}...${HEAD_SHA}"
+          else
+            git diff --check "${HEAD_SHA}^" "${HEAD_SHA}"
           fi

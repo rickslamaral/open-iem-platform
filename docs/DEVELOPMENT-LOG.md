@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 43 — gates de verificação e consistência documental
+
+**Status:** implementação local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Gerado e versionado `server/Cargo.lock`; removida exclusão global do lockfile.
+- CI ganhou job `documentation` para `validate-docs.sh`, `validate-pdf.sh`, `validate-skills.sh` e `git diff --check`.
+- ADRs duplicados foram renumerados: WebSocket cap para ADR-013 e Compose safety para ADR-014.
+- README, CHANGELOG, TODO, START e review da Phase 43 atualizados.
+
+### Verificação
+
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — suites Rust concluídas sem falhas.
+- `cargo generate-lockfile --manifest-path server/Cargo.toml`: PASS — 355 pacotes resolvidos.
+- CI remoto continua bloqueado antes dos steps; último run observado: `34599888854`, falha sem runner executável.
+- Gates locais executados nesta rodada: fmt, clippy, cargo audit com lockfile, docs, PDF, skills e diff check — PASS.
+
+### Limitações
+
+CI remoto, hardware PipeWire/ALSA, mídia WebRTC, Raspberry Pi 5 e release v0.3.1 continuam pendentes.
+
+---
+
 ## 2026-09-11 — Phase 42 — validação reproduzível do Musician Guide PDF
 
 **Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

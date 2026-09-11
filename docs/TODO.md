@@ -8,6 +8,12 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — workflow agora cobre branches `feat/**`; runs remotos ainda falham antes dos steps com `runner_id=0`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 43 — verification gates
+
+- [x] Adicionar `server/Cargo.lock` e remover exclusão global do lockfile.
+- [x] Adicionar job CI para documentação, PDF, skills e whitespace.
+- [x] Renumerar ADRs duplicados 012 para 013/014.
+
 ## READY / CURRENT PHASE
 
 - [x] P1 — Tornar `make up` reconstruível por padrão — Phase 40 — `docker compose up -d --build`; evita imagens obsoletas no desenvolvimento.
