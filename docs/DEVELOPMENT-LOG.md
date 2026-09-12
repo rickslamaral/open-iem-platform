@@ -4,6 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 59 — limites de recursos no validador de archives
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador rejeita archives acima de 512 MiB comprimidos, mais de 32 membros, membro acima de 256 MiB ou total descomprimido acima de 512 MiB.
+- Testes offline cobrem limites de contagem e tamanho.
+- README, CHANGELOG, TODO e review da Phase 59 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 15 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `git diff --check`: PASS.
+- Reviews independentes: sem blocker; recomendação de limites de recursos implementada.
+
+### Limitações
+
+CI remoto continua falhando antes dos steps nos runs `34669494781` e `34669493264`. Secret/fingerprint Ed25519, release, Caddy, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+### Próximo passo
+
+Desbloquear GitHub Actions; executar CI real. Depois provisionar chave pública autenticada e validar instalação/áudio em Raspberry Pi 5.
+
+---
+
 ## 2026-09-12 — Phase 58 — assinatura Ed25519 no workflow
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.

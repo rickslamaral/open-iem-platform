@@ -2,7 +2,9 @@ import importlib.machinery
 import importlib.util
 import tarfile
 from pathlib import Path
+from types import SimpleNamespace
 from typing import cast
+from unittest.mock import patch
 
 
 SPEC = cast(
@@ -100,6 +102,32 @@ def test_unexpected_file_fails(tmp_path):
         assert "unexpected archive member" in str(exc)
     else:
         raise AssertionError("unexpected archive member accepted")
+
+
+def test_member_count_limit_fails(tmp_path):
+    archive = tmp_path / "too-many-members.tar.gz"
+    root = "open-iem-server-1.2.3-aarch64-linux"
+    make_archive(archive, valid_members() + [(f"{root}/README.md", "file")] * 30)
+    try:
+        MODULE.validate(archive, {"api-server", "open-iem-admin"})
+    except ValueError as exc:
+        assert "member count limit" in str(exc)
+    else:
+        raise AssertionError("archive exceeding member count accepted")
+
+
+def test_member_size_limit_fails(tmp_path):
+    archive = tmp_path / "too-large.tar.gz"
+    archive.touch()
+    oversized = SimpleNamespace(name="open-iem-server-1.2.3-aarch64-linux/api-server", size=MODULE.MAX_MEMBER_BYTES + 1)
+    with patch.object(MODULE.tarfile, "open") as open_archive:
+        open_archive.return_value.__enter__.return_value.getmembers.return_value = [oversized]
+        try:
+            MODULE.validate(archive, {"api-server", "open-iem-admin"})
+        except ValueError as exc:
+            assert "size limit" in str(exc)
+        else:
+            raise AssertionError("archive exceeding member size accepted")
 
 
 def test_unknown_required_basename_fails_cli(tmp_path):

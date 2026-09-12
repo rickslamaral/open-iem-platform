@@ -9,11 +9,20 @@ import tarfile
 
 
 ALLOWED_FILES = {"api-server", "open-iem-admin", "README.md", "LICENSE", "CHANGELOG.md"}
+MAX_ARCHIVE_BYTES = 512 * 1024 * 1024
+MAX_MEMBERS = 32
+MAX_MEMBER_BYTES = 256 * 1024 * 1024
+MAX_UNCOMPRESSED_BYTES = 512 * 1024 * 1024
 
 
 def validate(archive: pathlib.Path, required: set[str]) -> None:
+    archive_size = archive.stat().st_size
+    if archive_size > MAX_ARCHIVE_BYTES:
+        raise ValueError("archive exceeds compressed size limit")
     with tarfile.open(archive, mode="r:gz") as bundle:
         members = bundle.getmembers()
+        if len(members) > MAX_MEMBERS:
+            raise ValueError("archive exceeds member count limit")
         if not members:
             raise ValueError("archive is empty")
 
@@ -23,6 +32,14 @@ def validate(archive: pathlib.Path, required: set[str]) -> None:
                 raise ValueError(f"unsafe archive path: {name}")
             if posixpath.normpath(name) != name:
                 raise ValueError(f"non-canonical archive path: {name}")
+
+        total_uncompressed_bytes = 0
+        for member in members:
+            if member.size < 0 or member.size > MAX_MEMBER_BYTES:
+                raise ValueError(f"archive member exceeds size limit: {member.name}")
+            total_uncompressed_bytes += member.size
+        if total_uncompressed_bytes > MAX_UNCOMPRESSED_BYTES:
+            raise ValueError("archive exceeds uncompressed size limit")
 
         roots = {member.name.split("/", 1)[0] for member in members}
         if len(roots) != 1 or "" in roots:

@@ -6,7 +6,16 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## BLOCKER
 
-- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34658515999` (PR) e `34658513998` (push) falharam antes dos steps; os 9 jobs do PR retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
+- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34669494781` (PR) e `34669493264` (push) falharam antes dos steps; sem CI remoto não há release `v0.3.1`.
+
+## Phase 59 — limites de recursos no validador de archives
+
+- [x] Rejeitar archive acima de 512 MiB comprimidos, mais de 32 membros, membro acima de 256 MiB e total descomprimido acima de 512 MiB.
+- [x] Adicionar testes offline para limites de contagem e tamanho.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+---
 
 ## Phase 58 — verificação local de assinatura Ed25519
 

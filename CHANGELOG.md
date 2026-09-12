@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 59 archive resource limits (2026-09-12)
+- Validador rejeita archives acima de 512 MiB comprimidos, mais de 32 membros, membros acima de 256 MiB ou total descomprimido acima de 512 MiB, limitando consumo durante validação.
+- Testes determinísticos cobrem rejeição de contagem e tamanho excessivos; CI remoto e hardware continuam não validados.
+
 ### Security — Phase 58 detached release signature verification (2026-09-12)
 - Adicionado verificador local Ed25519 para assinatura detached de artefatos.
 - Instalador Raspberry Pi exige `.sig` e chave pública regular instalada por canal independente antes da extração.
