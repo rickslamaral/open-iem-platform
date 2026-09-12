@@ -4,12 +4,17 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
 import pathlib
 import re
 import stat
 import subprocess
 import sys
+
+_MAX_FILE_BYTES = 512 * 1024 * 1024
+_MAX_BUNDLE_BYTES = 2 * 1024 * 1024 * 1024
+_MAX_MANIFEST_BYTES = 64 * 1024
 
 _ARCHIVE_RE = re.compile(r"^open-iem-server-(?P<version>[^/]+)-(?P<arch>x86_64-linux|aarch64-linux)\.tar\.gz$")
 _WEB_RE = re.compile(r"^open-iem-(?:musician-pwa|engineer-ui)-(?P<version>[^/]+)\.tar\.gz$")
@@ -24,21 +29,28 @@ def _files(bundle: pathlib.Path) -> list[pathlib.Path]:
     return entries
 
 
-def _read_bytes(path: pathlib.Path, label: str) -> bytes:
+def _read_bytes(path: pathlib.Path, label: str, max_bytes: int | None = None) -> bytes:
+    if max_bytes is None:
+        max_bytes = _MAX_FILE_BYTES
     nofollow = getattr(os, "O_NOFOLLOW", None)
     if nofollow is None:
         raise RuntimeError("platform does not support fail-closed bundle verification")
     try:
-        fd = os.open(path, os.O_RDONLY | os.O_CLOEXEC | nofollow)
+        fd = os.open(path, os.O_RDONLY | os.O_CLOEXEC | os.O_NONBLOCK | nofollow)
     except OSError as exc:
         raise ValueError(f"{label} must be a regular file: {path.name}") from exc
     try:
         metadata = os.fstat(fd)
         if not stat.S_ISREG(metadata.st_mode):
             raise ValueError(f"{label} must be a regular file: {path.name}")
+        if metadata.st_size > max_bytes:
+            raise ValueError(f"{label} exceeds size limit: {path.name}")
         with os.fdopen(fd, "rb") as stream:
             fd = -1
-            return stream.read()
+            content = stream.read(max_bytes + 1)
+            if len(content) > max_bytes:
+                raise ValueError(f"{label} exceeds size limit: {path.name}")
+            return content
     finally:
         if fd >= 0:
             os.close(fd)
@@ -91,6 +103,12 @@ def validate(
     if stat.S_ISLNK(bundle_metadata.st_mode) or not stat.S_ISDIR(bundle_metadata.st_mode):
         raise ValueError("bundle must be a directory")
     entries = _files(bundle)
+    total_bytes = 0
+    for entry in entries:
+        size = entry.stat().st_size
+        total_bytes += size
+        if total_bytes > _MAX_BUNDLE_BYTES:
+            raise ValueError("bundle exceeds total size limit")
     names = {entry.name for entry in entries}
     server_archives: dict[str, pathlib.Path] = {}
     web_archives: list[pathlib.Path] = []
@@ -124,6 +142,14 @@ def validate(
     expected_names: set[str] = set()
     sbom_pattern = f"open-iem-server-{version}-sbom.json"
     if sbom_pattern in names:
+        sbom = bundle / sbom_pattern
+        sbom_content = _read_bytes(sbom, "SBOM")
+        try:
+            document = json.loads(sbom_content)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"SBOM is not valid JSON: {sbom.name}") from exc
+        if not isinstance(document, dict):
+            raise ValueError(f"SBOM must contain a JSON object: {sbom.name}")
         expected_names.add(sbom_pattern)
     for archive in [*server_archives.values(), *web_archives]:
         checksum = bundle / f"{archive.name}.sha256"
@@ -158,7 +184,33 @@ def validate(
         for name in sorted(expected_names):
             digest = hashlib.sha256(_read_bytes(bundle / name, "manifest artifact")).hexdigest()
             lines.append(f"{digest}  {name}")
-        manifest.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        content = ("\n".join(lines) + "\n").encode("utf-8")
+        if len(content) > _MAX_MANIFEST_BYTES:
+            raise ValueError("manifest exceeds size limit")
+        nofollow = getattr(os, "O_NOFOLLOW", None)
+        if nofollow is None:
+            raise RuntimeError("platform does not support fail-closed manifest writing")
+        try:
+            fd = os.open(
+                manifest,
+                os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_CLOEXEC | os.O_NOFOLLOW,
+                0o600,
+            )
+        except OSError as exc:
+            raise ValueError("manifest must be a writable regular file") from exc
+        try:
+            metadata = os.fstat(fd)
+            if not stat.S_ISREG(metadata.st_mode):
+                raise ValueError("manifest must be a regular file")
+            os.fchmod(fd, 0o600)
+            remaining = memoryview(content)
+            while remaining:
+                written = os.write(fd, remaining)
+                if written <= 0:
+                    raise OSError("short manifest write")
+                remaining = remaining[written:]
+        finally:
+            os.close(fd)
 
 
 def main() -> int:

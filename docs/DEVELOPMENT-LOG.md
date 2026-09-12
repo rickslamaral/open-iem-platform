@@ -4,6 +4,28 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 70 — hardening do validador de bundle
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Leituras do bundle usam `O_NOFOLLOW`, `O_NONBLOCK`, limite individual de 512 MiB e limite total de 2 GiB.
+- SBOM opcional é validado como JSON objeto antes de entrar no manifesto.
+- Escrita do manifesto rejeita symlink, exige arquivo regular e limita conteúdo a 64 KiB.
+- Testes cobrem SBOM inválido, manifesto symlink e limite de arquivo.
+
+### Verificação real
+
+- Suíte dos validadores: 45 testes aprovados em `/tmp/open-iem-venv` com `pytest==9.1.1`.
+- `make validate`: aprovado; `py_compile` e `git diff --check`: aprovados.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões. TOCTOU entre validação e cópia no workflow exige hardening posterior. Raspberry Pi 5, PipeWire/ALSA, WebRTC, Windows runtime e release continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 69 follow-up — novo bloqueio pré-step do CI
 
 **Status:** commit local de atualização documental; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

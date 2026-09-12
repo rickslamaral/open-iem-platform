@@ -84,6 +84,43 @@ def test_valid_bundle_passes(tmp_path):
     MODULE.validate(make_valid_bundle(tmp_path), VERSION)
 
 
+def test_invalid_sbom_fails(tmp_path):
+    bundle = make_valid_bundle(tmp_path)
+    add_file(bundle, f"open-iem-server-{VERSION}-sbom.json", b"not-json")
+    try:
+        MODULE.validate(bundle, VERSION)
+    except ValueError as exc:
+        assert "SBOM is not valid JSON" in str(exc)
+    else:
+        raise AssertionError("invalid SBOM accepted")
+
+
+def test_manifest_symlink_fails(tmp_path):
+    bundle = make_valid_bundle(tmp_path)
+    target = tmp_path / "outside-manifest"
+    target.write_bytes(b"keep")
+    manifest = tmp_path / "manifest"
+    manifest.symlink_to(target)
+    try:
+        MODULE.validate(bundle, VERSION, manifest=manifest)
+    except ValueError as exc:
+        assert "manifest" in str(exc)
+    else:
+        raise AssertionError("manifest symlink accepted")
+    assert target.read_bytes() == b"keep"
+
+
+def test_file_size_limit_fails(tmp_path, monkeypatch):
+    bundle = make_valid_bundle(tmp_path)
+    monkeypatch.setattr(MODULE, "_MAX_FILE_BYTES", 1)
+    try:
+        MODULE.validate(bundle, VERSION)
+    except ValueError as exc:
+        assert "size limit" in str(exc)
+    else:
+        raise AssertionError("oversized bundle file accepted")
+
+
 def test_missing_server_signature_fails(tmp_path):
     bundle = make_valid_bundle(tmp_path)
     (bundle / f"open-iem-server-{VERSION}-aarch64-linux.tar.gz.sig").unlink()

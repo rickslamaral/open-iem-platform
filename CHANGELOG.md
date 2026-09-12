@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 70 bundle validator hardening (2026-09-12)
+- Validador limita arquivo individual a 512 MiB, bundle a 2 GiB e manifesto a 64 KiB antes de leituras sem limite.
+- SBOM opcional precisa ser JSON objeto válido; escrita de manifesto usa `O_NOFOLLOW` e descritor regular.
+- Testes offline: 45 aprovados. CI remoto, hardware e release continuam não validados.
+
 ### Changed — Phase 69 CI status refresh (2026-09-12)
 - Runs `34711659175` (PR) e `34711656770` (push) falharam antes da execução dos jobs; no PR, os 10 jobs retornaram `runner_id=0` e `steps=[]`. Nenhum teste ou build remoto executou; merge e release continuam bloqueados.
 
