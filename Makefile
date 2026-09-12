@@ -61,6 +61,7 @@ lint:
 	@npm run typecheck --prefix web/engineer
 
 test: test-unit test-integration test-audio
+	@python3 -m pytest -q tests/test_validate_version.py
 	@npm test --prefix web/musician -- --run
 	@npm test --prefix web/engineer -- --run
 

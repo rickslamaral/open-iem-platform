@@ -4,6 +4,24 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 75 — fonte única de versão e gate reproduzível
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- `VERSION` virou fonte canônica `0.3.1`.
+- `scripts/validate-version.py` valida SemVer, manifests Rust/frontend e tag de release.
+- `release.yml` deixou de extrair versão com `grep/head/sed`; repete gate `tomllib` inline, fail-closed e sem executar script mutável do checkout antes da validação.
+- `make test` inclui testes do gate de versão.
+- README, CHANGELOG, TODO e review da Phase 75 atualizados.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões: último run `34721822744` teve 10 jobs com `runner_id=0` e `steps=[]`. Nenhum teste/build remoto executou. ARM64, Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC, runtime Windows e release continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 74 — documentação visual das interfaces
 
 **Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

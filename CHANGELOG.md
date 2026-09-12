@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 75 version gate (2026-09-12)
+- Adicionado `VERSION` como fonte canônica e `scripts/validate-version.py` para validar SemVer, manifests Rust/frontend e tag de release.
+- Release workflow e `make test` usam gate reproduzível; CI remoto continua bloqueado antes dos steps.
+
 ### Added — Phase 74 documentação visual das interfaces (2026-09-12)
 - Adicionadas imagens documentais geradas do código-fonte para Login, Musician PWA, Engineer Console, Admin CLI/API e controles de mix.
 - Adicionado `docs/INTERFACES.md`; imagens não são screenshots de runtime e não alteram claims de suporte.

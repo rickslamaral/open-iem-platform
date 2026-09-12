@@ -8,6 +8,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34711659175` (PR) e `34711656770` (push) falharam antes da execução dos jobs; no PR, os 10 jobs retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 75 — fonte única de versão e gate reproduzível
+
+- [x] Criar `VERSION` canônico e validar manifests Rust/frontend e tags SemVer.
+- [x] Integrar gate ao workflow de release e aos testes locais.
+- [x] Atualizar README, CHANGELOG, DEVELOPMENT-LOG e review.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar build/runtime ARM64, mídia WebRTC, PipeWire/ALSA e Raspberry Pi 5 real.
+
 ## Phase 74 — documentação visual das interfaces
 
 - [x] Documentar interfaces reais implementadas em `docs/INTERFACES.md`.

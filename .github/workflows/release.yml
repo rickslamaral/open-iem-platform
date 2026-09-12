@@ -21,39 +21,33 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Extract and validate tag version
+      - name: Validate canonical project version
         id: extract
         run: |
-          TAG="${GITHUB_REF_NAME}"
-          if [[ ! "${TAG}" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
-            echo "ERROR: tag is not an exact SemVer release tag: ${TAG}"
-            exit 1
-          fi
-          VERSION="${TAG#v}"
+          VERSION=$(TAG="${GITHUB_REF_NAME}" python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import re
+          import tomllib
+
+          root = pathlib.Path('.')
+          version = (root / 'VERSION').read_text(encoding='utf-8').strip()
+          if re.fullmatch(r'(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)', version) is None:
+              raise SystemExit('VERSION must contain exact SemVer X.Y.Z')
+          cargo = tomllib.loads((root / 'server/Cargo.toml').read_text(encoding='utf-8'))
+          manifests = [cargo['workspace']['package']['version']]
+          manifests.extend(json.loads((root / path).read_text(encoding='utf-8'))['version'] for path in ('web/musician/package.json', 'web/engineer/package.json'))
+          if any(candidate != version for candidate in manifests):
+              raise SystemExit('VERSION does not match every project manifest')
+          tag = os.environ['TAG']
+          if re.fullmatch(r'v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)', tag) is None or tag[1:] != version:
+              raise SystemExit('tag does not match VERSION')
+          print(version)
+          PY
+          )
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "Tag: ${TAG} → version: ${VERSION}"
-
-      - name: Check Cargo workspace version matches tag
-        run: |
-          VERSION="${{ steps.extract.outputs.version }}"
-          CARGO_VERSION=$(grep '^version' server/Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
-          echo "Cargo workspace version: ${CARGO_VERSION}"
-          if [ "${CARGO_VERSION}" != "${VERSION}" ]; then
-            echo "ERROR: Tag version ${VERSION} does not match Cargo workspace version ${CARGO_VERSION}"
-            exit 1
-          fi
-
-      - name: Check frontend versions match tag
-        run: |
-          VERSION="${{ steps.extract.outputs.version }}"
-          for PACKAGE in web/musician/package.json web/engineer/package.json; do
-            PKG_VERSION=$(node -p "require('./${PACKAGE}').version")
-            echo "${PACKAGE} version: ${PKG_VERSION}"
-            if [ "${PKG_VERSION}" != "${VERSION}" ]; then
-              echo "ERROR: ${PACKAGE} version (${PKG_VERSION}) does not match tag (${VERSION})"
-              exit 1
-            fi
-          done
+          echo "Tag and all manifests match canonical VERSION: ${VERSION}"
 
   # ──────────────────────────────────────────────
   # 2. Quality gate (same as CI but required for release)
