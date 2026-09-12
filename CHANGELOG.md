@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 72 HTTP signaling integration (2026-09-12)
+- Teste autenticado cobre negociação SDP seguida de trickle ICE nas rotas HTTP reais; áudio permanece `SIMULATED`.
+
 ### Security — Phase 71 validated release snapshot (2026-09-12)
 - Validação de bundle agora abre diretório e entradas por descritores `O_NOFOLLOW`, copia em chunks limitados e publica staging somente após validação completa.
 - O workflow de release consome somente o snapshot validado; limite de 32 entradas reduz pressão de recursos. CI remoto, hardware e release continuam não validados.

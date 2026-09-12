@@ -4,6 +4,26 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 72 — integração HTTP de signaling
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Teste de integração autentica Musician e executa negociação SDP pela rota HTTP.
+- O mesmo teste envia candidato trickle ICE pela rota HTTP após oferta aceita.
+- README, CHANGELOG, TODO e review da Phase 72 atualizados.
+
+### Verificação real
+
+- `cargo test -p api-server --test integration musician_negotiates_offer_and_trickles_ice_candidate_over_http`: 1 aprovado; 57 filtrados.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões. Fluxo valida somente control plane HTTP e Sans-IO; mídia WebRTC, PipeWire/ALSA, Raspberry Pi 5, runtime Windows e release continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 71 — snapshot validado para publicação
 
 **Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

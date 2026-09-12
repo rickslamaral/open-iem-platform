@@ -51,6 +51,11 @@ const TEST_PRIVATE_PEM: &[u8] = include_bytes!("fixtures/test_ed25519_private.pe
 
 const TEST_PUBLIC_PEM: &[u8] = include_bytes!("fixtures/test_ed25519_public.pem");
 
+const VALID_AUDIO_OFFER: &str = "v=0\r\no=- 0 0 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\nc=IN IP4 0.0.0.0\r\na=mid:0\r\na=sendrecv\r\na=rtcp-mux\r\na=ice-ufrag:test\r\na=ice-pwd:testpassword\r\na=fingerprint:sha-256 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00\r\na=setup:actpass\r\na=rtpmap:111 opus/48000/2\r\n";
+
+const VALID_ICE_CANDIDATE: &str =
+    "candidate:1 1 udp 2113937151 192.168.1.100 49152 typ host generation 0";
+
 // ── Shared test fixture ────────────────────────────────────────────────────
 
 fn build_test_app() -> (TestServer, AppState) {
@@ -300,6 +305,34 @@ async fn audio_sessions_requires_auth() {
     let (server, _state) = build_test_app();
     let resp = server.get("/api/v1/audio/sessions").await;
     resp.assert_status(axum::http::StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn musician_negotiates_offer_and_trickles_ice_candidate_over_http() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "audio_musician", "pw", Role::Musician);
+
+    let offer_response = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token.clone())
+        .json(&json!({"sdp": VALID_AUDIO_OFFER, "mix_id": null}))
+        .await;
+    offer_response.assert_status_ok();
+    let offer_body: Value = offer_response.json();
+    assert!(offer_body["sdp"]
+        .as_str()
+        .is_some_and(|sdp| sdp.starts_with("v=0")));
+
+    let candidate_response = server
+        .post("/api/v1/audio/ice-candidate")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"candidate": VALID_ICE_CANDIDATE}))
+        .await;
+    candidate_response.assert_status_ok();
+    let candidate_body: Value = candidate_response.json();
+    assert_eq!(candidate_body, json!({"accepted": true}));
 }
 
 // ── Role enforcement ────────────────────────────────────────────────────────
