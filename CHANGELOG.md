@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 60 incremental archive validation (2026-09-12)
+- Validador interrompe leitura ao exceder 32 membros, evitando materialização ilimitada de headers em archives comprimidos.
+- Testes cobrem limites de archive comprimido e total descomprimido, além dos limites existentes por membro e contagem.
+- CI remoto e hardware continuam não validados.
+
 ### Security — Phase 59 archive resource limits (2026-09-12)
 - Validador rejeita archives acima de 512 MiB comprimidos, mais de 32 membros, membros acima de 256 MiB ou total descomprimido acima de 512 MiB, limitando consumo durante validação.
 - Testes determinísticos cobrem rejeição de contagem e tamanho excessivos; CI remoto e hardware continuam não validados.

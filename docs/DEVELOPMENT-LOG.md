@@ -4,6 +4,31 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 60 — validação incremental de archives
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador itera membros do `tarfile` e interrompe imediatamente acima de `MAX_MEMBERS`, evitando materialização ilimitada de headers.
+- Testes offline cobrem `MAX_ARCHIVE_BYTES` e `MAX_UNCOMPRESSED_BYTES`, além dos limites já existentes.
+- README, CHANGELOG, TODO e review da Phase 60 atualizados.
+
+### Verificação
+
+- Testes, compilação Python e `git diff --check` executados após implementação; resultado final será registrado após os gates completos desta rodada.
+- Reviews independentes identificaram e corrigiram risco MEDIUM de consumo de memória/CPU via `getmembers()`.
+
+### Limitações
+
+CI remoto continua falhando antes dos steps nos runs `34674883204`, `34674880716`, `34674858746` e `34674856987`. Secret/fingerprint Ed25519, release, Caddy, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+### Próximo passo
+
+Executar gates locais finais, publicar branch e revalidar CI remoto. Não fazer merge ou release sem runner executável e gates reais.
+
+---
+
 ## 2026-09-12 — Phase 59 — limites de recursos no validador de archives
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.

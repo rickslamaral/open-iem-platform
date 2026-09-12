@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 59 — limites de recursos no validador de archives.** O validador rejeita archives acima de 512 MiB comprimidos, mais de 32 membros, membros acima de 256 MiB ou total descomprimido acima de 512 MiB; testes locais passam. CI remoto/hardware continuam não validados. Ver [review da Phase 59](docs/reviews/PHASE-59-REVIEW.md) e [Phase 58](docs/reviews/PHASE-58-REVIEW.md).
+**Fase incremental atual: Phase 60 — validação incremental de archives.** O validador interrompe leitura ao exceder 32 membros e testes cobrem limites comprimido, por membro e total descomprimido. CI remoto/hardware continuam não validados. Ver [review da Phase 60](docs/reviews/PHASE-60-REVIEW.md), [Phase 59](docs/reviews/PHASE-59-REVIEW.md) e [Phase 58](docs/reviews/PHASE-58-REVIEW.md).
 
 **Phase 56 — correção do lifetime do diretório temporário do Caddyfile.** A limpeza prematura removida do guia Raspberry Pi permite concluir cópia e instalação do Caddyfile; CI remoto e hardware continuam não validados. Ver [review da Phase 56](docs/reviews/PHASE-56-REVIEW.md).
 

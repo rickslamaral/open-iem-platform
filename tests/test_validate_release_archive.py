@@ -116,12 +116,43 @@ def test_member_count_limit_fails(tmp_path):
         raise AssertionError("archive exceeding member count accepted")
 
 
+def test_compressed_size_limit_fails(tmp_path):
+    archive = tmp_path / "too-large-compressed.tar.gz"
+    archive.touch()
+    stat = SimpleNamespace(st_size=MODULE.MAX_ARCHIVE_BYTES + 1)
+    with patch.object(Path, "stat", return_value=stat):
+        try:
+            MODULE.validate(archive, {"api-server", "open-iem-admin"})
+        except ValueError as exc:
+            assert "compressed size limit" in str(exc)
+        else:
+            raise AssertionError("archive exceeding compressed size accepted")
+
+
+def test_total_uncompressed_size_limit_fails(tmp_path):
+    archive = tmp_path / "too-large-uncompressed.tar.gz"
+    archive.touch()
+    members = [
+        SimpleNamespace(name="open-iem-server-1.2.3-aarch64-linux/api-server", size=MODULE.MAX_MEMBER_BYTES),
+        SimpleNamespace(name="open-iem-server-1.2.3-aarch64-linux/open-iem-admin", size=MODULE.MAX_MEMBER_BYTES),
+        SimpleNamespace(name="open-iem-server-1.2.3-aarch64-linux/README.md", size=1),
+    ]
+    with patch.object(MODULE.tarfile, "open") as open_archive:
+        open_archive.return_value.__enter__.return_value.__iter__.return_value = iter(members)
+        try:
+            MODULE.validate(archive, {"api-server", "open-iem-admin"})
+        except ValueError as exc:
+            assert "uncompressed size limit" in str(exc)
+        else:
+            raise AssertionError("archive exceeding uncompressed size accepted")
+
+
 def test_member_size_limit_fails(tmp_path):
     archive = tmp_path / "too-large.tar.gz"
     archive.touch()
     oversized = SimpleNamespace(name="open-iem-server-1.2.3-aarch64-linux/api-server", size=MODULE.MAX_MEMBER_BYTES + 1)
     with patch.object(MODULE.tarfile, "open") as open_archive:
-        open_archive.return_value.__enter__.return_value.getmembers.return_value = [oversized]
+        open_archive.return_value.__enter__.return_value.__iter__.return_value = iter([oversized])
         try:
             MODULE.validate(archive, {"api-server", "open-iem-admin"})
         except ValueError as exc:

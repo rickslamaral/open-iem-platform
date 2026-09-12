@@ -20,9 +20,11 @@ def validate(archive: pathlib.Path, required: set[str]) -> None:
     if archive_size > MAX_ARCHIVE_BYTES:
         raise ValueError("archive exceeds compressed size limit")
     with tarfile.open(archive, mode="r:gz") as bundle:
-        members = bundle.getmembers()
-        if len(members) > MAX_MEMBERS:
-            raise ValueError("archive exceeds member count limit")
+        members = []
+        for member in bundle:
+            members.append(member)
+            if len(members) > MAX_MEMBERS:
+                raise ValueError("archive exceeds member count limit")
         if not members:
             raise ValueError("archive is empty")
 
