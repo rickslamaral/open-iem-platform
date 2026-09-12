@@ -20,7 +20,7 @@ All significant milestones documented here in reverse chronological order.
 
 ### Limitações
 
-CI remoto continua bloqueado por runner/permissões. Fluxo valida somente control plane HTTP e Sans-IO; mídia WebRTC, PipeWire/ALSA, Raspberry Pi 5, runtime Windows e release continuam não validados.
+CI remoto continua bloqueado por runner/permissões: run `34719135360` permanece `queued`; job Python terminou `failure` sem steps e demais jobs seguem sem execução. Fluxo valida somente control plane HTTP e Sans-IO; mídia WebRTC, PipeWire/ALSA, Raspberry Pi 5, runtime Windows e release continuam não validados.
 
 ---
 
