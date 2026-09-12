@@ -4,6 +4,25 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — CI status after Phase 63 archive verifier portability
+
+**Status:** commit `e9723fa` publicado; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Verificação real
+
+- Run push `34695459186` terminou `failure` em todos os 10 jobs.
+- Todos os jobs retornaram `steps=[]`, falhando antes da execução do runner.
+- Gates locais no commit passaram: `make validate`, 22 testes Python dos validadores e `git diff --check`.
+
+### Decisão
+
+Não fazer merge, release ou alegação de CI verde. Bloqueio segue em GitHub Actions/runner/permissões; Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+
+---
+
 ## 2026-09-12 — Phase 63 archive verifier portability — fechamento do fallback permissivo
 
 **Status:** correção local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
