@@ -29,6 +29,11 @@ CI remoto continua falhando antes dos steps nos runs `34669494781` e `3466949326
 
 Desbloquear GitHub Actions; executar CI real. Depois provisionar chave pública autenticada e validar instalação/áudio em Raspberry Pi 5.
 
+### CI após push
+
+- Push run `34674856987` e PR run `34674858746` falharam antes dos steps; os 9 jobs de cada run terminaram com `steps=[]`.
+- O bloqueio continua sendo runner/permissão GitHub Actions; não representa falha executada nos testes do commit.
+
 ---
 
 ## 2026-09-12 — Phase 58 — assinatura Ed25519 no workflow
