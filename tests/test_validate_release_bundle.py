@@ -1,5 +1,6 @@
 import hashlib
 import importlib.machinery
+import os
 import importlib.util
 import subprocess
 import tarfile
@@ -82,6 +83,78 @@ def test_manifest_lists_validated_files_and_digests(tmp_path):
 
 def test_valid_bundle_passes(tmp_path):
     MODULE.validate(make_valid_bundle(tmp_path), VERSION)
+
+
+def test_bundle_entry_count_limit_fails(tmp_path):
+    bundle = make_valid_bundle(tmp_path)
+    for index in range(MODULE._MAX_BUNDLE_ENTRIES - len(list(bundle.iterdir())) + 1):
+        add_file(bundle, f"extra-{index}")
+    try:
+        MODULE.validate(bundle, VERSION)
+    except ValueError as exc:
+        assert "entry count limit" in str(exc)
+    else:
+        raise AssertionError("bundle with too many entries accepted")
+
+
+def test_validate_to_output_snapshots_validated_files(tmp_path):
+    bundle = make_valid_bundle(tmp_path)
+    output = tmp_path / "release-upload"
+    manifest = tmp_path / "release-manifest.sha256"
+    MODULE.validate_to_output(bundle, VERSION, output, manifest=manifest)
+    assert {path.name for path in output.iterdir()} == {path.name for path in bundle.iterdir()}
+    for path in output.iterdir():
+        assert path.read_bytes() == (bundle / path.name).read_bytes()
+
+
+def test_validate_to_output_removes_invalid_staging(tmp_path):
+    bundle = make_valid_bundle(tmp_path)
+    add_file(bundle, "unexpected.txt")
+    output = tmp_path / "release-upload"
+    try:
+        MODULE.validate_to_output(bundle, VERSION, output)
+    except ValueError as exc:
+        assert "unexpected bundle files" in str(exc)
+    else:
+        raise AssertionError("invalid bundle staged")
+    assert not output.exists()
+    assert not list(tmp_path.glob(".release-upload.*"))
+
+
+def test_validate_to_output_publishes_only_after_validation(tmp_path, monkeypatch):
+    bundle = make_valid_bundle(tmp_path)
+    output = tmp_path / "release-upload"
+    original = MODULE._validate
+
+    def fail_after_snapshot(path, *args, **kwargs):
+        assert path != bundle
+        raise ValueError("validation sentinel")
+
+    monkeypatch.setattr(MODULE, "_validate", fail_after_snapshot)
+    try:
+        MODULE.validate_to_output(bundle, VERSION, output)
+    except ValueError as exc:
+        assert "validation sentinel" in str(exc)
+    else:
+        raise AssertionError("failed validation published output")
+    assert not output.exists()
+    assert not list(tmp_path.glob(".release-upload.*"))
+    monkeypatch.setattr(MODULE, "_validate", original)
+
+
+def test_snapshot_copy_uses_bounded_reads(tmp_path, monkeypatch):
+    bundle = make_valid_bundle(tmp_path)
+    observed = []
+    original_read = MODULE.os.read
+
+    def bounded_read(fd, size):
+        observed.append(size)
+        return original_read(fd, size)
+
+    monkeypatch.setattr(MODULE.os, "read", bounded_read)
+    MODULE.validate_to_output(bundle, VERSION, tmp_path / "release-upload")
+    assert observed
+    assert max(observed) <= MODULE._COPY_CHUNK_BYTES
 
 
 def test_invalid_sbom_fails(tmp_path):
@@ -217,3 +290,30 @@ def test_symlink_checksum_fails(tmp_path):
         assert "non-regular" in str(exc)
     else:
         raise AssertionError("checksum symlink accepted")
+
+
+def test_fifo_entry_fails_without_blocking(tmp_path):
+    bundle = make_valid_bundle(tmp_path)
+    fifo = bundle / f"open-iem-server-{VERSION}-x86_64-linux.tar.gz"
+    fifo.unlink()
+    os.mkfifo(fifo)
+    try:
+        MODULE.validate(bundle, VERSION)
+    except ValueError as exc:
+        assert "non-regular" in str(exc)
+    else:
+        raise AssertionError("FIFO bundle entry accepted")
+
+
+def test_snapshot_enforces_aggregate_copy_limit(tmp_path, monkeypatch):
+    bundle = make_valid_bundle(tmp_path)
+    monkeypatch.setattr(MODULE, "_MAX_BUNDLE_BYTES", 1)
+    output = tmp_path / "release-upload"
+    try:
+        MODULE.validate_to_output(bundle, VERSION, output)
+    except ValueError as exc:
+        assert "total size limit" in str(exc)
+    else:
+        raise AssertionError("oversized aggregate snapshot accepted")
+    assert not output.exists()
+    assert not list(tmp_path.glob(".release-upload.*"))

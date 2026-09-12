@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 71 validated release snapshot (2026-09-12)
+- Validação de bundle agora abre diretório e entradas por descritores `O_NOFOLLOW`, copia em chunks limitados e publica staging somente após validação completa.
+- O workflow de release consome somente o snapshot validado; limite de 32 entradas reduz pressão de recursos. CI remoto, hardware e release continuam não validados.
+
 ### Security — Phase 70 bundle validator hardening (2026-09-12)
 - Validador limita arquivo individual a 512 MiB, bundle a 2 GiB e manifesto a 64 KiB antes de leituras sem limite.
 - SBOM opcional precisa ser JSON objeto válido; escrita de manifesto usa `O_NOFOLLOW` e descritor regular.

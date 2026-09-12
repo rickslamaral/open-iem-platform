@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 70 — hardening do validador de bundle.** O validador limita arquivo individual a 512 MiB, bundle a 2 GiB e manifesto a 64 KiB, lê com descritor protegido contra symlink, valida SBOM JSON como objeto e cria manifesto sem seguir symlink. Testes locais: 45 validadores aprovados; CI remoto, release e hardware continuam não validados. Ver [review da Phase 70](docs/reviews/PHASE-70-REVIEW.md), [Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
+**Fase incremental atual: Phase 71 — snapshot validado para publicação.** O validador fixa diretório e membros por descritores `O_NOFOLLOW`, limita bundle a 32 entradas, copia em chunks de 1 MiB para staging privado e publica somente após validação completa. Testes locais: 52 validadores aprovados; CI remoto, release e hardware continuam não validados. Ver [review da Phase 71](docs/reviews/PHASE-71-REVIEW.md), [Phase 70](docs/reviews/PHASE-70-REVIEW.md), [Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
 
 O validador rejeita separadores `\\`, caracteres de controle, caracteres inválidos, pontos/espaços finais e nomes reservados Windows em cada componente, além de raiz `.`/`..` ou raiz não canônica, membro oversized e total descomprimido excedido antes de consumir membros seguintes. O bundle final agora exige archives server x86_64/ARM64 e web musician/engineer na versão da tag, checksum correto, assinatura server não vazia e rejeita arquivos inesperados antes da publicação. CI também cobre teste automatizado desse validador junto aos validadores de archive e assinatura. O verificador Ed25519 limita assinatura e chave pública a 64 KiB; ambos exigem `O_NOFOLLOW`, validam arquivos regulares em descritores não bloqueantes e o verificador chama `/usr/bin/openssl` sem depender de `PATH` mutável. Execução validada permanece Linux; os runs `34711659175` (PR) e `34711656770` (push) falharam antes da execução dos jobs; no PR, os 10 jobs retornaram `runner_id=0` e `steps=[]`; portanto CI remoto continua bloqueado por runner/permissões; hardware continua não validado. Ver [review da Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
 
@@ -103,7 +103,9 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 66 | Canonical archive root validation | ✅ Local validation; CI and hardware pending |
 | 67 | Cross-platform safe archive names | ✅ Local validation; CI and hardware pending |
 | 68 | Windows archive names and signature input limits | ✅ Local validation; CI and hardware pending |
-| 69 | Final release bundle validation | 🔄 Local implementation; CI and hardware pending; pinned public-key fingerprint and immutable upload manifest |
+| 69 | Final release bundle validation | ✅ Local implementation; CI and hardware pending; pinned public-key fingerprint and immutable upload manifest |
+| 70 | Bundle validator resource hardening | ✅ Local validation; CI and hardware pending |
+| 71 | Validated release snapshot | 🔄 Local implementation; CI, release and hardware pending |
 
 ## Repository Structure
 

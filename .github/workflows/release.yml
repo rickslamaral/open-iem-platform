@@ -184,11 +184,11 @@ jobs:
           trap 'rm -f -- "$KEY_FILE"' EXIT
           chmod 600 "$KEY_FILE"
           printf '%s' "${OPENIEM_RELEASE_SIGNING_KEY_PEM}" > "$KEY_FILE"
-          openssl pkey -in "$KEY_FILE" -text -noout 2>/dev/null | grep -q '^ED25519' || {
+          /usr/bin/openssl pkey -in "$KEY_FILE" -text -noout 2>/dev/null | grep -q '^ED25519' || {
             printf '%s\n' 'Signing key must be Ed25519' >&2
             exit 1
           }
-          openssl pkeyutl -sign -inkey "$KEY_FILE" \
+          /usr/bin/openssl pkeyutl -sign -inkey "$KEY_FILE" \
             -in "${DIR}.tar.gz" -out "${DIR}.tar.gz.sig"
           test -s "${DIR}.tar.gz.sig"
           test -n "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM:-}" || {
@@ -203,7 +203,7 @@ jobs:
           trap 'rm -f -- "$KEY_FILE" "$PUBLIC_KEY_FILE"' EXIT
           chmod 644 "$PUBLIC_KEY_FILE"
           printf '%s' "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM}" > "$PUBLIC_KEY_FILE"
-          ACTUAL_PUBLIC_KEY_FINGERPRINT=$(openssl pkey -pubin -in "$PUBLIC_KEY_FILE" -outform DER | sha256sum | cut -d' ' -f1)
+          ACTUAL_PUBLIC_KEY_FINGERPRINT=$(/usr/bin/openssl pkey -pubin -in "$PUBLIC_KEY_FILE" -outform DER | sha256sum | cut -d' ' -f1)
           [[ "${ACTUAL_PUBLIC_KEY_FINGERPRINT}" == "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT,,}" ]] || {
             printf '%s\n' 'Release signing public key fingerprint mismatch' >&2
             exit 1
@@ -295,11 +295,11 @@ jobs:
           trap 'rm -f -- "$KEY_FILE"' EXIT
           chmod 600 "$KEY_FILE"
           printf '%s' "${OPENIEM_RELEASE_SIGNING_KEY_PEM}" > "$KEY_FILE"
-          openssl pkey -in "$KEY_FILE" -text -noout 2>/dev/null | grep -q '^ED25519' || {
+          /usr/bin/openssl pkey -in "$KEY_FILE" -text -noout 2>/dev/null | grep -q '^ED25519' || {
             printf '%s\n' 'Signing key must be Ed25519' >&2
             exit 1
           }
-          openssl pkeyutl -sign -inkey "$KEY_FILE" \
+          /usr/bin/openssl pkeyutl -sign -inkey "$KEY_FILE" \
             -in "${DIR}.tar.gz" -out "${DIR}.tar.gz.sig"
           test -s "${DIR}.tar.gz.sig"
           test -n "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM:-}" || {
@@ -314,7 +314,7 @@ jobs:
           trap 'rm -f -- "$KEY_FILE" "$PUBLIC_KEY_FILE"' EXIT
           chmod 644 "$PUBLIC_KEY_FILE"
           printf '%s' "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM}" > "$PUBLIC_KEY_FILE"
-          ACTUAL_PUBLIC_KEY_FINGERPRINT=$(openssl pkey -pubin -in "$PUBLIC_KEY_FILE" -outform DER | sha256sum | cut -d' ' -f1)
+          ACTUAL_PUBLIC_KEY_FINGERPRINT=$(/usr/bin/openssl pkey -pubin -in "$PUBLIC_KEY_FILE" -outform DER | sha256sum | cut -d' ' -f1)
           [[ "${ACTUAL_PUBLIC_KEY_FINGERPRINT}" == "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT,,}" ]] || {
             printf '%s\n' 'Release signing public key fingerprint mismatch' >&2
             exit 1
@@ -455,28 +455,19 @@ jobs:
           trap 'rm -f -- "$PUBLIC_KEY_FILE" "$MANIFEST_FILE"' EXIT
           chmod 644 "$PUBLIC_KEY_FILE"
           printf '%s' "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM}" > "$PUBLIC_KEY_FILE"
-          ACTUAL_PUBLIC_KEY_FINGERPRINT=$(openssl pkey -pubin -in "$PUBLIC_KEY_FILE" -outform DER | sha256sum | cut -d' ' -f1)
+          ACTUAL_PUBLIC_KEY_FINGERPRINT=$(/usr/bin/openssl pkey -pubin -in "$PUBLIC_KEY_FILE" -outform DER | sha256sum | cut -d' ' -f1)
           [[ "${ACTUAL_PUBLIC_KEY_FINGERPRINT}" == "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT,,}" ]] || {
             printf '%s\n' 'Release signing public key fingerprint mismatch' >&2
             exit 1
           }
-          python3 scripts/validate-release-bundle.py dist "${RELEASE_VERSION}" --public-key "$PUBLIC_KEY_FILE" --manifest "$MANIFEST_FILE"
-          (cd dist && sha256sum -c "$MANIFEST_FILE")
-          rm -rf -- release-upload
-          mkdir -- release-upload
-          while IFS=' ' read -r digest name; do
-            test -n "${digest}" && test -n "${name}"
-            test "${name}" = "${name##*/}"
-            test -f "dist/${name}" && test ! -L "dist/${name}"
-            cp --reflink=auto -- "dist/${name}" "release-upload/${name}"
-          done < "$MANIFEST_FILE"
-          (cd release-upload && sha256sum -c "${MANIFEST_FILE}")
+          test ! -e release-upload && test ! -L release-upload
+          python3 scripts/validate-release-bundle.py dist "${RELEASE_VERSION}" --public-key "$PUBLIC_KEY_FILE" --manifest "$MANIFEST_FILE" --output release-upload
+          while read -r digest name; do
+            printf '%s  %s\n' "${digest}" "release-upload/${name}"
+          done < "$MANIFEST_FILE" > release-files.txt
+          sha256sum -c <(sed 's#  #  release-upload/#' "$MANIFEST_FILE")
           cp --reflink=auto -- "$MANIFEST_FILE" release-manifest.sha256
-          cp --reflink=auto -- release-manifest.sha256 release-upload/release-manifest.sha256
-          {
-            cut -d' ' -f3- "$MANIFEST_FILE" | sed 's#^#release-upload/#'
-            printf '%s\n' 'release-upload/release-manifest.sha256'
-          } > release-files.txt
+          printf '%s\n' release-manifest.sha256 >> release-files.txt
           test -s release-files.txt
 
       - name: Extract CHANGELOG excerpt for release notes

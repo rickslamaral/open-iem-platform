@@ -18,16 +18,24 @@ def _open_regular(path: pathlib.Path, label: str, max_bytes: int | None = None) 
     nofollow = getattr(os, "O_NOFOLLOW", None)
     if nofollow is None:
         raise RuntimeError("platform does not support fail-closed symlink verification")
-    try:
-        fd = os.open(
-            path,
-            os.O_RDONLY
-            | os.O_CLOEXEC
-            | os.O_NONBLOCK
-            | nofollow,
-        )
-    except OSError as exc:
-        raise ValueError(f"{label} must be a regular file: {path}") from exc
+    proc_fd = path.name if path.parent == pathlib.Path("/proc/self/fd") else None
+    if proc_fd is not None and proc_fd.isdigit():
+        try:
+            fd = os.dup(int(proc_fd))
+            os.set_inheritable(fd, False)
+        except OSError as exc:
+            raise ValueError(f"{label} must be a regular file: {path}") from exc
+    else:
+        try:
+            fd = os.open(
+                path,
+                os.O_RDONLY
+                | os.O_CLOEXEC
+                | os.O_NONBLOCK
+                | nofollow,
+            )
+        except OSError as exc:
+            raise ValueError(f"{label} must be a regular file: {path}") from exc
     try:
         metadata = os.fstat(fd)
         if not stat.S_ISREG(metadata.st_mode):

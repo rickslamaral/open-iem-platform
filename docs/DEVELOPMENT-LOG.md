@@ -4,6 +4,29 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 71 — snapshot validado para publicação
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Validador abre bundle e entradas via descritores `O_DIRECTORY|O_NOFOLLOW` e `fstat()`, reduzindo races de caminho durante captura.
+- Bundle limitado a 32 entradas.
+- Snapshot usa cópia em chunks de 1 MiB e staging privado; output só aparece após validação completa.
+- Workflow calcula checksums e lista de upload somente sobre `release-upload`, sem recópia de `dist` após validação.
+
+### Verificação real
+
+- 52 testes dos validadores aprovados.
+- `py_compile` e `git diff --check` aprovados.
+- Scan estático do código adicionado: sem hits para hardcoded secrets, shell injection, eval/exec, pickle ou SQL dinâmico.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões. Nenhum release, hardware Raspberry Pi 5, PipeWire/ALSA, WebRTC ou runtime Windows foi validado.
+
+---
+
 ## 2026-09-12 — Phase 70 — hardening do validador de bundle
 
 **Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

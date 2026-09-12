@@ -8,6 +8,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34711659175` (PR) e `34711656770` (push) falharam antes da execução dos jobs; no PR, os 10 jobs retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 71 — snapshot validado para publicação
+
+- [x] Fixar bundle de entrada por descritor de diretório e abrir membros com `O_NOFOLLOW`.
+- [x] Copiar em chunks limitados para staging privado e publicar output somente após validação.
+- [x] Limitar bundle a 32 entradas e adicionar testes de atomicidade, cleanup e leitura limitada.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
 ## Phase 70 — hardening do validador de bundle
 
 - [x] Limitar tamanho de arquivo, bundle e manifesto antes de consumir conteúdo.
