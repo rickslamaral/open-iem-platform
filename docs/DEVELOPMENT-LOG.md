@@ -4,6 +4,39 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 76 CI status refresh
+
+**Status:** commit `57ec4db` publicado; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Verificação real
+
+- Push run `34724816608` e PR run `34724820149` falharam em aproximadamente 3–4 segundos, antes de qualquer step executável.
+- Nenhum teste ou build remoto executou. Causa continua classificada como `RUNNER / PLATFORM / CONFIGURATION FAILURE`.
+- Working tree ficou limpo após remover caches Python gerados.
+
+### Decisão
+
+Não fazer merge ou release. Gates locais permanecem aprovados; CI remoto, release, hardware Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 76
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Validador de archive consome payload completo de arquivos regulares em chunks de até 1 MiB após validar headers.
+- Payload truncado ou ausente falha fechado; `tarfile` limita leitura ao tamanho declarado pelo header.
+- Teste offline cobre archive gzip truncado durante a leitura.
+- README, CHANGELOG, TODO e review da Phase 76 atualizados.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões: run `34723511315` falhou antes dos steps, com jobs sem steps executados. Nenhum teste/build remoto executou. Release, ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 76 — leitura integral de payloads de archive
 
 **Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
