@@ -72,6 +72,17 @@ def test_path_traversal_fails(tmp_path):
         raise AssertionError("traversal archive accepted")
 
 
+def test_noncanonical_root_fails(tmp_path):
+    archive = tmp_path / "noncanonical-root.tar.gz"
+    make_archive(archive, [(".", "dir")])
+    try:
+        MODULE.validate(archive, set())
+    except ValueError as exc:
+        assert "non-canonical archive root" in str(exc)
+    else:
+        raise AssertionError("non-canonical archive root accepted")
+
+
 def test_symlink_fails(tmp_path):
     archive = tmp_path / "symlink.tar.gz"
     make_archive(archive, valid_members() + [("open-iem-server-1.2.3-aarch64-linux/link", "symlink")])

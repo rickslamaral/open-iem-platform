@@ -68,6 +68,8 @@ def validate(archive: pathlib.Path, required: set[str]) -> None:
         if len(roots) != 1 or "" in roots:
             raise ValueError("archive must contain one top-level directory")
         root = roots.pop()
+        if root in {".", ".."} or posixpath.normpath(root) != root:
+            raise ValueError(f"non-canonical archive root: {root}")
         expected = {f"{root}/{name}" for name in ALLOWED_FILES}
         names = set()
         root_directory_seen = False

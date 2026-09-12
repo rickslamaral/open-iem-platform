@@ -6,7 +6,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## BLOCKER
 
-- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34695498591` (PR) e `34695497246` (push) falharam antes dos steps; sem CI remoto não há release `v0.3.1`.
+- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34699835285` (PR) e `34699832511` (push) falharam antes dos steps; sem CI remoto não há release `v0.3.1`.
+
+## Phase 66 — raiz canônica em archives
+
+- [x] Rejeitar raiz `.`/`..` ou não canônica no validador.
+- [x] Adicionar teste offline para raiz não canônica.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
 
 ## Phase 65 — limites incrementais durante leitura de archives
 

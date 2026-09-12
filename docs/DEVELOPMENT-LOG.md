@@ -4,6 +4,27 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 66 — raiz canônica em archives
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador rejeita raiz `.`/`..` e nomes de raiz não canônicos antes de validar conteúdo.
+- Adicionado teste offline para raiz não canônica.
+- README, CHANGELOG, TODO e review da Phase 66 atualizados.
+
+### Verificação
+
+- Review independente: PASS, sem concerns de segurança ou erros lógicos de alta confiança.
+- Testes Python e `make validate`: executar no gate final.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e release continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 65 — limites incrementais durante leitura de archives
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.

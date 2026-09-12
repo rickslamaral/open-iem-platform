@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 65 — limites de archive aplicados durante a leitura.** O validador rejeita membro oversized e total descomprimido excedido antes de consumir membros seguintes; o verificador Ed25519 e o validador exigem `O_NOFOLLOW`, validam arquivos regulares em descritores não bloqueantes e o verificador chama `/usr/bin/openssl` sem depender de `PATH` mutável. Execução validada permanece Linux com `/usr/bin/openssl`; CI remoto continua bloqueado por runner/permissões; hardware continua não validado. Ver [review da Phase 65](docs/reviews/PHASE-65-REVIEW.md) e [Phase 64](docs/reviews/PHASE-64-REVIEW.md).
+**Fase incremental atual: Phase 66 — nome canônico da raiz de archive.** O validador rejeita raiz `.`/`..` ou raiz não canônica, além de membro oversized e total descomprimido excedido antes de consumir membros seguintes; o verificador Ed25519 e o validador exigem `O_NOFOLLOW`, validam arquivos regulares em descritores não bloqueantes e o verificador chama `/usr/bin/openssl` sem depender de `PATH` mutável. Execução validada permanece Linux com `/usr/bin/openssl`; CI remoto continua bloqueado por runner/permissões; hardware continua não validado. Ver [review da Phase 66](docs/reviews/PHASE-66-REVIEW.md), [Phase 65](docs/reviews/PHASE-65-REVIEW.md) e [Phase 64](docs/reviews/PHASE-64-REVIEW.md).
 
 **Phase 56 — correção do lifetime do diretório temporário do Caddyfile.** A limpeza prematura removida do guia Raspberry Pi permite concluir cópia e instalação do Caddyfile; CI remoto e hardware continuam não validados. Ver [review da Phase 56](docs/reviews/PHASE-56-REVIEW.md).
 
@@ -97,7 +97,8 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 62 | Python security tests in CI | 🔄 Local workflow implementation; CI and hardware pending |
 | 63 | Fail-closed signed-file verification | ✅ Local validation; CI and hardware pending |
 | 64 | Archive validator portability error handling | ✅ Local validation; CI and hardware pending |
-| 65 | Incremental archive resource validation | 🔄 Local implementation; CI and hardware pending |
+| 65 | Incremental archive resource validation | ✅ Local validation; CI and hardware pending |
+| 66 | Canonical archive root validation | 🔄 Local implementation; CI and hardware pending |
 
 ## Repository Structure
 

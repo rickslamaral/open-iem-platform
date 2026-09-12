@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 66 canonical archive root validation (2026-09-12)
+- O validador rejeita nomes de diretório raiz `.`/`..` ou não canônicos antes de validar conteúdo, mantendo caminhos de release determinísticos.
+- Adicionado teste local para raiz não canônica.
+- CI remoto e hardware continuam não validados.
+
 ### Security — Phase 65 incremental archive resource validation (2026-09-12)
 - Limites de tamanho por membro e total descomprimido agora são aplicados durante a iteração do archive; entradas abusivas falham antes do consumo de membros posteriores.
 - Adicionado teste offline para rejeição imediata de membro oversized.
