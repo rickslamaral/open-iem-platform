@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 63 — verificação fail-closed de arquivos assinados.** O verificador Ed25519 e o validador de archives exigem `O_NOFOLLOW`, validam arquivos regulares em descritores não bloqueantes e o verificador chama `/usr/bin/openssl` sem depender de `PATH` mutável. Execução validada permanece Linux com `/usr/bin/openssl`; CI remoto continua bloqueado por runner/permissões; hardware continua não validado. Ver [review da Phase 63](docs/reviews/PHASE-63-REVIEW.md), [Phase 62](docs/reviews/PHASE-62-REVIEW.md), [Phase 61](docs/reviews/PHASE-61-REVIEW.md), [Phase 60](docs/reviews/PHASE-60-REVIEW.md) e [Phase 59](docs/reviews/PHASE-59-REVIEW.md).
+**Fase incremental atual: Phase 64 — tratamento fail-closed da portabilidade do validador de archives.** O verificador Ed25519 e o validador de archives exigem `O_NOFOLLOW`, validam arquivos regulares em descritores não bloqueantes e o verificador chama `/usr/bin/openssl` sem depender de `PATH` mutável. Execução validada permanece Linux com `/usr/bin/openssl`; CI remoto continua bloqueado por runner/permissões; hardware continua não validado. Ver [review da Phase 63](docs/reviews/PHASE-63-REVIEW.md), [Phase 62](docs/reviews/PHASE-62-REVIEW.md), [Phase 61](docs/reviews/PHASE-61-REVIEW.md), [Phase 60](docs/reviews/PHASE-60-REVIEW.md) e [Phase 59](docs/reviews/PHASE-59-REVIEW.md).
 
 **Phase 56 — correção do lifetime do diretório temporário do Caddyfile.** A limpeza prematura removida do guia Raspberry Pi permite concluir cópia e instalação do Caddyfile; CI remoto e hardware continuam não validados. Ver [review da Phase 56](docs/reviews/PHASE-56-REVIEW.md).
 
@@ -95,7 +95,8 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 59 | Release archive resource limits | ✅ Local tests; CI and hardware pending |
 | 61 | Fail-closed release archive input | ✅ Local tests; CI and hardware pending |
 | 62 | Python security tests in CI | 🔄 Local workflow implementation; CI and hardware pending |
-| 63 | Fail-closed signed-file verification | 🔄 Local implementation; CI and hardware pending |
+| 63 | Fail-closed signed-file verification | ✅ Local validation; CI and hardware pending |
+| 64 | Archive validator portability error handling | 🔄 Local implementation; CI and hardware pending |
 
 ## Repository Structure
 

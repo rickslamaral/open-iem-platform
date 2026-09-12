@@ -115,7 +115,7 @@ def main() -> int:
         )
     try:
         validate(args.archive, required)
-    except (OSError, tarfile.TarError, ValueError) as exc:
+    except (OSError, RuntimeError, tarfile.TarError, ValueError) as exc:
         print(f"archive validation failed: {exc}")
         return 1
     print(f"archive validation passed: {args.archive}")

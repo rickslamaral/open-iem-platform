@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 64 archive validator portability (2026-09-12)
+- CLI do validador agora captura ausência de `O_NOFOLLOW` e retorna falha controlada, sem traceback nem comportamento permissivo.
+- CI remoto e hardware continuam não validados.
+
+
 ### Changed — CI status after Phase 63 archive verifier portability (2026-09-12)
 - Push run `34695497246` e PR run `34695498591` falharam antes dos steps em todos os 10 jobs; nenhum teste remoto executou. Merge e release continuam bloqueados.
 

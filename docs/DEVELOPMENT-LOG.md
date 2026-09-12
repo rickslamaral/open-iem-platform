@@ -4,6 +4,28 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 64 — tratamento fail-closed da portabilidade do validador
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- CLI de `scripts/validate-release-archive.py` captura `RuntimeError` de plataforma sem `O_NOFOLLOW` e retorna código 1 controlado.
+- Evita traceback e mantém validação fail-closed em plataformas sem a proteção necessária.
+- README, CHANGELOG e TODO atualizados.
+
+### Verificação
+
+- Testes Python dos validadores: PASS — 22 testes.
+- `make validate`: PASS.
+- Review independente pendente nesta rodada.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e release continuam não validados.
+
+---
+
 ## 2026-09-12 — CI status after Phase 63 archive verifier portability
 
 **Status:** commit `c535eac` publicado; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
