@@ -28,6 +28,7 @@ ARCHIVE="open-iem-server-${VERSION#v}-aarch64-linux.tar.gz"
 RELEASE_URL="https://github.com/rickslamaral/open-iem-platform/releases/download/${VERSION}"
 WORK_DIR=$(mktemp -d)
 trap 'rm -rf -- "${WORK_DIR}"' EXIT
+REPO_ROOT=$(git rev-parse --show-toplevel)
 ARCHIVE_PATH="${WORK_DIR}/${ARCHIVE}"
 CHECKSUM_PATH="${ARCHIVE_PATH}.sha256"
 
@@ -38,20 +39,11 @@ curl --fail --silent --show-error --location --proto '=https' --proto-redir '=ht
 # Checksum file names archive by basename; verify exact downloaded file.
 ( cd "${WORK_DIR}" && sha256sum --check "${ARCHIVE}.sha256" )
 
-# Reject absolute paths, parent traversal, symlinks and hard links before extraction.
-tar -tzf "${ARCHIVE_PATH}" > "${WORK_DIR}/members"
-while IFS= read -r member; do
-  case "${member}" in
-    /*|../*|*/../*|..|*/..)
-      printf 'Unsafe archive member: %s\n' "${member}" >&2
-      exit 1
-      ;;
-  esac
-done < "${WORK_DIR}/members"
-if tar -tvzf "${ARCHIVE_PATH}" | grep -Eq '^[[:space:]]*[slh]| -> | link to '; then
-  printf 'Archive contains symlink or hard link\n' >&2
-  exit 1
-fi
+# Validate every member with repository validator before extraction.
+[[ -f "${REPO_ROOT}/scripts/validate-release-archive.py" && ! -L "${REPO_ROOT}/scripts/validate-release-archive.py" ]] \
+  || { printf 'Missing trusted archive validator\n' >&2; exit 1; }
+python3 "${REPO_ROOT}/scripts/validate-release-archive.py" \
+  "${ARCHIVE_PATH}" api-server open-iem-admin
 
 EXTRACT_DIR="${WORK_DIR}/open-iem-server-${VERSION#v}-aarch64-linux"
 tar --extract --file "${ARCHIVE_PATH}" --directory "${WORK_DIR}" --no-same-owner --no-same-permissions
@@ -174,8 +166,12 @@ with os.fdopen(source_fd, "rb") as source, open(sys.argv[2], "xb") as target:
 PY
 sudo install -o root -g root -m 0644 "${CADDYFILE_WORK}" /etc/caddy/Caddyfile
 rm -f -- "${CADDYFILE_WORK}"
-# Edit /etc/caddy/Caddyfile: replace 'iem.local' with your Pi's LAN IP if mDNS is unavailable.
+# If mDNS is unavailable, replace 'iem.local' with the LAN IP in:
+#   /etc/caddy/Caddyfile
+#   /etc/systemd/system/openiem-server.service (OPENIEM_ALLOWED_ORIGINS=https://<LAN-IP>)
+sudo systemctl daemon-reload
 sudo systemctl restart caddy
+sudo systemctl restart openiem-server
 sudo systemctl status caddy
 ```
 

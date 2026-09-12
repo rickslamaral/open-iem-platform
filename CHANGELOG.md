@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 57 deployment archive validation (2026-09-11)
+- O instalador Raspberry Pi agora usa `scripts/validate-release-archive.py` antes da extração, rejeitando caminhos não canônicos, links, arquivos especiais, duplicatas e membros inesperados.
+- O serviço systemd define `OPENIEM_ALLOWED_ORIGINS=https://iem.local`; o guia documenta atualização dessa origem quando mDNS não estiver disponível.
+- CI remoto continua bloqueado antes dos steps; nenhum hardware Raspberry Pi ou release foi validado.
+
 ### Changed — CI status refresh (2026-09-11)
 - Runs `34656659602` (PR) e `34656657286` (push) falharam antes dos steps; os jobs terminaram sem `runner_id` executável. Nenhum claim de CI verde, merge ou release foi feito.
 

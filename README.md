@@ -88,6 +88,7 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 53 | Release archive validation | ✅ Local validation; CI blocked |
 | 54 | Release artifact provenance | 🔄 Local workflow implementation; CI blocked |
 | 55 | Deployment path hardening | ✅ Local validation; CI blocked; hardware pending |
+| 56 | Caddyfile temporary-directory lifetime | ✅ Local validation; CI blocked; hardware pending |
 
 ## Repository Structure
 

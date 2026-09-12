@@ -4,6 +4,34 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-11 — Phase 57 — validação de archive e origem HTTPS
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Instalador ARM64 agora chama `scripts/validate-release-archive.py` antes da extração; validação cobre caminhos canônicos, diretório raiz único, allowlist, duplicatas, links e arquivos especiais.
+- Unit systemd define `OPENIEM_ALLOWED_ORIGINS=https://iem.local`, alinhando validação de Origin ao endpoint TLS do Caddy.
+- Guia documenta atualização coordenada para LAN IP quando mDNS não estiver disponível.
+- README, CHANGELOG, TODO e review desta fase atualizados.
+
+### Verificação
+
+- `make validate`: executar após alterações.
+- `cargo audit --file server/Cargo.lock --ignore RUSTSEC-2023-0071`: PASS — 0 vulnerabilidades.
+- `npm audit --audit-level=high` nos dois frontends: PASS.
+- Reviews independentes: uma aprovação; uma encontrou e corrigiu inconsistência de Phase 56 no README e gaps de archive/origin.
+
+### Limitações
+
+CI remoto continua falhando antes dos steps (`runner_id=0`); permissões API de Actions/runners retornam HTTP 403. Caddy, instalação privilegiada, runtime ARM64, PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+
+### Próximo passo
+
+Executar gates locais finais, push e revalidar CI remoto. Não fazer merge ou release sem runner executável e gates reais.
+
+---
+
 ## 2026-09-11 — CI status refresh pós-Phase 56
 
 **Status:** documentação atualizada; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.

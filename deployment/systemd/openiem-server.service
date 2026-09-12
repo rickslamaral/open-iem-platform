@@ -26,6 +26,8 @@ Environment=OPENIEM_DB_PATH=/var/lib/openiem/openiem.db
 
 # Bind to loopback only; Caddy terminates TLS and proxies to this port.
 Environment=OPENIEM_BIND_ADDR=127.0.0.1:8080
+# Browser state-changing requests must match TLS reverse-proxy origin.
+Environment=OPENIEM_ALLOWED_ORIGINS=https://iem.local
 
 # OPENIEM_ALLOW_INSECURE_HTTP is intentionally NOT set here.
 # Omitting it means non-loopback HTTP is rejected (fail-closed).

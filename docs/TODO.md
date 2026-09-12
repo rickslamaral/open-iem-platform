@@ -6,7 +6,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## BLOCKER
 
-- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34656659602` (PR) e `34656657286` (push) falharam antes dos steps; os 9 jobs do PR retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
+- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34658515999` (PR) e `34658513998` (push) falharam antes dos steps; os 9 jobs do PR retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
+
+## Phase 57 — validação de archive no instalador e origem HTTPS
+
+- [x] Usar `scripts/validate-release-archive.py` antes de extrair archive ARM64.
+- [x] Definir `OPENIEM_ALLOWED_ORIGINS` no unit systemd e documentar ajuste para LAN IP.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
 
 ## Phase 56 — correção do lifetime do diretório temporário do Caddyfile
 
