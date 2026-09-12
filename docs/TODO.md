@@ -47,7 +47,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Validar archives de servidor x86_64/ARM64 antes de checksum/upload; rejeitar traversal, links, membros inesperados e binários ausentes.
 - [x] Adicionar testes offline determinísticos, casos maliciosos e contrato CLI do validador.
 - [x] Fazer instalador ARM64 exigir e instalar `api-server` e `open-iem-admin`.
-- [ ] Adotar assinatura independente para autenticar artefatos de release.
+- [x] Adotar assinatura independente para autenticar artefatos de release — integração Ed25519 no workflow concluída na Phase 58.
+- [ ] Provisionar secret Ed25519 e distribuir fingerprint/chave pública por canal independente.
 - [ ] Desbloquear CI remoto antes de merge/release.
 
 ## Phase 52 — follow-up de verificação
@@ -56,7 +57,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Fixar `cargo-audit` em `0.22.2` nos workflows CI e release.
 - [x] Gerar certificados LAN em diretório temporário e instalar via `sudo install` com ownership/modos explícitos.
 - [ ] Adicionar validação automatizada de archive malicioso e testar instalação em Raspberry Pi 5 real.
-- [ ] Adotar assinatura independente para autenticar artefatos de release.
+- [x] Adotar assinatura independente para autenticar artefatos de release — integração Ed25519 no workflow concluída na Phase 58.
+- [ ] Provisionar secret Ed25519 e distribuir fingerprint/chave pública por canal independente.
 - [ ] Desbloquear CI remoto antes de merge/release.
 
 ---

@@ -85,6 +85,32 @@ def test_invalid_signature_fails(tmp_path):
         raise AssertionError("invalid signature accepted")
 
 
+def test_non_ed25519_public_key_fails(tmp_path):
+    private, public = make_keys(tmp_path)
+    rsa_public = tmp_path / "rsa-public.pem"
+    rsa_private = tmp_path / "rsa-private.pem"
+    subprocess.run(
+        ["openssl", "genpkey", "-algorithm", "RSA", "-pkeyopt", "rsa_keygen_bits:2048", "-out", str(rsa_private)],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["openssl", "pkey", "-in", str(rsa_private), "-pubout", "-out", str(rsa_public)],
+        check=True,
+        capture_output=True,
+    )
+    artifact = tmp_path / "artifact.tar.gz"
+    signature = tmp_path / "artifact.tar.gz.sig"
+    artifact.write_bytes(b"release archive")
+    sign(private, artifact, signature)
+    try:
+        MODULE.verify(artifact, signature, rsa_public)
+    except ValueError as exc:
+        assert "Ed25519" in str(exc)
+    else:
+        raise AssertionError("non-Ed25519 public key accepted")
+
+
 def test_symlink_public_key_fails(tmp_path):
     private, public = make_keys(tmp_path)
     artifact = tmp_path / "artifact.tar.gz"

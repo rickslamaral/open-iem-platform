@@ -21,8 +21,9 @@ Adicionar verificação criptográfica detached para artefatos antes de checksum
 - `bash -n` dos 8 blocos Bash do guia Raspberry Pi: PASS.
 - `make validate`: PASS — Rust, frontends, documentação, PDF e skills.
 - `git diff --check`: PASS.
-- Testes adicionais sugeridos pelo revisor (assinatura inválida): PASS — incluído na suíte de 12 testes.
+- Testes adicionais sugeridos pelo revisor (assinatura inválida e chave não-Ed25519): PASS — incluídos na suíte de 13 testes.
 - A chave privada não está no repositório.
+- Requisito operacional documentado: chave pública root-owned, modo 0600/0644 e fingerprint SHA-256 distribuído por canal autenticado independente.
 - CI remoto continua falhando antes dos steps (`runnerId: null`).
 
 ## Limitações e decisão

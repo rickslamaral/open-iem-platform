@@ -12,6 +12,15 @@ def verify(artifact: pathlib.Path, signature: pathlib.Path, public_key: pathlib.
         if not path.is_file() or path.is_symlink():
             raise ValueError(f"{label} must be a regular file: {path}")
     try:
+        key_type = subprocess.run(
+            ["openssl", "pkey", "-pubin", "-in", str(public_key), "-text", "-noout"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if key_type.returncode != 0 or not (key_type.stdout or "").lstrip().startswith("ED25519 Public-Key"):
+            raise ValueError("public key must be an Ed25519 key")
         result = subprocess.run(
             [
                 "openssl",

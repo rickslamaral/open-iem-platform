@@ -37,6 +37,19 @@ PUBLIC_KEY="/etc/openiem/release-signing-key.pem"
 # Public key must be installed through an independently authenticated channel.
 [[ -f "${PUBLIC_KEY}" && ! -L "${PUBLIC_KEY}" ]] \
   || { printf 'Missing trusted release signing public key: %s\n' "${PUBLIC_KEY}" >&2; exit 1; }
+PUBLIC_KEY_MODE=$(stat -c '%a' "${PUBLIC_KEY}")
+PUBLIC_KEY_OWNER=$(stat -c '%u' "${PUBLIC_KEY}")
+[[ "${PUBLIC_KEY_OWNER}" == 0 && "${PUBLIC_KEY_MODE}" =~ ^(600|644)$ ]] \
+  || { printf 'Release signing public key must be root-owned and mode 0600 or 0644\n' >&2; exit 1; }
+
+# Set from an independently authenticated channel; never copy this value from release assets.
+: "${RELEASE_KEY_FINGERPRINT:?Set expected SHA-256 fingerprint from an independently authenticated channel}"
+[[ "${RELEASE_KEY_FINGERPRINT}" =~ ^[[:xdigit:]]{64}$ ]] \
+  || { printf 'Invalid release signing public key fingerprint\n' >&2; exit 1; }
+ACTUAL_KEY_FINGERPRINT=$(openssl pkey -pubin -in "${PUBLIC_KEY}" -outform DER | sha256sum | cut -d' ' -f1)
+[[ "${ACTUAL_KEY_FINGERPRINT}" == "${RELEASE_KEY_FINGERPRINT,,}" ]] \
+  || { printf 'Release signing public key fingerprint mismatch\n' >&2; exit 1; }
+
 
 curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
   --output "${ARCHIVE_PATH}" "${RELEASE_URL}/${ARCHIVE}"

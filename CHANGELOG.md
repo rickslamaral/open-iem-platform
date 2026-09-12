@@ -10,7 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Adicionado verificador local Ed25519 para assinatura detached de artefatos.
 - Instalador Raspberry Pi exige `.sig` e chave pública regular instalada por canal independente antes da extração.
 - Workflow gera assinaturas detached Ed25519 para archives x86_64 e ARM64 usando secret externo `OPENIEM_RELEASE_SIGNING_KEY_PEM`; arquivos `.sig` são publicados com archives e checksums.
-- Secret ausente, chave não-Ed25519 ou assinatura vazia interrompem job; CI remoto e hardware continuam não validados.
+- Secret ausente, chave não-Ed25519 ou assinatura vazia interrompem job; verificador também rejeita chave pública não-Ed25519.
+- Guia exige chave pública root-owned com modo 0600/0644 e fingerprint SHA-256 autenticado independentemente; CI remoto e hardware continuam não validados.
 
 ### Security — Phase 57 deployment archive validation (2026-09-11)
 - O instalador Raspberry Pi agora usa `scripts/validate-release-archive.py` antes da extração, rejeitando caminhos não canônicos, links, arquivos especiais, duplicatas e membros inesperados.

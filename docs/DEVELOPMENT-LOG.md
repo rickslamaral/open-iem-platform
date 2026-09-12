@@ -45,11 +45,11 @@ Provisionar secret Ed25519 e chave pública autenticada; desbloquear runner; exe
 
 ### Limitações
 
-Workflow ainda não produz `.sig`: gestão da chave privada e fingerprint da chave pública continuam pendentes. CI remoto segue falhando antes dos steps (`runnerId: null`). Raspberry Pi 5, Caddy, runtime ARM64, PipeWire/ALSA e mídia WebRTC não foram validados.
+Workflow agora produz `.sig`; gestão do secret, fingerprint e distribuição autenticada da chave pública continuam pendentes. CI remoto segue falhando antes dos steps (`runnerId: null`). Raspberry Pi 5, Caddy, runtime ARM64, PipeWire/ALSA e mídia WebRTC não foram validados.
 
 ### Próximo passo
 
-Definir gestão externa da chave de assinatura; integrar assinatura ao workflow somente após CI executável. Não fazer merge ou release com assinatura ausente.
+Provisionar secret Ed25519, publicar fingerprint por canal independente e executar CI real. Não fazer merge ou release sem esses gates.
 
 ---
 
