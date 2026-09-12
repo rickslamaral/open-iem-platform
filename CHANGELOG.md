@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 58 detached release signature verification (2026-09-12)
+- Adicionado verificador local Ed25519 para assinatura detached de artefatos.
+- Instalador Raspberry Pi exige `.sig` e chave pública regular instalada por canal independente antes da extração.
+- Geração da assinatura no workflow permanece pendente até definir gestão externa da chave privada; CI remoto e hardware continuam não validados.
+
 ### Security — Phase 57 deployment archive validation (2026-09-11)
 - O instalador Raspberry Pi agora usa `scripts/validate-release-archive.py` antes da extração, rejeitando caminhos não canônicos, links, arquivos especiais, duplicatas e membros inesperados.
 - O serviço systemd define `OPENIEM_ALLOWED_ORIGINS=https://iem.local`; o guia documenta atualização dessa origem quando mDNS não estiver disponível.

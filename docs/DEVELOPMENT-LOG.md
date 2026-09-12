@@ -4,6 +4,27 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 58 — verificação local de assinatura Ed25519
+
+**Status:** implementação local; CI remoto bloqueado; não mergeado; não lançado.
+
+### Implementado
+
+- Criado `scripts/verify-release-signature.py` para verificar assinatura detached Ed25519 via OpenSSL.
+- Instalador Raspberry Pi baixa e verifica `.sig` antes de checksum, validação estrutural e extração.
+- Chave pública precisa ser arquivo regular em `/etc/openiem/release-signing-key.pem`, distribuída por canal independente.
+- Adicionados testes offline e review da fase.
+
+### Limitações
+
+Workflow ainda não produz `.sig`: gestão da chave privada e fingerprint da chave pública continuam pendentes. CI remoto segue falhando antes dos steps (`runnerId: null`). Raspberry Pi 5, Caddy, runtime ARM64, PipeWire/ALSA e mídia WebRTC não foram validados.
+
+### Próximo passo
+
+Definir gestão externa da chave de assinatura; integrar assinatura ao workflow somente após CI executável. Não fazer merge ou release com assinatura ausente.
+
+---
+
 ## 2026-09-11 — Phase 57 — validação de archive e origem HTTPS
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.

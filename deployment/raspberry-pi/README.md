@@ -31,9 +31,19 @@ trap 'rm -rf -- "${WORK_DIR}"' EXIT
 REPO_ROOT=$(git rev-parse --show-toplevel)
 ARCHIVE_PATH="${WORK_DIR}/${ARCHIVE}"
 CHECKSUM_PATH="${ARCHIVE_PATH}.sha256"
+SIGNATURE_PATH="${ARCHIVE_PATH}.sig"
+PUBLIC_KEY="/etc/openiem/release-signing-key.pem"
+
+# Public key must be installed through an independently authenticated channel.
+[[ -f "${PUBLIC_KEY}" && ! -L "${PUBLIC_KEY}" ]] \
+  || { printf 'Missing trusted release signing public key: %s\n' "${PUBLIC_KEY}" >&2; exit 1; }
 
 curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
   --output "${ARCHIVE_PATH}" "${RELEASE_URL}/${ARCHIVE}"
+curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+  --output "${SIGNATURE_PATH}" "${RELEASE_URL}/${ARCHIVE}.sig"
+python3 "${REPO_ROOT}/scripts/verify-release-signature.py" \
+  "${ARCHIVE_PATH}" "${SIGNATURE_PATH}" "${PUBLIC_KEY}"
 curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
   --output "${CHECKSUM_PATH}" "${RELEASE_URL}/${ARCHIVE}.sha256"
 # Checksum file names archive by basename; verify exact downloaded file.

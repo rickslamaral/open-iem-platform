@@ -8,6 +8,13 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34658515999` (PR) e `34658513998` (push) falharam antes dos steps; os 9 jobs do PR retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 58 — verificação local de assinatura Ed25519
+
+- [x] Criar `scripts/verify-release-signature.py` com verificação detached Ed25519 fail-closed.
+- [x] Adicionar testes offline para assinatura válida, artefato alterado, assinatura ausente e chave symlink.
+- [ ] Integrar assinatura ao workflow após provisionar chave fora do repositório e definir fingerprint por canal independente.
+- [ ] Desbloquear CI remoto antes de merge/release.
+
 ## Phase 57 — validação de archive no instalador e origem HTTPS
 
 - [x] Usar `scripts/validate-release-archive.py` antes de extrair archive ARM64.

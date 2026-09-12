@@ -40,7 +40,9 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 56 — correção do lifetime do diretório temporário do Caddyfile.** A limpeza prematura removida do guia Raspberry Pi permite concluir cópia e instalação do Caddyfile; CI remoto e hardware continuam não validados. Ver [review da Phase 56](docs/reviews/PHASE-56-REVIEW.md).
+**Fase incremental atual: Phase 58 — verificador local de assinatura Ed25519 para artefatos.** O utilitário e testes offline estão prontos; o workflow ainda não publica assinaturas porque a chave privada não existe no repositório, e CI remoto/hardware continuam não validados. Ver [review da Phase 58](docs/reviews/PHASE-58-REVIEW.md).
+
+**Phase 56 — correção do lifetime do diretório temporário do Caddyfile.** A limpeza prematura removida do guia Raspberry Pi permite concluir cópia e instalação do Caddyfile; CI remoto e hardware continuam não validados. Ver [review da Phase 56](docs/reviews/PHASE-56-REVIEW.md).
 
 **Phase 54 — provenance de artefatos de release.** O workflow gera attestation Sigstore/GitHub para archives de servidor x86_64 e ARM64 antes do upload, com permissões mínimas de OIDC; CI remoto e hardware continuam não validados. Ver [review da Phase 54](docs/reviews/PHASE-54-REVIEW.md).
 
@@ -89,6 +91,7 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 54 | Release artifact provenance | 🔄 Local workflow implementation; CI blocked |
 | 55 | Deployment path hardening | ✅ Local validation; CI blocked; hardware pending |
 | 56 | Caddyfile temporary-directory lifetime | ✅ Local validation; CI blocked; hardware pending |
+| 58 | Detached release signature verification | ✅ Local tests; workflow key management pending |
 
 ## Repository Structure
 
