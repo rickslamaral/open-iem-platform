@@ -21,12 +21,12 @@ Não fazer merge ou release. O bloqueio continua em runner/permissões do GitHub
 
 ## 2026-09-12 — Phase 69 follow-up — novo bloqueio pré-step do CI
 
-**Status:** sem código novo; PR #40 aberto; CI remoto continua bloqueado; não mergeado; não lançado.
+**Status:** commit `d1d2530` publicado; PR #40 aberto; CI remoto continua bloqueado; não mergeado; não lançado.
 
 ### Verificação real
 
-- Push/PR runs `34711080316` e `34711083274` falharam antes dos steps.
-- Nos 10 jobs do run `34711083274`, `runner_id=0` e `steps=[]`; nenhum teste ou build remoto executou.
+- Push/PR runs `34711621971` e `34711619779` falharam antes dos steps.
+- No run PR `34711621971`, os 10 jobs retornaram `runner_id=0` e `steps=[]`; nenhum teste ou build remoto executou.
 - Consulta detalhada de checks permanece limitada por HTTP 403 do token atual.
 
 ### Decisão
