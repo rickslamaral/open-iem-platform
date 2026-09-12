@@ -112,6 +112,29 @@ def test_control_character_path_fails_closed(tmp_path):
         raise AssertionError("archive path containing control character accepted")
 
 
+def test_windows_reserved_or_invalid_root_fails_closed(tmp_path):
+    for root in ("release:", "release.", "release ", "CON", "nul.txt", "COM1", "CON.txt.log", "COM1.tar", "LPT1.any.ext"):
+        archive = tmp_path / f"unsafe-{len(root)}.tar.gz"
+        make_archive(archive, [(f"{root}/", "dir")])
+        try:
+            MODULE.validate(archive, set())
+        except ValueError as exc:
+            assert "unsafe cross-platform archive path" in str(exc)
+        else:
+            raise AssertionError(f"unsafe Windows archive root accepted: {root!r}")
+
+
+def test_windows_reserved_nested_component_fails_closed(tmp_path):
+    archive = tmp_path / "unsafe-nested-component.tar.gz"
+    make_archive(archive, [("release/", "dir"), ("release/CON.txt", "file")])
+    try:
+        MODULE.validate(archive, set())
+    except ValueError as exc:
+        assert "unsafe cross-platform archive path" in str(exc)
+    else:
+        raise AssertionError("unsafe Windows archive component accepted")
+
+
 def test_symlink_fails(tmp_path):
     archive = tmp_path / "symlink.tar.gz"
     make_archive(archive, valid_members() + [("open-iem-server-1.2.3-aarch64-linux/link", "symlink")])

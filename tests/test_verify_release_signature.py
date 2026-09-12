@@ -111,6 +111,36 @@ def test_non_ed25519_public_key_fails(tmp_path):
         raise AssertionError("non-Ed25519 public key accepted")
 
 
+def test_oversized_signature_fails_closed(tmp_path):
+    private, public = make_keys(tmp_path)
+    artifact = tmp_path / "artifact.tar.gz"
+    signature = tmp_path / "artifact.tar.gz.sig"
+    artifact.write_bytes(b"release archive")
+    sign(private, artifact, signature)
+    signature.write_bytes(b"x" * (MODULE._MAX_SIGNATURE_BYTES + 1))
+    try:
+        MODULE.verify(artifact, signature, public)
+    except ValueError as exc:
+        assert "signature exceeds size limit" in str(exc)
+    else:
+        raise AssertionError("oversized signature accepted")
+
+
+def test_oversized_public_key_fails_closed(tmp_path):
+    private, public = make_keys(tmp_path)
+    artifact = tmp_path / "artifact.tar.gz"
+    signature = tmp_path / "artifact.tar.gz.sig"
+    artifact.write_bytes(b"release archive")
+    sign(private, artifact, signature)
+    public.write_bytes(b"x" * (MODULE._MAX_PUBLIC_KEY_BYTES + 1))
+    try:
+        MODULE.verify(artifact, signature, public)
+    except ValueError as exc:
+        assert "public key exceeds size limit" in str(exc)
+    else:
+        raise AssertionError("oversized public key accepted")
+
+
 def test_symlink_artifact_fails_closed(tmp_path):
     private, public = make_keys(tmp_path)
     artifact_target = tmp_path / "artifact-target.tar.gz"

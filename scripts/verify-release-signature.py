@@ -10,9 +10,11 @@ import subprocess
 
 
 _OPENSSL = "/usr/bin/openssl"
+_MAX_SIGNATURE_BYTES = 64 * 1024
+_MAX_PUBLIC_KEY_BYTES = 64 * 1024
 
 
-def _open_regular(path: pathlib.Path, label: str) -> int:
+def _open_regular(path: pathlib.Path, label: str, max_bytes: int | None = None) -> int:
     nofollow = getattr(os, "O_NOFOLLOW", None)
     if nofollow is None:
         raise RuntimeError("platform does not support fail-closed symlink verification")
@@ -27,8 +29,11 @@ def _open_regular(path: pathlib.Path, label: str) -> int:
     except OSError as exc:
         raise ValueError(f"{label} must be a regular file: {path}") from exc
     try:
-        if not stat.S_ISREG(os.fstat(fd).st_mode):
+        metadata = os.fstat(fd)
+        if not stat.S_ISREG(metadata.st_mode):
             raise ValueError(f"{label} must be a regular file: {path}")
+        if max_bytes is not None and metadata.st_size > max_bytes:
+            raise ValueError(f"{label} exceeds size limit: {path}")
         return fd
     except BaseException:
         os.close(fd)
@@ -38,8 +43,12 @@ def _open_regular(path: pathlib.Path, label: str) -> int:
 def verify(artifact: pathlib.Path, signature: pathlib.Path, public_key: pathlib.Path) -> None:
     descriptors: list[int] = []
     try:
-        for path, label in ((artifact, "artifact"), (signature, "signature"), (public_key, "public key")):
-            descriptors.append(_open_regular(path, label))
+        for path, label, max_bytes in (
+            (artifact, "artifact", None),
+            (signature, "signature", _MAX_SIGNATURE_BYTES),
+            (public_key, "public key", _MAX_PUBLIC_KEY_BYTES),
+        ):
+            descriptors.append(_open_regular(path, label, max_bytes))
         artifact_fd, signature_fd, public_key_fd = descriptors
         artifact_ref = f"/proc/self/fd/{artifact_fd}"
         signature_ref = f"/proc/self/fd/{signature_fd}"

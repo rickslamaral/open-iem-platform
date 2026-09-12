@@ -8,6 +8,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34699835285` (PR) e `34699832511` (push) falharam antes dos steps; sem CI remoto não há release `v0.3.1`.
 
+## Phase 68 — nomes Windows e limites de assinatura
+
+- [x] Rejeitar caracteres inválidos, pontos/espaços finais e nomes reservados Windows em cada componente de archive.
+- [x] Limitar assinatura e chave pública detached a 64 KiB antes de executar OpenSSL.
+- [x] Adicionar testes offline determinísticos.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
 ## Phase 67 — nomes seguros entre plataformas
 
 - [x] Rejeitar separador `\\` e caracteres de controle em nomes de archive.

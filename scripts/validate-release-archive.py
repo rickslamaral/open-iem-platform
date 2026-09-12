@@ -15,6 +15,35 @@ MAX_ARCHIVE_BYTES = 512 * 1024 * 1024
 MAX_MEMBERS = 32
 MAX_MEMBER_BYTES = 256 * 1024 * 1024
 MAX_UNCOMPRESSED_BYTES = 512 * 1024 * 1024
+_WINDOWS_RESERVED_NAMES = {
+    "CON",
+    "PRN",
+    "AUX",
+    "NUL",
+    *(f"COM{number}" for number in range(1, 10)),
+    *(f"LPT{number}" for number in range(1, 10)),
+}
+_WINDOWS_INVALID_CHARS = set('<>:"|?*')
+
+
+def _validate_member_name(name: str) -> None:
+    if "\\" in name or any(ord(character) < 0x20 or ord(character) == 0x7F for character in name):
+        raise ValueError(f"unsafe archive path: {name!r}")
+    if name.startswith("/") or ".." in pathlib.PurePosixPath(name).parts:
+        raise ValueError(f"unsafe archive path: {name}")
+    if posixpath.normpath(name) != name:
+        raise ValueError(f"non-canonical archive path: {name}")
+    for component in name.split("/"):
+        if (
+            not component
+            or (component not in {".", ".."} and component[-1] in {".", " "})
+            or any(character in _WINDOWS_INVALID_CHARS for character in component)
+            or (
+                component not in {".", ".."}
+                and component.split(".", 1)[0].upper() in _WINDOWS_RESERVED_NAMES
+            )
+        ):
+            raise ValueError(f"unsafe cross-platform archive path: {name!r}")
 
 
 def validate(archive: pathlib.Path, required: set[str]) -> None:
@@ -59,12 +88,7 @@ def validate(archive: pathlib.Path, required: set[str]) -> None:
 
         for member in members:
             name = member.name
-            if "\\" in name or any(ord(character) < 0x20 for character in name):
-                raise ValueError(f"unsafe archive path: {name!r}")
-            if name.startswith("/") or ".." in pathlib.PurePosixPath(name).parts:
-                raise ValueError(f"unsafe archive path: {name}")
-            if posixpath.normpath(name) != name:
-                raise ValueError(f"non-canonical archive path: {name}")
+            _validate_member_name(name)
 
         roots = {member.name.split("/", 1)[0] for member in members}
         if len(roots) != 1 or "" in roots:

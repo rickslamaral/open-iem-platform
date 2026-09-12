@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 68 — nomes Windows e limites de assinatura
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador rejeita caracteres inválidos, pontos/espaços finais e nomes reservados Windows em todos os componentes de archive.
+- Verificador detached rejeita assinatura e chave pública acima de 64 KiB antes de executar OpenSSL.
+- Testes offline cobrem nomes Windows e entradas oversized.
+- README, CHANGELOG, TODO e review da Phase 68 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 30 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `git diff --check`: PASS.
+- Review independente: risco DoS identificado e correção aplicada.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC, Windows runtime e release continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 67 — nomes seguros entre plataformas
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
