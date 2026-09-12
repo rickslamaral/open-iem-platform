@@ -8,6 +8,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34711659175` (PR) e `34711656770` (push) falharam antes da execução dos jobs; no PR, os 10 jobs retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 74 — documentação visual das interfaces
+
+- [x] Documentar interfaces reais implementadas em `docs/INTERFACES.md`.
+- [x] Gerar SVG/PNG documentais sem secrets e marcar como mockups, não screenshots de runtime.
+- [x] Atualizar README, CHANGELOG, DEVELOPMENT-LOG e guias afetados.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar UI em runtime, mídia WebRTC, PipeWire/ALSA e Raspberry Pi 5 real.
+
 ## Phase 73 — Guia do Músico alinhado ao signaling HTTP
 
 - [x] Atualizar guia com sequência real de oferta SDP e trickle ICE via HTTP.

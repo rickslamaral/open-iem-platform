@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 74 documentação visual das interfaces (2026-09-12)
+- Adicionadas imagens documentais geradas do código-fonte para Login, Musician PWA, Engineer Console, Admin CLI/API e controles de mix.
+- Adicionado `docs/INTERFACES.md`; imagens não são screenshots de runtime e não alteram claims de suporte.
+
 ### Changed — Phase 73 Musician Guide (2026-09-12)
 - Guia e PDF alinhados ao fluxo HTTP real de signaling; mídia continua `SIMULATED`.
 

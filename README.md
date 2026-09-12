@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 72 — integração HTTP de signaling.** Teste autenticado cobre oferta SDP, resposta SDP e trickle ICE na sequência real das rotas; media continua `SIMULATED`. Teste local: 1 cenário HTTP aprovado; CI remoto, release e hardware continuam não validados. Ver [review da Phase 72](docs/reviews/PHASE-72-REVIEW.md), [review da Phase 71](docs/reviews/PHASE-71-REVIEW.md), [Phase 70](docs/reviews/PHASE-70-REVIEW.md), [Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
+**Fase incremental atual: Phase 74 — documentação visual das interfaces.** Imagens documentais geradas a partir do código-fonte cobrem Login, Musician PWA, Engineer Console, Admin CLI/API e controles de mix; não são screenshots de runtime. Control plane local segue validado; mídia continua `SIMULATED`. CI remoto, release e hardware continuam não validados. Ver [review da Phase 72](docs/reviews/PHASE-72-REVIEW.md), [review da Phase 71](docs/reviews/PHASE-71-REVIEW.md), [Phase 70](docs/reviews/PHASE-70-REVIEW.md), [Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
 
 O validador rejeita separadores `\\`, caracteres de controle, caracteres inválidos, pontos/espaços finais e nomes reservados Windows em cada componente, além de raiz `.`/`..` ou raiz não canônica, membro oversized e total descomprimido excedido antes de consumir membros seguintes. O bundle final agora exige archives server x86_64/ARM64 e web musician/engineer na versão da tag, checksum correto, assinatura server não vazia e rejeita arquivos inesperados antes da publicação. CI também cobre teste automatizado desse validador junto aos validadores de archive e assinatura. O verificador Ed25519 limita assinatura e chave pública a 64 KiB; ambos exigem `O_NOFOLLOW`, validam arquivos regulares em descritores não bloqueantes e o verificador chama `/usr/bin/openssl` sem depender de `PATH` mutável. Execução validada permanece Linux; os runs `34711659175` (PR) e `34711656770` (push) falharam antes da execução dos jobs; no PR, os 10 jobs retornaram `runner_id=0` e `steps=[]`; portanto CI remoto continua bloqueado por runner/permissões; hardware continua não validado. Ver [review da Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
 
@@ -57,6 +57,17 @@ O validador rejeita separadores `\\`, caracteres de controle, caracteres inváli
 O harness `SIMULATED` cobre determinismo, isolamento entre mixes, ganho, pan, mute, limiter e finitude das amostras. `cargo fmt --all -- --check` e `cargo test -p audio-engine` passaram: 20 testes unitários, 4 testes de integração e doc-tests. O harness não cobre hardware, desempenho realtime ou stop/start. Áudio real, PipeWire e runtime ARM64 em Raspberry Pi continuam não validados.
 
 Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/reviews/PHASE-31-REVIEW.md), [Phase 29 review](docs/reviews/PHASE-29-REVIEW.md), [Phase 27 review](docs/reviews/PHASE-27-REVIEW.md), [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
+
+## Interfaces e controles
+
+Imagens documentais das interfaces implementadas. São mockups baseados no código-fonte; não são screenshots de runtime. Áudio permanece `SIMULATED` até validação em Raspberry Pi 5.
+
+- [Visão geral das interfaces e controles](docs/INTERFACES.md)
+- [Musician PWA](docs/images/open-iem-musician-ui.png)
+- [Engineer Console](docs/images/open-iem-engineer-console.png)
+- [Admin CLI/API](docs/images/open-iem-admin-cli.png) — não existe painel Admin web
+- [Login](docs/images/open-iem-login.png)
+- [Controles de mix](docs/images/open-iem-mix-controls.png)
 
 ## Development Phases
 

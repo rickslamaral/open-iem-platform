@@ -125,7 +125,33 @@ Ver logs da API:
 docker compose logs -f api-server
 ```
 
-## 6. Fluxo de smoke test
+## 6. Interfaces e controles
+
+As imagens abaixo são mockups documentais baseados no código-fonte. Não são screenshots de runtime.
+
+### Login
+
+![Login](../images/open-iem-login.png)
+
+### Musician PWA
+
+![Musician PWA](../images/open-iem-musician-ui.png)
+
+### Engineer Console
+
+![Engineer Console](../images/open-iem-engineer-console.png)
+
+### Controles de mix
+
+![Controles de mix](../images/open-iem-mix-controls.png)
+
+### Admin
+
+![Admin CLI/API](../images/open-iem-admin-cli.png)
+
+Não existe painel Admin web. Use `open-iem-admin` ou API autenticada para usuários e sessões. Áudio permanece `SIMULATED` até validação em hardware.
+
+## 7. Fluxo de smoke test
 
 **Estado atual: fluxo definido, ainda não executado nesta rodada.** O smoke test abaixo valida somente plano de controle; o fluxo requer Docker Desktop ativo e chaves JWT locais:
 

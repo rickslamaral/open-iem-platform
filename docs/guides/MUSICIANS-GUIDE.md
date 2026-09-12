@@ -132,6 +132,10 @@ O que acontece internamente:
 
 ## 6. Interface do Músico (Musician PWA)
 
+![Interface do Musician PWA](../images/open-iem-musician-ui.png)
+
+Visão geral das interfaces: [docs/INTERFACES.md](../INTERFACES.md). A imagem é mockup documental baseado no código-fonte, não screenshot de runtime.
+
 ### Estados de Conexão
 
 | Status | Significado |

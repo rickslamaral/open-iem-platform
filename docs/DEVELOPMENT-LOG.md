@@ -4,6 +4,28 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 74 — documentação visual das interfaces
+
+**Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Adicionado `docs/INTERFACES.md` com Login, Musician PWA, Engineer Console, Admin CLI/API, controles de mix e estado real de validação.
+- Gerados SVG/PNG documentais a partir de `scripts/generate-ui-doc-images.py`.
+- README, CHANGELOG, guia do músico e guia Windows + Docker Desktop referenciam imagens e deixam explícito que são mockups, não screenshots de runtime.
+
+### Verificação real
+
+- `make validate`: aprovado; Rust, TypeScript, testes, documentação/PDF e skills passaram.
+- `python3 scripts/generate-ui-doc-images.py`: cinco SVG e PNG gerados.
+- `git diff --check` e `py_compile`: aprovados.
+
+### Limitações
+
+Imagens não provam execução da UI. CI remoto, release, mídia WebRTC, PipeWire/ALSA, Raspberry Pi 5 e runtime Windows continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 73 — Guia do Músico alinhado ao signaling HTTP
 
 **Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
