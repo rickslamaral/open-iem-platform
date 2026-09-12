@@ -8,6 +8,8 @@ import os
 import pathlib
 import re
 import stat
+import subprocess
+import sys
 
 _ARCHIVE_RE = re.compile(r"^open-iem-server-(?P<version>[^/]+)-(?P<arch>x86_64-linux|aarch64-linux)\.tar\.gz$")
 _WEB_RE = re.compile(r"^open-iem-(?:musician-pwa|engineer-ui)-(?P<version>[^/]+)\.tar\.gz$")
@@ -76,7 +78,12 @@ def _check_checksum(archive: pathlib.Path, checksum: pathlib.Path) -> None:
         raise ValueError(f"checksum mismatch: {checksum.name}")
 
 
-def validate(bundle: pathlib.Path, version: str) -> None:
+def validate(
+    bundle: pathlib.Path,
+    version: str,
+    public_key: pathlib.Path | None = None,
+    manifest: pathlib.Path | None = None,
+) -> None:
     try:
         bundle_metadata = bundle.lstat()
     except OSError as exc:
@@ -130,20 +137,40 @@ def validate(bundle: pathlib.Path, version: str) -> None:
             if not _exists(signature):
                 raise ValueError(f"missing or empty signature: {signature.name}")
             _read_nonempty(signature, "signature")
+            if public_key is not None:
+                verifier = pathlib.Path(__file__).with_name("verify-release-signature.py")
+                result = subprocess.run(
+                    [sys.executable, str(verifier), str(archive), str(signature), str(public_key)],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
+                if result.returncode != 0:
+                    detail = (result.stdout or result.stderr).strip()
+                    raise ValueError(f"invalid server signature: {signature.name}: {detail}")
             expected_names.add(signature.name)
     unexpected = names - expected_names
     if unexpected:
         raise ValueError("unexpected bundle files: " + ", ".join(sorted(unexpected)))
+    if manifest is not None:
+        lines = []
+        for name in sorted(expected_names):
+            digest = hashlib.sha256(_read_bytes(bundle / name, "manifest artifact")).hexdigest()
+            lines.append(f"{digest}  {name}")
+        manifest.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("bundle", type=pathlib.Path)
     parser.add_argument("version")
+    parser.add_argument("--public-key", type=pathlib.Path)
+    parser.add_argument("--manifest", type=pathlib.Path)
     args = parser.parse_args()
     try:
-        validate(args.bundle, args.version)
-    except (OSError, ValueError) as exc:
+        validate(args.bundle, args.version, args.public_key, args.manifest)
+    except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         print(f"release bundle validation failed: {exc}")
         return 1
     print(f"release bundle validation passed: {args.bundle}")

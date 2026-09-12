@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 69 follow-up — cobertura do validador de bundle no CI
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Job `python-security-tests` agora executa `tests/test_validate_release_bundle.py` junto aos validadores de archive e assinatura.
+- Jobs de build e validação final exigem `OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT`, validam formato estrito de 64 hex e comparam fingerprint SHA-256 da chave pública derivada antes da verificação.
+- Validação gera manifesto temporário com nomes e digests exatos; publicação usa lista explícita derivada desse manifesto, sem glob amplo.
+- README, CHANGELOG, TODO e review da Phase 69 atualizados.
+
+### Verificação
+
+- Suíte local dos validadores: 42 testes aprovados.
+- Manifesto é rechecado com `sha256sum -c` antes da publicação.
+- `make validate`: aprovado pelo agente de testes independente.
+- `git diff --check`: aprovado.
+
+### Limitações
+
+CI remoto continua falhando antes dos steps por runner/permissões. A validação de assinatura no bundle permanece estrutural; verificação criptográfica no workflow depende de chave pública confiável provisionada por canal independente. Raspberry Pi 5, PipeWire/ALSA, WebRTC, Windows runtime e release continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 69 — validação do bundle final de release
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.

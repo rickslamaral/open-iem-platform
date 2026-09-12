@@ -1,6 +1,7 @@
 import hashlib
 import importlib.machinery
 import importlib.util
+import subprocess
 import tarfile
 from pathlib import Path
 from typing import cast
@@ -40,6 +41,43 @@ def make_valid_bundle(tmp_path):
     add_archive(bundle, f"open-iem-musician-pwa-{VERSION}.tar.gz")
     add_archive(bundle, f"open-iem-engineer-ui-{VERSION}.tar.gz")
     return bundle
+
+
+def make_signed_bundle(tmp_path):
+    bundle = make_valid_bundle(tmp_path)
+    private, public = tmp_path / "private.pem", tmp_path / "public.pem"
+    subprocess.run(["openssl", "genpkey", "-algorithm", "ed25519", "-out", str(private)], check=True, capture_output=True)
+    subprocess.run(["openssl", "pkey", "-in", str(private), "-pubout", "-out", str(public)], check=True, capture_output=True)
+    for archive in bundle.glob("open-iem-server-*.tar.gz"):
+        subprocess.run(["openssl", "pkeyutl", "-sign", "-inkey", str(private), "-in", str(archive), "-out", str(bundle / f"{archive.name}.sig")], check=True, capture_output=True)
+    return bundle, public
+
+
+def test_public_key_verifies_server_signatures(tmp_path):
+    bundle, public = make_signed_bundle(tmp_path)
+    MODULE.validate(bundle, VERSION, public)
+
+
+def test_public_key_rejects_forged_server_signature(tmp_path):
+    bundle, public = make_signed_bundle(tmp_path)
+    (bundle / f"open-iem-server-{VERSION}-x86_64-linux.tar.gz.sig").write_bytes(b"forged")
+    try:
+        MODULE.validate(bundle, VERSION, public)
+    except ValueError as exc:
+        assert "invalid server signature" in str(exc)
+    else:
+        raise AssertionError("forged server signature accepted")
+
+
+def test_manifest_lists_validated_files_and_digests(tmp_path):
+    bundle = make_valid_bundle(tmp_path)
+    manifest = tmp_path / "release-manifest.sha256"
+    MODULE.validate(bundle, VERSION, manifest=manifest)
+    lines = manifest.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 10
+    for line in lines:
+        digest, name = line.split("  ")
+        assert digest == hashlib.sha256((bundle / name).read_bytes()).hexdigest()
 
 
 def test_valid_bundle_passes(tmp_path):

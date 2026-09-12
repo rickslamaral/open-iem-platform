@@ -11,6 +11,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## Phase 69 — validação do bundle final de release
 
 - [x] Validar conjunto final, versão, checksums, assinaturas server e arquivos inesperados antes da publicação.
+- [x] Fixar fingerprint SHA-256 da chave pública e falhar fechado em ausência, formato inválido ou divergência.
+- [x] Gerar manifesto de nomes/digests validados e publicar somente arquivos listados nele.
+- [x] Integrar teste do validador de bundle ao job Python de segurança do CI.
 - [ ] Desbloquear CI remoto antes de merge/release.
 - [ ] Provisionar e distribuir chave pública Ed25519 por canal independente.
 - [ ] Validar instalação em Raspberry Pi 5 real.

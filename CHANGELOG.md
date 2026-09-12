@@ -9,7 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Security — Phase 69 final release bundle validation (2026-09-12)
 - O workflow valida o bundle consolidado antes da publicação: archives server x86_64/ARM64 e web musician/engineer devem corresponder à versão da tag.
 - Checksums são recalculados com abertura protegida contra symlink; assinaturas server ausentes/vazias e arquivos inesperados bloqueiam a publicação.
-- Testes offline: 39 aprovados. CI remoto, hardware e release continuam não validados.
+- Jobs de build e validação final exigem `OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT`, aceitam somente fingerprint SHA-256 hexadecimal de 64 caracteres e comparam contra chave pública derivada antes de verificar assinaturas.
+- Validação gera manifesto imutável com nomes e digests exatos; publicação usa somente caminhos listados no manifesto, sem glob amplo.
+- Testes offline: 42 aprovados; CI agora inclui `tests/test_validate_release_bundle.py`. CI remoto, hardware e release continuam não validados.
 
 ### Security — Phase 68 Windows archive names and signature input limits (2026-09-12)
 - O validador rejeita caracteres inválidos, pontos/espaços finais e nomes reservados Windows em todos os componentes do caminho.

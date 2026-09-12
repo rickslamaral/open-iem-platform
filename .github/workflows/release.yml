@@ -191,10 +191,31 @@ jobs:
           openssl pkeyutl -sign -inkey "$KEY_FILE" \
             -in "${DIR}.tar.gz" -out "${DIR}.tar.gz.sig"
           test -s "${DIR}.tar.gz.sig"
+          test -n "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM:-}" || {
+            printf '%s\n' 'Missing OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM repository variable' >&2
+            exit 1
+          }
+          [[ "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT:-}" =~ ^[0-9A-Fa-f]{64}$ ]] || {
+            printf '%s\n' 'Missing or malformed OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT repository variable' >&2
+            exit 1
+          }
+          PUBLIC_KEY_FILE=$(mktemp)
+          trap 'rm -f -- "$KEY_FILE" "$PUBLIC_KEY_FILE"' EXIT
+          chmod 644 "$PUBLIC_KEY_FILE"
+          printf '%s' "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM}" > "$PUBLIC_KEY_FILE"
+          ACTUAL_PUBLIC_KEY_FINGERPRINT=$(openssl pkey -pubin -in "$PUBLIC_KEY_FILE" -outform DER | sha256sum | cut -d' ' -f1)
+          [[ "${ACTUAL_PUBLIC_KEY_FINGERPRINT}" == "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT,,}" ]] || {
+            printf '%s\n' 'Release signing public key fingerprint mismatch' >&2
+            exit 1
+          }
+          python3 scripts/verify-release-signature.py \
+            "${DIR}.tar.gz" "${DIR}.tar.gz.sig" "$PUBLIC_KEY_FILE"
           echo "Artefact: ${DIR}.tar.gz"
           cat "${DIR}.tar.gz.sha256"
         env:
           OPENIEM_RELEASE_SIGNING_KEY_PEM: ${{ secrets.OPENIEM_RELEASE_SIGNING_KEY_PEM }}
+          OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM: ${{ vars.OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM }}
+          OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT: ${{ vars.OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT }}
 
       - name: Attest server archive provenance
         uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
@@ -281,10 +302,31 @@ jobs:
           openssl pkeyutl -sign -inkey "$KEY_FILE" \
             -in "${DIR}.tar.gz" -out "${DIR}.tar.gz.sig"
           test -s "${DIR}.tar.gz.sig"
+          test -n "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM:-}" || {
+            printf '%s\n' 'Missing OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM repository variable' >&2
+            exit 1
+          }
+          [[ "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT:-}" =~ ^[0-9A-Fa-f]{64}$ ]] || {
+            printf '%s\n' 'Missing or malformed OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT repository variable' >&2
+            exit 1
+          }
+          PUBLIC_KEY_FILE=$(mktemp)
+          trap 'rm -f -- "$KEY_FILE" "$PUBLIC_KEY_FILE"' EXIT
+          chmod 644 "$PUBLIC_KEY_FILE"
+          printf '%s' "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM}" > "$PUBLIC_KEY_FILE"
+          ACTUAL_PUBLIC_KEY_FINGERPRINT=$(openssl pkey -pubin -in "$PUBLIC_KEY_FILE" -outform DER | sha256sum | cut -d' ' -f1)
+          [[ "${ACTUAL_PUBLIC_KEY_FINGERPRINT}" == "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT,,}" ]] || {
+            printf '%s\n' 'Release signing public key fingerprint mismatch' >&2
+            exit 1
+          }
+          python3 scripts/verify-release-signature.py \
+            "${DIR}.tar.gz" "${DIR}.tar.gz.sig" "$PUBLIC_KEY_FILE"
           echo "Artefact: ${DIR}.tar.gz"
           cat "${DIR}.tar.gz.sha256"
         env:
           OPENIEM_RELEASE_SIGNING_KEY_PEM: ${{ secrets.OPENIEM_RELEASE_SIGNING_KEY_PEM }}
+          OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM: ${{ vars.OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM }}
+          OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT: ${{ vars.OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT }}
 
       - name: Attest server archive provenance
         uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
@@ -396,9 +438,46 @@ jobs:
       - name: Validate assembled release bundle
         env:
           RELEASE_VERSION: ${{ needs.validate-version.outputs.version }}
+          OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM: ${{ vars.OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM }}
+          OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT: ${{ vars.OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT }}
         run: |
           set -euo pipefail
-          python3 scripts/validate-release-bundle.py dist "${RELEASE_VERSION}"
+          test -n "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM:-}" || {
+            printf '%s\n' 'Missing OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM repository variable' >&2
+            exit 1
+          }
+          [[ "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT:-}" =~ ^[0-9A-Fa-f]{64}$ ]] || {
+            printf '%s\n' 'Missing or malformed OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT repository variable' >&2
+            exit 1
+          }
+          PUBLIC_KEY_FILE=$(mktemp)
+          MANIFEST_FILE=$(mktemp)
+          trap 'rm -f -- "$PUBLIC_KEY_FILE" "$MANIFEST_FILE"' EXIT
+          chmod 644 "$PUBLIC_KEY_FILE"
+          printf '%s' "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM}" > "$PUBLIC_KEY_FILE"
+          ACTUAL_PUBLIC_KEY_FINGERPRINT=$(openssl pkey -pubin -in "$PUBLIC_KEY_FILE" -outform DER | sha256sum | cut -d' ' -f1)
+          [[ "${ACTUAL_PUBLIC_KEY_FINGERPRINT}" == "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT,,}" ]] || {
+            printf '%s\n' 'Release signing public key fingerprint mismatch' >&2
+            exit 1
+          }
+          python3 scripts/validate-release-bundle.py dist "${RELEASE_VERSION}" --public-key "$PUBLIC_KEY_FILE" --manifest "$MANIFEST_FILE"
+          (cd dist && sha256sum -c "$MANIFEST_FILE")
+          rm -rf -- release-upload
+          mkdir -- release-upload
+          while IFS=' ' read -r digest name; do
+            test -n "${digest}" && test -n "${name}"
+            test "${name}" = "${name##*/}"
+            test -f "dist/${name}" && test ! -L "dist/${name}"
+            cp --reflink=auto -- "dist/${name}" "release-upload/${name}"
+          done < "$MANIFEST_FILE"
+          (cd release-upload && sha256sum -c "${MANIFEST_FILE}")
+          cp --reflink=auto -- "$MANIFEST_FILE" release-manifest.sha256
+          cp --reflink=auto -- release-manifest.sha256 release-upload/release-manifest.sha256
+          {
+            cut -d' ' -f3- "$MANIFEST_FILE" | sed 's#^#release-upload/#'
+            printf '%s\n' 'release-upload/release-manifest.sha256'
+          } > release-files.txt
+          test -s release-files.txt
 
       - name: Extract CHANGELOG excerpt for release notes
         id: notes
@@ -413,18 +492,14 @@ jobs:
           echo "${NOTES}" > release_notes.txt
           cat release_notes.txt
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: "Open IEM Platform ${{ needs.validate-version.outputs.version }}"
-          body_path: release_notes.txt
-          draft: false
-          prerelease: false
-          files: |
-            dist/*.tar.gz
-            dist/*.tar.gz.sig
-            dist/*.sha256
-            dist/*.json
+      - name: Create GitHub Release from validated manifest
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ needs.validate-version.outputs.version }}
+        run: |
+          set -euo pipefail
+          mapfile -t RELEASE_FILES < release-files.txt
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Open IEM Platform ${RELEASE_VERSION}" \
+            --notes-file release_notes.txt \
+            "${RELEASE_FILES[@]}"
