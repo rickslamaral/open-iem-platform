@@ -24,7 +24,7 @@ All significant milestones documented here in reverse chronological order.
 
 ### Limitações
 
-Execução validada permanece Linux com `/usr/bin/openssl`; CI remoto, release, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+Execução validada permanece Linux com `/usr/bin/openssl`; CI remoto continua bloqueado: run `34694228445` falhou em todos os 10 jobs às 12:38:36Z, com `steps=[]` e falha pré-execução. Release, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
 
 ### Próximo passo
 
