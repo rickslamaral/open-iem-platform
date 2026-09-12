@@ -17,7 +17,7 @@ All significant milestones documented here in reverse chronological order.
 
 ### Verificação
 
-- `make validate`: executar após alterações.
+- `make validate`: PASS — Rust, frontends, documentação, PDF, skills e diff check.
 - `cargo audit --file server/Cargo.lock --ignore RUSTSEC-2023-0071`: PASS — 0 vulnerabilidades.
 - `npm audit --audit-level=high` nos dois frontends: PASS.
 - Reviews independentes: uma aprovação; uma encontrou e corrigiu inconsistência de Phase 56 no README e gaps de archive/origin.
