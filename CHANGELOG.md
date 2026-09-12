@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 67 cross-platform safe archive names (2026-09-12)
+- O validador rejeita separadores `\\` e caracteres de controle em nomes de membros antes de qualquer validação estrutural, evitando divergência de interpretação entre consumidores POSIX e Windows.
+- Testes offline cobrem separador Windows e caractere de controle.
+- CI remoto e hardware continuam não validados.
+
 ### Security — Phase 66 canonical archive root validation (2026-09-12)
 - O validador rejeita nomes de diretório raiz `.`/`..` ou não canônicos antes de validar conteúdo, mantendo caminhos de release determinísticos.
 - Adicionado teste local para raiz não canônica.

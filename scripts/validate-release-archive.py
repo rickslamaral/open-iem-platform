@@ -59,6 +59,8 @@ def validate(archive: pathlib.Path, required: set[str]) -> None:
 
         for member in members:
             name = member.name
+            if "\\" in name or any(ord(character) < 0x20 for character in name):
+                raise ValueError(f"unsafe archive path: {name!r}")
             if name.startswith("/") or ".." in pathlib.PurePosixPath(name).parts:
                 raise ValueError(f"unsafe archive path: {name}")
             if posixpath.normpath(name) != name:

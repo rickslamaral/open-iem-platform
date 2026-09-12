@@ -8,6 +8,13 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34699835285` (PR) e `34699832511` (push) falharam antes dos steps; sem CI remoto não há release `v0.3.1`.
 
+## Phase 67 — nomes seguros entre plataformas
+
+- [x] Rejeitar separador `\\` e caracteres de controle em nomes de archive.
+- [x] Adicionar testes offline para separador Windows e caractere de controle.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
 ## Phase 66 — raiz canônica em archives
 
 - [x] Rejeitar raiz `.`/`..` ou não canônica no validador.

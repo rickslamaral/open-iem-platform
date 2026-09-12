@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 67 — nomes seguros entre plataformas
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador rejeita separador `\\` e caracteres de controle em nomes de archive antes da validação estrutural.
+- Testes offline cobrem separador Windows e newline; mensagens de nomes de controle usam representação segura.
+- README, CHANGELOG, TODO e review da Phase 67 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 26 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `git diff --check`: PASS.
+- Review independente: PASS, sem concerns de segurança ou erros lógicos de alta confiança.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e release continuam não validados.
+
+---
+
+
 ## 2026-09-12 — Phase 66 — raiz canônica em archives
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.

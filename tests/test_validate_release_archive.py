@@ -83,6 +83,35 @@ def test_noncanonical_root_fails(tmp_path):
         raise AssertionError("non-canonical archive root accepted")
 
 
+def test_backslash_path_fails_closed(tmp_path):
+    archive = tmp_path / "backslash-path.tar.gz"
+    make_archive(
+        archive,
+        [
+            ("release", "dir"),
+            ("release\\\\api-server", "file"),
+            ("release\\\\open-iem-admin", "file"),
+        ],
+    )
+    try:
+        MODULE.validate(archive, {"api-server", "open-iem-admin"})
+    except ValueError as exc:
+        assert "unsafe archive path" in str(exc)
+    else:
+        raise AssertionError("archive path containing backslash accepted")
+
+
+def test_control_character_path_fails_closed(tmp_path):
+    archive = tmp_path / "control-character-path.tar.gz"
+    make_archive(archive, [("release\\n", "dir")])
+    try:
+        MODULE.validate(archive, set())
+    except ValueError as exc:
+        assert "unsafe archive path" in str(exc)
+    else:
+        raise AssertionError("archive path containing control character accepted")
+
+
 def test_symlink_fails(tmp_path):
     archive = tmp_path / "symlink.tar.gz"
     make_archive(archive, valid_members() + [("open-iem-server-1.2.3-aarch64-linux/link", "symlink")])
