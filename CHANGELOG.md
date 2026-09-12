@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Changed — CI status after Phase 63 archive verifier portability (2026-09-12)
-- Push run `34695459186` falhou antes dos steps em todos os 10 jobs; nenhum teste remoto executou. Merge e release continuam bloqueados.
+- Push run `34695497246` e PR run `34695498591` falharam antes dos steps em todos os 10 jobs; nenhum teste remoto executou. Merge e release continuam bloqueados.
 
 ### Security — Phase 63 archive verifier portability (2026-09-12)
 - Validador de archives agora falha explicitamente quando o sistema não oferece `O_NOFOLLOW`, removendo fallback permissivo que poderia aceitar symlinks.

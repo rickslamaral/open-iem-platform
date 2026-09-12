@@ -6,11 +6,11 @@ All significant milestones documented here in reverse chronological order.
 
 ## 2026-09-12 — CI status after Phase 63 archive verifier portability
 
-**Status:** commit `e9723fa` publicado; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+**Status:** commit `c535eac` publicado; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
 
 ### Verificação real
 
-- Run push `34695459186` terminou `failure` em todos os 10 jobs.
+- Run push `34695497246` e PR `34695498591` terminaram `failure` em todos os 10 jobs.
 - Todos os jobs retornaram `steps=[]`, falhando antes da execução do runner.
 - Gates locais no commit passaram: `make validate`, 22 testes Python dos validadores e `git diff --check`.
 
