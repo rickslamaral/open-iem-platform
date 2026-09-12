@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import os
 import pathlib
 import posixpath
+import stat
 import tarfile
 
 
@@ -16,17 +18,35 @@ MAX_UNCOMPRESSED_BYTES = 512 * 1024 * 1024
 
 
 def validate(archive: pathlib.Path, required: set[str]) -> None:
-    archive_size = archive.stat().st_size
-    if archive_size > MAX_ARCHIVE_BYTES:
-        raise ValueError("archive exceeds compressed size limit")
-    with tarfile.open(archive, mode="r:gz") as bundle:
-        members = []
-        for member in bundle:
-            members.append(member)
-            if len(members) > MAX_MEMBERS:
-                raise ValueError("archive exceeds member count limit")
-        if not members:
-            raise ValueError("archive is empty")
+    try:
+        archive_fd = os.open(
+            archive,
+            os.O_RDONLY
+            | os.O_CLOEXEC
+            | os.O_NONBLOCK
+            | getattr(os, "O_NOFOLLOW", 0),
+        )
+    except OSError as exc:
+        raise ValueError("archive must be a readable regular file") from exc
+    try:
+        archive_file = os.fdopen(archive_fd, "rb")
+    except OSError as exc:
+        os.close(archive_fd)
+        raise ValueError("archive must be a readable regular file") from exc
+    with archive_file:
+        metadata = os.fstat(archive_file.fileno())
+        if not stat.S_ISREG(metadata.st_mode):
+            raise ValueError("archive must be a readable regular file")
+        if metadata.st_size > MAX_ARCHIVE_BYTES:
+            raise ValueError("archive exceeds compressed size limit")
+        with tarfile.open(fileobj=archive_file, mode="r:gz") as bundle:
+            members = []
+            for member in bundle:
+                members.append(member)
+                if len(members) > MAX_MEMBERS:
+                    raise ValueError("archive exceeds member count limit")
+            if not members:
+                raise ValueError("archive is empty")
 
         for member in members:
             name = member.name

@@ -8,6 +8,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34669494781` (PR) e `34669493264` (push) falharam antes dos steps; sem CI remoto não há release `v0.3.1`.
 
+## Phase 61 — abertura fail-closed de archives
+
+- [x] Abrir archive com `O_NOFOLLOW` e medir tamanho no descritor validado.
+- [x] Rejeitar entradas que não sejam arquivos regulares.
+- [x] Adicionar testes offline para symlink e diretório.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
 ## Phase 60 — validação incremental de archives
 
 - [x] Interromper leitura ao exceder 32 membros, sem materializar headers além do limite.

@@ -4,6 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 61 — abertura fail-closed de archives
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador abre archive com `O_NOFOLLOW` e `O_CLOEXEC`, exige arquivo regular e mede tamanho via `fstat()` no mesmo descritor entregue ao `tarfile`.
+- Testes offline cobrem symlink e diretório como entradas rejeitadas.
+- README, CHANGELOG, TODO e review da Phase 61 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 19 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `git diff --check`: PASS.
+- Review independente recomendou descritor com `O_NOFOLLOW` e `fstat()` para evitar TOCTOU; implementação aplicada.
+
+### Limitações
+
+CI remoto continua falhando antes dos steps no run `34685058398` e no push correspondente. Secret/fingerprint Ed25519, release, Caddy, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+### Próximo passo
+
+Executar gates locais finais, publicar branch e revalidar CI remoto. Não fazer merge ou release sem runner executável e gates reais.
+
+---
+
 ## 2026-09-12 — Phase 60 — validação incremental de archives
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.

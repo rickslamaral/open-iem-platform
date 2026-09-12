@@ -1,10 +1,11 @@
 import importlib.machinery
 import importlib.util
 import tarfile
+import stat
 from pathlib import Path
 from types import SimpleNamespace
 from typing import cast
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 
 SPEC = cast(
@@ -119,14 +120,45 @@ def test_member_count_limit_fails(tmp_path):
 def test_compressed_size_limit_fails(tmp_path):
     archive = tmp_path / "too-large-compressed.tar.gz"
     archive.touch()
-    stat = SimpleNamespace(st_size=MODULE.MAX_ARCHIVE_BYTES + 1)
-    with patch.object(Path, "stat", return_value=stat):
+    metadata = SimpleNamespace(
+        st_mode=stat.S_IFREG,
+        st_size=MODULE.MAX_ARCHIVE_BYTES + 1,
+    )
+    archive_file = MagicMock()
+    archive_file.fileno.return_value = 10
+    with patch.object(MODULE.os, "open", return_value=10), patch.object(
+        MODULE.os, "fstat", return_value=metadata
+    ), patch.object(MODULE.os, "fdopen", return_value=archive_file):
         try:
             MODULE.validate(archive, {"api-server", "open-iem-admin"})
         except ValueError as exc:
             assert "compressed size limit" in str(exc)
         else:
             raise AssertionError("archive exceeding compressed size accepted")
+
+
+def test_symlink_input_fails_closed(tmp_path):
+    target = tmp_path / "target.tar.gz"
+    target.write_bytes(b"not an archive")
+    archive = tmp_path / "archive.tar.gz"
+    archive.symlink_to(target)
+    try:
+        MODULE.validate(archive, {"api-server", "open-iem-admin"})
+    except ValueError as exc:
+        assert "readable regular file" in str(exc)
+    else:
+        raise AssertionError("symlink archive input accepted")
+
+
+def test_directory_input_fails_closed(tmp_path):
+    archive = tmp_path / "archive.tar.gz"
+    archive.mkdir()
+    try:
+        MODULE.validate(archive, {"api-server", "open-iem-admin"})
+    except ValueError as exc:
+        assert "readable regular file" in str(exc)
+    else:
+        raise AssertionError("directory archive input accepted")
 
 
 def test_total_uncompressed_size_limit_fails(tmp_path):

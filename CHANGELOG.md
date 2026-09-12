@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 61 fail-closed archive input (2026-09-12)
+- Validador abre archive com `O_NOFOLLOW`, exige arquivo regular e aplica limite comprimido via `fstat()` no descritor validado.
+- Testes cobrem symlink e diretório como entradas rejeitadas.
+- CI remoto e hardware continuam não validados.
+
 ### Security — Phase 60 incremental archive validation (2026-09-12)
 - Validador interrompe leitura ao exceder 32 membros, evitando materialização ilimitada de headers em archives comprimidos.
 - Testes cobrem limites de archive comprimido e total descomprimido, além dos limites existentes por membro e contagem.

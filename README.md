@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 60 — validação incremental de archives.** O validador interrompe leitura ao exceder 32 membros e testes cobrem limites comprimido, por membro e total descomprimido. CI remoto/hardware continuam não validados. Ver [review da Phase 60](docs/reviews/PHASE-60-REVIEW.md), [Phase 59](docs/reviews/PHASE-59-REVIEW.md) e [Phase 58](docs/reviews/PHASE-58-REVIEW.md).
+**Fase incremental atual: Phase 61 — abertura fail-closed de archives.** O validador abre archives com descritor sem seguir symlink, exige arquivo regular e mede tamanho no mesmo descritor. Testes cobrem symlink e diretório como entrada. CI remoto/hardware continuam não validados. Ver [review da Phase 61](docs/reviews/PHASE-61-REVIEW.md), [Phase 60](docs/reviews/PHASE-60-REVIEW.md) e [Phase 59](docs/reviews/PHASE-59-REVIEW.md).
 
 **Phase 56 — correção do lifetime do diretório temporário do Caddyfile.** A limpeza prematura removida do guia Raspberry Pi permite concluir cópia e instalação do Caddyfile; CI remoto e hardware continuam não validados. Ver [review da Phase 56](docs/reviews/PHASE-56-REVIEW.md).
 
@@ -93,6 +93,7 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 56 | Caddyfile temporary-directory lifetime | ✅ Local validation; CI blocked; hardware pending |
 | 58 | Detached release signature verification | ✅ Local tests; workflow key management pending |
 | 59 | Release archive resource limits | ✅ Local tests; CI and hardware pending |
+| 61 | Fail-closed release archive input | 🔄 Local tests; CI and hardware pending |
 
 ## Repository Structure
 
