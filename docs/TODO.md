@@ -12,7 +12,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Criar `scripts/verify-release-signature.py` com verificação detached Ed25519 fail-closed.
 - [x] Adicionar testes offline para assinatura válida, artefato alterado, assinatura ausente e chave symlink.
-- [ ] Integrar assinatura ao workflow após provisionar chave fora do repositório e definir fingerprint por canal independente.
+- [x] Integrar geração/publicação de assinatura no workflow usando secret externo `OPENIEM_RELEASE_SIGNING_KEY_PEM`; chave nunca entra no repositório.
+- [ ] Provisionar chave Ed25519 no GitHub Actions e distribuir fingerprint/chave pública por canal independente.
 - [ ] Desbloquear CI remoto antes de merge/release.
 
 ## Phase 57 — validação de archive no instalador e origem HTTPS

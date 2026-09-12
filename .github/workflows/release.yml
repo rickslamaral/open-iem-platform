@@ -176,8 +176,25 @@ jobs:
           tar -czf "${DIR}.tar.gz" "${DIR}"
           python3 scripts/validate-release-archive.py "${DIR}.tar.gz" api-server open-iem-admin
           sha256sum "${DIR}.tar.gz" > "${DIR}.tar.gz.sha256"
+          test -n "${OPENIEM_RELEASE_SIGNING_KEY_PEM:-}" || {
+            printf '%s\n' 'Missing OPENIEM_RELEASE_SIGNING_KEY_PEM' >&2
+            exit 1
+          }
+          KEY_FILE=$(mktemp)
+          trap 'rm -f -- "$KEY_FILE"' EXIT
+          chmod 600 "$KEY_FILE"
+          printf '%s' "${OPENIEM_RELEASE_SIGNING_KEY_PEM}" > "$KEY_FILE"
+          openssl pkey -in "$KEY_FILE" -text -noout 2>/dev/null | grep -q '^ED25519' || {
+            printf '%s\n' 'Signing key must be Ed25519' >&2
+            exit 1
+          }
+          openssl pkeyutl -sign -inkey "$KEY_FILE" \
+            -in "${DIR}.tar.gz" -out "${DIR}.tar.gz.sig"
+          test -s "${DIR}.tar.gz.sig"
           echo "Artefact: ${DIR}.tar.gz"
           cat "${DIR}.tar.gz.sha256"
+        env:
+          OPENIEM_RELEASE_SIGNING_KEY_PEM: ${{ secrets.OPENIEM_RELEASE_SIGNING_KEY_PEM }}
 
       - name: Attest server archive provenance
         uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
@@ -188,8 +205,10 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: server-x86_64-linux
+          if-no-files-found: error
           path: |
             open-iem-server-*.tar.gz
+            open-iem-server-*.tar.gz.sig
             open-iem-server-*.tar.gz.sha256
             open-iem-server-*-sbom.json
 
@@ -247,8 +266,25 @@ jobs:
           tar -czf "${DIR}.tar.gz" "${DIR}"
           python3 scripts/validate-release-archive.py "${DIR}.tar.gz" api-server open-iem-admin
           sha256sum "${DIR}.tar.gz" > "${DIR}.tar.gz.sha256"
+          test -n "${OPENIEM_RELEASE_SIGNING_KEY_PEM:-}" || {
+            printf '%s\n' 'Missing OPENIEM_RELEASE_SIGNING_KEY_PEM' >&2
+            exit 1
+          }
+          KEY_FILE=$(mktemp)
+          trap 'rm -f -- "$KEY_FILE"' EXIT
+          chmod 600 "$KEY_FILE"
+          printf '%s' "${OPENIEM_RELEASE_SIGNING_KEY_PEM}" > "$KEY_FILE"
+          openssl pkey -in "$KEY_FILE" -text -noout 2>/dev/null | grep -q '^ED25519' || {
+            printf '%s\n' 'Signing key must be Ed25519' >&2
+            exit 1
+          }
+          openssl pkeyutl -sign -inkey "$KEY_FILE" \
+            -in "${DIR}.tar.gz" -out "${DIR}.tar.gz.sig"
+          test -s "${DIR}.tar.gz.sig"
           echo "Artefact: ${DIR}.tar.gz"
           cat "${DIR}.tar.gz.sha256"
+        env:
+          OPENIEM_RELEASE_SIGNING_KEY_PEM: ${{ secrets.OPENIEM_RELEASE_SIGNING_KEY_PEM }}
 
       - name: Attest server archive provenance
         uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
@@ -259,8 +295,10 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: server-aarch64-linux
+          if-no-files-found: error
           path: |
             open-iem-server-*.tar.gz
+            open-iem-server-*.tar.gz.sig
             open-iem-server-*.tar.gz.sha256
 
   # ──────────────────────────────────────────────
@@ -337,8 +375,8 @@ jobs:
 
       - name: Flatten artefact directories
         run: |
-          find dist/ -type f \( -name "*.tar.gz" -o -name "*.sha256" \) -exec mv {} dist/ \;
-          ls -lh dist/*.tar.gz dist/*.sha256 2>/dev/null || true
+          find dist/ -type f \( -name "*.tar.gz" -o -name "*.tar.gz.sig" -o -name "*.sha256" \) -exec mv {} dist/ \;
+          ls -lh dist/*.tar.gz dist/*.tar.gz.sig dist/*.sha256 2>/dev/null || true
 
       - name: Extract CHANGELOG excerpt for release notes
         id: notes
@@ -363,6 +401,7 @@ jobs:
           prerelease: false
           files: |
             dist/*.tar.gz
+            dist/*.tar.gz.sig
             dist/*.sha256
             dist/*.json
         env:

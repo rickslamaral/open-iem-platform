@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 58 — verificador local de assinatura Ed25519 para artefatos.** O utilitário e testes offline estão prontos; o workflow ainda não publica assinaturas porque a chave privada não existe no repositório, e CI remoto/hardware continuam não validados. Ver [review da Phase 58](docs/reviews/PHASE-58-REVIEW.md).
+**Fase incremental atual: Phase 58 — assinatura Ed25519 de artefatos integrada ao workflow.** O utilitário, testes offline e geração/publicação de assinaturas detached estão prontos; o workflow exige o secret externo `OPENIEM_RELEASE_SIGNING_KEY_PEM`, e CI remoto/hardware continuam não validados. Ver [review da Phase 58](docs/reviews/PHASE-58-REVIEW.md).
 
 **Phase 56 — correção do lifetime do diretório temporário do Caddyfile.** A limpeza prematura removida do guia Raspberry Pi permite concluir cópia e instalação do Caddyfile; CI remoto e hardware continuam não validados. Ver [review da Phase 56](docs/reviews/PHASE-56-REVIEW.md).
 

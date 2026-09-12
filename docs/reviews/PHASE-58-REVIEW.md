@@ -1,7 +1,7 @@
 # Phase 58 Review — verificação local de assinatura Ed25519
 
 **Data:** 2026-09-12
-**Status:** PASS WITH CONDITIONS — implementação local; não mergeada; CI remoto bloqueado.
+**Status:** PASS WITH CONDITIONS — workflow integrado localmente; secret externo e CI remoto pendentes; não mergeada.
 
 ## Objetivo
 
@@ -27,6 +27,8 @@ Adicionar verificação criptográfica detached para artefatos antes de checksum
 
 ## Limitações e decisão
 
-A assinatura ainda não é produzida pelo workflow: falta provisionar chave privada fora do repositório e definir fingerprint/distribuição autenticada da chave pública. O instalador passa a exigir assinatura, portanto não deve ser usado contra releases históricos sem `.sig`. Hardware Raspberry Pi, Caddy, runtime ARM64 e áudio permanecem não validados.
+- O workflow agora produz e publica `.sig` para archives x86_64 e ARM64, mas exige o secret externo `OPENIEM_RELEASE_SIGNING_KEY_PEM`.
+- O secret é validado como presente e Ed25519; arquivo temporário recebe `trap` de limpeza mesmo após falha.
+- O instalador passa a exigir assinatura, portanto não deve ser usado contra releases históricos sem `.sig`. Fingerprint/distribuição autenticada da chave pública, CI remoto e hardware Raspberry Pi continuam pendentes.
 
-**Decisão:** PASS WITH CONDITIONS. Integrar geração/upload da assinatura somente após definir gestão externa de chave e executar CI real.
+**Decisão:** PASS WITH CONDITIONS. Integração local aprovada; provisionar secret/fingerprint e executar CI real antes de merge ou release.

@@ -4,6 +4,34 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 58 — assinatura Ed25519 no workflow
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Workflow de release assina archives x86_64 e ARM64 com secret externo `OPENIEM_RELEASE_SIGNING_KEY_PEM`.
+- Chave privada usa arquivo temporário, `trap` de limpeza, validação explícita de presença/tipo Ed25519 e saída não vazia.
+- `.sig` é transferido entre jobs e publicado junto com archive/checksum na GitHub Release.
+- README, CHANGELOG, TODO e review da Phase 58 atualizados.
+
+### Verificação
+
+- `make validate`: PASS — Rust, frontends, documentação, PDF e skills.
+- `python3 -m pytest -q tests/test_verify_release_signature.py tests/test_validate_release_archive.py`: PASS — 12 testes.
+- Reviews independentes de segurança, código e testes encontraram gaps de publicação/limpeza; correções aplicadas.
+- CI remoto continua falhando antes dos steps; não há execução remota validada.
+
+### Limitações
+
+Secret ainda precisa ser provisionado no GitHub e fingerprint/chave pública distribuídos por canal independente. Raspberry Pi 5, Caddy, runtime ARM64, PipeWire/ALSA e mídia WebRTC não foram validados.
+
+### Próximo passo
+
+Provisionar secret Ed25519 e chave pública autenticada; desbloquear runner; executar CI real antes de merge/release.
+
+---
+
 ## 2026-09-12 — Phase 58 — verificação local de assinatura Ed25519
 
 **Status:** implementação local; CI remoto bloqueado; não mergeado; não lançado.
