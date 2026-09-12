@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 63 — verificação fail-closed de arquivos assinados.** O verificador Ed25519 valida artifact, assinatura e chave em descritores regulares sem symlink antes de chamar OpenSSL. Execução remota continua bloqueada por runner/permissões; hardware continua não validado. Ver [review da Phase 63](docs/reviews/PHASE-63-REVIEW.md), [Phase 62](docs/reviews/PHASE-62-REVIEW.md), [Phase 61](docs/reviews/PHASE-61-REVIEW.md), [Phase 60](docs/reviews/PHASE-60-REVIEW.md) e [Phase 59](docs/reviews/PHASE-59-REVIEW.md).
+**Fase incremental atual: Phase 63 — verificação fail-closed de arquivos assinados.** O verificador Ed25519 exige `O_NOFOLLOW`, valida artifact, assinatura e chave em descritores regulares não bloqueantes e chama `/usr/bin/openssl` sem depender de `PATH` mutável. Execução validada permanece Linux com `/usr/bin/openssl`; CI remoto continua bloqueado por runner/permissões; hardware continua não validado. Ver [review da Phase 63](docs/reviews/PHASE-63-REVIEW.md), [Phase 62](docs/reviews/PHASE-62-REVIEW.md), [Phase 61](docs/reviews/PHASE-61-REVIEW.md), [Phase 60](docs/reviews/PHASE-60-REVIEW.md) e [Phase 59](docs/reviews/PHASE-59-REVIEW.md).
 
 **Phase 56 — correção do lifetime do diretório temporário do Caddyfile.** A limpeza prematura removida do guia Raspberry Pi permite concluir cópia e instalação do Caddyfile; CI remoto e hardware continuam não validados. Ver [review da Phase 56](docs/reviews/PHASE-56-REVIEW.md).
 

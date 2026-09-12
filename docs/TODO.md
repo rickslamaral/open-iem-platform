@@ -10,6 +10,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## Phase 63 — verificação fail-closed de arquivos assinados
 
+- [x] Exigir `O_NOFOLLOW` sem fallback permissivo, abrir com `O_NONBLOCK` e usar `/usr/bin/openssl` sem resolução por `PATH`.
 - [x] Abrir artifact, assinatura e chave com `O_NOFOLLOW` e manter descritores estáveis durante OpenSSL.
 - [x] Rejeitar symlink e entradas não regulares para todos os arquivos verificados.
 - [x] Adicionar testes offline para symlink em artifact e assinatura.

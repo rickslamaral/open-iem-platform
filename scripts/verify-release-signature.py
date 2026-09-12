@@ -9,11 +9,20 @@ import stat
 import subprocess
 
 
+_OPENSSL = "/usr/bin/openssl"
+
+
 def _open_regular(path: pathlib.Path, label: str) -> int:
+    nofollow = getattr(os, "O_NOFOLLOW", None)
+    if nofollow is None:
+        raise RuntimeError("platform does not support fail-closed symlink verification")
     try:
         fd = os.open(
             path,
-            os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_NOFOLLOW", 0),
+            os.O_RDONLY
+            | os.O_CLOEXEC
+            | os.O_NONBLOCK
+            | nofollow,
         )
     except OSError as exc:
         raise ValueError(f"{label} must be a regular file: {path}") from exc
@@ -37,7 +46,7 @@ def verify(artifact: pathlib.Path, signature: pathlib.Path, public_key: pathlib.
         public_key_ref = f"/proc/self/fd/{public_key_fd}"
         try:
             key_type = subprocess.run(
-                ["openssl", "pkey", "-pubin", "-in", public_key_ref, "-text", "-noout"],
+                [_OPENSSL, "pkey", "-pubin", "-in", public_key_ref, "-text", "-noout"],
                 check=False,
                 capture_output=True,
                 text=True,
@@ -48,7 +57,7 @@ def verify(artifact: pathlib.Path, signature: pathlib.Path, public_key: pathlib.
                 raise ValueError("public key must be an Ed25519 key")
             result = subprocess.run(
                 [
-                    "openssl",
+                    _OPENSSL,
                     "pkeyutl",
                     "-verify",
                     "-pubin",

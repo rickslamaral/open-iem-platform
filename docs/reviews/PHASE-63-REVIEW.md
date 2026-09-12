@@ -1,5 +1,13 @@
 # Phase 63 Review — verificação fail-closed de arquivos assinados
 
+## Follow-up de revisão
+
+- `O_NOFOLLOW` agora é obrigatório; ausência da flag falha fechado, sem aceitar symlink.
+- `O_NONBLOCK` impede que FIFO/dispositivo especial bloqueie antes do `fstat()`.
+- `/usr/bin/openssl` remove dependência de `PATH` controlável.
+- Review independente pós-correção: **PASS**, sem concerns de segurança ou erros lógicos.
+
+
 **Data:** 2026-09-12
 **Status:** PASS WITH CONDITIONS — validação local concluída; CI remoto, release e hardware pendentes.
 

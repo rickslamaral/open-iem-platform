@@ -4,6 +4,34 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 63 follow-up — fechamento de gaps fail-closed
+
+**Status:** correção local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Removido fallback que tratava ausência de `O_NOFOLLOW` como zero; plataforma sem essa proteção falha explicitamente.
+- Adicionado `O_NONBLOCK` antes da validação `fstat()`, evitando bloqueio em FIFO ou dispositivo especial controlado por atacante.
+- OpenSSL agora é chamado por `/usr/bin/openssl`, eliminando substituição via `PATH`.
+
+### Verificação
+
+- Review independente pós-correção: PASS, sem concerns de segurança ou erros lógicos.
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 21 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `make validate`: PASS — Rust, frontends, documentação, PDF e skills.
+- `git diff --check`: PASS.
+
+### Limitações
+
+Execução validada permanece Linux com `/usr/bin/openssl`; CI remoto, release, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+### Próximo passo
+
+Executar gates locais finais, publicar branch e revalidar CI remoto. Não fazer merge ou release sem runner executável e gates reais.
+
+---
+
 ## 2026-09-12 — Phase 63 — verificação fail-closed de arquivos assinados
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
