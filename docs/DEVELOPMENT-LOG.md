@@ -4,6 +4,22 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 73 — Guia do Músico alinhado ao signaling HTTP
+
+**Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Guia documenta sequência real de `POST /api/v1/audio/offer` e `POST /api/v1/audio/ice-candidate`.
+- Guia distingue control plane/Sans-IO validado de mídia `SIMULATED`.
+- PDF será regenerado e validado pelo gate documental.
+
+### Limitações
+
+CI remoto, release, mídia WebRTC, PipeWire/ALSA, Raspberry Pi 5 e runtime Windows continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 72 — integração HTTP de signaling
 
 **Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

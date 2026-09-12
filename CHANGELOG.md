@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 73 Musician Guide (2026-09-12)
+- Guia e PDF alinhados ao fluxo HTTP real de signaling; mídia continua `SIMULATED`.
+
 ### Added — Phase 72 HTTP signaling integration (2026-09-12)
 - Teste autenticado cobre negociação SDP seguida de trickle ICE nas rotas HTTP reais; áudio permanece `SIMULATED`.
 
