@@ -4,6 +4,36 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 63 — verificação fail-closed de arquivos assinados
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Verificador Ed25519 abre artifact, assinatura e chave com `O_NOFOLLOW` e mantém descritores estáveis durante OpenSSL.
+- Testes offline rejeitam symlink em artifact e assinatura.
+- Erro de execução do OpenSSL falha explicitamente, sem acessar resultado não inicializado.
+- Atualizados README, START, CHANGELOG, TODO e review da Phase 63.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 21 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `git diff --check`: PASS.
+- Review independente encontrou e corrigiu falha no caminho de `OSError` do subprocesso.
+
+### Limitações
+
+Scanner `/root/scan_patterns.py` não disponível neste ambiente. CI remoto continua falhando antes dos steps. Release, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+### Próximo passo
+
+Executar gates locais finais, publicar branch e revalidar CI remoto. Não fazer merge ou release sem runner executável e gates reais.
+
+---
+
+---
+
 ## 2026-09-12 — Phase 62 — testes de segurança Python no CI
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.

@@ -3,46 +3,77 @@
 from __future__ import annotations
 
 import argparse
+import os
 import pathlib
+import stat
 import subprocess
 
 
-def verify(artifact: pathlib.Path, signature: pathlib.Path, public_key: pathlib.Path) -> None:
-    for path, label in ((artifact, "artifact"), (signature, "signature"), (public_key, "public key")):
-        if not path.is_file() or path.is_symlink():
-            raise ValueError(f"{label} must be a regular file: {path}")
+def _open_regular(path: pathlib.Path, label: str) -> int:
     try:
-        key_type = subprocess.run(
-            ["openssl", "pkey", "-pubin", "-in", str(public_key), "-text", "-noout"],
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=15,
+        fd = os.open(
+            path,
+            os.O_RDONLY | os.O_CLOEXEC | getattr(os, "O_NOFOLLOW", 0),
         )
-        if key_type.returncode != 0 or not (key_type.stdout or "").lstrip().startswith("ED25519 Public-Key"):
-            raise ValueError("public key must be an Ed25519 key")
-        result = subprocess.run(
-            [
-                "openssl",
-                "pkeyutl",
-                "-verify",
-                "-pubin",
-                "-inkey",
-                str(public_key),
-                "-sigfile",
-                str(signature),
-                "-in",
-                str(artifact),
-            ],
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-    except FileNotFoundError as exc:
-        raise RuntimeError("openssl is required to verify release signatures") from exc
-    except subprocess.TimeoutExpired as exc:
-        raise RuntimeError("signature verification timed out") from exc
+    except OSError as exc:
+        raise ValueError(f"{label} must be a regular file: {path}") from exc
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            raise ValueError(f"{label} must be a regular file: {path}")
+        return fd
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def verify(artifact: pathlib.Path, signature: pathlib.Path, public_key: pathlib.Path) -> None:
+    descriptors: list[int] = []
+    try:
+        for path, label in ((artifact, "artifact"), (signature, "signature"), (public_key, "public key")):
+            descriptors.append(_open_regular(path, label))
+        artifact_fd, signature_fd, public_key_fd = descriptors
+        artifact_ref = f"/proc/self/fd/{artifact_fd}"
+        signature_ref = f"/proc/self/fd/{signature_fd}"
+        public_key_ref = f"/proc/self/fd/{public_key_fd}"
+        try:
+            key_type = subprocess.run(
+                ["openssl", "pkey", "-pubin", "-in", public_key_ref, "-text", "-noout"],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=15,
+                pass_fds=tuple(descriptors),
+            )
+            if key_type.returncode != 0 or not (key_type.stdout or "").lstrip().startswith("ED25519 Public-Key"):
+                raise ValueError("public key must be an Ed25519 key")
+            result = subprocess.run(
+                [
+                    "openssl",
+                    "pkeyutl",
+                    "-verify",
+                    "-pubin",
+                    "-inkey",
+                    public_key_ref,
+                    "-sigfile",
+                    signature_ref,
+                    "-in",
+                    artifact_ref,
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=15,
+                pass_fds=tuple(descriptors),
+            )
+        except FileNotFoundError as exc:
+            raise RuntimeError("openssl is required to verify release signatures") from exc
+        except OSError as exc:
+            raise RuntimeError("unable to execute openssl") from exc
+        except subprocess.TimeoutExpired as exc:
+            raise RuntimeError("signature verification timed out") from exc
+    finally:
+        for fd in descriptors:
+            os.close(fd)
     if result.returncode != 0:
         detail = (result.stderr or result.stdout).strip()
         raise ValueError(f"release signature verification failed{': ' + detail if detail else ''}")

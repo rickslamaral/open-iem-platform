@@ -111,6 +111,38 @@ def test_non_ed25519_public_key_fails(tmp_path):
         raise AssertionError("non-Ed25519 public key accepted")
 
 
+def test_symlink_artifact_fails_closed(tmp_path):
+    private, public = make_keys(tmp_path)
+    artifact_target = tmp_path / "artifact-target.tar.gz"
+    artifact = tmp_path / "artifact.tar.gz"
+    signature = tmp_path / "artifact.tar.gz.sig"
+    artifact_target.write_bytes(b"release archive")
+    sign(private, artifact_target, signature)
+    artifact.symlink_to(artifact_target)
+    try:
+        MODULE.verify(artifact, signature, public)
+    except ValueError as exc:
+        assert "artifact must be a regular file" in str(exc)
+    else:
+        raise AssertionError("symlink artifact accepted")
+
+
+def test_symlink_signature_fails_closed(tmp_path):
+    private, public = make_keys(tmp_path)
+    artifact = tmp_path / "artifact.tar.gz"
+    signature_target = tmp_path / "signature-target.sig"
+    signature = tmp_path / "artifact.tar.gz.sig"
+    artifact.write_bytes(b"release archive")
+    sign(private, artifact, signature_target)
+    signature.symlink_to(signature_target)
+    try:
+        MODULE.verify(artifact, signature, public)
+    except ValueError as exc:
+        assert "signature must be a regular file" in str(exc)
+    else:
+        raise AssertionError("symlink signature accepted")
+
+
 def test_symlink_public_key_fails(tmp_path):
     private, public = make_keys(tmp_path)
     artifact = tmp_path / "artifact.tar.gz"

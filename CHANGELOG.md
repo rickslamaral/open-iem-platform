@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 63 fail-closed signed-file verification (2026-09-12)
+- Verificador Ed25519 abre artifact, assinatura e chave com `O_NOFOLLOW`, valida descritor regular e mantém o mesmo arquivo aberto durante OpenSSL, evitando troca TOCTOU.
+- Testes cobrem symlink em artifact e assinatura; erro de execução do OpenSSL falha de forma explícita.
+- CI remoto e hardware continuam não validados.
+
 ### Security — Phase 62 Python security tests in CI (2026-09-12)
 - Workflow CI ganhou job dedicado para executar testes offline dos validadores de archive e assinatura com Python/pytest.
 - Execução remota e hardware continuam não validados.
