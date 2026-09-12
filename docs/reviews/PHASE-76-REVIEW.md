@@ -25,7 +25,7 @@ A validação continua rejeitando symlinks, arquivos especiais, traversal, nomes
 
 ## Limitações
 
-CI remoto segue falhando antes dos steps (`runner_id=0`, `steps=[]`). Archives, release, mídia WebRTC, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados em ambiente real.
+CI remoto segue falhando antes dos steps (`runner_id=0`, `steps=[]`). Os runs mais recentes são `34724845040` (PR) e `34724842446` (push); nenhum job executou steps. Archives, release, mídia WebRTC, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados em ambiente real.
 
 ## Impacto de release
 

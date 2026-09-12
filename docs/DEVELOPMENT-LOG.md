@@ -6,6 +6,22 @@ All significant milestones documented here in reverse chronological order.
 
 ## 2026-09-12 — Phase 76 CI status refresh
 
+**Status:** PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Verificação real
+
+- Push run `34724842446` e PR run `34724845040` falharam em aproximadamente 3–4 segundos, antes de qualquer step executável.
+- Jobs consultados retornaram `runner_id=0` e `steps=[]`; nenhum teste ou build remoto executou.
+- Working tree permaneceu limpo antes desta atualização documental.
+
+### Decisão
+
+Não fazer merge ou release. Causa continua classificada como `RUNNER / PLATFORM / CONFIGURATION FAILURE`; gates locais permanecem aprovados; hardware Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 76 CI status refresh
+
 **Status:** commit `57ec4db` publicado; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
 
 ### Verificação real

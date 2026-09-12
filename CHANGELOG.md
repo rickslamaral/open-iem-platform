@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 76 CI status refresh (2026-09-12)
+- Runs `34724845040` (PR) e `34724842446` (push) falharam antes dos steps; jobs consultados retornaram `runner_id=0` e `steps=[]`. Nenhum teste ou build remoto executou; merge e release continuam bloqueados.
+
 ### Security — Phase 76 archive payload validation (2026-09-12)
 - O validador consome payload completo de arquivos regulares em chunks limitados e rejeita membros truncados; `tarfile` limita leitura ao tamanho declarado pelo header.
 - Teste offline cobre payload de membro truncado; CI remoto, release e hardware continuam não validados.
