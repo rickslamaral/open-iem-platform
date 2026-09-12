@@ -44,7 +44,13 @@ def validate(archive: pathlib.Path, required: set[str]) -> None:
             raise ValueError("archive exceeds compressed size limit")
         with tarfile.open(fileobj=archive_file, mode="r:gz") as bundle:
             members = []
+            total_uncompressed_bytes = 0
             for member in bundle:
+                if member.size < 0 or member.size > MAX_MEMBER_BYTES:
+                    raise ValueError(f"archive member exceeds size limit: {member.name}")
+                total_uncompressed_bytes += member.size
+                if total_uncompressed_bytes > MAX_UNCOMPRESSED_BYTES:
+                    raise ValueError("archive exceeds uncompressed size limit")
                 members.append(member)
                 if len(members) > MAX_MEMBERS:
                     raise ValueError("archive exceeds member count limit")
@@ -57,14 +63,6 @@ def validate(archive: pathlib.Path, required: set[str]) -> None:
                 raise ValueError(f"unsafe archive path: {name}")
             if posixpath.normpath(name) != name:
                 raise ValueError(f"non-canonical archive path: {name}")
-
-        total_uncompressed_bytes = 0
-        for member in members:
-            if member.size < 0 or member.size > MAX_MEMBER_BYTES:
-                raise ValueError(f"archive member exceeds size limit: {member.name}")
-            total_uncompressed_bytes += member.size
-        if total_uncompressed_bytes > MAX_UNCOMPRESSED_BYTES:
-            raise ValueError("archive exceeds uncompressed size limit")
 
         roots = {member.name.split("/", 1)[0] for member in members}
         if len(roots) != 1 or "" in roots:

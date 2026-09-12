@@ -205,6 +205,28 @@ def test_member_size_limit_fails(tmp_path):
             raise AssertionError("archive exceeding member size accepted")
 
 
+def test_member_size_limit_fails_before_consuming_following_members(tmp_path):
+    archive = tmp_path / "too-large-first-member.tar.gz"
+    archive.touch()
+    oversized = SimpleNamespace(
+        name="open-iem-server-1.2.3-aarch64-linux/api-server",
+        size=MODULE.MAX_MEMBER_BYTES + 1,
+    )
+
+    def members():
+        yield oversized
+        raise AssertionError("validator consumed archive member after size limit failure")
+
+    with patch.object(MODULE.tarfile, "open") as open_archive:
+        open_archive.return_value.__enter__.return_value.__iter__.return_value = members()
+        try:
+            MODULE.validate(archive, {"api-server", "open-iem-admin"})
+        except ValueError as exc:
+            assert "size limit" in str(exc)
+        else:
+            raise AssertionError("archive exceeding member size accepted")
+
+
 def test_unknown_required_basename_fails_cli(tmp_path):
     archive = tmp_path / "valid.tar.gz"
     make_archive(archive, valid_members())

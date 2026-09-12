@@ -8,9 +8,17 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34695498591` (PR) e `34695497246` (push) falharam antes dos steps; sem CI remoto não há release `v0.3.1`.
 
+## Phase 65 — limites incrementais durante leitura de archives
+
+- [x] Aplicar limites por membro e total descomprimido antes de consumir membros posteriores.
+- [x] Adicionar teste offline de rejeição imediata para membro oversized.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
 ## Phase 64 — tratamento fail-closed da portabilidade do validador
 
 - [x] Converter ausência de `O_NOFOLLOW` em erro CLI controlado, sem traceback.
+- [x] Validação local concluída.
 - [ ] Desbloquear CI remoto antes de merge/release.
 - [ ] Validar instalação em Raspberry Pi 5 real.
 

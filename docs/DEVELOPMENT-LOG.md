@@ -4,6 +4,74 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 65 — limites incrementais durante leitura de archives
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador aplica limite por membro e limite total descomprimido durante o primeiro loop do `tarfile`.
+- Rejeição de entrada oversized não consome membros posteriores.
+- Adicionado teste offline para confirmar falha imediata.
+- README, CHANGELOG, TODO e review da Phase 65 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 23 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `git diff --check`: PASS.
+- `make validate`: PASS — Rust, frontends, documentação, PDF e skills.
+- Review independente: PASS, sem concerns de segurança ou erros lógicos de alta confiança; recomendação de validação incremental aplicada.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e release continuam não validados.
+
+---
+
+---
+
+## 2026-09-12 — Phase 64 — tratamento fail-closed da portabilidade do validador
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- CLI de `scripts/validate-release-archive.py` captura `RuntimeError` de plataforma sem `O_NOFOLLOW` e retorna código 1 controlado.
+- Evita traceback e mantém validação fail-closed em plataformas sem a proteção necessária.
+- README, CHANGELOG e TODO atualizados.
+
+### Verificação
+
+- Testes Python dos validadores: PASS — 22 testes.
+- `make validate`: PASS.
+- Review independente pendente nesta rodada.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Último PR run: `34698206761`; jobs retornaram `steps=[]`. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e release continuam não validados.
+
+---
+
+---
+
+## 2026-09-12 — CI status after Phase 63 archive verifier portability
+
+**Status:** commit `c535eac` publicado; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Verificação real
+
+- Run push `34695497246` e PR run `34695498591` terminaram `failure` em todos os 10 jobs.
+- Todos os jobs retornaram `steps=[]`, falhando antes da execução do runner.
+- Gates locais no commit passaram: `make validate`, 22 testes Python dos validadores e `git diff --check`.
+
+### Decisão
+
+Não fazer merge, release ou alegação de CI verde. Bloqueio segue em GitHub Actions/runner/permissões; Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+
 ## 2026-09-12 — Phase 64 — tratamento fail-closed da portabilidade do validador
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
