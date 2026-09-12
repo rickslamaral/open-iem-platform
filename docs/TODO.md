@@ -8,6 +8,13 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34699835285` (PR) e `34699832511` (push) falharam antes dos steps; sem CI remoto não há release `v0.3.1`.
 
+## Phase 69 — validação do bundle final de release
+
+- [x] Validar conjunto final, versão, checksums, assinaturas server e arquivos inesperados antes da publicação.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Provisionar e distribuir chave pública Ed25519 por canal independente.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
 ## Phase 68 — nomes Windows e limites de assinatura
 
 - [x] Rejeitar caracteres inválidos, pontos/espaços finais e nomes reservados Windows em cada componente de archive.

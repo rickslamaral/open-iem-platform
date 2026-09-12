@@ -375,8 +375,30 @@ jobs:
 
       - name: Flatten artefact directories
         run: |
-          find dist/ -type f \( -name "*.tar.gz" -o -name "*.tar.gz.sig" -o -name "*.sha256" \) -exec mv {} dist/ \;
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            target="dist/$(basename -- "${file}")"
+            if [ "${file}" != "${target}" ] && [ -e "${target}" ]; then
+              printf 'duplicate artifact name: %s\n' "${target}" >&2
+              exit 1
+            fi
+            if [ "${file}" != "${target}" ]; then
+              mv -- "${file}" "${target}"
+            fi
+          done < <(find dist/ -mindepth 2 -type f \( -name "*.tar.gz" -o -name "*.tar.gz.sig" -o -name "*.sha256" -o -name "*-sbom.json" \) -print0)
+          find dist/ -mindepth 1 -depth -type d -empty -delete
           ls -lh dist/*.tar.gz dist/*.tar.gz.sig dist/*.sha256 2>/dev/null || true
+          test -z "$(find dist/ -mindepth 1 -type d -print -quit)" || {
+            printf '%s\n' 'unexpected non-empty artifact directory' >&2
+            exit 1
+          }
+
+      - name: Validate assembled release bundle
+        env:
+          RELEASE_VERSION: ${{ needs.validate-version.outputs.version }}
+        run: |
+          set -euo pipefail
+          python3 scripts/validate-release-bundle.py dist "${RELEASE_VERSION}"
 
       - name: Extract CHANGELOG excerpt for release notes
         id: notes

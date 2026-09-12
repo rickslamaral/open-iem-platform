@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 69 final release bundle validation (2026-09-12)
+- O workflow valida o bundle consolidado antes da publicação: archives server x86_64/ARM64 e web musician/engineer devem corresponder à versão da tag.
+- Checksums são recalculados com abertura protegida contra symlink; assinaturas server ausentes/vazias e arquivos inesperados bloqueiam a publicação.
+- Testes offline: 39 aprovados. CI remoto, hardware e release continuam não validados.
+
 ### Security — Phase 68 Windows archive names and signature input limits (2026-09-12)
 - O validador rejeita caracteres inválidos, pontos/espaços finais e nomes reservados Windows em todos os componentes do caminho.
 - O verificador rejeita assinatura ou chave pública acima de 64 KiB antes de executar OpenSSL.

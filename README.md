@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 68 — limites e nomes Windows no fluxo de release.** O validador rejeita separadores `\\`, caracteres de controle, caracteres inválidos, pontos/espaços finais e nomes reservados Windows em cada componente, além de raiz `.`/`..` ou raiz não canônica, membro oversized e total descomprimido excedido antes de consumir membros seguintes. O verificador Ed25519 limita assinatura e chave pública a 64 KiB; ambos exigem `O_NOFOLLOW`, validam arquivos regulares em descritores não bloqueantes e o verificador chama `/usr/bin/openssl` sem depender de `PATH` mutável. Execução validada permanece Linux com `/usr/bin/openssl`; CI remoto continua bloqueado por runner/permissões; hardware continua não validado. Ver [review da Phase 67](docs/reviews/PHASE-67-REVIEW.md), [Phase 66](docs/reviews/PHASE-66-REVIEW.md) e [Phase 65](docs/reviews/PHASE-65-REVIEW.md).
+**Fase incremental atual: Phase 69 — validação do bundle final de release.** O validador rejeita separadores `\\`, caracteres de controle, caracteres inválidos, pontos/espaços finais e nomes reservados Windows em cada componente, além de raiz `.`/`..` ou raiz não canônica, membro oversized e total descomprimido excedido antes de consumir membros seguintes. O bundle final agora exige archives server x86_64/ARM64 e web musician/engineer na versão da tag, checksum correto, assinatura server não vazia e rejeita arquivos inesperados antes da publicação. O verificador Ed25519 limita assinatura e chave pública a 64 KiB; ambos exigem `O_NOFOLLOW`, validam arquivos regulares em descritores não bloqueantes e o verificador chama `/usr/bin/openssl` sem depender de `PATH` mutável. Execução validada permanece Linux; CI remoto continua bloqueado por runner/permissões; hardware continua não validado. Ver [review da Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
 
 **Phase 56 — correção do lifetime do diretório temporário do Caddyfile.** A limpeza prematura removida do guia Raspberry Pi permite concluir cópia e instalação do Caddyfile; CI remoto e hardware continuam não validados. Ver [review da Phase 56](docs/reviews/PHASE-56-REVIEW.md).
 
@@ -100,7 +100,8 @@ Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/r
 | 65 | Incremental archive resource validation | ✅ Local validation; CI and hardware pending |
 | 66 | Canonical archive root validation | ✅ Local validation; CI and hardware pending |
 | 67 | Cross-platform safe archive names | ✅ Local validation; CI and hardware pending |
-| 68 | Windows archive names and signature input limits | 🔄 Local implementation; CI and hardware pending |
+| 68 | Windows archive names and signature input limits | ✅ Local validation; CI and hardware pending |
+| 69 | Final release bundle validation | 🔄 Local implementation; CI and hardware pending |
 
 ## Repository Structure
 

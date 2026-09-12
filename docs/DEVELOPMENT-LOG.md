@@ -4,6 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 69 — validação do bundle final de release
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Novo `scripts/validate-release-bundle.py` valida conjunto final após download dos artefatos.
+- Exige archives server x86_64/ARM64 e web musician/engineer na versão da tag.
+- Recalcula checksums com descritores `O_NOFOLLOW`, exige assinaturas server não vazias e rejeita arquivos inesperados, symlinks ou não regulares.
+- Workflow executa gate antes de `Create GitHub Release`.
+- README, CHANGELOG, TODO e review da Phase 69 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_bundle.py tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 39 testes.
+- `python3 -m py_compile scripts/validate-release-bundle.py`: PASS.
+- Parse YAML local do workflow: PASS.
+- `git diff --check`: PASS.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Nenhuma release foi publicada. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e runtime Windows continuam não validados.
+
+---
+
+---
+
 ## 2026-09-12 — Phase 68 — nomes Windows e limites de assinatura
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
