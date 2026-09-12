@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — Phase 69 CI status refresh (2026-09-12)
+- Runs `34711083274` (PR) e `34711080316` (push) falharam antes dos steps; os 10 jobs do run PR retornaram `runner_id=0` e `steps=[]`. Nenhum teste ou build remoto executou; merge e release continuam bloqueados.
+
 ### Security — Phase 69 final release bundle validation (2026-09-12)
 - O workflow valida o bundle consolidado antes da publicação: archives server x86_64/ARM64 e web musician/engineer devem corresponder à versão da tag.
 - Checksums são recalculados com abertura protegida contra symlink; assinaturas server ausentes/vazias e arquivos inesperados bloqueiam a publicação.

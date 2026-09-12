@@ -6,7 +6,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## BLOCKER
 
-- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34699835285` (PR) e `34699832511` (push) falharam antes dos steps; sem CI remoto não há release `v0.3.1`.
+- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34711083274` (PR) e `34711080316` (push) falharam antes dos steps; jobs retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
 
 ## Phase 69 — validação do bundle final de release
 
