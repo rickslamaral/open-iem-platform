@@ -4,6 +4,23 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 76 — leitura integral de payloads de archive
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Validador de archive consome payload completo de arquivos regulares em chunks de até 1 MiB após validar headers.
+- Payload truncado ou ausente falha fechado; `tarfile` limita leitura ao tamanho declarado pelo header.
+- Teste offline cobre archive gzip truncado durante a leitura.
+- README, CHANGELOG, TODO e review da Phase 76 atualizados.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões: run `34723511315` falhou antes dos steps, com jobs sem steps executados. Nenhum teste/build remoto executou. Release, ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 75 — fonte única de versão e gate reproduzível
 
 **Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

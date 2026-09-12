@@ -1,7 +1,9 @@
+import gzip
 import importlib.machinery
 import importlib.util
-import tarfile
+import io
 import stat
+import tarfile
 from pathlib import Path
 from types import SimpleNamespace
 from typing import cast
@@ -42,6 +44,45 @@ def test_valid_archive_passes(tmp_path):
     archive = tmp_path / "valid.tar.gz"
     make_archive(archive, valid_members())
     MODULE.validate(archive, {"api-server", "open-iem-admin"})
+
+
+def test_member_payload_consumer_rejects_short_read():
+    member = tarfile.TarInfo("release/api-server")
+    member.size = 2
+
+    class Bundle:
+        @staticmethod
+        def extractfile(_member):
+            return io.BytesIO(b"x")
+
+    try:
+        MODULE._consume_member_payload(Bundle(), member)
+    except ValueError as exc:
+        assert "truncated archive member payload" in str(exc)
+    else:
+        raise AssertionError("short member payload accepted")
+
+
+def test_truncated_member_payload_fails_closed(tmp_path):
+    archive = tmp_path / "truncated.tar.gz"
+    root = "open-iem-server-1.2.3-aarch64-linux"
+    payload = io.BytesIO()
+    info = tarfile.TarInfo(f"{root}/")
+    info.type = tarfile.DIRTYPE
+    payload.write(info.tobuf())
+    for name in ("api-server", "open-iem-admin"):
+        info = tarfile.TarInfo(f"{root}/{name}")
+        info.size = 1024
+        payload.write(info.tobuf())
+        payload.write(b"x")
+    archive.write_bytes(gzip.compress(payload.getvalue()))
+
+    try:
+        MODULE.validate(archive, {"api-server", "open-iem-admin"})
+    except (ValueError, tarfile.TarError, EOFError) as exc:
+        assert any(marker in str(exc).lower() for marker in ("truncat", "end-of-stream", "unexpected end"))
+    else:
+        raise AssertionError("truncated archive accepted")
 
 
 def test_explicit_root_directory_required(tmp_path):

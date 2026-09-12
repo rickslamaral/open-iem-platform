@@ -46,6 +46,18 @@ def _validate_member_name(name: str) -> None:
             raise ValueError(f"unsafe cross-platform archive path: {name!r}")
 
 
+def _consume_member_payload(bundle: tarfile.TarFile, member: tarfile.TarInfo) -> None:
+    extracted = bundle.extractfile(member)
+    if extracted is None:
+        raise ValueError(f"archive member payload is unreadable: {member.name}")
+    consumed = 0
+    while consumed < member.size:
+        chunk = extracted.read(min(1024 * 1024, member.size - consumed))
+        if not chunk:
+            raise ValueError(f"truncated archive member payload: {member.name}")
+        consumed += len(chunk)
+
+
 def validate(archive: pathlib.Path, required: set[str]) -> None:
     nofollow = getattr(os, "O_NOFOLLOW", None)
     if nofollow is None:
@@ -85,6 +97,10 @@ def validate(archive: pathlib.Path, required: set[str]) -> None:
                     raise ValueError("archive exceeds member count limit")
             if not members:
                 raise ValueError("archive is empty")
+
+            for member in members:
+                if member.isfile():
+                    _consume_member_payload(bundle, member)
 
         for member in members:
             name = member.name

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 76 archive payload validation (2026-09-12)
+- O validador consome payload completo de arquivos regulares em chunks limitados e rejeita membros truncados; `tarfile` limita leitura ao tamanho declarado pelo header.
+- Teste offline cobre payload de membro truncado; CI remoto, release e hardware continuam não validados.
+
 ### Changed — Phase 75 version gate (2026-09-12)
 - Adicionado `VERSION` como fonte canônica e `scripts/validate-version.py` para validar SemVer, manifests Rust/frontend e tag de release.
 - Release workflow e `make test` usam gate reproduzível; CI remoto continua bloqueado antes dos steps.
