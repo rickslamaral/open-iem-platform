@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 62 Python security tests in CI (2026-09-12)
+- Workflow CI ganhou job dedicado para executar testes offline dos validadores de archive e assinatura com Python/pytest.
+- Execução remota e hardware continuam não validados.
+
 ### Security — Phase 61 fail-closed archive input (2026-09-12)
 - Validador abre archive com `O_NOFOLLOW`, exige arquivo regular e aplica limite comprimido via `fstat()` no descritor validado.
 - Testes cobrem symlink e diretório como entradas rejeitadas.

@@ -8,6 +8,13 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34669494781` (PR) e `34669493264` (push) falharam antes dos steps; sem CI remoto não há release `v0.3.1`.
 
+## Phase 62 — testes de segurança Python no CI
+
+- [x] Adicionar job CI dedicado para testes dos validadores de archive e assinatura.
+- [x] Fixar `actions/setup-python` por SHA completo.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
 ## Phase 61 — abertura fail-closed de archives
 
 - [x] Abrir archive com `O_NOFOLLOW` e medir tamanho no descritor validado.

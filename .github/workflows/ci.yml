@@ -184,6 +184,23 @@ jobs:
       - name: Run skill validation
         run: bash scripts/validate-skills.sh
 
+  python-security-tests:
+    name: Python Release Archive Security Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        with:
+          python-version: '3.x'
+
+      - name: Install test dependencies
+        run: python -m pip install --disable-pip-version-check 'pytest==9.1.1'
+
+      - name: Test release archive validators
+        run: python -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py
+
   npm-audit:
     name: npm Security Audit
     runs-on: ubuntu-latest

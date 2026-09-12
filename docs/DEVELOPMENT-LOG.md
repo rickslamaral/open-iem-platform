@@ -4,6 +4,26 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 62 — testes de segurança Python no CI
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Adicionado job `python-security-tests` ao workflow CI.
+- Job configura Python, instala `pytest` e executa testes offline de validação de archive e assinatura.
+- Atualizados README, CHANGELOG, TODO e review da Phase 62.
+
+### Limitações
+
+Runs GitHub Actions continuam falhando antes dos steps por runner/permissões. Release, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+### Próximo passo
+
+Executar gates locais finais, publicar branch e revalidar CI remoto. Não fazer merge ou release sem runner executável e gates reais.
+
+---
+
 ## 2026-09-12 — Phase 61 — abertura fail-closed de archives
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
