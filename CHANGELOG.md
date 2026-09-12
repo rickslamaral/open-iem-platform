@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Changed — Phase 69 CI status refresh (2026-09-12)
+- Runs `34711659175` (PR) e `34711656770` (push) falharam antes da execução dos jobs; no PR, os 10 jobs retornaram `runner_id=0` e `steps=[]`. Nenhum teste ou build remoto executou; merge e release continuam bloqueados.
+
+### Changed — Phase 69 CI status refresh (2026-09-12)
 - Runs `34711083274` (PR) e `34711080316` (push) falharam antes dos steps; os 10 jobs do run PR retornaram `runner_id=0` e `steps=[]`. Nenhum teste ou build remoto executou; merge e release continuam bloqueados.
 
 ### Security — Phase 69 final release bundle validation (2026-09-12)

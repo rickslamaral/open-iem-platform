@@ -1,7 +1,7 @@
 # Phase 69 Review — validação do bundle final de release
 
 **Data:** 2026-09-12
-**Status:** PASS WITH CONDITIONS — validação local concluída; runs `34711083274` (PR) e `34711080316` (push) falharam antes dos steps; CI remoto, release e hardware pendentes.
+**Status:** PASS WITH CONDITIONS — validação local concluída; runs `34711659175` (PR) e `34711656770` (push) falharam antes da execução dos jobs; no PR, os 10 jobs retornaram `runner_id=0` e `steps=[]`; CI remoto, release e hardware pendentes.
 
 ## Objetivo
 

@@ -4,6 +4,22 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 69 follow-up — novo bloqueio pré-step do CI
+
+**Status:** commit local de atualização documental; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Verificação real
+
+- Local: `make validate` aprovado; 42 testes dos validadores aprovados; `py_compile` e `git diff --check` aprovados.
+- PR run `34711659175` e push run `34711656770` falharam antes da execução dos jobs; os 10 jobs do PR retornaram `runner_id=0` e `steps=[]`; nenhum teste ou build remoto executou.
+- Consulta detalhada de checks permanece limitada por HTTP 403 do token atual.
+
+### Decisão
+
+Não fazer merge ou release. O bloqueio continua em runner/permissões do GitHub Actions. Hardware Raspberry Pi 5, PipeWire/ALSA, WebRTC, runtime Windows e publicação de release continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 69 follow-up — resultado CI após hardening do upload
 
 **Status:** commit `13ee341` publicado; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
