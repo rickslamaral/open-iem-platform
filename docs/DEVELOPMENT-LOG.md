@@ -16,7 +16,10 @@ All significant milestones documented here in reverse chronological order.
 
 ### Verificação
 
-- Testes, compilação Python e `git diff --check` executados após implementação; resultado final será registrado após os gates completos desta rodada.
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 17 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `make validate`: PASS — Rust (incluindo integração), frontends, PDF, documentação e skills.
+- `git diff --check`: PASS.
 - Reviews independentes identificaram e corrigiram risco MEDIUM de consumo de memória/CPU via `getmembers()`.
 
 ### Limitações
