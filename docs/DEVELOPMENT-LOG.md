@@ -19,6 +19,22 @@ Não fazer merge ou release. O bloqueio continua em runner/permissões do GitHub
 
 ---
 
+## 2026-09-12 — Phase 69 follow-up — novo bloqueio pré-step do CI
+
+**Status:** sem código novo; PR #40 aberto; CI remoto continua bloqueado; não mergeado; não lançado.
+
+### Verificação real
+
+- Push/PR runs `34711080316` e `34711083274` falharam antes dos steps.
+- Nos 10 jobs do run `34711083274`, `runner_id=0` e `steps=[]`; nenhum teste ou build remoto executou.
+- Consulta detalhada de checks permanece limitada por HTTP 403 do token atual.
+
+### Decisão
+
+Não fazer merge ou release. O bloqueio é de runner/permissões do GitHub Actions, não falha reproduzida no código. Gates locais seguem aprovados; Raspberry Pi 5, PipeWire/ALSA, WebRTC, runtime Windows e publicação de release continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 69 follow-up — cobertura do validador de bundle no CI
 
 **Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
