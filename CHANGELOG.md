@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 63 archive verifier portability (2026-09-12)
+- Validador de archives agora falha explicitamente quando o sistema não oferece `O_NOFOLLOW`, removendo fallback permissivo que poderia aceitar symlinks.
+- Teste offline cobre ausência de `O_NOFOLLOW`.
+- CI remoto e hardware continuam não validados.
+
 ### Security — Phase 63 follow-up: fail-closed verifier portability and executable resolution (2026-09-12)
 - Verificador exige `O_NOFOLLOW` no sistema alvo, usa `O_NONBLOCK` antes de validar arquivo regular e chama `/usr/bin/openssl` sem depender de `PATH` mutável.
 - Review independente bloqueou fallback permissivo de symlink e resolução de OpenSSL via `PATH`; correções aplicadas.

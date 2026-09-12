@@ -4,6 +4,27 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 63 archive verifier portability — fechamento do fallback permissivo
+
+**Status:** correção local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador de archives agora exige suporte explícito a `O_NOFOLLOW`; ausência da proteção falha fechado em vez de usar flag zero.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 21 testes.
+- `make validate`: PASS — Rust, frontends, documentação, PDF e skills.
+- `git diff --check`: PASS.
+- Review independente: PASS, sem concerns de segurança ou erros lógicos.
+
+### Limitações
+
+CI remoto continua bloqueado por falha pré-execução do runner. Release, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 63 follow-up — fechamento de gaps fail-closed
 
 **Status:** correção local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
@@ -17,7 +38,7 @@ All significant milestones documented here in reverse chronological order.
 ### Verificação
 
 - Review independente pós-correção: PASS, sem concerns de segurança ou erros lógicos.
-- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 21 testes.
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 22 testes.
 - `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
 - `make validate`: PASS — Rust, frontends, documentação, PDF e skills.
 - `git diff --check`: PASS.

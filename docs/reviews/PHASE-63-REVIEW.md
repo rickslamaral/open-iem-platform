@@ -2,7 +2,7 @@
 
 ## Follow-up de revisão
 
-- `O_NOFOLLOW` agora é obrigatório; ausência da flag falha fechado, sem aceitar symlink.
+- `O_NOFOLLOW` agora é obrigatório no verificador de assinatura e no validador de archives; ausência da flag falha fechado, sem aceitar symlink.
 - `O_NONBLOCK` impede que FIFO/dispositivo especial bloqueie antes do `fstat()`.
 - `/usr/bin/openssl` remove dependência de `PATH` controlável.
 - Review independente pós-correção: **PASS**, sem concerns de segurança ou erros lógicos.
@@ -25,7 +25,7 @@ Eliminar a janela entre checagem de caminho e leitura durante verificação de a
 
 ## Verificação
 
-- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 21 testes.
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 22 testes.
 - `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
 - `git diff --check`: PASS.
 - Review independente: encontrou e corrigiu caminho de `OSError` que deixava `result` não inicializado.

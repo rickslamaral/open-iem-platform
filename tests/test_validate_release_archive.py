@@ -137,6 +137,18 @@ def test_compressed_size_limit_fails(tmp_path):
             raise AssertionError("archive exceeding compressed size accepted")
 
 
+def test_missing_nofollow_support_fails_closed(tmp_path):
+    archive = tmp_path / "archive.tar.gz"
+    archive.touch()
+    with patch.object(MODULE.os, "O_NOFOLLOW", None, create=True):
+        try:
+            MODULE.validate(archive, {"api-server", "open-iem-admin"})
+        except RuntimeError as exc:
+            assert "fail-closed archive verification" in str(exc)
+        else:
+            raise AssertionError("archive validation accepted missing O_NOFOLLOW support")
+
+
 def test_symlink_input_fails_closed(tmp_path):
     target = tmp_path / "target.tar.gz"
     target.write_bytes(b"not an archive")

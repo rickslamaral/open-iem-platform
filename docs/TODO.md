@@ -14,6 +14,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Abrir artifact, assinatura e chave com `O_NOFOLLOW` e manter descritores estáveis durante OpenSSL.
 - [x] Rejeitar symlink e entradas não regulares para todos os arquivos verificados.
 - [x] Adicionar testes offline para symlink em artifact e assinatura.
+- [x] Cobrir ausência de `O_NOFOLLOW` no validador de archives.
 - [ ] Desbloquear CI remoto antes de merge/release.
 - [ ] Validar instalação em Raspberry Pi 5 real.
 

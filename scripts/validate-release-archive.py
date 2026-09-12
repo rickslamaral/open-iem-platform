@@ -18,13 +18,16 @@ MAX_UNCOMPRESSED_BYTES = 512 * 1024 * 1024
 
 
 def validate(archive: pathlib.Path, required: set[str]) -> None:
+    nofollow = getattr(os, "O_NOFOLLOW", None)
+    if nofollow is None:
+        raise RuntimeError("platform does not support fail-closed archive verification")
     try:
         archive_fd = os.open(
             archive,
             os.O_RDONLY
             | os.O_CLOEXEC
             | os.O_NONBLOCK
-            | getattr(os, "O_NOFOLLOW", 0),
+            | nofollow,
         )
     except OSError as exc:
         raise ValueError("archive must be a readable regular file") from exc
