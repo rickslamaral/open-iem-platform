@@ -22,7 +22,7 @@ All significant milestones documented here in reverse chronological order.
 
 ### Limitações
 
-CI remoto falha antes dos steps por runner/permissões. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e release continuam não validados.
+CI remoto falha antes dos steps por runner/permissões. Último PR run: `34698206761`; jobs retornaram `steps=[]`. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e release continuam não validados.
 
 ---
 

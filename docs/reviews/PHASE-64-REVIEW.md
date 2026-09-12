@@ -1,7 +1,7 @@
 # Phase 64 Review — tratamento fail-closed da portabilidade do validador
 
 **Data:** 2026-09-12
-**Status:** em verificação local; CI remoto, release e hardware pendentes.
+**Status:** PASS WITH CONDITIONS — validação local concluída; CI remoto, release e hardware pendentes.
 
 ## Objetivo
 
