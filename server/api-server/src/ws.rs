@@ -448,13 +448,19 @@ async fn handle_socket(
                             continue;
                         }
 
-                        // Fan-out is read-only: no assignment mutation happens here, so
-                        // holding mix_assignment_lock is unnecessary and adds contention
-                        // under load.  A momentary stale read on assignment transition is
-                        // acceptable — the client re-syncs via REST snapshot.
-                        // Filter by role:
-                        //  - Engineer/Admin see deltas for all mixes.
-                        //  - Musician sees deltas only for their assigned mix.
+                        // Lock-free ownership check — fan-out is read-only: no assignment
+                        // mutation happens here. The mutation sender holds the lock for the
+                        // atomic mutation+publish, which serialises order. Receivers do a
+                        // read-only assignment lookup without contending on the lock.
+                        // A momentary stale read on assignment transition is acceptable —
+                        // the client re-syncs via REST snapshot.
+                        // *receiver* side.  A narrow race exists if the musician's assignment
+                        // changes concurrently: they may receive one extra delta for a mix they
+                        // just left, or miss one delta for a mix they just joined.  Both cases
+                        // are harmless — the client reconciles via a REST snapshot whenever it
+                        // receives a `State` revision notice.  Holding the lock here would block
+                        // all inbound assignment mutations while every connected session
+                        // processes each broadcast event, creating O(sessions) contention.
                         let should_forward = match claims.role {
                             Role::Admin | Role::Engineer => true,
                             Role::Musician => musician_assigned_to_mix(
@@ -522,10 +528,10 @@ async fn handle_socket(
                             continue;
                         }
 
-                        // Fan-out is read-only: no assignment mutation happens here, so
-                        // holding mix_assignment_lock is unnecessary and adds contention
-                        // under load.  A momentary stale read on assignment transition is
-                        // acceptable — the client re-syncs via REST snapshot.
+                        // Lock-free ownership check — same rationale as the send-delta fan-out
+                        // above. The mutation sender holds the lock for the atomic
+                        // mutation+publish; receivers do a read-only assignment lookup without
+                        // contending on the lock.
                         let should_forward = match claims.role {
                             Role::Admin | Role::Engineer => true,
                             Role::Musician => musician_assigned_to_mix(

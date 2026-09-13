@@ -16,28 +16,38 @@ All significant milestones documented here in reverse chronological order.
 - `cargo run --example minimal_mix` → all assertions pass; expected output confirmed.
 - `cargo fmt --all -- --check` → PASS.
 - `cargo clippy --all-targets -- -D warnings` → PASS (0 warnings).
-- `cargo test --workspace` → PASS (all existing tests; examples don't add test count).
-- Frontend typecheck/tests/build: musician PASS, engineer PASS.
-- Static scan (secrets, shell injection, eval/exec, pickle) → CLEAN.
+- `cargo test --workspace` → PASS.
+- Frontend typecheck/tests/build and static scan → PASS/CLEAN.
 
 **Limitations:** Audio processing SIMULATED. No hardware.
 
-### 2026-09-13 — fix(ws): mix_assignment_lock removido dos caminhos de fan-out
+### 2026-09-13 — Phase 86 — lock-free broadcast fan-out
 
-**Tarefa:** `LOW: mix_assignment_lock held during DB read in broadcast fan-out`
+**Status:** IMPLEMENTED — local gates pass.
 
-**Implementado:**
-- Removido `mix_assignment_lock` dos dois caminhos de fan-out somente leitura no WebSocket handler (`SendAck` e `MasterAck`).
-- Caminho de mutação (mensagens inbound, linha ~319) mantém o lock sem alteração.
-- Comentários atualizados para justificar stale-read aceito na janela de transição.
+### Implemented
 
-**Verificação:**
-- `cargo fmt --all -- --check` → PASS.
-- `cargo clippy --all-targets -- -D warnings` → PASS.
-- `cargo test --all` → 244 testes aprovados, 0 falhas.
-- Revisão independente: `passed: true`, sem concerns.
+- Removed `mix_assignment_lock` from the two WebSocket broadcast fan-out branches (`send-delta` and `master-delta` receivers) in `server/api-server/src/ws.rs`.
+- Ownership check on receiver side (`musician_assigned_to_mix`) is now a lock-free SQLite read.
+- Lock remains held by mutation senders, preserving mutation ordering.
+- Narrow stale-read race is documented; client reconciles via REST snapshot.
 
-**Limitações:** Stale-read aceito. Hardware SIMULATED.
+### Rationale
+
+Read-only ownership checks no longer contend on the mutation mutex during broadcast fan-out.
+
+### Verification
+
+| Gate | Result |
+|------|--------|
+| `cargo fmt --all -- --check` | ✅ PASS |
+| `cargo clippy --all-targets -- -D warnings` | ✅ PASS |
+| `cargo test --workspace` | ✅ PASS |
+| Independent review | ✅ passed=true |
+
+### Limitations
+
+Release `v0.3.1`, real installer, PipeWire/WebRTC media and Raspberry Pi 5 hardware remain pending.
 
 ---
 
