@@ -4,6 +4,7 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+<<<<<<< HEAD
 ### 2026-09-13 — examples/minimal-mix: runnable mix engine example
 
 **Goal:** Create `examples/` with a minimal mix scenario (LOW backlog item).
@@ -38,6 +39,35 @@ All significant milestones documented here in reverse chronological order.
 - Revisão independente: `passed: true`, sem concerns.
 
 **Limitações:** Stale-read aceito. Hardware SIMULATED.
+=======
+## 2026-09-13 — Phase 86 — lock-free broadcast fan-out
+
+**Status:** IMPLEMENTED — local gates pass; remote CI blocked (runner quota, existing limitation).
+
+### Implemented
+
+- Removed `mix_assignment_lock` from the two WebSocket broadcast fan-out branches (`send-delta` and `master-delta` receivers) in `server/api-server/src/ws.rs`.
+- Ownership check on the receiver side (`musician_assigned_to_mix`) is now a lock-free SQLite read.
+- Lock is still held by all mutation senders (inbound WS `SetSend*`/`SetMaster*` handlers at ~line 319, and HTTP assignment routes), preserving mutation ordering.
+- Comment in code documents the intentional trade-off: a narrow stale-read race may cause one spurious or missed delta per assignment change; client reconciles via REST snapshot on receiving a `State` revision message.
+
+### Rationale
+
+Previously, every connected session held `mix_assignment_lock` while processing each broadcast event, creating O(sessions × events) contention on the same async mutex. Under load with many connected musicians, this serialised all fan-out reads behind inbound assignment mutations. The read-only ownership check does not require the same ordering guarantees as the mutation path.
+
+### Verification
+
+| Gate | Result |
+|------|--------|
+| `cargo fmt --all -- --check` | ✅ PASS |
+| `cargo clippy --all-targets -- -D warnings` | ✅ PASS |
+| `cargo test --workspace` | ✅ PASS (all existing tests) |
+| Independent reviewer subagent | ✅ passed=true, no security concerns, no logic errors |
+
+### Limitations
+
+Remote CI blocked by runner quota/permissions (existing limitation since Phase 45). Release `v0.3.1`, real installer, PipeWire/WebRTC media and Raspberry Pi 5 hardware remain pending.
+>>>>>>> 7af2fdc (perf(ws): remove mix_assignment_lock from broadcast fan-out receivers (Phase 86))
 
 ---
 
