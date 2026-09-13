@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — CI: actions/cache SHA inválido quebrava todos os jobs (2026-09-13)
+- SHA `55cc8345863c7cc4c66a329aec7e433d2d1c52a9` (rotulado erroneamente como v6.1.0) não existe no repositório `actions/cache`, causando falha imediata de todos os 10 jobs de CI.
+- Revertido para SHA válido `6849a6489940f00c2f30c0fb92c6274307ccb58a` (v4.1.2) em ci.yml (2 ocorrências) e release.yml (3 ocorrências).
+- SHA verificado via GitHub API antes do commit; audit local limpo (60 testes Python + testes Rust + cargo audit passando).
+
 ### Security — Phase 82 hardening do instalador (2026-09-13)
 - Instalador exige SHA-1 completo de commit, verifica identidade exata do checkout e recusa branches/tags mutáveis.
 - Build instala artefatos em release versionado com staging limpo; link `current` preserva release anterior quando falha antes do commit.

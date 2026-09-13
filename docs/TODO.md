@@ -11,6 +11,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Exigir SHA completo, verificar checkout exato e recusar fonte mutável antes de build.
 - [x] Publicar release versionado via staging limpo e restaurar `current` em falha de instalação.
 - [x] Validar Node.js >= 20 antes de mutar host ou instalar runtime suportado.
+- [x] Corrigir SHA inválido de `actions/cache` que quebrava todos os 10 jobs de CI (ff0c085).
+- [ ] Confirmar CI remoto verde (run 34756206753 em andamento).
 - [ ] Confirmar instalação real em host Linux dedicado.
 - [ ] Desbloquear release e validar Raspberry Pi 5 real.
 

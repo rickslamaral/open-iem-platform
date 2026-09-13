@@ -4,6 +4,32 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — Hotfix CI — actions/cache SHA inválido
+
+**Status:** MERGED — ff0c085 em main; CI em curso.
+
+### Causa raiz
+
+Commit `8a34d5b` introduziu SHA `55cc8345863c7cc4c66a329aec7e433d2d1c52a9` rotulado como `actions/cache@v6.1.0`. Esse SHA não existe no repositório `actions/cache`; todos os 10 jobs de CI falharam em ~5 segundos sem executar nenhum step.
+
+### Correção
+
+SHA revertido para `6849a6489940f00c2f30c0fb92c6274307ccb58a` (v4.1.2) — SHA verificado via `gh api repos/actions/cache/git/ref/tags/v4.1.2`. Aplicado em 5 ocorrências: ci.yml (linhas 32 e 76) e release.yml (linhas 72, 138, 257).
+
+### Verificação local
+
+- `python -m pytest -q tests/`: 60 aprovados.
+- `cargo test --all`: ok.
+- `cargo audit --ignore RUSTSEC-2023-0071`: limpo.
+- `validate-skills.sh`, `validate-docs.sh`, `validate-pdf.sh`: todos passando.
+- Reviewer independente: `passed=true`, sem security_concerns, sem logic_errors.
+
+### Limitações
+
+CI remoto em andamento. Instalação real, Raspberry Pi 5 e runtime PipeWire continuam não validados.
+
+---
+
 ## 2026-09-13 — Phase 82 — Node.js preflight antes de mutar host
 
 **Status:** PASS WITH CONDITIONS — preflight corrigido; instalação real, CI novo e Raspberry Pi 5 não validados.
