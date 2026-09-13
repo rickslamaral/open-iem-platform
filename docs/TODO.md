@@ -4,6 +4,16 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ---
 
+## Phase 82 — revisão de segurança do instalador
+
+- [x] Auditar fluxo de instalação após Phase 81.
+- [x] Corrigir cópia repetida de UI que criava `dist/dist` ou preservava conteúdo obsoleto.
+- [ ] Pin e verificação criptográfica de fonte/artefato antes de build.
+- [ ] Instalação atômica de árvore completa, incluindo rollback em falha.
+- [ ] Validar Node.js >= 20 antes de mutar host ou instalar runtime suportado.
+- [ ] Confirmar instalação real em host Linux dedicado.
+- [ ] Desbloquear release e validar Raspberry Pi 5 real.
+
 ## Phase 81 — hardening do instalador e concorrência CI/release
 
 - [x] Fazer `--dry-run` descrever todas operações sem alterar host.

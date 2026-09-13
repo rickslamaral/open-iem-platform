@@ -4,6 +4,23 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — Phase 82 — auditoria de segurança do instalador
+
+**Status:** BLOCKED — findings HIGH/MEDIUM abertos; PR #41 não deve ser mergeado.
+
+### Resultado
+
+- CI remoto mais recente do PR #41: run `34739632116`, concluído com sucesso.
+- Testes locais `make validate`: aprovados.
+- Code review independente: HIGH no checkout remoto mutável sem verificação criptográfica; MEDIUM em Node.js instalado pelo gerenciador do SO e instalação parcial/reexecução de assets.
+- Security review: findings confirmados como risco operacional; nenhum hardware foi alegado.
+
+### Decisão
+
+Não fazer merge nem release. Próxima implementação deve fixar e verificar fonte/artefato, montar árvore de instalação atômica com rollback e validar Node.js >= 20 antes de mutar host. Corrigir também cópia repetida das UIs sem usar `rm -rf` destrutivo sobre árvore ativa.
+
+---
+
 ## 2026-09-13 — Phase 81 — hardening do instalador e concorrência CI/release
 
 **Status:** implementação local; PR #41 aberto; CI remoto verde; não mergeado; não lançado.

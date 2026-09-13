@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 82 auditoria do instalador (2026-09-13)
+- Auditoria independente encontrou HIGH no build a partir de checkout remoto sem verificação criptográfica de fonte, além de MEDIUM em compatibilidade Node.js e instalação parcial/reexecução de assets.
+- Merge e release permanecem bloqueados até pin/verificação de fonte, instalação atômica e validação de runtime.
+
 ### Security — Phase 81 hardening do instalador e concorrência (2026-09-13)
 - Instalador aceita `--ref` como SHA-1 completo com checkout detached e valida caminhos antes de gerar unit file via `sed`.
 - `--dry-run` agora descreve operações de dependências, clone, build, instalação e systemd sem alterar host.
