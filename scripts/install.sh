@@ -15,6 +15,8 @@ DRY_RUN=0
 SKIP_DEPS=0
 NO_SERVICE=0
 KEEP_SOURCE=0
+ROTATE_KEYS=0
+ASSUME_YES=0
 
 log() { printf '[open-iem] %s\n' "$*"; }
 warn() { printf '[open-iem] WARNING: %s\n' "$*" >&2; }
@@ -33,7 +35,9 @@ Options:
   --dry-run        Show actions without changing host
   --skip-deps      Do not install/check OS packages
   --no-service     Do not install systemd unit
-  --keep-source   Keep temporary checkout after installation
+  --keep-source    Keep temporary checkout after installation
+  --rotate-keys    Replace existing JWT keys after explicit confirmation
+  --yes            Confirm destructive actions (use with --rotate-keys)
   -h, --help       Show help
 
 Environment equivalents:
@@ -54,6 +58,8 @@ while (($#)); do
     --skip-deps) SKIP_DEPS=1; shift ;;
     --no-service) NO_SERVICE=1; shift ;;
     --keep-source) KEEP_SOURCE=1; shift ;;
+    --rotate-keys) ROTATE_KEYS=1; shift ;;
+    --yes) ASSUME_YES=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) fatal "unknown option: $1 (use --help)" ;;
   esac
@@ -148,17 +154,35 @@ run "${SUDO[@]}" ln -sfn "$PREFIX/server/open-iem-admin" "$BIN_DIR/open-iem-admi
 if ! id openiem >/dev/null 2>&1; then run "${SUDO[@]}" useradd --system --home-dir /nonexistent --no-create-home --shell /usr/sbin/nologin openiem; fi
 run "${SUDO[@]}" chown -R openiem:openiem "$STATE_DIR"
 run "${SUDO[@]}" install -d -o root -g openiem -m 0750 "$CONFIG_DIR/keys"
-if [[ ! -e "$CONFIG_DIR/keys/ed25519_private.pem" ]]; then
+PRIVATE_KEY="$CONFIG_DIR/keys/ed25519_private.pem"
+PUBLIC_KEY="$CONFIG_DIR/keys/ed25519_public.pem"
+if [[ -e "$PRIVATE_KEY" || -e "$PUBLIC_KEY" ]]; then
+  if [[ ! -e "$PRIVATE_KEY" || ! -e "$PUBLIC_KEY" ]] && (( ROTATE_KEYS == 0 )); then
+    fatal 'incomplete JWT key pair; use --rotate-keys after reviewing host state'
+  fi
+  (( ROTATE_KEYS )) || { log 'existing JWT keys preserved'; }
+  if (( ROTATE_KEYS )); then
+    if (( ASSUME_YES == 0 )); then
+      [[ -t 0 ]] || fatal 'key rotation requires interactive confirmation or --yes'
+      printf '[open-iem] WARNING: this invalidates all existing JWT sessions. Replace keys? Type ROTATE: '
+      read -r confirmation
+      [[ "$confirmation" == ROTATE ]] || fatal 'key rotation cancelled'
+    fi
+    log 'rotating JWT keys after confirmation'
+  fi
+fi
+if [[ ! -e "$PRIVATE_KEY" && ! -e "$PUBLIC_KEY" ]] || (( ROTATE_KEYS )); then
   KEY_TMP="$(mktemp -d -t openiem-keys.XXXXXX)"
   trap 'rm -rf -- "$KEY_TMP" "$STAGE"; cleanup' EXIT
   umask 077
   openssl genpkey -algorithm ed25519 -out "$KEY_TMP/private.pem"
   openssl pkey -in "$KEY_TMP/private.pem" -pubout -out "$KEY_TMP/public.pem"
-  run "${SUDO[@]}" install -o openiem -g openiem -m 0600 "$KEY_TMP/private.pem" "$CONFIG_DIR/keys/ed25519_private.pem"
-  run "${SUDO[@]}" install -o root -g openiem -m 0640 "$KEY_TMP/public.pem" "$CONFIG_DIR/keys/ed25519_public.pem"
+  run "${SUDO[@]}" install -o openiem -g openiem -m 0600 "$KEY_TMP/private.pem" "$PRIVATE_KEY.new"
+  run "${SUDO[@]}" install -o root -g openiem -m 0640 "$KEY_TMP/public.pem" "$PUBLIC_KEY.new"
+  run "${SUDO[@]}" mv -f "$PRIVATE_KEY.new" "$PRIVATE_KEY"
+  run "${SUDO[@]}" mv -f "$PUBLIC_KEY.new" "$PUBLIC_KEY"
   rm -rf -- "$KEY_TMP"
-else
-  log 'existing JWT keys preserved'
+  log 'JWT keys generated'
 fi
 
 if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then

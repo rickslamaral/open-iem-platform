@@ -168,7 +168,7 @@ less install.sh
 bash install.sh --dry-run
 ```
 
-Veja opções com `bash install.sh --help`. Áudio PipeWire/ALSA e runtime Raspberry Pi continuam pendentes de validação física.
+Veja opções com `bash install.sh --help`. Primeira instalação gera par Ed25519. Chaves existentes são preservadas; para substituir, use `bash install.sh --rotate-keys` e confirme digitando `ROTATE`. Isso invalida todas sessões JWT. Em automação explícita: `--rotate-keys --yes`. Áudio PipeWire/ALSA e runtime Raspberry Pi continuam pendentes de validação física.
 
 ## Contributing
 
