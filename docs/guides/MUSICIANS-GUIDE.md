@@ -1,7 +1,7 @@
 # Guia do Músico — Open IEM Platform
 
-> **Versão:** Phase 25 · **Idioma:** pt-BR
-> Última atualização: 2026-09-10
+> **Versão:** Phase 73 · **Idioma:** pt-BR
+> Última atualização: 2026-09-12
 
 ---
 
@@ -94,8 +94,10 @@ docker compose up --build
 
 Serviços disponíveis:
 - API: `http://localhost:3000`
-- Musician PWA: `http://localhost:5173`
-- Engineer UI: `http://localhost:5174`
+- Musician PWA: `http://localhost:5173` (localhost do host)
+- Engineer UI: `http://localhost:5174` (localhost do host)
+
+As portas das UIs são vinculadas a `127.0.0.1` pelo Compose atual; para acesso por outro dispositivo, configuração de rede explícita e TLS/rede isolada são necessários.
 
 ---
 
@@ -129,6 +131,10 @@ O que acontece internamente:
 ---
 
 ## 6. Interface do Músico (Musician PWA)
+
+![Interface do Musician PWA](../images/open-iem-musician-ui.png)
+
+Visão geral das interfaces: [docs/INTERFACES.md](../INTERFACES.md). A imagem é mockup documental baseado no código-fonte, não screenshot de runtime.
 
 ### Estados de Conexão
 
@@ -176,7 +182,14 @@ Faixas válidas: `gain_db` entre `-144.0 dBFS` e `+12.0 dBFS`.
 
 ## 8. Áudio WebRTC — ⚠️ SIMULATED
 
-A sinalização WebRTC está implementada (oferta SDP, resposta, candidatos ICE via `str0m`). No entanto:
+A sinalização WebRTC está implementada (oferta SDP, resposta, candidatos ICE via `str0m`). O fluxo HTTP autenticado é:
+
+1. O cliente envia `POST /api/v1/audio/offer` com `{ "sdp": "...", "mix_id": "0" }`.
+2. O servidor valida `Origin`, JWT, papel `MUSICIAN` e ownership do mix; retorna `{ "sdp": "..." }`.
+3. O cliente envia `POST /api/v1/audio/ice-candidate` com `{ "candidate": "candidate:..." }` na mesma sessão autenticada.
+4. O servidor retorna `{ "accepted": true }` após validar o candidato.
+
+Esse fluxo confirma somente o control plane e o parsing Sans-IO. Não significa que áudio trafega. No entanto:
 
 | Componente | Estado |
 |-----------|--------|

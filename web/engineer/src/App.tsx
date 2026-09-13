@@ -3,7 +3,14 @@ import './style.css';
 
 type Session = { user_id: string; mix_id?: string | null };
 type Assignment = { mix_index: number; user_id: number; username: string };
-type Dashboard = { sessions: Session[]; assignments: Assignment[]; revision: number };
+type Telemetry = {
+  availability: 'simulated' | 'available' | 'unknown';
+  backend: string;
+  sample_rate_hz: number | null;
+  frames_processed: number | null;
+  xrun_count: number | null;
+};
+type Dashboard = { sessions: Session[]; assignments: Assignment[]; revision: number; telemetry: Telemetry };
 
 async function request<T>(path: string, token: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(path, {
@@ -49,12 +56,19 @@ export default function App() {
     if (!token) return;
     setLoading(true); setError(null);
     try {
-      const [sessions, assignments, state] = await Promise.all([
+      const [sessions, assignments, state, telemetry] = await Promise.all([
         request<{ sessions: Session[] }>('/api/v1/audio/sessions', token),
         request<Assignment[]>('/api/v1/mixes', token),
         request<{ revision: number }>('/api/v1/state', token),
+        request<Telemetry>('/api/v1/telemetry', token).catch(() => ({
+          availability: 'unknown' as const,
+          backend: 'unknown',
+          sample_rate_hz: null,
+          frames_processed: null,
+          xrun_count: null,
+        })),
       ]);
-      setData({ sessions: sessions.sessions, assignments, revision: state.revision });
+      setData({ sessions: sessions.sessions, assignments, revision: state.revision, telemetry });
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : 'Falha ao carregar console';
       if (message.startsWith('401:')) {
@@ -103,7 +117,7 @@ export default function App() {
     <header><div><p className="eyebrow">OPEN IEM / CONTROL PLANE</p><h1>Engineer Console</h1></div><button className="secondary" onClick={() => void logout()}>Sair</button></header>
     <div className="notice"><strong>Áudio SIMULATED</strong><span>VPS sem PipeWire. Sessões WebRTC não representam mídia validada em hardware.</span></div>
     {error && <div className="error banner" role="alert">{error}</div>}
-    <section className="metrics"><div className="card"><span className="muted">Revision</span><strong>{data?.revision ?? '—'}</strong></div><div className="card"><span className="muted">Sessões ativas</span><strong>{data?.sessions.length ?? 0}</strong></div><div className="card"><span className="muted">Atualização</span><strong>{loading ? 'carregando' : '5 s'}</strong></div></section>
+    <section className="metrics"><div className="card"><span className="muted">Revision</span><strong>{data?.revision ?? '—'}</strong></div><div className="card"><span className="muted">Sessões ativas</span><strong>{data?.sessions.length ?? 0}</strong></div><div className="card"><span className="muted">Backend</span><strong>{loading ? 'carregando' : (data?.telemetry.backend ?? '—')}</strong></div><div className="card"><span className="muted">XRUNs</span><strong>{data?.telemetry.xrun_count ?? 'UNKNOWN'}</strong></div></section>
     <section className="grid"><div className="card"><h2>Mix assignments</h2><p className="muted">Atribuição exige ID do usuário. Catálogo de usuários fica restrito a Admin.</p>
       {[0, 1].map((mix) => { const assignment = data?.assignments.find((item) => item.mix_index === mix); return <div className="row" key={mix}><div><strong>Mix {mix + 1}</strong><br /><span className="muted">{assignment ? `${assignment.username} (ID ${assignment.user_id})` : 'Livre'}</span></div>{assignment ? <button className="danger" onClick={() => void unassign(mix)}>Remover</button> : <div className="assign"><input aria-label={`ID usuário mix ${mix + 1}`} inputMode="numeric" placeholder="ID usuário" value={userId} onChange={(e) => setUserId(e.target.value)} /><button onClick={() => void assign(mix)}>Atribuir</button></div>}</div>; })}
     </div><div className="card"><h2>Sessões de áudio</h2>{data?.sessions.length ? data.sessions.map((session) => <div className="row" key={session.user_id}><span>{session.user_id}</span><span className="pill">ativa</span></div>) : <p className="muted">Nenhuma sessão ativa.</p>}</div></section>
