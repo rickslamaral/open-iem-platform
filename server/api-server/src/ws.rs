@@ -448,9 +448,10 @@ async fn handle_socket(
                             continue;
                         }
 
-                        // Coordinate assignment read with assignment mutations. Publication
-                        // order is serialized by the sender's lock; release before socket I/O.
-                        let assignment_guard = state.mix_assignment_lock.lock().await;
+                        // Fan-out is read-only: no assignment mutation happens here, so
+                        // holding mix_assignment_lock is unnecessary and adds contention
+                        // under load.  A momentary stale read on assignment transition is
+                        // acceptable — the client re-syncs via REST snapshot.
                         // Filter by role:
                         //  - Engineer/Admin see deltas for all mixes.
                         //  - Musician sees deltas only for their assigned mix.
@@ -480,7 +481,6 @@ async fn handle_socket(
                         } else {
                             None
                         };
-                        drop(assignment_guard);
                         if let Some(json) = ack_json {
                             if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
                                 break;
@@ -522,7 +522,10 @@ async fn handle_socket(
                             continue;
                         }
 
-                        let assignment_guard = state.mix_assignment_lock.lock().await;
+                        // Fan-out is read-only: no assignment mutation happens here, so
+                        // holding mix_assignment_lock is unnecessary and adds contention
+                        // under load.  A momentary stale read on assignment transition is
+                        // acceptable — the client re-syncs via REST snapshot.
                         let should_forward = match claims.role {
                             Role::Admin | Role::Engineer => true,
                             Role::Musician => musician_assigned_to_mix(
@@ -547,7 +550,6 @@ async fn handle_socket(
                         } else {
                             None
                         };
-                        drop(assignment_guard);
                         if let Some(json) = ack_json {
                             if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
                                 break;

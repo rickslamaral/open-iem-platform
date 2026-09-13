@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `server/mix-engine/examples/minimal_mix.rs`: runnable example showing two independent monitor mixes from two channels (vocals + kick), with per-send gain/pan/mute, master gain, and master mute; self-checking assertions verify signal-flow invariants. Run with `cargo run --example minimal_mix --manifest-path server/Cargo.toml`.
 - `examples/minimal-mix/README.md`: guide with signal graph, expected output, and usage.
 
+### Performance — WS fan-out lock contention (2026-09-13)
+- Remove `mix_assignment_lock` from read-only broadcast fan-out paths (`SendAck` and `MasterAck` forwarding); mutation path retains the lock. Reduces async mutex contention under load; stale-read window on assignment transition is accepted and mitigated by client REST re-sync.
+
 ### Changed — Phase 84 release reproducibility (2026-09-13)
 - Release workflow uses Cargo `--locked` for Rust checks/builds.
 - Server and web archives normalize ordering, timestamps and ownership from commit `SOURCE_DATE_EPOCH` before checksums; Ed25519 signatures remain limited to server archives.

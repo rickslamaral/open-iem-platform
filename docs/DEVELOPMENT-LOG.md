@@ -22,7 +22,22 @@ All significant milestones documented here in reverse chronological order.
 
 **Limitations:** Audio processing SIMULATED. No hardware.
 
-**Next:** PR #43 CI verde → READY_TO_MERGE.
+### 2026-09-13 — fix(ws): mix_assignment_lock removido dos caminhos de fan-out
+
+**Tarefa:** `LOW: mix_assignment_lock held during DB read in broadcast fan-out`
+
+**Implementado:**
+- Removido `mix_assignment_lock` dos dois caminhos de fan-out somente leitura no WebSocket handler (`SendAck` e `MasterAck`).
+- Caminho de mutação (mensagens inbound, linha ~319) mantém o lock sem alteração.
+- Comentários atualizados para justificar stale-read aceito na janela de transição.
+
+**Verificação:**
+- `cargo fmt --all -- --check` → PASS.
+- `cargo clippy --all-targets -- -D warnings` → PASS.
+- `cargo test --all` → 244 testes aprovados, 0 falhas.
+- Revisão independente: `passed: true`, sem concerns.
+
+**Limitações:** Stale-read aceito. Hardware SIMULATED.
 
 ---
 
