@@ -19,4 +19,19 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid #1d2940; padding: .9rem 0; } .row:first-of-type { border-top: 0; }
 .assign { display: flex; gap: .5rem; width: min(100%, 270px); } .pill { border-radius: 999px; padding: .25rem .6rem; color: #bbf7d0; background: #14532d; font-size: .8rem; } .secondary { background: #1e293b; } .danger { background: #991b1b; }
 .error { color: #fecaca; } .banner { border: 1px solid #7f1d1d; border-radius: 8px; padding: .7rem; margin-bottom: 1rem; background: #2b1115; }
-@media (max-width: 720px) { .metrics, .grid { grid-template-columns: 1fr; } .notice, .row { align-items: flex-start; flex-direction: column; } .assign { width: 100%; } header { align-items: flex-start; } }
+/* ── Channel Strip ───────────────────────────────────────────────────── */
+.channel-section { margin-bottom: 1rem; }
+.section-title { font-size: 1.05rem; margin-bottom: .75rem; color: #cbd5e1; }
+.channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+.channel-strip { display: flex; flex-direction: column; gap: .6rem; }
+.channel-header { display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
+.channel-name { font-weight: 700; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gain-label { display: flex; justify-content: space-between; font-size: .8rem; color: #94a3b8; }
+.gain-value { font-variant-numeric: tabular-nums; color: #e5e7eb; }
+.gain-slider { width: 100%; accent-color: #7c3aed; cursor: pointer; }
+.gain-slider:disabled { opacity: .45; cursor: not-allowed; }
+.mute-btn { background: #1e293b; font-size: .8rem; padding: .4rem .7rem; }
+.mute-btn.active { background: #991b1b; }
+.mute-btn:disabled { opacity: .45; cursor: not-allowed; }
+.mute-pill { background: #7f1d1d; color: #fecaca; font-size: .7rem; }
+@media (max-width: 720px) { .metrics, .grid { grid-template-columns: 1fr; } .notice, .row { align-items: flex-start; flex-direction: column; } .assign { width: 100%; } header { align-items: flex-start; } .channel-grid { grid-template-columns: 1fr 1fr; } }

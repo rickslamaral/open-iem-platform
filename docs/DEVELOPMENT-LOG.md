@@ -4,18 +4,22 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
-### 2026-09-13 — Phase 84 follow-up: duplicate archive checksum gate
+### 2026-09-13 — Phase 89: Engineer Console Channel Strip
 
-**Goal:** Fail release jobs when repeated packaging of the same inputs produces different archive checksums.
+**Goal:** Expose existing authenticated channel gain/mute API in Engineer Console.
 
 **Implemented:**
-- Server x86_64 and ARM64 packaging now builds each archive twice with fixed ordering, timestamps and ownership, then compares SHA-256 digests before validation/signing.
-- Musician and Engineer web packaging uses the same duplicate-build checksum gate.
-- Temporary comparison artifacts are removed before upload.
+- Render input channels from `/api/v1/state`.
+- Add gain slider (`-144..+12 dB`) and mute button per channel.
+- Keep Bearer authentication, disable locked channels, debounce gain writes and guard optimistic state against stale mutation/load responses.
 
-**Validation:** Workflow YAML parse and `git diff --check` passed locally. Runtime CI confirmation of same-tag repeated builds remains pending.
+**Validation:** 10 frontend tests, typecheck and production build passed locally. CI, real server, PipeWire/ALSA and Raspberry Pi 5 remain pending.
 
-**Limitations:** Release `v0.3.1`, real installation, PipeWire/ALSA, WebRTC media and Raspberry Pi 5 remain unvalidated.
+---
+
+### 2026-09-13 — Phase 88: Musician UI master gain/mute genuinamente somente leitura
+
+**Goal:** Corrigir UX enganoso: slider de master gain no músico alterava estado local mas nunca enviava ao servidor (RBAC bloqueia Musician para SetMasterGain/SetMasterMute desde Phase 23/87). Tornar o controle genuinamente read-only.
 
 ---
 

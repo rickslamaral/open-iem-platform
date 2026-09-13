@@ -42,9 +42,9 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 91 — gate de cross-compilation ARM64 no CI.** O job `Rust Build (ARM64 cross)` instala `gcc-aarch64-linux-gnu` e compila o workspace para `aarch64-unknown-linux-gnu`; o run real `34792164989` passou. Isso valida cross-compilation, não runtime ARM64, áudio ou Raspberry Pi 5. Confirmação de dois builds idênticos, release `v0.3.1`, instalação real e Raspberry Pi 5 continuam pendentes.
+**Fase incremental atual: Phase 89 — Engineer Console Channel Strip.** O Engineer Console renderiza canais do snapshot e controla gain/mute por endpoints autenticados existentes, com debounce, optimistic UI e guards contra respostas obsoletas. CI remoto, servidor real, release, instalação e Raspberry Pi 5 continuam pendentes.
 
-**Fases anteriores:** Phase 87 — controles master gain/mute no Engineer Console; Phase 84 — reprodutibilidade do pipeline de release; Phase 83 — pan e indicador de mudo master na UI do músico.
+**Fase anterior: Phase 83 — pan e indicador de mudo master na UI do músico.**
 
 **Phase 83 — pan e indicador de mudo master na UI do músico.** A PWA sincroniza pan por canal e envia `SetSendPan`; exibe `MASTER MUTED` como indicador somente leitura. Testes, typecheck e build locais passam. CI remoto executou todos os 9 jobs com sucesso no run `34761731828` após correção do pin de `actions/cache`. Workflow de release agora usa `-rawin` no OpenSSL 3.5. Instalação real, release, hardware e mídia continuam não validados.
 
@@ -143,7 +143,6 @@ Interface prevista para engenheiro: status do backend, revisão, sessões ativas
 | 80 | TypeScript 7 Engineer compatibility | ✅ Local fix; CI green |
 | 81 | Installer and CI/release hardening | ✅ Local validation; CI green; hardware pending |
 | 83 | Musician UI pan and master mute indicator | ✅ Local validation; CI green; hardware pending |
-| 90 | Browser audio constraint | ✅ Research documented; media and hardware pending |
 
 ## Repository Structure
 
