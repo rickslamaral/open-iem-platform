@@ -62,9 +62,21 @@ O harness `SIMULATED` cobre determinismo, isolamento entre mixes, ganho, pan, mu
 
 Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/reviews/PHASE-31-REVIEW.md), [Phase 29 review](docs/reviews/PHASE-29-REVIEW.md), [Phase 27 review](docs/reviews/PHASE-27-REVIEW.md), [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
 
-## Interfaces e controles
+## Previsão das interfaces
 
-Imagens documentais das interfaces implementadas. São mockups baseados no código-fonte; não são screenshots de runtime. Áudio permanece `SIMULATED` até validação em Raspberry Pi 5.
+As imagens abaixo mostram a previsão visual atual da UI do músico e do engenheiro de mixagem. São **mockups documentais baseados no código-fonte**, não screenshots de runtime. Os valores exibidos são ilustrativos. Áudio permanece `SIMULATED` até validação em Raspberry Pi 5.
+
+### Musician PWA
+
+![Previsão da interface do músico — Open IEM Musician PWA](docs/images/open-iem-musician-ui.png)
+
+Interface prevista para músico: volume master, ganho por canal, pan, mute, estado da conexão WebSocket e controle somente do próprio mix. [Abrir imagem completa](docs/images/open-iem-musician-ui.png).
+
+### Engineer Console
+
+![Previsão da interface do engenheiro de mixagem — Open IEM Engineer Console](docs/images/open-iem-engineer-console.png)
+
+Interface prevista para engenheiro: status do backend, revisão, sessões ativas, atribuição de mixes e aviso explícito de áudio simulado. [Abrir imagem completa](docs/images/open-iem-engineer-console.png).
 
 - [Visão geral das interfaces e controles](docs/INTERFACES.md)
 - [Musician PWA](docs/images/open-iem-musician-ui.png)
