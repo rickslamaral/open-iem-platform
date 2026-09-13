@@ -1,7 +1,7 @@
 # Phase 88 Review — Musician UI: master gain/mute genuinamente somente leitura
 
-**Data:** 2026-09-13  
-**Branch:** feat/phase88-musician-master-readonly  
+**Data:** 2026-09-13
+**Branch:** feat/phase88-musician-master-readonly
 **Status:** READY_TO_MERGE (aguardando CI remoto)
 
 ## Objetivo
@@ -30,8 +30,8 @@ O slider de master gain no Musician UI existia como estado local (`useState`) qu
 
 Reviewer subagent retornou `passed=true`.
 
-**security_concerns:** []  
-**logic_errors:** []  
+**security_concerns:** []
+**logic_errors:** []
 **suggestions (não bloqueantes):**
 - Tooltip explicativo para o slider (UX improvement)
 - CSS custom property para opacity em high-contrast themes (acessibilidade LOW)
