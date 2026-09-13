@@ -24,13 +24,15 @@ export default function App() {
   const [token, setToken] = useState<string | null>(null);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [channels, setChannels] = useState<ChannelState[]>(defaultChannels);
-  const [masterGainDb, setMasterGainDb] = useState(0);
+  // masterGainDb é read-only para músico — derivado do snapshot, não de estado local
+
   // Pan por canal: -1.0 (esquerda) a +1.0 (direita)
   const [panByChannel, setPanByChannel] = useState<number[]>(defaultPan);
 
   const ws = useWebSocket(token);
 
-  // Leitura somente: master_muted vem do servidor (sem SetMasterMuted no protocolo)
+  // Leitura somente: master_gain_db e master_muted vêm do servidor (Músico não pode mutar master)
+  const masterGainDb = ws.snapshot?.mixes[0]?.master_gain_db ?? 0;
   const masterMuted = ws.snapshot?.mixes[0]?.master_muted ?? false;
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export default function App() {
       const send = sendsByChannel.get(index);
       return send !== undefined ? send.pan : p;
     }));
-    setMasterGainDb(mix.master_gain_db);
+    // master_gain_db derivado diretamente de ws.snapshot — sem estado local
   }, [ws.snapshot]);
 
   const handleLogin = useCallback(async (username: string, password: string) => {
@@ -64,7 +66,6 @@ export default function App() {
     ws.disconnect();
     setToken(null);
     setChannels(defaultChannels());
-    setMasterGainDb(0);
     setPanByChannel(defaultPan());
     await apiLogout().catch(() => undefined);
   }, [ws]);
@@ -121,7 +122,6 @@ export default function App() {
         onChannelGain={handleChannelGain}
         onChannelMute={handleChannelMute}
         onChannelPan={handleChannelPan}
-        onMasterGain={setMasterGainDb}
         onLogout={handleLogout}
       />
     </div>

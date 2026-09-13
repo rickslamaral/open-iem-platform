@@ -16,14 +16,13 @@ interface ChannelState {
 interface Props {
   ws: UseWebSocketResult;
   channels: ChannelState[];
+  // master gain/mute são somente leitura no Músico — controlados pelo Engineer/Admin
   masterGainDb: number;
-  // TODO: sem mensagem SetMasterMuted no protocolo — exibição somente leitura
   masterMuted: boolean;
   panByChannel: number[];
   onChannelGain: (ch: number, gainDb: number) => void;
   onChannelMute: (ch: number, muted: boolean) => void;
   onChannelPan: (ch: number, pan: number) => void;
-  onMasterGain: (gainDb: number) => void;
   onLogout: () => void;
 }
 
@@ -36,7 +35,6 @@ export function MixControl({
   onChannelGain,
   onChannelMute,
   onChannelPan,
-  onMasterGain,
   onLogout,
 }: Props) {
   return (
@@ -58,24 +56,28 @@ export function MixControl({
       <div className={styles.master}>
         <div className={styles.masterRow}>
           <label className={styles.masterLabel}>
-            Master Volume: {masterGainDb.toFixed(1)} dB
+            Master Volume: {masterGainDb.toFixed(1)} dB{' '}
+            <span className={styles.readOnlyHint}>(somente leitura)</span>
           </label>
-          {/* Badge somente leitura — estado mudo master vindo do servidor */}
+          {/* Badge somente leitura — estado mudo master controlado pelo Engineer/Admin */}
           {masterMuted && (
             <span className={styles.masterMutedBadge} role="status" aria-label="Master muted">
               MASTER MUTED
             </span>
           )}
         </div>
+        {/* Slider desabilitado: Músico não tem permissão para mutar master gain */}
         <input
           type="range"
           min={-60}
           max={6}
           step={0.5}
           value={masterGainDb}
-          onChange={(e) => onMasterGain(parseFloat(e.target.value))}
+          readOnly
+          disabled
           className={styles.masterSlider}
-          aria-label="Master volume"
+          aria-label="Master volume (read-only)"
+          aria-readonly="true"
         />
       </div>
 

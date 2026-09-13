@@ -4,12 +4,23 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ---
 
+## Phase 88 — Musician UI: master gain/mute genuinamente somente leitura
+
+- [x] Remover estado local `masterGainDb` e prop `onMasterGain` da UI do músico.
+- [x] Derivar `masterGainDb` diretamente de `ws.snapshot.mixes[0].master_gain_db`.
+- [x] Desabilitar slider de master gain (`disabled`, `aria-readonly`, `readOnly`).
+- [x] Exibir hint "(somente leitura)" no rótulo do slider.
+- [x] Expandir testes de MixControl: 44 testes (+2), typecheck e build aprovados.
+- [x] Revisão independente: `passed=true`, sem findings bloqueantes.
+- [ ] Validar Raspberry Pi 5 real.
+
 ## Phase 87 — Engineer Console: controles master gain/mute via WebSocket
 
 - [x] Adicionar `protocol.ts` com tipos WebSocket do engineer (`SetMasterGain`, `SetMasterMute`, `MasterAck`).
 - [x] Implementar hook `useEngineerWs` com reconexão, guard de cleanup e handlers MasterAck/State/Error.
 - [x] Integrar `WsBadge` e `MixMasterControl` (slider gain + botão mute) na App do engineer.
 - [x] 18 testes aprovados, typecheck limpo, build limpo.
+- [x] CI remoto 11/11 jobs aprovados (PR #47).
 - [ ] Validar controles em servidor real e Raspberry Pi 5.
 
 ## Phase 84 — Reprodutibilidade do pipeline de release
@@ -27,7 +38,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Exibir badge MASTER MUTED quando servidor reporta mudo master (somente leitura).
 - [x] Sincronizar pan do snapshot e enviar SetSendPan via WebSocket.
 - [x] 42 testes, typecheck e build locais aprovados.
-- [ ] Implementar SetMasterMuted no protocolo quando suporte ao servidor estiver disponível.
+- [x] Implementar SetMasterMuted no protocolo quando suporte ao servidor estiver disponível.
 - [x] Confirmar CI remoto verde no run `34761731828` (9 jobs aprovados após correção do pin de `actions/cache`).
 - [ ] Validar Raspberry Pi 5 real.
 
