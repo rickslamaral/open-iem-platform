@@ -4,6 +4,139 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — Phase 82 — Node.js preflight antes de mutar host
+
+**Status:** PASS WITH CONDITIONS — preflight corrigido; instalação real, CI novo e Raspberry Pi 5 não validados.
+
+### Implementado
+
+- `preflight_node_check()` adicionada a `scripts/install.sh`; chamada imediatamente antes de `install_deps`.
+- Se `node` já estiver em PATH e versão < 20, fatal sem instalar pacotes. Se `node` ausente, host não mutado antes da verificação.
+- `check_tools()` mantém validação final pós-instalação.
+
+### Verificação real
+
+- `bash -n scripts/install.sh`: aprovado.
+- `scripts/install.sh --dry-run --skip-deps --ref <sha40>`: aprovado; host não alterado.
+- Node.js v22.22.3 no host: preflight passa corretamente (major=22 >= 20).
+- Review independente: `passed=true`, sem security_concerns, sem logic_errors.
+
+### Limitações
+
+Instalação real, rollback exercitado, CI novo, release v0.3.1, PipeWire/ALSA, WebRTC e Raspberry Pi 5 continuam não validados.
+
+---
+
+## 2026-09-13 — Phase 82 — pin e staging atômico do instalador
+
+**Status:** BLOCKED — correção local; novo CI e revisão independente pendentes; PR #41 não mergeado.
+
+### Implementado
+
+- `scripts/install.sh` exige SHA-1 completo de 40 caracteres e recusa branch/tag mutável.
+- Checkout usa fetch limitado, detached checkout e validação de `git rev-parse HEAD` antes de compilar.
+- Binários e UIs são montados em staging limpo e publicados em `$PREFIX/releases/$REF`; link `$PREFIX/current` só aponta para release completa.
+- Falha antes do commit remove release nova e restaura link anterior.
+- README, CHANGELOG, TODO e review Phase 82 atualizados.
+
+### Verificação real
+
+- `bash -n scripts/install.sh`: aprovado.
+- `scripts/install.sh --dry-run --skip-deps --ref b3c0fb2`: rejeitou corretamente SHA curto.
+- `scripts/install.sh --dry-run --skip-deps --ref be78f14cf33c8dd6dbd903840da9ac2bde8c9ae4`: aprovado; host não alterado.
+
+### Limitações
+
+Node.js preflight ainda ocorre depois de instalação de pacotes e precisa ser movido antes de mutar host. Instalação real, rollback exercitado, CI novo, release, PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+
+---
+
+## 2026-09-13 — Phase 82 — auditoria de segurança do instalador
+
+**Status:** BLOCKED — findings HIGH/MEDIUM abertos; PR #41 não deve ser mergeado.
+
+### Resultado
+
+- CI remoto mais recente do PR #41: run `34739632116`, concluído com sucesso.
+- Testes locais `make validate`: aprovados.
+- Code review independente: HIGH no checkout remoto mutável sem verificação criptográfica; MEDIUM em Node.js instalado pelo gerenciador do SO e instalação parcial/reexecução de assets.
+- Security review: findings confirmados como risco operacional; nenhum hardware foi alegado.
+
+### Decisão
+
+Não fazer merge nem release. Próxima implementação deve fixar e verificar fonte/artefato, montar árvore de instalação atômica com rollback e validar Node.js >= 20 antes de mutar host. Corrigir também cópia repetida das UIs sem usar `rm -rf` destrutivo sobre árvore ativa.
+
+---
+
+## 2026-09-13 — Phase 81 — hardening do instalador e concorrência CI/release
+
+**Status:** implementação local; PR #41 aberto; CI remoto verde; não mergeado; não lançado.
+
+### Implementado
+
+- `scripts/install.sh --dry-run` descreve operações completas sem alterar host.
+- `--ref` aceita SHA-1 completo via clone sem checkout e `checkout --detach`.
+- Caminhos de instalação rejeitam caracteres que quebrariam substituições `sed`.
+- CI volta a validar pushes em `main`; release usa concorrência serializada por tag.
+- README, CHANGELOG, TODO e START atualizados.
+
+### Verificação real
+
+- `bash -n scripts/install.sh`: aprovado.
+- `scripts/install.sh --dry-run --skip-deps --ref b3c0fb2`: aprovado; host não alterado.
+- YAML dos workflows CI/release: parseado com sucesso.
+- `git diff --check`: aprovado.
+- CI PR #41: runs `34735649836` e `34735649634` concluídos com sucesso.
+- Reviews independentes: sem BLOCKER/HIGH; recomendação de hardening do instalador aplicada.
+
+### Limitações
+
+Instalação real, release, runtime ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados. ShellCheck não disponível no host.
+
+---
+
+## 2026-09-13 — Phase 80 — compatibilidade TypeScript 7 no Engineer Console
+
+**Status:** correção local; CI remoto pendente; PR #41 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Adicionado `web/engineer/src/vite-env.d.ts` com referência padrão `vite/client`.
+- Corrigido `TS2882` no import lateral `./style.css` após atualização para TypeScript 7.
+- Nenhuma alteração em código de produção, permissões ou secrets.
+
+### Verificação real
+
+- `npm run typecheck --prefix web/engineer`: aprovado.
+- `npm run test --prefix web/engineer -- --run`: 2 testes aprovados.
+- `npm run build --prefix web/engineer`: build Vite aprovado.
+- `make validate`: aprovado.
+- Reviews independentes: test/code aprovado; security sem BLOCKER/HIGH.
+
+### Limitações
+
+CI remoto `34732920670` falhou somente no typecheck Engineer; demais jobs passaram. Novo CI precisa confirmar correção. Release, runtime ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+### Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas
+
+**Status:** correção local; CI remoto aguardando novo run; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Testes Ed25519 passaram a informar `-rawin` ao `openssl pkeyutl -sign`, compatível com OpenSSL 3.5.
+
+### Verificação real
+
+- Suíte combinada local: 56 aprovados.
+
+### Limitações
+
+Release, ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
 ## 2026-09-13 — Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas
 
 **Status:** correção local; CI remoto aguardando novo run; PR #40 aberto; não mergeado; não lançado.

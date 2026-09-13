@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas.** O run remoto `34728518286` executou 56 testes e falhou em 10 helpers que geravam assinaturas Ed25519 sem `-rawin`; correção aplicada nos testes locais. Suíte combinada local passa com 56 testes. CI remoto aguarda novo run; release, hardware e mídia continuam não validados.
+**Fase incremental atual: Phase 82 — hardening do instalador.** Instalador agora exige `--ref` com SHA completo de 40 caracteres, verifica checkout exato e recusa branches/tags mutáveis. Build ocorre em release versionado e staging limpo; `current` muda somente após artefatos completos, com restauração do link anterior em falha. CI remoto `34739632116` passou antes desta correção; novo run ainda pendente. Instalação, release, hardware e mídia continuam não validados.
 
 **Fase anterior: Phase 78 — rejeição de dados residuais em archives.** O validador rejeita streams gzip concatenados e bytes residuais após um archive válido, além de validar estrutura, limites, tipos, duplicatas e payloads truncados. A verificação local passa; CI remoto, release e hardware continuam não validados. Imagens documentais geradas a partir do código-fonte cobrem Login, Musician PWA, Engineer Console, Admin CLI/API e controles de mix; não são screenshots de runtime. Control plane local segue validado; mídia continua `SIMULATED`. Ver [review da Phase 76](docs/reviews/PHASE-76-REVIEW.md), [review da Phase 75](docs/reviews/PHASE-75-REVIEW.md), [review da Phase 72](docs/reviews/PHASE-72-REVIEW.md), [review da Phase 71](docs/reviews/PHASE-71-REVIEW.md), [Phase 70](docs/reviews/PHASE-70-REVIEW.md), [Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
 
@@ -121,7 +121,9 @@ Imagens documentais das interfaces implementadas. São mockups baseados no códi
 | 71 | Validated release snapshot | 🔄 Local implementation; CI, release and hardware pending |
 | 72 | HTTP signaling integration | ✅ Local test; CI, media and hardware pending |
 | 76 | Archive payload validation | ✅ Local tests; CI, release and hardware pending |
-| 77 | Structural archive validation before payload | ✅ Local tests; CI, release and hardware pending |
+| 77 | Structural archive validation before payload | ✅ Local tests; CI and hardware pending |
+| 80 | TypeScript 7 Engineer compatibility | ✅ Local fix; CI green |
+| 81 | Installer and CI/release hardening | ✅ Local validation; PR CI green; install/hardware pending |
 
 ## Repository Structure
 
@@ -151,6 +153,25 @@ scripts/              — Development utilities
 - [Review da Phase 33](docs/reviews/PHASE-33-REVIEW.md)
 - [Review da Phase 32](docs/reviews/PHASE-32-REVIEW.md)
 - [Review da Phase 31](docs/reviews/PHASE-31-REVIEW.md)
+
+## Instalação Linux
+
+Instalador oficial para Linux, com build local, chaves JWT geradas no host e serviço systemd:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/rickslamaral/open-iem-platform/main/scripts/install.sh -o install.sh
+bash install.sh --ref <COMMIT-SHA-40-CHARS>
+```
+
+O instalador recusa branches/tags mutáveis e exige commit SHA completo. Não contém credenciais e não sobrescreve chaves JWT existentes. Para revisar antes de executar:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/rickslamaral/open-iem-platform/main/scripts/install.sh -o install.sh
+less install.sh
+bash install.sh --dry-run --skip-deps --ref <COMMIT-SHA-40-CHARS>
+```
+
+Veja opções com `bash install.sh --help`. Primeira instalação gera par Ed25519. Chaves existentes são preservadas; para substituir, use `bash install.sh --ref <COMMIT-SHA-40-CHARS> --rotate-keys` e confirme digitando `ROTATE`. Isso invalida todas sessões JWT. Em automação explícita: `--ref <COMMIT-SHA-40-CHARS> --rotate-keys --yes`. Áudio PipeWire/ALSA e runtime Raspberry Pi continuam pendentes de validação física.
 
 ## Contributing
 

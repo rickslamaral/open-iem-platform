@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 82 hardening do instalador (2026-09-13)
+- Instalador exige SHA-1 completo de commit, verifica identidade exata do checkout e recusa branches/tags mutáveis.
+- Build instala artefatos em release versionado com staging limpo; link `current` preserva release anterior quando falha antes do commit.
+- `preflight_node_check()` valida Node.js >= 20 **antes** de `install_deps` mutar o host; se `node` já presente e < 20, falha imediatamente sem instalar pacotes.
+
+### Security — Phase 82 auditoria do instalador (2026-09-13)
+- Auditoria independente encontrou HIGH no build a partir de checkout remoto sem verificação criptográfica de fonte, além de MEDIUM em compatibilidade Node.js e instalação parcial/reexecução de assets.
+- Merge e release permanecem bloqueados até pin/verificação de fonte, instalação atômica e validação de runtime.
+
+### Security — Phase 81 hardening do instalador e concorrência (2026-09-13)
+- Instalador aceita `--ref` como SHA-1 completo com checkout detached e valida caminhos antes de gerar unit file via `sed`.
+- `--dry-run` agora descreve operações de dependências, clone, build, instalação e systemd sem alterar host.
+- CI valida pushes em `main`; release serializa execuções concorrentes por tag.
+- Testes locais e CI do PR #41 passaram; instalação real, release e Raspberry Pi 5 continuam não validados.
+
+### Fixed — Phase 80 compatibilidade TypeScript 7 (2026-09-13)
+- Adicionado `web/engineer/src/vite-env.d.ts` com referência `vite/client`, corrigindo `TS2882` para import lateral de `style.css` no TypeScript 7.
+- Typecheck, testes e build locais do Engineer aprovados; CI remoto precisa confirmar.
+
 ### Fixed — Phase 79 compatibilidade OpenSSL 3.5 (2026-09-13)
 - Helpers de teste Ed25519 usam `-rawin`, exigido por OpenSSL 3.5 para operações de assinatura sem digest.
 - Suíte combinada local: 56 testes aprovados; CI remoto precisa confirmar correção.

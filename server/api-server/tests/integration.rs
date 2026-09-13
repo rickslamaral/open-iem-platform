@@ -43,13 +43,45 @@ use control_server::ControlState;
 use mix_engine::Mix;
 use serde_json::{json, Value};
 
-// ── Test-only Ed25519 PEM pair ──────────────────────────────────────────────
-// Generated once with `openssl genpkey -algorithm ed25519`. These keys are
-// public test-only fixtures; they are never used for production tokens.
+// ── Ephemeral test-only Ed25519 PEM pair ────────────────────────────────────
+// Generate keys at runtime so no private key is stored in the repository.
+fn test_keys() -> (Vec<u8>, Vec<u8>) {
+    use std::{
+        fs,
+        process::Command,
+        time::{SystemTime, UNIX_EPOCH},
+    };
 
-const TEST_PRIVATE_PEM: &[u8] = include_bytes!("fixtures/test_ed25519_private.pem");
+    let nonce = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("system clock must be valid")
+        .as_nanos();
+    let private_path = std::env::temp_dir().join(format!("open-iem-test-{nonce}.pem"));
+    let public_path = std::env::temp_dir().join(format!("open-iem-test-{nonce}.pub.pem"));
+    let _ = fs::remove_file(&private_path);
+    let _ = fs::remove_file(&public_path);
 
-const TEST_PUBLIC_PEM: &[u8] = include_bytes!("fixtures/test_ed25519_public.pem");
+    let status = Command::new("openssl")
+        .args(["genpkey", "-algorithm", "ed25519", "-out"])
+        .arg(&private_path)
+        .status()
+        .expect("openssl must be installed for integration tests");
+    assert!(status.success(), "openssl key generation failed");
+    let status = Command::new("openssl")
+        .args(["pkey", "-in"])
+        .arg(&private_path)
+        .args(["-pubout", "-out"])
+        .arg(&public_path)
+        .status()
+        .expect("openssl public-key export failed");
+    assert!(status.success(), "openssl public-key export failed");
+
+    let private = fs::read(&private_path).expect("generated private key must be readable");
+    let public = fs::read(&public_path).expect("generated public key must be readable");
+    let _ = fs::remove_file(private_path);
+    let _ = fs::remove_file(public_path);
+    (private, public)
+}
 
 const VALID_AUDIO_OFFER: &str = "v=0\r\no=- 0 0 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\nc=IN IP4 0.0.0.0\r\na=mid:0\r\na=sendrecv\r\na=rtcp-mux\r\na=ice-ufrag:test\r\na=ice-pwd:testpassword\r\na=fingerprint:sha-256 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00\r\na=setup:actpass\r\na=rtpmap:111 opus/48000/2\r\n";
 
@@ -59,8 +91,8 @@ const VALID_ICE_CANDIDATE: &str =
 // ── Shared test fixture ────────────────────────────────────────────────────
 
 fn build_test_app() -> (TestServer, AppState) {
-    let jwt =
-        JwtKeys::from_ed_pem(TEST_PRIVATE_PEM, TEST_PUBLIC_PEM).expect("test PEM must be valid");
+    let (private_pem, public_pem) = test_keys();
+    let jwt = JwtKeys::from_ed_pem(&private_pem, &public_pem).expect("test PEM must be valid");
     let db = Db::open_in_memory().expect("in-memory DB must open");
     let state = AppState::new(ControlState::new(), db, jwt);
     {
@@ -878,8 +910,8 @@ async fn established_websocket_rejects_message_after_session_revocation() {
 // mix configuration and DB state are isolated.
 
 fn build_ws_app() -> (axum_test::TestServer, AppState) {
-    let jwt =
-        JwtKeys::from_ed_pem(TEST_PRIVATE_PEM, TEST_PUBLIC_PEM).expect("test PEM must be valid");
+    let (private_pem, public_pem) = test_keys();
+    let jwt = JwtKeys::from_ed_pem(&private_pem, &public_pem).expect("test PEM must be valid");
     let db = Db::open_in_memory().expect("in-memory DB must open");
     let state = AppState::new(ControlState::new(), db, jwt);
     {
