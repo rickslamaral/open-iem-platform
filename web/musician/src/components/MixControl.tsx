@@ -17,8 +17,12 @@ interface Props {
   ws: UseWebSocketResult;
   channels: ChannelState[];
   masterGainDb: number;
+  // TODO: sem mensagem SetMasterMuted no protocolo — exibição somente leitura
+  masterMuted: boolean;
+  panByChannel: number[];
   onChannelGain: (ch: number, gainDb: number) => void;
   onChannelMute: (ch: number, muted: boolean) => void;
+  onChannelPan: (ch: number, pan: number) => void;
   onMasterGain: (gainDb: number) => void;
   onLogout: () => void;
 }
@@ -27,8 +31,11 @@ export function MixControl({
   ws,
   channels,
   masterGainDb,
+  masterMuted,
+  panByChannel,
   onChannelGain,
   onChannelMute,
+  onChannelPan,
   onMasterGain,
   onLogout,
 }: Props) {
@@ -49,9 +56,17 @@ export function MixControl({
       </header>
 
       <div className={styles.master}>
-        <label className={styles.masterLabel}>
-          Master Volume: {masterGainDb.toFixed(1)} dB
-        </label>
+        <div className={styles.masterRow}>
+          <label className={styles.masterLabel}>
+            Master Volume: {masterGainDb.toFixed(1)} dB
+          </label>
+          {/* Badge somente leitura — estado mudo master vindo do servidor */}
+          {masterMuted && (
+            <span className={styles.masterMutedBadge} role="status" aria-label="Master muted">
+              MASTER MUTED
+            </span>
+          )}
+        </div>
         <input
           type="range"
           min={-60}
@@ -72,8 +87,10 @@ export function MixControl({
             name={DEFAULT_NAMES[i] ?? `CH${i + 1}`}
             gainDb={channels[i]?.gainDb ?? 0}
             muted={channels[i]?.muted ?? false}
+            pan={panByChannel[i] ?? 0}
             onGainChange={onChannelGain}
             onMuteToggle={onChannelMute}
+            onPanChange={onChannelPan}
           />
         ))}
       </div>

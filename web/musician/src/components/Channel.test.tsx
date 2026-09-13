@@ -7,8 +7,10 @@ const defaults = {
   name: 'Vocal',
   gainDb: 0,
   muted: false,
+  pan: 0,
   onGainChange: vi.fn(),
   onMuteToggle: vi.fn(),
+  onPanChange: vi.fn(),
 };
 
 describe('Channel', () => {
@@ -20,14 +22,16 @@ describe('Channel', () => {
 
   it('renders gain slider with correct value', () => {
     render(<Channel {...defaults} gainDb={-6} />);
-    const slider = screen.getByRole('slider');
-    expect((slider as HTMLInputElement).value).toBe('-6');
+    const sliders = screen.getAllByRole('slider');
+    const gainSlider = sliders.find((s) => (s as HTMLInputElement).getAttribute('aria-label') === 'Vocal gain');
+    expect((gainSlider as HTMLInputElement).value).toBe('-6');
   });
 
   it('calls onGainChange when slider changes', () => {
     const onGainChange = vi.fn();
     render(<Channel {...defaults} onGainChange={onGainChange} />);
-    fireEvent.change(screen.getByRole('slider'), { target: { value: '-12' } });
+    const gainSlider = screen.getByLabelText('Vocal gain');
+    fireEvent.change(gainSlider, { target: { value: '-12' } });
     expect(onGainChange).toHaveBeenCalledWith(0, -12);
   });
 
@@ -45,6 +49,42 @@ describe('Channel', () => {
 
   it('disables slider when muted', () => {
     render(<Channel {...defaults} muted={true} />);
-    expect((screen.getByRole('slider') as HTMLInputElement).disabled).toBe(true);
+    const sliders = screen.getAllByRole('slider');
+    sliders.forEach((s) => expect((s as HTMLInputElement).disabled).toBe(true));
+  });
+
+  it('renders pan slider with correct value', () => {
+    render(<Channel {...defaults} pan={0.5} />);
+    const panSlider = screen.getByLabelText('Vocal pan');
+    expect((panSlider as HTMLInputElement).value).toBe('0.5');
+  });
+
+  it('calls onPanChange when pan slider changes', () => {
+    const onPanChange = vi.fn();
+    render(<Channel {...defaults} onPanChange={onPanChange} />);
+    const panSlider = screen.getByLabelText('Vocal pan');
+    fireEvent.change(panSlider, { target: { value: '-0.5' } });
+    expect(onPanChange).toHaveBeenCalledWith(0, -0.5);
+  });
+
+  it('shows pan label C when pan is 0', () => {
+    render(<Channel {...defaults} pan={0} />);
+    expect(screen.getByText('C')).toBeTruthy();
+  });
+
+  it('shows pan label with L when pan is negative', () => {
+    render(<Channel {...defaults} pan={-0.5} />);
+    expect(screen.getByText('-0.50 L')).toBeTruthy();
+  });
+
+  it('shows pan label with R when pan is positive', () => {
+    render(<Channel {...defaults} pan={0.3} />);
+    expect(screen.getByText('+0.30 R')).toBeTruthy();
+  });
+
+  it('disables pan slider when muted', () => {
+    render(<Channel {...defaults} muted={true} pan={0.2} />);
+    const panSlider = screen.getByLabelText('Vocal pan');
+    expect((panSlider as HTMLInputElement).disabled).toBe(true);
   });
 });

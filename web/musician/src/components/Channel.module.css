@@ -77,3 +77,19 @@
 .slider:disabled {
   opacity: 0.4;
 }
+
+/* Linha do controle de panorama estéreo */
+.panRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.panLabel {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  min-width: 52px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

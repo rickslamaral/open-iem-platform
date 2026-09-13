@@ -16,14 +16,22 @@ interface ChannelState {
 const defaultChannels = (): ChannelState[] =>
   Array.from({ length: CHANNEL_COUNT }, () => ({ gainDb: 0, muted: false }));
 
+const defaultPan = (): number[] =>
+  Array.from({ length: CHANNEL_COUNT }, () => 0);
+
 export default function App() {
-  // Access token stored in React state only — never in localStorage
+  // Token de acesso armazenado apenas em estado React — nunca em localStorage
   const [token, setToken] = useState<string | null>(null);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [channels, setChannels] = useState<ChannelState[]>(defaultChannels);
   const [masterGainDb, setMasterGainDb] = useState(0);
+  // Pan por canal: -1.0 (esquerda) a +1.0 (direita)
+  const [panByChannel, setPanByChannel] = useState<number[]>(defaultPan);
 
   const ws = useWebSocket(token);
+
+  // Leitura somente: master_muted vem do servidor (sem SetMasterMuted no protocolo)
+  const masterMuted = ws.snapshot?.mixes[0]?.master_muted ?? false;
 
   useEffect(() => {
     if (!ws.snapshot) return;
@@ -33,6 +41,11 @@ export default function App() {
     setChannels((current) => current.map((channel, index) => {
       const send = sendsByChannel.get(index);
       return send ? { gainDb: send.gain_db, muted: send.muted } : channel;
+    }));
+    // Sincroniza pan de cada canal a partir do snapshot
+    setPanByChannel((current) => current.map((p, index) => {
+      const send = sendsByChannel.get(index);
+      return send !== undefined ? send.pan : p;
     }));
     setMasterGainDb(mix.master_gain_db);
   }, [ws.snapshot]);
@@ -52,6 +65,7 @@ export default function App() {
     setToken(null);
     setChannels(defaultChannels());
     setMasterGainDb(0);
+    setPanByChannel(defaultPan());
     await apiLogout().catch(() => undefined);
   }, [ws]);
 
@@ -79,6 +93,16 @@ export default function App() {
     [ws],
   );
 
+  const handleChannelPan = useCallback(
+    (ch: number, pan: number) => {
+      const mixIndex = ws.snapshot?.mixes[0]?.index;
+      if (mixIndex === undefined) return;
+      setPanByChannel((prev) => prev.map((p, i) => (i === ch ? pan : p)));
+      ws.send({ type: 'SetSendPan', data: { mix_index: mixIndex, channel_index: ch, pan } });
+    },
+    [ws],
+  );
+
   if (!token) {
     return <Login onLogin={handleLogin} error={loginError} />;
   }
@@ -92,8 +116,11 @@ export default function App() {
         ws={ws}
         channels={channels}
         masterGainDb={masterGainDb}
+        masterMuted={masterMuted}
+        panByChannel={panByChannel}
         onChannelGain={handleChannelGain}
         onChannelMute={handleChannelMute}
+        onChannelPan={handleChannelPan}
         onMasterGain={setMasterGainDb}
         onLogout={handleLogout}
       />

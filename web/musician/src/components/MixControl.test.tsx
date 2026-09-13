@@ -16,8 +16,11 @@ const defaults = {
   ws: mockWs,
   channels: Array.from({ length: 8 }, () => ({ gainDb: 0, muted: false })),
   masterGainDb: 0,
+  masterMuted: false,
+  panByChannel: Array.from({ length: 8 }, () => 0),
   onChannelGain: vi.fn(),
   onChannelMute: vi.fn(),
+  onChannelPan: vi.fn(),
   onMasterGain: vi.fn(),
   onLogout: vi.fn(),
 };
@@ -42,5 +45,15 @@ describe('MixControl', () => {
     render(<MixControl {...defaults} ws={{ ...mockWs, error: 'Connection lost' }} />);
     expect(screen.getByRole('alert')).toBeTruthy();
     expect(screen.getByText(/connection lost/i)).toBeTruthy();
+  });
+
+  it('shows MASTER MUTED badge when masterMuted is true', () => {
+    render(<MixControl {...defaults} masterMuted={true} />);
+    expect(screen.getByText('MASTER MUTED')).toBeTruthy();
+  });
+
+  it('does not show MASTER MUTED badge when masterMuted is false', () => {
+    render(<MixControl {...defaults} masterMuted={false} />);
+    expect(screen.queryByText('MASTER MUTED')).toBeNull();
   });
 });

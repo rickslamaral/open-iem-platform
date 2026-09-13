@@ -62,10 +62,30 @@
   gap: 8px;
 }
 
+/* Linha do volume master com badge de mudo */
+.masterRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .masterLabel {
   color: #a0aec0;
   font-size: 0.85rem;
   font-weight: 500;
+  flex: 1;
+}
+
+/* Badge somente leitura exibido quando o servidor reporta master muted */
+.masterMutedBadge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #ef4444;
+  color: white;
+  border: 1px solid #dc2626;
 }
 
 .masterSlider {

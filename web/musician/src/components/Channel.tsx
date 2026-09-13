@@ -3,16 +3,25 @@ import styles from './Channel.module.css';
 const GAIN_MIN = -60;
 const GAIN_MAX = 6;
 
+// Formata o valor de pan em rótulo legível (L/C/R)
+function formatPan(pan: number): string {
+  if (pan === 0) return 'C';
+  const abs = Math.abs(pan).toFixed(2);
+  return pan < 0 ? `-${abs} L` : `+${abs} R`;
+}
+
 export interface ChannelProps {
   index: number;
   name: string;
   gainDb: number;
   muted: boolean;
+  pan: number;
   onGainChange: (channel: number, gainDb: number) => void;
   onMuteToggle: (channel: number, muted: boolean) => void;
+  onPanChange: (channel: number, pan: number) => void;
 }
 
-export function Channel({ index, name, gainDb, muted, onGainChange, onMuteToggle }: ChannelProps) {
+export function Channel({ index, name, gainDb, muted, pan, onGainChange, onMuteToggle, onPanChange }: ChannelProps) {
   const displayGain = gainDb.toFixed(1);
 
   return (
@@ -40,6 +49,21 @@ export function Channel({ index, name, gainDb, muted, onGainChange, onMuteToggle
           onChange={(e) => onGainChange(index, parseFloat(e.target.value))}
           className={styles.slider}
           aria-label={`${name} gain`}
+          disabled={muted}
+        />
+      </div>
+      {/* Controle de panorama estéreo */}
+      <div className={styles.panRow}>
+        <span className={styles.panLabel}>{formatPan(pan)}</span>
+        <input
+          type="range"
+          min={-1}
+          max={1}
+          step={0.01}
+          value={pan}
+          onChange={(e) => onPanChange(index, parseFloat(e.target.value))}
+          className={styles.slider}
+          aria-label={`${name} pan`}
           disabled={muted}
         />
       </div>
