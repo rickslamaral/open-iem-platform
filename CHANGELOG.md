@@ -39,7 +39,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed — Phase 84 release reproducibility (2026-09-13)
 - Release workflow uses Cargo `--locked` for Rust checks/builds.
 - Server and web archives normalize ordering, timestamps and ownership from commit `SOURCE_DATE_EPOCH` before checksums; Ed25519 signatures remain limited to server archives.
-- Repeated-build checksum confirmation, release `v0.3.1`, real installation and Raspberry Pi 5 remain pending.
+- Each server and web packaging job now performs two consecutive archive builds and fails when checksums differ.
+- Release `v0.3.1`, real installation and Raspberry Pi 5 remain pending.
 
 ### Changed — CI verification refresh (2026-09-13)
 - Runs `34761731828` e `34763037883` passaram nos 9 jobs; backlog CI remoto deixa de ser blocker. Release `v0.3.1`, instalação real e Raspberry Pi 5 continuam pendentes.
