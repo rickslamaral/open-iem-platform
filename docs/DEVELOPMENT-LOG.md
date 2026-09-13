@@ -4,6 +4,28 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — Phase 84 — reprodutibilidade do pipeline de release
+
+**Status:** IMPLEMENTED — confirmação de dois builds e release ainda pendentes.
+
+### Implementado
+
+- Workflow de release usa `--locked` em clippy, testes e builds Rust.
+- Archives server e web usam `SOURCE_DATE_EPOCH` derivado do commit, ordenação estável, timestamps fixos e ownership numérico zero.
+- Checksums e assinaturas passam a ser calculados depois do empacotamento determinístico.
+
+### Verificação real
+
+- YAML do workflow validado pelo editor após cada alteração.
+- Revisão independente identificou o risco de não reprodutibilidade; correção aplicada somente no workflow.
+- Não foi possível alegar dois builds CI do mesmo tag nesta execução.
+
+### Limitações
+
+Release `v0.3.1`, secrets de assinatura, instalação real e Raspberry Pi 5 continuam pendentes. Áudio e mídia permanecem `SIMULATED`.
+
+---
+
 ## 2026-09-13 — CI verification refresh
 
 **Status:** VERIFIED — runs `34761731828` e `34763037883` passaram todos 9 jobs em `main`.

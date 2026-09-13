@@ -82,10 +82,10 @@ jobs:
         run: cargo fmt --manifest-path server/Cargo.toml --all -- --check
 
       - name: Clippy
-        run: cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings
+        run: cargo clippy --manifest-path server/Cargo.toml --all-targets --locked -- -D warnings
 
       - name: Tests
-        run: cargo test --manifest-path server/Cargo.toml --all
+        run: cargo test --manifest-path server/Cargo.toml --all --locked
 
       - name: Install cargo-audit
         run: cargo install cargo-audit --version 0.22.2 --locked
@@ -146,7 +146,7 @@ jobs:
 
       - name: Build release binaries
         run: |
-          cargo build --manifest-path server/Cargo.toml --release \
+          cargo build --manifest-path server/Cargo.toml --release --locked \
             --bin api-server \
             --bin open-iem-admin
 
@@ -164,6 +164,8 @@ jobs:
       - name: Package server artefact
         run: |
           VERSION="${{ needs.validate-version.outputs.version }}"
+          SOURCE_DATE_EPOCH=$(git show -s --format=%ct "${GITHUB_SHA}")
+          export SOURCE_DATE_EPOCH
           ARCH="x86_64-linux"
           DIR="open-iem-server-${VERSION}-${ARCH}"
           mkdir -p "${DIR}"
@@ -171,7 +173,7 @@ jobs:
           cp server/target/release/open-iem-admin "${DIR}/"
           cp README.md LICENSE "${DIR}/"
           cp CHANGELOG.md "${DIR}/" || true
-          tar -czf "${DIR}.tar.gz" "${DIR}"
+          tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -czf "${DIR}.tar.gz" "${DIR}"
           python3 scripts/validate-release-archive.py "${DIR}.tar.gz" api-server open-iem-admin
           sha256sum "${DIR}.tar.gz" > "${DIR}.tar.gz.sha256"
           test -n "${OPENIEM_RELEASE_SIGNING_KEY_PEM:-}" || {
@@ -265,7 +267,7 @@ jobs:
 
       - name: Build release binaries (ARM64)
         run: |
-          cargo build --manifest-path server/Cargo.toml --release \
+          cargo build --manifest-path server/Cargo.toml --release --locked \
             --target aarch64-unknown-linux-gnu \
             --bin api-server \
             --bin open-iem-admin
@@ -275,6 +277,8 @@ jobs:
       - name: Package ARM64 artefact
         run: |
           VERSION="${{ needs.validate-version.outputs.version }}"
+          SOURCE_DATE_EPOCH=$(git show -s --format=%ct "${GITHUB_SHA}")
+          export SOURCE_DATE_EPOCH
           ARCH="aarch64-linux"
           DIR="open-iem-server-${VERSION}-${ARCH}"
           mkdir -p "${DIR}"
@@ -282,7 +286,7 @@ jobs:
           cp server/target/aarch64-unknown-linux-gnu/release/open-iem-admin "${DIR}/"
           cp README.md LICENSE "${DIR}/"
           cp CHANGELOG.md "${DIR}/" || true
-          tar -czf "${DIR}.tar.gz" "${DIR}"
+          tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -czf "${DIR}.tar.gz" "${DIR}"
           python3 scripts/validate-release-archive.py "${DIR}.tar.gz" api-server open-iem-admin
           sha256sum "${DIR}.tar.gz" > "${DIR}.tar.gz.sha256"
           test -n "${OPENIEM_RELEASE_SIGNING_KEY_PEM:-}" || {
@@ -374,11 +378,13 @@ jobs:
         run: |
           set -euo pipefail
           VERSION="${{ needs.validate-version.outputs.version }}"
+          SOURCE_DATE_EPOCH=$(git show -s --format=%ct "${GITHUB_SHA}")
+          export SOURCE_DATE_EPOCH
           test -d web/musician/dist
           test -d web/engineer/dist
-          tar -czf "open-iem-musician-pwa-${VERSION}.tar.gz" -C web/musician dist
+          tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -czf "open-iem-musician-pwa-${VERSION}.tar.gz" -C web/musician dist
           sha256sum "open-iem-musician-pwa-${VERSION}.tar.gz" > "open-iem-musician-pwa-${VERSION}.tar.gz.sha256"
-          tar -czf "open-iem-engineer-ui-${VERSION}.tar.gz" -C web/engineer dist
+          tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -czf "open-iem-engineer-ui-${VERSION}.tar.gz" -C web/engineer dist
           sha256sum "open-iem-engineer-ui-${VERSION}.tar.gz" > "open-iem-engineer-ui-${VERSION}.tar.gz.sha256"
 
       - name: Upload web artefacts

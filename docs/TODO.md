@@ -4,6 +4,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ---
 
+## Phase 84 — Reprodutibilidade do pipeline de release
+
+- [x] Adicionar `--locked` a clippy, testes e builds Rust do workflow de release.
+- [x] Normalizar timestamps, ordenação e ownership dos archives server/web com `SOURCE_DATE_EPOCH` do commit.
+- [ ] Confirmar dois builds do mesmo tag com checksums idênticos em runner CI.
+- [ ] Publicar release `v0.3.1` após secrets, instalação real e validação final.
+- [ ] Validar Raspberry Pi 5 real.
+
 ## Phase 83 — Pan e mudo master na UI do músico
 
 - [x] Adicionar slider de pan por canal (-1 a +1) com rótulo L/C/R.

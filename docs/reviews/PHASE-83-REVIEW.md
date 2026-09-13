@@ -1,5 +1,7 @@
 # Phase 83 Review — Controles de pan e mudo master na UI do músico
 
+> Phase 84 follow-up: release reproducibility is documented in `docs/DEVELOPMENT-LOG.md`; this review remains historical.
+
 **Data:** 2026-09-13
 **Commit:** e0f0d40
 **Status:** PASS WITH CONDITIONS — CI remoto aprovado; instalação real e hardware pendentes
