@@ -82,6 +82,7 @@ def verify(artifact: pathlib.Path, signature: pathlib.Path, public_key: pathlib.
                     public_key_ref,
                     "-sigfile",
                     signature_ref,
+                    "-rawin",
                     "-in",
                     artifact_ref,
                 ],
