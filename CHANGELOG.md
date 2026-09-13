@@ -6,19 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-<<<<<<< HEAD
 ### Added — examples/minimal-mix (2026-09-13)
 - `server/mix-engine/examples/minimal_mix.rs`: runnable example showing two independent monitor mixes from two channels (vocals + kick), with per-send gain/pan/mute, master gain, and master mute; self-checking assertions verify signal-flow invariants. Run with `cargo run --example minimal_mix --manifest-path server/Cargo.toml`.
 - `examples/minimal-mix/README.md`: guide with signal graph, expected output, and usage.
 
-### Performance — WS fan-out lock contention (2026-09-13)
-- Remove `mix_assignment_lock` from read-only broadcast fan-out paths (`SendAck` and `MasterAck` forwarding); mutation path retains the lock. Reduces async mutex contention under load; stale-read window on assignment transition is accepted and mitigated by client REST re-sync.
-=======
 ### Performance — Phase 86: lock-free broadcast fan-out (2026-09-13)
 - Remove `mix_assignment_lock` from WebSocket broadcast receivers (send-delta and master-delta fan-out).
 - Ownership check on receiver side is now a lock-free DB read; comment documents the intentional bounded stale-read trade-off.
 - Lock is still held by mutation senders (inbound WS path and HTTP routes), preserving mutation ordering guarantees.
->>>>>>> 7af2fdc (perf(ws): remove mix_assignment_lock from broadcast fan-out receivers (Phase 86))
 
 ### Changed — Phase 84 release reproducibility (2026-09-13)
 - Release workflow uses Cargo `--locked` for Rust checks/builds.
