@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - SHA `55cc8345863c7cc4c66a329aec7e433d2d1c52a9` (rotulado erroneamente como v6.1.0) não existe no repositório `actions/cache`, causando falha imediata de todos os 10 jobs de CI.
 - Revertido para SHA válido `6849a6489940f00c2f30c0fb92c6274307ccb58a` (v4.1.2) em ci.yml (2 ocorrências) e release.yml (3 ocorrências).
 - SHA verificado via GitHub API antes do commit; audit local limpo (60 testes Python + testes Rust + cargo audit passando).
+- Run `34759734717` executou e aprovou todos os 9 jobs, removendo bloqueio operacional de runner/quota.
 
 ### Added — Phase 83: pan estéreo e mudo master na UI do músico (2026-09-13)
 - Slider de panorama por canal (-1 a +1) com rótulo L/C/R; desabilitado quando canal está mudo.

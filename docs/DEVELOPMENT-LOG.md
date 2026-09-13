@@ -4,6 +4,24 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — CI recovery after actions/cache pin correction
+
+**Status:** VERIFIED — run `34759734717` passed all 9 jobs on `main`.
+
+### Evidence
+
+- Rust format, clippy, tests and x86_64/ARM64 cross-build passed.
+- Musician and Engineer typecheck, tests and builds passed.
+- Python release archive/bundle security tests passed.
+- Rust and npm security audits passed.
+- Documentation, PDF and agent skill validation passed.
+
+### Decision
+
+CI is no longer blocked by runner/quota failure. Release `v0.3.1`, real installer execution, PipeWire/WebRTC media and Raspberry Pi 5 validation remain pending. No hardware support claim changed.
+
+---
+
 ## 2026-09-13 — Hotfix CI — actions/cache SHA inválido
 
 **Status:** MERGED — ff0c085 em main; CI em curso.

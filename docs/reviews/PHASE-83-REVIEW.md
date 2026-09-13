@@ -2,7 +2,7 @@
 
 **Data:** 2026-09-13
 **Commit:** e0f0d40
-**Status:** PASS WITH CONDITIONS
+**Status:** PASS WITH CONDITIONS — CI remoto aprovado; instalação real e hardware pendentes
 
 ## Scope
 
@@ -30,7 +30,7 @@ Adição de controle de panorama estéreo por canal e indicador de mudo master �
 
 ## Limitações
 
-- CI remoto bloqueado por quota GitHub Actions (`runner_id=0`).
+- CI remoto executou todos os 9 jobs com sucesso no run `34759734717` após correção do pin de `actions/cache`.
 - `masterMuted` somente leitura — protocolo WebSocket não possui `SetMasterMuted`; TODO registrado.
 - Pan testado localmente; não validado em hardware ou browser real.
 - PipeWire, WebRTC de mídia e Raspberry Pi 5 não validados.
