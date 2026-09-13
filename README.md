@@ -40,13 +40,36 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 31 — JWT post-issuance revocation + fail-closed follow-up**. Implementação e testes locais estão no working tree, ainda não commitados/mergeados; release permanece bloqueada por CI remoto.
+**Fase incremental atual: Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas.** O run remoto `34728518286` executou 56 testes e falhou em 10 helpers que geravam assinaturas Ed25519 sem `-rawin`; correção aplicada nos testes locais. Suíte combinada local passa com 56 testes. CI remoto aguarda novo run; release, hardware e mídia continuam não validados.
 
-**Phase 31 — JWT post-issuance revocation + fail-closed follow-up** (local verification passes; CI blocked; not merged)
+**Fase anterior: Phase 78 — rejeição de dados residuais em archives.** O validador rejeita streams gzip concatenados e bytes residuais após um archive válido, além de validar estrutura, limites, tipos, duplicatas e payloads truncados. A verificação local passa; CI remoto, release e hardware continuam não validados. Imagens documentais geradas a partir do código-fonte cobrem Login, Musician PWA, Engineer Console, Admin CLI/API e controles de mix; não são screenshots de runtime. Control plane local segue validado; mídia continua `SIMULATED`. Ver [review da Phase 76](docs/reviews/PHASE-76-REVIEW.md), [review da Phase 75](docs/reviews/PHASE-75-REVIEW.md), [review da Phase 72](docs/reviews/PHASE-72-REVIEW.md), [review da Phase 71](docs/reviews/PHASE-71-REVIEW.md), [Phase 70](docs/reviews/PHASE-70-REVIEW.md), [Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
 
-O cliente Musician envia access token no subprotocolo de autenticação `openiem.bearer.<JWT>` junto de `openiem.v1` durante o upgrade HTTP; `/ws/v1` valida ambos e ecoa somente `openiem.v1`. Query strings não carregam mais tokens. Erros após envelope válido preservam `request_id`; erros de parsing usam `server`. ACKs, snapshot REST, ownership, ordenação, revisão monotônica antes de aplicar `State`/`SendAck`/`MasterAck`, limites de mensagem/frame de 16 KiB aplicados no upgrade (com teste de transporte para mensagem Text acima do limite), keepalive Ping/Pong com desafio correlacionado (30 s / timeout 60 s), máquina de estados sem falso timeout após Pong válido e teste determinístico com relógio pausado, rejeição de frames binários, limite process-wide de 64 conexões, quotas de 4 conexões por usuário e 16 por IP com reserva atômica e liberação RAII, sinalização de ressincronização após lag de broadcast, limiter bounded de 5 falhas de autenticação por IP a cada 60 s (com 4.096 entradas máximas) e logs de falha de consulta de ownership permanecem ativos. Áudio, sessões WebRTC reais, PipeWire e runtime ARM64 em Raspberry Pi continuam `SIMULATED`/não validados.
+O validador rejeita separadores `\\`, caracteres de controle, caracteres inválidos, pontos/espaços finais e nomes reservados Windows em cada componente, além de raiz `.`/`..` ou raiz não canônica, membro oversized e total descomprimido excedido antes de consumir membros seguintes. O bundle final agora exige archives server x86_64/ARM64 e web musician/engineer na versão da tag, checksum correto, assinatura server não vazia e rejeita arquivos inesperados antes da publicação. CI também cobre teste automatizado desse validador junto aos validadores de archive e assinatura. O verificador Ed25519 limita assinatura e chave pública a 64 KiB; ambos exigem `O_NOFOLLOW`, validam arquivos regulares em descritores não bloqueantes e o verificador chama `/usr/bin/openssl` sem depender de `PATH` mutável. Execução validada permanece Linux; os runs `34724845040` (PR) e `34724842446` (push) falharam antes da execução dos jobs; jobs consultados retornaram `runner_id=0` e `steps=[]`; portanto CI remoto continua bloqueado por runner/permissões; hardware continua não validado. Ver [review da Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
 
-Ver [Phase 29 review](docs/reviews/PHASE-29-REVIEW.md), [Phase 27 review](docs/reviews/PHASE-27-REVIEW.md), [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
+**Phase 56 — correção do lifetime do diretório temporário do Caddyfile.** A limpeza prematura removida do guia Raspberry Pi permite concluir cópia e instalação do Caddyfile; CI remoto e hardware continuam não validados. Ver [review da Phase 56](docs/reviews/PHASE-56-REVIEW.md).
+
+**Phase 54 — provenance de artefatos de release.** O workflow gera attestation Sigstore/GitHub para archives de servidor x86_64 e ARM64 antes do upload, com permissões mínimas de OIDC; CI remoto e hardware continuam não validados. Ver [review da Phase 54](docs/reviews/PHASE-54-REVIEW.md).
+
+**Phase 53 — validação estrutural de archives de release.** O workflow valida archives de servidor x86_64 e ARM64 antes de checksum/upload, rejeitando traversal, links, membros inesperados e binários ausentes. O empacotamento web agora falha se qualquer `dist/` faltar e uploads exigem arquivos. CI remoto e hardware continuam não validados. O guia Raspberry Pi restringe redirects do `curl` a HTTPS, valida os dois binários e instala ambos. CI e release continuam usando `ubuntu-latest`; isso não prova disponibilidade de runner. Os runs mais recentes `34645508776` (PR) e `34645504292` (push) falharam antes dos steps; todos os 9 jobs do PR terminaram com `runner_id=0` e `steps=[]`; PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [review da Phase 53](docs/reviews/PHASE-53-REVIEW.md), [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md), [review da Phase 51](docs/reviews/PHASE-51-REVIEW.md), [Phase 50](docs/reviews/PHASE-50-REVIEW.md), [Phase 49](docs/reviews/PHASE-49-REVIEW.md) e [Phase 48](docs/reviews/PHASE-48-REVIEW.md).
+
+**Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
+
+**Phase 32 — harness determinístico do áudio** (verificação local passa; PR #40 aberto; CI bloqueado; não mergeado)
+
+O harness `SIMULATED` cobre determinismo, isolamento entre mixes, ganho, pan, mute, limiter e finitude das amostras. `cargo fmt --all -- --check` e `cargo test -p audio-engine` passaram: 20 testes unitários, 4 testes de integração e doc-tests. O harness não cobre hardware, desempenho realtime ou stop/start. Áudio real, PipeWire e runtime ARM64 em Raspberry Pi continuam não validados.
+
+Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/reviews/PHASE-31-REVIEW.md), [Phase 29 review](docs/reviews/PHASE-29-REVIEW.md), [Phase 27 review](docs/reviews/PHASE-27-REVIEW.md), [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
+
+## Interfaces e controles
+
+Imagens documentais das interfaces implementadas. São mockups baseados no código-fonte; não são screenshots de runtime. Áudio permanece `SIMULATED` até validação em Raspberry Pi 5.
+
+- [Visão geral das interfaces e controles](docs/INTERFACES.md)
+- [Musician PWA](docs/images/open-iem-musician-ui.png)
+- [Engineer Console](docs/images/open-iem-engineer-console.png)
+- [Admin CLI/API](docs/images/open-iem-admin-cli.png) — não existe painel Admin web
+- [Login](docs/images/open-iem-login.png)
+- [Controles de mix](docs/images/open-iem-mix-controls.png)
 
 ## Development Phases
 
@@ -70,6 +93,35 @@ Ver [Phase 29 review](docs/reviews/PHASE-29-REVIEW.md), [Phase 27 review](docs/r
 | 29 | WebSocket Failed-Auth Limiting | ✅ Local implementation; CI blocked |
 | 30 | Docker Compose development | ✅ Configuration validated; runtime pending |
 | 31 | JWT post-issuance revocation | ✅ Local implementation and tests; CI blocked; unmerged |
+| 32 | Deterministic audio harness | ✅ Local tests pass; CI blocked; unmerged |
+| 33 | CI branch trigger diagnosis | ✅ Local correction; CI remote blocked |
+| 34 | Admin CLI output correctness | ✅ Local tests pass; CI blocked; unmerged |
+| 35 | Developer CLI `iem` | ✅ Local tests pass; CI blocked; unmerged |
+| 38 | CLI documentation consistency | ✅ Local validation; CI blocked |
+| 39 | Makefile audio harness coverage | ✅ Local validation; CI blocked |
+| 40 | Compose rebuild and localhost UI binding | ✅ Local validation; CI blocked |
+| 41–51 | Documentation, release and ARM64 deployment hardening | ✅ Local validation; CI blocked; hardware pending |
+| 52 | Verification follow-up: redirects, CI tool pins and TLS file installation | ✅ Local validation; CI blocked |
+| 53 | Release archive validation | ✅ Local validation; CI blocked |
+| 54 | Release artifact provenance | 🔄 Local workflow implementation; CI blocked |
+| 55 | Deployment path hardening | ✅ Local validation; CI blocked; hardware pending |
+| 56 | Caddyfile temporary-directory lifetime | ✅ Local validation; CI blocked; hardware pending |
+| 58 | Detached release signature verification | ✅ Local tests; workflow key management pending |
+| 59 | Release archive resource limits | ✅ Local tests; CI and hardware pending |
+| 61 | Fail-closed release archive input | ✅ Local tests; CI and hardware pending |
+| 62 | Python security tests in CI | 🔄 Local workflow implementation; CI and hardware pending |
+| 63 | Fail-closed signed-file verification | ✅ Local validation; CI and hardware pending |
+| 64 | Archive validator portability error handling | ✅ Local validation; CI and hardware pending |
+| 65 | Incremental archive resource validation | ✅ Local validation; CI and hardware pending |
+| 66 | Canonical archive root validation | ✅ Local validation; CI and hardware pending |
+| 67 | Cross-platform safe archive names | ✅ Local validation; CI and hardware pending |
+| 68 | Windows archive names and signature input limits | ✅ Local validation; CI and hardware pending |
+| 69 | Final release bundle validation | ✅ Local implementation; CI and hardware pending; pinned public-key fingerprint and immutable upload manifest |
+| 70 | Bundle validator resource hardening | ✅ Local validation; CI and hardware pending |
+| 71 | Validated release snapshot | 🔄 Local implementation; CI, release and hardware pending |
+| 72 | HTTP signaling integration | ✅ Local test; CI, media and hardware pending |
+| 76 | Archive payload validation | ✅ Local tests; CI, release and hardware pending |
+| 77 | Structural archive validation before payload | ✅ Local tests; CI, release and hardware pending |
 
 ## Repository Structure
 
@@ -95,6 +147,10 @@ scripts/              — Development utilities
 - [Development Log](docs/DEVELOPMENT-LOG.md)
 - [Windows + Docker Desktop Guide](docs/guides/WINDOWS-DOCKER-GUIDE.md)
 - [ADR Index](docs/adr/)
+- [Interface CLI](docs/CLI.md)
+- [Review da Phase 33](docs/reviews/PHASE-33-REVIEW.md)
+- [Review da Phase 32](docs/reviews/PHASE-32-REVIEW.md)
+- [Review da Phase 31](docs/reviews/PHASE-31-REVIEW.md)
 
 ## Contributing
 

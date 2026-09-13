@@ -2,11 +2,12 @@ name: Release
 
 on:
   push:
+    # Glob selects candidate tags; validate-version enforces exact SemVer.
     tags:
-      - "v[0-9]+\\.[0-9]+\\.[0-9]+"
+      - "v[0-9]*.[0-9]*.[0-9]*"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   # ──────────────────────────────────────────────
@@ -14,59 +15,57 @@ jobs:
   # ──────────────────────────────────────────────
   validate-version:
     name: Validate version consistency
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.extract.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Extract tag version
+      - name: Validate canonical project version
         id: extract
         run: |
-          TAG="${GITHUB_REF_NAME}"
-          VERSION="${TAG#v}"
+          VERSION=$(TAG="${GITHUB_REF_NAME}" python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import re
+          import tomllib
+
+          root = pathlib.Path('.')
+          version = (root / 'VERSION').read_text(encoding='utf-8').strip()
+          if re.fullmatch(r'(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)', version) is None:
+              raise SystemExit('VERSION must contain exact SemVer X.Y.Z')
+          cargo = tomllib.loads((root / 'server/Cargo.toml').read_text(encoding='utf-8'))
+          manifests = [cargo['workspace']['package']['version']]
+          manifests.extend(json.loads((root / path).read_text(encoding='utf-8'))['version'] for path in ('web/musician/package.json', 'web/engineer/package.json'))
+          if any(candidate != version for candidate in manifests):
+              raise SystemExit('VERSION does not match every project manifest')
+          tag = os.environ['TAG']
+          if re.fullmatch(r'v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)', tag) is None or tag[1:] != version:
+              raise SystemExit('tag does not match VERSION')
+          print(version)
+          PY
+          )
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "Tag: ${TAG} → version: ${VERSION}"
-
-      - name: Check Cargo workspace version matches tag
-        run: |
-          VERSION="${{ steps.extract.outputs.version }}"
-          CARGO_VERSION=$(grep '^version' server/Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
-          echo "Cargo workspace version: ${CARGO_VERSION}"
-          if [ "${CARGO_VERSION}" != "${VERSION}" ]; then
-            echo "ERROR: Tag version ${VERSION} does not match Cargo workspace version ${CARGO_VERSION}"
-            exit 1
-          fi
-
-      - name: Check frontend versions match tag
-        run: |
-          VERSION="${{ steps.extract.outputs.version }}"
-          for PACKAGE in web/musician/package.json web/engineer/package.json; do
-            PKG_VERSION=$(node -p "require('./${PACKAGE}').version")
-            echo "${PACKAGE} version: ${PKG_VERSION}"
-            if [ "${PKG_VERSION}" != "${VERSION}" ]; then
-              echo "ERROR: ${PACKAGE} version (${PKG_VERSION}) does not match tag (${VERSION})"
-              exit 1
-            fi
-          done
+          echo "Tag and all manifests match canonical VERSION: ${VERSION}"
 
   # ──────────────────────────────────────────────
   # 2. Quality gate (same as CI but required for release)
   # ──────────────────────────────────────────────
   quality-gate:
     name: Quality gate (fmt + clippy + tests + audit)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     needs: validate-version
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
           components: rustfmt, clippy
 
       - name: Cache Cargo registry
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ~/.cargo/registry
@@ -85,16 +84,18 @@ jobs:
         run: cargo test --manifest-path server/Cargo.toml --all
 
       - name: Install cargo-audit
-        run: cargo install cargo-audit --locked
+        run: cargo install cargo-audit --version 0.22.2 --locked
 
       - name: Security audit
         run: |
           # RUSTSEC-2023-0071: rsa crate (Marvin Attack) — transitively pulled by
-          # jsonwebtoken/rust_crypto; Open IEM uses EdDSA only, RSA never executed.
+          # jsonwebtoken/rust_crypto. Accept residual only after proving JWT uses EdDSA.
+          ! grep -RE 'Algorithm::(RSA|HS|ES|RS|PS)' server/api-server/src/auth.rs
+          grep -q 'Algorithm::EdDSA' server/api-server/src/auth.rs
           cargo audit --file server/Cargo.lock --ignore RUSTSEC-2023-0071
 
       - name: Setup Node 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
 
@@ -117,16 +118,20 @@ jobs:
   # ──────────────────────────────────────────────
   build-server-x86:
     name: Build server (Linux x86_64)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     needs: [quality-gate, validate-version]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
 
       - name: Cache Cargo registry
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ~/.cargo/registry
@@ -163,16 +168,62 @@ jobs:
           cp README.md LICENSE "${DIR}/"
           cp CHANGELOG.md "${DIR}/" || true
           tar -czf "${DIR}.tar.gz" "${DIR}"
+          python3 scripts/validate-release-archive.py "${DIR}.tar.gz" api-server open-iem-admin
           sha256sum "${DIR}.tar.gz" > "${DIR}.tar.gz.sha256"
+          test -n "${OPENIEM_RELEASE_SIGNING_KEY_PEM:-}" || {
+            printf '%s\n' 'Missing OPENIEM_RELEASE_SIGNING_KEY_PEM' >&2
+            exit 1
+          }
+          KEY_FILE=$(mktemp)
+          trap 'rm -f -- "$KEY_FILE"' EXIT
+          chmod 600 "$KEY_FILE"
+          printf '%s' "${OPENIEM_RELEASE_SIGNING_KEY_PEM}" > "$KEY_FILE"
+          /usr/bin/openssl pkey -in "$KEY_FILE" -text -noout 2>/dev/null | grep -q '^ED25519' || {
+            printf '%s\n' 'Signing key must be Ed25519' >&2
+            exit 1
+          }
+          /usr/bin/openssl pkeyutl -sign -inkey "$KEY_FILE" \
+            -in "${DIR}.tar.gz" -out "${DIR}.tar.gz.sig"
+          test -s "${DIR}.tar.gz.sig"
+          test -n "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM:-}" || {
+            printf '%s\n' 'Missing OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM repository variable' >&2
+            exit 1
+          }
+          [[ "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT:-}" =~ ^[0-9A-Fa-f]{64}$ ]] || {
+            printf '%s\n' 'Missing or malformed OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT repository variable' >&2
+            exit 1
+          }
+          PUBLIC_KEY_FILE=$(mktemp)
+          trap 'rm -f -- "$KEY_FILE" "$PUBLIC_KEY_FILE"' EXIT
+          chmod 644 "$PUBLIC_KEY_FILE"
+          printf '%s' "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM}" > "$PUBLIC_KEY_FILE"
+          ACTUAL_PUBLIC_KEY_FINGERPRINT=$(/usr/bin/openssl pkey -pubin -in "$PUBLIC_KEY_FILE" -outform DER | sha256sum | cut -d' ' -f1)
+          [[ "${ACTUAL_PUBLIC_KEY_FINGERPRINT}" == "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT,,}" ]] || {
+            printf '%s\n' 'Release signing public key fingerprint mismatch' >&2
+            exit 1
+          }
+          python3 scripts/verify-release-signature.py \
+            "${DIR}.tar.gz" "${DIR}.tar.gz.sig" "$PUBLIC_KEY_FILE"
           echo "Artefact: ${DIR}.tar.gz"
           cat "${DIR}.tar.gz.sha256"
+        env:
+          OPENIEM_RELEASE_SIGNING_KEY_PEM: ${{ secrets.OPENIEM_RELEASE_SIGNING_KEY_PEM }}
+          OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM: ${{ vars.OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM }}
+          OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT: ${{ vars.OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT }}
+
+      - name: Attest server archive provenance
+        uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
+        with:
+          subject-path: open-iem-server-*.tar.gz
 
       - name: Upload artefact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: server-x86_64-linux
+          if-no-files-found: error
           path: |
             open-iem-server-*.tar.gz
+            open-iem-server-*.tar.gz.sig
             open-iem-server-*.tar.gz.sha256
             open-iem-server-*-sbom.json
 
@@ -181,13 +232,17 @@ jobs:
   # ──────────────────────────────────────────────
   build-server-arm64:
     name: Build server (Linux ARM64)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     needs: [quality-gate, validate-version]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install Rust stable + ARM64 target
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
           targets: aarch64-unknown-linux-gnu
 
@@ -195,7 +250,7 @@ jobs:
         run: sudo apt-get install -y gcc-aarch64-linux-gnu
 
       - name: Cache Cargo registry
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ~/.cargo/registry
@@ -224,16 +279,62 @@ jobs:
           cp README.md LICENSE "${DIR}/"
           cp CHANGELOG.md "${DIR}/" || true
           tar -czf "${DIR}.tar.gz" "${DIR}"
+          python3 scripts/validate-release-archive.py "${DIR}.tar.gz" api-server open-iem-admin
           sha256sum "${DIR}.tar.gz" > "${DIR}.tar.gz.sha256"
+          test -n "${OPENIEM_RELEASE_SIGNING_KEY_PEM:-}" || {
+            printf '%s\n' 'Missing OPENIEM_RELEASE_SIGNING_KEY_PEM' >&2
+            exit 1
+          }
+          KEY_FILE=$(mktemp)
+          trap 'rm -f -- "$KEY_FILE"' EXIT
+          chmod 600 "$KEY_FILE"
+          printf '%s' "${OPENIEM_RELEASE_SIGNING_KEY_PEM}" > "$KEY_FILE"
+          /usr/bin/openssl pkey -in "$KEY_FILE" -text -noout 2>/dev/null | grep -q '^ED25519' || {
+            printf '%s\n' 'Signing key must be Ed25519' >&2
+            exit 1
+          }
+          /usr/bin/openssl pkeyutl -sign -inkey "$KEY_FILE" \
+            -in "${DIR}.tar.gz" -out "${DIR}.tar.gz.sig"
+          test -s "${DIR}.tar.gz.sig"
+          test -n "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM:-}" || {
+            printf '%s\n' 'Missing OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM repository variable' >&2
+            exit 1
+          }
+          [[ "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT:-}" =~ ^[0-9A-Fa-f]{64}$ ]] || {
+            printf '%s\n' 'Missing or malformed OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT repository variable' >&2
+            exit 1
+          }
+          PUBLIC_KEY_FILE=$(mktemp)
+          trap 'rm -f -- "$KEY_FILE" "$PUBLIC_KEY_FILE"' EXIT
+          chmod 644 "$PUBLIC_KEY_FILE"
+          printf '%s' "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM}" > "$PUBLIC_KEY_FILE"
+          ACTUAL_PUBLIC_KEY_FINGERPRINT=$(/usr/bin/openssl pkey -pubin -in "$PUBLIC_KEY_FILE" -outform DER | sha256sum | cut -d' ' -f1)
+          [[ "${ACTUAL_PUBLIC_KEY_FINGERPRINT}" == "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT,,}" ]] || {
+            printf '%s\n' 'Release signing public key fingerprint mismatch' >&2
+            exit 1
+          }
+          python3 scripts/verify-release-signature.py \
+            "${DIR}.tar.gz" "${DIR}.tar.gz.sig" "$PUBLIC_KEY_FILE"
           echo "Artefact: ${DIR}.tar.gz"
           cat "${DIR}.tar.gz.sha256"
+        env:
+          OPENIEM_RELEASE_SIGNING_KEY_PEM: ${{ secrets.OPENIEM_RELEASE_SIGNING_KEY_PEM }}
+          OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM: ${{ vars.OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM }}
+          OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT: ${{ vars.OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT }}
+
+      - name: Attest server archive provenance
+        uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
+        with:
+          subject-path: open-iem-server-*.tar.gz
 
       - name: Upload artefact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: server-aarch64-linux
+          if-no-files-found: error
           path: |
             open-iem-server-*.tar.gz
+            open-iem-server-*.tar.gz.sig
             open-iem-server-*.tar.gz.sha256
 
   # ──────────────────────────────────────────────
@@ -241,13 +342,13 @@ jobs:
   # ──────────────────────────────────────────────
   build-web:
     name: Build web frontends
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     needs: [quality-gate, validate-version]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup Node 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
 
@@ -267,22 +368,20 @@ jobs:
 
       - name: Package web artefacts
         run: |
+          set -euo pipefail
           VERSION="${{ needs.validate-version.outputs.version }}"
-          # Musician PWA
-          if [ -d web/musician/dist ]; then
-            tar -czf "open-iem-musician-pwa-${VERSION}.tar.gz" -C web/musician dist
-            sha256sum "open-iem-musician-pwa-${VERSION}.tar.gz" > "open-iem-musician-pwa-${VERSION}.tar.gz.sha256"
-          fi
-          # Engineer UI
-          if [ -d web/engineer/dist ]; then
-            tar -czf "open-iem-engineer-ui-${VERSION}.tar.gz" -C web/engineer dist
-            sha256sum "open-iem-engineer-ui-${VERSION}.tar.gz" > "open-iem-engineer-ui-${VERSION}.tar.gz.sha256"
-          fi
+          test -d web/musician/dist
+          test -d web/engineer/dist
+          tar -czf "open-iem-musician-pwa-${VERSION}.tar.gz" -C web/musician dist
+          sha256sum "open-iem-musician-pwa-${VERSION}.tar.gz" > "open-iem-musician-pwa-${VERSION}.tar.gz.sha256"
+          tar -czf "open-iem-engineer-ui-${VERSION}.tar.gz" -C web/engineer dist
+          sha256sum "open-iem-engineer-ui-${VERSION}.tar.gz" > "open-iem-engineer-ui-${VERSION}.tar.gz.sha256"
 
       - name: Upload web artefacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: web-dist
+          if-no-files-found: error
           path: |
             open-iem-musician-pwa-*.tar.gz
             open-iem-musician-pwa-*.tar.gz.sha256
@@ -294,24 +393,76 @@ jobs:
   # ──────────────────────────────────────────────
   github-release:
     name: Publish GitHub Release
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs:
       - validate-version
       - build-server-x86
       - build-server-arm64
       - build-web
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Download all artefacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           path: dist/
 
       - name: Flatten artefact directories
         run: |
-          find dist/ -type f \( -name "*.tar.gz" -o -name "*.sha256" \) -exec mv {} dist/ \;
-          ls -lh dist/*.tar.gz dist/*.sha256 2>/dev/null || true
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            target="dist/$(basename -- "${file}")"
+            if [ "${file}" != "${target}" ] && [ -e "${target}" ]; then
+              printf 'duplicate artifact name: %s\n' "${target}" >&2
+              exit 1
+            fi
+            if [ "${file}" != "${target}" ]; then
+              mv -- "${file}" "${target}"
+            fi
+          done < <(find dist/ -mindepth 2 -type f \( -name "*.tar.gz" -o -name "*.tar.gz.sig" -o -name "*.sha256" -o -name "*-sbom.json" \) -print0)
+          find dist/ -mindepth 1 -depth -type d -empty -delete
+          ls -lh dist/*.tar.gz dist/*.tar.gz.sig dist/*.sha256 2>/dev/null || true
+          test -z "$(find dist/ -mindepth 1 -type d -print -quit)" || {
+            printf '%s\n' 'unexpected non-empty artifact directory' >&2
+            exit 1
+          }
+
+      - name: Validate assembled release bundle
+        env:
+          RELEASE_VERSION: ${{ needs.validate-version.outputs.version }}
+          OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM: ${{ vars.OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM }}
+          OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT: ${{ vars.OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT }}
+        run: |
+          set -euo pipefail
+          test -n "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM:-}" || {
+            printf '%s\n' 'Missing OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM repository variable' >&2
+            exit 1
+          }
+          [[ "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT:-}" =~ ^[0-9A-Fa-f]{64}$ ]] || {
+            printf '%s\n' 'Missing or malformed OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT repository variable' >&2
+            exit 1
+          }
+          PUBLIC_KEY_FILE=$(mktemp)
+          MANIFEST_FILE=$(mktemp)
+          trap 'rm -f -- "$PUBLIC_KEY_FILE" "$MANIFEST_FILE"' EXIT
+          chmod 644 "$PUBLIC_KEY_FILE"
+          printf '%s' "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM}" > "$PUBLIC_KEY_FILE"
+          ACTUAL_PUBLIC_KEY_FINGERPRINT=$(/usr/bin/openssl pkey -pubin -in "$PUBLIC_KEY_FILE" -outform DER | sha256sum | cut -d' ' -f1)
+          [[ "${ACTUAL_PUBLIC_KEY_FINGERPRINT}" == "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT,,}" ]] || {
+            printf '%s\n' 'Release signing public key fingerprint mismatch' >&2
+            exit 1
+          }
+          test ! -e release-upload && test ! -L release-upload
+          python3 scripts/validate-release-bundle.py dist "${RELEASE_VERSION}" --public-key "$PUBLIC_KEY_FILE" --manifest "$MANIFEST_FILE" --output release-upload
+          while read -r digest name; do
+            printf '%s  %s\n' "${digest}" "release-upload/${name}"
+          done < "$MANIFEST_FILE" > release-files.txt
+          sha256sum -c <(sed 's#  #  release-upload/#' "$MANIFEST_FILE")
+          cp --reflink=auto -- "$MANIFEST_FILE" release-manifest.sha256
+          printf '%s\n' release-manifest.sha256 >> release-files.txt
+          test -s release-files.txt
 
       - name: Extract CHANGELOG excerpt for release notes
         id: notes
@@ -326,17 +477,14 @@ jobs:
           echo "${NOTES}" > release_notes.txt
           cat release_notes.txt
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: "Open IEM Platform ${{ needs.validate-version.outputs.version }}"
-          body_path: release_notes.txt
-          draft: false
-          prerelease: false
-          files: |
-            dist/*.tar.gz
-            dist/*.sha256
-            dist/*.json
+      - name: Create GitHub Release from validated manifest
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ needs.validate-version.outputs.version }}
+        run: |
+          set -euo pipefail
+          mapfile -t RELEASE_FILES < release-files.txt
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Open IEM Platform ${RELEASE_VERSION}" \
+            --notes-file release_notes.txt \
+            "${RELEASE_FILES[@]}"

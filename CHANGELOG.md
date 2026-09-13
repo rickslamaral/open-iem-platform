@@ -6,7 +6,270 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Security — Phase 31 JWT post-issuance revocation (working tree only)
+### Fixed — Phase 79 compatibilidade OpenSSL 3.5 (2026-09-13)
+- Helpers de teste Ed25519 usam `-rawin`, exigido por OpenSSL 3.5 para operações de assinatura sem digest.
+- Suíte combinada local: 56 testes aprovados; CI remoto precisa confirmar correção.
+
+### Security — Phase 78 rejeição de dados residuais em archives (2026-09-13)
+- O validador agora verifica o stream gzip completo após validar e consumir o TAR, rejeitando bytes residuais e streams gzip concatenados não autenticados.
+- Testes offline cobrem ambos os casos; CI remoto, release e hardware continuam não validados.
+
+### Security — Phase 77 archive validation order (2026-09-12)
+- O validador rejeita nomes, raiz, tipos, duplicatas e membros inesperados antes de consumir payloads, reduzindo custo de CPU/IO em archives inválidos.
+- Teste confirma que membro inesperado falha sem chamar consumidor de payload; CI remoto e hardware continuam não validados.
+
+### Changed — Phase 76 CI status refresh (2026-09-12)
+- Runs `34724845040` (PR) e `34724842446` (push) falharam antes dos steps; jobs consultados retornaram `runner_id=0` e `steps=[]`. Nenhum teste ou build remoto executou; merge e release continuam bloqueados.
+
+### Security — Phase 76 archive payload validation (2026-09-12)
+- O validador consome payload completo de arquivos regulares em chunks limitados e rejeita membros truncados; `tarfile` limita leitura ao tamanho declarado pelo header.
+- Teste offline cobre payload de membro truncado; CI remoto, release e hardware continuam não validados.
+
+### Changed — Phase 75 version gate (2026-09-12)
+- Adicionado `VERSION` como fonte canônica e `scripts/validate-version.py` para validar SemVer, manifests Rust/frontend e tag de release.
+- Release workflow e `make test` usam gate reproduzível; CI remoto continua bloqueado antes dos steps.
+
+### Added — Phase 74 documentação visual das interfaces (2026-09-12)
+- Adicionadas imagens documentais geradas do código-fonte para Login, Musician PWA, Engineer Console, Admin CLI/API e controles de mix.
+- Adicionado `docs/INTERFACES.md`; imagens não são screenshots de runtime e não alteram claims de suporte.
+
+### Changed — Phase 73 Musician Guide (2026-09-12)
+- Guia e PDF alinhados ao fluxo HTTP real de signaling; mídia continua `SIMULATED`.
+
+### Added — Phase 72 HTTP signaling integration (2026-09-12)
+- Teste autenticado cobre negociação SDP seguida de trickle ICE nas rotas HTTP reais; áudio permanece `SIMULATED`.
+
+### Security — Phase 71 validated release snapshot (2026-09-12)
+- Validação de bundle agora abre diretório e entradas por descritores `O_NOFOLLOW`, copia em chunks limitados e publica staging somente após validação completa.
+- O workflow de release consome somente o snapshot validado; limite de 32 entradas reduz pressão de recursos. CI remoto, hardware e release continuam não validados.
+
+### Security — Phase 70 bundle validator hardening (2026-09-12)
+- Validador limita arquivo individual a 512 MiB, bundle a 2 GiB e manifesto a 64 KiB antes de leituras sem limite.
+- SBOM opcional precisa ser JSON objeto válido; escrita de manifesto usa `O_NOFOLLOW` e descritor regular.
+- Testes offline: 45 aprovados. CI remoto, hardware e release continuam não validados.
+
+### Changed — Phase 69 CI status refresh (2026-09-12)
+- Runs `34711659175` (PR) e `34711656770` (push) falharam antes da execução dos jobs; no PR, os 10 jobs retornaram `runner_id=0` e `steps=[]`. Nenhum teste ou build remoto executou; merge e release continuam bloqueados.
+
+### Changed — Phase 69 CI status refresh (2026-09-12)
+- Runs `34711083274` (PR) e `34711080316` (push) falharam antes dos steps; os 10 jobs do run PR retornaram `runner_id=0` e `steps=[]`. Nenhum teste ou build remoto executou; merge e release continuam bloqueados.
+
+### Security — Phase 69 final release bundle validation (2026-09-12)
+- O workflow valida o bundle consolidado antes da publicação: archives server x86_64/ARM64 e web musician/engineer devem corresponder à versão da tag.
+- Checksums são recalculados com abertura protegida contra symlink; assinaturas server ausentes/vazias e arquivos inesperados bloqueiam a publicação.
+- Jobs de build e validação final exigem `OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT`, aceitam somente fingerprint SHA-256 hexadecimal de 64 caracteres e comparam contra chave pública derivada antes de verificar assinaturas.
+- Validação gera manifesto imutável com nomes e digests exatos; publicação usa somente caminhos listados no manifesto, sem glob amplo.
+- Testes offline: 42 aprovados; CI agora inclui `tests/test_validate_release_bundle.py`. CI remoto, hardware e release continuam não validados.
+
+### Security — Phase 68 Windows archive names and signature input limits (2026-09-12)
+- O validador rejeita caracteres inválidos, pontos/espaços finais e nomes reservados Windows em todos os componentes do caminho.
+- O verificador rejeita assinatura ou chave pública acima de 64 KiB antes de executar OpenSSL.
+- Testes offline: 30 aprovados. CI remoto, hardware e release continuam não validados.
+
+### Security — Phase 67 cross-platform safe archive names (2026-09-12)
+- O validador rejeita separadores `\\` e caracteres de controle em nomes de membros antes de qualquer validação estrutural, evitando divergência de interpretação entre consumidores POSIX e Windows.
+- Testes offline cobrem separador Windows e caractere de controle.
+- CI remoto e hardware continuam não validados.
+
+### Security — Phase 66 canonical archive root validation (2026-09-12)
+- O validador rejeita nomes de diretório raiz `.`/`..` ou não canônicos antes de validar conteúdo, mantendo caminhos de release determinísticos.
+- Adicionado teste local para raiz não canônica.
+- CI remoto e hardware continuam não validados.
+
+### Security — Phase 65 incremental archive resource validation (2026-09-12)
+- Limites de tamanho por membro e total descomprimido agora são aplicados durante a iteração do archive; entradas abusivas falham antes do consumo de membros posteriores.
+- Adicionado teste offline para rejeição imediata de membro oversized.
+- CI remoto e hardware continuam não validados.
+
+### Security — Phase 64 archive validator portability (2026-09-12)
+- CLI do validador agora captura ausência de `O_NOFOLLOW` e retorna falha controlada, sem traceback nem comportamento permissivo.
+- CI remoto e hardware continuam não validados.
+
+
+### Changed — CI status after Phase 63 archive verifier portability (2026-09-12)
+- Push run `34695497246` e PR run `34695498591` falharam antes dos steps em todos os 10 jobs; nenhum teste remoto executou. Merge e release continuam bloqueados.
+
+### Security — Phase 63 archive verifier portability (2026-09-12)
+- Validador de archives agora falha explicitamente quando o sistema não oferece `O_NOFOLLOW`, removendo fallback permissivo que poderia aceitar symlinks.
+- Teste offline cobre ausência de `O_NOFOLLOW`.
+- CI remoto e hardware continuam não validados.
+
+### Security — Phase 63 follow-up: fail-closed verifier portability and executable resolution (2026-09-12)
+- Verificador exige `O_NOFOLLOW` no sistema alvo, usa `O_NONBLOCK` antes de validar arquivo regular e chama `/usr/bin/openssl` sem depender de `PATH` mutável.
+- Review independente bloqueou fallback permissivo de symlink e resolução de OpenSSL via `PATH`; correções aplicadas.
+- Execução continua suportada/validada somente em Linux com `/usr/bin/openssl`; CI remoto e hardware continuam não validados.
+
+### Security — Phase 63 fail-closed signed-file verification (2026-09-12)
+- Verificador Ed25519 abre artifact, assinatura e chave com `O_NOFOLLOW`, valida descritor regular e mantém o mesmo arquivo aberto durante OpenSSL, evitando troca TOCTOU.
+- Testes cobrem symlink em artifact e assinatura; erro de execução do OpenSSL falha de forma explícita.
+- CI remoto e hardware continuam não validados.
+
+### Security — Phase 62 Python security tests in CI (2026-09-12)
+- Workflow CI ganhou job dedicado para executar testes offline dos validadores de archive e assinatura com Python/pytest.
+- Execução remota e hardware continuam não validados.
+
+### Security — Phase 61 fail-closed archive input (2026-09-12)
+- Validador abre archive com `O_NOFOLLOW`, exige arquivo regular e aplica limite comprimido via `fstat()` no descritor validado.
+- Testes cobrem symlink e diretório como entradas rejeitadas.
+- CI remoto e hardware continuam não validados.
+
+### Security — Phase 60 incremental archive validation (2026-09-12)
+- Validador interrompe leitura ao exceder 32 membros, evitando materialização ilimitada de headers em archives comprimidos.
+- Testes cobrem limites de archive comprimido e total descomprimido, além dos limites existentes por membro e contagem.
+- CI remoto e hardware continuam não validados.
+
+### Security — Phase 59 archive resource limits (2026-09-12)
+- Validador rejeita archives acima de 512 MiB comprimidos, mais de 32 membros, membros acima de 256 MiB ou total descomprimido acima de 512 MiB, limitando consumo durante validação.
+- Testes determinísticos cobrem rejeição de contagem e tamanho excessivos; CI remoto e hardware continuam não validados.
+- Após push, runs `34674856987` e `34674858746` falharam antes dos steps; nenhum teste remoto executou.
+
+### Security — Phase 58 detached release signature verification (2026-09-12)
+- Adicionado verificador local Ed25519 para assinatura detached de artefatos.
+- Instalador Raspberry Pi exige `.sig` e chave pública regular instalada por canal independente antes da extração.
+- Workflow gera assinaturas detached Ed25519 para archives x86_64 e ARM64 usando secret externo `OPENIEM_RELEASE_SIGNING_KEY_PEM`; arquivos `.sig` são publicados com archives e checksums.
+- Secret ausente, chave não-Ed25519 ou assinatura vazia interrompem job; verificador também rejeita chave pública não-Ed25519.
+- Guia exige chave pública root-owned com modo 0600/0644 e fingerprint SHA-256 autenticado independentemente; CI remoto e hardware continuam não validados.
+
+### Security — Phase 57 deployment archive validation (2026-09-11)
+- O instalador Raspberry Pi agora usa `scripts/validate-release-archive.py` antes da extração, rejeitando caminhos não canônicos, links, arquivos especiais, duplicatas e membros inesperados.
+- O serviço systemd define `OPENIEM_ALLOWED_ORIGINS=https://iem.local`; o guia documenta atualização dessa origem quando mDNS não estiver disponível.
+- CI remoto continua bloqueado antes dos steps; nenhum hardware Raspberry Pi ou release foi validado.
+
+### Changed — CI status refresh (2026-09-11)
+- Runs `34656659602` (PR) e `34656657286` (push) falharam antes dos steps; os jobs terminaram sem `runner_id` executável. Nenhum claim de CI verde, merge ou release foi feito.
+
+### Fixed — Phase 56 Caddyfile temporary-directory lifetime (2026-09-11)
+- Mantida área temporária do certificado até concluir cópia e instalação do Caddyfile; limpeza antecipada fazia o bloco documentado falhar antes de `sudo install`.
+
+### Security — Phase 55 deployment path hardening (2026-09-11)
+- O guia Raspberry Pi resolve Caddyfile a partir da raiz confiável do clone, rejeita symlink e instala com `install` e modo explícito.
+- README agora registra Phase 54 na tabela incremental e marca Phase 53 como validação local concluída; CI remoto continua bloqueado.
+
+### Security — Phase 54 artifact provenance attestation (2026-09-11)
+- O workflow de release agora gera attestations Sigstore/GitHub para archives de servidor x86_64 e ARM64 antes do upload.
+- Jobs de build recebem somente `id-token: write` e `attestations: write` necessários ao provenance; CI remoto e hardware continuam não validados.
+
+### Changed — Phase 53 CI status refresh (2026-09-11)
+- Registrados runs `34645508776` (PR) e `34645504292` (push), ambos falhando antes dos steps; os 9 jobs do PR retornaram `runner_id=0` e `steps=[]`.
+- PR #40 e release permanecem bloqueados; nenhum claim de CI verde ou artefato publicado foi adicionado.
+
+### Security — Phase 53 release archive validation
+- O workflow de release valida archives de servidor x86_64 e ARM64 antes do checksum/upload, rejeitando traversal, links, arquivos inesperados e binários ausentes.
+- Empacotamento web falha quando qualquer `dist/` esperado está ausente; uploads falham quando não encontram arquivos.
+- Validador CLI rejeita basenames obrigatórios fora da allowlist; testes determinísticos agora cobrem esse contrato.
+- Assinatura independente continua pendente.
+
+### Security — Phase 52 verification follow-up
+- Admin CLI não segue redirects HTTP(S), impedindo downgrade TLS e vazamento de Bearer token para destino redirecionado.
+- `cargo-audit` foi fixado na versão `0.22.2` nos workflows CI e release.
+- Geração de certificado LAN usa diretório temporário e instala arquivos com ownership/modos explícitos; áudio, CI remoto e hardware continuam não validados.
+
+### Security — Phase 51 ARM64 deployment hardening
+- Downloads do instalador restringem redirects a HTTPS.
+- Diretórios de serviço recebem ownership e modos explícitos; chaves JWT são geradas em diretório temporário e instaladas com permissões restritas.
+- Unit systemd é resolvida a partir de clone confiável, validada e instalada com `install`; nenhum claim novo de execução em Raspberry Pi foi feito.
+
+### Security — Phase 50 Raspberry Pi installer hardening
+- O fluxo de instalação ARM64 agora falha fechado com `set -euo pipefail`, valida tag SemVer, usa diretório temporário e remove artefatos ao sair.
+- Download verifica HTTP, checksum do arquivo exato e rejeita membros de archive com traversal, caminhos absolutos, symlinks ou hard links antes da extração.
+- Nenhum claim novo de autenticidade do release, execução ARM64 ou hardware Raspberry Pi foi adicionado.
+
+### Fixed — Phase 49 Raspberry Pi ARM64 installation guide
+- Corrigidos nome e caminho do artefato ARM64 no guia de deployment para coincidir com `.github/workflows/release.yml`.
+- O comando de instalação agora baixa e valida checksum com `sha256sum --check` antes de extrair e instalar `api-server` dentro do diretório versionado.
+- `curl` falha explicitamente em erros HTTP antes da instalação.
+- Nenhum artefato foi publicado; release e CI remoto seguem bloqueados por falha pré-steps do runner.
+
+### Security — Phase 48 immutable GitHub Actions pinning
+- Fixadas actions de CI/release em commits SHA completos, reduzindo risco de retagging upstream.
+- CI remoto continua não validado por falha pré-steps do runner.
+
+### Security — Phase 47 workflow permission and tag validation hardening
+- Restringidas permissões padrão de CI e jobs de build/release a `contents: read`.
+- Mantida escrita GitHub Release somente no job publicador.
+- Corrigido filtro candidato de tags e adicionada validação exata `vX.Y.Z` sem zeros à esquerda antes de qualquer build.
+- CI remoto continua não validado por falha pré-steps do runner.
+
+### Fixed — Phase 46 verification follow-up
+- Documentado `make test-audio` em `docs/CLI.md`, mantendo contrato CLI alinhado ao Makefile.
+- `scripts/validate-pdf.sh` agora aceita somente PDFs existentes sob `docs/guides`, evitando validação fora do escopo do repositório.
+
+### Changed — Phase 46 release runner alignment
+- Alinhados seis jobs de `.github/workflows/release.yml` ao `ubuntu-latest` já usado pelo CI.
+- A alteração não prova disponibilidade do runner: os runs remotos anteriores falharam antes dos steps com `runner_id=0`; release continua bloqueada até execução real.
+
+### Fixed — Phase 45 GitHub Actions runner label
+- Trocado `runs-on: ubuntu-24.04` por `runs-on: ubuntu-latest` em todos os jobs de CI; runs anteriores falharam antes dos steps com `runner_id=0`.
+- Os runs `34614028392` e `34614025997` também falharam antes dos steps em todos os jobs com `runner_id=0` e `steps=[]`; CI remoto e release continuam bloqueados.
+
+### Fixed — Phase 44 documentation whitespace gate
+- Removido trailing whitespace introduzido em reviews das Phases 37–39 e na matriz de validação de plataforma.
+- `git diff --check origin/main...HEAD` passa localmente; CI remoto continua bloqueado antes dos steps por ausência de runner executável.
+
+### CI / Security — Phase 43 verification gates
+- Adicionado `server/Cargo.lock` para permitir auditoria reproduzível de dependências Rust.
+- CI agora valida documentação, PDF, skills e whitespace.
+- ADRs duplicados foram renumerados para preservar identificadores únicos.
+- CI remoto continua sem runner executável; nenhuma release foi publicada.
+
+### Tooling — Phase 42 reproducible Musician Guide PDF validation
+- `make docs` agora valida extração textual e renderização do Musician Guide PDF.
+- `scripts/validate-pdf.sh` usa `pdftotext` ou fallback `mutool`, sem depender de pacote específico no VPS.
+- Nenhum claim novo de suporte para PipeWire, WebRTC media ou Raspberry Pi 5.
+
+### Documentation — Phase 41 Musician Guide package refresh
+- Atualizada versão/data de `docs/guides/MUSICIANS-GUIDE.md` para refletir estado atual do projeto.
+- Regenerado `docs/guides/MUSICIANS-GUIDE.pdf` a partir do guia Markdown; PDF continua limitado ao comportamento real e marca áudio como `SIMULATED`.
+- Validação de texto/renderização do PDF ficou bloqueada neste VPS: `pdftotext` não está instalado; geração via Pandoc/XeLaTeX foi executada.
+
+### Changed — Phase 40 Compose rebuild safety
+- `make up` agora usa `docker compose up -d --build`, evitando iniciar imagens locais obsoletas.
+- Compose continua restrito a desenvolvimento; HTTP e áudio `SIMULATED` não mudaram.
+
+### Changed — Phase 39 Makefile audio harness coverage
+- `make test` now runs the deterministic `SIMULATED` `audio-engine` integration harness.
+- Added standalone `make test-audio` target for focused audio verification.
+- No hardware, PipeWire, WebRTC media, Raspberry Pi or remote CI support claim changed.
+
+### Changed — Phase 38 CLI documentation consistency
+- Corrected `docs/CLI.md` and development history to reflect implemented `iem` behavior, version `0.3.1`, fixed command set and current limits.
+
+### Added — Phase 37 platform validation matrix
+- Added `docs/validation/PLATFORM-VALIDATION-MATRIX.md` with evidence boundaries for VPS Linux, Docker Compose, Raspberry Pi 5 ARM64, Windows Docker Desktop, native Windows audio and future macOS work.
+- Hardware, realtime audio, WebRTC media and ARM64 runtime remain `PENDING` or `SIMULATED` until executed on target hardware.
+
+### Changed — Phase 36 Engineer Console telemetry
+- Engineer Console now reads `/api/v1/telemetry` and displays backend plus XRUN count.
+- Unknown metrics remain `UNKNOWN`; VPS audio remains `SIMULATED`.
+- Local frontend tests pass; remote CI remains blocked before workflow steps.
+
+### Added — Phase 35 developer CLI `iem`
+- Added `iem` binary dispatching fixed `help`, `status`, `diagnostics`, `docs`, `test`, `build`, `up` and `down` commands to existing Makefile targets.
+- Preserves child exit codes and rejects arbitrary shell arguments by construction.
+- No global installation, release package or `iem run` support is provided.
+- Local verification: admin-cli tests, clippy, formatting, docs/skills validation and `iem --help` pass; remote CI remains blocked before steps.
+
+### Changed — Phase 34 Admin CLI output correctness
+- `open-iem-admin` accepts HTTP only for localhost and requires HTTPS for remote server URLs, preventing Bearer token transmission over cleartext networks.
+- JSON table output now includes union of fields across all object rows instead of dropping fields absent from first row.
+- HTTP 404 errors now report generic resource-not-found status without stale implementation claims.
+- Local verification: admin-cli tests and clippy pass; remote CI remains blocked before workflow steps.
+
+### Changed — Phase 33 CI branch trigger
+- Added `feat/**` to CI push triggers. Current development branch is `feat/phase24-ws-resilience`; prior workflow matched `feature/**` but not `feat/**`.
+- Remote runner remains blocked before workflow steps (`steps=[]`); this change does not claim CI success.
+
+### Tests — Phase 32 deterministic audio harness
+- Added `server/audio-engine/tests/deterministic_harness.rs` as a deterministic `SIMULATED` audio-engine integration harness.
+- Harness covers determinism, mix isolation, gain, pan, mute, limiter bounds and finite samples.
+- Local verification passes: `cargo fmt --all -- --check` and `cargo test -p audio-engine` — 20 unit tests, 4 integration tests and doc-tests.
+- Harness does not cover hardware, realtime performance or stop/start. Remote CI remains blocked before steps; PR #40 is open; no merge or release.
+
+### Changed — Compose compatibility cleanup
+- Removed obsolete top-level `version` field from `docker-compose.yml`; modern Compose no longer emits the compatibility warning.
+- Compose remains development-only and runtime validation remains pending.
+
+### Security — Phase 31 JWT post-issuance revocation (PR #40)
 - Added persistent access-session mappings tied to refresh sessions, with middleware validation of JWT ID, user, session, expiry, user existence and revocation state.
 - Fixed refresh failure rollback so it discards replacement state without resurrecting a concurrently revoked refresh session.
 - Resolved refresh owner before rotation, preventing a missing user lookup from consuming a valid refresh token.

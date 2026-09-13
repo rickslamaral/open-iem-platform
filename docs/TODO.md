@@ -6,17 +6,288 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## BLOCKER
 
-- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — sem CI remoto não há release `v0.3.1`.
+- [ ] P0 — Confirmar correção da suíte Python de assinatura no GitHub Actions — run `34728518286` executou, mas 10 testes falharam porque OpenSSL 3.5 exige `-rawin`; correção aplicada localmente, novo CI pendente.
+- [ ] P0 — Desbloquear GitHub Actions/runner — sem CI remoto verde não há release `v0.3.1`.
+
+## Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas
+
+- [x] Adicionar `-rawin` aos helpers de teste Ed25519.
+- [x] Validar suíte combinada localmente: 56 testes aprovados.
+- [ ] Confirmar CI remoto verde e atualizar PR #40.
+- [ ] Validar release, instalação ARM64 e Raspberry Pi 5 real.
+
+## Phase 78 — rejeição de dados residuais em archives
+
+- [x] Rejeitar bytes residuais e streams gzip concatenados após archive válido.
+- [x] Adicionar testes offline para os dois casos.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar archives e instalação em Raspberry Pi 5 real.
+
+## Phase 77 — validação estrutural antes do payload
+
+- [x] Validar nomes, raiz, tipos, allowlist e duplicatas antes de consumir payloads.
+- [x] Adicionar teste que garante rejeição de membro inesperado sem leitura de payload.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar archives e instalação em Raspberry Pi 5 real.
+
+## Phase 76 — leitura integral de payloads de archive
+
+- [x] Consumir payload completo de cada arquivo regular em chunks limitados.
+- [x] Rejeitar payload truncado ou ausente durante leitura limitada pelo tamanho declarado.
+- [x] Adicionar teste offline de payload truncado.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar archives e instalação em Raspberry Pi 5 real.
+
+## Phase 75 — fonte única de versão e gate reproduzível
+
+- [x] Criar `VERSION` canônico e validar manifests Rust/frontend e tags SemVer.
+- [x] Integrar gate ao workflow de release e aos testes locais.
+- [x] Atualizar README, CHANGELOG, DEVELOPMENT-LOG e review.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar build/runtime ARM64, mídia WebRTC, PipeWire/ALSA e Raspberry Pi 5 real.
+
+## Phase 74 — documentação visual das interfaces
+
+- [x] Documentar interfaces reais implementadas em `docs/INTERFACES.md`.
+- [x] Gerar SVG/PNG documentais sem secrets e marcar como mockups, não screenshots de runtime.
+- [x] Atualizar README, CHANGELOG, DEVELOPMENT-LOG e guias afetados.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar UI em runtime, mídia WebRTC, PipeWire/ALSA e Raspberry Pi 5 real.
+
+## Phase 73 — Guia do Músico alinhado ao signaling HTTP
+
+- [x] Atualizar guia com sequência real de oferta SDP e trickle ICE via HTTP.
+- [x] Marcar control plane/Sans-IO como validado e mídia como `SIMULATED`.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar mídia WebRTC, PipeWire/ALSA e runtime em Raspberry Pi 5 real.
+
+## Phase 72 — integração HTTP de signaling
+
+- [x] Cobrir oferta SDP autenticada e resposta via rota HTTP.
+- [x] Cobrir trickle ICE autenticado após negociação na mesma sessão.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar mídia WebRTC, PipeWire/ALSA e runtime em Raspberry Pi 5 real.
+
+## Phase 71 — snapshot validado para publicação
+
+- [x] Fixar bundle de entrada por descritor de diretório e abrir membros com `O_NOFOLLOW`.
+- [x] Copiar em chunks limitados para staging privado e publicar output somente após validação.
+- [x] Limitar bundle a 32 entradas e adicionar testes de atomicidade, cleanup e leitura limitada.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 70 — hardening do validador de bundle
+
+- [x] Limitar tamanho de arquivo, bundle e manifesto antes de consumir conteúdo.
+- [x] Validar SBOM opcional como JSON objeto e rejeitar manifesto symlink.
+- [x] Adicionar testes offline para SBOM inválido, limite de arquivo e manifesto symlink.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 69 — validação do bundle final de release
+
+- [x] Validar conjunto final, versão, checksums, assinaturas server e arquivos inesperados antes da publicação.
+- [x] Fixar fingerprint SHA-256 da chave pública e falhar fechado em ausência, formato inválido ou divergência.
+- [x] Gerar manifesto de nomes/digests validados e publicar somente arquivos listados nele.
+- [x] Integrar teste do validador de bundle ao job Python de segurança do CI.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Provisionar e distribuir chave pública Ed25519 por canal independente.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 68 — nomes Windows e limites de assinatura
+
+- [x] Rejeitar caracteres inválidos, pontos/espaços finais e nomes reservados Windows em cada componente de archive.
+- [x] Limitar assinatura e chave pública detached a 64 KiB antes de executar OpenSSL.
+- [x] Adicionar testes offline determinísticos.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 67 — nomes seguros entre plataformas
+
+- [x] Rejeitar separador `\\` e caracteres de controle em nomes de archive.
+- [x] Adicionar testes offline para separador Windows e caractere de controle.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 66 — raiz canônica em archives
+
+- [x] Rejeitar raiz `.`/`..` ou não canônica no validador.
+- [x] Adicionar teste offline para raiz não canônica.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 65 — limites incrementais durante leitura de archives
+
+- [x] Aplicar limites por membro e total descomprimido antes de consumir membros posteriores.
+- [x] Adicionar teste offline de rejeição imediata para membro oversized.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 64 — tratamento fail-closed da portabilidade do validador
+
+- [x] Converter ausência de `O_NOFOLLOW` em erro CLI controlado, sem traceback.
+- [x] Validação local concluída.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 63 — verificação fail-closed de arquivos assinados
+
+- [x] Exigir `O_NOFOLLOW` sem fallback permissivo, abrir com `O_NONBLOCK` e usar `/usr/bin/openssl` sem resolução por `PATH`.
+- [x] Abrir artifact, assinatura e chave com `O_NOFOLLOW` e manter descritores estáveis durante OpenSSL.
+- [x] Rejeitar symlink e entradas não regulares para todos os arquivos verificados.
+- [x] Adicionar testes offline para symlink em artifact e assinatura.
+- [x] Cobrir ausência de `O_NOFOLLOW` no validador de archives.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 62 — testes de segurança Python no CI
+
+- [x] Adicionar job CI dedicado para testes dos validadores de archive e assinatura.
+- [x] Fixar `actions/setup-python` por SHA completo.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 61 — abertura fail-closed de archives
+
+- [x] Abrir archive com `O_NOFOLLOW` e medir tamanho no descritor validado.
+- [x] Rejeitar entradas que não sejam arquivos regulares.
+- [x] Adicionar testes offline para symlink e diretório.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 60 — validação incremental de archives
+
+- [x] Interromper leitura ao exceder 32 membros, sem materializar headers além do limite.
+- [x] Adicionar testes offline para limites comprimido e total descomprimido.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 59 — limites de recursos no validador de archives
+
+- [x] Rejeitar archive acima de 512 MiB comprimidos, mais de 32 membros, membro acima de 256 MiB e total descomprimido acima de 512 MiB.
+- [x] Adicionar testes offline para limites de contagem e tamanho.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+---
+
+## Phase 58 — verificação local de assinatura Ed25519
+
+- [x] Criar `scripts/verify-release-signature.py` com verificação detached Ed25519 fail-closed.
+- [x] Adicionar testes offline para assinatura válida, artefato alterado, assinatura ausente e chave symlink.
+- [x] Integrar geração/publicação de assinatura no workflow usando secret externo `OPENIEM_RELEASE_SIGNING_KEY_PEM`; chave nunca entra no repositório.
+- [ ] Provisionar chave Ed25519 no GitHub Actions e distribuir fingerprint/chave pública por canal independente.
+- [ ] Desbloquear CI remoto antes de merge/release.
+
+## Phase 57 — validação de archive no instalador e origem HTTPS
+
+- [x] Usar `scripts/validate-release-archive.py` antes de extrair archive ARM64.
+- [x] Definir `OPENIEM_ALLOWED_ORIGINS` no unit systemd e documentar ajuste para LAN IP.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar instalação em Raspberry Pi 5 real.
+
+## Phase 56 — correção do lifetime do diretório temporário do Caddyfile
+
+- [x] Manter `CERT_WORK_DIR` até concluir cópia e instalação do Caddyfile.
+- [ ] Validar `caddy validate` e instalação em Raspberry Pi 5 real.
+- [ ] Desbloquear CI remoto antes de merge/release.
+
+## Phase 55 — hardening de caminho no deployment
+
+- [x] Resolver Caddyfile a partir da raiz confiável do clone.
+- [x] Rejeitar Caddyfile symlink antes de instalação privilegiada.
+- [ ] Validar `caddy validate` e instalação em Raspberry Pi 5 real.
+- [ ] Desbloquear CI remoto antes de merge/release.
+
+## Phase 54 — provenance de artefatos de release
+
+- [x] Gerar attestation de provenance para archives de servidor x86_64 e ARM64 antes do upload.
+- [ ] Validar publicação e verificação da attestation após desbloquear GitHub Actions.
+- [ ] Desbloquear CI remoto antes de merge/release.
+
+## Phase 53 — validação de archives de release
+
+- [x] Validar archives de servidor x86_64/ARM64 antes de checksum/upload; rejeitar traversal, links, membros inesperados e binários ausentes.
+- [x] Adicionar testes offline determinísticos, casos maliciosos e contrato CLI do validador.
+- [x] Fazer instalador ARM64 exigir e instalar `api-server` e `open-iem-admin`.
+- [x] Adotar assinatura independente para autenticar artefatos de release — integração Ed25519 no workflow concluída na Phase 58.
+- [ ] Provisionar secret Ed25519 e distribuir fingerprint/chave pública por canal independente.
+- [ ] Desbloquear CI remoto antes de merge/release.
+
+## Phase 52 — follow-up de verificação
+
+- [x] Impedir redirects no Admin CLI para preservar política HTTPS/loopback em cada requisição.
+- [x] Fixar `cargo-audit` em `0.22.2` nos workflows CI e release.
+- [x] Gerar certificados LAN em diretório temporário e instalar via `sudo install` com ownership/modos explícitos.
+- [ ] Adicionar validação automatizada de archive malicioso e testar instalação em Raspberry Pi 5 real.
+- [x] Adotar assinatura independente para autenticar artefatos de release — integração Ed25519 no workflow concluída na Phase 58.
+- [ ] Provisionar secret Ed25519 e distribuir fingerprint/chave pública por canal independente.
+- [ ] Desbloquear CI remoto antes de merge/release.
+
+---
+
+## Phase 51 — hardening do fluxo de deployment ARM64
+
+- [x] Restringir redirects de download a HTTPS.
+- [x] Criar diretórios de serviço com ownership e modos explícitos.
+- [x] Gerar chaves JWT em diretório temporário e instalar com permissões restritas.
+- [x] Resolver e validar unit systemd a partir de clone confiável antes da instalação.
+- [ ] Validar instalação em Raspberry Pi 5 real após publicação de release.
+
+## Phase 50 — hardening do instalador ARM64
+
+- [x] Fazer download em diretório temporário com `set -euo pipefail` e limpeza automática.
+- [x] Validar tag SemVer antes de construir URL/caminhos.
+- [x] Rejeitar traversal, caminhos absolutos, symlinks e hard links antes da extração.
+- [ ] Validar instalação em Raspberry Pi 5 real após publicação de release.
+
+## Phase 49 — correção do guia de instalação ARM64
+
+- [x] Alinhar nome e caminho do artefato Raspberry Pi ao workflow de release.
+- [ ] Executar instalação em Raspberry Pi 5 real após publicação de release; runtime ARM64 continua não validado.
+
+## Phase 48 — pinning imutável das actions
+
+- [x] Fixar actions de terceiros de CI e release em commits SHA completos, com comentários de versão.
+- [ ] Executar CI/release após desbloqueio do runner; não publicar artefato sem gates reais.
+
+## Phase 47 — hardening dos workflows
+
+- [x] Corrigir filtro de tags semver do workflow de release e reforçar validação exata no job `validate-version`.
+- [x] Restringir permissões GitHub Actions; escrita limitada ao job `github-release`.
+- [x] Pin de actions de terceiros por SHA completo; avaliação de atualizações permanece com Dependabot.
+- [ ] Executar CI/release após desbloqueio do runner; não publicar artefato sem gates reais.
+
+## Phase 46 — alinhamento do runner de release
+
+- [x] Corrigir follow-up de revisão: documentar `make test-audio` e restringir validação PDF a `docs/guides`.
+- [x] Trocar `ubuntu-24.04` por `ubuntu-latest` nos seis jobs de `.github/workflows/release.yml`.
+- [ ] Executar workflow de release após desbloqueio do runner; validar gates, artefatos e checksums sem publicar artefato não testado.
+
+## Phase 45 — correção do label de runner
+
+- [x] Trocar `ubuntu-24.04` por `ubuntu-latest` em todos os jobs CI.
+- [x] Confirmar resultado após push: run `34607886129` falhou antes dos steps em todos os jobs com `runner_id=0` e `steps=[]`.
+- [ ] Desbloquear GitHub Actions/runner; runs `34614028392` e `34614025997` também falharam pré-steps (`runner_id=0`, `steps=[]`); API de permissões e runners retorna HTTP 403 para token atual; sem CI remoto verde não há release `v0.3.1`.
+
+## Phase 43 — verification gates
+
+- [x] Adicionar `server/Cargo.lock` e remover exclusão global do lockfile.
+- [x] Adicionar job CI para documentação, PDF, skills e whitespace.
+- [x] Renumerar ADRs duplicados 012 para 013/014.
 
 ## READY / CURRENT PHASE
 
+- [x] P1 — Tornar `make up` reconstruível por padrão — Phase 40 — `docker compose up -d --build`; evita imagens obsoletas no desenvolvimento.
+- [x] P1 — Validar Musician Guide PDF de forma reproduzível — Phase 42 — `make docs` extrai texto e renderiza PDF; `mutool` cobre ambiente sem `pdftotext`.
 - [x] P1 — JWT pós-emissão revogável — Phase 31 — access-session mappings checked by middleware and WebSocket message/keepalive loops; local verification passes, CI remains blocked.
 
-- [x] P1 — Corrigir Docker Compose dev — Phase 30 — Dockerfiles de desenvolvimento adicionados para API e UIs; `docker compose config` passa. Build completo depende de chaves JWT locais e daemon Docker disponível.
-- [ ] P1 — Implementar CLI `iem` com paridade documentada ao Makefile — status NOT STARTED — depende de definir binário/instalação oficial.
-- [ ] P1 — Criar harness de áudio determinístico — status READY — cobre sinais sintéticos, isolamento, ganho, pan, mute, limiter e recuperação; não substitui hardware.
-- [ ] P1 — Criar matriz formal de validação Docker/Linux/Raspberry Pi — status READY — depende de hardware Raspberry Pi 5.
-- [ ] P1 — Adicionar sincronização de observabilidade ao desenvolvimento — status READY — métricas não implementadas devem permanecer `UNKNOWN`, não fake.
+- [x] P1 — Corrigir Docker Compose dev — Phase 30 — Dockerfiles de desenvolvimento adicionados para API e UIs; `docker compose config` passa sem aviso de `version` obsoleto. Build completo depende de chaves JWT locais e daemon Docker disponível.
+- [x] P1 — Implementar CLI `iem` com paridade documentada ao Makefile — Phase 35 — dispatcher tipado para help/status/diagnostics/docs/test/build/up/down; versão `0.3.1`; sem instalação global e sem `iem run`.
+- [x] P1 — Corrigir saída do `open-iem-admin` — Phase 34 — HTTPS obrigatório fora de localhost, tabelas preservam união de colunas e 404 não afirma recurso planejado.
+- [x] P1 — Criar harness de áudio determinístico — Phase 32 — cobre determinismo, sinais sintéticos, isolamento, ganho, pan, mute, limiter e finitude; não substitui hardware. Recuperação stop/start permanece follow-up.
+- [x] P1 — Criar matriz formal de validação Docker/Linux/Raspberry Pi — Phase 37 — matriz publicada; execução em Raspberry Pi 5 continua pendente.
+- [x] P1 — Adicionar sincronização de observabilidade ao desenvolvimento — Phase 36 — Engineer Console consulta telemetria e mantém métricas desconhecidas como `UNKNOWN`; áudio real segue pendente.
 
 ## BLOCKED / VALIDATION REQUIRED
 
@@ -59,6 +330,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Set up `cargo audit` in CI (Phase 8 — existing job)
 - [x] Set up `npm audit` in CI (Phase 9 — npm-audit job added)
 - [ ] Create `examples/` with minimal mix scenario
+- [x] Include deterministic `audio-engine` integration harness in `make test` — Phase 39
 - [x] Configure Dependabot for dependency updates
 - [ ] Set up code coverage reporting
 - [x] LOW: Log DB errors in master broadcast fan-out (fail-closed and observable)

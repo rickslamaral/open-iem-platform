@@ -4,6 +4,1559 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas
+
+**Status:** correção local; CI remoto aguardando novo run; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Testes Ed25519 passaram a informar `-rawin` ao `openssl pkeyutl -sign`, compatível com OpenSSL 3.5.
+- Corrige falha do run `34728518286`, onde 10 de 56 testes falharam no helper de assinatura antes de exercitar os validadores.
+
+### Verificação real
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py tests/test_validate_release_bundle.py`: 56 aprovados.
+- `python3 -m py_compile tests/test_verify_release_signature.py tests/test_validate_release_bundle.py`: aprovado.
+- `git diff --check`: aprovado.
+
+### Limitações
+
+CI ainda não confirmou esta correção. Release, ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+## 2026-09-13 — Phase 78 — rejeição de dados residuais em archives
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Validador verifica stream gzip completo depois de validar e consumir TAR.
+- Bytes residuais e streams gzip concatenados falham fechado.
+- Testes offline cobrem ambos os casos.
+- README, CHANGELOG, TODO, START e review da Phase 78 atualizados.
+
+### Verificação real
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py`: 24 aprovados.
+- `py_compile` e `git diff --check`: aprovados.
+
+### Limitações
+
+CI remoto continua falhando antes dos steps: runs `34727191187` (PR) e `34727189605` (push). Release, ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 77 — validação estrutural antes do payload
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Validador rejeita nomes, raiz, tipos, allowlist, duplicatas e membros inesperados antes de consumir payloads.
+- Arquivos aceitos continuam consumidos integralmente em chunks limitados; payload truncado falha fechado.
+- Teste confirma que membro inesperado não chama consumidor de payload.
+- README, CHANGELOG, TODO, START e review da Phase 77 atualizados.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões: runs consultados falharam antes dos steps com `runner_id=0` e `steps=[]`. Release, ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 76 CI status refresh
+
+**Status:** PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Verificação real
+
+- Push run `34724842446` e PR run `34724845040` falharam em aproximadamente 3–4 segundos, antes de qualquer step executável.
+- Jobs consultados retornaram `runner_id=0` e `steps=[]`; nenhum teste ou build remoto executou.
+- Working tree permaneceu limpo antes desta atualização documental.
+
+### Decisão
+
+Não fazer merge ou release. Causa continua classificada como `RUNNER / PLATFORM / CONFIGURATION FAILURE`; gates locais permanecem aprovados; hardware Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 76 CI status refresh
+
+**Status:** commit `57ec4db` publicado; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Verificação real
+
+- Push run `34724816608` e PR run `34724820149` falharam em aproximadamente 3–4 segundos, antes de qualquer step executável.
+- Nenhum teste ou build remoto executou. Causa continua classificada como `RUNNER / PLATFORM / CONFIGURATION FAILURE`.
+- Working tree ficou limpo após remover caches Python gerados.
+
+### Decisão
+
+Não fazer merge ou release. Gates locais permanecem aprovados; CI remoto, release, hardware Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 76
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Validador de archive consome payload completo de arquivos regulares em chunks de até 1 MiB após validar headers.
+- Payload truncado ou ausente falha fechado; `tarfile` limita leitura ao tamanho declarado pelo header.
+- Teste offline cobre archive gzip truncado durante a leitura.
+- README, CHANGELOG, TODO e review da Phase 76 atualizados.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões: run `34723511315` falhou antes dos steps, com jobs sem steps executados. Nenhum teste/build remoto executou. Release, ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 76 — leitura integral de payloads de archive
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Validador de archive consome payload completo de arquivos regulares em chunks de até 1 MiB após validar headers.
+- Payload truncado ou ausente falha fechado; `tarfile` limita leitura ao tamanho declarado pelo header.
+- Teste offline cobre archive gzip truncado durante a leitura.
+- README, CHANGELOG, TODO e review da Phase 76 atualizados.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões: run `34723511315` falhou antes dos steps, com jobs sem steps executados. Nenhum teste/build remoto executou. Release, ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 75 — fonte única de versão e gate reproduzível
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- `VERSION` virou fonte canônica `0.3.1`.
+- `scripts/validate-version.py` valida SemVer, manifests Rust/frontend e tag de release.
+- `release.yml` deixou de extrair versão com `grep/head/sed`; repete gate `tomllib` inline, fail-closed e sem executar script mutável do checkout antes da validação.
+- `make test` inclui testes do gate de versão.
+- README, CHANGELOG, TODO e review da Phase 75 atualizados.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões: último run `34721822744` teve 10 jobs com `runner_id=0` e `steps=[]`. Nenhum teste/build remoto executou. ARM64, Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC, runtime Windows e release continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 74 — documentação visual das interfaces
+
+**Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Adicionado `docs/INTERFACES.md` com Login, Musician PWA, Engineer Console, Admin CLI/API, controles de mix e estado real de validação.
+- Gerados SVG/PNG documentais a partir de `scripts/generate-ui-doc-images.py`.
+- README, CHANGELOG, guia do músico e guia Windows + Docker Desktop referenciam imagens e deixam explícito que são mockups, não screenshots de runtime.
+
+### Verificação real
+
+- `make validate`: aprovado; Rust, TypeScript, testes, documentação/PDF e skills passaram.
+- `python3 scripts/generate-ui-doc-images.py`: cinco SVG e PNG gerados.
+- `git diff --check` e `py_compile`: aprovados.
+
+### Limitações
+
+Imagens não provam execução da UI. CI remoto, release, mídia WebRTC, PipeWire/ALSA, Raspberry Pi 5 e runtime Windows continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 73 — Guia do Músico alinhado ao signaling HTTP
+
+**Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Guia documenta sequência real de `POST /api/v1/audio/offer` e `POST /api/v1/audio/ice-candidate`.
+- Guia distingue control plane/Sans-IO validado de mídia `SIMULATED`.
+- PDF será regenerado e validado pelo gate documental.
+
+### Limitações
+
+CI remoto, release, mídia WebRTC, PipeWire/ALSA, Raspberry Pi 5 e runtime Windows continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 72 — integração HTTP de signaling
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Teste de integração autentica Musician e executa negociação SDP pela rota HTTP.
+- O mesmo teste envia candidato trickle ICE pela rota HTTP após oferta aceita.
+- README, CHANGELOG, TODO e review da Phase 72 atualizados.
+
+### Verificação real
+
+- `cargo test -p api-server --test integration musician_negotiates_offer_and_trickles_ice_candidate_over_http`: 1 aprovado; 57 filtrados.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões: run `34719135360` permanece `queued`; job Python terminou `failure` sem steps e demais jobs seguem sem execução. Fluxo valida somente control plane HTTP e Sans-IO; mídia WebRTC, PipeWire/ALSA, Raspberry Pi 5, runtime Windows e release continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 71 — snapshot validado para publicação
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Validador abre bundle e entradas via descritores `O_DIRECTORY|O_NOFOLLOW` e `fstat()`, reduzindo races de caminho durante captura.
+- Bundle limitado a 32 entradas.
+- Snapshot usa cópia em chunks de 1 MiB e staging privado; output só aparece após validação completa.
+- Workflow calcula checksums e lista de upload somente sobre `release-upload`, sem recópia de `dist` após validação.
+
+### Verificação real
+
+- 52 testes dos validadores aprovados.
+- `py_compile` e `git diff --check` aprovados.
+- Scan estático do código adicionado: sem hits para hardcoded secrets, shell injection, eval/exec, pickle ou SQL dinâmico.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões. Nenhum release, hardware Raspberry Pi 5, PipeWire/ALSA, WebRTC ou runtime Windows foi validado.
+
+---
+
+## 2026-09-12 — Phase 70 — hardening do validador de bundle
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Leituras do bundle usam `O_NOFOLLOW`, `O_NONBLOCK`, limite individual de 512 MiB e limite total de 2 GiB.
+- SBOM opcional é validado como JSON objeto antes de entrar no manifesto.
+- Escrita do manifesto rejeita symlink, exige arquivo regular e limita conteúdo a 64 KiB.
+- Testes cobrem SBOM inválido, manifesto symlink e limite de arquivo.
+
+### Verificação real
+
+- Suíte dos validadores: 45 testes aprovados em `/tmp/open-iem-venv` com `pytest==9.1.1`.
+- `make validate`: aprovado; `py_compile` e `git diff --check`: aprovados.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões. TOCTOU entre validação e cópia no workflow exige hardening posterior. Raspberry Pi 5, PipeWire/ALSA, WebRTC, Windows runtime e release continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 69 follow-up — novo bloqueio pré-step do CI
+
+**Status:** commit local de atualização documental; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Verificação real
+
+- Local: `make validate` aprovado; 42 testes dos validadores aprovados; `py_compile` e `git diff --check` aprovados.
+- PR run `34711659175` e push run `34711656770` falharam antes da execução dos jobs; os 10 jobs do PR retornaram `runner_id=0` e `steps=[]`; nenhum teste ou build remoto executou.
+- Consulta detalhada de checks permanece limitada por HTTP 403 do token atual.
+
+### Decisão
+
+Não fazer merge ou release. O bloqueio continua em runner/permissões do GitHub Actions. Hardware Raspberry Pi 5, PipeWire/ALSA, WebRTC, runtime Windows e publicação de release continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 69 follow-up — resultado CI após hardening do upload
+
+**Status:** commit `13ee341` publicado; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Verificação real
+
+- Local: 42 testes dos validadores aprovados; `py_compile`, parse YAML e `git diff --check` aprovados.
+- Push run `34711045056` falhou antes dos steps: jobs terminaram sem executar steps (`steps=[]`); consulta de annotations retornou HTTP 403 para o token atual.
+
+### Decisão
+
+Não fazer merge ou release. O bloqueio continua em runner/permissões do GitHub Actions. Hardware Raspberry Pi 5, PipeWire/ALSA, WebRTC, runtime Windows e publicação de release continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 69 follow-up — novo bloqueio pré-step do CI
+
+**Status:** commit `d1d2530` publicado; PR #40 aberto; CI remoto continua bloqueado; não mergeado; não lançado.
+
+### Verificação real
+
+- Push/PR runs `34711621971` e `34711619779` falharam antes dos steps.
+- No run PR `34711621971`, os 10 jobs retornaram `runner_id=0` e `steps=[]`; nenhum teste ou build remoto executou.
+- Consulta detalhada de checks permanece limitada por HTTP 403 do token atual.
+
+### Decisão
+
+Não fazer merge ou release. O bloqueio é de runner/permissões do GitHub Actions, não falha reproduzida no código. Gates locais seguem aprovados; Raspberry Pi 5, PipeWire/ALSA, WebRTC, runtime Windows e publicação de release continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 69 follow-up — cobertura do validador de bundle no CI
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Job `python-security-tests` agora executa `tests/test_validate_release_bundle.py` junto aos validadores de archive e assinatura.
+- Jobs de build e validação final exigem `OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_FINGERPRINT`, validam formato estrito de 64 hex e comparam fingerprint SHA-256 da chave pública derivada antes da verificação.
+- Validação gera manifesto temporário com nomes e digests exatos; publicação usa lista explícita derivada desse manifesto, sem glob amplo.
+- README, CHANGELOG, TODO e review da Phase 69 atualizados.
+
+### Verificação
+
+- Suíte local dos validadores: 42 testes aprovados.
+- Manifesto é rechecado com `sha256sum -c` antes da publicação.
+- `make validate`: aprovado pelo agente de testes independente.
+- `git diff --check`: aprovado.
+
+### Limitações
+
+CI remoto continua falhando antes dos steps por runner/permissões. A validação de assinatura no bundle permanece estrutural; verificação criptográfica no workflow depende de chave pública confiável provisionada por canal independente. Raspberry Pi 5, PipeWire/ALSA, WebRTC, Windows runtime e release continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 69 — validação do bundle final de release
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Novo `scripts/validate-release-bundle.py` valida conjunto final após download dos artefatos.
+- Exige archives server x86_64/ARM64 e web musician/engineer na versão da tag.
+- Recalcula checksums com descritores `O_NOFOLLOW`, exige assinaturas server não vazias e rejeita arquivos inesperados, symlinks ou não regulares.
+- Workflow executa gate antes de `Create GitHub Release`.
+- README, CHANGELOG, TODO e review da Phase 69 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_bundle.py tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 39 testes.
+- `python3 -m py_compile scripts/validate-release-bundle.py`: PASS.
+- Parse YAML local do workflow: PASS.
+- `git diff --check`: PASS.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Nenhuma release foi publicada. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e runtime Windows continuam não validados.
+
+---
+
+---
+
+## 2026-09-12 — Phase 68 — nomes Windows e limites de assinatura
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador rejeita caracteres inválidos, pontos/espaços finais e nomes reservados Windows em todos os componentes de archive.
+- Verificador detached rejeita assinatura e chave pública acima de 64 KiB antes de executar OpenSSL.
+- Testes offline cobrem nomes Windows e entradas oversized.
+- README, CHANGELOG, TODO e review da Phase 68 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 30 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `git diff --check`: PASS.
+- Review independente: risco DoS identificado e correção aplicada.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC, Windows runtime e release continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 67 — nomes seguros entre plataformas
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador rejeita separador `\\` e caracteres de controle em nomes de archive antes da validação estrutural.
+- Testes offline cobrem separador Windows e newline; mensagens de nomes de controle usam representação segura.
+- README, CHANGELOG, TODO e review da Phase 67 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 26 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `git diff --check`: PASS.
+- Review independente: PASS, sem concerns de segurança ou erros lógicos de alta confiança.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e release continuam não validados.
+
+---
+
+
+## 2026-09-12 — Phase 66 — raiz canônica em archives
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador rejeita raiz `.`/`..` e nomes de raiz não canônicos antes de validar conteúdo.
+- Adicionado teste offline para raiz não canônica.
+- README, CHANGELOG, TODO e review da Phase 66 atualizados.
+
+### Verificação
+
+- Review independente: PASS, sem concerns de segurança ou erros lógicos de alta confiança.
+- Testes Python e `make validate`: executar no gate final.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e release continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 65 — limites incrementais durante leitura de archives
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador aplica limite por membro e limite total descomprimido durante o primeiro loop do `tarfile`.
+- Rejeição de entrada oversized não consome membros posteriores.
+- Adicionado teste offline para confirmar falha imediata.
+- README, CHANGELOG, TODO e review da Phase 65 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 23 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `git diff --check`: PASS.
+- `make validate`: PASS — Rust, frontends, documentação, PDF e skills.
+- Review independente: PASS, sem concerns de segurança ou erros lógicos de alta confiança; recomendação de validação incremental aplicada.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e release continuam não validados.
+
+---
+
+---
+
+## 2026-09-12 — Phase 64 — tratamento fail-closed da portabilidade do validador
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- CLI de `scripts/validate-release-archive.py` captura `RuntimeError` de plataforma sem `O_NOFOLLOW` e retorna código 1 controlado.
+- Evita traceback e mantém validação fail-closed em plataformas sem a proteção necessária.
+- README, CHANGELOG e TODO atualizados.
+
+### Verificação
+
+- Testes Python dos validadores: PASS — 22 testes.
+- `make validate`: PASS.
+- Review independente pendente nesta rodada.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Último PR run: `34698206761`; jobs retornaram `steps=[]`. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e release continuam não validados.
+
+---
+
+---
+
+## 2026-09-12 — CI status after Phase 63 archive verifier portability
+
+**Status:** commit `c535eac` publicado; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Verificação real
+
+- Run push `34695497246` e PR run `34695498591` terminaram `failure` em todos os 10 jobs.
+- Todos os jobs retornaram `steps=[]`, falhando antes da execução do runner.
+- Gates locais no commit passaram: `make validate`, 22 testes Python dos validadores e `git diff --check`.
+
+### Decisão
+
+Não fazer merge, release ou alegação de CI verde. Bloqueio segue em GitHub Actions/runner/permissões; Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+
+## 2026-09-12 — Phase 64 — tratamento fail-closed da portabilidade do validador
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- CLI de `scripts/validate-release-archive.py` captura `RuntimeError` de plataforma sem `O_NOFOLLOW` e retorna código 1 controlado.
+- Evita traceback e mantém validação fail-closed em plataformas sem a proteção necessária.
+- README, CHANGELOG e TODO atualizados.
+
+### Verificação
+
+- Testes Python dos validadores: PASS — 22 testes.
+- `make validate`: PASS.
+- Review independente pendente nesta rodada.
+
+### Limitações
+
+CI remoto falha antes dos steps por runner/permissões. Último PR run: `34698206761`; jobs retornaram `steps=[]`. Raspberry Pi 5, PipeWire/ALSA, mídia WebRTC e release continuam não validados.
+
+---
+
+## 2026-09-12 — CI status after Phase 63 archive verifier portability
+
+**Status:** commit `c535eac` publicado; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Verificação real
+
+- Run push `34695497246` e PR `34695498591` terminaram `failure` em todos os 10 jobs.
+- Todos os jobs retornaram `steps=[]`, falhando antes da execução do runner.
+- Gates locais no commit passaram: `make validate`, 22 testes Python dos validadores e `git diff --check`.
+
+### Decisão
+
+Não fazer merge, release ou alegação de CI verde. Bloqueio segue em GitHub Actions/runner/permissões; Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+
+---
+
+## 2026-09-12 — Phase 63 archive verifier portability — fechamento do fallback permissivo
+
+**Status:** correção local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador de archives agora exige suporte explícito a `O_NOFOLLOW`; ausência da proteção falha fechado em vez de usar flag zero.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 21 testes.
+- `make validate`: PASS — Rust, frontends, documentação, PDF e skills.
+- `git diff --check`: PASS.
+- Review independente: PASS, sem concerns de segurança ou erros lógicos.
+
+### Limitações
+
+CI remoto continua bloqueado por falha pré-execução do runner. Release, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+## 2026-09-12 — Phase 63 follow-up — fechamento de gaps fail-closed
+
+**Status:** correção local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Removido fallback que tratava ausência de `O_NOFOLLOW` como zero; plataforma sem essa proteção falha explicitamente.
+- Adicionado `O_NONBLOCK` antes da validação `fstat()`, evitando bloqueio em FIFO ou dispositivo especial controlado por atacante.
+- OpenSSL agora é chamado por `/usr/bin/openssl`, eliminando substituição via `PATH`.
+
+### Verificação
+
+- Review independente pós-correção: PASS, sem concerns de segurança ou erros lógicos.
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 22 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `make validate`: PASS — Rust, frontends, documentação, PDF e skills.
+- `git diff --check`: PASS.
+
+### Limitações
+
+Execução validada permanece Linux com `/usr/bin/openssl`; CI remoto continua bloqueado: run `34694228445` falhou em todos os 10 jobs às 12:38:36Z, com `steps=[]` e falha pré-execução. Release, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+### Próximo passo
+
+Executar gates locais finais, publicar branch e revalidar CI remoto. Não fazer merge ou release sem runner executável e gates reais.
+
+---
+
+## 2026-09-12 — Phase 63 — verificação fail-closed de arquivos assinados
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Verificador Ed25519 abre artifact, assinatura e chave com `O_NOFOLLOW` e mantém descritores estáveis durante OpenSSL.
+- Testes offline rejeitam symlink em artifact e assinatura.
+- Erro de execução do OpenSSL falha explicitamente, sem acessar resultado não inicializado.
+- Atualizados README, START, CHANGELOG, TODO e review da Phase 63.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 21 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `git diff --check`: PASS.
+- Review independente encontrou e corrigiu falha no caminho de `OSError` do subprocesso.
+
+### Limitações
+
+Scanner `/root/scan_patterns.py` não disponível neste ambiente. CI remoto continua falhando antes dos steps. Release, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+### Próximo passo
+
+Executar gates locais finais, publicar branch e revalidar CI remoto. Não fazer merge ou release sem runner executável e gates reais.
+
+---
+
+---
+
+## 2026-09-12 — Phase 62 — testes de segurança Python no CI
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Adicionado job `python-security-tests` ao workflow CI.
+- Job configura Python, instala `pytest` e executa testes offline de validação de archive e assinatura.
+- Atualizados README, CHANGELOG, TODO e review da Phase 62.
+
+### Limitações
+
+Runs GitHub Actions continuam falhando antes dos steps por runner/permissões. Release, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+### Próximo passo
+
+Executar gates locais finais, publicar branch e revalidar CI remoto. Não fazer merge ou release sem runner executável e gates reais.
+
+---
+
+## 2026-09-12 — Phase 61 — abertura fail-closed de archives
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador abre archive com `O_NOFOLLOW` e `O_CLOEXEC`, exige arquivo regular e mede tamanho via `fstat()` no mesmo descritor entregue ao `tarfile`.
+- Testes offline cobrem symlink e diretório como entradas rejeitadas.
+- README, CHANGELOG, TODO e review da Phase 61 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 19 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `git diff --check`: PASS.
+- Review independente recomendou descritor com `O_NOFOLLOW` e `fstat()` para evitar TOCTOU; implementação aplicada.
+
+### Limitações
+
+CI remoto continua falhando antes dos steps no run `34685058398` e no push correspondente. Secret/fingerprint Ed25519, release, Caddy, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+### Próximo passo
+
+Executar gates locais finais, publicar branch e revalidar CI remoto. Não fazer merge ou release sem runner executável e gates reais.
+
+---
+
+## 2026-09-12 — Phase 60 — validação incremental de archives
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador itera membros do `tarfile` e interrompe imediatamente acima de `MAX_MEMBERS`, evitando materialização ilimitada de headers.
+- Testes offline cobrem `MAX_ARCHIVE_BYTES` e `MAX_UNCOMPRESSED_BYTES`, além dos limites já existentes.
+- README, CHANGELOG, TODO e review da Phase 60 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 17 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `make validate`: PASS — Rust (incluindo integração), frontends, PDF, documentação e skills.
+- `git diff --check`: PASS.
+- Reviews independentes identificaram e corrigiram risco MEDIUM de consumo de memória/CPU via `getmembers()`.
+
+### Limitações
+
+CI remoto continua falhando antes dos steps nos runs `34674883204`, `34674880716`, `34674858746` e `34674856987`. Secret/fingerprint Ed25519, release, Caddy, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+### Próximo passo
+
+Executar gates locais finais, publicar branch e revalidar CI remoto. Não fazer merge ou release sem runner executável e gates reais.
+
+---
+
+## 2026-09-12 — Phase 59 — limites de recursos no validador de archives
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Validador rejeita archives acima de 512 MiB comprimidos, mais de 32 membros, membro acima de 256 MiB ou total descomprimido acima de 512 MiB.
+- Testes offline cobrem limites de contagem e tamanho.
+- README, CHANGELOG, TODO e review da Phase 59 atualizados.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py`: PASS — 15 testes.
+- `python3 -m py_compile scripts/validate-release-archive.py scripts/verify-release-signature.py`: PASS.
+- `git diff --check`: PASS.
+- Reviews independentes: sem blocker; recomendação de limites de recursos implementada.
+
+### Limitações
+
+CI remoto continua falhando antes dos steps nos runs `34669494781` e `34669493264`. Secret/fingerprint Ed25519, release, Caddy, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+### Próximo passo
+
+Desbloquear GitHub Actions; executar CI real. Depois provisionar chave pública autenticada e validar instalação/áudio em Raspberry Pi 5.
+
+### CI após push
+
+- Push run `34674856987` e PR run `34674858746` falharam antes dos steps; os 9 jobs de cada run terminaram com `steps=[]`.
+- O bloqueio continua sendo runner/permissão GitHub Actions; não representa falha executada nos testes do commit.
+
+---
+
+## 2026-09-12 — Phase 58 — assinatura Ed25519 no workflow
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Workflow de release assina archives x86_64 e ARM64 com secret externo `OPENIEM_RELEASE_SIGNING_KEY_PEM`.
+- Chave privada usa arquivo temporário, `trap` de limpeza, validação explícita de presença/tipo Ed25519 e saída não vazia.
+- `.sig` é transferido entre jobs e publicado junto com archive/checksum na GitHub Release.
+- README, CHANGELOG, TODO e review da Phase 58 atualizados.
+
+### Verificação
+
+- `make validate`: PASS — Rust, frontends, documentação, PDF e skills.
+- `python3 -m pytest -q tests/test_verify_release_signature.py tests/test_validate_release_archive.py`: PASS — 12 testes.
+- Reviews independentes de segurança, código e testes encontraram gaps de publicação/limpeza; correções aplicadas.
+- CI remoto continua falhando antes dos steps; não há execução remota validada.
+
+### Limitações
+
+Secret ainda precisa ser provisionado no GitHub e fingerprint/chave pública distribuídos por canal independente. Raspberry Pi 5, Caddy, runtime ARM64, PipeWire/ALSA e mídia WebRTC não foram validados.
+
+### Próximo passo
+
+Provisionar secret Ed25519 e chave pública autenticada; desbloquear runner; executar CI real antes de merge/release.
+
+---
+
+## 2026-09-12 — Phase 58 — verificação local de assinatura Ed25519
+
+**Status:** implementação local; CI remoto bloqueado; não mergeado; não lançado.
+
+### Implementado
+
+- Criado `scripts/verify-release-signature.py` para verificar assinatura detached Ed25519 via OpenSSL.
+- Instalador Raspberry Pi baixa e verifica `.sig` antes de checksum, validação estrutural e extração.
+- Chave pública precisa ser arquivo regular em `/etc/openiem/release-signing-key.pem`, distribuída por canal independente.
+- Adicionados testes offline e review da fase.
+
+### Limitações
+
+Workflow agora produz `.sig`; gestão do secret, fingerprint e distribuição autenticada da chave pública continuam pendentes. CI remoto segue falhando antes dos steps (`runnerId: null`). Raspberry Pi 5, Caddy, runtime ARM64, PipeWire/ALSA e mídia WebRTC não foram validados.
+
+### Próximo passo
+
+Provisionar secret Ed25519, publicar fingerprint por canal independente e executar CI real. Não fazer merge ou release sem esses gates.
+
+---
+
+## 2026-09-11 — Phase 57 — validação de archive e origem HTTPS
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Instalador ARM64 agora chama `scripts/validate-release-archive.py` antes da extração; validação cobre caminhos canônicos, diretório raiz único, allowlist, duplicatas, links e arquivos especiais.
+- Unit systemd define `OPENIEM_ALLOWED_ORIGINS=https://iem.local`, alinhando validação de Origin ao endpoint TLS do Caddy.
+- Guia documenta atualização coordenada para LAN IP quando mDNS não estiver disponível.
+- README, CHANGELOG, TODO e review desta fase atualizados.
+
+### Verificação
+
+- `make validate`: PASS — Rust, frontends, documentação, PDF, skills e diff check.
+- `cargo audit --file server/Cargo.lock --ignore RUSTSEC-2023-0071`: PASS — 0 vulnerabilidades.
+- `npm audit --audit-level=high` nos dois frontends: PASS.
+- Reviews independentes: uma aprovação; uma encontrou e corrigiu inconsistência de Phase 56 no README e gaps de archive/origin.
+
+### Limitações
+
+CI remoto continua falhando antes dos steps (`runner_id=0`); permissões API de Actions/runners retornam HTTP 403. Caddy, instalação privilegiada, runtime ARM64, PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+
+### Próximo passo
+
+Executar gates locais finais, push e revalidar CI remoto. Não fazer merge ou release sem runner executável e gates reais.
+
+---
+
+## 2026-09-11 — CI status refresh pós-Phase 56
+
+**Status:** documentação atualizada; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Verificação real
+
+- Run PR `34656659602` e push `34656657286` falharam antes dos steps.
+- Os 9 jobs do PR terminaram com `steps=[]`; não houve execução de runner nem resultado de teste remoto.
+- API de runners permanece inacessível ao token atual com HTTP 403.
+- `make test`: PASS — Rust, frontends e harness `SIMULATED`.
+- `make validate`: PASS — Rust, frontends, documentação, PDF e skills.
+- `git diff --check`: PASS antes desta atualização documental.
+
+### Decisão
+
+Não fazer merge, release ou alegação de CI verde. Próximo bloqueio é GitHub Actions/runner; depois executar CI real e validar attestation, instalação ARM64 e Raspberry Pi 5.
+
+---
+
+## 2026-09-11 — Phase 56 — correção do lifetime do diretório temporário do Caddyfile
+
+**Status:** implementação local; CI remoto bloqueado; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Removida limpeza antecipada de `CERT_WORK_DIR` no guia Raspberry Pi.
+- Cópia segura do Caddyfile agora ocorre antes da limpeza do diretório temporário.
+- Atualizados README, START, CHANGELOG, TODO e review da Phase 56.
+
+### Verificação
+
+- `make test`: PASS.
+- `make validate`: PASS.
+- `git diff --check` e `bash -n` do bloco Bash: PASS.
+- Dois reviews independentes: PASS, sem findings de segurança ou lógica.
+
+### Limitações
+
+Caddy, instalação real, runtime ARM64, PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados. GitHub Actions falha antes dos steps com `runner_id=0`.
+
+### Próximo passo
+
+Desbloquear runner/permissões Actions; executar CI real. Depois validar instalação e áudio no Raspberry Pi 5.
+
+---
+
+## 2026-09-11 — Phase 55 — hardening de caminho no deployment
+
+**Status:** implementação local; commit `71d931e`; PR #40 aberto; CI remoto bloqueado; não mergeado; não lançado.
+
+### CI remoto pós-push
+
+Run `34654997321` falhou antes dos steps em todos os 9 jobs; `runner_id=0` e `steps=[]`. O bloqueio é infraestrutura/permissão do GitHub Actions, não falha de teste do código.
+
+### Implementado
+
+- Guia Raspberry Pi resolve `deployment/caddy/Caddyfile` a partir de `REPO_ROOT`, em vez de depender do diretório corrente.
+- Guia rejeita symlink e instala Caddyfile com `sudo install`, ownership root e modo `0644`.
+- README registra Phase 54 na tabela incremental e marca Phase 53 como validação local concluída.
+- TODO registra Phase 55 e os runs remotos mais recentes.
+
+### Verificação
+
+- `make test`: PASS — Rust, frontends e harness `SIMULATED`.
+- `make validate`: PASS — documentação, PDF e skills.
+- `cargo fmt`, `cargo clippy`, frontend typecheck e `git diff --check`: PASS.
+- Review independente: sem finding de segurança no diff; encontrada e corrigida inconsistência da tabela de fases; gap relativo a caminho do Caddyfile corrigido.
+
+### Limitações
+
+`caddy validate`, instalação e runtime ARM64 não foram executados neste VPS. GitHub Actions continua falhando antes dos steps (`runner_id=0`, `steps=[]`) nos runs `34652471047` e `34652466951`. Nenhum release, attestation remota ou hardware Raspberry Pi foi validado.
+
+### Próximo passo
+
+Desbloquear runner/permissões Actions; executar CI e verificar attestation. Depois validar instalação e áudio no Raspberry Pi 5.
+
+---
+
+## 2026-09-11 — Phase 54 — provenance de artefatos de release
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado; não mergeado; não lançado.
+
+### Implementado
+
+- Added attestation Sigstore/GitHub para archives de servidor x86_64 e ARM64 antes do upload.
+- Fixada `actions/attest-build-provenance@v2` por SHA completo.
+- Permissões de build limitadas a `contents: read`, `id-token: write` e `attestations: write`.
+- Atualizados README, START, CHANGELOG, TODO e review da Phase 54.
+
+### Verificação
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py`: PASS — 7 testes.
+- `make test`: PASS — Rust, frontends e harness `SIMULATED`.
+- `make validate`: PASS — documentação, PDF e skills.
+- `cargo fmt`, `cargo clippy` e `git diff --check`: PASS.
+
+### Limitações
+
+GitHub Actions continua falhando antes dos steps com `runner_id=0`; attestation remota ainda não foi publicada nem verificada. Nenhum release foi publicado. Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC permanecem não validados.
+
+### Próximo passo
+
+Desbloquear runner; executar CI; verificar attestation dos archives antes de merge/release.
+
+---
+
+## 2026-09-11 — Phase 53 CI status refresh
+
+**Status:** implementação local; PR #40 aberto; não mergeado; não lançado.
+
+### Verificação
+
+- GitHub run `34645508776` (PR) e push `34645504292` falharam antes dos steps.
+- Todos os 9 jobs do PR terminaram com `runner_id=0` e `steps=[]`; incidente classificado como `RUNNER / PLATFORM / CONFIGURATION FAILURE`.
+- `make test`: PASS — Rust, frontends e harness `SIMULATED`.
+- `make validate`: PASS — documentação, PDF e skills.
+- `cargo fmt --all -- --check` e `cargo clippy --workspace --all-targets -- -D warnings`: PASS.
+- `npm run lint`: indisponível nos dois frontends; scripts `lint` não existem. `npm audit` não foi executado por causa do loop fail-fast.
+- Scanner `/root/scan_patterns.py` não existe neste ambiente; nenhum resultado foi inventado.
+
+### Documentação
+
+README, CHANGELOG e este log atualizados com estado real dos runs.
+
+### Próximo passo
+
+Desbloquear runner/permissões Actions. Não fazer merge ou release antes de CI remoto executar gates reais.
+
+---
+
+## 2026-09-11 — Phase 53 follow-up — gates de release fail-closed
+
+**Status:** implementação local; PR #40 aberto; CI remoto falha pré-steps; não mergeado; não lançado.
+
+### Implementado
+
+- Validador de archive rejeita basenames obrigatórios fora da allowlist.
+- Teste CLI adicionado; suíte do validador agora tem 7 testes.
+- Empacotamento web falha quando `dist/` de Musician ou Engineer falta.
+- Upload web usa `if-no-files-found: error`.
+- Guia ARM64 exige e instala `api-server` e `open-iem-admin`.
+
+### Verificação
+
+- `make test`: PASS — Rust, frontends e harness SIMULATED.
+- `make validate`: PASS — documentação, PDF e skills.
+- Reviews independentes: findings de gate corrigidos localmente; assinatura independente, CI remoto e hardware seguem pendentes.
+
+### Próximo passo
+
+Executar re-review após atualização documental; não fazer merge ou release até CI remoto executar gates reais.
+
+---
+
+## 2026-09-11 — Phase 53 — validação estrutural de archives de release
+
+**Status:** commit `15cc584`; PR #40 aberto; CI remoto falhou pré-steps no run `34642754837`; não mergeado; não lançado.
+
+### Implementado
+
+- Criado `scripts/validate-release-archive.py` para validar archives de servidor antes do upload.
+- Archives devem conter um diretório raiz único, somente arquivos regulares allowlisted e binários `api-server`/`open-iem-admin`.
+- Traversal, caminhos absolutos, links, arquivos especiais, membros inesperados e binários ausentes são rejeitados.
+- Workflow de release executa validador em artefatos x86_64 e ARM64 antes de gerar checksum.
+- Testes offline cobrem archive válido, traversal, symlink e membro inesperado.
+
+### Verificação
+
+- Teste dedicado do validador: PASS — 5 testes (`python3 -m pytest -q tests/test_validate_release_archive.py`).
+- CI remoto segue falhando antes dos steps, com `runner_id=0`; hardware ARM64/PipeWire continua não validado.
+
+### Limitações
+
+Validação estrutural não autentica origem. Assinatura independente, execução em Raspberry Pi 5 e CI remoto continuam pendentes.
+
+### Próximo passo
+
+Executar gates locais completos; depois revisar diff com agentes independentes. Não fazer merge/release até CI real executar.
+
+---
+
+## 2026-09-11 — Phase 52 — follow-up de verificação independente
+
+**Status:** correção local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Admin CLI desativa redirects do `reqwest`, preservando a política HTTPS/loopback e evitando downgrade com Bearer token.
+- `cargo-audit` fixado em `0.22.2` nos workflows CI e release.
+- Certificados LAN gerados em diretório temporário; instalação usa `sudo install` com ownership explícito e chave privada `0640` para o grupo `caddy`.
+- Corrigidas inconsistências documentais de `make fmt` e da tabela de fases do README.
+
+### Verificação
+
+- `make validate`: PASS — Rust, frontends, documentação, PDF, skills e diff check.
+- Reviews independentes: test-master PASS; security-review encontrou e confirmou correções acima; code-review encontrou inconsistências documentais, corrigidas.
+- CI remoto continua falhando pré-steps com `runner_id=0`; não há hardware ARM64/PipeWire validado.
+
+### Limitações
+
+Arquivo de checksum continua sem assinatura independente; validação robusta de archives maliciosos e execução em Raspberry Pi 5 permanecem pendentes. Nenhum release foi publicado.
+
+---
+
+## 2026-09-11 — Phase 51 — hardening do fluxo de deployment ARM64
+
+**Status:** correção local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Downloads do instalador restringem redirects para HTTPS.
+- Diretórios `/etc/openiem`, `/etc/openiem/keys`, `/var/lib/openiem` e `/opt/openiem` recebem ownership e modos explícitos; `/etc/openiem` e `/etc/openiem/keys` usam grupo `openiem` para permitir acesso do serviço.
+- Chaves JWT são geradas em diretório temporário limpo por `trap` e instaladas via `sudo install` com modos restritos.
+- Unit systemd é obtida de clone Git confiável, validada como arquivo regular por `systemd-analyze verify` e instalada com ownership root.
+
+### Verificação
+
+- Extração dos blocos Bash e `bash -n`: PASS.
+- `git diff --check`: PASS.
+- `make test`, validações de documentação/PDF/skills e reviews independentes: executar antes do commit.
+
+### Limitações
+
+CI remoto segue falhando antes dos steps com `runner_id=0`; últimos runs observados `34634194257` (PR) e `34634188913` (push). Nenhum release foi publicado. Instalação, runtime ARM64, PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 permanecem não validados.
+
+---
+
+## 2026-09-11 — Phase 50 — hardening do instalador ARM64
+
+**Status:** correção local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Instalador valida tag `vX.Y.Z` sem zeros à esquerda, usa `set -euo pipefail` e baixa arquivos para diretório temporário exclusivo.
+- Falhas HTTP, checksum inválido e arquivo ausente interrompem fluxo antes de instalação privilegiada.
+- Membros de archive com caminho absoluto, traversal, symlink ou hard link são rejeitados antes da extração.
+- `api-server` precisa existir como arquivo regular no diretório esperado antes de `sudo install`.
+
+### Verificação
+
+- `make test`: PASS — Rust, frontend e harness de áudio determinístico.
+- `bash scripts/validate-docs.sh`, `bash scripts/validate-pdf.sh`, `bash scripts/validate-skills.sh`, `bash -n` do bloco de instalação e `git diff --check`: PASS.
+- Review independente encontrou gaps de automação e riscos no fluxo anterior; correção aplicada e revalidação local executada.
+
+### Limitações
+
+Checksum continua sendo baixado do mesmo release HTTPS e não substitui assinatura/autenticidade independente. Nenhum release foi publicado. CI remoto segue falhando antes dos steps com `runner_id=0`; instalação, runtime ARM64, PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 permanecem não validados.
+
+---
+
+## 2026-09-11 — Phase 49 — correção do guia de instalação ARM64
+
+**Status:** documentação corrigida localmente; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Alinhado `deployment/raspberry-pi/README.md` ao nome real gerado por `.github/workflows/release.yml`: `open-iem-server-<versão>-aarch64-linux.tar.gz`.
+- Corrigido caminho do binário `api-server` após extração do diretório versionado.
+- O guia agora baixa o checksum publicado, usa `sha256sum --check` e aborta antes da extração se integridade falhar.
+- `curl` usa modo fail-closed para erros HTTP.
+- Atualizados CHANGELOG, TODO e review da Phase 49.
+
+### Verificação
+
+- Validação textual confirmou que URL, arquivo baixado, checksum, arquivo extraído e caminho instalado usam o mesmo nome de artefato.
+- `bash scripts/validate-docs.sh`, `bash scripts/validate-pdf.sh`, `bash scripts/validate-skills.sh` e `git diff --check` executados nesta rodada.
+
+### Limitações
+
+Nenhum release foi publicado. CI remoto continua falhando antes dos steps por `runner_id=0`; instalação, runtime ARM64, PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 permanecem não validados.
+
+---
+
+
+## 2026-09-11 — Phase 48 — pinning imutável das actions
+
+**Status:** implementação local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Fixadas actions de CI/release em commits SHA completos, incluindo `dtolnay/rust-toolchain` na revisão atual de `stable`.
+- Comentários de versão mantidos para revisão humana sem depender de tags mutáveis.
+- Atualizados README, CHANGELOG, TODO e review da Phase 48.
+
+### Verificação
+
+- SHAs confirmados com `git ls-remote` nos repositórios upstream.
+- `make test`: PASS — Rust, frontend e harness de áudio determinístico.
+- `bash scripts/validate-docs.sh`, `bash scripts/validate-pdf.sh`, `bash scripts/validate-skills.sh` e `git diff --check`: PASS.
+
+### Limitações
+
+CI remoto segue falhando antes dos steps com `runner_id=0` e `steps=[]`; após push, runs `34629014531` (PR) e `34629009541` (push) falharam; hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+
+---
+
+## 2026-09-11 — Phase 47 — hardening dos workflows de release
+
+**Status:** implementação local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Corrigido filtro glob de tags em `.github/workflows/release.yml`.
+- `validate-version` agora rejeita tags que não correspondem exatamente a `vX.Y.Z`, incluindo componentes numéricos com zero à esquerda.
+- CI e jobs de leitura de release receberam `contents: read`; escrita ficou restrita a `github-release`.
+- Atualizados README, CHANGELOG, TODO e review da Phase 47.
+
+### Verificação
+
+- `make test`: PASS — Rust e frontends.
+- `bash scripts/validate-docs.sh`, `bash scripts/validate-pdf.sh`, `bash scripts/validate-skills.sh` e `git diff --check`: PASS.
+- Revisão independente encontrou filtro de tag inválido e permissões amplas; ambos corrigidos.
+
+### Limitações
+
+Actions de terceiros ainda usam referências mutáveis por tag; pinning integral por SHA permanece follow-up. Após o push, runs `34626195615` (PR) e `34626191122` (push) falharam antes dos steps (`runner_id=0`, `steps=[]`); hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+
+---
+
+## 2026-09-11 — Phase 46 follow-up — correções apontadas em revisão independente
+
+**Status:** correção local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Adicionado `make test-audio` à lista de comandos documentada em `docs/CLI.md`.
+- Restringido `scripts/validate-pdf.sh` a caminhos PDF existentes sob `docs/guides`, com resolução canônica para rejeitar traversal e arquivos fora do escopo.
+
+### Verificação
+
+- `make test` passou: Rust, frontend e harness de áudio determinístico.
+- `bash scripts/validate-docs.sh`, `bash scripts/validate-pdf.sh`, `bash scripts/validate-skills.sh` e `git diff --check` passaram.
+
+### Limitações
+
+CI remoto segue falhando antes dos steps (`runner_id=0`, `steps=[]`); `cargo clippy --all-features` permanece bloqueado pela ausência local de `jack.pc`. Hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+
+---
+
+## 2026-09-11 — Phase 46 — alinhamento do runner de release
+
+**Status:** implementação local; PR #40 aberto; CI remoto falhou antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Alterado `runs-on` de `ubuntu-24.04` para `ubuntu-latest` nos seis jobs de `.github/workflows/release.yml`.
+- Mantidos inalterados permissões, gates, dependências, artefatos e gatilho semver.
+- README, CHANGELOG, TODO e review da Phase 46 atualizados.
+
+### Verificação
+
+- Validação estrutural confirmou seis jobs de release em `ubuntu-latest` e nenhum `ubuntu-24.04`.
+- Gates locais Rust, documentação, PDF e skills executaram; `cargo audit` manteve o residual documentado `RUSTSEC-2023-0071`.
+- `git diff --check origin/main...HEAD` passou sobre o diff completo antes do commit.
+
+### Limitações
+
+Runs `34614028392` e `34614025997` falharam antes dos steps com `runner_id=0` e `steps=[]`; token atual recebe HTTP 403 ao consultar runners/permissões. CI remoto, release, hardware PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 permanecem não validados.
+
+### Próximo passo
+
+Executar CI e workflow de release quando administrador desbloquear runner/permissões. Não fazer merge ou publicar release antes de gates remotos verdes.
+
+---
+
+
+## 2026-09-11 — Phase 45 — correção do label de runner
+
+**Status:** implementação commitada; PR #40 aberto; CI remoto falhou antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Alterado `runs-on` de `ubuntu-24.04` para `ubuntu-latest` nos nove jobs do CI.
+- README, CHANGELOG, START, TODO e review atualizados.
+
+### Verificação
+
+- Revisão da API GitHub confirmou todos os jobs anteriores com `runner_id=0`, sem steps executados (`34605340696`).
+- `git diff --check` e gates locais pendentes antes do commit.
+
+### Limitações
+
+Token atual não permite consultar runners/configuração Actions (HTTP 403). CI remoto, hardware PipeWire/ALSA, mídia WebRTC, Raspberry Pi 5 e release continuam não validados.
+
+### Próximo passo
+
+Investigar desbloqueio de runner/permissões Actions com administrador; não fazer merge enquanto gates remotos não estiverem verdes.
+
+---
+
+## 2026-09-11 — Phase 44 — correção do gate de whitespace documental
+
+**Status:** correção local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Removido trailing whitespace de `docs/reviews/PHASE-37-REVIEW.md`, `PHASE-38-REVIEW.md`, `PHASE-39-REVIEW.md` e `docs/validation/PLATFORM-VALIDATION-MATRIX.md`.
+- README, CHANGELOG e TODO alinhados ao estado real.
+
+### Verificação
+
+- `git diff --cached --check`: PASS antes do commit; o diff completo contra `origin/main` deve ser revalidado após commit.
+- Testes Rust, clippy, typecheck/test/build dos dois frontends, docs, PDF e skills: PASS localmente.
+- Review independente encontrou e confirmou a falha de whitespace; nenhuma correção de segurança foi aplicada por falta de evidência reproduzível para fixture de teste já existente.
+
+### Limitações
+
+- Runs `34614028392` e `34614025997` falharam antes dos steps em todos os jobs, com `runner_id=0` e `steps=[]`. API de permissões e runners retorna HTTP 403 para token atual. PipeWire/ALSA, WebRTC media, Raspberry Pi 5 e release permanecem não validados.
+
+---
+
+## 2026-09-11 — Phase 43 — gates de verificação e consistência documental
+
+**Status:** implementação local; PR #40 aberto; CI remoto falha antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Gerado e versionado `server/Cargo.lock`; removida exclusão global do lockfile.
+- CI ganhou job `documentation` para `validate-docs.sh`, `validate-pdf.sh`, `validate-skills.sh` e `git diff --check`.
+- ADRs duplicados foram renumerados: WebSocket cap para ADR-013 e Compose safety para ADR-014.
+- README, CHANGELOG, TODO, START e review da Phase 43 atualizados.
+
+### Verificação
+
+- `cargo test --manifest-path server/Cargo.toml --all`: PASS — suites Rust concluídas sem falhas.
+- `cargo generate-lockfile --manifest-path server/Cargo.toml`: PASS — 355 pacotes resolvidos.
+- CI remoto continua bloqueado antes dos steps; último run observado: `34599888854`, falha sem runner executável.
+- Gates locais executados nesta rodada: fmt, clippy, cargo audit com lockfile, docs, PDF, skills e diff check — PASS.
+
+### Limitações
+
+CI remoto, hardware PipeWire/ALSA, mídia WebRTC, Raspberry Pi 5 e release v0.3.1 continuam pendentes.
+
+---
+
+## 2026-09-11 — Phase 42 — validação reproduzível do Musician Guide PDF
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Criado `scripts/validate-pdf.sh` para validar existência, extração de texto e renderização do PDF.
+- `pdftotext` é preferido; `mutool` cobre VPS sem Poppler.
+- `make docs` agora executa validação documental e validação do PDF.
+- README, CHANGELOG e TODO registram o novo gate.
+
+### Verificação
+
+- `mutool draw -F txt`: extração local disponível.
+- `mutool draw -r 120`: renderização local disponível.
+- `bash scripts/validate-pdf.sh`: será executado no gate local desta rodada.
+
+### Limitações
+
+PDF não valida hardware, PipeWire, WebRTC media ou runtime ARM64. CI remoto segue bloqueado antes dos steps; run `34597175306` falhou com jobs sem steps e sem runner atribuído.
+
+---
+
+## 2026-09-11 — Phase 41 — pacote documental do Musician Guide
+
+**Status:** documentação local atualizada; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Atualizada versão/data de `docs/guides/MUSICIANS-GUIDE.md` para Phase 41.
+- Regenerado `docs/guides/MUSICIANS-GUIDE.pdf` com Pandoc + XeLaTeX a partir do Markdown atual.
+- README, CHANGELOG e TODO registram estado e limitação real.
+
+### Verificação
+
+- `pandoc ... --pdf-engine=xelatex`: PASS; PDF regenerado.
+- Renderização de página foi iniciada com `pdftoppm`, mas validação textual falhou porque `pdftotext` não está instalado no VPS.
+- `bash scripts/validate-docs.sh`: PASS.
+- `bash scripts/validate-skills.sh`: PASS.
+- `git diff --check`: PASS.
+
+### Limitações
+
+PDF não pode receber validação completa de extração de texto neste ambiente até instalar `pdftotext`. PipeWire, WebRTC media, runtime ARM64 e hardware Raspberry Pi 5 continuam não validados. CI remoto continua bloqueado antes dos steps; runs `34594953314` e `34594948336` falharam com jobs sem steps.
+
+---
+
+## 2026-09-11 — Phase 40 — segurança operacional do Compose e rebuild explícito
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- `make up` agora executa `docker compose up -d --build`, evitando iniciar imagens obsoletas após alterações em código, Dockerfiles ou dependências.
+- Portas dos UIs Compose foram limitadas a `127.0.0.1`, evitando exposição acidental dos servidores Vite de desenvolvimento.
+- `make fmt` não reporta formatação frontend como executada quando os projetos não possuem script `format`.
+- README, CHANGELOG, TODO e review da Phase 40 alinhados.
+
+### Verificação
+
+- `docker compose config`: PASS.
+- `make -n up`: PASS; confirma `--build`.
+- `make test-audio`: PASS — 4 testes.
+- `bash scripts/validate-docs.sh`: PASS.
+- `bash scripts/validate-skills.sh`: PASS.
+- `git diff --check`: PASS.
+
+### Limitações
+
+Compose continua desenvolvimento-only, com HTTP inseguro explicitamente configurado e áudio `SIMULATED`. CI remoto continua bloqueado antes dos steps; nenhuma validação de Docker runtime, TLS, PipeWire, WebRTC media ou Raspberry Pi 5 foi alegada.
+
+---
+
+## 2026-09-11 — Phase 39 — cobertura do harness de áudio no Makefile
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Criado alvo `make test-audio` para executar `audio-engine` deterministic harness.
+- `make test` agora inclui esse alvo, além dos testes Rust e frontend existentes.
+- Help do Makefile informa que cobertura de áudio é `SIMULATED`.
+- README, CHANGELOG, TODO e review da Phase 39 alinhados.
+
+### Verificação
+
+- `make test-audio`: PASS.
+- `make test`: PASS, se dependências locais de frontend estiverem disponíveis.
+- `make -n test`: PASS.
+- `git diff --check`: PASS.
+- Nenhum claim novo de hardware, PipeWire, WebRTC media, Raspberry Pi ou CI remoto.
+
+### Limitações
+
+O harness não valida áudio realtime, hardware, desempenho, stop/start ou runtime ARM64. CI remoto continua bloqueado antes dos steps com `runner_id=0`.
+
+---
+
+## 2026-09-11 — Phase 38 — consistência documental da CLI
+
+**Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps (run `34572824987`); não mergeado; não lançado.
+
+### Implementado
+
+- `docs/CLI.md` passou a declarar `iem` como implementado, com oito comandos fixos e versão `0.3.1`.
+- Removida linguagem obsoleta de planejamento e `NOT STARTED`.
+- README, CHANGELOG, TODO e esta trilha foram alinhados ao binário real.
+
+### Verificação
+
+- `cargo test --manifest-path server/Cargo.toml -p admin-cli`: PASS — 3 testes.
+- `cargo run --quiet --manifest-path server/Cargo.toml --bin iem -- --version`: PASS — `iem 0.3.1`.
+- `bash scripts/validate-docs.sh`: PASS.
+- `git diff --check`: PASS.
+- Nenhum claim novo de hardware, áudio realtime ou CI remoto.
+
+---
+
+## 2026-09-11 — Phase 37 — matriz de validação de plataforma
+
+**Status:** documentação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Criada `docs/validation/PLATFORM-VALIDATION-MATRIX.md` para separar evidência de configuração, `SIMULATED`, `PENDING` e suporte não implementado.
+- Registrados targets Linux x86_64, Docker Compose, Raspberry Pi 5 ARM64, Windows via Docker Desktop, Windows áudio nativo e macOS.
+- Definidos gates de hardware para PipeWire/ALSA, WebRTC media, latência, XRUNs, perda, recuperação e TLS.
+- Atualizados README, CHANGELOG, TODO e review da Phase 37.
+
+### Verificação
+
+- `bash scripts/validate-docs.sh`: PASS.
+- `bash scripts/validate-skills.sh`: PASS.
+- `git diff --check`: PASS.
+- Nenhum teste de Raspberry Pi, PipeWire, áudio realtime ou WebRTC media foi alegado.
+
+### Limitações
+
+- Run CI `34557388136` falhou com oito jobs sem steps executados; GitHub reporta `runner_id=0`.
+- Fechamento de deployment e mídia depende de Raspberry Pi 5 real.
+
+## 2026-09-11 — Phase 35 — CLI de desenvolvimento `iem`
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Criado `server/admin-cli/src/bin/iem.rs` como dispatcher tipado para alvos existentes do Makefile.
+- Comandos suportados: `help`, `status`, `diagnostics`, `docs`, `test`, `build`, `up` e `down`.
+- Execução usa `Command::new("make")`, sem shell e sem entrada arbitrária.
+- Código de saída do alvo é preservado; falha para iniciar `make` retorna 127.
+- `iem run`, instalação global, pacote e suporte de plataforma não foram inventados.
+- Atualizados README, CHANGELOG, TODO, `docs/CLI.md` e review da Phase 35.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check`: PASS.
+- `cargo test --manifest-path server/Cargo.toml -p admin-cli`: PASS — 3 testes.
+- `cargo clippy --manifest-path server/Cargo.toml -p admin-cli --all-targets -- -D warnings`: PASS.
+- `iem --help`, `iem docs` e rejeição de `iem run`: PASS; `iem run` retorna exit 2.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+- CI remoto permanece bloqueado antes dos steps com `runner_id=0`; não há evidência de execução GitHub Actions.
+
+### Limitações
+
+- `up`/`down` exigem Docker Compose; `test`/`build` exigem toolchains.
+- PipeWire, WebRTC media e Raspberry Pi 5 continuam não validados.
+
+---
+
+---
+
+## 2026-09-11 — Phase 36 — telemetria no Engineer Console
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Engineer Console passou a consultar `GET /api/v1/telemetry` junto com dados do dashboard.
+- Backend e contador de XRUNs aparecem nos cards operacionais.
+- Métrica `null` permanece `UNKNOWN`; nenhuma disponibilidade de áudio foi inventada.
+- Criada revisão `docs/reviews/PHASE-36-REVIEW.md`.
+
+### Verificação
+
+- `npm test --prefix web/engineer -- --run --reporter=dot`: PASS — 2 testes.
+- `npm run typecheck --prefix web/engineer`: PASS.
+- `npm run build --prefix web/engineer`: PASS — Vite produziu `dist/`.
+- `git diff --check`: PASS.
+- PipeWire, WebRTC media e Raspberry Pi 5 continuam não validados.
+
+---
+
+## 2026-09-11 — Phase 36 — telemetria no Engineer Console
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Engineer Console passou a consultar `GET /api/v1/telemetry` junto com dados do dashboard.
+- Backend e contador de XRUNs aparecem nos cards operacionais.
+- Métrica `null` permanece `UNKNOWN`; nenhuma disponibilidade de áudio foi inventada.
+- Criada revisão `docs/reviews/PHASE-36-REVIEW.md`.
+
+### Verificação
+
+- `npm test --prefix web/engineer -- --run --reporter=dot`: PASS — 2 testes.
+- `npm run typecheck --prefix web/engineer`: PASS.
+- `npm run build --prefix web/engineer`: PASS — Vite produziu `dist/`.
+- `git diff --check`: PASS.
+- PipeWire, WebRTC media e Raspberry Pi 5 continuam não validados.
+
+---
+
+## 2026-09-10 — Phase 34 — CLI output correctness
+
+**Status:** implementação local verificada; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- `open-iem-admin` aceita HTTP somente para `localhost`, `127.0.0.1` e `::1`; URLs remotas exigem HTTPS antes de qualquer request ou envio de Bearer token.
+- Tabelas JSON coletam união de campos de todos objetos, evitando perda de colunas quando primeira linha tem schema parcial.
+- HTTP 404 agora retorna erro genérico de recurso ausente, sem afirmar que endpoint implementado ainda está planejado.
+- Testes unitários cobrem união de campos e descarte de linhas não-objeto.
+
+### Verificação
+
+- `cargo fmt --manifest-path server/Cargo.toml --all`: PASS.
+- `cargo test --manifest-path server/Cargo.toml -p admin-cli`: PASS — 2 testes.
+- `cargo clippy --manifest-path server/Cargo.toml -p admin-cli --all-targets -- -D warnings`: PASS.
+- `scripts/validate-docs.sh`, `scripts/validate-skills.sh` e `git diff --check`: PASS.
+- Review independente encontrou inicialmente risco de Bearer sobre HTTP remoto; correção aplicada. Nova revisão ainda necessária antes do commit.
+
+### Limitações
+
+- CI remoto continua falhando antes dos steps com `runner_id=0`; não há evidência de execução GitHub Actions.
+- API, PipeWire, WebRTC media e Raspberry Pi 5 permanecem não validados nesta fase.
+
+---
+
+## 2026-09-10 — Phase 33 — CI branch trigger diagnosis
+
+**Status:** workflow corrigido localmente; CI remoto ainda bloqueado; sem merge ou release.
+
+### Implementado
+
+- Adicionado padrão `feat/**` aos gatilhos de push do `.github/workflows/ci.yml`.
+- Correção cobre branch canônica atual `feat/phase24-ws-resilience`, que não correspondia ao padrão anterior `feature/**`.
+
+### Verificação
+
+- YAML do workflow alterado sem erro de sintaxe detectado pelo editor.
+- Runs remotos `34540976629`, `34541036272` e novo push `34543057940` falharam em todos os jobs com `steps=[]`; evidência aponta bloqueio de runner antes da execução.
+- Nenhuma conclusão de CI, release ou suporte de hardware foi declarada.
+
+### Próximo passo
+
+Desbloquear runner/permissões GitHub e repetir CI real; depois executar gates completos antes de merge.
+
+---
+
+## 2026-09-10 — Phase 32 — deterministic audio harness
+
+**Status:** testes locais passam; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Adicionado `server/audio-engine/tests/deterministic_harness.rs`, harness de integração `SIMULATED` sem hardware, rede ou valores de relógio de parede nas asserções de áudio.
+- Harness cobre determinismo, isolamento entre mixes, ganho, pan, mute, limiter e finitude das amostras.
+
+### Verificação
+
+- `cargo fmt --all -- --check`: PASS.
+- `cargo test -p audio-engine`: PASS — 20 testes unitários, 4 testes de integração e doc-tests.
+
+### Limitações
+
+- Harness não cobre hardware, desempenho realtime ou stop/start.
+- CI remoto continua bloqueado antes dos steps. O novo run `34540976629` falhou em 8 jobs com `steps=[]`; PR #40 permanece aberto; não há merge ou release.
+
+---
+
+## 2026-09-10 — Phase 31 review and CLI contract audit
+
+**Status:** documentação atualizada; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado.
+
+### Objetivo
+
+Reconciliar documentação com commits reais e registrar contrato da interface local antes de implementar um binário `iem`.
+
+### Implementado
+
+- README e CHANGELOG deixam de chamar mudanças commitadas de working tree.
+- Criada revisão `docs/reviews/PHASE-31-REVIEW.md`.
+- Criado `docs/CLI.md`, distinguindo Makefile, `open-iem-admin` existente e o contrato implementado de `iem`.
+- Corrigido estado documental da CLI: `iem` implementado com oito comandos fixos e versão `0.3.1`; instalação global e pacote continuam fora do escopo.
+
+### Verificação
+
+- Estado Git local limpo antes da edição; documentação editada sem código executável.
+- Runs remotos 34532261471 e 34532315872 falharam com `steps=[]` e `runner_id=0`.
+- API de Actions retorna HTTP 403 para o token disponível; causa de configuração do runner não pôde ser confirmada.
+
+### Decisões e limitações
+
+- Não trocar `ubuntu-24.04` por `ubuntu-latest` sem evidência; falha ocorre antes dos steps.
+- Não criar alias `iem` antes de definir instalação, códigos de saída e compatibilidade.
+- PipeWire, WebRTC media e Raspberry Pi 5 continuam `SIMULATED`/`HARDWARE VALIDATION REQUIRED`.
+
+### Próximo passo
+
+Validar documentação e gates locais; depois investigar desbloqueio do GitHub Actions com credencial/permissão adequada.
+
+---
+
+## 2026-09-10 — Compose compatibility cleanup
+
+**Status:** implementação commitada nesta branch; PR #40 aberto; CI bloqueado antes dos steps; não lançado.
+
+### Implementado
+
+- Removido campo top-level `version` obsoleto de `docker-compose.yml`.
+- README e CHANGELOG registram que Compose continua dev-only e sem runtime validado.
+
+### Verificação
+
+- `docker compose config`: PASS, sem aviso de atributo `version` obsoleto.
+- `git diff --check`: PASS.
+- Docker build/startup, PipeWire, WebRTC media e Raspberry Pi continuam não validados.
+
+---
+
 ## 2026-09-10 — Phase 31 follow-up — fail-closed rollback and snapshot baseline
 
 **Status:** local implementation, uncommitted/unmerged; CI blocked; not released.

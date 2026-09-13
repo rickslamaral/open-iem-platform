@@ -1,32 +1,47 @@
-# Working-Tree Review — JWT Post-Issuance Revocation
+# Phase 31 Review — Revogação pós-emissão de JWT
 
-> Working-tree status: Phase 31 is uncommitted work. It is not a completed release or merged progress.
+**Data:** 2026-09-10
+**Estado:** PR #40 aberto; implementação commitada na branch; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
 
-## Scope
+## Objetivo
 
-Open IEM access JWTs now carry optional-for-legacy-tests `session_id`; production login and refresh tokens carry refresh-token session ID. SQLite stores `jti`, `user_id`, `session_id`, `expires_at`, and `revoked` in `access_sessions`.
+Invalidar access tokens já emitidos quando sessão, usuário ou família de refresh for revogada, incluindo conexões WebSocket estabelecidas.
 
-## Security behavior
+## Implementado
 
-- Login creates refresh row and access mapping before returning access token.
-- Refresh rotates refresh token and creates new access mapping transactionally.
-- Middleware verifies JWT, requires session association, checks active DB mapping and existing user.
-- Logout, admin session revoke, and user deletion revoke access mappings.
-- WebSocket handshake, keepalive and inbound-message paths re-check access-session validity; established connections can be closed after revocation on the next check interval or message.
+- Mapeamentos persistidos de access-session vinculam `jti`, usuário e sessão de refresh.
+- Middleware valida mapeamento, usuário, expiração e estado de revogação.
+- Rotação, logout, revogação administrativa, replay e remoção de usuário invalidam mapeamentos relacionados.
+- WebSocket revalida sessão em mensagens recebidas e ticks de keepalive; revogação retorna `SESSION_REVOKED` e encerra o loop.
+- Rollback de refresh não reativa sessão revogada concorrentemente e não consome token quando usuário não existe.
+- Respostas HTTP internas não expõem detalhes de erro.
+- Cliente Musician preserva snapshot REST atrasado como baseline quando revisão WebSocket já avançou.
 
-## Verification
+## Verificação local
 
-Current API-scoped verification: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo test -p api-server --test integration`, and `cargo clippy -p api-server --all-targets -- -D warnings` pass. API integration tests: 57 passed. The refresh replay regression confirms replacement access is revoked. Hardware, PipeWire, WebRTC media, and Raspberry Pi remain unvalidated.
+- `cargo fmt --all -- --check`: PASS.
+- `cargo test -p api-server --test integration`: PASS — 57 testes.
+- `cargo clippy -p api-server --all-targets -- -D warnings`: PASS.
+- Workspace completo: BLOCKED pela dependência nativa ausente `jack.pc`/`jack-sys`.
+- Frontend Musician: PASS — 34 testes, typecheck e build.
+- `git diff --check`: PASS.
 
-Phase 31 follow-up fixes refresh rollback to fail closed, resolves refresh ownership before rotation, redacts internal HTTP error details, and preserves a delayed REST snapshot as client baseline when WebSocket revision arrives first.
+## Segurança
 
-## Independent review status
+**Sem BLOCKER/HIGH identificado na revisão local atual.** Revogação é fail-closed. Tokens e detalhes internos não entram em URL nem resposta pública.
 
-Test-agent review: PASS for current local test evidence; remote CI remains unverified because GitHub runner allocation fails before workflow steps. Independent security re-review: PASS after fixes. Independent client snapshot re-review: PASS after bounded three-attempt reconciliation fix.
+## CI e release
 
+**BLOCKED.** Runs 34532261471 e 34532315872 falharam imediatamente, com `steps=[]` e `runner_id=0`. Token atual não permite consultar configurações/logs de Actions (`HTTP 403`). Não há evidência de CI verde, artefatos ou release pronta.
 
-## Migração de bancos existentes
+## Hardware
 
-A criação de `access_sessions` é compatível com bancos existentes, mas não há como reconstruir associações entre access JWTs já emitidos e refresh sessions antigas. Esses access JWTs falham fechado após atualização; o operador deve fazer login novamente. Refresh tokens antigos continuam utilizáveis para rotação e passam a gerar mapeamentos novos. Expiração, revogação ou ausência de refresh token exige novo login.
+PipeWire, ALSA real, WebRTC media, latência e runtime Raspberry Pi 5 ARM64 continuam `SIMULATED`/`HARDWARE VALIDATION REQUIRED`.
 
-Release blockers remain: working-tree-only changes and no CI validation.
+## Decisão
+
+**PASS WITH CONDITIONS:** implementação local aprovada; merge depende de CI remoto executável e revisão do PR #40. Não avançar release.
+
+## Próximo
+
+Desbloquear infraestrutura/permissão do GitHub Actions. Depois validar CI real e seguir com CLI `iem` somente após especificação documental.
