@@ -5,7 +5,8 @@ set -Eeuo pipefail
 IFS=$'\n\t'
 
 REPO_URL="${OPENIEM_REPO_URL:-https://github.com/rickslamaral/open-iem-platform.git}"
-REF="${OPENIEM_REF:-main}"
+# Installer must build immutable, explicitly selected source. Mutable branches are unsafe.
+REF="${OPENIEM_REF:-}"
 PREFIX="${OPENIEM_PREFIX:-/opt/openiem}"
 BIN_DIR="${OPENIEM_BIN_DIR:-/usr/local/bin}"
 STATE_DIR="${OPENIEM_STATE_DIR:-/var/lib/openiem}"
@@ -30,7 +31,7 @@ Open IEM Platform Linux installer
 
 Options:
   --repo URL       Git repository URL
-  --ref REF        Git branch, tag, or commit (default: main)
+  --ref SHA        Required full 40-character Git commit SHA (immutable source pin)
   --prefix PATH    Source/install prefix (default: /opt/openiem)
   --dry-run        Show actions without changing host
   --skip-deps      Do not install/check OS packages
@@ -69,7 +70,7 @@ done
 [[ "$PREFIX" = /* && "$BIN_DIR" = /* && "$STATE_DIR" = /* && "$CONFIG_DIR" = /* ]] || fatal "paths must be absolute"
 [[ "$PREFIX$BIN_DIR$STATE_DIR$CONFIG_DIR" != *$'\n'* && "$PREFIX$BIN_DIR$STATE_DIR$CONFIG_DIR" != *'&'* && "$PREFIX$BIN_DIR$STATE_DIR$CONFIG_DIR" != *'\\'* && "$PREFIX$BIN_DIR$STATE_DIR$CONFIG_DIR" != *'#'* ]] || fatal "paths cannot contain newline, &, \\, or #"
 [[ "$REPO_URL" == https://* || "$REPO_URL" == git@* || "$REPO_URL" == ssh://* ]] || fatal "repository URL must use HTTPS or SSH"
-[[ "$REF" != -* ]] || fatal "ref cannot start with -"
+[[ "$REF" =~ ^[0-9a-fA-F]{40}$ ]] || fatal "--ref must be a full 40-character commit SHA; mutable branches and tags are refused"
 
 SUDO=()
 if (( EUID != 0 )); then
@@ -125,7 +126,8 @@ trap cleanup EXIT
 install_deps
 if (( DRY_RUN )); then
   log "would verify tools: git curl openssl cargo rustc node npm (Node.js >= 20)"
-  log "would clone $REPO_URL at ref $REF"
+  log "would clone $REPO_URL at immutable commit $REF"
+  log 'would verify checkout resolves exactly to requested commit'
   log 'would build Rust workspace in release mode'
   log 'would install dependencies and build web/musician and web/engineer'
   log "would install binaries and web assets below $PREFIX"
@@ -138,14 +140,13 @@ check_tools
 
 TMP_DIR="$(mktemp -d -t openiem-install.XXXXXX)"
 trap cleanup EXIT
-log "cloning $REPO_URL ($REF)"
-if [[ "$REF" =~ ^[0-9a-fA-F]{40}$ ]]; then
-  git clone --filter=blob:none --no-checkout "$REPO_URL" "$TMP_DIR/src"
-  git -C "$TMP_DIR/src" fetch --depth 1 origin "$REF"
-  git -C "$TMP_DIR/src" checkout --detach "$REF"
-else
-  git clone --depth 1 --branch "$REF" --single-branch "$REPO_URL" "$TMP_DIR/src"
-fi
+log "cloning $REPO_URL at immutable commit $REF"
+# Fetch only requested commit, then verify exact object identity before build.
+git clone --filter=blob:none --no-checkout "$REPO_URL" "$TMP_DIR/src"
+git -C "$TMP_DIR/src" fetch --depth 1 origin "$REF"
+git -C "$TMP_DIR/src" checkout --detach "$REF"
+resolved_ref="$(git -C "$TMP_DIR/src" rev-parse HEAD)"
+[[ "$resolved_ref" == "$REF" ]] || fatal "checkout did not resolve requested commit SHA"
 cd "$TMP_DIR/src"
 
 log 'building Rust workspace'
@@ -157,17 +158,41 @@ log 'building engineer UI'
 npm ci --prefix web/engineer --ignore-scripts
 npm run build --prefix web/engineer
 
-# Never overwrite an existing source tree. Install into a versioned staging path.
+# Build complete release in isolated staging. Existing current release stays untouched on failure.
 STAGE="$(mktemp -d -t openiem-stage.XXXXXX)"
-trap 'rm -rf -- "$STAGE"; cleanup' EXIT
-run "${SUDO[@]}" install -d -m 0755 "$PREFIX" "$BIN_DIR" "$CONFIG_DIR" "$STATE_DIR"
-run "${SUDO[@]}" install -d -m 0755 "$PREFIX/server" "$PREFIX/web"
-run "${SUDO[@]}" install -m 0755 server/target/release/api-server "$PREFIX/server/api-server"
-run "${SUDO[@]}" install -m 0755 server/target/release/open-iem-admin "$PREFIX/server/open-iem-admin"
-run "${SUDO[@]}" cp -a web/musician/dist "$PREFIX/web/musician"
-run "${SUDO[@]}" cp -a web/engineer/dist "$PREFIX/web/engineer"
-run "${SUDO[@]}" ln -sfn "$PREFIX/server/api-server" "$BIN_DIR/api-server"
-run "${SUDO[@]}" ln -sfn "$PREFIX/server/open-iem-admin" "$BIN_DIR/open-iem-admin"
+RELEASE_DIR="$PREFIX/releases/$REF"
+PREVIOUS_RELEASE=""
+CURRENT_LINK="$PREFIX/current"
+INSTALL_COMMITTED=0
+KEY_TMP=""
+if [[ -L "$CURRENT_LINK" ]]; then PREVIOUS_RELEASE="$(readlink "$CURRENT_LINK")"; fi
+cleanup_release() {
+  if (( INSTALL_COMMITTED == 0 )); then
+    if [[ -n "$PREVIOUS_RELEASE" ]]; then
+      run "${SUDO[@]}" ln -sfn "$PREVIOUS_RELEASE" "$CURRENT_LINK"
+    else
+      run "${SUDO[@]}" rm -f -- "$CURRENT_LINK"
+    fi
+    if [[ -n "$RELEASE_DIR" && -d "$RELEASE_DIR" && "$RELEASE_DIR" != "$PREVIOUS_RELEASE" ]]; then
+      run "${SUDO[@]}" rm -rf -- "$RELEASE_DIR"
+    fi
+  fi
+  [[ -z "$KEY_TMP" ]] || rm -rf -- "$KEY_TMP"
+  rm -rf -- "$STAGE"
+  cleanup
+}
+trap cleanup_release EXIT
+mkdir -p "$STAGE/server" "$STAGE/web/musician" "$STAGE/web/engineer"
+install -m 0755 server/target/release/api-server "$STAGE/server/api-server"
+install -m 0755 server/target/release/open-iem-admin "$STAGE/server/open-iem-admin"
+cp -a web/musician/dist/. "$STAGE/web/musician/"
+cp -a web/engineer/dist/. "$STAGE/web/engineer/"
+[[ ! -e "$RELEASE_DIR" ]] || fatal "release already installed at $RELEASE_DIR; choose a different immutable commit"
+run "${SUDO[@]}" install -d -m 0755 "$PREFIX/releases" "$RELEASE_DIR" "$BIN_DIR" "$CONFIG_DIR" "$STATE_DIR"
+run "${SUDO[@]}" cp -a "$STAGE/." "$RELEASE_DIR/"
+run "${SUDO[@]}" ln -sfn "$RELEASE_DIR" "$PREFIX/current"
+run "${SUDO[@]}" ln -sfn "$PREFIX/current/server/api-server" "$BIN_DIR/api-server"
+run "${SUDO[@]}" ln -sfn "$PREFIX/current/server/open-iem-admin" "$BIN_DIR/open-iem-admin"
 
 if ! id openiem >/dev/null 2>&1; then run "${SUDO[@]}" useradd --system --home-dir /nonexistent --no-create-home --shell /usr/sbin/nologin openiem; fi
 run "${SUDO[@]}" chown -R openiem:openiem "$STATE_DIR"
@@ -191,7 +216,6 @@ if [[ -e "$PRIVATE_KEY" || -e "$PUBLIC_KEY" ]]; then
 fi
 if [[ ! -e "$PRIVATE_KEY" && ! -e "$PUBLIC_KEY" ]] || (( ROTATE_KEYS )); then
   KEY_TMP="$(mktemp -d -t openiem-keys.XXXXXX)"
-  trap 'rm -rf -- "$KEY_TMP" "$STAGE"; cleanup' EXIT
   umask 077
   openssl genpkey -algorithm ed25519 -out "$KEY_TMP/private.pem"
   openssl pkey -in "$KEY_TMP/private.pem" -pubout -out "$KEY_TMP/public.pem"
@@ -205,7 +229,7 @@ fi
 
 if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
   sed -e "s#^WorkingDirectory=.*#WorkingDirectory=$PREFIX#" \
-      -e "s#^ExecStart=.*#ExecStart=$PREFIX/server/api-server#" \
+      -e "s#^ExecStart=.*#ExecStart=$PREFIX/current/server/api-server#" \
       -e "s#^Environment=OPENIEM_DB_PATH=.*#Environment=OPENIEM_DB_PATH=$STATE_DIR/openiem.db#" \
       -e "s#^Environment=OPENIEM_JWT_PRIVATE_PEM=.*#Environment=OPENIEM_JWT_PRIVATE_PEM=$CONFIG_DIR/keys/ed25519_private.pem#" \
       -e "s#^Environment=OPENIEM_JWT_PUBLIC_PEM=.*#Environment=OPENIEM_JWT_PUBLIC_PEM=$CONFIG_DIR/keys/ed25519_public.pem#" \
@@ -217,5 +241,6 @@ else
   warn 'systemd unavailable or disabled; start api-server manually'
 fi
 
+INSTALL_COMMITTED=1
 log 'installation complete'
 printf '%s\n' "API binary: $BIN_DIR/api-server" "Admin CLI: $BIN_DIR/open-iem-admin" "State: $STATE_DIR" "Config: $CONFIG_DIR"

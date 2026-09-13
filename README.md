@@ -40,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 82 — revisão de segurança do instalador.** CI remoto `34739632116` passou no PR #41. Auditoria encontrou risco HIGH: instalador ainda constrói código obtido de checkout remoto mutável sem verificação criptográfica; também há riscos MEDIUM de Node.js incompatível e instalação parcial. Correção de cópia repetida de UI ainda não foi aplicada por exigir desenho de instalação atômica. Não fazer merge até fechar findings. Release, hardware e mídia continuam não validados.
+**Fase incremental atual: Phase 82 — hardening do instalador.** Instalador agora exige `--ref` com SHA completo de 40 caracteres, verifica checkout exato e recusa branches/tags mutáveis. Build ocorre em release versionado e staging limpo; `current` muda somente após artefatos completos, com restauração do link anterior em falha. CI remoto `34739632116` passou antes desta correção; novo run ainda pendente. Instalação, release, hardware e mídia continuam não validados.
 
 **Fase anterior: Phase 78 — rejeição de dados residuais em archives.** O validador rejeita streams gzip concatenados e bytes residuais após um archive válido, além de validar estrutura, limites, tipos, duplicatas e payloads truncados. A verificação local passa; CI remoto, release e hardware continuam não validados. Imagens documentais geradas a partir do código-fonte cobrem Login, Musician PWA, Engineer Console, Admin CLI/API e controles de mix; não são screenshots de runtime. Control plane local segue validado; mídia continua `SIMULATED`. Ver [review da Phase 76](docs/reviews/PHASE-76-REVIEW.md), [review da Phase 75](docs/reviews/PHASE-75-REVIEW.md), [review da Phase 72](docs/reviews/PHASE-72-REVIEW.md), [review da Phase 71](docs/reviews/PHASE-71-REVIEW.md), [Phase 70](docs/reviews/PHASE-70-REVIEW.md), [Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
 
@@ -159,18 +159,19 @@ scripts/              — Development utilities
 Instalador oficial para Linux, com build local, chaves JWT geradas no host e serviço systemd:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/rickslamaral/open-iem-platform/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/rickslamaral/open-iem-platform/main/scripts/install.sh -o install.sh
+bash install.sh --ref <COMMIT-SHA-40-CHARS>
 ```
 
-O instalador não contém credenciais e não sobrescreve chaves JWT existentes. Para revisar antes de executar:
+O instalador recusa branches/tags mutáveis e exige commit SHA completo. Não contém credenciais e não sobrescreve chaves JWT existentes. Para revisar antes de executar:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/rickslamaral/open-iem-platform/main/scripts/install.sh -o install.sh
 less install.sh
-bash install.sh --dry-run
+bash install.sh --dry-run --skip-deps --ref <COMMIT-SHA-40-CHARS>
 ```
 
-Veja opções com `bash install.sh --help`. Primeira instalação gera par Ed25519. Chaves existentes são preservadas; para substituir, use `bash install.sh --rotate-keys` e confirme digitando `ROTATE`. Isso invalida todas sessões JWT. Em automação explícita: `--rotate-keys --yes`. Áudio PipeWire/ALSA e runtime Raspberry Pi continuam pendentes de validação física.
+Veja opções com `bash install.sh --help`. Primeira instalação gera par Ed25519. Chaves existentes são preservadas; para substituir, use `bash install.sh --ref <COMMIT-SHA-40-CHARS> --rotate-keys` e confirme digitando `ROTATE`. Isso invalida todas sessões JWT. Em automação explícita: `--ref <COMMIT-SHA-40-CHARS> --rotate-keys --yes`. Áudio PipeWire/ALSA e runtime Raspberry Pi continuam pendentes de validação física.
 
 ## Contributing
 

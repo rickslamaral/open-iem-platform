@@ -4,6 +4,30 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — Phase 82 — pin e staging atômico do instalador
+
+**Status:** BLOCKED — correção local; novo CI e revisão independente pendentes; PR #41 não mergeado.
+
+### Implementado
+
+- `scripts/install.sh` exige SHA-1 completo de 40 caracteres e recusa branch/tag mutável.
+- Checkout usa fetch limitado, detached checkout e validação de `git rev-parse HEAD` antes de compilar.
+- Binários e UIs são montados em staging limpo e publicados em `$PREFIX/releases/$REF`; link `$PREFIX/current` só aponta para release completa.
+- Falha antes do commit remove release nova e restaura link anterior.
+- README, CHANGELOG, TODO e review Phase 82 atualizados.
+
+### Verificação real
+
+- `bash -n scripts/install.sh`: aprovado.
+- `scripts/install.sh --dry-run --skip-deps --ref b3c0fb2`: rejeitou corretamente SHA curto.
+- `scripts/install.sh --dry-run --skip-deps --ref be78f14cf33c8dd6dbd903840da9ac2bde8c9ae4`: aprovado; host não alterado.
+
+### Limitações
+
+Node.js preflight ainda ocorre depois de instalação de pacotes e precisa ser movido antes de mutar host. Instalação real, rollback exercitado, CI novo, release, PipeWire/ALSA, mídia WebRTC e Raspberry Pi 5 continuam não validados.
+
+---
+
 ## 2026-09-13 — Phase 82 — auditoria de segurança do instalador
 
 **Status:** BLOCKED — findings HIGH/MEDIUM abertos; PR #41 não deve ser mergeado.

@@ -1,7 +1,7 @@
 # Phase 82 Review — auditoria de segurança do instalador
 
 **Data:** 2026-09-13
-**Status:** BLOCKED — PR #41 não aprovado para merge.
+**Status:** BLOCKED — findings principais corrigidos localmente; PR #41 aguarda novo CI e revisão independente.
 
 ## Escopo
 
@@ -9,10 +9,14 @@ Auditoria independente do instalador Linux e dos workflows no commit `4d20485` /
 
 ## Findings
 
-- **HIGH — fonte sem verificação criptográfica:** `scripts/install.sh` baixa o repositório e constrói o checkout remoto. Mesmo com `--ref`, o fluxo padrão usa `main` mutável e não valida assinatura/checksum da fonte. Fixar commit/tag e validar autenticidade antes do build.
-- **MEDIUM — dependência Node.js:** caminho `apt` instala `nodejs` do repositório do SO, mas o build exige Node.js >= 20. Em distribuições com Node.js 18, host sofre mutação e instalação falha depois. Validar versão antes de mutar host e instalar runtime suportado.
-- **MEDIUM — instalação parcial:** binários, assets, chaves e unit systemd são alterados em etapas; falha posterior deixa instalação mista. Usar staging completo, publicação atômica e rollback.
-- **MEDIUM — reexecução de UI:** `cp -a web/*/dist "$PREFIX/web/*"` pode aninhar `dist` ou preservar conteúdo velho quando destino existe. Copiar conteúdo para staging limpo e publicar atomicamente; não apagar árvore ativa sem rollback.
+- **Corrigido — fonte mutável:** instalador exige SHA completo de 40 caracteres, faz fetch limitado, checkout detached e compara `git rev-parse HEAD` antes do build. Autenticidade criptográfica da origem ainda depende de transporte Git HTTPS/SSH; assinatura de commit permanece evolução futura.
+- **Pendente MEDIUM — dependência Node.js:** caminho `apt` instala `nodejs` do repositório do SO, mas o build exige Node.js >= 20. O check ocorre depois da instalação de pacotes; mover validação/preflight antes de mutar host.
+- **Corrigido — instalação parcial de artefatos:** build completo entra em staging limpo e release versionado; `current` preserva release anterior se falha antes do commit. Chaves e systemd ainda são operações posteriores e exigem teste de rollback real.
+- **Corrigido — reexecução de UI:** conteúdo de cada `dist/` vai para diretório de staging limpo; não aninha `dist` nem preserva arquivos obsoletos.
+
+## Gate atual
+
+Falha mantida por Node.js preflight e ausência de teste de instalação real. Não fazer merge ou release até novo CI e revisão independente.
 
 ## Evidência
 
