@@ -22,7 +22,7 @@ All significant milestones documented here in reverse chronological order.
 
 **Limitations:** Audio processing SIMULATED. No hardware.
 
-**Next:** PR #TODO → CI green → merge.
+**Next:** PR #43 CI verde → READY_TO_MERGE.
 
 ---
 
