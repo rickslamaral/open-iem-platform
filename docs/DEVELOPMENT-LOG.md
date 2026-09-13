@@ -4,6 +4,28 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+### 2026-09-13 — examples/minimal-mix: runnable mix engine example
+
+**Goal:** Create `examples/` with a minimal mix scenario (LOW backlog item).
+
+**Implemented:**
+- `server/mix-engine/examples/minimal_mix.rs`: self-contained runnable example demonstrating two independent monitor mixes from two input channels (vocals at +3 dB trim, kick at unity). Shows per-send gain/pan/mute, master gain (−3 dB), master mute, and the full `Sum → EQ → Compressor → Master Gain → Limiter` audio chain. Self-checking assertions verify: Mix 0 centre-panned with L≈R; Mix 1 L>R with vocals hard-left; muted mix outputs exactly 0.0.
+- `examples/minimal-mix/README.md`: signal graph, expected output, run command and notes.
+
+**Tests/Verification:**
+- `cargo run --example minimal_mix` → all assertions pass; expected output confirmed.
+- `cargo fmt --all -- --check` → PASS.
+- `cargo clippy --all-targets -- -D warnings` → PASS (0 warnings).
+- `cargo test --workspace` → PASS (all existing tests; examples don't add test count).
+- Frontend typecheck/tests/build: musician PASS, engineer PASS.
+- Static scan (secrets, shell injection, eval/exec, pickle) → CLEAN.
+
+**Limitations:** Audio processing SIMULATED. No hardware.
+
+**Next:** PR #43 CI verde → READY_TO_MERGE.
+
+---
+
 ## 2026-09-13 — Phase 84 — reprodutibilidade do pipeline de release
 
 **Status:** IMPLEMENTED — confirmação de dois builds e release ainda pendentes.
