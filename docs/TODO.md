@@ -4,6 +4,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ---
 
+## Phase 87 — Engineer Console: controles master gain/mute via WebSocket
+
+- [x] Adicionar `protocol.ts` com tipos WebSocket do engineer (`SetMasterGain`, `SetMasterMute`, `MasterAck`).
+- [x] Implementar hook `useEngineerWs` com reconexão, guard de cleanup e handlers MasterAck/State/Error.
+- [x] Integrar `WsBadge` e `MixMasterControl` (slider gain + botão mute) na App do engineer.
+- [x] 18 testes aprovados, typecheck limpo, build limpo.
+- [ ] Validar controles em servidor real e Raspberry Pi 5.
+
 ## Phase 84 — Reprodutibilidade do pipeline de release
 
 - [x] Adicionar `--locked` a clippy, testes e builds Rust do workflow de release.

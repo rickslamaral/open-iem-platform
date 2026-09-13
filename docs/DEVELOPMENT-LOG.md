@@ -4,7 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
-### 2026-09-13 — examples/minimal-mix: runnable mix engine example
+## 2026-09-13 — Phase 87 — Engineer Console master gain/mute controls
+
+**Status:** IMPLEMENTED — 18 testes verdes, typecheck limpo, build limpo.
+
+### Implementado
+
+- `web/engineer/src/protocol.ts`: tipos TypeScript do protocolo WebSocket do engineer — `ClientMessage` (`GetState`, `SetMasterGain`, `SetMasterMute`), `ServerMessage` (`State`, `MasterAck`, `Error`), `MixMasterState`, `WsStatus`, `PROTOCOL_VERSION`.
+- `web/engineer/src/useEngineerWs.ts`: hook `useEngineerWs(token)` — conecta a `/ws/v1` com subprotocolo `openiem-v1`, envia `GetState` na abertura, aplica `MasterAck` por mix, reconecta após 3 s com guard `mounted` que impede timers dangling e tentativas de conexão em componente desmontado.
+- `web/engineer/src/App.tsx`: componente `WsBadge` (indicador de status WS no header), componente `MixMasterControl` (slider gain −40..+10 dB, step 0.5, com `aria-label`; botão mute com `aria-pressed`), revisão ao vivo via WS.
+
+### Verificação
+
+| Gate | Resultado |
+|------|-----------|
+| `npm test` (18 testes) | ✅ PASS |
+| `npx tsc --noEmit` | ✅ PASS |
+| `npm run build` | ✅ PASS |
+| Scan de segurança (secrets/injection) | ✅ LIMPO |
+| Revisão independente | ✅ passed=true (concern do revisor: guard `mounted` em `onclose` existe em linha 143 do hook) |
+
+### Limitações
+
+Servidor real, PipeWire, WebRTC e Raspberry Pi 5 permanecem SIMULATED/pendentes.
+
+---
+
+
 
 **Goal:** Create `examples/` with a minimal mix scenario (LOW backlog item).
 

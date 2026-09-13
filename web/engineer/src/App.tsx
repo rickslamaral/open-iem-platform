@@ -1,5 +1,6 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import './style.css';
+import { useEngineerWs } from './useEngineerWs';
 
 type Session = { user_id: string; mix_id?: string | null };
 type Assignment = { mix_index: number; user_id: number; username: string };
@@ -45,12 +46,66 @@ function Login({ onSubmit, error }: { onSubmit: (username: string, password: str
   </form></main>;
 }
 
+function WsBadge({ status }: { status: string }) {
+  const labels: Record<string, string> = { connected: 'WS ✓', connecting: 'WS …', disconnected: 'WS ✗', error: 'WS ✗' };
+  return <span className={`pill ws-badge ws-${status}`} role="status" aria-label={`WebSocket ${status}`}>{labels[status] ?? 'WS ?'}</span>;
+}
+
+interface MixMasterControlProps {
+  mixIndex: number;
+  gainDb: number;
+  muted: boolean;
+  onGain: (gain: number) => void;
+  onMute: (muted: boolean) => void;
+}
+
+function MixMasterControl({ mixIndex, gainDb, muted, onGain, onMute }: MixMasterControlProps) {
+  const [localGain, setLocalGain] = useState(gainDb);
+
+  useEffect(() => { setLocalGain(gainDb); }, [gainDb]);
+
+  return (
+    <div className="mix-master-control">
+      <strong>Mix {mixIndex + 1} — Master</strong>
+      <div className="row" style={{ gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
+          <span className="muted" style={{ whiteSpace: 'nowrap' }}>Gain</span>
+          <input
+            type="range"
+            aria-label={`Master gain mix ${mixIndex + 1}`}
+            min={-40}
+            max={10}
+            step={0.5}
+            value={localGain}
+            onChange={(e) => setLocalGain(Number(e.target.value))}
+            onMouseUp={() => { onGain(localGain); }}
+            onKeyUp={() => { onGain(localGain); }}
+            style={{ flex: 1 }}
+          />
+          <span aria-live="polite" style={{ minWidth: '3rem', textAlign: 'right' }}>{localGain.toFixed(1)} dB</span>
+        </label>
+        <button
+          aria-label={`Master mute mix ${mixIndex + 1}`}
+          aria-pressed={muted}
+          className={muted ? 'danger' : 'secondary'}
+          onClick={() => { onMute(!muted); }}
+          style={{ whiteSpace: 'nowrap' }}
+        >
+          {muted ? 'MUTED' : 'Mute'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [token, setToken] = useState<string | null>(null);
   const [data, setData] = useState<Dashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState('');
+
+  const ws = useEngineerWs(token);
 
   const load = useCallback(async () => {
     if (!token) return;
@@ -114,12 +169,40 @@ export default function App() {
 
   if (!token) return <Login onSubmit={login} error={error} />;
   return <main className="app-shell">
-    <header><div><p className="eyebrow">OPEN IEM / CONTROL PLANE</p><h1>Engineer Console</h1></div><button className="secondary" onClick={() => void logout()}>Sair</button></header>
+    <header>
+      <div><p className="eyebrow">OPEN IEM / CONTROL PLANE</p><h1>Engineer Console</h1></div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <WsBadge status={ws.status} />
+        <button className="secondary" onClick={() => void logout()}>Sair</button>
+      </div>
+    </header>
     <div className="notice"><strong>Áudio SIMULATED</strong><span>VPS sem PipeWire. Sessões WebRTC não representam mídia validada em hardware.</span></div>
-    {error && <div className="error banner" role="alert">{error}</div>}
-    <section className="metrics"><div className="card"><span className="muted">Revision</span><strong>{data?.revision ?? '—'}</strong></div><div className="card"><span className="muted">Sessões ativas</span><strong>{data?.sessions.length ?? 0}</strong></div><div className="card"><span className="muted">Backend</span><strong>{loading ? 'carregando' : (data?.telemetry.backend ?? '—')}</strong></div><div className="card"><span className="muted">XRUNs</span><strong>{data?.telemetry.xrun_count ?? 'UNKNOWN'}</strong></div></section>
-    <section className="grid"><div className="card"><h2>Mix assignments</h2><p className="muted">Atribuição exige ID do usuário. Catálogo de usuários fica restrito a Admin.</p>
-      {[0, 1].map((mix) => { const assignment = data?.assignments.find((item) => item.mix_index === mix); return <div className="row" key={mix}><div><strong>Mix {mix + 1}</strong><br /><span className="muted">{assignment ? `${assignment.username} (ID ${assignment.user_id})` : 'Livre'}</span></div>{assignment ? <button className="danger" onClick={() => void unassign(mix)}>Remover</button> : <div className="assign"><input aria-label={`ID usuário mix ${mix + 1}`} inputMode="numeric" placeholder="ID usuário" value={userId} onChange={(e) => setUserId(e.target.value)} /><button onClick={() => void assign(mix)}>Atribuir</button></div>}</div>; })}
-    </div><div className="card"><h2>Sessões de áudio</h2>{data?.sessions.length ? data.sessions.map((session) => <div className="row" key={session.user_id}><span>{session.user_id}</span><span className="pill">ativa</span></div>) : <p className="muted">Nenhuma sessão ativa.</p>}</div></section>
+    {(error ?? ws.error) && <div className="error banner" role="alert">{error ?? ws.error}</div>}
+    <section className="metrics">
+      <div className="card"><span className="muted">Revision</span><strong>{ws.revision ?? data?.revision ?? '—'}</strong></div>
+      <div className="card"><span className="muted">Sessões ativas</span><strong>{data?.sessions.length ?? 0}</strong></div>
+      <div className="card"><span className="muted">Backend</span><strong>{loading ? 'carregando' : (data?.telemetry.backend ?? '—')}</strong></div>
+      <div className="card"><span className="muted">XRUNs</span><strong>{data?.telemetry.xrun_count ?? 'UNKNOWN'}</strong></div>
+    </section>
+    <section className="grid">
+      <div className="card">
+        <h2>Controles de Master</h2>
+        <p className="muted">Gain (−40 a +10 dB) e mute por mix. Requer papel Engineer ou Admin.</p>
+        {[0, 1].map((mix) => (
+          <MixMasterControl
+            key={mix}
+            mixIndex={mix}
+            gainDb={ws.mixes[mix]?.master_gain_db ?? 0}
+            muted={ws.mixes[mix]?.master_muted ?? false}
+            onGain={(gain) => ws.setMasterGain(mix, gain)}
+            onMute={(muted) => ws.setMasterMute(mix, muted)}
+          />
+        ))}
+      </div>
+      <div className="card"><h2>Mix assignments</h2><p className="muted">Atribuição exige ID do usuário. Catálogo de usuários fica restrito a Admin.</p>
+        {[0, 1].map((mix) => { const assignment = data?.assignments.find((item) => item.mix_index === mix); return <div className="row" key={mix}><div><strong>Mix {mix + 1}</strong><br /><span className="muted">{assignment ? `${assignment.username} (ID ${assignment.user_id})` : 'Livre'}</span></div>{assignment ? <button className="danger" onClick={() => void unassign(mix)}>Remover</button> : <div className="assign"><input aria-label={`ID usuário mix ${mix + 1}`} inputMode="numeric" placeholder="ID usuário" value={userId} onChange={(e) => setUserId(e.target.value)} /><button onClick={() => void assign(mix)}>Atribuir</button></div>}</div>; })}
+      </div>
+      <div className="card"><h2>Sessões de áudio</h2>{data?.sessions.length ? data.sessions.map((session) => <div className="row" key={session.user_id}><span>{session.user_id}</span><span className="pill">ativa</span></div>) : <p className="muted">Nenhuma sessão ativa.</p>}</div>
+    </section>
   </main>;
 }
