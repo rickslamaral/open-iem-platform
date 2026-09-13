@@ -1,5 +1,7 @@
 # Open IEM Platform
 
+> **🚧 EM DESENVOLVIMENTO — Em conclusão nos próximos dias, incluindo testes finais. Não usar em produção ainda. / UNDER DEVELOPMENT — Finalizing in the coming days, including final tests. Not production-ready yet. / EN DESARROLLO — Finalizando en los próximos días, incluyendo pruebas finales. No usar en producción todavía.**
+
 > Open-source professional personal In-Ear Monitoring platform for Linux.
 
 ## What is this?
@@ -40,7 +42,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 82 — hardening do instalador.** Instalador agora exige `--ref` com SHA completo de 40 caracteres, verifica checkout exato e recusa branches/tags mutáveis. Build ocorre em release versionado e staging limpo; `current` muda somente após artefatos completos, com restauração do link anterior em falha. CI remoto `34739632116` passou antes desta correção; novo run ainda pendente. Instalação, release, hardware e mídia continuam não validados.
+**Fase incremental atual: Phase 83 — pan e indicador de mudo master na UI do músico.** A PWA sincroniza pan por canal e envia `SetSendPan`; exibe `MASTER MUTED` como indicador somente leitura. Testes, typecheck e build locais passam. CI remoto continua bloqueado antes dos steps: runs `34756733991` e anteriores terminaram com `runner_id=0` e `steps=[]`. Instalação, release, hardware e mídia continuam não validados.
 
 **Fase anterior: Phase 78 — rejeição de dados residuais em archives.** O validador rejeita streams gzip concatenados e bytes residuais após um archive válido, além de validar estrutura, limites, tipos, duplicatas e payloads truncados. A verificação local passa; CI remoto, release e hardware continuam não validados. Imagens documentais geradas a partir do código-fonte cobrem Login, Musician PWA, Engineer Console, Admin CLI/API e controles de mix; não são screenshots de runtime. Control plane local segue validado; mídia continua `SIMULATED`. Ver [review da Phase 76](docs/reviews/PHASE-76-REVIEW.md), [review da Phase 75](docs/reviews/PHASE-75-REVIEW.md), [review da Phase 72](docs/reviews/PHASE-72-REVIEW.md), [review da Phase 71](docs/reviews/PHASE-71-REVIEW.md), [Phase 70](docs/reviews/PHASE-70-REVIEW.md), [Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
 
@@ -148,6 +150,9 @@ scripts/              — Development utilities
 - [TODO](docs/TODO.md)
 - [Development Log](docs/DEVELOPMENT-LOG.md)
 - [Windows + Docker Desktop Guide](docs/guides/WINDOWS-DOCKER-GUIDE.md)
+- [Guias em português](docs/guides/pt/)
+- [Guides in English](docs/guides/en/)
+- [Guías en español](docs/guides/es/)
 - [ADR Index](docs/adr/)
 - [Interface CLI](docs/CLI.md)
 - [Review da Phase 33](docs/reviews/PHASE-33-REVIEW.md)
