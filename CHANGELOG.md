@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Security — Phase 82 hardening do instalador (2026-09-13)
 - Instalador exige SHA-1 completo de commit, verifica identidade exata do checkout e recusa branches/tags mutáveis.
 - Build instala artefatos em release versionado com staging limpo; link `current` preserva release anterior quando falha antes do commit.
-- Node.js >= 20 continua gate pendente antes de mutação do host.
+- `preflight_node_check()` valida Node.js >= 20 **antes** de `install_deps` mutar o host; se `node` já presente e < 20, falha imediatamente sem instalar pacotes.
 
 ### Security — Phase 82 auditoria do instalador (2026-09-13)
 - Auditoria independente encontrou HIGH no build a partir de checkout remoto sem verificação criptográfica de fonte, além de MEDIUM em compatibilidade Node.js e instalação parcial/reexecução de assets.

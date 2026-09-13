@@ -109,6 +109,18 @@ install_deps() {
   esac
 }
 
+preflight_node_check() {
+  # If Node.js is already installed, validate it is >= 20 BEFORE mutating the host.
+  # This prevents install_deps from installing a potentially-outdated Node.js package
+  # onto a host that already has an incompatible version, and ensures failures are
+  # surfaced before any packages are installed.
+  if command -v node >/dev/null 2>&1; then
+    local node_major
+    node_major="$(node -p 'process.versions.node.split(".")[0]')"
+    (( node_major >= 20 )) || fatal "Node.js >= 20 required; found $(node --version). Upgrade Node.js before running the installer."
+  fi
+}
+
 check_tools() {
   local c
   for c in git curl openssl cargo rustc node npm; do need_cmd "$c"; done
@@ -123,6 +135,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
+preflight_node_check
 install_deps
 if (( DRY_RUN )); then
   log "would verify tools: git curl openssl cargo rustc node npm (Node.js >= 20)"

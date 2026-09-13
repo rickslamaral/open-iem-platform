@@ -10,7 +10,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Corrigir cópia repetida de UI que criava `dist/dist` ou preservava conteúdo obsoleto.
 - [x] Exigir SHA completo, verificar checkout exato e recusar fonte mutável antes de build.
 - [x] Publicar release versionado via staging limpo e restaurar `current` em falha de instalação.
-- [ ] Validar Node.js >= 20 antes de mutar host ou instalar runtime suportado.
+- [x] Validar Node.js >= 20 antes de mutar host ou instalar runtime suportado.
 - [ ] Confirmar instalação real em host Linux dedicado.
 - [ ] Desbloquear release e validar Raspberry Pi 5 real.
 

@@ -4,6 +4,29 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — Phase 82 — Node.js preflight antes de mutar host
+
+**Status:** PASS WITH CONDITIONS — preflight corrigido; instalação real, CI novo e Raspberry Pi 5 não validados.
+
+### Implementado
+
+- `preflight_node_check()` adicionada a `scripts/install.sh`; chamada imediatamente antes de `install_deps`.
+- Se `node` já estiver em PATH e versão < 20, fatal sem instalar pacotes. Se `node` ausente, host não mutado antes da verificação.
+- `check_tools()` mantém validação final pós-instalação.
+
+### Verificação real
+
+- `bash -n scripts/install.sh`: aprovado.
+- `scripts/install.sh --dry-run --skip-deps --ref <sha40>`: aprovado; host não alterado.
+- Node.js v22.22.3 no host: preflight passa corretamente (major=22 >= 20).
+- Review independente: `passed=true`, sem security_concerns, sem logic_errors.
+
+### Limitações
+
+Instalação real, rollback exercitado, CI novo, release v0.3.1, PipeWire/ALSA, WebRTC e Raspberry Pi 5 continuam não validados.
+
+---
+
 ## 2026-09-13 — Phase 82 — pin e staging atômico do instalador
 
 **Status:** BLOCKED — correção local; novo CI e revisão independente pendentes; PR #41 não mergeado.
