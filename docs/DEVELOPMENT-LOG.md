@@ -4,6 +4,25 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — CI verification refresh
+
+**Status:** VERIFIED — run `34761731828` passed all 9 jobs on `main`.
+
+### Evidence
+
+- GitHub Actions confirmed Rust, frontend, security, archive and documentation gates.
+- Local Musician: typecheck, 42 tests and production build passed.
+- Local Engineer: typecheck, 2 tests and production build passed.
+- `make validate` passed; PDF extraction/rendering and 11 skill validations passed.
+- Local full Rust gate is blocked by missing system `jack.pc`; no code failure shown.
+- `pip check` reports pre-existing environment conflict: `pyopenssl 25.0.0` requires `cryptography<45`, host has `cryptography 46.0.7`.
+
+### Decision
+
+No implementation change. Release `v0.3.1`, real installer execution, PipeWire/WebRTC media and Raspberry Pi 5 validation remain pending.
+
+---
+
 ## 2026-09-13 — CI recovery after actions/cache pin correction
 
 **Status:** VERIFIED — run `34760297250` passed all 9 jobs on `main`.

@@ -12,7 +12,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Sincronizar pan do snapshot e enviar SetSendPan via WebSocket.
 - [x] 42 testes, typecheck e build locais aprovados.
 - [ ] Implementar SetMasterMuted no protocolo quando suporte ao servidor estiver disponível.
-- [x] Confirmar CI remoto verde no run `34759734717` (9 jobs aprovados após correção do pin de `actions/cache`).
+- [x] Confirmar CI remoto verde no run `34761731828` (9 jobs aprovados após correção do pin de `actions/cache`).
 - [ ] Validar Raspberry Pi 5 real.
 
 ## Phase 82 — revisão de segurança do instalador
