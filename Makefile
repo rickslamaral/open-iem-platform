@@ -105,4 +105,5 @@ coverage:
 	@echo 'Running Rust coverage (cargo-llvm-cov)...'
 	@cargo llvm-cov --manifest-path $(SERVER_MANIFEST) --all --summary-only
 	@cargo llvm-cov --manifest-path $(SERVER_MANIFEST) --all --lcov --output-path coverage/lcov.info
+	@test -s coverage/lcov.info
 	@echo 'Coverage report written to coverage/lcov.info'

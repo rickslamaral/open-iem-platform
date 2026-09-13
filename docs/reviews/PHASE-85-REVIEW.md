@@ -27,9 +27,9 @@ Set up code coverage reporting for the Rust workspace using `cargo-llvm-cov`.
 ## Coverage Baseline (local, 2026-09-13)
 
 ```
-TOTAL  Regions: 8457  Missed: 1654  Cover: 80.44%
+TOTAL  Regions: 8449  Missed: 1654  Cover: 80.42%
        Functions: 738  Missed: 193  Cover: 73.85%
-       Lines: 5592  Missed: 1050  Cover: 81.22%
+       Lines: 5588  Missed: 1050  Cover: 81.21%
 ```
 
 Crates: `mix-engine`, `audio-engine`, `control-protocol`, `control-server`, `api-server`, `streaming`, `admin-cli`.
@@ -43,9 +43,9 @@ Crates: `mix-engine`, `audio-engine`, `control-protocol`, `control-server`, `api
 | `cargo fmt --manifest-path server/Cargo.toml --all -- --check` | ✅ PASS |
 | `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` | ⚠️ BLOCKED: host lacks `jack.pc` |
 | `cargo test --manifest-path server/Cargo.toml --workspace` | ✅ PASS (244 tests) |
-| `make coverage` (generates `coverage/lcov.info`) | ✅ PASS |
+| `make coverage` (generates non-empty `coverage/lcov.info`) | ✅ PASS |
 | YAML lint (`python3 -c "import yaml; yaml.safe_load(...)"`) | ✅ PASS |
-| Static security scan (secrets/injection/eval/pickle) | ✅ CLEAN |
+| Static security scan (added-line patterns) | ✅ PASS (rerun after initial shell quoting error) |
 
 Frontend gates (musician/engineer typecheck/test/build): not affected by this change; unchanged from previous verified state.
 

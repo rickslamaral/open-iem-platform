@@ -87,7 +87,7 @@ Audio backend, PipeWire/ALSA and hardware paths remain SIMULATED. Release `v0.3.
 
 - `make coverage` checks for `cargo-llvm-cov`, prints summary, creates `coverage/`, and writes `coverage/lcov.info`.
 - CI job `Rust Code Coverage` installs `cargo-llvm-cov 0.9.1`, generates LCOV, and uploads `coverage-lcov` artifact for 30 days.
-- Coverage baseline: 81.22% lines and 73.85% functions across Rust workspace; audio remains `SIMULATED`.
+- Coverage baseline: 81.21% lines and 73.85% functions across Rust workspace; audio remains `SIMULATED`.
 
 ### Verification
 

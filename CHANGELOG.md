@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added — Phase 85 code coverage (2026-09-13)
 - `make coverage` target runs `cargo-llvm-cov` and writes `coverage/lcov.info`; creates output directory on fresh checkout.
 - CI job `Rust Code Coverage` installs `cargo-llvm-cov 0.9.1`, generates LCOV, and uploads artifact `coverage-lcov` with 30-day retention.
-- Baseline coverage: **81.22% lines, 73.85% functions** (workspace, simulated audio backend).
+- Baseline coverage: **81.21% lines, 73.85% functions** (workspace, simulated audio backend).
 
 ### Added — examples/minimal-mix (2026-09-13)
 - `server/mix-engine/examples/minimal_mix.rs`: runnable example showing two independent monitor mixes from two channels (vocals + kick), with per-send gain/pan/mute, master gain, and master mute; self-checking assertions verify signal-flow invariants. Run with `cargo run --example minimal_mix --manifest-path server/Cargo.toml`.

@@ -317,11 +317,13 @@ jobs:
       - name: Generate coverage report
         run: |
           cargo llvm-cov --manifest-path server/Cargo.toml --all --summary-only
-          cargo llvm-cov --manifest-path server/Cargo.toml --all --lcov --output-path lcov.info
+          mkdir -p coverage
+          cargo llvm-cov --manifest-path server/Cargo.toml --all --lcov --output-path coverage/lcov.info
+          test -s coverage/lcov.info
 
       - name: Upload LCOV artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: coverage-lcov
-          path: lcov.info
+          path: coverage/lcov.info
           retention-days: 30
