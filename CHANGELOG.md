@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 85 code coverage (2026-09-13)
+- `make coverage` target runs `cargo-llvm-cov` and writes `coverage/lcov.info`; creates output directory on fresh checkout.
+- CI job `Rust Code Coverage` installs `cargo-llvm-cov 0.9.1`, generates LCOV, and uploads artifact `coverage-lcov` with 30-day retention.
+- Baseline coverage: **81.21% lines, 73.85% functions** (workspace, simulated audio backend).
+
 ### Added — examples/minimal-mix (2026-09-13)
 - `server/mix-engine/examples/minimal_mix.rs`: runnable example showing two independent monitor mixes from two channels (vocals + kick), with per-send gain/pan/mute, master gain, and master mute; self-checking assertions verify signal-flow invariants. Run with `cargo run --example minimal_mix --manifest-path server/Cargo.toml`.
 - `examples/minimal-mix/README.md`: guide with signal graph, expected output, and usage.
@@ -14,6 +19,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove `mix_assignment_lock` from WebSocket broadcast receivers (send-delta and master-delta fan-out).
 - Ownership check on receiver side is now a lock-free DB read; comment documents the intentional bounded stale-read trade-off.
 - Lock is still held by mutation senders (inbound WS path and HTTP routes), preserving mutation ordering guarantees.
+
+### Added — Phase 85 code coverage (2026-09-13)
+- `make coverage` target: runs `cargo-llvm-cov` and writes `coverage/lcov.info`; requires `cargo install cargo-llvm-cov --locked`.
+- CI job `Rust Code Coverage`: installs `cargo-llvm-cov 0.9.1`, generates LCOV report and uploads it as artifact `coverage-lcov` (retained 30 days).
+- Baseline coverage: **81.22% lines, 73.85% functions** (workspace, all crates, simulated audio backend).
 
 ### Changed — Phase 84 release reproducibility (2026-09-13)
 - Release workflow uses Cargo `--locked` for Rust checks/builds.

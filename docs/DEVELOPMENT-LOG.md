@@ -49,7 +49,54 @@ Read-only ownership checks no longer contend on the mutation mutex during broadc
 
 Release `v0.3.1`, real installer, PipeWire/WebRTC media and Raspberry Pi 5 hardware remain pending.
 
+## 2026-09-13 — Phase 85 — Rust code coverage reporting
+
+**Status:** IMPLEMENTED — CI job added; remote CI pending runner quota.
+
+### Implemented
+
+- `make coverage` target: guards on `cargo-llvm-cov` presence, prints summary, writes `coverage/lcov.info`.
+- CI job `Rust Code Coverage` in `.github/workflows/ci.yml`:
+  - Rust stable + `llvm-tools-preview` component.
+  - `cargo-llvm-cov 0.9.1 --locked` installed per run.
+  - Generates summary (stdout) + LCOV artifact (`coverage-lcov`, 30-day retention).
+  - Pins: `actions/checkout` `3d3c42e5`, `dtolnay/rust-toolchain` `6bed0761`, `actions/cache` `0057852b`, `actions/upload-artifact` `043fb46d` (all SHA-locked).
+- `coverage/` already in `.gitignore`; no generated files committed.
+- Backlog item checked off in `docs/TODO.md`.
+
+### Baseline (local, 2026-09-13)
+
+| Metric | Value |
+|--------|-------|
+| Lines covered | **81.22%** (4542/5592) |
+| Functions covered | **73.85%** (545/738) |
+| Crates | mix-engine, audio-engine, control-protocol, control-server, api-server, streaming, admin-cli |
+| Backend | SIMULATED (no Raspberry Pi 5 hardware) |
+
+### Limitations
+
+Audio backend, PipeWire/ALSA and hardware paths remain SIMULATED. Release `v0.3.1` and Raspberry Pi 5 validation still pending.
+
 ---
+
+## 2026-09-13 — Phase 85 — Rust code coverage reporting
+
+**Status:** IMPLEMENTED — local coverage target and CI job added; remote CI evidence pending.
+
+### Implemented
+
+- `make coverage` checks for `cargo-llvm-cov`, prints summary, creates `coverage/`, and writes `coverage/lcov.info`.
+- CI job `Rust Code Coverage` installs `cargo-llvm-cov 0.9.1`, generates LCOV, and uploads `coverage-lcov` artifact for 30 days.
+- Coverage baseline: 81.21% lines and 73.85% functions across Rust workspace; audio remains `SIMULATED`.
+
+### Verification
+
+- Independent review found and fixed fresh-checkout output-directory failure.
+- Existing fan-out lock-free change preserved; no unrelated code reverted.
+
+### Limitations
+
+Remote CI, release `v0.3.1`, real installation, PipeWire/ALSA and Raspberry Pi 5 remain pending.
 
 ## 2026-09-13 — Phase 84 — reprodutibilidade do pipeline de release
 

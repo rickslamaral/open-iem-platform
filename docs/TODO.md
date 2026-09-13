@@ -400,7 +400,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Create `examples/` with minimal mix scenario
 - [x] Include deterministic `audio-engine` integration harness in `make test` — Phase 39
 - [x] Configure Dependabot for dependency updates
-- [ ] Set up code coverage reporting
+- [x] Set up code coverage reporting
 - [x] LOW: Log DB errors in master broadcast fan-out (fail-closed and observable)
 - [x] LOW: mix_assignment_lock held during DB read in broadcast fan-out — lock removed from receiver-side fan-out; read-only ownership check now lock-free (Phase 86)
 - [x] LOW: Test DB failure during musician WebSocket ownership lookup — fail-closed coverage added Phase 24
