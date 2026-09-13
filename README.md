@@ -137,7 +137,8 @@ Interface prevista para engenheiro: status do backend, revisão, sessões ativas
 | 76 | Archive payload validation | ✅ Local tests; CI, release and hardware pending |
 | 77 | Structural archive validation before payload | ✅ Local tests; CI and hardware pending |
 | 80 | TypeScript 7 Engineer compatibility | ✅ Local fix; CI green |
-| 81 | Installer and CI/release hardening | ✅ Local validation; PR CI green; install/hardware pending |
+| 81 | Installer and CI/release hardening | ✅ Local validation; CI green; hardware pending |
+| 83 | Musician UI pan and master mute indicator | ✅ Local validation; CI green; hardware pending |
 
 ## Repository Structure
 

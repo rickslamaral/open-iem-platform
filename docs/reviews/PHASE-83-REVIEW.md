@@ -30,7 +30,7 @@ Adição de controle de panorama estéreo por canal e indicador de mudo master �
 
 ## Limitações
 
-- CI remoto executou todos os 9 jobs com sucesso no run `34761731828` após correção do pin de `actions/cache`.
+- CI remoto executou todos os 9 jobs com sucesso nos runs `34761731828` e `34763037883` após correção do pin de `actions/cache`.
 - `masterMuted` somente leitura — protocolo WebSocket não possui `SetMasterMuted`; TODO registrado.
 - Pan testado localmente; não validado em hardware ou browser real.
 - PipeWire, WebRTC de mídia e Raspberry Pi 5 não validados.

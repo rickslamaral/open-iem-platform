@@ -6,7 +6,7 @@ All significant milestones documented here in reverse chronological order.
 
 ## 2026-09-13 — CI verification refresh
 
-**Status:** VERIFIED — run `34761731828` passed all 9 jobs on `main`.
+**Status:** VERIFIED — runs `34761731828` e `34763037883` passaram todos 9 jobs em `main`.
 
 ### Evidence
 

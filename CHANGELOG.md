@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed — CI verification refresh (2026-09-13)
+- Runs `34761731828` e `34763037883` passaram nos 9 jobs; backlog CI remoto deixa de ser blocker. Release `v0.3.1`, instalação real e Raspberry Pi 5 continuam pendentes.
+
 ### Fixed — Phase 79 CI OpenSSL 3.5 (2026-09-13)
 - Workflow de release usa `openssl pkeyutl -sign -rawin`, compatível com OpenSSL 3.5 para assinaturas Ed25519 sem digest.
 - Run CI `34760297250` passou nos 9 jobs após atualização do pin de `actions/cache`; validação local dos validadores: 56 testes aprovados.

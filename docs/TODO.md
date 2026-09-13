@@ -23,7 +23,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Publicar release versionado via staging limpo e restaurar `current` em falha de instalação.
 - [x] Validar Node.js >= 20 antes de mutar host ou instalar runtime suportado.
 - [x] Corrigir SHA inválido de `actions/cache` que quebrava todos os 10 jobs de CI (ff0c085).
-- [ ] Confirmar CI remoto verde (run 34756206753 em andamento).
+- [x] Confirmar CI remoto verde nos runs `34761731828` e `34763037883` (9 jobs aprovados).
 - [ ] Confirmar instalação real em host Linux dedicado.
 - [ ] Desbloquear release e validar Raspberry Pi 5 real.
 
@@ -49,8 +49,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## BLOCKER
 
-- [ ] P0 — Confirmar correção da suíte Python de assinatura no GitHub Actions — run `34728518286` executou, mas 10 testes falharam porque OpenSSL 3.5 exige `-rawin`; correção aplicada localmente, novo CI pendente.
-- [ ] P0 — Desbloquear GitHub Actions/runner — sem CI remoto verde não há release `v0.3.1`.
+- [x] P0 — Confirmar correção da suíte Python de assinatura no GitHub Actions — runs `34761731828` e `34763037883` passaram nos 9 jobs.
+- [ ] P0 — Publicar release `v0.3.1` após validar artefatos e instalação real.
 
 ---
 
@@ -66,8 +66,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## BLOCKER
 
-- [ ] P0 — Confirmar correção da suíte Python de assinatura no GitHub Actions — run `34728518286` executou, mas 10 testes falharam porque OpenSSL 3.5 exige `-rawin`; correção aplicada localmente, novo CI pendente.
-- [ ] P0 — Desbloquear GitHub Actions/runner — sem CI remoto verde não há release `v0.3.1`.
+- [x] P0 — Confirmar correção da suíte Python de assinatura no GitHub Actions — runs `34761731828` e `34763037883` passaram nos 9 jobs.
+- [ ] P0 — Publicar release `v0.3.1` após validar artefatos e instalação real.
 
 ## Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas
 
