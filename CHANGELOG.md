@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — Phase 80 compatibilidade TypeScript 7 (2026-09-13)
+- Adicionado `web/engineer/src/vite-env.d.ts` com referência `vite/client`, corrigindo `TS2882` para import lateral de `style.css` no TypeScript 7.
+- Typecheck, testes e build locais do Engineer aprovados; CI remoto precisa confirmar.
+
 ### Fixed — Phase 79 compatibilidade OpenSSL 3.5 (2026-09-13)
 - Helpers de teste Ed25519 usam `-rawin`, exigido por OpenSSL 3.5 para operações de assinatura sem digest.
 - Suíte combinada local: 56 testes aprovados; CI remoto precisa confirmar correção.

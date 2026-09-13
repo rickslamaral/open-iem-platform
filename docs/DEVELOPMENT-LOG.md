@@ -4,6 +4,48 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — Phase 80 — compatibilidade TypeScript 7 no Engineer Console
+
+**Status:** correção local; CI remoto pendente; PR #41 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Adicionado `web/engineer/src/vite-env.d.ts` com referência padrão `vite/client`.
+- Corrigido `TS2882` no import lateral `./style.css` após atualização para TypeScript 7.
+- Nenhuma alteração em código de produção, permissões ou secrets.
+
+### Verificação real
+
+- `npm run typecheck --prefix web/engineer`: aprovado.
+- `npm run test --prefix web/engineer -- --run`: 2 testes aprovados.
+- `npm run build --prefix web/engineer`: build Vite aprovado.
+- `make validate`: aprovado.
+- Reviews independentes: test/code aprovado; security sem BLOCKER/HIGH.
+
+### Limitações
+
+CI remoto `34732920670` falhou somente no typecheck Engineer; demais jobs passaram. Novo CI precisa confirmar correção. Release, runtime ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
+### Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas
+
+**Status:** correção local; CI remoto aguardando novo run; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Testes Ed25519 passaram a informar `-rawin` ao `openssl pkeyutl -sign`, compatível com OpenSSL 3.5.
+
+### Verificação real
+
+- Suíte combinada local: 56 aprovados.
+
+### Limitações
+
+Release, ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
 ## 2026-09-13 — Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas
 
 **Status:** correção local; CI remoto aguardando novo run; PR #40 aberto; não mergeado; não lançado.

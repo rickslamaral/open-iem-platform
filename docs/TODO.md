@@ -4,6 +4,16 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ---
 
+## Phase 80 — compatibilidade TypeScript 7 no Engineer Console
+
+- [x] Adicionar `web/engineer/src/vite-env.d.ts` para declarar imports de assets Vite.
+- [x] Validar typecheck, testes e build do Engineer localmente.
+- [ ] Confirmar CI remoto verde e atualizar PR #41.
+- [ ] Validar release, instalação ARM64 e Raspberry Pi 5 real.
+
+
+---
+
 ## BLOCKER
 
 - [ ] P0 — Confirmar correção da suíte Python de assinatura no GitHub Actions — run `34728518286` executou, mas 10 testes falharam porque OpenSSL 3.5 exige `-rawin`; correção aplicada localmente, novo CI pendente.
