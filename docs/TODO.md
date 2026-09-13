@@ -2,7 +2,13 @@
 
 Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
----
+## Phase 90 — restrição de áudio recebido pelo navegador
+
+- [x] Avaliar WebRTC, Web Audio, WebTransport e RTP/UDP para uma PWA.
+- [x] Confirmar WebRTC como caminho de mídia do navegador; WebSocket permanece controle e HTTP autenticado transporta sinalização SDP/ICE.
+- [x] Documentar limites: navegador não recebe RTP/UDP arbitrário; WebTransport não fornece pipeline de mídia.
+- [x] Registrar evidências e fontes em `docs/research/browser-audio-constraint/EVALUATION.md`.
+- [ ] Validar reprodução WebRTC, mídia Opus, latência, jitter, perda e recuperação em Raspberry Pi 5 real.
 
 ## Phase 88 — Musician UI: master gain/mute genuinamente somente leitura
 
@@ -442,7 +448,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## RESEARCH
 
 - [x] **Audio Transport** — Preliminary evaluation complete (docs/research/audio-transport/EVALUATION.md); WebRTC selected as primary; final benchmarks deferred to Phase 5
-- [ ] **Browser Audio Constraint** — Verify what browsers can receive (WebRTC vs native receiver architecture)
+- [x] **Browser Audio Constraint** — Phase 90 verified WebRTC browser media versus native receiver constraints; real media validation remains pending
 - [x] **PipeWire filter node API** — pipewire-jack selected for Phase 1 (docs/research/pipewire-integration.md)
 - [ ] **Raspberry Pi 5 realtime tuning** — PREEMPT_RT kernel, PipeWire latency config, USB audio device selection
 - [ ] **JPMixer architecture** — Study WebSocket/scene/mix model as UX reference (verify license before using code)
