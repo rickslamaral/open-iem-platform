@@ -1,12 +1,11 @@
 name: CI
 
 on:
-  # Pull requests run full CI. Branch pushes run only after merge on main,
-  # avoiding duplicate CI for the same commit.
-  push:
-    branches: [main]
+  # Validate proposed changes once in pull requests. Main is protected by PR
+  # review; avoid a second full run after merge.
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -19,6 +18,7 @@ jobs:
   rust-check:
     name: Rust Format + Clippy + Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -64,6 +64,7 @@ jobs:
   rust-security-audit:
     name: Rust Security Audit
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -89,6 +90,7 @@ jobs:
   rust-build-x86:
     name: Rust Build (x86_64)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -106,6 +108,7 @@ jobs:
   rust-build-arm64:
     name: Rust Build (ARM64 cross)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -130,6 +133,7 @@ jobs:
   frontend-musician:
     name: Frontend Musician (typecheck + test + build)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -157,6 +161,7 @@ jobs:
   frontend-engineer:
     name: Frontend Engineer (typecheck + test + build)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -184,6 +189,7 @@ jobs:
   validate-skills:
     name: Validate Agent Skills
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -193,6 +199,7 @@ jobs:
   python-security-tests:
     name: Python Release Archive Security Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -210,6 +217,7 @@ jobs:
   npm-audit:
     name: npm Security Audit
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -237,6 +245,7 @@ jobs:
   documentation:
     name: Documentation and package gates
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
