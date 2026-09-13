@@ -40,9 +40,9 @@ Crates: `mix-engine`, `audio-engine`, `control-protocol`, `control-server`, `api
 
 | Gate | Result |
 |------|--------|
-| `cargo fmt --all -- --check` | ✅ PASS |
-| `cargo clippy --all-targets -- -D warnings` | ✅ PASS |
-| `cargo test --workspace --all` | ✅ PASS (all existing tests) |
+| `cargo fmt --manifest-path server/Cargo.toml --all -- --check` | ✅ PASS |
+| `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` | ⚠️ BLOCKED: host lacks `jack.pc` |
+| `cargo test --manifest-path server/Cargo.toml --workspace` | ✅ PASS (244 tests) |
 | `make coverage` (generates `coverage/lcov.info`) | ✅ PASS |
 | YAML lint (`python3 -c "import yaml; yaml.safe_load(...)"`) | ✅ PASS |
 | Static security scan (secrets/injection/eval/pickle) | ✅ CLEAN |
