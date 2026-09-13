@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Ownership check on receiver side is now a lock-free DB read; comment documents the intentional bounded stale-read trade-off.
 - Lock is still held by mutation senders (inbound WS path and HTTP routes), preserving mutation ordering guarantees.
 
+### Added — Phase 85 code coverage (2026-09-13)
+- `make coverage` target: runs `cargo-llvm-cov` and writes `coverage/lcov.info`; requires `cargo install cargo-llvm-cov --locked`.
+- CI job `Rust Code Coverage`: installs `cargo-llvm-cov 0.9.1`, generates LCOV report and uploads it as artifact `coverage-lcov` (retained 30 days).
+- Baseline coverage: **81.22% lines, 73.85% functions** (workspace, all crates, simulated audio backend).
+
 ### Changed — Phase 84 release reproducibility (2026-09-13)
 - Release workflow uses Cargo `--locked` for Rust checks/builds.
 - Server and web archives normalize ordering, timestamps and ownership from commit `SOURCE_DATE_EPOCH` before checksums; Ed25519 signatures remain limited to server archives.

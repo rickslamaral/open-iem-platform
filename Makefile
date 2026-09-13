@@ -4,7 +4,7 @@ SHELL := /usr/bin/env bash
 PROJECT := open-iem-platform
 SERVER_MANIFEST := server/Cargo.toml
 
-.PHONY: help install run run-local up down logs status lint fmt test test-unit test-integration test-audio build package diagnostics docs validate clean
+.PHONY: help install run run-local up down logs status lint fmt test test-unit test-integration test-audio build package diagnostics docs validate clean coverage
 
 help:
 	@printf '%s\n' 'Open IEM Platform developer targets:'
@@ -21,6 +21,7 @@ help:
 	@printf '%s\n' '  make diagnostics      report environment validation state'
 	@printf '%s\n' '  make docs/validate     validate documentation and project skills'
 	@printf '%s\n' '  make clean            remove generated build outputs only'
+	@printf '%s\n' '  make coverage         generate Rust line/function coverage report (requires cargo-llvm-cov)'
 
 install:
 	@command -v cargo >/dev/null || { echo 'MISSING: cargo'; exit 3; }
@@ -98,3 +99,10 @@ clean:
 	@cargo clean --manifest-path $(SERVER_MANIFEST)
 	@rm -rf web/musician/dist web/engineer/dist
 	@echo 'Generated build outputs removed; source and user configuration preserved.'
+
+coverage:
+	@command -v cargo-llvm-cov >/dev/null 2>&1 || { echo 'MISSING: cargo-llvm-cov. Install with: cargo install cargo-llvm-cov --locked'; exit 3; }
+	@echo 'Running Rust coverage (cargo-llvm-cov)...'
+	@cargo llvm-cov --manifest-path $(SERVER_MANIFEST) --all --summary-only
+	@cargo llvm-cov --manifest-path $(SERVER_MANIFEST) --all --lcov --output-path coverage/lcov.info
+	@echo 'Coverage report written to coverage/lcov.info'
