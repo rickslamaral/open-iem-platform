@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import io
 import os
 import pathlib
 import posixpath
 import stat
 import tarfile
+import zlib
 
 
 ALLOWED_FILES = {"api-server", "open-iem-admin", "README.md", "LICENSE", "CHANGELOG.md"}
@@ -56,6 +58,30 @@ def _consume_member_payload(bundle: tarfile.TarFile, member: tarfile.TarInfo) ->
         if not chunk:
             raise ValueError(f"truncated archive member payload: {member.name}")
         consumed += len(chunk)
+
+
+def _validate_single_gzip_member(archive_file: io.BufferedReader) -> None:
+    archive_file.seek(0)
+    decompressor = zlib.decompressobj(wbits=31)
+    decompressed = 0
+    while True:
+        chunk = archive_file.read(1024 * 1024)
+        if not chunk:
+            break
+        try:
+            output = decompressor.decompress(chunk, MAX_UNCOMPRESSED_BYTES + 1 - decompressed)
+        except zlib.error as exc:
+            raise ValueError("archive gzip stream is invalid") from exc
+        decompressed += len(output)
+        if decompressed > MAX_UNCOMPRESSED_BYTES:
+            raise ValueError("archive exceeds uncompressed size limit")
+        if decompressor.unconsumed_tail:
+            raise ValueError("archive exceeds uncompressed size limit")
+        if decompressor.unused_data:
+            raise ValueError("archive contains trailing gzip data")
+    if not decompressor.eof:
+        raise ValueError("archive gzip stream is truncated")
+    archive_file.seek(0)
 
 
 def validate(archive: pathlib.Path, required: set[str]) -> None:
@@ -141,6 +167,8 @@ def validate(archive: pathlib.Path, required: set[str]) -> None:
             for member in members:
                 if member.isfile():
                     _consume_member_payload(bundle, member)
+        if metadata.st_size:
+            _validate_single_gzip_member(archive_file)
 
 
 def main() -> int:

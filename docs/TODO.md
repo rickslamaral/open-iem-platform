@@ -6,7 +6,14 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## BLOCKER
 
-- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34724845040` (PR) e `34724842446` (push) falharam antes da execução dos jobs; jobs consultados retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
+- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34727191187` (PR) e `34727189605` (push) falharam antes da execução dos jobs; sem CI remoto não há release `v0.3.1`.
+
+## Phase 78 — rejeição de dados residuais em archives
+
+- [x] Rejeitar bytes residuais e streams gzip concatenados após archive válido.
+- [x] Adicionar testes offline para os dois casos.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar archives e instalação em Raspberry Pi 5 real.
 
 ## Phase 77 — validação estrutural antes do payload
 

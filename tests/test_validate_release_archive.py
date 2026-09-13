@@ -46,6 +46,30 @@ def test_valid_archive_passes(tmp_path):
     MODULE.validate(archive, {"api-server", "open-iem-admin"})
 
 
+def test_trailing_gzip_stream_fails_closed(tmp_path):
+    archive = tmp_path / "trailing-gzip.tar.gz"
+    make_archive(archive, valid_members())
+    archive.write_bytes(archive.read_bytes() + gzip.compress(b"unvalidated payload"))
+    try:
+        MODULE.validate(archive, {"api-server", "open-iem-admin"})
+    except ValueError as exc:
+        assert "trailing gzip data" in str(exc)
+    else:
+        raise AssertionError("archive with trailing gzip stream accepted")
+
+
+def test_trailing_bytes_fail_closed(tmp_path):
+    archive = tmp_path / "trailing-bytes.tar.gz"
+    make_archive(archive, valid_members())
+    archive.write_bytes(archive.read_bytes() + b"unvalidated payload")
+    try:
+        MODULE.validate(archive, {"api-server", "open-iem-admin"})
+    except ValueError as exc:
+        assert "trailing gzip data" in str(exc)
+    else:
+        raise AssertionError("archive with trailing bytes accepted")
+
+
 def test_member_payload_consumer_rejects_short_read():
     member = tarfile.TarInfo("release/api-server")
     member.size = 2

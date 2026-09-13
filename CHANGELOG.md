@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 78 rejeição de dados residuais em archives (2026-09-13)
+- O validador agora verifica o stream gzip completo após validar e consumir o TAR, rejeitando bytes residuais e streams gzip concatenados não autenticados.
+- Testes offline cobrem ambos os casos; CI remoto, release e hardware continuam não validados.
+
 ### Security — Phase 77 archive validation order (2026-09-12)
 - O validador rejeita nomes, raiz, tipos, duplicatas e membros inesperados antes de consumir payloads, reduzindo custo de CPU/IO em archives inválidos.
 - Teste confirma que membro inesperado falha sem chamar consumidor de payload; CI remoto e hardware continuam não validados.

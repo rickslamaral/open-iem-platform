@@ -4,6 +4,28 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — Phase 78 — rejeição de dados residuais em archives
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Validador verifica stream gzip completo depois de validar e consumir TAR.
+- Bytes residuais e streams gzip concatenados falham fechado.
+- Testes offline cobrem ambos os casos.
+- README, CHANGELOG, TODO, START e review da Phase 78 atualizados.
+
+### Verificação real
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py`: 24 aprovados.
+- `py_compile` e `git diff --check`: aprovados.
+
+### Limitações
+
+CI remoto continua falhando antes dos steps: runs `34727191187` (PR) e `34727189605` (push). Release, ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 77 — validação estrutural antes do payload
 
 **Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
