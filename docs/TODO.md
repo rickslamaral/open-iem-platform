@@ -6,7 +6,15 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## BLOCKER
 
-- [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34727191187` (PR) e `34727189605` (push) falharam antes da execução dos jobs; sem CI remoto não há release `v0.3.1`.
+- [ ] P0 — Confirmar correção da suíte Python de assinatura no GitHub Actions — run `34728518286` executou, mas 10 testes falharam porque OpenSSL 3.5 exige `-rawin`; correção aplicada localmente, novo CI pendente.
+- [ ] P0 — Desbloquear GitHub Actions/runner — sem CI remoto verde não há release `v0.3.1`.
+
+## Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas
+
+- [x] Adicionar `-rawin` aos helpers de teste Ed25519.
+- [x] Validar suíte combinada localmente: 56 testes aprovados.
+- [ ] Confirmar CI remoto verde e atualizar PR #40.
+- [ ] Validar release, instalação ARM64 e Raspberry Pi 5 real.
 
 ## Phase 78 — rejeição de dados residuais em archives
 

@@ -50,7 +50,7 @@ def make_signed_bundle(tmp_path):
     subprocess.run(["openssl", "genpkey", "-algorithm", "ed25519", "-out", str(private)], check=True, capture_output=True)
     subprocess.run(["openssl", "pkey", "-in", str(private), "-pubout", "-out", str(public)], check=True, capture_output=True)
     for archive in bundle.glob("open-iem-server-*.tar.gz"):
-        subprocess.run(["openssl", "pkeyutl", "-sign", "-inkey", str(private), "-in", str(archive), "-out", str(bundle / f"{archive.name}.sig")], check=True, capture_output=True)
+        subprocess.run(["openssl", "pkeyutl", "-sign", "-rawin", "-inkey", str(private), "-in", str(archive), "-out", str(bundle / f"{archive.name}.sig")], check=True, capture_output=True)
     return bundle, public
 
 

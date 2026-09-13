@@ -29,7 +29,7 @@ def make_keys(tmp_path):
 
 def sign(private, artifact, signature):
     subprocess.run(
-        ["openssl", "pkeyutl", "-sign", "-inkey", str(private), "-in", str(artifact), "-out", str(signature)],
+        ["openssl", "pkeyutl", "-sign", "-rawin", "-inkey", str(private), "-in", str(artifact), "-out", str(signature)],
         check=True,
         capture_output=True,
     )

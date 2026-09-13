@@ -4,6 +4,27 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas
+
+**Status:** correção local; CI remoto aguardando novo run; PR #40 aberto; não mergeado; não lançado.
+
+### Implementado
+
+- Testes Ed25519 passaram a informar `-rawin` ao `openssl pkeyutl -sign`, compatível com OpenSSL 3.5.
+- Corrige falha do run `34728518286`, onde 10 de 56 testes falharam no helper de assinatura antes de exercitar os validadores.
+
+### Verificação real
+
+- `python3 -m pytest -q tests/test_validate_release_archive.py tests/test_verify_release_signature.py tests/test_validate_release_bundle.py`: 56 aprovados.
+- `python3 -m py_compile tests/test_verify_release_signature.py tests/test_validate_release_bundle.py`: aprovado.
+- `git diff --check`: aprovado.
+
+### Limitações
+
+CI ainda não confirmou esta correção. Release, ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
 ## 2026-09-13 — Phase 78 — rejeição de dados residuais em archives
 
 **Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

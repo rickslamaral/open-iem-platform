@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — Phase 79 compatibilidade OpenSSL 3.5 (2026-09-13)
+- Helpers de teste Ed25519 usam `-rawin`, exigido por OpenSSL 3.5 para operações de assinatura sem digest.
+- Suíte combinada local: 56 testes aprovados; CI remoto precisa confirmar correção.
+
 ### Security — Phase 78 rejeição de dados residuais em archives (2026-09-13)
 - O validador agora verifica o stream gzip completo após validar e consumir o TAR, rejeitando bytes residuais e streams gzip concatenados não autenticados.
 - Testes offline cobrem ambos os casos; CI remoto, release e hardware continuam não validados.
