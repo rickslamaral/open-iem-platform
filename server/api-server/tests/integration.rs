@@ -46,7 +46,11 @@ use serde_json::{json, Value};
 // ── Ephemeral test-only Ed25519 PEM pair ────────────────────────────────────
 // Generate keys at runtime so no private key is stored in the repository.
 fn test_keys() -> (Vec<u8>, Vec<u8>) {
-    use std::{fs, process::Command, time::{SystemTime, UNIX_EPOCH}};
+    use std::{
+        fs,
+        process::Command,
+        time::{SystemTime, UNIX_EPOCH},
+    };
 
     let nonce = SystemTime::now()
         .duration_since(UNIX_EPOCH)
