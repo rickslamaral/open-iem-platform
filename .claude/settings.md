@@ -35,12 +35,21 @@ Scopes: `audio-engine`, `mix-engine`, `api-server`, `admin-cli`, `iem-cli`, `mus
 
 Example: `feat(api-server): add pan control to musician WebSocket protocol`
 
-## Phase Workflow
+## Phase and Task Workflow
 
-1. Create/update items in `docs/TODO.md`
-2. Implement changes — run all local gates
-3. Update `CHANGELOG.md` under `[Unreleased]`
-4. Add entry to `docs/DEVELOPMENT-LOG.md`
-5. Create `docs/reviews/PHASE-<N>-REVIEW.md`
-6. Update `README.md → Current Status`
-7. Commit with `docs: Phase <N> review, DEVELOPMENT-LOG, TODO, CHANGELOG`
+Never commit or push directly to `main` from an automated agent.
+
+1. Read task from GitHub Issue/Project or `docs/TODO.md`
+2. Update local `main` with `git pull --ff-only origin main`
+3. Create dedicated `feat/`, `fix/`, `refactor/`, or `docs/` branch before edits
+4. Implement changes — run all local gates
+5. Update `CHANGELOG.md` under `[Unreleased]`
+6. Add entry to `docs/DEVELOPMENT-LOG.md`
+7. Create `docs/reviews/PHASE-<N>-REVIEW.md` when applicable
+8. Update `README.md → Current Status` when applicable
+9. Commit only on dedicated branch
+10. Push branch and open PR against `main`
+11. Wait for real CI; `runner_id=0` and `steps=[]` are not success
+12. Fix failures and report `READY_TO_MERGE`
+13. Merge, tag, release, and visibility changes require explicit human confirmation
+14. Never claim merged without verified PR URL and merge SHA
