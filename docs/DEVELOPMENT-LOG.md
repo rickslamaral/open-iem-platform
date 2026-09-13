@@ -79,6 +79,25 @@ Audio backend, PipeWire/ALSA and hardware paths remain SIMULATED. Release `v0.3.
 
 ---
 
+## 2026-09-13 — Phase 85 — Rust code coverage reporting
+
+**Status:** IMPLEMENTED — local coverage target and CI job added; remote CI evidence pending.
+
+### Implemented
+
+- `make coverage` checks for `cargo-llvm-cov`, prints summary, creates `coverage/`, and writes `coverage/lcov.info`.
+- CI job `Rust Code Coverage` installs `cargo-llvm-cov 0.9.1`, generates LCOV, and uploads `coverage-lcov` artifact for 30 days.
+- Coverage baseline: 81.22% lines and 73.85% functions across Rust workspace; audio remains `SIMULATED`.
+
+### Verification
+
+- Independent review found and fixed fresh-checkout output-directory failure.
+- Existing fan-out lock-free change preserved; no unrelated code reverted.
+
+### Limitations
+
+Remote CI, release `v0.3.1`, real installation, PipeWire/ALSA and Raspberry Pi 5 remain pending.
+
 ## 2026-09-13 — Phase 84 — reprodutibilidade do pipeline de release
 
 **Status:** IMPLEMENTED — confirmação de dois builds e release ainda pendentes.
