@@ -4,6 +4,17 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ---
 
+## Phase 83 — Pan e mudo master na UI do músico
+
+- [x] Adicionar slider de pan por canal (-1 a +1) com rótulo L/C/R.
+- [x] Desabilitar pan quando canal mudo.
+- [x] Exibir badge MASTER MUTED quando servidor reporta mudo master (somente leitura).
+- [x] Sincronizar pan do snapshot e enviar SetSendPan via WebSocket.
+- [x] 42 testes, typecheck e build locais aprovados.
+- [ ] Implementar SetMasterMuted no protocolo quando suporte ao servidor estiver disponível.
+- [ ] Confirmar CI remoto verde (bloqueado por quota de Actions).
+- [ ] Validar Raspberry Pi 5 real.
+
 ## Phase 82 — revisão de segurança do instalador
 
 - [x] Auditar fluxo de instalação após Phase 81.

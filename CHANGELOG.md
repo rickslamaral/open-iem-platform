@@ -11,6 +11,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Revertido para SHA válido `6849a6489940f00c2f30c0fb92c6274307ccb58a` (v4.1.2) em ci.yml (2 ocorrências) e release.yml (3 ocorrências).
 - SHA verificado via GitHub API antes do commit; audit local limpo (60 testes Python + testes Rust + cargo audit passando).
 
+### Added — Phase 83: pan estéreo e mudo master na UI do músico (2026-09-13)
+- Slider de panorama por canal (-1 a +1) com rótulo L/C/R; desabilitado quando canal está mudo.
+- Badge MASTER MUTED (somente leitura) visível quando servidor reporta mudo master da mix.
+- Sincronização de pan via snapshot WebSocket; envio de `SetSendPan` a cada mudança.
+- 6 novos testes em Channel, 2 em MixControl; total 42 testes aprovados.
+
 ### Security — Phase 82 hardening do instalador (2026-09-13)
 - Instalador exige SHA-1 completo de commit, verifica identidade exata do checkout e recusa branches/tags mutáveis.
 - Build instala artefatos em release versionado com staging limpo; link `current` preserva release anterior quando falha antes do commit.

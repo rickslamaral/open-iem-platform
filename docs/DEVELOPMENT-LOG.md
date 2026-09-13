@@ -30,6 +30,34 @@ CI remoto em andamento. Instalação real, Raspberry Pi 5 e runtime PipeWire con
 
 ---
 
+## 2026-09-13 — Phase 83 — Controles de pan e mudo master na UI do músico
+
+**Status:** MERGED — e0f0d40 em main; CI bloqueado por quota de Actions (runner_id=0).
+
+### Implementado
+
+- `Channel.tsx`: slider de panorama estéreo (-1 a +1) com rótulo L/C/R; desabilitado quando mudo.
+- `Channel.module.css`: estilos `.panRow` e `.panLabel`.
+- `Channel.test.tsx`: 6 novos testes (total: 42 passando).
+- `MixControl.tsx`: prop `masterMuted` (somente leitura — sem `SetMasterMuted` no protocolo); badge MASTER MUTED visível quando servidor reporta mudo master; `panByChannel` e `onChannelPan` propagados para cada canal.
+- `MixControl.module.css`: estilos `.masterRow` e `.masterMutedBadge`.
+- `MixControl.test.tsx`: 2 novos testes para badge de mudo master.
+- `App.tsx`: estado `panByChannel` sincronizado do snapshot; callback `handleChannelPan` envia `SetSendPan`; `masterMuted` derivado de `ws.snapshot?.mixes[0]?.master_muted`.
+
+### Verificação local
+
+- `npm run typecheck --prefix web/musician`: aprovado.
+- `npm test --prefix web/musician -- --run`: 42 testes, 5 arquivos, todos aprovados.
+- `npm run build --prefix web/musician`: aprovado.
+- Reviewer independente: `passed=true`, sem security_concerns, sem logic_errors.
+- Scan estático: sem secrets, sem shell injection, sem eval/exec.
+
+### Limitações
+
+CI remoto bloqueado por quota GitHub Actions (`runner_id=0`). `masterMuted` é somente leitura (sem `SetMasterMuted` no protocolo WebSocket — TODO registrado). Áudio real, PipeWire e Raspberry Pi 5 não validados.
+
+---
+
 ## 2026-09-13 — Phase 82 — Node.js preflight antes de mutar host
 
 **Status:** PASS WITH CONDITIONS — preflight corrigido; instalação real, CI novo e Raspberry Pi 5 não validados.
