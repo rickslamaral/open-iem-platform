@@ -152,6 +152,24 @@ scripts/              — Development utilities
 - [Review da Phase 32](docs/reviews/PHASE-32-REVIEW.md)
 - [Review da Phase 31](docs/reviews/PHASE-31-REVIEW.md)
 
+## Instalação Linux
+
+Instalador oficial para Linux, com build local, chaves JWT geradas no host e serviço systemd:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/rickslamaral/open-iem-platform/main/scripts/install.sh | bash
+```
+
+O instalador não contém credenciais e não sobrescreve chaves JWT existentes. Para revisar antes de executar:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/rickslamaral/open-iem-platform/main/scripts/install.sh -o install.sh
+less install.sh
+bash install.sh --dry-run
+```
+
+Veja opções com `bash install.sh --help`. Áudio PipeWire/ALSA e runtime Raspberry Pi continuam pendentes de validação física.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
