@@ -72,6 +72,14 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
 
+      - name: Cache advisory database
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: ~/.cargo/advisory-db
+          key: cargo-advisory-db-${{ github.run_id }}
+          restore-keys: |
+            cargo-advisory-db-
+
       - name: Install cargo-audit
         run: cargo install cargo-audit --version 0.22.2 --locked
 
@@ -83,7 +91,9 @@ jobs:
             # JWT algorithm is configured before accepting this documented residual.
             ! grep -RE 'Algorithm::(RSA|HS|ES|RS|PS)' server/api-server/src/auth.rs
             grep -q 'Algorithm::EdDSA' server/api-server/src/auth.rs
-            cargo audit --file server/Cargo.lock --ignore RUSTSEC-2023-0071
+            # Retry fetch once on network failure; --db path reuses cache when available.
+            cargo audit --file server/Cargo.lock --ignore RUSTSEC-2023-0071 \
+              || cargo audit --file server/Cargo.lock --ignore RUSTSEC-2023-0071
           else
             echo "No Cargo.lock yet — skipping audit"
           fi
