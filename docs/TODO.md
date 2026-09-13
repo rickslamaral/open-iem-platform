@@ -4,11 +4,38 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ---
 
+## Phase 81 — hardening do instalador e concorrência CI/release
+
+- [x] Fazer `--dry-run` descrever todas operações sem alterar host.
+- [x] Aceitar `--ref` como SHA-1 completo com checkout detached.
+- [x] Validar caminhos usados em substituições `sed`.
+- [x] Restaurar CI automático em `main` e serializar release por tag.
+- [ ] Confirmar instalação real em host Linux dedicado.
+- [ ] Desbloquear release e validar Raspberry Pi 5 real.
+
 ## Phase 80 — compatibilidade TypeScript 7 no Engineer Console
 
 - [x] Adicionar `web/engineer/src/vite-env.d.ts` para declarar imports de assets Vite.
 - [x] Validar typecheck, testes e build do Engineer localmente.
-- [ ] Confirmar CI remoto verde e atualizar PR #41.
+- [x] Confirmar CI remoto verde e atualizar PR #41.
+- [ ] Validar release, instalação ARM64 e Raspberry Pi 5 real.
+
+---
+
+---
+
+## BLOCKER
+
+- [ ] P0 — Confirmar correção da suíte Python de assinatura no GitHub Actions — run `34728518286` executou, mas 10 testes falharam porque OpenSSL 3.5 exige `-rawin`; correção aplicada localmente, novo CI pendente.
+- [ ] P0 — Desbloquear GitHub Actions/runner — sem CI remoto verde não há release `v0.3.1`.
+
+---
+
+## Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas
+
+- [x] Adicionar `-rawin` aos helpers de teste Ed25519.
+- [x] Validar suíte combinada localmente: 56 testes aprovados.
+- [ ] Confirmar CI remoto verde e atualizar PR #40.
 - [ ] Validar release, instalação ARM64 e Raspberry Pi 5 real.
 
 

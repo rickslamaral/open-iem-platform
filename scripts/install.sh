@@ -67,7 +67,9 @@ done
 
 [[ "$(uname -s)" == Linux ]] || fatal "Linux required"
 [[ "$PREFIX" = /* && "$BIN_DIR" = /* && "$STATE_DIR" = /* && "$CONFIG_DIR" = /* ]] || fatal "paths must be absolute"
+[[ "$PREFIX$BIN_DIR$STATE_DIR$CONFIG_DIR" != *$'\n'* && "$PREFIX$BIN_DIR$STATE_DIR$CONFIG_DIR" != *'&'* && "$PREFIX$BIN_DIR$STATE_DIR$CONFIG_DIR" != *'\\'* && "$PREFIX$BIN_DIR$STATE_DIR$CONFIG_DIR" != *'#'* ]] || fatal "paths cannot contain newline, &, \\, or #"
 [[ "$REPO_URL" == https://* || "$REPO_URL" == git@* || "$REPO_URL" == ssh://* ]] || fatal "repository URL must use HTTPS or SSH"
+[[ "$REF" != -* ]] || fatal "ref cannot start with -"
 
 SUDO=()
 if (( EUID != 0 )); then
@@ -121,13 +123,29 @@ cleanup() {
 trap cleanup EXIT
 
 install_deps
-(( DRY_RUN )) && { log 'dry-run complete'; exit 0; }
+if (( DRY_RUN )); then
+  log "would verify tools: git curl openssl cargo rustc node npm (Node.js >= 20)"
+  log "would clone $REPO_URL at ref $REF"
+  log 'would build Rust workspace in release mode'
+  log 'would install dependencies and build web/musician and web/engineer'
+  log "would install binaries and web assets below $PREFIX"
+  (( NO_SERVICE )) || log "would install and enable $SERVICE_NAME"
+  (( ROTATE_KEYS )) && log 'would rotate JWT keys only after confirmation'
+  log 'dry-run complete; host unchanged'
+  exit 0
+fi
 check_tools
 
 TMP_DIR="$(mktemp -d -t openiem-install.XXXXXX)"
 trap cleanup EXIT
 log "cloning $REPO_URL ($REF)"
-git clone --depth 1 --branch "$REF" --single-branch "$REPO_URL" "$TMP_DIR/src"
+if [[ "$REF" =~ ^[0-9a-fA-F]{40}$ ]]; then
+  git clone --filter=blob:none --no-checkout "$REPO_URL" "$TMP_DIR/src"
+  git -C "$TMP_DIR/src" fetch --depth 1 origin "$REF"
+  git -C "$TMP_DIR/src" checkout --detach "$REF"
+else
+  git clone --depth 1 --branch "$REF" --single-branch "$REPO_URL" "$TMP_DIR/src"
+fi
 cd "$TMP_DIR/src"
 
 log 'building Rust workspace'

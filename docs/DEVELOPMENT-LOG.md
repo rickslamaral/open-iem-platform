@@ -4,6 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-13 — Phase 81 — hardening do instalador e concorrência CI/release
+
+**Status:** implementação local; PR #41 aberto; CI remoto verde; não mergeado; não lançado.
+
+### Implementado
+
+- `scripts/install.sh --dry-run` descreve operações completas sem alterar host.
+- `--ref` aceita SHA-1 completo via clone sem checkout e `checkout --detach`.
+- Caminhos de instalação rejeitam caracteres que quebrariam substituições `sed`.
+- CI volta a validar pushes em `main`; release usa concorrência serializada por tag.
+- README, CHANGELOG, TODO e START atualizados.
+
+### Verificação real
+
+- `bash -n scripts/install.sh`: aprovado.
+- `scripts/install.sh --dry-run --skip-deps --ref b3c0fb2`: aprovado; host não alterado.
+- YAML dos workflows CI/release: parseado com sucesso.
+- `git diff --check`: aprovado.
+- CI PR #41: runs `34735649836` e `34735649634` concluídos com sucesso.
+- Reviews independentes: sem BLOCKER/HIGH; recomendação de hardening do instalador aplicada.
+
+### Limitações
+
+Instalação real, release, runtime ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados. ShellCheck não disponível no host.
+
+---
+
 ## 2026-09-13 — Phase 80 — compatibilidade TypeScript 7 no Engineer Console
 
 **Status:** correção local; CI remoto pendente; PR #41 aberto; não mergeado; não lançado.

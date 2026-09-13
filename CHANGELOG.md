@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 81 hardening do instalador e concorrência (2026-09-13)
+- Instalador aceita `--ref` como SHA-1 completo com checkout detached e valida caminhos antes de gerar unit file via `sed`.
+- `--dry-run` agora descreve operações de dependências, clone, build, instalação e systemd sem alterar host.
+- CI valida pushes em `main`; release serializa execuções concorrentes por tag.
+- Testes locais e CI do PR #41 passaram; instalação real, release e Raspberry Pi 5 continuam não validados.
+
 ### Fixed — Phase 80 compatibilidade TypeScript 7 (2026-09-13)
 - Adicionado `web/engineer/src/vite-env.d.ts` com referência `vite/client`, corrigindo `TS2882` para import lateral de `style.css` no TypeScript 7.
 - Typecheck, testes e build locais do Engineer aprovados; CI remoto precisa confirmar.

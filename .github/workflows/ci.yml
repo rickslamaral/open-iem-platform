@@ -1,8 +1,9 @@
 name: CI
 
 on:
-  # Validate proposed changes once in pull requests. Main is protected by PR
-  # review; avoid a second full run after merge.
+  # Validate proposed changes and preserve post-merge evidence on main.
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
