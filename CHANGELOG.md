@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security — Phase 77 archive validation order (2026-09-12)
+- O validador rejeita nomes, raiz, tipos, duplicatas e membros inesperados antes de consumir payloads, reduzindo custo de CPU/IO em archives inválidos.
+- Teste confirma que membro inesperado falha sem chamar consumidor de payload; CI remoto e hardware continuam não validados.
+
 ### Changed — Phase 76 CI status refresh (2026-09-12)
 - Runs `34724845040` (PR) e `34724842446` (push) falharam antes dos steps; jobs consultados retornaram `runner_id=0` e `steps=[]`. Nenhum teste ou build remoto executou; merge e release continuam bloqueados.
 

@@ -198,15 +198,17 @@ def test_duplicate_file_fails(tmp_path):
         raise AssertionError("duplicate archive member accepted")
 
 
-def test_unexpected_file_fails(tmp_path):
+def test_unexpected_file_fails_before_payload_consumption(tmp_path):
     archive = tmp_path / "unexpected.tar.gz"
     make_archive(archive, valid_members() + [("open-iem-server-1.2.3-aarch64-linux/secret", "file")])
-    try:
-        MODULE.validate(archive, {"api-server", "open-iem-admin"})
-    except ValueError as exc:
-        assert "unexpected archive member" in str(exc)
-    else:
-        raise AssertionError("unexpected archive member accepted")
+    with patch.object(MODULE, "_consume_member_payload") as consume:
+        try:
+            MODULE.validate(archive, {"api-server", "open-iem-admin"})
+        except ValueError as exc:
+            assert "unexpected archive member" in str(exc)
+        else:
+            raise AssertionError("unexpected archive member accepted")
+    consume.assert_not_called()
 
 
 def test_member_count_limit_fails(tmp_path):

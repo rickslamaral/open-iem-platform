@@ -4,6 +4,23 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-12 — Phase 77 — validação estrutural antes do payload
+
+**Status:** implementação local; PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.
+
+### Implementado
+
+- Validador rejeita nomes, raiz, tipos, allowlist, duplicatas e membros inesperados antes de consumir payloads.
+- Arquivos aceitos continuam consumidos integralmente em chunks limitados; payload truncado falha fechado.
+- Teste confirma que membro inesperado não chama consumidor de payload.
+- README, CHANGELOG, TODO, START e review da Phase 77 atualizados.
+
+### Limitações
+
+CI remoto continua bloqueado por runner/permissões: runs consultados falharam antes dos steps com `runner_id=0` e `steps=[]`. Release, ARM64, Raspberry Pi 5, PipeWire/ALSA e mídia WebRTC continuam não validados.
+
+---
+
 ## 2026-09-12 — Phase 76 CI status refresh
 
 **Status:** PR #40 aberto; CI remoto bloqueado antes dos steps; não mergeado; não lançado.

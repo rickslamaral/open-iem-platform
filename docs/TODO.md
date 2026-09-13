@@ -8,6 +8,13 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [ ] P0 — Desbloquear GitHub Actions/runner — status BLOCKED — runs `34724845040` (PR) e `34724842446` (push) falharam antes da execução dos jobs; jobs consultados retornaram `runner_id=0` e `steps=[]`; sem CI remoto não há release `v0.3.1`.
 
+## Phase 77 — validação estrutural antes do payload
+
+- [x] Validar nomes, raiz, tipos, allowlist e duplicatas antes de consumir payloads.
+- [x] Adicionar teste que garante rejeição de membro inesperado sem leitura de payload.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar archives e instalação em Raspberry Pi 5 real.
+
 ## Phase 76 — leitura integral de payloads de archive
 
 - [x] Consumir payload completo de cada arquivo regular em chunks limitados.
