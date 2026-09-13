@@ -186,7 +186,7 @@ jobs:
             printf '%s\n' 'Signing key must be Ed25519' >&2
             exit 1
           }
-          /usr/bin/openssl pkeyutl -sign -inkey "$KEY_FILE" \
+          /usr/bin/openssl pkeyutl -sign -rawin -inkey "$KEY_FILE" \
             -in "${DIR}.tar.gz" -out "${DIR}.tar.gz.sig"
           test -s "${DIR}.tar.gz.sig"
           test -n "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM:-}" || {
@@ -297,7 +297,7 @@ jobs:
             printf '%s\n' 'Signing key must be Ed25519' >&2
             exit 1
           }
-          /usr/bin/openssl pkeyutl -sign -inkey "$KEY_FILE" \
+          /usr/bin/openssl pkeyutl -sign -rawin -inkey "$KEY_FILE" \
             -in "${DIR}.tar.gz" -out "${DIR}.tar.gz.sig"
           test -s "${DIR}.tar.gz.sig"
           test -n "${OPENIEM_RELEASE_SIGNING_PUBLIC_KEY_PEM:-}" || {

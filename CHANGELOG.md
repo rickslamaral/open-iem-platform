@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed — Phase 79 CI OpenSSL 3.5 (2026-09-13)
+- Workflow de release usa `openssl pkeyutl -sign -rawin`, compatível com OpenSSL 3.5 para assinaturas Ed25519 sem digest.
+- Run CI `34760297250` passou nos 9 jobs após atualização do pin de `actions/cache`; validação local dos validadores: 56 testes aprovados.
+
 ### Fixed — CI: actions/cache SHA inválido quebrava todos os jobs (2026-09-13)
 - SHA `55cc8345863c7cc4c66a329aec7e433d2d1c52a9` (rotulado erroneamente como v6.1.0) não existe no repositório `actions/cache`, causando falha imediata de todos os 10 jobs de CI.
 - Revertido para SHA válido `6849a6489940f00c2f30c0fb92c6274307ccb58a` (v4.1.2) em ci.yml (2 ocorrências) e release.yml (3 ocorrências).

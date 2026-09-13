@@ -6,7 +6,7 @@ All significant milestones documented here in reverse chronological order.
 
 ## 2026-09-13 — CI recovery after actions/cache pin correction
 
-**Status:** VERIFIED — run `34759734717` passed all 9 jobs on `main`.
+**Status:** VERIFIED — run `34760297250` passed all 9 jobs on `main`.
 
 ### Evidence
 
@@ -15,6 +15,7 @@ All significant milestones documented here in reverse chronological order.
 - Python release archive/bundle security tests passed.
 - Rust and npm security audits passed.
 - Documentation, PDF and agent skill validation passed.
+- Release workflow signing commands now include `-rawin`, required by OpenSSL 3.5 for raw Ed25519 input.
 
 ### Decision
 

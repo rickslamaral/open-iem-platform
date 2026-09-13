@@ -1,7 +1,7 @@
 # Phase 79 Review — compatibilidade OpenSSL 3.5 na geração de assinaturas
 
 **Data:** 2026-09-13
-**Status:** PASS WITH CONDITIONS — correção local aprovada; CI remoto precisa confirmar.
+**Status:** VERIFIED — correção local e CI remoto aprovados.
 
 ## Objetivo
 

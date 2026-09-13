@@ -58,7 +58,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Adicionar `-rawin` aos helpers de teste Ed25519.
 - [x] Validar suíte combinada localmente: 56 testes aprovados.
-- [ ] Confirmar CI remoto verde e atualizar PR #40.
+- [x] Confirmar CI remoto verde no run `34760297250` e atualizar documentação.
 - [ ] Validar release, instalação ARM64 e Raspberry Pi 5 real.
 
 
@@ -73,7 +73,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Adicionar `-rawin` aos helpers de teste Ed25519.
 - [x] Validar suíte combinada localmente: 56 testes aprovados.
-- [ ] Confirmar CI remoto verde e atualizar PR #40.
+- [x] Confirmar CI remoto verde no run `34760297250` e atualizar documentação.
 - [ ] Validar release, instalação ARM64 e Raspberry Pi 5 real.
 
 ## Phase 78 — rejeição de dados residuais em archives
