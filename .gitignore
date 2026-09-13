@@ -22,6 +22,11 @@ secrets/
 *.crt
 *.p12
 
+## Claude Code local/private state
+.claude/settings.local.json
+CLAUDE.local.md
+.claude/agent-memory/
+
 ## Database
 *.db
 *.db-wal

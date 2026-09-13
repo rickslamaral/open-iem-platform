@@ -6,5 +6,8 @@ Configuration and persistent context for Claude Code and compatible agents.
 - `settings.md` — permissions and workflow policy
 - `commands.md` — command reference
 - `architecture.md` — technical architecture reference
+- `settings.json` — shared permissions and hooks configuration
+- `rules/` — path-scoped engineering and documentation rules
+- `agents/` — reusable security and test reviewers
 
 Keep files updated whenever architecture, commands, security policy, or development workflow changes. User-facing guides live under `docs/guides/{pt,en,es}/`.
