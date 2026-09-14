@@ -14,7 +14,7 @@
 
 ## 2026-09-14 — P0-008 ALSA Explicit Fallback Backend
 
-**Branch:** feat/p0-008-alsa-backend → PR #63 → merged main  
+**Branch:** feat/p0-008-alsa-backend → PR #63 → merged main
 **Status:** CODE+CI; HARDWARE pending
 
 ### O que foi feito
@@ -28,10 +28,10 @@
 - `stop_flag.store/load` corrigido de `Relaxed` para `Release`/`Acquire` — ordering errado causaria hang indefinido no `deactivate()` em ARM (RPi5).
 
 ### Gates
-- `cargo fmt --check` ✓  
-- `cargo clippy --all-targets -D warnings` ✓  
-- `cargo test` ✓  
-- CI remoto 12/12 jobs SUCCESS (run 34890580318)  
+- `cargo fmt --check` ✓
+- `cargo clippy --all-targets -D warnings` ✓
+- `cargo test` ✓
+- CI remoto 12/12 jobs SUCCESS (run 34890580318)
 
 ### Validação pendente
 - PipeWire native backend ainda não implementado (P0-008 original escopo).
@@ -2961,7 +2961,7 @@ SBOM generation added to release pipeline (best-effort, `continue-on-error: true
 
 ## 2026-09-09 — Phase 7: Biquad EQ + RMS Compressor DSP
 
-**Branch:** `feat/phase7-dsp` → squash-merge pending  
+**Branch:** `feat/phase7-dsp` → squash-merge pending
 **Tests:** 152 passed (↑ from 135), 0 failed
 
 ### Implemented
@@ -3214,7 +3214,7 @@ Phase 0 Review → PASS → Phase 1 (Audio Engine POC)
 - `server/mix-engine/Cargo.toml` — crate definition
 - `server/mix-engine/src/lib.rs` — public API, constants, `db_to_linear`, `linear_to_db`, `apply_pan`
 - `server/mix-engine/src/channel.rs` — `Channel` struct
-- `server/mix-engine/src/mix_send.rs` — `MixSend` struct  
+- `server/mix-engine/src/mix_send.rs` — `MixSend` struct
 - `server/mix-engine/src/limiter.rs` — `Limiter` stub
 - `server/mix-engine/src/mix.rs` — `Mix` struct with `process()`
 - `server/mix-engine/src/mix_engine.rs` — `MixEngine` top-level coordinator
