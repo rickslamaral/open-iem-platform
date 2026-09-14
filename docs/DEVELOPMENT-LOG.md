@@ -3593,3 +3593,33 @@ P0-004 — native/headless Opus receiver (depende de P0-003 ✓)
 ## 2026-09-14 — P0-004 receiver core
 
 Implemented `streaming::opus_receiver`: pure-Rust Opus 48 kHz stereo decoder, bounded non-blocking RTP payload ingress, ordered bounded jitter buffer, headless `AudioOutput` boundary, fail-safe mute on underrun/output failure, and reconnect reset. Evidence remains **SIMULATED**; PipeWire/ALSA device output and physical receiver validation remain pending.
+
+## 2026-09-14 — P1-001 topology capability model (PR #65)
+
+Implemented new `server/topology` crate: `TopologyCapabilities`, `TopologyMode` (ChannelMode only; AUX/Playback/Hybrid deferred), `ChannelModeConfig` with explicit source mapping, `TopologyError` (thiserror), `MVP_CAPABILITIES` const (8ch, 2mix, 2recv, 48kHz, 20ms, ChannelMode), `validate()` and `validate_mode()` functions.
+
+### What it does
+
+- Explicit capability model: hard limits per deployment
+- Channel Mode validation: channel_count, mix_count, receiver_count (1-indexed, overflow checked, receiver==mix enforced), source_names length and ≤64-byte per name, ChannelMode presence check
+- Pure data/validation: no I/O, no async, no unsafe code
+- Typed errors: all validation failures produce distinct `TopologyError` variants
+
+### Tests
+
+11 unit tests covering all error paths and valid path.
+
+### Gates
+
+- `cargo fmt --check`: OK
+- `cargo clippy --all-targets -- -D warnings`: OK
+- `cargo test` (topology 11/11, full workspace 0 failures): OK
+- Independent review (isolated subagent): passed=true, 0 security concerns, 0 logic errors
+
+### Nível de evidência
+
+CODE + CI local — sem hardware, sem runtime, sem PipeWire.
+
+### Próximo
+
+P1-001 PR #65 aguarda CI remoto. Próxima tarefa na fila: P1-002 Device Manager (depende de P1-001).

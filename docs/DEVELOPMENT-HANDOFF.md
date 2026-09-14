@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P1-001 — Topology: capability model and Channel Mode validation` — P0-001..P0-008 CODE+CI completo; depende de P0-008 (mergeado). Próximo: adicionar modelo de capacidade e validação Channel Mode, source mapping explícito e testes de config inválida.
+**Next development item:** `P1-002 — Device Manager: capability discovery, hot-plug and recovery state machine` — P1-001 implementado na PR #65, aguardando CI remoto e merge; não iniciar P1-002 antes do merge sequencial.
