@@ -21,7 +21,7 @@
 - [ ] Frontend EQ controls — Phase 93+.
 - [x] P0-001 — substituir Mutex no callback JACK por fronteira SPSC bounded e fila de controle non-blocking; callback processa período completo; testes locais passam.
 - [x] P0-002 — Audio Lab L1/L2: harness SIMULATED com 8 testes CI implementado (PR #57).
-- [ ] P0-003 — Media Plane: conectar MixEngine ao WebRTC media session.
+- [x] P0-003 — Media Plane: conectar MixEngine ao WebRTC media session (SIMULATED, bounded queue, PR #58).
 
 ## Phase 93 — Frontend EQ Controls (Engineer Console)
 

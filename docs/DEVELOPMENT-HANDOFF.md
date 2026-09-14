@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P0-003 — Media Plane: conectar MixEngine ao WebRTC media session`.
+**Next development item:** `P0-004 — Native/headless Opus receiver (depende de P0-003 ✓)`.
