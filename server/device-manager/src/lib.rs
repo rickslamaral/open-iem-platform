@@ -11,6 +11,14 @@ use topology::TopologyMode;
 
 /// Maximum number of devices retained in one discovery snapshot.
 pub const MAX_DEVICES: usize = 16;
+/// Maximum UTF-8 byte length of backend device identifiers.
+pub const MAX_DEVICE_ID_BYTES: usize = 256;
+/// Maximum UTF-8 byte length of human-readable device names.
+pub const MAX_DEVICE_NAME_BYTES: usize = 256;
+/// Maximum number of sample rates advertised by one device.
+pub const MAX_SAMPLE_RATES: usize = 16;
+/// Maximum number of topology modes advertised by one device.
+pub const MAX_SUPPORTED_MODES: usize = 8;
 
 /// Device lifecycle state.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -56,6 +64,18 @@ pub enum DeviceManagerError {
     /// Device identifier is empty or duplicated.
     #[error("invalid or duplicate device id: {0}")]
     InvalidDeviceId(String),
+    /// Device identifier exceeds bounded UTF-8 byte length.
+    #[error("device ID exceeds maximum of {MAX_DEVICE_ID_BYTES} bytes")]
+    DeviceIdTooLong,
+    /// Device name exceeds bounded UTF-8 byte length.
+    #[error("device name exceeds maximum of {MAX_DEVICE_NAME_BYTES} bytes")]
+    DeviceNameTooLong,
+    /// Device advertises too many sample rates.
+    #[error("device {0} advertises more than {MAX_SAMPLE_RATES} sample rates")]
+    TooManySampleRates(String),
+    /// Device advertises too many topology modes.
+    #[error("device {0} advertises more than {MAX_SUPPORTED_MODES} supported modes")]
+    TooManySupportedModes(String),
     /// Device reports no usable output channels.
     #[error("device {0} reports no output channels")]
     NoOutputChannels(String),
@@ -65,6 +85,9 @@ pub enum DeviceManagerError {
     /// Transition references unknown device.
     #[error("unknown device: {0}")]
     UnknownDevice(String),
+    /// Device is not ready for the requested transition.
+    #[error("device {0} is not reconnected")]
+    NotReconnected(String),
 }
 
 /// Bounded device registry updated by control-plane discovery.
@@ -93,7 +116,19 @@ impl DeviceManager {
         capabilities: Vec<DeviceCapabilities>,
     ) -> Result<(), DeviceManagerError> {
         validate_snapshot(&capabilities)?;
-        let mut next = Vec::with_capacity(capabilities.len());
+        let absent = self
+            .devices
+            .iter()
+            .filter(|old| {
+                !capabilities
+                    .iter()
+                    .any(|caps| caps.id == old.capabilities.id)
+            })
+            .count();
+        if capabilities.len() + absent > MAX_DEVICES {
+            return Err(DeviceManagerError::TooManyDevices);
+        }
+        let mut next = Vec::with_capacity(capabilities.len() + absent);
         for caps in capabilities {
             let state = self
                 .devices
@@ -146,9 +181,14 @@ impl DeviceManager {
     ///
     /// # Errors
     ///
-    /// Returns [`DeviceManagerError::UnknownDevice`] for an unknown ID.
+    /// Returns [`DeviceManagerError::UnknownDevice`] for an unknown ID or
+    /// [`DeviceManagerError::NotReconnected`] when rediscovery has not
+    /// validated the device since it entered recovery.
     pub fn mark_available(&mut self, id: &str) -> Result<(), DeviceManagerError> {
         let device = self.device_mut(id)?;
+        if device.state != DeviceState::Reconnected {
+            return Err(DeviceManagerError::NotReconnected(id.to_owned()));
+        }
         device.state = DeviceState::Available;
         Ok(())
     }
@@ -180,6 +220,20 @@ fn validate_snapshot(capabilities: &[DeviceCapabilities]) -> Result<(), DeviceMa
         return Err(DeviceManagerError::TooManyDevices);
     }
     for (index, device) in capabilities.iter().enumerate() {
+        // Check byte and collection bounds before any ID comparisons or
+        // capability cloning, keeping validation work and allocations bounded.
+        if device.id.len() > MAX_DEVICE_ID_BYTES {
+            return Err(DeviceManagerError::DeviceIdTooLong);
+        }
+        if device.name.len() > MAX_DEVICE_NAME_BYTES {
+            return Err(DeviceManagerError::DeviceNameTooLong);
+        }
+        if device.sample_rates_hz.len() > MAX_SAMPLE_RATES {
+            return Err(DeviceManagerError::TooManySampleRates(device.id.clone()));
+        }
+        if device.supported_modes.len() > MAX_SUPPORTED_MODES {
+            return Err(DeviceManagerError::TooManySupportedModes(device.id.clone()));
+        }
         if device.id.is_empty() || capabilities[..index].iter().any(|old| old.id == device.id) {
             return Err(DeviceManagerError::InvalidDeviceId(device.id.clone()));
         }
@@ -263,6 +317,36 @@ mod tests {
     }
 
     #[test]
+    fn absent_devices_are_not_dropped_when_retention_exceeds_capacity() {
+        let mut manager = DeviceManager::new();
+        let initial: Vec<_> = (0..MAX_DEVICES)
+            .map(|i| device(&format!("usb-{i}")))
+            .collect();
+        manager.discover(initial).expect("valid snapshot");
+        let before = manager.devices().to_vec();
+        let replacement = vec![device("new")];
+        assert_eq!(
+            manager.discover(replacement),
+            Err(DeviceManagerError::TooManyDevices)
+        );
+        assert_eq!(manager.devices(), before.as_slice());
+    }
+
+    #[test]
+    fn mark_available_rejects_recovering_device_without_rediscovery() {
+        let mut manager = DeviceManager::new();
+        manager
+            .discover(vec![device("usb-1")])
+            .expect("valid snapshot");
+        manager.mark_failed("usb-1").expect("known device");
+        assert_eq!(
+            manager.mark_available("usb-1"),
+            Err(DeviceManagerError::NotReconnected("usb-1".into()))
+        );
+        assert_eq!(manager.devices()[0].state, DeviceState::Recovering);
+    }
+
+    #[test]
     fn registry_remains_bounded_when_snapshot_is_full() {
         let mut manager = DeviceManager::new();
         let initial: Vec<_> = (0..MAX_DEVICES)
@@ -272,8 +356,82 @@ mod tests {
         let replacement: Vec<_> = (0..MAX_DEVICES)
             .map(|i| device(&format!("new-{i}")))
             .collect();
-        manager.discover(replacement).expect("valid snapshot");
-        assert_eq!(manager.devices().len(), MAX_DEVICES);
+        let before = manager.devices().to_vec();
+        assert_eq!(
+            manager.discover(replacement),
+            Err(DeviceManagerError::TooManyDevices)
+        );
+        assert_eq!(manager.devices(), before.as_slice());
+    }
+
+    #[test]
+    fn capability_byte_and_collection_limits_are_inclusive() {
+        let mut caps = device(&"i".repeat(MAX_DEVICE_ID_BYTES));
+        caps.name = "n".repeat(MAX_DEVICE_NAME_BYTES);
+        caps.sample_rates_hz = vec![48_000; MAX_SAMPLE_RATES];
+        caps.supported_modes = vec![TopologyMode::ChannelMode; MAX_SUPPORTED_MODES];
+        let mut manager = DeviceManager::new();
+        manager.discover(vec![caps]).expect("boundary is valid");
+    }
+
+    #[test]
+    fn oversized_id_is_rejected_atomically() {
+        let mut manager = manager_with_device();
+        let before = manager.devices().to_vec();
+        let mut caps = device("new");
+        caps.id = "i".repeat(MAX_DEVICE_ID_BYTES + 1);
+        assert_eq!(
+            manager.discover(vec![caps]),
+            Err(DeviceManagerError::DeviceIdTooLong)
+        );
+        assert_eq!(manager.devices(), before.as_slice());
+    }
+
+    #[test]
+    fn oversized_name_is_rejected_atomically() {
+        let mut manager = manager_with_device();
+        let before = manager.devices().to_vec();
+        let mut caps = device("new");
+        caps.name = "n".repeat(MAX_DEVICE_NAME_BYTES + 1);
+        assert_eq!(
+            manager.discover(vec![caps]),
+            Err(DeviceManagerError::DeviceNameTooLong)
+        );
+        assert_eq!(manager.devices(), before.as_slice());
+    }
+
+    #[test]
+    fn excessive_sample_rates_are_rejected_atomically() {
+        let mut manager = manager_with_device();
+        let before = manager.devices().to_vec();
+        let mut caps = device("new");
+        caps.sample_rates_hz = vec![48_000; MAX_SAMPLE_RATES + 1];
+        assert_eq!(
+            manager.discover(vec![caps]),
+            Err(DeviceManagerError::TooManySampleRates("new".into()))
+        );
+        assert_eq!(manager.devices(), before.as_slice());
+    }
+
+    #[test]
+    fn excessive_supported_modes_are_rejected_atomically() {
+        let mut manager = manager_with_device();
+        let before = manager.devices().to_vec();
+        let mut caps = device("new");
+        caps.supported_modes = vec![TopologyMode::ChannelMode; MAX_SUPPORTED_MODES + 1];
+        assert_eq!(
+            manager.discover(vec![caps]),
+            Err(DeviceManagerError::TooManySupportedModes("new".into()))
+        );
+        assert_eq!(manager.devices(), before.as_slice());
+    }
+
+    fn manager_with_device() -> DeviceManager {
+        let mut manager = DeviceManager::new();
+        manager
+            .discover(vec![device("existing")])
+            .expect("valid snapshot");
+        manager
     }
 
     #[test]
