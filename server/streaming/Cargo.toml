@@ -29,8 +29,8 @@ crossbeam-channel = "0.5"
 # Mix engine types (FrameOutput, MAX_MIXES)
 mix-engine = { path = "../mix-engine" }
 
-# Opus encoding for silence frames — deferred to Phase 7/9 (requires cmake on Pi)
-# opus = { version = "0.3", features = [] }
+# Pure-Rust Opus decoder; avoids host libopus dependency in CI.
+opus-pure = "0.2.1"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }

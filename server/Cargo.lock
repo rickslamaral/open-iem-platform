@@ -1930,6 +1930,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c87def4c32ab89d880effc9e097653c8da5d6ef28e6b539d313baaacfbafcbe"
 
 [[package]]
+name = "opus-pure"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de6a3cef053e1fdea38a5e50edb0789590a31184c5a59f6cd5e462fe844793e7"
+
+[[package]]
 name = "p256"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2926,6 +2932,9 @@ dependencies = [
 name = "streaming"
 version = "0.3.1"
 dependencies = [
+ "crossbeam-channel",
+ "mix-engine",
+ "opus-pure",
  "serde",
  "serde_json",
  "str0m",

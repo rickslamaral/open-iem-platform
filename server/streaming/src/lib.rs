@@ -9,9 +9,13 @@
 //! - Oversized candidate rejection (>2048 bytes).
 
 pub mod media_plane;
+pub mod opus_receiver;
 pub use media_plane::{
     MediaFrame, MediaPlane, MediaPlaneError, MediaSession, MediaSessionError, StreamMetadata,
     MEDIA_QUEUE_CAPACITY,
+};
+pub use opus_receiver::{
+    AudioOutput, JitterBuffer, OpusReceiver, ReceiverError, ReceiverState, RECEIVER_QUEUE_CAPACITY,
 };
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc, time::Instant};

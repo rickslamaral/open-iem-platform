@@ -3539,3 +3539,8 @@ SIMULATED — sem hardware, sem PipeWire, sem Opus real. Fronteira de dados corr
 ### Próximo
 
 P0-004 — native/headless Opus receiver (depende de P0-003 ✓)
+
+
+## 2026-09-14 — P0-004 receiver core
+
+Implemented `streaming::opus_receiver`: pure-Rust Opus 48 kHz stereo decoder, bounded non-blocking RTP payload ingress, ordered bounded jitter buffer, headless `AudioOutput` boundary, fail-safe mute on underrun/output failure, and reconnect reset. Evidence remains **SIMULATED**; PipeWire/ALSA device output and physical receiver validation remain pending.
