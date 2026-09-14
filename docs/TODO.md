@@ -24,6 +24,7 @@
 - [x] P0-003 — Media Plane: conectar MixEngine ao WebRTC media session (SIMULATED, bounded queue, PR #58).
 - [x] P0-004 — Native/headless Opus receiver core: bounded ingress/jitter, decode, fail-safe mute e reconnect (SIMULATED; OS output/hardware pendentes, PR #59).
 - [x] P0-005 — Clock: sample timestamps, bounded drift estimator e adaptive resampling (SIMULATED; hardware clock validation pendente).
+- [x] P0-006 — registry bounded de pairing, identidade, binding músico/mix, revogação, re-pair explícito e digest Argon2id salted (CODE; DTLS-SRTP/API integration pendente).
 
 ## Phase 93 — Frontend EQ Controls (Engineer Console)
 
