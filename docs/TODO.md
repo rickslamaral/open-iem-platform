@@ -603,8 +603,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## P1 TOPOLOGY STATUS
 
-- [x] P1-001 — topology capability model and Channel Mode validation: `server/topology`, explicit source mapping, typed invalid-config errors, 11 tests (PR #65; CODE + CI local; remote CI pending).
-- [ ] P1-002 — Device Manager: capability discovery, hot-plug and recovery state machine (depends on P1-001 merge).
+- [x] P1-001 — topology capability model and Channel Mode validation: `server/topology`, explicit source mapping, typed invalid-config errors, 11 tests (PR #65; CODE + CI local e remoto aprovados).
+- [ ] P1-002 — Device Manager: capability discovery, hot-plug and recovery state machine (P1-001 mergeado).
 
 ## PHASE 10 STATUS
 
