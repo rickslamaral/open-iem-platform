@@ -13,6 +13,9 @@
 
 pub mod simulated;
 
+#[cfg(feature = "alsa")]
+pub mod alsa_backend;
+
 #[cfg(feature = "jack")]
 pub mod jack;
 

@@ -1,5 +1,14 @@
 # Open IEM Platform
 
+[![CI](https://img.shields.io/github/actions/workflow/status/rickslamaral/open-iem-platform/ci.yml?branch=main&label=CI&logo=github&style=flat-square)](https://github.com/rickslamaral/open-iem-platform/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/rickslamaral/open-iem-platform?label=Release&logo=github&style=flat-square)](https://github.com/rickslamaral/open-iem-platform/releases)
+[![Latest tag](https://img.shields.io/github/tag/rickslamaral/open-iem-platform?label=latest%20tag&style=flat-square)](https://github.com/rickslamaral/open-iem-platform/tags)
+
+[![Rust](https://img.shields.io/badge/Rust-2021-b7410e?logo=rust&logoColor=white&style=flat-square)](https://www.rust-lang.org/)
+[![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=20232a&style=flat-square)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white&style=flat-square)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-2b7489?style=flat-square)](LICENSE)
+
 > **🚧 EM DESENVOLVIMENTO — Em conclusão nos próximos dias, incluindo testes finais. Não usar em produção ainda. / UNDER DEVELOPMENT — Finalizing in the coming days, including final tests. Not production-ready yet. / EN DESARROLLO — Finalizando en los próximos días, incluyendo pruebas finales. No usar en producción todavía.**
 
 > Open-source professional personal In-Ear Monitoring platform for Linux.

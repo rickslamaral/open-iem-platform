@@ -13,6 +13,8 @@ pub enum BackendKind {
     /// **SIMULATED**
     #[default]
     Simulated,
+    /// ALSA explicit fallback backend. Requires `alsa` Cargo feature and `libasound2-dev`.
+    Alsa,
 }
 
 // Default impl derived — see #[default] on Simulated variant above.
@@ -30,6 +32,9 @@ pub struct AudioConfig {
     pub buffer_frames: u32,
     /// Which backend to instantiate.
     pub backend: BackendKind,
+    /// ALSA device name (used by [`BackendKind::Alsa`]; ignored by others).
+    /// Default: `"default"`.
+    pub device_name: String,
 }
 
 impl Default for AudioConfig {
@@ -39,6 +44,7 @@ impl Default for AudioConfig {
             sample_rate: SAMPLE_RATE,
             buffer_frames: 256,
             backend: BackendKind::Simulated,
+            device_name: "default".into(),
         }
     }
 }
@@ -50,6 +56,7 @@ impl AudioConfig {
         Self {
             client_name: client_name.into(),
             backend: BackendKind::Simulated,
+            device_name: "default".into(),
             ..Default::default()
         }
     }
@@ -62,6 +69,18 @@ impl AudioConfig {
             client_name: client_name.into(),
             buffer_frames,
             backend: BackendKind::Jack,
+            device_name: "default".into(),
+            ..Default::default()
+        }
+    }
+
+    /// Create a new config targeting the ALSA fallback backend.
+    #[must_use]
+    pub fn alsa(device_name: impl Into<String>, buffer_frames: u32) -> Self {
+        Self {
+            device_name: device_name.into(),
+            buffer_frames,
+            backend: BackendKind::Alsa,
             ..Default::default()
         }
     }
@@ -97,5 +116,13 @@ mod tests {
         let cfg = AudioConfig::simulated("test-client");
         assert_eq!(cfg.client_name, "test-client");
         assert_eq!(cfg.backend, BackendKind::Simulated);
+    }
+
+    #[test]
+    fn test_alsa_constructor() {
+        let cfg = AudioConfig::alsa("hw:0,0", 512);
+        assert_eq!(cfg.device_name, "hw:0,0");
+        assert_eq!(cfg.buffer_frames, 512);
+        assert_eq!(cfg.backend, BackendKind::Alsa);
     }
 }
