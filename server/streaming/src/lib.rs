@@ -8,6 +8,11 @@
 //!   `Rtc::add_remote_candidate` in the Sans-IO session.
 //! - Oversized candidate rejection (>2048 bytes).
 
+pub mod media_plane;
+pub use media_plane::{
+    MediaFrame, MediaPlane, MediaPlaneError, MediaSession, MediaSessionError, StreamMetadata,
+    MEDIA_QUEUE_CAPACITY,
+};
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc, time::Instant};
 use str0m::{change::SdpOffer, Candidate, Rtc};
