@@ -20,6 +20,7 @@ jack = ["dep:jack"]
 [dependencies]
 mix-engine = { path = "../mix-engine" }
 log = "0.4"
+crossbeam-channel = "0.5"
 
 # Optional — only when `jack` feature is enabled (hardware target: RPi 5 with pipewire-jack)
 jack = { version = "0.13", optional = true }

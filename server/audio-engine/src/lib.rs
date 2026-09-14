@@ -46,6 +46,7 @@ pub mod backend;
 pub mod config;
 pub mod engine;
 pub mod error;
+pub mod rt_boundary;
 
 pub use engine::AudioEngine;
 pub use error::AudioEngineError;

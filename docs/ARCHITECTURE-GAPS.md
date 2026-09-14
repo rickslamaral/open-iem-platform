@@ -1,119 +1,70 @@
-# Architecture Gaps
+# Architecture GAP Registry
 
-**Date:** 2026-09-08
-**Phase:** 0 — Bootstrap & Specification Audit
+**Baseline:** 2026-09-14
+**Source:** architecture audit, reconciliation, final P0 ADR closure
+**Rule:** code/tests/CI/hardware evidence remain separate. Documentation or compilation alone never resolves runtime/hardware GAPs.
 
----
+## Status vocabulary
 
-## Summary
+`IMPLEMENTATION GAP` · `VALIDATION REQUIRED` · `HARDWARE VALIDATION REQUIRED` · `RESEARCH REQUIRED` · `BLOCKED` · `DEFERRED` · `ACCEPTED RISK` · `RESOLVED`
 
-Gaps identified by analyzing `START.md` against known requirements for a production realtime audio platform. Each gap must be closed before the phase that depends on it.
+## Canonical chain
 
----
+`Audio Sources → Audio Interface → Audio Backend → Mix Engine → Media Plane → Transport → Receiver → Audio Output → IEM`
 
-## GAP-001: Audio Transport Protocol — RESOLVED (Critical)
+## Registry
 
-**Required by:** Phase 5
-**Description:** No protocol selected for streaming audio from server to musician devices. START.md explicitly forbids assuming RTP/UDP is the final solution and mandates a formal evaluation.
-**Risk:** Wrong transport choice → rework entire streaming stack
-**Resolution:** WebRTC selected for browser media in `docs/research/audio-transport/EVALUATION.md` and Phase 90 research. Runtime media, benchmarks and hardware validation remain pending.
+| ID | Priority | Category | Description | Evidence | Status | Decision/ADR | Dependencies | Implementation Action | Validation | Blocking |
+|---|---|---|---|---|---|---|---|---|---|---|
+| GAP-001 | P0 | Media | No production media path MixEngine→network | Signaling only; no media I/O/frames | IMPLEMENTATION GAP | ADR-001/002/003 | 006,007 | Implement WebRTC media drive and frame bridge | Real media integration/L1–L4 | Yes |
+| GAP-002 | P0 | Transport | Media transport was previously undecided | ADR-001 now selects WebRTC media/RTP/Opus/DTLS-SRTP | RESOLVED | ADR-001 | 002,003,006 | Implement selected transport | Interop + impairment tests | No |
+| GAP-003 | P0 | Receiver | No decoder/output/reconnect receiver | No receiver crate/runtime | IMPLEMENTATION GAP | ADR-003 | 001,002,008 | Build native/headless receiver | Decode/output/reconnect | Yes |
+| GAP-004 | P0 | Clock | No timestamps/drift/resampling/sync implementation | Only nominal 48 kHz | IMPLEMENTATION GAP | ADR-004 | 001,003,005 | Implement sample timeline and adaptive correction | Long-run drift/physical test | Yes |
+| GAP-005 | P0 | Latency | No E2E measurement | Local buffer only; no loopback | VALIDATION REQUIRED | ADR-005 | 001–004,007,008 | Instrument segment latency | p95≤50ms/p99≤75ms provisional gate | Yes |
+| GAP-006 | P0 | RT boundary | Bounded MixEngine→media bridge implementation exists; runtime evidence pending | `audio-engine::rt_boundary` in HEAD; bounded non-blocking control queue | VALIDATION REQUIRED | ADR-007 | 001,007 | Preserve bounded boundary; add runtime/stress evidence | Static RT audit/stress/L1 | Yes |
+| GAP-007 | P0 | RT backend | JACK callback no longer uses Mutex; runtime evidence pending | `backend/jack.rs` callback owns `RealtimeProcessor`; feature/hardware not executed | VALIDATION REQUIRED | ADR-007/008 | 006,008 | Preserve callback safety; validate JACK/PipeWire lifecycle | Feature build/L1/L2 then L3 | Yes |
+| GAP-008 | P0 | Auth | Required bootstrap absent | No soundtech bootstrap/tests | IMPLEMENTATION GAP | ADR-009 | migrations, auth | Idempotent hash-only bootstrap | Fresh/repeat/changed password/RBAC | Yes |
+| GAP-009 | P0 | Hardware | No Pi 5 physical validation | Cross-build only | HARDWARE VALIDATION REQUIRED | ADR-008/010 | 005,007,010 | Execute L3 Pi+USB gate | Physical report | Yes |
+| GAP-010 | P0 | Backend | No real PipeWire/ALSA runtime evidence | Simulated/JACK feature path | VALIDATION REQUIRED | ADR-008/010 | 007,009 | Implement/execute PipeWire path | L1–L3 runtime | Yes |
+| GAP-011 | P0 | CI | Current software CI evidence exists | Run 34836841835 recorded 11/11 green | RESOLVED | ADR-010 | none | Keep per-HEAD evidence | Jobs/steps green | No |
+| GAP-012 | P1 | Topology | AUX/pairs/playback/hybrid absent | Logical Channel only | DEFERRED | Future ADR | 010, backend | MVP Channel Mode; design later modes | Topology profiles | No |
+| GAP-013 | P1 | Devices | Capability/hot-plug absent | device-manager incomplete | IMPLEMENTATION GAP | ADR-008 | 012,010 | Implement capability/lifecycle state machine | Device loss/recovery | Yes for full topology |
+| GAP-014 | P1 | Lab | Audio Lab L1/L2 SIMULATED | 8 testes em audio_lab_l1_l2.rs, CI job audio-lab | RESOLVED (CI/SIMULATED) | ADR-010 | 001,012 | L3/L4 hardware pendentes | CI virtual audio | No (CI level done) |
+| GAP-015 | P1 | DB | Inline migrations only | No versioned migration files | IMPLEMENTATION GAP | ADR-009 | 008 | Add versioned migrations | Fresh/upgrade/restore | Yes for bootstrap |
+| GAP-016 | P1 | API | START API surface exceeds routes | Missing domain routes | IMPLEMENTATION GAP | Future ADR | topology/state | Reconcile/implement scoped API | Contract tests | No |
+| GAP-017 | P1 | Network | Loss/FEC/congestion policy absent | No media implementation | RESEARCH REQUIRED | ADR-001/002/005 | 001,004 | Benchmark PLC/FEC and impairment | Loss/reorder/jitter tests | Yes for media gate |
+| GAP-018 | P1 | Security | Media identity/key lifecycle absent | Control auth only | IMPLEMENTATION GAP | ADR-006 | 001,003,009 | Pairing, DTLS-SRTP, revocation | Negative/replay/revoke tests | Yes |
+| GAP-019 | P1 | Pairing | Device identity/reconnect absent | No pairing implementation | IMPLEMENTATION GAP | ADR-006 | 003,018 | Implement pairing lifecycle | Pair/revoke/reconnect | Yes |
+| GAP-020 | P1 | Recovery | Audio/device/media recovery absent | systemd restart only | IMPLEMENTATION GAP | ADR-003/008 | 003,013,023 | Fail-safe mute/recovery | Fault injection | Yes |
+| GAP-021 | P1 | Docs | ADR traceability now created | ADRs 001–010 exist | RESOLVED | README + ADRs | none | Maintain links | Cross-reference audit | No |
+| GAP-022 | P1 | Registry | Registry now reconciled | This file covers canonical GAPs | RESOLVED | this registry | audit evidence | Update only with evidence | Registry review | No |
+| GAP-023 | P1 | Observability | Audio/XRUN/device/network metrics absent | health/telemetry partial | IMPLEMENTATION GAP | ADR-010 | 010,020 | Add truthful metrics | Fault/runtime metrics | Yes for diagnosis |
+| GAP-024 | P1 | Operations | Backup/restore absent | CLI not found | IMPLEMENTATION GAP | Future ADR | 015,020 | Implement config backup sans secrets | Clean restore | No |
+| GAP-025 | P1 | Release | v0.3.1 release/assets not validated | Tag exists; release absent | BLOCKED | ADR-005/008/010 | 005,009,010 | Clear validation/release gates | Artifact/install/release evidence | Yes |
+| GAP-026 | P1 | DSP | Runtime safe-default validation absent | DSP/unit tests simulated | VALIDATION REQUIRED | ADR-007/008 | 005,007 | Validate chain/overload/limiter | Runtime loopback | Yes for support |
+| GAP-027 | P2 | State | Scenes/state-store absent | Directories incomplete | DEFERRED | Future ADR | 015,016 | Design durable/transient state | Recall/rollback tests | No |
+| GAP-028 | P2 | UI | EQ/full matrix/device/audio status incomplete | Current UI subset | DEFERRED | Future ADR | 001,003,016 | Phase 93 UI after contracts | Browser integration | No |
+| GAP-029 | P2 | Platform | Windows/native support unvalidated | WASAPI/ASIO absent | VALIDATION REQUIRED | ADR-008 | backend | Validate each claim separately | Target runtime | No MVP |
+| GAP-030 | P2 | Network testing | Fault injection suite absent | No automated impairment suite | IMPLEMENTATION GAP | ADR-010 | 001,005,017 | Add loss/jitter/reconnect harness | Automated profiles | Yes for release |
+| GAP-031 | P2 | Docs | Phase reviews/guides incomplete | Missing canonical reviews/stubs | IMPLEMENTATION GAP | Future docs task | registry | Reconcile claims | Docs validator | No |
+| GAP-032 | P2 | Scale | 8 channels/2 mixes hardcoded | MVP constants | ACCEPTED RISK | Future ADR | topology | Keep explicit MVP boundary | MVP tests | No |
+| GAP-033 | P3 | Privacy | Telemetry policy absent | Local-first/no remote telemetry contract | DEFERRED | Future ADR | security | Decide before remote telemetry | Privacy review | No |
 
----
+## P0 dependency order
 
-## GAP-002: Browser Audio Receive Constraint — RESOLVED (High)
+1. GAP-006/GAP-007 RT boundary and backend safety validation.
+2. GAP-014 L1/L2 lab foundation.
+3. GAP-001 media implementation using ADR-001/002.
+4. GAP-003 receiver and GAP-018/019 pairing/security.
+5. GAP-004 clock/drift and GAP-020 recovery.
+6. GAP-010 real PipeWire, then GAP-009 physical Pi.
+7. GAP-005 E2E latency validation.
+8. GAP-008 auth bootstrap in parallel with DB migration.
+9. GAP-025 release only after gates above.
 
-**Required by:** Phase 4 (PWA) / Phase 5 (Transport)
-**Description:** Browsers cannot receive arbitrary UDP audio. Architecture must formally separate:
-- Control client (WebSocket/PWA — browser)
-- Audio receiver (WebRTC, native app, or dedicated hardware)
+## Evidence boundaries
 
-**Resolution:** WebRTC is the browser audio path; WebSocket remains control and authenticated HTTP routes carry SDP/ICE signaling. ADR-005 and `docs/research/browser-audio-constraint/EVALUATION.md` record decision. Runtime media and hardware validation remain pending.
-
----
-
-## GAP-003: PipeWire Integration Model — UNRESOLVED (High)
-
-**Required by:** Phase 1
-**Description:** START.md states Open IEM should register as a PipeWire filter node. The exact integration approach (pw-filter API vs pipewire-jack vs pipewire-pulse) is not specified. PipeWire API surface is large and the correct approach depends on latency requirements.
-**Resolution:** Research and document in `docs/research/pipewire-integration.md`. Create ADR.
-
----
-
-## GAP-004: Authentication Mechanism — UNRESOLVED (High)
-
-**Required by:** Phase 3
-**Description:** Security model defines roles (ADMIN, ENGINEER, MUSICIAN) but no authentication mechanism is specified. JWT, session tokens, mTLS, and pre-shared keys are all possible given the local LAN context.
-**Resolution:** Complete ADR-008. Consider local LAN threat model — full mTLS may be over-engineered for MVP.
-
----
-
-## GAP-005: Latency Budget — UNDEFINED (High)
-
-**Required by:** Phase 1 (audio hardware testing)
-**Description:** No end-to-end latency target is specified. Without a target, latency validation is impossible.
-**Proposed:** 
-- Audio buffer: ≤5ms (at 48kHz, 240-sample buffer)
-- Control latency: ≤50ms (WebSocket round-trip)
-- End-to-end (instrument → IEM): ≤25ms target, ≤35ms maximum
-**Resolution:** Quantify and document in `docs/audio/LATENCY-BUDGET.md`. Confirm with realtime-audio-engineer.
-
----
-
-## GAP-006: XRUN SLA — UNDEFINED (Medium)
-
-**Required by:** Phase 1 (audio testing)
-**Description:** No acceptable XRUN rate defined. Without this, hardware validation has no pass/fail criterion.
-**Proposed:** 0 XRUNs per 1-hour session at target buffer size.
-**Resolution:** Document in `docs/audio/AUDIO-SLA.md`.
-
----
-
-## GAP-007: USB Hot-Plug Behavior — UNSPECIFIED (Medium)
-
-**Required by:** Phase 1
-**Description:** Behavior when audio interface disconnects is not specified. Audio safety requires defined fallback.
-**Proposed:** On device disconnect → immediate mute all outputs → log event → attempt auto-recover → notify clients.
-**Resolution:** Document in `docs/product/features/USB-HOTPLUG.md`.
-
----
-
-## GAP-008: Realtime Thread Priority Model — UNRESOLVED (Medium)
-
-**Required by:** Phase 1
-**Description:** Whether realtime scheduling is managed by PipeWire or by the application is not resolved. PipeWire typically manages realtime priority for its own threads; application nodes may require additional configuration.
-**Resolution:** Research in `docs/research/realtime-scheduling.md`.
-
----
-
-## GAP-009: SQLite Concurrency Model — UNRESOLVED (Medium)
-
-**Required by:** Phase 3
-**Description:** SQLite has concurrency limitations (WAL mode, connection pooling). The architecture does not specify how the control server manages concurrent WebSocket clients writing mix state to SQLite.
-**Proposed:** WAL mode + single writer + sqlx connection pool with bounded size.
-**Resolution:** Document in `docs/architecture/DATABASE.md`.
-
----
-
-## GAP-010: Deployment Secrets Management — UNSPECIFIED (Medium)
-
-**Required by:** Phase 8 (RPi deployment)
-**Description:** How auth tokens, session secrets, and configuration secrets are managed on the deployed system is not specified. Raspberry Pi deployments often use plaintext config files.
-**Proposed:** systemd `EnvironmentFile` with restricted permissions (600, root:root).
-**Resolution:** Document in `docs/deployment/SECRETS.md`.
-
----
-
-## Gaps by Phase Dependency
-
-| Gap | Phase Required | Severity |
-|-----|---------------|----------|
-| GAP-005: Latency Budget | Phase 1 | High |
-| GAP-006: XRUN SLA | Phase 1 | Medium |
-| GAP-007: USB Hot-Plug | Phase 1 | Medium |
-| GAP-008: RT Thread Priority | Phase 1 | Medium |
-| GAP-003: PipeWire Integration | Phase 1 | High |
-| GAP-004: Authentication | Phase 3 | High |
-| GAP-009: SQLite Concurrency | Phase 3 | Medium |
-| GAP-002: Browser Audio | Phase 4/5 | High |
-| GAP-001: Audio Transport | Phase 5 | Critical |
-| GAP-010: Secrets Management | Phase 8 | Medium |
+- `RESOLVED` here means decision/registry/CI evidence only where stated; it does not imply audio runtime or hardware support.
+- L1 Docker/PipeWire and L2 ALSA virtual are not L3 Raspberry Pi validation.
+- ARM64 cross-build is not hardware validation.
+- Simulated DSP is not media delivery.

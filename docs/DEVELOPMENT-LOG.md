@@ -4,6 +4,71 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+## 2026-09-14 — P0-002 Audio Lab L1/L2 (PR #57)
+
+**Branch:** feat/p0-002-audio-lab
+**Commit:** 89a807e
+**Status:** PR aberta, aguarda CI remoto
+
+### O que foi implementado
+
+- `server/audio-engine/tests/audio_lab_l1_l2.rs` — 8 testes SIMULATED:
+  - L1 (Docker/PipeWire virtual): pipeline determinism, frame budget 48k frames, control queue overflow (200 > 64 capacity), xrun count invariante
+  - L2 (ALSA virtual): buffer 48kHz/64f, buffer 48kHz/256f, stereo isolation ch0→mix0/ch1→mix1, master mute silence
+  - Cada teste emite linha JSON de evidência: {lab_profile, frames, xrun, cpu_us, evidence_level=SIMULATED}
+- `.github/workflows/ci.yml` — job `audio-lab` adicionado com SHAs de ação fixados; verifica marcadores de evidência no output
+
+### Gates locais
+
+- `cargo fmt --check`: OK
+- `cargo clippy -D warnings`: OK
+- `cargo test --test audio_lab_l1_l2`: 8/8 OK
+- Revisão independente: passed=true, sem security_concerns, sem logic_errors
+
+### Nível de evidência
+
+SIMULATED — usa SimulatedBackend. Não é PipeWire runtime, não é ALSA hardware real, não é Docker.
+L3/L4 permanecem hardware-only conforme ADR-010.
+
+### Impacto em GAPs
+
+- GAP-014: IMPLEMENTATION GAP → resolvido no nível CI (evidência SIMULATED)
+- GAP-010/GAP-009: sem mudança — PipeWire real e Pi 5 pendentes (P0-008/P0-010)
+
+### Próximo
+
+P0-003 — Media Plane: conectar frames do MixEngine à sessão WebRTC.
+
+---
+
+### 2026-09-14 — P0-001: fronteira realtime bounded
+
+**Objetivo:** remover `Arc<Mutex<JackState>>` do callback JACK antes de qualquer validação de hardware.
+
+**Implementado:** `audio-engine::rt_boundary` agora usa `crossbeam-channel::bounded(64)`. Produtor de controle usa `try_send`; fila cheia rejeita comando mais novo. `RealtimeProcessor` consome comandos com `try_recv` e processa `MixEngine` sem mutex, I/O ou espera bloqueante. Callback JACK usa processador diretamente e processa cada frame do período sem alocação no callback.
+
+**Testes:** `cargo test --manifest-path server/Cargo.toml --workspace` PASS; `cargo clippy --manifest-path server/Cargo.toml -p audio-engine --all-targets -- -D warnings` PASS.
+
+**Limitações:** feature JACK/PipeWire e hardware não foram executados neste host; callback permanece stub de backend, sem conexões de portas e sem métricas de XRUN. Nenhuma claim de runtime/hardware alterada.
+
+**Próximo:** P0-002 — Audio Lab L1/L2.
+
+---
+
+### 2026-09-14 — Final architecture closure and development handoff
+
+**Status:** Architecture decisions closed with warnings; implementation and physical validation remain pending.
+
+- ADR-001..010 updated with technical decisions, consequences, risks and validation gates.
+- `docs/ARCHITECTURE-GAPS.md` reconciled into 33 canonical GAPs.
+- `docs/DEVELOPMENT-HANDOFF.md` created; P0-001 is complete in code and next item is P0-002, L1/L2 Audio Lab.
+- No audio/media/runtime/hardware claim changed to validated.
+- No ESP32 scope added.
+- Development cron reactivation and exact verification recorded in final report.
+
+
+---
+
 ### 2026-09-14 — Documentation and status synchronization
 
 **Status:** Documentation cleanup after PR #49, #50, #52 and #53 merged into `main`.
