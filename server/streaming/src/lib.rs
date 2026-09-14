@@ -11,6 +11,7 @@
 pub mod clock;
 pub mod media_plane;
 pub mod opus_receiver;
+pub mod pairing;
 pub use media_plane::{
     MediaFrame, MediaPlane, MediaPlaneError, MediaSession, MediaSessionError, StreamMetadata,
     MEDIA_QUEUE_CAPACITY,
@@ -18,6 +19,7 @@ pub use media_plane::{
 pub use opus_receiver::{
     AudioOutput, JitterBuffer, OpusReceiver, ReceiverError, ReceiverState, RECEIVER_QUEUE_CAPACITY,
 };
+pub use pairing::{DeviceIdentity, PairingError, PairingRegistry};
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc, time::Instant};
 use str0m::{change::SdpOffer, Candidate, Rtc};

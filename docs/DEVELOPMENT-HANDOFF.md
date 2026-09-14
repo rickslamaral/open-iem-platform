@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P0-006 — Security: pairing, receiver identity, revocation e DTLS-SRTP binding (depende de P0-005 ✓)`.
+**Next development item:** `P0-006 — Security: pairing, receiver identity, revocation e DTLS-SRTP binding (depende de P0-005 ✓)` — registry de identidade/credencial implementado em código; integração DTLS-SRTP e API permanecem pendentes.

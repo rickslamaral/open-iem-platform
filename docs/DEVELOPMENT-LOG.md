@@ -1,3 +1,17 @@
+## 2026-09-14 — P0-006: pairing and receiver identity registry
+
+**Status:** implementação CODE/SIMULATED; integração DTLS-SRTP, API e hardware pendente.
+
+- Adicionado `streaming::pairing::PairingRegistry` com identidade de receiver vinculada a músico/mix.
+- Credenciais nunca são persistidas em claro: registry mantém apenas digest Argon2id com salt aleatório por dispositivo e compara em tempo constante; registry limita 1.024 devices e limita credencial a 4 KiB.
+- Pairing duplicado, credencial fraca, receiver desconhecido e credencial inválida falham fechado.
+- Revogação bloqueia reconnect; troca exige `replace_revoked` explícito.
+- Testes cobrem binding, duplicação, credenciais inválidas, revogação e re-pair.
+
+**Limitação:** registry ainda não está conectado a API, ciclo de vida do receiver ou binding efetivo da sessão DTLS-SRTP. Evidência continua CODE/SIMULATED.
+
+**Próximo:** integrar identidade autorizada à criação da sessão media e revogação ativa.
+
 ## 2026-09-14 — P0-005: clock, drift and adaptive resampling
 
 **Status:** implementação SIMULATED; validação L1/L2 local concluída; hardware pendente.

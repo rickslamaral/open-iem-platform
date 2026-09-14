@@ -33,8 +33,8 @@
 | GAP-015 | P1 | DB | Inline migrations only | No versioned migration files | IMPLEMENTATION GAP | ADR-009 | 008 | Add versioned migrations | Fresh/upgrade/restore | Yes for bootstrap |
 | GAP-016 | P1 | API | START API surface exceeds routes | Missing domain routes | IMPLEMENTATION GAP | Future ADR | topology/state | Reconcile/implement scoped API | Contract tests | No |
 | GAP-017 | P1 | Network | Loss/FEC/congestion policy absent | No media implementation | RESEARCH REQUIRED | ADR-001/002/005 | 001,004 | Benchmark PLC/FEC and impairment | Loss/reorder/jitter tests | Yes for media gate |
-| GAP-018 | P1 | Security | Media identity/key lifecycle absent | Control auth only | IMPLEMENTATION GAP | ADR-006 | 001,003,009 | Pairing, DTLS-SRTP, revocation | Negative/replay/revoke tests | Yes |
-| GAP-019 | P1 | Pairing | Device identity/reconnect absent | No pairing implementation | IMPLEMENTATION GAP | ADR-006 | 003,018 | Implement pairing lifecycle | Pair/revoke/reconnect | Yes |
+| GAP-018 | P1 | Security | Media key/session binding absent; receiver identity registry exists | DTLS-SRTP/API integration pending | IMPLEMENTATION GAP | ADR-006 | 001,003,009 | Bind authenticated identity to DTLS-SRTP session | Negative/replay/revoke tests | Yes |
+| GAP-019 | P1 | Pairing | Pairing registry exists; runtime reconnect integration absent | `streaming::pairing::PairingRegistry` is CODE/SIMULATED | VALIDATION REQUIRED | ADR-006 | 003,018 | Integrate registry with receiver lifecycle | Pair/revoke/reconnect | Yes |
 | GAP-020 | P1 | Recovery | Audio/device/media recovery absent | systemd restart only | IMPLEMENTATION GAP | ADR-003/008 | 003,013,023 | Fail-safe mute/recovery | Fault injection | Yes |
 | GAP-021 | P1 | Docs | ADR traceability now created | ADRs 001–010 exist | RESOLVED | README + ADRs | none | Maintain links | Cross-reference audit | No |
 | GAP-022 | P1 | Registry | Registry now reconciled | This file covers canonical GAPs | RESOLVED | this registry | audit evidence | Update only with evidence | Registry review | No |
