@@ -6,10 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Research — Phase 90 browser audio constraint (2026-09-13)
-- Document browser audio reception boundary in `docs/research/browser-audio-constraint/EVALUATION.md`.
-- Confirm WebRTC media as MVP path; WebSocket remains control; authenticated HTTP carries SDP/ICE signaling; reject raw RTP/UDP and defer WebTransport.
-- Keep WebRTC media, Opus, latency, jitter, loss recovery and Raspberry Pi 5 validation marked **SIMULATED** or pending.
+### Added — Phase 91: Biquad reference validation (2026-09-13)
+- Added deterministic RBJ coefficient vectors across four frequency, gain and Q combinations.
+- Validated normalized `BiquadCoeffs` values against independently calculated reference values with `5e-6` tolerance for `f32` rounding.
+- `mix-engine`: 80 unit tests and 3 doc-tests pass.
 
 ### Added — Phase 87: Engineer Console master gain/mute controls (2026-09-13)
 - `web/engineer/src/protocol.ts`: TypeScript protocol types for engineer WebSocket (`GetState`, `SetMasterGain`, `SetMasterMute`, `MasterAck`, `State`, `Error`).

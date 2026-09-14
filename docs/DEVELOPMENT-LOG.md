@@ -4,25 +4,33 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
-## 2026-09-13 — Phase 90 — browser audio constraint
+## 2026-09-13 — Phase 91 — Biquad reference validation
 
-**Status:** RESEARCH COMPLETE — WebRTC selected for browser media; real media remains SIMULATED.
+**Status:** IMPLEMENTED — coefficient reference vectors pass locally; hardware remains pending.
 
-### Decision
+### Implemented
 
-- Browser PWA receives audio through a negotiated WebRTC media track, exposed as `MediaStream` for `<audio>` or `AudioContext`.
-- WebSocket remains control support; authenticated HTTP routes carry SDP/ICE signaling. Receiving bytes over WebSocket does not provide native media timing, jitter buffering or packet-loss handling.
-- RTP/UDP and custom UDP cannot reach a browser PWA through arbitrary sockets.
-- WebTransport remains deferred: transport only, no codec/framing/jitter/media pipeline, plus cross-browser validation remains pending.
+- Added four deterministic RBJ peaking-EQ coefficient vectors covering varied frequency, gain and Q values.
+- Added `scripts/validate_biquad_reference.py`, an independent stdlib-only arithmetic check for the same vectors.
+- Compared normalized `b0`, `b1`, `b2`, `a1` and `a2` with `5e-6` tolerance for `f32` rounding.
+- Added `docs/reviews/PHASE-91-REVIEW.md` and updated backlog/changelog.
 
-### Evidence
+### Verification
 
-- Added `docs/research/browser-audio-constraint/EVALUATION.md` with API sources, comparison and acceptance criteria.
-- Local baseline before edits: `python3 -m pytest --tb=no -q` — 60 passed.
+- Python baseline before edits: `python3 -m pytest --tb=no -q` — 60 passed.
+- `cargo fmt --all --manifest-path server/Cargo.toml` — PASS.
+- `python3 scripts/validate_biquad_reference.py` — 4 Biquad reference vectors passed.
+- `cargo test --manifest-path server/Cargo.toml -p mix-engine` — 80 unit tests and 3 doc-tests passed.
 
 ### Limitations
 
-WebRTC Opus playback, latency, jitter, loss recovery, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated and **SIMULATED**.
+Coefficient arithmetic is locally validated. PipeWire/ALSA, realtime audio and Raspberry Pi 5 remain `SIMULATED` or pending physical validation.
+
+---
+
+## 2026-09-13 — Phase 90 — browser audio constraint
+
+**Status:** RESEARCH COMPLETE — WebRTC selected for browser media; real media remains SIMULATED.
 
 ---
 
