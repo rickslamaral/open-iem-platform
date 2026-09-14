@@ -240,7 +240,7 @@ fn validate_snapshot(capabilities: &[DeviceCapabilities]) -> Result<(), DeviceMa
         if device.max_output_channels == 0 {
             return Err(DeviceManagerError::NoOutputChannels(device.id.clone()));
         }
-        if device.sample_rates_hz.is_empty() {
+        if device.sample_rates_hz.is_empty() || device.sample_rates_hz.contains(&0) {
             return Err(DeviceManagerError::NoSampleRates(device.id.clone()));
         }
     }
@@ -432,6 +432,17 @@ mod tests {
             .discover(vec![device("existing")])
             .expect("valid snapshot");
         manager
+    }
+
+    #[test]
+    fn zero_sample_rate_is_rejected() {
+        let mut manager = DeviceManager::new();
+        let mut invalid = device("bad");
+        invalid.sample_rates_hz = vec![0];
+        assert_eq!(
+            manager.discover(vec![invalid]),
+            Err(DeviceManagerError::NoSampleRates("bad".into()))
+        );
     }
 
     #[test]
