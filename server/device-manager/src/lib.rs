@@ -135,9 +135,7 @@ impl DeviceManager {
                 .iter()
                 .find(|d| d.capabilities.id == caps.id)
                 .map_or(DeviceState::Reconnected, |d| {
-                    if d.state == DeviceState::Recovering {
-                        DeviceState::Reconnected
-                    } else if d.capabilities == caps {
+                    if d.state == DeviceState::Available && d.capabilities == caps {
                         DeviceState::Available
                     } else {
                         DeviceState::Reconnected
@@ -172,6 +170,7 @@ impl DeviceManager {
     ///
     /// Returns [`DeviceManagerError::UnknownDevice`] for an unknown ID.
     pub fn mark_failed(&mut self, id: &str) -> Result<(), DeviceManagerError> {
+        validate_transition_id(id)?;
         let device = self.device_mut(id)?;
         device.state = DeviceState::Recovering;
         Ok(())
@@ -185,6 +184,7 @@ impl DeviceManager {
     /// [`DeviceManagerError::NotReconnected`] when rediscovery has not
     /// validated the device since it entered recovery.
     pub fn mark_available(&mut self, id: &str) -> Result<(), DeviceManagerError> {
+        validate_transition_id(id)?;
         let device = self.device_mut(id)?;
         if device.state != DeviceState::Reconnected {
             return Err(DeviceManagerError::NotReconnected(id.to_owned()));
@@ -213,6 +213,16 @@ impl DeviceManager {
             .find(|d| d.capabilities.id == id)
             .ok_or_else(|| DeviceManagerError::UnknownDevice(id.to_owned()))
     }
+}
+
+fn validate_transition_id(id: &str) -> Result<(), DeviceManagerError> {
+    if id.len() > MAX_DEVICE_ID_BYTES {
+        return Err(DeviceManagerError::DeviceIdTooLong);
+    }
+    if id.is_empty() {
+        return Err(DeviceManagerError::InvalidDeviceId(String::new()));
+    }
+    Ok(())
 }
 
 fn validate_snapshot(capabilities: &[DeviceCapabilities]) -> Result<(), DeviceManagerError> {
@@ -443,6 +453,33 @@ mod tests {
             manager.discover(vec![invalid]),
             Err(DeviceManagerError::NoSampleRates("bad".into()))
         );
+    }
+
+    #[test]
+    fn transition_id_limits_reject_unbounded_error_input() {
+        let mut manager = DeviceManager::new();
+        let oversized = "i".repeat(MAX_DEVICE_ID_BYTES + 1);
+        assert_eq!(
+            manager.mark_failed(&oversized),
+            Err(DeviceManagerError::DeviceIdTooLong)
+        );
+        assert_eq!(
+            manager.mark_available(""),
+            Err(DeviceManagerError::InvalidDeviceId(String::new()))
+        );
+    }
+
+    #[test]
+    fn rediscovery_keeps_reconnected_until_explicit_availability() {
+        let mut manager = DeviceManager::new();
+        manager
+            .discover(vec![device("usb-1")])
+            .expect("valid snapshot");
+        manager
+            .discover(vec![device("usb-1")])
+            .expect("valid snapshot");
+        assert_eq!(manager.devices()[0].state, DeviceState::Reconnected);
+        assert!(!manager.has_available_device());
     }
 
     #[test]
