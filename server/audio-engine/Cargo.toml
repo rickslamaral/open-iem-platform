@@ -16,6 +16,7 @@ workspace = true
 # Enable to compile the JACK/PipeWire backend (requires libjack-dev on host).
 # NOT enabled by default — VPS/CI builds use the simulated backend.
 jack = ["dep:jack"]
+alsa = ["dep:alsa"]
 
 [dependencies]
 mix-engine = { path = "../mix-engine" }
@@ -24,5 +25,6 @@ crossbeam-channel = "0.5"
 
 # Optional — only when `jack` feature is enabled (hardware target: RPi 5 with pipewire-jack)
 jack = { version = "0.13", optional = true }
+alsa = { version = "0.12", optional = true }
 
 [dev-dependencies]

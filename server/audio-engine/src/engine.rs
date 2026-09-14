@@ -27,6 +27,7 @@ impl AudioEngine {
     /// Backend selection:
     /// - [`BackendKind::Simulated`] → [`SimulatedBackend`] (always available).
     /// - [`BackendKind::Jack`] → [`JackBackend`] (requires `jack` feature).
+    /// - [`BackendKind::Alsa`] → [`AlsaBackend`] (requires `alsa` feature).
     ///
     /// # Errors
     ///
@@ -56,6 +57,24 @@ impl AudioEngine {
                         "JackBackend requested but `jack` Cargo feature is not enabled. \
                          Rebuild with `--features jack` on hardware target."
                             .into(),
+                    ));
+                }
+            }
+            BackendKind::Alsa => {
+                #[cfg(feature = "alsa")]
+                {
+                    use crate::backend::alsa_backend::AlsaBackend;
+                    Box::new(AlsaBackend::new(
+                        engine,
+                        config.device_name.clone(),
+                        config.sample_rate,
+                        config.buffer_frames,
+                    ))
+                }
+                #[cfg(not(feature = "alsa"))]
+                {
+                    return Err(AudioEngineError::BackendInit(
+                        "AlsaBackend requested but `alsa` Cargo feature is not enabled.".into(),
                     ));
                 }
             }
@@ -180,5 +199,45 @@ mod tests {
         assert_eq!(engine.sample_rate(), 48_000);
         assert_eq!(engine.buffer_frames(), 256);
         assert_eq!(engine.config().client_name, "cfg-test");
+    }
+
+    #[test]
+    fn test_alsa_without_feature_returns_error() {
+        #[cfg(not(feature = "alsa"))]
+        {
+            let cfg = AudioConfig {
+                backend: BackendKind::Alsa,
+                ..Default::default()
+            };
+            let result = AudioEngine::new(cfg);
+            assert!(result.is_err());
+            let err_str = result.err().map(|e| e.to_string()).unwrap_or_default();
+            assert!(
+                err_str.contains("alsa") || err_str.contains("Alsa"),
+                "got: {err_str}"
+            );
+        }
+        #[cfg(feature = "alsa")]
+        {
+            // When alsa feature is enabled, construction succeeds; test is vacuously OK.
+        }
+    }
+
+    #[test]
+    fn test_alsa_engine_activate_fails_on_vps() {
+        #[cfg(feature = "alsa")]
+        {
+            let cfg = AudioConfig::alsa("nonexistent_device_vps", 256);
+            let mut engine = AudioEngine::new(cfg).expect("construct");
+            let result = engine.start();
+            assert!(
+                result.is_err(),
+                "expected error on VPS without ALSA hardware"
+            );
+        }
+        #[cfg(not(feature = "alsa"))]
+        {
+            // alsa feature not enabled; test is vacuously OK.
+        }
     }
 }
