@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — P0-005 clock drift control
+- Capture sample timestamps, bounded drift estimator (±500 ppm) and adaptive resampling ratio (0.9995–1.0005) in `streaming::clock`. Simulation only; hardware clock validation pending.
+
 ### Added — Phase 93: AGENTS.md e interface Hermes Agent
 - `AGENTS.md` criado na raiz: interface de bootstrapping para agentes Hermes rodando via cron job com `workdir=/workspace/open-iem-platform/`.
 - `START.md` seção 146 adicionada: documenta propósito, estrutura e contrato de manutenção do `AGENTS.md`.

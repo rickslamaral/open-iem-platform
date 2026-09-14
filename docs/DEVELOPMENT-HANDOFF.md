@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P0-005 — Clock: timestamps, sequence, drift estimator e adaptive resampling (depende de P0-004 ✓)`.
+**Next development item:** `P0-006 — Security: pairing, receiver identity, revocation e DTLS-SRTP binding (depende de P0-005 ✓)`.
