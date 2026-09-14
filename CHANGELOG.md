@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — P0-008 ALSA fallback backend
+- ALSA explicit fallback backend (`AlsaBackend`, feature `alsa`): PCM open, hw_params, fail-safe mute on device error, XRUN recovery, bounded `stop_flag` with `Release`/`Acquire` ordering for ARM correctness (P0-008, PR #63).
+
 ### Added — P0-005 clock drift control
 - Capture sample timestamps, bounded drift estimator (±500 ppm) and adaptive resampling ratio (0.9995–1.0005) in `streaming::clock`. Simulation only; hardware clock validation pending.
 
