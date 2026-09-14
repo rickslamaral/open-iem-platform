@@ -29,7 +29,7 @@
 | GAP-011 | P0 | CI | Current software CI evidence exists | Run 34836841835 recorded 11/11 green | RESOLVED | ADR-010 | none | Keep per-HEAD evidence | Jobs/steps green | No |
 | GAP-012 | P1 | Topology | AUX/pairs/playback/hybrid absent | Logical Channel only | DEFERRED | Future ADR | 010, backend | MVP Channel Mode; design later modes | Topology profiles | No |
 | GAP-013 | P1 | Devices | Capability/hot-plug absent | device-manager incomplete | IMPLEMENTATION GAP | ADR-008 | 012,010 | Implement capability/lifecycle state machine | Device loss/recovery | Yes for full topology |
-| GAP-014 | P1 | Lab | Audio Lab absent | No tests/audio-lab workflow | IMPLEMENTATION GAP | ADR-010 | 001,012 | Add L1/L2 lab tests | CI virtual audio | Yes for release |
+| GAP-014 | P1 | Lab | Audio Lab L1/L2 SIMULATED | 8 testes em audio_lab_l1_l2.rs, CI job audio-lab | RESOLVED (CI/SIMULATED) | ADR-010 | 001,012 | L3/L4 hardware pendentes | CI virtual audio | No (CI level done) |
 | GAP-015 | P1 | DB | Inline migrations only | No versioned migration files | IMPLEMENTATION GAP | ADR-009 | 008 | Add versioned migrations | Fresh/upgrade/restore | Yes for bootstrap |
 | GAP-016 | P1 | API | START API surface exceeds routes | Missing domain routes | IMPLEMENTATION GAP | Future ADR | topology/state | Reconcile/implement scoped API | Contract tests | No |
 | GAP-017 | P1 | Network | Loss/FEC/congestion policy absent | No media implementation | RESEARCH REQUIRED | ADR-001/002/005 | 001,004 | Benchmark PLC/FEC and impairment | Loss/reorder/jitter tests | Yes for media gate |

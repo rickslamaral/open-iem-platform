@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P0-002 — L1/L2 Audio Lab`.
+**Next development item:** `P0-003 — Media Plane: conectar MixEngine ao WebRTC media session`.
