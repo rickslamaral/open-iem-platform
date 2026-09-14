@@ -3497,3 +3497,45 @@ Bumped workspace version `0.1.0` → `0.2.0`. Aligned `admin-cli` Cargo manifest
 - Phase 93 adicionada ao backlog: Frontend EQ Controls (Engineer Console)
 
 **Gates:** cargo fmt PASS; cargo clippy PASS; 245 testes PASS (62 integration, 80 mix-engine, 20 control-server, 38 control-protocol, resto).
+
+---
+
+## 2026-09-14 — P0-003 Media Plane (feat/p0-003-media-plane)
+
+**Branch:** feat/p0-003-media-plane
+**Commit:** a0b2a49
+**Status:** commit local; PR a abrir
+
+### O que foi implementado
+
+- `server/streaming/src/media_plane.rs` (374 linhas):
+  - `StreamMetadata` — descriptor versionado por stream: stream_id ("mix_N"), mix_index, revision, sequence, sample_rate=48000, channels=2, frame_duration_ms=20
+  - `MediaFrame` — par estéreo (f32, f32) + metadata versionado
+  - `MEDIA_QUEUE_CAPACITY = 32` — fila bounded crossbeam por sessão
+  - `MediaSession` — por usuário/mix: enfileira frames via try_send; overflow incrementa drop_count sem bloquear
+  - `MediaPlane` — roteia FrameOutput para todas sessões ativas; dropped_total AtomicU64 agrega drops
+  - `MediaPlaneError::InvalidMixIndex` — mix_index >= MAX_MIXES rejeitado no register
+- `server/streaming/Cargo.toml` — deps adicionadas: crossbeam-channel="0.5", mix-engine={path="../mix-engine"}
+- `server/streaming/src/lib.rs` — pub mod media_plane + re-exports
+
+### Arquitetura (ADR-007)
+
+- push_frame usa try_send exclusivamente — NUNCA bloqueia
+- Fila bounded (32 frames ≈ 640 ms) por sessão; overflow rejeita mais novo
+- mix_index validado em register_session; indexação em push_frame_output é segura
+
+### Gates locais
+
+- `cargo fmt --check`: OK
+- `cargo clippy --all-targets -D warnings`: OK
+- `cargo test -p streaming`: 23/23 OK (10 novos testes de media_plane + 13 existentes)
+- `cargo test` (workspace completo): sem regressão
+- Revisão independente: passed=true, sem security_concerns, sem logic_errors
+
+### Nível de evidência
+
+SIMULATED — sem hardware, sem PipeWire, sem Opus real. Fronteira de dados correta.
+
+### Próximo
+
+P0-004 — native/headless Opus receiver (depende de P0-003 ✓)

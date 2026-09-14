@@ -23,6 +23,12 @@ thiserror = "2"
 # Logging
 tracing = "0.1"
 
+# Lock-free bounded channel for media frame routing (ADR-007)
+crossbeam-channel = "0.5"
+
+# Mix engine types (FrameOutput, MAX_MIXES)
+mix-engine = { path = "../mix-engine" }
+
 # Opus encoding for silence frames — deferred to Phase 7/9 (requires cmake on Pi)
 # opus = { version = "0.3", features = [] }
 
