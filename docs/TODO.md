@@ -2,7 +2,7 @@
 
 ## Estado atual — 2026-09-14
 
-- **Phase 92 — WS EQ Control:** implementação local concluída na branch `feat/phase92-ws-eq-control`; faltam gates finais, documentação, commit, PR e CI.
+- **Phase 92 — WS EQ Control:** backlog; nenhuma implementação local, commit ou PR confirmada no estado atual.
 - **Phase 83–91:** implementadas, CI remoto real verde e mescladas em `main`.
 - **Release `v0.3.1`:** tag existe; GitHub Release ainda não publicada.
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
@@ -10,9 +10,9 @@
 
 ## Phase 92 — Controle de EQ por WebSocket
 
-- [x] Adicionar `SetEqBand`/`EqBandAck` no control-protocol.
-- [x] Validar band index, frequência, gain, Q e mix no control-server.
-- [x] Broadcast de `EqBandDelta` no api-server com RBAC para Musician.
+- [ ] Especificar `SetEqBand`/`EqBandAck` no control-protocol.
+- [ ] Validar band index, frequência, gain, Q e mix no control-server.
+- [ ] Definir broadcast de `EqBandDelta` no api-server com RBAC para Musician.
 - [ ] Executar fmt, clippy, testes completos, revisão independente e scan de segurança.
 - [ ] Atualizar README, CHANGELOG, DEVELOPMENT-LOG e review da Phase 92.
 - [ ] Commitar, abrir PR e confirmar CI remoto 11/11.

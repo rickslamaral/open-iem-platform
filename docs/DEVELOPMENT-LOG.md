@@ -19,9 +19,9 @@ All significant milestones documented here in reverse chronological order.
 
 ### 2026-09-14 — Phase 92: WebSocket EQ band control
 
-**Status:** Implementation exists on branch `feat/phase92-ws-eq-control`; gates, commit, PR and CI remain pending.
+**Status:** Backlog. No implementation commit or open PR is confirmed in current repository state.
 
-**Implemented:** `SetEqBand`/`EqBandAck` protocol messages, parameter validation in `control-server`, `EqBandDelta` broadcast in `api-server`, and Musician RBAC denial.
+Phase 92 requires protocol design, validation, broadcast/RBAC implementation, local gates, independent review and real CI before PR.
 
 ---
 

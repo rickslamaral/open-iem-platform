@@ -42,7 +42,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase atual: Phase 92 — WS EQ Control (em desenvolvimento).** Branch `feat/phase92-ws-eq-control` com implementação do protocolo `SetEqBand`/`EqBandAck`, dispatch/validação no control-server e broadcast no api-server. Commit e PR pendentes.
+**Fase atual: Phase 92 — WS EQ Control (backlog).** Não há implementação local confirmada, commit ou PR aberta para esta fase. Próximo trabalho seguro: especificar e implementar controle de EQ por WebSocket em branch dedicada, com gates completos antes de abrir PR.
 
 **Fases concluídas e mescladas em `main`:**
 
@@ -145,7 +145,7 @@ Interface prevista para engenheiro: status do backend, revisão, sessões ativas
 | 89 | Engineer Console channel strip | ✅ Merged |
 | 90 | Browser audio constraint (ADR-005) | ✅ Merged |
 | 91 | Biquad validation + ARM64 cross-CI | ✅ Merged |
-| 92 | WS EQ band control | 🔄 In development |
+| 92 | WS EQ band control | ⏳ Backlog |
 
 ## Repository Structure
 

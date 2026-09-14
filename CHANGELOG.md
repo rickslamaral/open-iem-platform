@@ -6,11 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added — Phase 92: WS EQ band control (in development)
-- `ClientMessage::SetEqBand` e `ServerMessage::EqBandAck` no control-protocol.
-- Dispatch com validação completa (band_index, frequency_hz 20–20000 Hz, gain_db ±24 dB, Q 0.1–10) no control-server.
-- Broadcast `EqBandDelta` por WebSocket no api-server; Musician bloqueado por RBAC.
-- Commit e PR pendentes.
+### Planned — Phase 92: WS EQ band control
+- Controle de bandas EQ por WebSocket permanece backlog. Não há implementação ou PR confirmada no estado atual.
 
 ### Added — Phase 91: Biquad reference validation + ARM64 cross-CI
 - 4 vetores determinísticos RBJ em `server/mix-engine/src/eq.rs` para validação de coeficientes com tolerância `5e-6` em `f32`.
