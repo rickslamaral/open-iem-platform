@@ -21,7 +21,6 @@ const defaults = {
   onChannelGain: vi.fn(),
   onChannelMute: vi.fn(),
   onChannelPan: vi.fn(),
-  onMasterGain: vi.fn(),
   onLogout: vi.fn(),
 };
 
@@ -31,9 +30,23 @@ describe('MixControl', () => {
     expect(screen.getAllByTestId(/^channel-/).length).toBe(8);
   });
 
-  it('renders master volume slider', () => {
+  it('renders master volume slider as read-only and disabled', () => {
     render(<MixControl {...defaults} />);
-    expect(screen.getByLabelText(/master volume/i)).toBeTruthy();
+    const slider = screen.getByLabelText(/master volume/i) as HTMLInputElement;
+    expect(slider).toBeTruthy();
+    expect(slider.disabled).toBe(true);
+    expect(slider.getAttribute('aria-readonly')).toBe('true');
+  });
+
+  it('shows read-only hint in master label', () => {
+    render(<MixControl {...defaults} />);
+    expect(screen.getByText(/somente leitura/i)).toBeTruthy();
+  });
+
+  it('master slider reflects masterGainDb prop without local state', () => {
+    render(<MixControl {...defaults} masterGainDb={-12} />);
+    const slider = screen.getByLabelText(/master volume/i) as HTMLInputElement;
+    expect(slider.value).toBe('-12');
   });
 
   it('shows logout button', () => {

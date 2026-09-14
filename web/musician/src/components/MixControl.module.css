@@ -91,6 +91,14 @@
 .masterSlider {
   width: 100%;
   accent-color: #7c3aed;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.readOnlyHint {
+  font-size: 0.75rem;
+  color: #718096;
+  font-style: italic;
 }
 
 .channels {
