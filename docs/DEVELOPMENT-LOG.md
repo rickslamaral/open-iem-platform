@@ -1,3 +1,14 @@
+## 2026-09-14 — P0-005: clock, drift and adaptive resampling
+
+**Status:** implementação SIMULATED; validação L1/L2 local concluída; hardware pendente.
+
+- Adicionado `streaming::clock` com `SampleTimestamp` baseado no contador de amostras da captura, sem usar relógio de parede.
+- `DriftEstimator` aplica filtro limitado a ±500 ppm; `AdaptiveResampler` limita razão a 0,9995–1,0005 e usa profundidade de buffer alvo.
+- Testes cobrem baseline, convergência, limites e soak de 10.000 atualizações sem crescimento ilimitado.
+- Nenhuma alegação de sincronização entre receptores foi adicionada.
+
+**Próximo:** P0-006 — pairing, identidade, revogação e binding DTLS-SRTP.
+
 # Development Log
 
 All significant milestones documented here in reverse chronological order.

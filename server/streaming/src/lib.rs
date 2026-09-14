@@ -8,6 +8,7 @@
 //!   `Rtc::add_remote_candidate` in the Sans-IO session.
 //! - Oversized candidate rejection (>2048 bytes).
 
+pub mod clock;
 pub mod media_plane;
 pub mod opus_receiver;
 pub use media_plane::{
@@ -190,6 +191,8 @@ impl Default for SilenceFrame {
         }
     }
 }
+
+pub use clock::{AdaptiveResampler, DriftEstimator, SampleTimestamp, NOMINAL_SAMPLE_RATE};
 
 #[cfg(test)]
 mod tests {
