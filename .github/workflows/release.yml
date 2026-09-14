@@ -163,6 +163,7 @@ jobs:
 
       - name: Package server artefact
         run: |
+          set -euo pipefail
           VERSION="${{ needs.validate-version.outputs.version }}"
           SOURCE_DATE_EPOCH=$(git show -s --format=%ct "${GITHUB_SHA}")
           export SOURCE_DATE_EPOCH
@@ -174,6 +175,14 @@ jobs:
           cp README.md LICENSE "${DIR}/"
           cp CHANGELOG.md "${DIR}/" || true
           tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -czf "${DIR}.tar.gz" "${DIR}"
+          sha256sum "${DIR}.tar.gz" | cut -d' ' -f1 > "${DIR}.first.sha256"
+          tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -czf "${DIR}.repro.tar.gz" "${DIR}"
+          sha256sum "${DIR}.repro.tar.gz" | cut -d' ' -f1 > "${DIR}.second.sha256"
+          cmp -- "${DIR}.first.sha256" "${DIR}.second.sha256" || {
+            printf '%s\n' 'Release archive is not reproducible' >&2
+            exit 1
+          }
+          rm -f -- "${DIR}.repro.tar.gz" "${DIR}.first.sha256" "${DIR}.second.sha256"
           python3 scripts/validate-release-archive.py "${DIR}.tar.gz" api-server open-iem-admin
           sha256sum "${DIR}.tar.gz" > "${DIR}.tar.gz.sha256"
           test -n "${OPENIEM_RELEASE_SIGNING_KEY_PEM:-}" || {
@@ -276,6 +285,7 @@ jobs:
 
       - name: Package ARM64 artefact
         run: |
+          set -euo pipefail
           VERSION="${{ needs.validate-version.outputs.version }}"
           SOURCE_DATE_EPOCH=$(git show -s --format=%ct "${GITHUB_SHA}")
           export SOURCE_DATE_EPOCH
@@ -287,6 +297,14 @@ jobs:
           cp README.md LICENSE "${DIR}/"
           cp CHANGELOG.md "${DIR}/" || true
           tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -czf "${DIR}.tar.gz" "${DIR}"
+          sha256sum "${DIR}.tar.gz" | cut -d' ' -f1 > "${DIR}.first.sha256"
+          tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -czf "${DIR}.repro.tar.gz" "${DIR}"
+          sha256sum "${DIR}.repro.tar.gz" | cut -d' ' -f1 > "${DIR}.second.sha256"
+          cmp -- "${DIR}.first.sha256" "${DIR}.second.sha256" || {
+            printf '%s\n' 'Release archive is not reproducible' >&2
+            exit 1
+          }
+          rm -f -- "${DIR}.repro.tar.gz" "${DIR}.first.sha256" "${DIR}.second.sha256"
           python3 scripts/validate-release-archive.py "${DIR}.tar.gz" api-server open-iem-admin
           sha256sum "${DIR}.tar.gz" > "${DIR}.tar.gz.sha256"
           test -n "${OPENIEM_RELEASE_SIGNING_KEY_PEM:-}" || {
@@ -382,10 +400,25 @@ jobs:
           export SOURCE_DATE_EPOCH
           test -d web/musician/dist
           test -d web/engineer/dist
-          tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -czf "open-iem-musician-pwa-${VERSION}.tar.gz" -C web/musician dist
-          sha256sum "open-iem-musician-pwa-${VERSION}.tar.gz" > "open-iem-musician-pwa-${VERSION}.tar.gz.sha256"
-          tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -czf "open-iem-engineer-ui-${VERSION}.tar.gz" -C web/engineer dist
-          sha256sum "open-iem-engineer-ui-${VERSION}.tar.gz" > "open-iem-engineer-ui-${VERSION}.tar.gz.sha256"
+          for archive in musician-pwa engineer-ui; do
+            if [ "${archive}" = musician-pwa ]; then
+              source_dir=web/musician
+              output="open-iem-musician-pwa-${VERSION}.tar.gz"
+            else
+              source_dir=web/engineer
+              output="open-iem-engineer-ui-${VERSION}.tar.gz"
+            fi
+            tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -czf "${output}" -C "${source_dir}" dist
+            sha256sum "${output}" | cut -d' ' -f1 > "${output}.first.sha256"
+            tar --sort=name --mtime="@${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -czf "${output}.repro.tar.gz" -C "${source_dir}" dist
+            sha256sum "${output}.repro.tar.gz" | cut -d' ' -f1 > "${output}.second.sha256"
+            cmp -- "${output}.first.sha256" "${output}.second.sha256" || {
+              printf 'Release archive is not reproducible: %s\n' "${output}" >&2
+              exit 1
+            }
+            rm -f -- "${output}.repro.tar.gz" "${output}.first.sha256" "${output}.second.sha256"
+            sha256sum "${output}" > "${output}.sha256"
+          done
 
       - name: Upload web artefacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

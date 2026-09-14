@@ -4,53 +4,22 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
-## 2026-09-14 — Phase 91 — ARM64 cross-compilation CI gate
+### 2026-09-13 — Phase 84 follow-up: duplicate archive checksum gate
 
-**Status:** VERIFIED — real CI run `34792164989` passed ARM64 cross-build and all other listed jobs.
+**Goal:** Fail release jobs when repeated packaging of the same inputs produces different archive checksums.
 
-### Implemented
+**Implemented:**
+- Server x86_64 and ARM64 packaging now builds each archive twice with fixed ordering, timestamps and ownership, then compares SHA-256 digests before validation/signing.
+- Musician and Engineer web packaging uses the same duplicate-build checksum gate.
+- Temporary comparison artifacts are removed before upload.
 
-- Confirmed `.github/workflows/ci.yml` job `Rust Build (ARM64 cross)` installs `gcc-aarch64-linux-gnu` and compiles the server workspace for `aarch64-unknown-linux-gnu`.
-- Updated backlog, README, CHANGELOG and Phase 91 review with evidence.
+**Validation:** Workflow YAML parse and `git diff --check` passed locally. Runtime CI confirmation of same-tag repeated builds remains pending.
 
-### Verification
-
-- GitHub Actions run `34792164989`: job ID `rust-build-arm64` (`Rust Build (ARM64 cross)`) SUCCESS; all 11 listed jobs, including this ARM64 job, SUCCESS.
-- No production code, credentials or hardware claims changed.
-
-### Limitations
-
-Cross-compilation does not validate ARM64 runtime, PipeWire/ALSA, WebRTC media or Raspberry Pi 5 hardware. Release `v0.3.1` and real installation remain pending.
+**Limitations:** Release `v0.3.1`, real installation, PipeWire/ALSA, WebRTC media and Raspberry Pi 5 remain unvalidated.
 
 ---
 
-## 2026-09-13 — Phase 87 — Engineer Console master gain/mute controls
-
-**Status:** IMPLEMENTED — 18 testes verdes, typecheck limpo, build limpo.
-
-### Implementado
-
-- `web/engineer/src/protocol.ts`: tipos TypeScript do protocolo WebSocket do engineer — `ClientMessage` (`GetState`, `SetMasterGain`, `SetMasterMute`), `ServerMessage` (`State`, `MasterAck`, `Error`), `MixMasterState`, `WsStatus`, `PROTOCOL_VERSION`.
-- `web/engineer/src/useEngineerWs.ts`: hook `useEngineerWs(token)` — conecta a `/ws/v1` com subprotocolo `openiem-v1`, envia `GetState` na abertura, aplica `MasterAck` por mix, reconecta após 3 s com guard `mounted` que impede timers dangling e tentativas de conexão em componente desmontado.
-- `web/engineer/src/App.tsx`: componente `WsBadge` (indicador de status WS no header), componente `MixMasterControl` (slider gain −40..+10 dB, step 0.5, com `aria-label`; botão mute com `aria-pressed`), revisão ao vivo via WS.
-
-### Verificação
-
-| Gate | Resultado |
-|------|-----------|
-| `npm test` (18 testes) | ✅ PASS |
-| `npx tsc --noEmit` | ✅ PASS |
-| `npm run build` | ✅ PASS |
-| Scan de segurança (secrets/injection) | ✅ LIMPO |
-| Revisão independente | ✅ passed=true (concern do revisor: guard `mounted` em `onclose` existe em linha 143 do hook) |
-
-### Limitações
-
-Servidor real, PipeWire, WebRTC e Raspberry Pi 5 permanecem SIMULATED/pendentes.
-
----
-
-
+### 2026-09-13 — examples/minimal-mix: runnable mix engine example
 
 **Goal:** Create `examples/` with a minimal mix scenario (LOW backlog item).
 

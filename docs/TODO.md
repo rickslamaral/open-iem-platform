@@ -25,6 +25,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Adicionar `--locked` a clippy, testes e builds Rust do workflow de release.
 - [x] Normalizar timestamps, ordenação e ownership dos archives server/web com `SOURCE_DATE_EPOCH` do commit.
+- [x] Adicionar gate que executa dois empacotamentos consecutivos e compara checksums em cada job de artefato.
 - [ ] Confirmar dois builds do mesmo tag com checksums idênticos em runner CI.
 - [ ] Publicar release `v0.3.1` após secrets, instalação real e validação final.
 - [ ] Validar Raspberry Pi 5 real.

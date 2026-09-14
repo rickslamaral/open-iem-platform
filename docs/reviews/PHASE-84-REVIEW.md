@@ -1,7 +1,7 @@
 # Phase 84 Review — Release reproducibility
 
 **Date:** 2026-09-13
-**Status:** PASS WITH CONDITIONS — workflow correction implemented; duplicate CI build and release remain pending.
+**Status:** PASS WITH CONDITIONS — workflow now performs a duplicate-build checksum gate; duplicate CI build and release remain pending.
 
 ## Scope
 
