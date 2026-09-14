@@ -11,7 +11,7 @@
 ## Phase 92 — Controle de EQ por WebSocket
 
 - [ ] Especificar `SetEqBand`/`EqBandAck` no control-protocol.
-- [ ] Validar band index, frequência, gain, Q e mix no control-server.
+- [ ] Validar band index, frequência, gain, Q e mix index no control-server.
 - [ ] Definir broadcast de `EqBandDelta` no api-server com RBAC para Musician.
 - [ ] Executar fmt, clippy, testes completos, revisão independente e scan de segurança.
 - [ ] Atualizar README, CHANGELOG, DEVELOPMENT-LOG e review da Phase 92.
