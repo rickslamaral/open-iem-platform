@@ -127,8 +127,8 @@ impl JitterBuffer {
 
 /// Native/headless receiver. `SIMULATED` means output sink is supplied by caller.
 pub struct OpusReceiver {
-    ingress: Sender<(u64, u64, Vec<u8>)>,
-    ingress_rx: Receiver<(u64, u64, Vec<u8>)>,
+    ingress: Sender<(u64, u64, [u8; MAX_PACKET_BYTES], usize)>,
+    ingress_rx: Receiver<(u64, u64, [u8; MAX_PACKET_BYTES], usize)>,
     jitter: JitterBuffer,
     decoder: OpusDecoder,
     state: ReceiverState,
@@ -173,8 +173,10 @@ impl OpusReceiver {
             return Err(ReceiverError::InvalidPacket);
         }
         let generation = self.generation.load(Ordering::Acquire);
+        let mut payload = [0_u8; MAX_PACKET_BYTES];
+        payload[..packet.len()].copy_from_slice(packet);
         self.ingress
-            .try_send((generation, sequence, packet.to_vec()))
+            .try_send((generation, sequence, payload, packet.len()))
             .map_err(|e| match e {
                 TrySendError::Full(_) => ReceiverError::QueueFull,
                 TrySendError::Disconnected(_) => ReceiverError::Disconnected,
@@ -191,7 +193,7 @@ impl OpusReceiver {
             if packet.0 != generation {
                 continue;
             }
-            if self.jitter.push(packet.1, &packet.2).is_err() {
+            if self.jitter.push(packet.1, &packet.2[..packet.3]).is_err() {
                 self.dropped_packets = self.dropped_packets.saturating_add(1);
             }
         }
