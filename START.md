@@ -2730,3 +2730,29 @@ If these disagree:
 Never silently let contradictory documentation, code and tests accumulate.
 
 The objective is not to maximize the number of files or features. The objective is to produce a validated, maintainable, secure and reproducible real-time IEM platform.
+
+---
+
+## 146. Hermes Agent interface — AGENTS.md
+
+O Hermes Agent carrega automaticamente `AGENTS.md` quando o `workdir` de um cron job aponta para o workspace do projeto. Este arquivo é a **interface canônica** entre o Hermes Agent e o repositório.
+
+O arquivo `AGENTS.md` na raiz do repositório deve:
+
+```text
+1. Repetir a missão do agente (referência a START.md como contrato)
+2. Definir ordem de leitura ao iniciar cada run
+3. Especificar o que o agente pode fazer autonomamente
+4. Especificar o que exige confirmação explícita de Ricardo
+5. Documentar procedimento de carregamento de credenciais
+6. Listar gates obrigatórios antes de qualquer commit
+7. Descrever o workflow por fase
+8. Registrar o estado atual (Phase em andamento, CI, release)
+9. Listar restrições permanentes em formato tabular
+```
+
+Manter `AGENTS.md` sincronizado com `START.md` e `docs/TODO.md`. Ao concluir uma Phase, atualizar a seção de estado atual em `AGENTS.md`.
+
+O cron job `361e70c8e264` (loop diurno) e `7aee82067e22` (off-hours) usam `workdir=/workspace/open-iem-platform/` e carregam `AGENTS.md` automaticamente.
+
+Nunca remover `AGENTS.md` do repositório: ele é a interface de bootstrapping para toda execução autônoma.
