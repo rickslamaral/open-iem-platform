@@ -42,7 +42,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 91 — validação de coeficientes Biquad contra referência.** O `mix-engine` compara coeficientes RBJ normalizados contra quatro vetores determinísticos, com tolerância explícita para arredondamento `f32`; 80 testes unitários e 3 doc-tests passam. Processamento realtime, PipeWire/ALSA, release `v0.3.1`, instalação real e Raspberry Pi 5 continuam pendentes.
+**Fase incremental atual: Phase 91 — gate de cross-compilation ARM64 no CI.** O job `Rust Build (ARM64 cross)` instala `gcc-aarch64-linux-gnu` e compila o workspace para `aarch64-unknown-linux-gnu`; o run real `34792164989` passou. Isso valida cross-compilation, não runtime ARM64, áudio ou Raspberry Pi 5. Confirmação de dois builds idênticos, release `v0.3.1`, instalação real e Raspberry Pi 5 continuam pendentes.
 
 **Fases anteriores:** Phase 87 — controles master gain/mute no Engineer Console; Phase 84 — reprodutibilidade do pipeline de release; Phase 83 — pan e indicador de mudo master na UI do músico.
 

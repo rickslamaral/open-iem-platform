@@ -4,33 +4,23 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
-## 2026-09-13 — Phase 91 — Biquad reference validation
+## 2026-09-14 — Phase 91 — ARM64 cross-compilation CI gate
 
-**Status:** IMPLEMENTED — coefficient reference vectors pass locally; hardware remains pending.
+**Status:** VERIFIED — real CI run `34792164989` passed ARM64 cross-build and all other listed jobs.
 
 ### Implemented
 
-- Added four deterministic RBJ peaking-EQ coefficient vectors covering varied frequency, gain and Q values.
-- Added `scripts/validate_biquad_reference.py`, an independent stdlib-only arithmetic check for the same vectors.
-- Compared normalized `b0`, `b1`, `b2`, `a1` and `a2` with `5e-6` tolerance for `f32` rounding.
-- Added `docs/reviews/PHASE-91-REVIEW.md` and updated backlog/changelog.
+- Confirmed `.github/workflows/ci.yml` job `Rust Build (ARM64 cross)` installs `gcc-aarch64-linux-gnu` and compiles the server workspace for `aarch64-unknown-linux-gnu`.
+- Updated backlog, README, CHANGELOG and Phase 91 review with evidence.
 
 ### Verification
 
-- Python baseline before edits: `python3 -m pytest --tb=no -q` — 60 passed.
-- `cargo fmt --all --manifest-path server/Cargo.toml` — PASS.
-- `python3 scripts/validate_biquad_reference.py` — 4 Biquad reference vectors passed.
-- `cargo test --manifest-path server/Cargo.toml -p mix-engine` — 80 unit tests and 3 doc-tests passed.
+- GitHub Actions run `34792164989`: job ID `rust-build-arm64` (`Rust Build (ARM64 cross)`) SUCCESS; all 11 listed jobs, including this ARM64 job, SUCCESS.
+- No production code, credentials or hardware claims changed.
 
 ### Limitations
 
-Coefficient arithmetic is locally validated. PipeWire/ALSA, realtime audio and Raspberry Pi 5 remain `SIMULATED` or pending physical validation.
-
----
-
-## 2026-09-13 — Phase 90 — browser audio constraint
-
-**Status:** RESEARCH COMPLETE — WebRTC selected for browser media; real media remains SIMULATED.
+Cross-compilation does not validate ARM64 runtime, PipeWire/ALSA, WebRTC media or Raspberry Pi 5 hardware. Release `v0.3.1` and real installation remain pending.
 
 ---
 

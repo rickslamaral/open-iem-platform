@@ -393,7 +393,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] WebSocket send mutations: SetSendGain/SetSendPan/SetSendMuted with musician ownership enforcement (Phase 16)
 - [x] Biquad EQ real DSP (Phase 7 — TDF2 peaking biquad, RBJ coefficients, no heap)
 - [x] RMS Compressor real DSP (Phase 7 — stereo-linked, exp-RMS, smoothed gain reduction)
-- [ ] Add ARM64 cross-compilation to CI (requires `aarch64-unknown-linux-gnu` setup)
+- [x] Add ARM64 cross-compilation to CI (`rust-build-arm64` installs `gcc-aarch64-linux-gnu` and builds `aarch64-unknown-linux-gnu`; CI evidence: run `34792164989`)
 - [x] Musician mix ownership enforcement (mix sends and audio signaling; Phase 13)
 - [x] Admin API server-side routes (Phase 9 — complete)
 
