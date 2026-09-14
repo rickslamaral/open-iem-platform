@@ -42,29 +42,23 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 89 — Engineer Console Channel Strip.** O Engineer Console renderiza canais do snapshot e controla gain/mute por endpoints autenticados existentes, com debounce, optimistic UI e guards contra respostas obsoletas. CI remoto, servidor real, release, instalação e Raspberry Pi 5 continuam pendentes.
+**Fase atual: Phase 92 — WS EQ Control (em desenvolvimento).** Branch `feat/phase92-ws-eq-control` com implementação do protocolo `SetEqBand`/`EqBandAck`, dispatch/validação no control-server e broadcast no api-server. Commit e PR pendentes.
 
-**Fase anterior: Phase 83 — pan e indicador de mudo master na UI do músico.**
+**Fases concluídas e mescladas em `main`:**
 
-**Phase 83 — pan e indicador de mudo master na UI do músico.** A PWA sincroniza pan por canal e envia `SetSendPan`; exibe `MASTER MUTED` como indicador somente leitura. Testes, typecheck e build locais passam. CI remoto executou todos os 9 jobs com sucesso no run `34761731828` após correção do pin de `actions/cache`. Workflow de release agora usa `-rawin` no OpenSSL 3.5. Instalação real, release, hardware e mídia continuam não validados.
+| Phase | Descrição | CI | Merge |
+|---|---|---|---|
+| 91 | Biquad reference validation + ARM64 cross-CI | 11/11 ✅ | ✅ |
+| 90 | Browser audio constraint (ADR-005 Accepted, GAP-001/002 Resolved) | 11/11 ✅ | ✅ |
+| 89 | Engineer Console channel strip (gain/mute por canal, debounce, optimistic UI) | 11/11 ✅ | ✅ |
+| 88 | Musician UI master gain/mute somente leitura | 11/11 ✅ | ✅ |
+| 87 | Engineer Console WebSocket master gain/mute | 11/11 ✅ | ✅ |
+| 86 | Lock-free broadcast fan-out no WebSocket | 11/11 ✅ | ✅ |
+| 85 | Rust code coverage (cargo-llvm-cov, LCOV, CI job) | 11/11 ✅ | ✅ |
+| 84 | Reprodutibilidade de archives de release + gate de checksums duplicados | 11/11 ✅ | ✅ |
+| 83 | Musician UI pan estéreo + indicador master mute | 11/11 ✅ | ✅ |
 
-**Fase anterior: Phase 78 — rejeição de dados residuais em archives.** O validador rejeita streams gzip concatenados e bytes residuais após um archive válido, além de validar estrutura, limites, tipos, duplicatas e payloads truncados. A verificação local passa; CI remoto, release e hardware continuam não validados. Imagens documentais geradas a partir do código-fonte cobrem Login, Musician PWA, Engineer Console, Admin CLI/API e controles de mix; não são screenshots de runtime. Control plane local segue validado; mídia continua `SIMULATED`. Ver [review da Phase 76](docs/reviews/PHASE-76-REVIEW.md), [review da Phase 75](docs/reviews/PHASE-75-REVIEW.md), [review da Phase 72](docs/reviews/PHASE-72-REVIEW.md), [review da Phase 71](docs/reviews/PHASE-71-REVIEW.md), [Phase 70](docs/reviews/PHASE-70-REVIEW.md), [Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
-
-O validador rejeita separadores `\\`, caracteres de controle, caracteres inválidos, pontos/espaços finais e nomes reservados Windows em cada componente, além de raiz `.`/`..` ou raiz não canônica, membro oversized e total descomprimido excedido antes de consumir membros seguintes. O bundle final agora exige archives server x86_64/ARM64 e web musician/engineer na versão da tag, checksum correto, assinatura server não vazia e rejeita arquivos inesperados antes da publicação. CI também cobre teste automatizado desse validador junto aos validadores de archive e assinatura. O verificador Ed25519 limita assinatura e chave pública a 64 KiB; ambos exigem `O_NOFOLLOW`, validam arquivos regulares em descritores não bloqueantes e o verificador chama `/usr/bin/openssl` sem depender de `PATH` mutável. Execução validada permanece Linux; os runs `34724845040` (PR) e `34724842446` (push) falharam antes da execução dos jobs; jobs consultados retornaram `runner_id=0` e `steps=[]`; portanto CI remoto continua bloqueado por runner/permissões; hardware continua não validado. Ver [review da Phase 69](docs/reviews/PHASE-69-REVIEW.md), [Phase 68](docs/reviews/PHASE-68-REVIEW.md) e [Phase 67](docs/reviews/PHASE-67-REVIEW.md).
-
-**Phase 56 — correção do lifetime do diretório temporário do Caddyfile.** A limpeza prematura removida do guia Raspberry Pi permite concluir cópia e instalação do Caddyfile; CI remoto e hardware continuam não validados. Ver [review da Phase 56](docs/reviews/PHASE-56-REVIEW.md).
-
-**Phase 54 — provenance de artefatos de release.** O workflow gera attestation Sigstore/GitHub para archives de servidor x86_64 e ARM64 antes do upload, com permissões mínimas de OIDC; CI remoto e hardware continuam não validados. Ver [review da Phase 54](docs/reviews/PHASE-54-REVIEW.md).
-
-**Phase 53 — validação estrutural de archives de release.** O workflow valida archives de servidor x86_64 e ARM64 antes de checksum/upload, rejeitando traversal, links, membros inesperados e binários ausentes. O empacotamento web agora falha se qualquer `dist/` faltar e uploads exigem arquivos. CI remoto e hardware continuam não validados. O guia Raspberry Pi restringe redirects do `curl` a HTTPS, valida os dois binários e instala ambos. CI e release continuam usando `ubuntu-latest`; isso não prova disponibilidade de runner. Os runs mais recentes `34645508776` (PR) e `34645504292` (push) falharam antes dos steps; todos os 9 jobs do PR terminaram com `runner_id=0` e `steps=[]`; PR #40 permanece aberto; merge bloqueado por runner/permissões Actions; sem release. Ver [review da Phase 53](docs/reviews/PHASE-53-REVIEW.md), [guia do músico](docs/guides/MUSICIANS-GUIDE.md), [matriz de validação](docs/validation/PLATFORM-VALIDATION-MATRIX.md), [review da Phase 51](docs/reviews/PHASE-51-REVIEW.md), [Phase 50](docs/reviews/PHASE-50-REVIEW.md), [Phase 49](docs/reviews/PHASE-49-REVIEW.md) e [Phase 48](docs/reviews/PHASE-48-REVIEW.md).
-
-**Phase 34 — CLI administrativo**. `open-iem-admin` exige HTTPS fora de localhost, preserva união de colunas em tabelas JSON e não chama 404 de recurso não implementado.
-
-**Phase 32 — harness determinístico do áudio** (verificação local passa; PR #40 aberto; CI bloqueado; não mergeado)
-
-O harness `SIMULATED` cobre determinismo, isolamento entre mixes, ganho, pan, mute, limiter e finitude das amostras. `cargo fmt --all -- --check` e `cargo test -p audio-engine` passaram: 20 testes unitários, 4 testes de integração e doc-tests. O harness não cobre hardware, desempenho realtime ou stop/start. Áudio real, PipeWire e runtime ARM64 em Raspberry Pi continuam não validados.
-
-Ver [Phase 32 review](docs/reviews/PHASE-32-REVIEW.md), [Phase 31 review](docs/reviews/PHASE-31-REVIEW.md), [Phase 29 review](docs/reviews/PHASE-29-REVIEW.md), [Phase 27 review](docs/reviews/PHASE-27-REVIEW.md), [Phase 24 review](docs/reviews/PHASE-24-REVIEW.md), [Phase 21 review](docs/reviews/PHASE-21-REVIEW.md), [Phase 19 review](docs/reviews/PHASE-19-REVIEW.md) e [Phase 17 review](docs/reviews/PHASE-17-REVIEW.md).
+**Pendentes de validação física:** PipeWire/ALSA, WebRTC/Opus, Raspberry Pi 5, release `v0.3.1`.
 
 ## Previsão das interfaces
 
@@ -140,9 +134,18 @@ Interface prevista para engenheiro: status do backend, revisão, sessões ativas
 | 72 | HTTP signaling integration | ✅ Local test; CI, media and hardware pending |
 | 76 | Archive payload validation | ✅ Local tests; CI, release and hardware pending |
 | 77 | Structural archive validation before payload | ✅ Local tests; CI and hardware pending |
-| 80 | TypeScript 7 Engineer compatibility | ✅ Local fix; CI green |
-| 81 | Installer and CI/release hardening | ✅ Local validation; CI green; hardware pending |
-| 83 | Musician UI pan and master mute indicator | ✅ Local validation; CI green; hardware pending |
+| 80 | TypeScript 7 Engineer compatibility | ✅ Merged |
+| 81 | Installer and CI/release hardening | ✅ Merged |
+| 83 | Musician UI pan and master mute indicator | ✅ Merged; hardware pending |
+| 84 | Release reproducibility + checksum gate | ✅ Merged |
+| 85 | Rust code coverage (CI job + LCOV) | ✅ Merged |
+| 86 | Lock-free broadcast fan-out | ✅ Merged |
+| 87 | Engineer Console WS master gain/mute | ✅ Merged |
+| 88 | Musician UI master controls read-only | ✅ Merged |
+| 89 | Engineer Console channel strip | ✅ Merged |
+| 90 | Browser audio constraint (ADR-005) | ✅ Merged |
+| 91 | Biquad validation + ARM64 cross-CI | ✅ Merged |
+| 92 | WS EQ band control | 🔄 In development |
 
 ## Repository Structure
 
@@ -206,33 +209,3 @@ See [SECURITY.md](SECURITY.md).
 ## License
 
 Apache 2.0 — see [LICENSE](LICENSE).
-
-
-## Estado Phase 10
-
-Mix assignments persist in SQLite. Engineer/Admin assign mix slots; musicians control only sends belonging to assigned mix. Send state and gain/pan/mute routes are protected by JWT role and ownership checks. Audio remains SIMULATED on VPS until PipeWire/Opus validation on Raspberry Pi 5.
-
-## Release v0.3.1 — Versioned Build Pipeline (preparation)
-
-Release pipeline in `.github/workflows/release.yml`. Planned trigger: semver tag (`v0.3.1`). `v0.3.0` remains an inconsistent historical tag: its commit predates synchronized `0.3.0` manifests and failed version validation.
-
-## Release v0.2.0 — Versioned Build Pipeline
-
-Release pipeline in `.github/workflows/release.yml`. Push a semver tag (`v0.2.0`) to trigger:
-
-1. **Version consistency gate** — tag must match `[workspace.package].version` in `server/Cargo.toml`.
-2. **Quality gate** — fmt + clippy + tests + cargo-audit (required before any build).
-3. **Linux x86_64 build** — `api-server` + `open-iem-admin` bundled with checksum.
-4. **Linux ARM64 build** — cross-compiled for Raspberry Pi 5; marked SIMULATED until hardware validation.
-5. **Web artefacts** — Musician PWA + Engineer UI dist bundles with checksums.
-6. **GitHub Release** — all artefacts + SHA-256 checksums attached; release notes from CHANGELOG.
-
-> **Note:** PipeWire/Opus audio is SIMULATED on VPS. ARM64 artefact is cross-compiled and untested on real Pi 5 hardware. Mark SIMULATED until physical validation.
-
-## Phase 12 — Security & Automation
-
-- **Dependabot** enabled for Cargo, npm (musician/engineer), and GitHub Actions — weekly updates.
-- **Admin self-delete protection** — `DELETE /api/v1/admin/users/{id}` returns 403 if caller's UID matches target.
-- **SBOM** — `cargo-sbom` generates `open-iem-server-<ver>-sbom.json` in release pipeline (best-effort, non-blocking).
-- **Artifact naming fix** — build jobs now depend on `validate-version` so version is non-empty in filenames.
-

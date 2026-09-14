@@ -1,13 +1,30 @@
 # TODO
 
+## Estado atual — 2026-09-14
+
+- **Phase 92 — WS EQ Control:** implementação local concluída na branch `feat/phase92-ws-eq-control`; faltam gates finais, documentação, commit, PR e CI.
+- **Phase 83–91:** implementadas, CI remoto real verde e mescladas em `main`.
+- **Release `v0.3.1`:** tag existe; GitHub Release ainda não publicada.
+- **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
+- **Guias:** espelhos PT/EN/ES existentes; revisar e sincronizar após concluir Phase 92 e validação física.
+
+## Phase 92 — Controle de EQ por WebSocket
+
+- [x] Adicionar `SetEqBand`/`EqBandAck` no control-protocol.
+- [x] Validar band index, frequência, gain, Q e mix no control-server.
+- [x] Broadcast de `EqBandDelta` no api-server com RBAC para Musician.
+- [ ] Executar fmt, clippy, testes completos, revisão independente e scan de segurança.
+- [ ] Atualizar README, CHANGELOG, DEVELOPMENT-LOG e review da Phase 92.
+- [ ] Commitar, abrir PR e confirmar CI remoto 11/11.
+
 ## Phase 89 — Engineer Console: Channel Strip de gain/mute
 
 - [x] Renderizar canais do snapshot `/api/v1/state` no Engineer Console.
 - [x] Adicionar slider de gain `-144..+12 dB` e botão mute por canal.
 - [x] Preservar Bearer auth, debounce, optimistic UI e guards contra respostas obsoletas.
-- [x] 10 testes, typecheck e build locais aprovados.
-- [x] Revisão independente sem findings bloqueantes após correções.
-- [ ] Confirmar CI remoto e validar servidor real/Raspberry Pi 5.
+- [x] 26 testes, typecheck e build aprovados; CI remoto 11/11 no PR #49.
+- [x] PR #49 mesclado em `main`.
+- [ ] Validar servidor real e Raspberry Pi 5.
 
 Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
