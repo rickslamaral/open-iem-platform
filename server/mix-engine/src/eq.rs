@@ -399,6 +399,71 @@ mod tests {
     }
 
     #[test]
+    fn coefficients_match_reference_vectors() {
+        // Reference values generated independently with the RBJ Audio EQ
+        // Cookbook equations at 48 kHz. Tolerance covers f32 rounding.
+        let cases: &[(f32, f32, f32, [f64; 5])] = &[
+            (
+                100.0,
+                6.0,
+                0.707,
+                [
+                    1.006480037107,
+                    -1.986808003509,
+                    0.980498195648,
+                    -1.986808003509,
+                    0.986978232755,
+                ],
+            ),
+            (
+                1_000.0,
+                -3.0,
+                1.0,
+                [
+                    0.978977346094,
+                    -1.840157304773,
+                    0.877058603523,
+                    -1.840157304773,
+                    0.856035949617,
+                ],
+            ),
+            (
+                12_000.0,
+                9.0,
+                2.5,
+                [1.193568133102, 0.0, 0.593530469976, 0.0, 0.787098603079],
+            ),
+            (
+                20_000.0,
+                -12.0,
+                0.5,
+                [
+                    0.626038301479,
+                    0.867052359030,
+                    0.375147524296,
+                    0.867052359030,
+                    0.001185825775,
+                ],
+            ),
+        ];
+        for &(frequency, gain, q, expected) in cases {
+            let actual = BiquadCoeffs::peaking(frequency, gain, q);
+            for (name, got, want) in [
+                ("b0", f64::from(actual.b0), expected[0]),
+                ("b1", f64::from(actual.b1), expected[1]),
+                ("b2", f64::from(actual.b2), expected[2]),
+                ("a1", f64::from(actual.a1), expected[3]),
+                ("a2", f64::from(actual.a2), expected[4]),
+            ] {
+                assert!(
+                    (got - want).abs() < 5e-6,
+                    "{name} mismatch for {frequency} Hz/{gain} dB/Q {q}: got {got}, want {want}"
+                );
+            }
+        }
+    }
+
+    #[test]
     fn coefficients_stability() {
         let cases: &[(f32, f32, f32)] = &[
             (1_000.0, 12.0, 0.1),

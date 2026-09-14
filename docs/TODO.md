@@ -2,23 +2,15 @@
 
 Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
-## Phase 90 — restrição de áudio recebido pelo navegador
+## Phase 91 — validação de coeficientes Biquad contra referência
 
-- [x] Avaliar WebRTC, Web Audio, WebTransport e RTP/UDP para uma PWA.
-- [x] Confirmar WebRTC como caminho de mídia do navegador; WebSocket permanece controle e HTTP autenticado transporta sinalização SDP/ICE.
-- [x] Documentar limites: navegador não recebe RTP/UDP arbitrário; WebTransport não fornece pipeline de mídia.
-- [x] Registrar evidências e fontes em `docs/research/browser-audio-constraint/EVALUATION.md`.
-- [ ] Validar reprodução WebRTC, mídia Opus, latência, jitter, perda e recuperação em Raspberry Pi 5 real.
+- [x] Adicionar vetores determinísticos de referência para quatro combinações de frequência, ganho e Q.
+- [x] Validar coeficientes RBJ normalizados (`b0`, `b1`, `b2`, `a1`, `a2`) com tolerância de `5e-6` em `f32`.
+- [x] Executar testes locais do crate `mix-engine`.
+- [ ] Validar processamento de áudio em Raspberry Pi 5 real.
 
-## Phase 88 — Musician UI: master gain/mute genuinamente somente leitura
 
-- [x] Remover estado local `masterGainDb` e prop `onMasterGain` da UI do músico.
-- [x] Derivar `masterGainDb` diretamente de `ws.snapshot.mixes[0].master_gain_db`.
-- [x] Desabilitar slider de master gain (`disabled`, `aria-readonly`, `readOnly`).
-- [x] Exibir hint "(somente leitura)" no rótulo do slider.
-- [x] Expandir testes de MixControl: 44 testes (+2), typecheck e build aprovados.
-- [x] Revisão independente: `passed=true`, sem findings bloqueantes.
-- [ ] Validar Raspberry Pi 5 real.
+---
 
 ## Phase 87 — Engineer Console: controles master gain/mute via WebSocket
 
