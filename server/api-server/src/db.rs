@@ -199,17 +199,17 @@ impl Db {
             .conn
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
-        conn.execute(
+        match conn.execute(
             "INSERT INTO users (username, pw_hash, role, must_change_password) VALUES ('soundtech', ?1, 'ENGINEER', 1)",
             params![pw_hash],
-        )
-        .map_err(|e| {
-            if e.to_string().contains("UNIQUE") {
-                // Race: another process inserted between our check and insert — idempotent.
-                return ApiError::Internal("soundtech already exists (race)".to_owned());
+        ) {
+            Ok(_) => {}
+            Err(e) if e.to_string().contains("UNIQUE") => {
+                // TOCTOU race: another process inserted soundtech between our COUNT check and
+                // this INSERT. Both paths result in soundtech existing — treat as idempotent.
             }
-            ApiError::Internal(e.to_string())
-        })?;
+            Err(e) => return Err(ApiError::Internal(e.to_string())),
+        }
         Ok(())
     }
 
