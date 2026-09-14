@@ -1,5 +1,14 @@
 # TODO
 
+## Phase 89 — Engineer Console: Channel Strip de gain/mute
+
+- [x] Renderizar canais do snapshot `/api/v1/state` no Engineer Console.
+- [x] Adicionar slider de gain `-144..+12 dB` e botão mute por canal.
+- [x] Preservar Bearer auth, debounce, optimistic UI e guards contra respostas obsoletas.
+- [x] 10 testes, typecheck e build locais aprovados.
+- [x] Revisão independente sem findings bloqueantes após correções.
+- [ ] Confirmar CI remoto e validar servidor real/Raspberry Pi 5.
+
 Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## Phase 91 — validação de coeficientes Biquad contra referência

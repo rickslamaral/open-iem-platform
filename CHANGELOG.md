@@ -6,16 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added — Phase 91: ARM64 cross-compilation CI gate (2026-09-14)
-- CI job `Rust Build (ARM64 cross)` installs `gcc-aarch64-linux-gnu` and builds the Rust workspace for `aarch64-unknown-linux-gnu`.
-- Run `34792164989` executed and passed ARM64 cross-build, alongside all other CI jobs.
-- This validates cross-compilation only; Raspberry Pi 5 runtime and audio hardware remain unvalidated.
-
-### Added — Phase 87: Engineer Console master gain/mute controls (2026-09-13)
-- `web/engineer/src/protocol.ts`: TypeScript protocol types for engineer WebSocket (`GetState`, `SetMasterGain`, `SetMasterMute`, `MasterAck`, `State`, `Error`).
-- `web/engineer/src/useEngineerWs.ts`: `useEngineerWs` hook — connects to `/ws/v1` with subprotocol `openiem-v1`, sends `GetState` on open, applies `MasterAck` updates, auto-reconnects after 3 s with mounted guard preventing dangling timers.
-- `web/engineer/src/App.tsx`: `WsBadge` status indicator in header; `MixMasterControl` component with range slider (−40..+10 dB, step 0.5) and mute toggle button (aria-pressed) per mix; live revision from WS.
-- 13 hook tests + 5 App tests = 18 total, all green; typecheck clean; build clean.
+### Added — Phase 89: Engineer Channel Strip
+- Engineer Console renders input channels from `/api/v1/state` with gain sliders and mute controls.
+- Gain writes use the existing authenticated channel endpoints with debounce, optimistic state and stale-response guards.
+- Locked channels disable controls; audio remains explicitly `SIMULATED` until hardware validation.
 
 ### Added — Phase 85 code coverage (2026-09-13)
 - `make coverage` target runs `cargo-llvm-cov` and writes `coverage/lcov.info`; creates output directory on fresh checkout.
@@ -39,8 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed — Phase 84 release reproducibility (2026-09-13)
 - Release workflow uses Cargo `--locked` for Rust checks/builds.
 - Server and web archives normalize ordering, timestamps and ownership from commit `SOURCE_DATE_EPOCH` before checksums; Ed25519 signatures remain limited to server archives.
-- Each server and web packaging job now performs two consecutive archive builds and fails when checksums differ.
-- Release `v0.3.1`, real installation and Raspberry Pi 5 remain pending.
+- Repeated-build checksum confirmation, release `v0.3.1`, real installation and Raspberry Pi 5 remain pending.
 
 ### Changed — CI verification refresh (2026-09-13)
 - Runs `34761731828` e `34763037883` passaram nos 9 jobs; backlog CI remoto deixa de ser blocker. Release `v0.3.1`, instalação real e Raspberry Pi 5 continuam pendentes.
