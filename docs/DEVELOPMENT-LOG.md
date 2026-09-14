@@ -12,6 +12,30 @@
 
 **Próximo:** integrar identidade autorizada à criação da sessão media e revogação ativa.
 
+## 2026-09-14 — P0-008 ALSA Explicit Fallback Backend
+
+**Branch:** feat/p0-008-alsa-backend → PR #63 → merged main  
+**Status:** CODE+CI; HARDWARE pending
+
+### O que foi feito
+- `AlsaBackend` via crate `alsa` 0.12: abertura PCM, hw_params (channels=2, s16, RWInterleaved, set_rate_near, period/buffer size), XRUN recovery (`pcm.recover`), Setup-state guard (`pcm.prepare`).
+- Thread de áudio dedicada (stack 512 KiB, `Release`/`Acquire` em `stop_flag`).
+- Fail-safe: falha de open_pcm → `muted=true`, retorna `Err(BackendActivate)`, sem panic.
+- `BackendKind::Alsa` adicionado ao enum de config; feature `alsa` opcional (CI/VPS desabilitado por padrão).
+- `AudioConfig::alsa()` constructor; 4 testes unitários de fail-safe com `nonexistent_device`.
+
+### Fix de review
+- `stop_flag.store/load` corrigido de `Relaxed` para `Release`/`Acquire` — ordering errado causaria hang indefinido no `deactivate()` em ARM (RPi5).
+
+### Gates
+- `cargo fmt --check` ✓  
+- `cargo clippy --all-targets -D warnings` ✓  
+- `cargo test` ✓  
+- CI remoto 12/12 jobs SUCCESS (run 34890580318)  
+
+### Validação pendente
+- PipeWire native backend ainda não implementado (P0-008 original escopo).
+- Hardware: Raspberry Pi 5, ALSA/PipeWire real, XRUN, recovery, latência — SIMULATED.
 ## 2026-09-14 — P0-005: clock, drift and adaptive resampling
 
 **Status:** implementação SIMULATED; validação L1/L2 local concluída; hardware pendente.

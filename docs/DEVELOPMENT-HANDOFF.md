@@ -105,7 +105,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 | P0-005 | P0 | Clock | Implement sample timestamps, sequence, drift estimator and adaptive resampling | 48 kHz is not sync | ADR-004 | Long-run bounded drift and no unbounded buffer | Simulation/soak tests | L1/L2 | Yes |
 | P0-006 | P0 | Security | Implement pairing, receiver identity, revocation and DTLS-SRTP session binding | Unknown receivers must be blocked | ADR-006 | Rogue/revoked receiver cannot receive/control audio | Negative/replay/revoke tests | L1 then runtime | Yes |
 | P0-007 | P0 | Auth/DB | Add idempotent `soundtech` bootstrap and versioned migration boundary | Explicit product contract absent | ADR-009 | Fresh/repeat/changed password/concurrent startup pass | DB/auth integration tests | CODE + CI | Yes |
-| P0-008 | P0 | Backend | Implement PipeWire native backend boundary and safe device failure | Current audio is simulated | ADR-008 | Device discovery, callback safety, fail-safe mute | Backend tests | L1/L2 then L3 | Yes |
+| P0-008 | P0 | Backend | ALSA explicit fallback backend (CODE+CI, PR #63); PipeWire native backend and device discovery remain pending | Explicit ALSA path needed before PipeWire | ADR-008 | Device discovery, callback safety, fail-safe mute | Backend tests | CODE+CI; HARDWARE pending | P1-001 |
 | P0-009 | P0 | Latency | Instrument capture→IEM and publish p50/p95/p99 report | No E2E evidence | ADR-005 | p95≤50ms/p99≤75ms under MVP test conditions, or reopen ADR | Loopback/latency tests | L3 required | Yes |
 | P0-010 | P0 | Pi validation | Run physical Pi 5 + USB audio gate | Cross-build is not hardware | ADR-008/010 | L3 report with OS/device/buffer/XRUN/recovery | Hardware test suite | HARDWARE | Yes |
 
@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P0-006 — Security: pairing, receiver identity, revocation e DTLS-SRTP binding (depende de P0-005 ✓)` — registry de identidade/credencial implementado em código; integração DTLS-SRTP e API permanecem pendentes.
+**Next development item:** `P1-001 — Topology: capability model and Channel Mode validation` — P0-001..P0-008 CODE+CI completo; depende de P0-008 (mergeado). Próximo: adicionar modelo de capacidade e validação Channel Mode, source mapping explícito e testes de config inválida.
