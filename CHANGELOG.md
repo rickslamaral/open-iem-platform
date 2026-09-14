@@ -6,8 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Planned — Phase 92: WS EQ band control
-- Controle de bandas EQ por WebSocket permanece backlog. Não há implementação ou PR confirmada no estado atual.
+### Added — Phase 93: AGENTS.md e interface Hermes Agent
+- `AGENTS.md` criado na raiz: interface de bootstrapping para agentes Hermes rodando via cron job com `workdir=/workspace/open-iem-platform/`.
+- `START.md` seção 146 adicionada: documenta propósito, estrutura e contrato de manutenção do `AGENTS.md`.
+
+### Added — Phase 92: WS EQ band control (mergeado #54)
+- `SetEqBand` em `ClientMessage` e `EqBandAck` em `ServerMessage` no control-protocol.
+- Validação de band index, frequência 20–20000 Hz, gain −24/+24 dB, Q 0.1–10.0 no control-server.
+- `EqBandDelta` struct e broadcast channel (256) no api-server state.
+- Fan-out para Engineer/Admin via WebSocket; RBAC bloqueia Musician de receber EqBandAck.
+- 4 testes de integração: ack Engineer, deny Musician RBAC, broadcast peer, sem broadcast Musician.
+- 204 testes verdes locais; revisão independente aprovada.
 
 ### Added — Phase 91: Biquad reference validation + ARM64 cross-CI
 - 4 vetores determinísticos RBJ em `server/mix-engine/src/eq.rs` para validação de coeficientes com tolerância `5e-6` em `f32`.

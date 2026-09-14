@@ -3403,3 +3403,19 @@ Bumped workspace version `0.1.0` → `0.2.0`. Aligned `admin-cli` Cargo manifest
 **Limitations:** PipeWire/ALSA SIMULATED. ARM64 not hardware-validated.
 
 **Next:** Tag v0.3.0; code coverage reporting; musician-filtered master broadcast test (added this phase); v0.3.0 release notes.
+
+---
+
+## Phase 93 — AGENTS.md e interface Hermes Agent (2026-09-14)
+
+**Contexto:** Os cron jobs de desenvolvimento autônomo (`361e70c8e264` e `7aee82067e22`) usam `workdir=/workspace/open-iem-platform/`. O Hermes Agent carrega `AGENTS.md` automaticamente quando presente no `workdir`, mas o arquivo não existia no repositório — agentes rodavam sem bootstrapping dedicado.
+
+**Implementado:**
+
+- `AGENTS.md` criado na raiz do repositório: interface de bootstrapping para agentes autônomos Hermes. Define missão, ordem de leitura, autonomia vs confirmação, carregamento de credenciais, gates obrigatórios, workflow por fase, estado atual e restrições permanentes.
+- `START.md` seção 146 adicionada: documenta propósito, estrutura esperada e contrato de manutenção do `AGENTS.md`.
+- `CHANGELOG.md` atualizado: Phase 92 (WS EQ band control) e Phase 93 (AGENTS.md) registradas em `[Unreleased]`.
+
+**Verificação:** Documentação only. Gates Rust e frontend não afetados.
+
+**Pendências herdadas:** CI remoto, release `v0.3.1`, validação Raspberry Pi 5, frontend EQ controls (Phase 93+).
