@@ -6,58 +6,58 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added — Phase 89: Engineer Channel Strip
-- Engineer Console renders input channels from `/api/v1/state` with gain sliders and mute controls.
-- Gain writes use the existing authenticated channel endpoints with debounce, optimistic state and stale-response guards.
-- Locked channels disable controls; audio remains explicitly `SIMULATED` until hardware validation.
+### Planned — Phase 92: WS EQ band control
+- Controle de bandas EQ por WebSocket permanece backlog. Não há implementação ou PR confirmada no estado atual.
 
-### Added — Phase 85 code coverage (2026-09-13)
-- `make coverage` target runs `cargo-llvm-cov` and writes `coverage/lcov.info`; creates output directory on fresh checkout.
-- CI job `Rust Code Coverage` installs `cargo-llvm-cov 0.9.1`, generates LCOV, and uploads artifact `coverage-lcov` with 30-day retention.
-- Baseline coverage: **81.21% lines, 73.85% functions** (workspace, simulated audio backend).
+### Added — Phase 91: Biquad reference validation + ARM64 cross-CI
+- 4 vetores determinísticos RBJ em `server/mix-engine/src/eq.rs` para validação de coeficientes com tolerância `5e-6` em `f32`.
+- `scripts/validate_biquad_reference.py` para validação independente fora do Rust.
+- CI job `Rust Build (ARM64 cross)` adicionado ao `ci.yml`; cross-compile x86_64→ARM64 validado em CI remoto.
 
-### Added — examples/minimal-mix (2026-09-13)
-- `server/mix-engine/examples/minimal_mix.rs`: runnable example showing two independent monitor mixes from two channels (vocals + kick), with per-send gain/pan/mute, master gain, and master mute; self-checking assertions verify signal-flow invariants. Run with `cargo run --example minimal_mix --manifest-path server/Cargo.toml`.
-- `examples/minimal-mix/README.md`: guide with signal graph, expected output, and usage.
+### Added — Phase 90: Browser audio constraint
+- ADR-005 atualizado para `Accepted`: WebRTC como caminho de mídia para browser/PWA; WebSocket restrito a controle.
+- GAP-001 e GAP-002 marcados como `RESOLVED` (validação runtime ainda pendente).
+- `docs/research/browser-audio-constraint/EVALUATION.md`: análise de WebRTC, SDP/ICE over HTTP, WebTransport (adiado) e RTP/UDP puro (rejeitado para PWA).
 
-### Performance — Phase 86: lock-free broadcast fan-out (2026-09-13)
-- Remove `mix_assignment_lock` from WebSocket broadcast receivers (send-delta and master-delta fan-out).
-- Ownership check on receiver side is now a lock-free DB read; comment documents the intentional bounded stale-read trade-off.
-- Lock is still held by mutation senders (inbound WS path and HTTP routes), preserving mutation ordering guarantees.
+### Added — Phase 89: Engineer Console channel strip
+- Engineer Console renderiza canais de `/api/v1/state` com slider de gain (−144..+12 dB) e botão mute por canal.
+- Writes usam endpoints autenticados existentes com debounce 300 ms, optimistic UI e guards contra respostas obsoletas.
+- Canais bloqueados desabilitam controles; áudio explicitamente `SIMULATED`.
 
-### Added — Phase 85 code coverage (2026-09-13)
-- `make coverage` target: runs `cargo-llvm-cov` and writes `coverage/lcov.info`; requires `cargo install cargo-llvm-cov --locked`.
-- CI job `Rust Code Coverage`: installs `cargo-llvm-cov 0.9.1`, generates LCOV report and uploads it as artifact `coverage-lcov` (retained 30 days).
-- Baseline coverage: **81.22% lines, 73.85% functions** (workspace, all crates, simulated audio backend).
+### Added — Phase 88: Musician UI master gain/mute read-only
+- Slider de master gain e botão mute da Musician UI passam a ser `disabled` + `aria-readonly="true"`.
+- CSS: `cursor: not-allowed`, `opacity: 0.5`, hint `.readOnlyHint`.
+- RBAC Rust já bloqueava `SetMasterGain`/`SetMasterMute` para role Musician desde Phase 23; UX agora consistente.
 
-### Changed — Phase 84 release reproducibility (2026-09-13)
-- Release workflow uses Cargo `--locked` for Rust checks/builds.
-- Server and web archives normalize ordering, timestamps and ownership from commit `SOURCE_DATE_EPOCH` before checksums; Ed25519 signatures remain limited to server archives.
-- Repeated-build checksum confirmation, release `v0.3.1`, real installation and Raspberry Pi 5 remain pending.
+### Added — Phase 87: Engineer Console WebSocket master gain/mute
+- `web/engineer/src/protocol.ts`: tipos WS `SetMasterGain`, `SetMasterMute`, `MasterAck`, `State`, `Error`.
+- `web/engineer/src/useEngineerWs.ts`: hook React com reconexão 3 s, guard mounted, handlers MasterAck/State/Error.
+- `WsBadge` no header; `MixMasterControl` (slider gain −40..+10 dB + botão mute) por mix.
 
-### Changed — CI verification refresh (2026-09-13)
-- Runs `34761731828` e `34763037883` passaram nos 9 jobs; backlog CI remoto deixa de ser blocker. Release `v0.3.1`, instalação real e Raspberry Pi 5 continuam pendentes.
+### Performance — Phase 86: lock-free broadcast fan-out
+- Remove `mix_assignment_lock` dos dois caminhos de fan-out somente leitura no WebSocket handler (`ws.rs`).
+- Stale-read aceito na janela de transição de assignment; cliente re-sincroniza via REST snapshot.
 
-### Fixed — Phase 79 CI OpenSSL 3.5 (2026-09-13)
-- Workflow de release usa `openssl pkeyutl -sign -rawin`, compatível com OpenSSL 3.5 para assinaturas Ed25519 sem digest.
-- Run CI `34760297250` passou nos 9 jobs após atualização do pin de `actions/cache`; validação local dos validadores: 56 testes aprovados.
+### Added — Phase 85: Rust code coverage
+- `make coverage` target: `cargo-llvm-cov` → `coverage/lcov.info`; cria diretório em checkout limpo.
+- CI job `Rust Code Coverage`: instala `cargo-llvm-cov 0.9.1 --locked`, gera LCOV, faz upload do artifact (30 dias).
+- Baseline: **81.21% lines, 73.85% functions** (workspace, backend simulado).
 
-### Fixed — CI: actions/cache SHA inválido quebrava todos os jobs (2026-09-13)
-- SHA `55cc8345863c7cc4c66a329aec7e433d2d1c52a9` (rotulado erroneamente como v6.1.0) não existe no repositório `actions/cache`, causando falha imediata de todos os 10 jobs de CI.
-- Revertido para SHA válido `6849a6489940f00c2f30c0fb92c6274307ccb58a` (v4.1.2) em ci.yml (2 ocorrências) e release.yml (3 ocorrências).
-- SHA verificado via GitHub API antes do commit; audit local limpo (60 testes Python + testes Rust + cargo audit passando).
-- Run `34761731828` executou e aprovou todos os 9 jobs, removendo bloqueio operacional de runner/quota.
+### Added — examples/minimal-mix
+- `server/mix-engine/examples/minimal_mix.rs`: dois mixes independentes de dois canais com gain/pan/mute/master; assertions self-check.
+- `examples/minimal-mix/README.md`: guia com grafo de sinal e uso.
 
-### Added — Phase 83: pan estéreo e mudo master na UI do músico (2026-09-13)
-- Slider de panorama por canal (-1 a +1) com rótulo L/C/R; desabilitado quando canal está mudo.
-- Badge MASTER MUTED (somente leitura) visível quando servidor reporta mudo master da mix.
-- Sincronização de pan via snapshot WebSocket; envio de `SetSendPan` a cada mudança.
-- 6 novos testes em Channel, 2 em MixControl; total 42 testes aprovados.
+### Changed — Phase 84: release reproducibility
+- Cargo `--locked` em todos os checks/builds do workflow de release.
+- Archives normalizam ordenação, timestamps e ownership via `SOURCE_DATE_EPOCH`; gate executa dois empacotamentos e compara checksums.
 
-### Security — Phase 82 hardening do instalador (2026-09-13)
-- Instalador exige SHA-1 completo de commit, verifica identidade exata do checkout e recusa branches/tags mutáveis.
-- Build instala artefatos em release versionado com staging limpo; link `current` preserva release anterior quando falha antes do commit.
-- `preflight_node_check()` valida Node.js >= 20 **antes** de `install_deps` mutar o host; se `node` já presente e < 20, falha imediatamente sem instalar pacotes.
+### Fixed — Phase 79: CI OpenSSL 3.5
+- Workflow de release usa `openssl pkeyutl -sign -rawin`, compatível com OpenSSL 3.5.
+
+### Fixed — Phase 83: Musician UI pan + master mute indicator
+- Slider de pan por canal (−1 a +1) com rótulo L/C/R; desabilitado quando canal mudo.
+- Badge `MASTER MUTED` somente leitura quando servidor reporta mudo master.
+- `SetSendPan` enviado a cada mudança; sincronização via snapshot WebSocket.
 
 ### Security — Phase 82 auditoria do instalador (2026-09-13)
 - Auditoria independente encontrou HIGH no build a partir de checkout remoto sem verificação criptográfica de fonte, além de MEDIUM em compatibilidade Node.js e instalação parcial/reexecução de assets.

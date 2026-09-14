@@ -4,6 +4,27 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+### 2026-09-14 — Documentation and status synchronization
+
+**Status:** Documentation cleanup after PR #49, #50, #52 and #53 merged into `main`.
+
+- README status now reflects Phase 92 as current work.
+- Stale claims of blocked CI, unmerged PRs and `runner_id=0` removed from current status sections.
+- CHANGELOG consolidated; duplicate Phase 85 entry removed.
+- TODO now records current release, hardware and Phase 92 gates.
+- Release `v0.3.1` tag exists, but GitHub Release is not published.
+- PipeWire/ALSA, WebRTC/Opus, dedicated Linux installation and Raspberry Pi 5 remain unvalidated.
+
+---
+
+### 2026-09-14 — Phase 92: WebSocket EQ band control
+
+**Status:** Backlog. No implementation commit or open PR is confirmed in current repository state.
+
+Phase 92 requires protocol design, validation, broadcast/RBAC implementation, local gates, independent review and real CI before PR.
+
+---
+
 ### 2026-09-13 — Phase 89: Engineer Console Channel Strip
 
 **Goal:** Expose existing authenticated channel gain/mute API in Engineer Console.

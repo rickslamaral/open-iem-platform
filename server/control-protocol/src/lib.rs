@@ -109,6 +109,21 @@ pub enum ClientMessage {
         /// Mute state.
         muted: bool,
     },
+    /// Configure one parametric EQ band for a mix. Engineer/Admin only.
+    SetEqBand {
+        /// Mix slot index.
+        mix_index: u8,
+        /// Band index (`0..MAX_EQ_BANDS`).
+        band_index: u8,
+        /// Centre frequency in Hz (20–20000).
+        frequency_hz: f32,
+        /// Gain in dB (−24.0–+24.0).
+        gain_db: f32,
+        /// Q factor (0.1–10.0).
+        q: f32,
+        /// Whether this band is active.
+        enabled: bool,
+    },
 }
 
 /// Server-to-client control-plane messages.
@@ -144,6 +159,23 @@ pub enum ServerMessage {
         /// Current master mute state.
         master_muted: bool,
         /// Updated mix revision.
+        revision: u64,
+    },
+    /// Acknowledged EQ band mutation.
+    EqBandAck {
+        /// Mix slot.
+        mix_index: u8,
+        /// Band index.
+        band_index: u8,
+        /// Centre frequency in Hz.
+        frequency_hz: f32,
+        /// Gain in dB.
+        gain_db: f32,
+        /// Q factor.
+        q: f32,
+        /// Whether band is active.
+        enabled: bool,
+        /// Updated mix EQ revision.
         revision: u64,
     },
     /// Protocol or request error.
@@ -339,6 +371,40 @@ mod tests {
             master_gain_db: -6.0,
             master_muted: true,
             revision: 7,
+        };
+        let json = serde_json::to_string(&ack).unwrap();
+        let decoded: ServerMessage = serde_json::from_str(&json).unwrap();
+        assert_eq!(decoded, ack);
+    }
+
+    #[test]
+    fn round_trip_set_eq_band() {
+        let envelope = Envelope::new(
+            "req-eq".to_owned(),
+            ClientMessage::SetEqBand {
+                mix_index: 0,
+                band_index: 2,
+                frequency_hz: 1_000.0,
+                gain_db: 6.0,
+                q: 1.4,
+                enabled: true,
+            },
+        );
+        let json = serde_json::to_string(&envelope).unwrap();
+        let decoded = decode_client_message(&json).unwrap();
+        assert_eq!(decoded, envelope);
+    }
+
+    #[test]
+    fn round_trip_eq_band_ack_server_message() {
+        let ack = ServerMessage::EqBandAck {
+            mix_index: 1,
+            band_index: 0,
+            frequency_hz: 2_000.0,
+            gain_db: -3.0,
+            q: 0.7,
+            enabled: false,
+            revision: 12,
         };
         let json = serde_json::to_string(&ack).unwrap();
         let decoded: ServerMessage = serde_json::from_str(&json).unwrap();
