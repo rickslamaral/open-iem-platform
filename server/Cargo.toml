@@ -9,6 +9,7 @@ members = [
     "streaming",
     "admin-cli",
     "topology",
+    "device-manager",
 ]
 
 [workspace.dependencies]
