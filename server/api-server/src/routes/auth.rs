@@ -96,7 +96,7 @@ pub async fn login(
     Json(body): Json<LoginRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     validate_credentials(&body.username, &body.password)?;
-    let (user_id, pw_hash, role) = state.db.find_user(&body.username)?;
+    let (user_id, pw_hash, role, _) = state.db.find_user(&body.username)?;
     verify_password(&body.password, &pw_hash)?;
 
     let jti = Uuid::new_v4().to_string();
@@ -227,7 +227,7 @@ pub async fn logout(
     State(state): State<AppState>,
     axum::Extension(claims): axum::Extension<JwtClaims>,
 ) -> Result<impl IntoResponse, ApiError> {
-    let (user_id, _, _) = state.db.find_user(&claims.sub)?;
+    let (user_id, _, _, _) = state.db.find_user(&claims.sub)?;
     state.db.revoke_all_for_user(user_id)?;
     // Clear the cookie
     Ok((

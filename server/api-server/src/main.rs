@@ -94,6 +94,21 @@ async fn main() -> anyhow::Result<()> {
 
     let jwt = JwtKeys::from_ed_pem(&private_pem, &public_pem)?;
     let db = Db::open(&db_path)?;
+
+    // Bootstrap soundtech user (idempotent — no-op if already exists).
+    {
+        const DEFAULT_PASSWORD: &str = "changeme-soundtech-2024";
+        let soundtech_password = env::var("OPENIEM_SOUNDTECH_PASSWORD")
+            .unwrap_or_else(|_| {
+                tracing::warn!(
+                    "OPENIEM_SOUNDTECH_PASSWORD not set — using compiled-in default.                      Change this password immediately in any non-development environment."
+                );
+                DEFAULT_PASSWORD.to_owned()
+            });
+        db.bootstrap_soundtech(&soundtech_password)
+            .map_err(|e| anyhow::anyhow!("soundtech bootstrap failed: {e}"))?;
+    }
+
     let state = AppState::new(ControlState::new(), db, jwt);
 
     let protected = Router::new()

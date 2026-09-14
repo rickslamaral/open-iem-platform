@@ -12,6 +12,7 @@
 //! All plaintext passwords and tokens are handled in the caller — this module
 //! stores only hashes, never plaintext.
 
+use crate::auth::hash_password;
 use crate::error::ApiError;
 use control_protocol::Role;
 use rusqlite::{params, Connection, OptionalExtension};
@@ -94,9 +95,27 @@ impl Db {
                 user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
                 assigned_at INTEGER NOT NULL DEFAULT (unixepoch())
             );
+
+            CREATE TABLE IF NOT EXISTS migrations (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL UNIQUE,
+                applied_at INTEGER NOT NULL DEFAULT (unixepoch())
+            );
             ",
         )
-        .map_err(|e| ApiError::Internal(e.to_string()))
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+
+        // M001: add must_change_password column (idempotent — ignore duplicate column error)
+        match conn.execute(
+            "ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0",
+            [],
+        ) {
+            Ok(_) => {}
+            Err(e) if e.to_string().contains("duplicate column name") => {}
+            Err(e) => return Err(ApiError::Internal(e.to_string())),
+        }
+
+        Ok(())
     }
 
     /// Create a user. `pw_hash` must be an Argon2id PHC string.
@@ -123,30 +142,75 @@ impl Db {
         Ok(())
     }
 
-    /// Look up a user by username. Returns `(id, pw_hash, role)`.
+    /// Look up a user by username. Returns `(id, pw_hash, role, must_change_password)`.
     ///
     /// # Errors
     /// Returns `ApiError::Unauthorized` if user not found.
-    pub fn find_user(&self, username: &str) -> Result<(i64, String, Role), ApiError> {
+    pub fn find_user(&self, username: &str) -> Result<(i64, String, Role, bool), ApiError> {
         let conn = self
             .conn
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
         conn.query_row(
-            "SELECT id, pw_hash, role FROM users WHERE username = ?1",
+            "SELECT id, pw_hash, role, must_change_password FROM users WHERE username = ?1",
             params![username],
             |row| {
                 let id: i64 = row.get(0)?;
                 let pw_hash: String = row.get(1)?;
                 let role_str: String = row.get(2)?;
-                Ok((id, pw_hash, role_str))
+                let mcp: i64 = row.get(3)?;
+                Ok((id, pw_hash, role_str, mcp))
             },
         )
         .map_err(|_| ApiError::Unauthorized("invalid credentials"))
-        .and_then(|(id, hash, role_str)| {
+        .and_then(|(id, hash, role_str, mcp)| {
             let role = str_to_role(&role_str)?;
-            Ok((id, hash, role))
+            Ok((id, hash, role, mcp != 0))
         })
+    }
+
+    /// Bootstrap the `soundtech` user with role ENGINEER.
+    ///
+    /// Idempotent: does nothing if the user already exists.
+    /// `password` is hashed with Argon2id; plaintext is never stored or logged.
+    ///
+    /// # Errors
+    /// Returns `ApiError::Internal` on hashing or DB failure.
+    pub fn bootstrap_soundtech(&self, password: &str) -> Result<(), ApiError> {
+        // Check existence without revealing the password in any error path.
+        let exists = {
+            let conn = self
+                .conn
+                .lock()
+                .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+            conn.query_row(
+                "SELECT COUNT(*) FROM users WHERE username = 'soundtech'",
+                [],
+                |row| row.get::<_, i64>(0),
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?
+                > 0
+        };
+        if exists {
+            return Ok(());
+        }
+        let pw_hash = hash_password(password)?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute(
+            "INSERT INTO users (username, pw_hash, role, must_change_password) VALUES ('soundtech', ?1, 'ENGINEER', 1)",
+            params![pw_hash],
+        )
+        .map_err(|e| {
+            if e.to_string().contains("UNIQUE") {
+                // Race: another process inserted between our check and insert — idempotent.
+                return ApiError::Internal("soundtech already exists (race)".to_owned());
+            }
+            ApiError::Internal(e.to_string())
+        })?;
+        Ok(())
     }
 
     /// Store a refresh token hash for a user.
@@ -836,7 +900,7 @@ mod tests {
             Role::Engineer,
         )
         .unwrap();
-        let (id, hash, role) = db.find_user("alice").unwrap();
+        let (id, hash, role, _) = db.find_user("alice").unwrap();
         assert!(id > 0);
         assert!(hash.starts_with("$argon2id$"));
         assert_eq!(role, Role::Engineer);
@@ -863,7 +927,7 @@ mod tests {
     fn refresh_token_rotate_happy_path() {
         let db = setup();
         db.create_user("carol", "hash", Role::Musician).unwrap();
-        let (user_id, _, _) = db.find_user("carol").unwrap();
+        let (user_id, _, _, _) = db.find_user("carol").unwrap();
         let now = 1_000_000_u64;
         db.store_refresh_token(user_id, "tokenhash_a", now + 1000, "fam-1")
             .unwrap();
@@ -878,7 +942,7 @@ mod tests {
     fn refresh_token_reuse_revokes_family_and_access() {
         let db = setup();
         db.create_user("dave", "hash", Role::Musician).unwrap();
-        let (user_id, _, _) = db.find_user("dave").unwrap();
+        let (user_id, _, _, _) = db.find_user("dave").unwrap();
         let now = 1_000_000_u64;
         let old_session_id = db
             .create_session_with_access(
@@ -921,7 +985,7 @@ mod tests {
     fn revoke_all_for_user_makes_tokens_invalid() {
         let db = setup();
         db.create_user("eve", "hash", Role::Admin).unwrap();
-        let (user_id, _, _) = db.find_user("eve").unwrap();
+        let (user_id, _, _, _) = db.find_user("eve").unwrap();
         let now = 1_000_000_u64;
         db.store_refresh_token(user_id, "tokenhash_c", now + 1000, "fam-3")
             .unwrap();
@@ -949,7 +1013,7 @@ mod tests {
     fn delete_user_ok_and_not_found() {
         let db = setup();
         db.create_user("carol", "hash", Role::Musician).unwrap();
-        let (user_id, _, _) = db.find_user("carol").unwrap();
+        let (user_id, _, _, _) = db.find_user("carol").unwrap();
         db.delete_user(user_id).unwrap();
         let err = db.delete_user(user_id).unwrap_err();
         assert!(matches!(err, ApiError::NotFound(_)));
@@ -959,7 +1023,7 @@ mod tests {
     fn list_and_revoke_sessions() {
         let db = setup();
         db.create_user("dave", "hash", Role::Musician).unwrap();
-        let (user_id, _, _) = db.find_user("dave").unwrap();
+        let (user_id, _, _, _) = db.find_user("dave").unwrap();
         let now = 1_000_000_u64;
         db.store_refresh_token(user_id, "tokenhash_s1", now + 1000, "fam-s1")
             .unwrap();
@@ -970,5 +1034,62 @@ mod tests {
         db.revoke_session_by_id(session_id).unwrap();
         let sessions = db.list_active_sessions(now).unwrap();
         assert_eq!(sessions.len(), 0);
+    }
+
+    #[test]
+    fn bootstrap_creates_soundtech() {
+        let db = setup();
+        db.bootstrap_soundtech("testpassword123").unwrap();
+        let (_, _, role, must_change) = db.find_user("soundtech").unwrap();
+        assert_eq!(role, Role::Engineer);
+        assert!(
+            must_change,
+            "must_change_password must be true for bootstrapped soundtech"
+        );
+    }
+
+    #[test]
+    fn bootstrap_is_idempotent() {
+        let db = setup();
+        db.bootstrap_soundtech("first-password").unwrap();
+        let (_, first_hash, _, _) = db.find_user("soundtech").unwrap();
+        // Second call with different password must succeed and NOT overwrite
+        db.bootstrap_soundtech("second-password").unwrap();
+        let (_, second_hash, _, _) = db.find_user("soundtech").unwrap();
+        assert_eq!(
+            first_hash, second_hash,
+            "hash must not change on second bootstrap call"
+        );
+    }
+
+    #[test]
+    fn bootstrap_does_not_overwrite_existing_user() {
+        let db = setup();
+        let known_hash = "$argon2id$v=19$m=19456,t=2,p=1$known$salt";
+        db.create_user("soundtech", known_hash, Role::Engineer)
+            .unwrap();
+        // bootstrap with different password must not touch existing user
+        db.bootstrap_soundtech("other-password").unwrap();
+        let (_, hash, _, _) = db.find_user("soundtech").unwrap();
+        assert_eq!(
+            hash, known_hash,
+            "existing user hash must not be overwritten"
+        );
+    }
+
+    #[test]
+    fn must_change_password_false_for_regular_users() {
+        let db = setup();
+        db.create_user(
+            "alice",
+            "$argon2id$v=19$m=19456,t=2,p=1$fakesalt$fakehash",
+            Role::Engineer,
+        )
+        .unwrap();
+        let (_, _, _, must_change) = db.find_user("alice").unwrap();
+        assert!(
+            !must_change,
+            "regular users must have must_change_password = false"
+        );
     }
 }
