@@ -19,6 +19,8 @@ pub const MAX_DEVICE_NAME_BYTES: usize = 256;
 pub const MAX_SAMPLE_RATES: usize = 16;
 /// Maximum number of topology modes advertised by one device.
 pub const MAX_SUPPORTED_MODES: usize = 8;
+/// Maximum number of output channels a device may advertise.
+pub const MAX_OUTPUT_CHANNELS: usize = 64;
 
 /// Device lifecycle state.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -79,6 +81,9 @@ pub enum DeviceManagerError {
     /// Device reports no usable output channels.
     #[error("device {0} reports no output channels")]
     NoOutputChannels(String),
+    /// Device reports more output channels than the bounded registry supports.
+    #[error("device {0} reports more than {MAX_OUTPUT_CHANNELS} output channels")]
+    TooManyOutputChannels(String),
     /// Device has no sample rates.
     #[error("device {0} reports no sample rates")]
     NoSampleRates(String),
@@ -249,6 +254,9 @@ fn validate_snapshot(capabilities: &[DeviceCapabilities]) -> Result<(), DeviceMa
         }
         if device.max_output_channels == 0 {
             return Err(DeviceManagerError::NoOutputChannels(device.id.clone()));
+        }
+        if device.max_output_channels > MAX_OUTPUT_CHANNELS {
+            return Err(DeviceManagerError::TooManyOutputChannels(device.id.clone()));
         }
         if device.sample_rates_hz.is_empty() || device.sample_rates_hz.contains(&0) {
             return Err(DeviceManagerError::NoSampleRates(device.id.clone()));
@@ -452,6 +460,17 @@ mod tests {
         assert_eq!(
             manager.discover(vec![invalid]),
             Err(DeviceManagerError::NoSampleRates("bad".into()))
+        );
+    }
+
+    #[test]
+    fn excessive_output_channels_are_rejected() {
+        let mut manager = DeviceManager::new();
+        let mut invalid = device("bad");
+        invalid.max_output_channels = MAX_OUTPUT_CHANNELS + 1;
+        assert_eq!(
+            manager.discover(vec![invalid]),
+            Err(DeviceManagerError::TooManyOutputChannels("bad".into()))
         );
     }
 
