@@ -4,6 +4,34 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
+### 2026-09-14 — P0-001: fronteira realtime bounded
+
+**Objetivo:** remover `Arc<Mutex<JackState>>` do callback JACK antes de qualquer validação de hardware.
+
+**Implementado:** `audio-engine::rt_boundary` agora usa `crossbeam-channel::bounded(64)`. Produtor de controle usa `try_send`; fila cheia rejeita comando mais novo. `RealtimeProcessor` consome comandos com `try_recv` e processa `MixEngine` sem mutex, I/O ou espera bloqueante. Callback JACK usa processador diretamente e processa cada frame do período sem alocação no callback.
+
+**Testes:** `cargo test --manifest-path server/Cargo.toml --workspace` PASS; `cargo clippy --manifest-path server/Cargo.toml -p audio-engine --all-targets -- -D warnings` PASS.
+
+**Limitações:** feature JACK/PipeWire e hardware não foram executados neste host; callback permanece stub de backend, sem conexões de portas e sem métricas de XRUN. Nenhuma claim de runtime/hardware alterada.
+
+**Próximo:** P0-002 — Audio Lab L1/L2.
+
+---
+
+### 2026-09-14 — Final architecture closure and development handoff
+
+**Status:** Architecture decisions closed with warnings; implementation and physical validation remain pending.
+
+- ADR-001..010 updated with technical decisions, consequences, risks and validation gates.
+- `docs/ARCHITECTURE-GAPS.md` reconciled into 33 canonical GAPs.
+- `docs/DEVELOPMENT-HANDOFF.md` created; P0-001 is complete in code and next item is P0-002, L1/L2 Audio Lab.
+- No audio/media/runtime/hardware claim changed to validated.
+- No ESP32 scope added.
+- Development cron reactivation and exact verification recorded in final report.
+
+
+---
+
 ### 2026-09-14 — Documentation and status synchronization
 
 **Status:** Documentation cleanup after PR #49, #50, #52 and #53 merged into `main`.

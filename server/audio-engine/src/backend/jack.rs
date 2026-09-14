@@ -46,6 +46,10 @@
 
 use jack::{AudioIn, AudioOut, Client, ClientOptions, Control, ProcessScope};
 use mix_engine::{MixEngine, MAX_CHANNELS, SAMPLE_RATE};
+use std::sync::{
+    atomic::{AtomicU8, Ordering},
+    Arc,
+};
 
 use crate::rt_boundary::RealtimeProcessor;
 
@@ -53,6 +57,10 @@ use crate::{
     backend::{Backend, BackendResult, ProcessStats},
     error::AudioEngineError,
 };
+
+const LIFECYCLE_IDLE: u8 = 0;
+const LIFECYCLE_ACTIVATING: u8 = 1;
+const LIFECYCLE_ACTIVE: u8 = 2;
 
 /// Handle to the active JACK client (opaque — keeps lifetime alive).
 struct ActiveClient {
@@ -74,6 +82,7 @@ pub struct JackBackend {
     engine_template: MixEngine,
     control_producer: Option<crate::rt_boundary::ControlProducer>,
     active_client: Option<ActiveClient>,
+    lifecycle: Arc<AtomicU8>,
 }
 
 impl JackBackend {
@@ -94,6 +103,7 @@ impl JackBackend {
             engine_template,
             control_producer: Some(control_producer),
             active_client: None,
+            lifecycle: Arc::new(AtomicU8::new(LIFECYCLE_IDLE)),
         }
     }
 
@@ -107,10 +117,19 @@ impl JackBackend {
         &self,
         command: crate::rt_boundary::AudioControl,
     ) -> Result<(), crate::rt_boundary::EnqueueError> {
+        if self.lifecycle.load(Ordering::Acquire) != LIFECYCLE_ACTIVE {
+            return Err(crate::rt_boundary::EnqueueError::Disconnected);
+        }
         self.control_producer
             .as_ref()
             .ok_or(crate::rt_boundary::EnqueueError::Disconnected)?
-            .try_send(command)
+            .try_send(command)?;
+        // Recheck lifecycle after enqueue. Callers must still tolerate a
+        // concurrent shutdown racing with this non-blocking operation.
+        if self.lifecycle.load(Ordering::Acquire) != LIFECYCLE_ACTIVE {
+            return Err(crate::rt_boundary::EnqueueError::Disconnected);
+        }
+        Ok(())
     }
 
     /// Number of control commands rejected by a full queue.
@@ -125,9 +144,14 @@ impl JackBackend {
 impl Backend for JackBackend {
     fn activate(&mut self) -> BackendResult<()> {
         if self.active_client.is_some() {
-            return Err(AudioEngineError::InvalidState {
-                reason: "JACK client already active".into(),
-            });
+            if self.lifecycle.load(Ordering::Acquire) == LIFECYCLE_ACTIVE {
+                return Err(AudioEngineError::InvalidState {
+                    reason: "JACK client already active".into(),
+                });
+            }
+            // JACK may have invoked shutdown without dropping AsyncClient.
+            // Release stale handle before attempting a fresh activation.
+            self.active_client = None;
         }
 
         let (client, _status) = Client::new(&self.client_name, ClientOptions::NO_START_SERVER)
@@ -135,6 +159,7 @@ impl Backend for JackBackend {
 
         // Update sample rate from what JACK negotiated.
         self.sample_rate = client.sample_rate() as u32;
+        self.buffer_frames = client.buffer_size() as u32;
 
         // Register input ports (one per channel slot).
         let mut in_ports: Vec<jack::Port<AudioIn>> = Vec::with_capacity(MAX_CHANNELS);
@@ -168,14 +193,40 @@ impl Backend for JackBackend {
             out_r,
             processor,
         };
+        self.lifecycle
+            .store(LIFECYCLE_ACTIVATING, Ordering::Release);
+        let notification = JackNotificationHandler {
+            lifecycle: Arc::clone(&self.lifecycle),
+        };
 
-        let async_client = client
-            .activate_async(JackNotificationHandler, process)
-            .map_err(|e| AudioEngineError::BackendActivate(e.to_string()))?;
+        let async_client = match client.activate_async(notification, process) {
+            Ok(client) => client,
+            Err(error) => {
+                self.lifecycle.store(LIFECYCLE_IDLE, Ordering::Release);
+                return Err(AudioEngineError::BackendActivate(error.to_string()));
+            }
+        };
 
         self.active_client = Some(ActiveClient {
             _handle: async_client,
         });
+        // Shutdown uses CAS against ACTIVATING, so it cannot be overwritten
+        // by this publication if JACK already declared client dead.
+        if self
+            .lifecycle
+            .compare_exchange(
+                LIFECYCLE_ACTIVATING,
+                LIFECYCLE_ACTIVE,
+                Ordering::AcqRel,
+                Ordering::Acquire,
+            )
+            .is_err()
+        {
+            self.active_client = None;
+            return Err(AudioEngineError::BackendActivate(
+                "JACK client shut down during activation".into(),
+            ));
+        }
 
         log::info!(
             "[JACK] audio-engine activated: client='{}' {}Hz {}frames",
@@ -189,12 +240,13 @@ impl Backend for JackBackend {
 
     fn deactivate(&mut self) {
         // Dropping the async client deactivates the JACK client.
+        self.lifecycle.store(LIFECYCLE_IDLE, Ordering::Release);
         self.active_client = None;
         log::info!("[JACK] audio-engine deactivated");
     }
 
     fn is_active(&self) -> bool {
-        self.active_client.is_some()
+        self.active_client.is_some() && self.lifecycle.load(Ordering::Acquire) == LIFECYCLE_ACTIVE
     }
 
     fn sample_rate(&self) -> u32 {
@@ -242,9 +294,25 @@ impl jack::ProcessHandler for JackProcessHandler {
 }
 
 /// JACK notification handler — logs lifecycle events.
-struct JackNotificationHandler;
+struct JackNotificationHandler {
+    lifecycle: Arc<AtomicU8>,
+}
 
 impl jack::NotificationHandler for JackNotificationHandler {
+    unsafe fn shutdown(&mut self, _: jack::ClientStatus, _: &str) {
+        let _ = self.lifecycle.compare_exchange(
+            LIFECYCLE_ACTIVATING,
+            LIFECYCLE_IDLE,
+            Ordering::AcqRel,
+            Ordering::Acquire,
+        );
+        let _ = self.lifecycle.compare_exchange(
+            LIFECYCLE_ACTIVE,
+            LIFECYCLE_IDLE,
+            Ordering::AcqRel,
+            Ordering::Acquire,
+        );
+    }
     fn xrun(&mut self, _: &Client) -> Control {
         // In production: increment xrun counter, emit metric to Prometheus.
         log::warn!("[JACK] XRUN detected");

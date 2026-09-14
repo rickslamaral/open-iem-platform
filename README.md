@@ -11,28 +11,26 @@ Open IEM Platform is an open-source, Linux-native system for personal in-ear mon
 ## Architecture
 
 ```
-Digital Mixer / Audio Interface
+Audio Sources / Interface
         |
   Linux IEM Server (PipeWire)
         |
     Mix Engine
         |
-Independent IEM Mixes (per musician)
+    Media Plane
         |
-    Audio Transport
-        |
-       Wi-Fi
-  /     |     \
-Phone  Phone  Phone
- |      |      |
-IEM    IEM    IEM
+ WebRTC / RTP / Opus
+   /              \\
+Native RX       Native RX
+   |                |
+IEM              IEM
 ```
 
 ## MVP Scope
 
 - 8 inputs
 - 2 stereo mixes
-- 2 musicians / 2 clients
+- 2 músicos / 2 receivers nativos headless (um por músico); PWA somente controle
 - 48 kHz / 32-bit float internal
 - Gain, pan, mute, master volume, limiter
 - WebSocket control
@@ -42,7 +40,7 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase atual: Phase 92 — WS EQ Control (backlog).** Não há implementação local confirmada, commit ou PR aberta para esta fase. Próximo trabalho seguro: especificar e implementar controle de EQ por WebSocket em branch dedicada, com gates completos antes de abrir PR.
+**Fase atual: arquitetura P0 fechada; desenvolvimento retomado pela fila em `docs/DEVELOPMENT-HANDOFF.md`.** P0-001 concluído em código; próximo item: P0-002 — Audio Lab L1/L2. Phase 92 backend WS EQ está mergeada; frontend EQ permanece backlog.
 
 **Fases concluídas e mescladas em `main`:**
 
@@ -165,6 +163,8 @@ scripts/              — Development utilities
 ## Documentation
 
 - [Architecture Gaps](docs/ARCHITECTURE-GAPS.md)
+- [Development Handoff](docs/DEVELOPMENT-HANDOFF.md)
+- [Architecture Decision Records](docs/decisions/README.md)
 - [Specification Audit](docs/SPEC-AUDIT.md)
 - [Skills Registry](docs/SKILLS.md)
 - [TODO](docs/TODO.md)

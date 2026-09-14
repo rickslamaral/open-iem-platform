@@ -2,8 +2,9 @@
 
 ## Estado atual — 2026-09-14
 
-- **Phase 92 — WS EQ Control:** implementada e mergeada em `main` (PR #54). Backend completo: `SetEqBand`/`EqBandAck`, `EqBandDelta` broadcast, RBAC. Frontend EQ controls pendente (Phase 93+).
-- **Phase 83–92:** implementadas, CI remoto real verde e mescladas em `main`.
+- **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
+- **Phase 92 — WS EQ Control:** backend implementado e mergeado em `main` (PR #54): `SetEqBand`/`EqBandAck`, `EqBandDelta` broadcast, RBAC. Frontend EQ controls pendente (Phase 93+).
+- **Phase 83–92:** backend/control changes implementados e mesclados em `main`; runtime de áudio/media permanece não validado.
 - **Release `v0.3.1`:** tag existe; GitHub Release ainda não publicada.
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
 - **Guias:** espelhos PT/EN/ES existentes; revisar e sincronizar após validação física.
@@ -16,8 +17,10 @@
 - [x] Executar fmt, clippy, testes completos, revisão independente e scan de segurança.
 - [x] Atualizar README, CHANGELOG, DEVELOPMENT-LOG e review da Phase 92.
 - [x] Commitar e abrir PR #54 (mergeado em main via `chore/docs-cleanup-status-sync`).
-- [ ] Confirmar CI remoto 11/11 (aguarda GitHub Actions runner real).
+- [x] Confirmar CI remoto 11/11 para mudanças mergeadas anteriores; cada novo commit exige evidência no HEAD.
 - [ ] Frontend EQ controls — Phase 93+.
+- [x] P0-001 — substituir Mutex no callback JACK por fronteira SPSC bounded e fila de controle non-blocking; callback processa período completo; testes locais passam.
+- [ ] P0-002 — Audio Lab L1/L2 permanece próximo item.
 
 ## Phase 93 — Frontend EQ Controls (Engineer Console)
 
