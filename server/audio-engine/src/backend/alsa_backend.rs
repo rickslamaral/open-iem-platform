@@ -181,7 +181,7 @@ impl Backend for AlsaBackend {
         // Reset shared state.
         self.xrun_count.store(0, Ordering::Relaxed);
         self.muted.store(false, Ordering::Relaxed);
-        self.stop_flag.store(false, Ordering::Relaxed);
+        self.stop_flag.store(false, Ordering::Release);
 
         // Open and configure PCM — fail-safe on error.
         let pcm = match self.open_pcm() {
@@ -233,7 +233,7 @@ impl Backend for AlsaBackend {
         // Mark inactive before joining — ensures is_active() returns false
         // even if the thread join takes time or panics.
         self.active = false;
-        self.stop_flag.store(true, Ordering::Relaxed);
+        self.stop_flag.store(true, Ordering::Release);
         if let Some(h) = self.thread_handle.take() {
             match h.join() {
                 Ok(processor) => {
@@ -289,7 +289,7 @@ fn audio_thread_main(
     let input_zeros = vec![0.0f32; frames * 2];
 
     loop {
-        if stop_flag.load(Ordering::Relaxed) {
+        if stop_flag.load(Ordering::Acquire) {
             break;
         }
 
