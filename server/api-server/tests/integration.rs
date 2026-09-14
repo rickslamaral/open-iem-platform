@@ -1674,3 +1674,223 @@ async fn ws_master_broadcast_filtered_by_musician_assignment() {
         "musician assigned to mix 1 must NOT receive master broadcast for mix 0"
     );
 }
+
+// ── Phase 92: WebSocket EQ band control ────────────────────────────────────
+
+#[tokio::test]
+async fn ws_engineer_set_eq_band_returns_eq_band_ack() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "eng_eq1", "pw", Role::Engineer);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetEqBand",
+        json!({
+            "mix_index": 0,
+            "band_index": 1,
+            "frequency_hz": 1000.0,
+            "gain_db": 6.0,
+            "q": 1.4,
+            "enabled": true
+        }),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "EqBandAck");
+    assert_eq!(resp["payload"]["data"]["mix_index"], 0);
+    assert_eq!(resp["payload"]["data"]["band_index"], 1);
+    assert!(resp["payload"]["data"]["enabled"].as_bool().unwrap());
+    let freq: f64 = resp["payload"]["data"]["frequency_hz"].as_f64().unwrap();
+    assert!((freq - 1000.0).abs() < 0.1);
+    let gain: f64 = resp["payload"]["data"]["gain_db"].as_f64().unwrap();
+    assert!((gain - 6.0).abs() < 0.001);
+}
+
+#[tokio::test]
+async fn ws_musician_denied_set_eq_band() {
+    let (server, state) = build_ws_app();
+    let token = seed_user_and_login(&state, "mus_eq1", "pw", Role::Musician);
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    ws.send_text(ws_envelope(
+        "SetEqBand",
+        json!({
+            "mix_index": 0,
+            "band_index": 0,
+            "frequency_hz": 1000.0,
+            "gain_db": 0.0,
+            "q": 1.0,
+            "enabled": false
+        }),
+    ))
+    .await;
+
+    let resp: Value = ws.receive_json().await;
+    assert_eq!(resp["payload"]["type"], "Error");
+    assert_eq!(resp["payload"]["data"]["code"], "FORBIDDEN");
+}
+
+#[tokio::test]
+async fn ws_eq_band_mutation_broadcasts_to_other_engineer_sessions() {
+    let (server, state) = build_ws_app();
+    let mutator_token = seed_user_and_login(&state, "eng_eq_mut", "pw", Role::Engineer);
+    let observer_token = seed_user_and_login(&state, "eng_eq_obs", "pw", Role::Engineer);
+
+    let mut mutator = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{mutator_token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    let mut observer = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{observer_token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    // Prime observer to ensure it has reached its receive loop.
+    observer
+        .send_text(ws_envelope(
+            "SetEqBand",
+            json!({
+                "mix_index": 0,
+                "band_index": 9,   // out of range → Error response
+                "frequency_hz": 1000.0,
+                "gain_db": 0.0,
+                "q": 1.0,
+                "enabled": false
+            }),
+        ))
+        .await;
+    let _: Value = observer.receive_json().await; // consume the Error
+
+    mutator
+        .send_text(ws_envelope(
+            "SetEqBand",
+            json!({
+                "mix_index": 0,
+                "band_index": 2,
+                "frequency_hz": 2000.0,
+                "gain_db": -3.0,
+                "q": 0.7,
+                "enabled": true
+            }),
+        ))
+        .await;
+
+    let mutator_resp: Value = mutator.receive_json().await;
+    assert_eq!(mutator_resp["payload"]["type"], "EqBandAck");
+
+    let obs_resp: Value =
+        tokio::time::timeout(std::time::Duration::from_secs(5), observer.receive_json())
+            .await
+            .expect("observer did not receive EQ band broadcast within 5 s");
+
+    assert_eq!(obs_resp["payload"]["type"], "EqBandAck");
+    assert_eq!(obs_resp["payload"]["data"]["band_index"], 2);
+    let gain: f64 = obs_resp["payload"]["data"]["gain_db"].as_f64().unwrap();
+    assert!((gain - (-3.0)).abs() < 0.001);
+}
+
+#[tokio::test]
+async fn ws_eq_band_broadcast_not_forwarded_to_musician() {
+    let (server, state) = build_ws_app();
+    let eng_token = seed_user_and_login(&state, "eng_eq_flt", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_eq_flt", "pw", Role::Musician);
+
+    {
+        let (user_id, _, _) = state.db.find_user("mus_eq_flt").unwrap();
+        state.db.assign_mix(0, user_id).unwrap();
+    }
+
+    let mut eng = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{eng_token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    let mut mus = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{mus_token}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+
+    // Prime musician to prove it's in the receive loop.
+    mus.send_text(ws_envelope(
+        "SetEqBand",
+        json!({
+            "mix_index": 0, "band_index": 0,
+            "frequency_hz": 1000.0, "gain_db": 0.0, "q": 1.0, "enabled": false
+        }),
+    ))
+    .await;
+    let prime_resp: Value = mus.receive_json().await;
+    assert_eq!(prime_resp["payload"]["type"], "Error"); // FORBIDDEN
+
+    eng.send_text(ws_envelope(
+        "SetEqBand",
+        json!({
+            "mix_index": 0,
+            "band_index": 0,
+            "frequency_hz": 500.0,
+            "gain_db": 3.0,
+            "q": 1.0,
+            "enabled": true
+        }),
+    ))
+    .await;
+    let eng_resp: Value = eng.receive_json().await;
+    assert_eq!(eng_resp["payload"]["type"], "EqBandAck");
+
+    // Musician must NOT receive EQ band broadcast.
+    let mus_no_recv: Result<_, _> = tokio::time::timeout(
+        std::time::Duration::from_millis(500),
+        mus.receive_json::<Value>(),
+    )
+    .await;
+    assert!(
+        mus_no_recv.is_err(),
+        "musician must NOT receive EQ band broadcast"
+    );
+}

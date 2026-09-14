@@ -4,7 +4,10 @@
 #![deny(unsafe_code)]
 
 use control_protocol::{ClientMessage, Envelope, ServerMessage, PROTOCOL_VERSION};
-use mix_engine::{Channel, MixEngine, GAIN_DB_MAX, GAIN_DB_MIN, MAX_CHANNELS};
+use mix_engine::{
+    eq::{EqBand, MAX_EQ_BANDS},
+    Channel, MixEngine, GAIN_DB_MAX, GAIN_DB_MIN, MAX_CHANNELS,
+};
 
 /// Mutable control-plane state owned by the server task.
 #[derive(Debug, Default)]
@@ -196,6 +199,96 @@ impl ControlState {
                         master_gain_db: mix.master_gain_db(),
                         master_muted: mix.master_muted,
                         revision: mix.revision(),
+                    }
+                }
+                ClientMessage::SetEqBand {
+                    mix_index,
+                    band_index,
+                    frequency_hz,
+                    gain_db,
+                    q,
+                    enabled,
+                } => {
+                    // Validate band_index
+                    let band_i = usize::from(band_index);
+                    if band_i >= MAX_EQ_BANDS {
+                        return Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: request.request_id,
+                            payload: ServerMessage::Error {
+                                code: "INVALID_BAND_INDEX".to_owned(),
+                                message: format!(
+                                    "band_index {band_i} exceeds maximum {MAX_EQ_BANDS}"
+                                ),
+                            },
+                        };
+                    }
+                    // Validate frequency (20 Hz – 20 kHz)
+                    if !frequency_hz.is_finite()
+                        || !(20.0_f32..=20_000.0_f32).contains(&frequency_hz)
+                    {
+                        return Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: request.request_id,
+                            payload: ServerMessage::Error {
+                                code: "INVALID_FREQUENCY".to_owned(),
+                                message: "frequency_hz must be finite and between 20 and 20000 Hz"
+                                    .to_owned(),
+                            },
+                        };
+                    }
+                    // Validate gain (−24 dB – +24 dB)
+                    if !gain_db.is_finite() || !(-24.0_f32..=24.0_f32).contains(&gain_db) {
+                        return Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: request.request_id,
+                            payload: ServerMessage::Error {
+                                code: "INVALID_GAIN".to_owned(),
+                                message: "gain_db must be finite and between -24.0 and +24.0 dB"
+                                    .to_owned(),
+                            },
+                        };
+                    }
+                    // Validate Q (0.1 – 10.0)
+                    if !q.is_finite() || !(0.1_f32..=10.0_f32).contains(&q) {
+                        return Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: request.request_id,
+                            payload: ServerMessage::Error {
+                                code: "INVALID_Q".to_owned(),
+                                message: "q must be finite and between 0.1 and 10.0".to_owned(),
+                            },
+                        };
+                    }
+                    let mix_i = usize::from(mix_index);
+                    let Some(mix) = self.engine.mix_mut(mix_i) else {
+                        return Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: request.request_id,
+                            payload: ServerMessage::Error {
+                                code: "MIX_NOT_FOUND".to_owned(),
+                                message: format!("mix slot {mix_i} not configured"),
+                            },
+                        };
+                    };
+                    mix.eq.set_band(
+                        band_i,
+                        EqBand {
+                            frequency_hz,
+                            gain_db,
+                            q,
+                            enabled,
+                        },
+                    );
+                    let band = mix.eq.bands[band_i];
+                    ServerMessage::EqBandAck {
+                        mix_index,
+                        band_index,
+                        frequency_hz: band.frequency_hz,
+                        gain_db: band.gain_db,
+                        q: band.q,
+                        enabled: band.enabled,
+                        revision: mix.eq.revision,
                     }
                 }
             }
@@ -611,6 +704,143 @@ mod tests {
         assert!(matches!(
             resp.payload,
             ServerMessage::Error { ref code, .. } if code == "MIX_NOT_FOUND"
+        ));
+    }
+
+    // --- Phase 92: EQ band dispatch ---
+
+    #[test]
+    fn set_eq_band_returns_eq_band_ack() {
+        let mut state = state_with_mix();
+        let resp = state.dispatch(request(ClientMessage::SetEqBand {
+            mix_index: 0,
+            band_index: 1,
+            frequency_hz: 1_000.0,
+            gain_db: 6.0,
+            q: 1.4,
+            enabled: true,
+        }));
+        match resp.payload {
+            ServerMessage::EqBandAck {
+                mix_index,
+                band_index,
+                frequency_hz,
+                gain_db,
+                q,
+                enabled,
+                revision,
+            } => {
+                assert_eq!(mix_index, 0);
+                assert_eq!(band_index, 1);
+                assert!((frequency_hz - 1_000.0).abs() < 1e-3);
+                assert!((gain_db - 6.0).abs() < 1e-5);
+                assert!((q - 1.4).abs() < 1e-5);
+                assert!(enabled);
+                assert_eq!(revision, 1);
+            }
+            other => panic!("expected EqBandAck, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn set_eq_band_invalid_index_returns_error() {
+        let mut state = state_with_mix();
+        let resp = state.dispatch(request(ClientMessage::SetEqBand {
+            mix_index: 0,
+            band_index: 4, // MAX_EQ_BANDS = 4, so index 4 is out of range
+            frequency_hz: 1_000.0,
+            gain_db: 0.0,
+            q: 1.0,
+            enabled: false,
+        }));
+        assert!(matches!(
+            resp.payload,
+            ServerMessage::Error { ref code, .. } if code == "INVALID_BAND_INDEX"
+        ));
+    }
+
+    #[test]
+    fn set_eq_band_invalid_frequency_returns_error() {
+        let mut state = state_with_mix();
+        let resp = state.dispatch(request(ClientMessage::SetEqBand {
+            mix_index: 0,
+            band_index: 0,
+            frequency_hz: 5.0, // below 20 Hz
+            gain_db: 0.0,
+            q: 1.0,
+            enabled: true,
+        }));
+        assert!(matches!(
+            resp.payload,
+            ServerMessage::Error { ref code, .. } if code == "INVALID_FREQUENCY"
+        ));
+    }
+
+    #[test]
+    fn set_eq_band_invalid_gain_returns_error() {
+        let mut state = state_with_mix();
+        let resp = state.dispatch(request(ClientMessage::SetEqBand {
+            mix_index: 0,
+            band_index: 0,
+            frequency_hz: 1_000.0,
+            gain_db: 30.0, // above +24 dB
+            q: 1.0,
+            enabled: true,
+        }));
+        assert!(matches!(
+            resp.payload,
+            ServerMessage::Error { ref code, .. } if code == "INVALID_GAIN"
+        ));
+    }
+
+    #[test]
+    fn set_eq_band_invalid_q_returns_error() {
+        let mut state = state_with_mix();
+        let resp = state.dispatch(request(ClientMessage::SetEqBand {
+            mix_index: 0,
+            band_index: 0,
+            frequency_hz: 1_000.0,
+            gain_db: 0.0,
+            q: 0.0, // below 0.1
+            enabled: true,
+        }));
+        assert!(matches!(
+            resp.payload,
+            ServerMessage::Error { ref code, .. } if code == "INVALID_Q"
+        ));
+    }
+
+    #[test]
+    fn set_eq_band_missing_mix_returns_error() {
+        let mut state = ControlState::new(); // no mixes
+        let resp = state.dispatch(request(ClientMessage::SetEqBand {
+            mix_index: 0,
+            band_index: 0,
+            frequency_hz: 1_000.0,
+            gain_db: 0.0,
+            q: 1.0,
+            enabled: false,
+        }));
+        assert!(matches!(
+            resp.payload,
+            ServerMessage::Error { ref code, .. } if code == "MIX_NOT_FOUND"
+        ));
+    }
+
+    #[test]
+    fn set_eq_band_nan_frequency_returns_error() {
+        let mut state = state_with_mix();
+        let resp = state.dispatch(request(ClientMessage::SetEqBand {
+            mix_index: 0,
+            band_index: 0,
+            frequency_hz: f32::NAN,
+            gain_db: 0.0,
+            q: 1.0,
+            enabled: true,
+        }));
+        assert!(matches!(
+            resp.payload,
+            ServerMessage::Error { ref code, .. } if code == "INVALID_FREQUENCY"
         ));
     }
 }

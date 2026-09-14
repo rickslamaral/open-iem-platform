@@ -45,6 +45,29 @@ pub struct MasterDelta {
     pub originator_session_id: u128,
 }
 
+/// EQ band mutation broadcast.
+/// All Engineer/Admin sessions receive this; Musician sessions do NOT
+/// (they cannot configure EQ, so they do not need to track it).
+#[derive(Clone, Debug)]
+pub struct EqBandDelta {
+    /// Mix slot index that changed.
+    pub mix_index: u8,
+    /// EQ band index.
+    pub band_index: u8,
+    /// Centre frequency in Hz.
+    pub frequency_hz: f32,
+    /// Gain in dB.
+    pub gain_db: f32,
+    /// Q factor.
+    pub q: f32,
+    /// Whether the band is active.
+    pub enabled: bool,
+    /// Monotonic EQ revision after mutation.
+    pub revision: u64,
+    /// Unique WebSocket session that originated this mutation.
+    pub originator_session_id: u128,
+}
+
 /// Application state shared across Axum handlers.
 #[derive(Clone)]
 pub struct AppState {
@@ -65,6 +88,8 @@ pub struct AppState {
     pub event_tx: broadcast::Sender<SendDelta>,
     /// Broadcast channel for master mutations (gain / mute on the mix bus).
     pub master_event_tx: broadcast::Sender<MasterDelta>,
+    /// Broadcast channel for EQ band mutations (Engineer/Admin only).
+    pub eq_band_event_tx: broadcast::Sender<EqBandDelta>,
     /// Shared quotas for upgraded WebSocket connections.
     pub websocket_connections: crate::quota::WebSocketQuota,
     /// Bounded failed-authentication limiter for WebSocket upgrades.
@@ -77,6 +102,7 @@ impl AppState {
     pub fn new(control: ControlState, db: Db, jwt: JwtKeys) -> Self {
         let (event_tx, _) = broadcast::channel(256);
         let (master_event_tx, _) = broadcast::channel(256);
+        let (eq_band_event_tx, _) = broadcast::channel(256);
         Self {
             control: Arc::new(Mutex::new(control)),
             db,
@@ -86,6 +112,7 @@ impl AppState {
             mix_assignment_lock: Arc::new(AsyncMutex::new(())),
             event_tx,
             master_event_tx,
+            eq_band_event_tx,
             websocket_connections: crate::quota::WebSocketQuota::default(),
             websocket_auth_failures: crate::quota::WebSocketAuthFailureLimiter::default(),
         }
