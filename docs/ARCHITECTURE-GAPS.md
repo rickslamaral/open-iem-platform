@@ -11,24 +11,23 @@ Gaps identified by analyzing `START.md` against known requirements for a product
 
 ---
 
-## GAP-001: Audio Transport Protocol — UNRESOLVED (Critical)
+## GAP-001: Audio Transport Protocol — RESOLVED (Critical)
 
 **Required by:** Phase 5
 **Description:** No protocol selected for streaming audio from server to musician devices. START.md explicitly forbids assuming RTP/UDP is the final solution and mandates a formal evaluation.
 **Risk:** Wrong transport choice → rework entire streaming stack
-**Resolution:** Complete `docs/research/audio-transport/EVALUATION.md` before Phase 5 begins. Create ADR-004.
+**Resolution:** WebRTC selected for browser media in `docs/research/audio-transport/EVALUATION.md` and Phase 90 research. Runtime media, benchmarks and hardware validation remain pending.
 
 ---
 
-## GAP-002: Browser Audio Receive Constraint — UNRESOLVED (High)
+## GAP-002: Browser Audio Receive Constraint — RESOLVED (High)
 
 **Required by:** Phase 4 (PWA) / Phase 5 (Transport)
 **Description:** Browsers cannot receive arbitrary UDP audio. Architecture must formally separate:
 - Control client (WebSocket/PWA — browser)
 - Audio receiver (WebRTC, native app, or dedicated hardware)
 
-The current spec does not resolve this split with a concrete decision.
-**Resolution:** Define in ADR-005. Audio receiver path must be designed independently of the PWA control path.
+**Resolution:** WebRTC is the browser audio path; WebSocket remains control and authenticated HTTP routes carry SDP/ICE signaling. ADR-005 and `docs/research/browser-audio-constraint/EVALUATION.md` record decision. Runtime media and hardware validation remain pending.
 
 ---
 

@@ -6,11 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Fixed — Phase 88: Musician UI master gain/mute genuinamente somente leitura (2026-09-13)
-- Removido estado local `masterGainDb` e prop `onMasterGain` da UI do músico; valor agora derivado diretamente de `ws.snapshot.mixes[0].master_gain_db`.
-- Slider de master gain desabilitado (`disabled`, `readOnly`, `aria-readonly="true"`); RBAC do servidor já bloqueava `SetMasterGain` para role Musician.
-- Adicionado hint "(somente leitura)" no rótulo e estilos visuais (`opacity: 0.5`, `cursor: not-allowed`).
-- Testes de MixControl expandidos: 44 testes (+2), verificando `disabled`, `aria-readonly` e reflexo do prop.
+### Research — Phase 90 browser audio constraint (2026-09-13)
+- Document browser audio reception boundary in `docs/research/browser-audio-constraint/EVALUATION.md`.
+- Confirm WebRTC media as MVP path; WebSocket remains control; authenticated HTTP carries SDP/ICE signaling; reject raw RTP/UDP and defer WebTransport.
+- Keep WebRTC media, Opus, latency, jitter, loss recovery and Raspberry Pi 5 validation marked **SIMULATED** or pending.
+
+### Added — Phase 87: Engineer Console master gain/mute controls (2026-09-13)
+- `web/engineer/src/protocol.ts`: TypeScript protocol types for engineer WebSocket (`GetState`, `SetMasterGain`, `SetMasterMute`, `MasterAck`, `State`, `Error`).
+- `web/engineer/src/useEngineerWs.ts`: `useEngineerWs` hook — connects to `/ws/v1` with subprotocol `openiem-v1`, sends `GetState` on open, applies `MasterAck` updates, auto-reconnects after 3 s with mounted guard preventing dangling timers.
+- `web/engineer/src/App.tsx`: `WsBadge` status indicator in header; `MixMasterControl` component with range slider (−40..+10 dB, step 0.5) and mute toggle button (aria-pressed) per mix; live revision from WS.
+- 13 hook tests + 5 App tests = 18 total, all green; typecheck clean; build clean.
 
 ### Added — Phase 85 code coverage (2026-09-13)
 - `make coverage` target runs `cargo-llvm-cov` and writes `coverage/lcov.info`; creates output directory on fresh checkout.

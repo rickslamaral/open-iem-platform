@@ -42,9 +42,9 @@ IEM    IEM    IEM
 
 ## Current Status
 
-**Fase incremental atual: Phase 84 — reprodutibilidade do pipeline de release.** O workflow usa `--locked` nos checks/builds Rust e empacota archives server/web com `SOURCE_DATE_EPOCH` do commit, ordenação estável, timestamps fixos e ownership normalizado antes de checksum/assinatura. A confirmação de dois builds idênticos, release `v0.3.1`, instalação real e Raspberry Pi 5 continuam pendentes.
+**Fase incremental atual: Phase 90 — restrição de áudio recebido pelo navegador.** WebRTC permanece caminho de mídia para Musician PWA; WebSocket cobre controle e HTTP autenticado cobre sinalização SDP/ICE. RTP/UDP arbitrário não chega a uma PWA e WebTransport fica deferred por não fornecer pipeline de mídia. Reprodução real, Opus, latência, jitter, perda, recuperação, release `v0.3.1`, instalação e Raspberry Pi 5 continuam pendentes. Ver [avaliação da Phase 90](docs/research/browser-audio-constraint/EVALUATION.md).
 
-**Fase anterior: Phase 83 — pan e indicador de mudo master na UI do músico.**
+**Fases anteriores:** Phase 87 — controles master gain/mute no Engineer Console; Phase 84 — reprodutibilidade do pipeline de release; Phase 83 — pan e indicador de mudo master na UI do músico.
 
 **Phase 83 — pan e indicador de mudo master na UI do músico.** A PWA sincroniza pan por canal e envia `SetSendPan`; exibe `MASTER MUTED` como indicador somente leitura. Testes, typecheck e build locais passam. CI remoto executou todos os 9 jobs com sucesso no run `34761731828` após correção do pin de `actions/cache`. Workflow de release agora usa `-rawin` no OpenSSL 3.5. Instalação real, release, hardware e mídia continuam não validados.
 
@@ -143,6 +143,7 @@ Interface prevista para engenheiro: status do backend, revisão, sessões ativas
 | 80 | TypeScript 7 Engineer compatibility | ✅ Local fix; CI green |
 | 81 | Installer and CI/release hardening | ✅ Local validation; CI green; hardware pending |
 | 83 | Musician UI pan and master mute indicator | ✅ Local validation; CI green; hardware pending |
+| 90 | Browser audio constraint | ✅ Research documented; media and hardware pending |
 
 ## Repository Structure
 

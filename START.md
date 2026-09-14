@@ -4,7 +4,7 @@
 
 ## Estado canônico atual
 
-As 13 fases canônicas permanecem fixas. A Phase 83 é o trabalho incremental atual na branch; as fases incrementais 27–83 não substituem nem renumeram as fases canônicas.
+As 13 fases canônicas permanecem fixas. A Phase 90 é o trabalho incremental atual na branch; as fases incrementais 27–90 não substituem nem renumeram as fases canônicas.
 
 ```text
 Concluídas: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 6

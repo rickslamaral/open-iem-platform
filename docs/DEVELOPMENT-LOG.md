@@ -4,39 +4,55 @@ All significant milestones documented here in reverse chronological order.
 
 ---
 
-### 2026-09-13 — Phase 88: Musician UI master gain/mute genuinamente somente leitura
+## 2026-09-13 — Phase 90 — browser audio constraint
 
-**Goal:** Corrigir UX enganoso: slider de master gain no músico alterava estado local mas nunca enviava ao servidor (RBAC bloqueia Musician para SetMasterGain/SetMasterMute desde Phase 23/87). Tornar o controle genuinamente read-only.
+**Status:** RESEARCH COMPLETE — WebRTC selected for browser media; real media remains SIMULATED.
 
-**Implemented:**
+### Decision
 
-#### web/musician/src/App.tsx
-- Removido `useState(0)` para `masterGainDb` e prop `onMasterGain`; valor derivado de `ws.snapshot?.mixes[0]?.master_gain_db ?? 0`.
-- Removido `setMasterGainDb(0)` do `handleLogout` (snapshot zerado automaticamente ao desconectar).
-- `masterGainDb` e `masterMuted` agora lidos diretamente do snapshot — fonte única de verdade.
+- Browser PWA receives audio through a negotiated WebRTC media track, exposed as `MediaStream` for `<audio>` or `AudioContext`.
+- WebSocket remains control support; authenticated HTTP routes carry SDP/ICE signaling. Receiving bytes over WebSocket does not provide native media timing, jitter buffering or packet-loss handling.
+- RTP/UDP and custom UDP cannot reach a browser PWA through arbitrary sockets.
+- WebTransport remains deferred: transport only, no codec/framing/jitter/media pipeline, plus cross-browser validation remains pending.
 
-#### web/musician/src/components/MixControl.tsx
-- Removida prop `onMasterGain: (gainDb: number) => void` da interface e implementação.
-- Slider master: `disabled`, `readOnly`, `aria-readonly="true"`, label `aria-label="Master volume (read-only)"`.
-- Adicionado hint `(somente leitura)` no rótulo via `<span className={styles.readOnlyHint}>`.
+### Evidence
 
-#### web/musician/src/components/MixControl.module.css
-- `.masterSlider`: `cursor: not-allowed`, `opacity: 0.5`.
-- `.readOnlyHint`: estilo italic cinza para o hint.
+- Added `docs/research/browser-audio-constraint/EVALUATION.md` with API sources, comparison and acceptance criteria.
+- Local baseline before edits: `python3 -m pytest --tb=no -q` — 60 passed.
 
-**Tests:** 44 testes (+2 novos: disabled/aria-readonly e reflexo do prop); typecheck PASS; build PASS.
+### Limitations
 
-**Independent review:** passed=true. Sugestões não bloqueantes: tooltip explicativo (UX), propriedade CSS para contraste acessível (LOW).
-
-**Security:** Nenhum finding. RBAC server-side não alterado; client-side é reforço de UX.
-
-**Limitations:** PipeWire/ALSA SIMULATED. ARM64 não validado em hardware.
-
-**Next:** Merge PR #47 (Phase 87, CI verde); aguardar validação hardware.
+WebRTC Opus playback, latency, jitter, loss recovery, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated and **SIMULATED**.
 
 ---
 
-### 2026-09-13 — examples/minimal-mix: runnable mix engine example
+## 2026-09-13 — Phase 87 — Engineer Console master gain/mute controls
+
+**Status:** IMPLEMENTED — 18 testes verdes, typecheck limpo, build limpo.
+
+### Implementado
+
+- `web/engineer/src/protocol.ts`: tipos TypeScript do protocolo WebSocket do engineer — `ClientMessage` (`GetState`, `SetMasterGain`, `SetMasterMute`), `ServerMessage` (`State`, `MasterAck`, `Error`), `MixMasterState`, `WsStatus`, `PROTOCOL_VERSION`.
+- `web/engineer/src/useEngineerWs.ts`: hook `useEngineerWs(token)` — conecta a `/ws/v1` com subprotocolo `openiem-v1`, envia `GetState` na abertura, aplica `MasterAck` por mix, reconecta após 3 s com guard `mounted` que impede timers dangling e tentativas de conexão em componente desmontado.
+- `web/engineer/src/App.tsx`: componente `WsBadge` (indicador de status WS no header), componente `MixMasterControl` (slider gain −40..+10 dB, step 0.5, com `aria-label`; botão mute com `aria-pressed`), revisão ao vivo via WS.
+
+### Verificação
+
+| Gate | Resultado |
+|------|-----------|
+| `npm test` (18 testes) | ✅ PASS |
+| `npx tsc --noEmit` | ✅ PASS |
+| `npm run build` | ✅ PASS |
+| Scan de segurança (secrets/injection) | ✅ LIMPO |
+| Revisão independente | ✅ passed=true (concern do revisor: guard `mounted` em `onclose` existe em linha 143 do hook) |
+
+### Limitações
+
+Servidor real, PipeWire, WebRTC e Raspberry Pi 5 permanecem SIMULATED/pendentes.
+
+---
+
+
 
 **Goal:** Create `examples/` with a minimal mix scenario (LOW backlog item).
 

@@ -1,7 +1,7 @@
 # ADR-005: Browser Audio Receiver Architecture
 
 ## Status
-Proposed — PENDING RESEARCH
+Accepted — Phase 90 research complete; runtime media validation pending
 
 ## Context
 Browsers (mobile and desktop) cannot receive arbitrary UDP audio streams. WebRTC is the standard browser audio API for real-time audio receive. However, WebRTC adds significant implementation complexity (ICE, DTLS, SRTP, SDP negotiation).
@@ -13,7 +13,7 @@ This creates a two-tier architecture decision:
 2. Audio plane: WebRTC (browser) vs native receiver vs dedicated hardware
 
 ## Decision
-**DEFERRED** — requires transport evaluation and browser compatibility research.
+**WebRTC for browser audio** — Phase 90 research confirms WebRTC as browser media path. Runtime Opus, latency, jitter, loss recovery and Raspberry Pi 5 validation remain pending.
 
 ## Architecture Options
 

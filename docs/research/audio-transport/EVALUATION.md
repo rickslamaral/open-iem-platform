@@ -1,6 +1,6 @@
 # Audio Transport Evaluation
 
-**Status:** PRELIMINARY — closes GAP-001 (partial)
+**Status:** COMPLETE — WebRTC selected; runtime benchmarks and hardware validation pending
 **Date:** 2026-09-08
 **Author:** Autonomous Engineering Agent (Phase 1)
 **Phase:** Research (Phase 1) — Final selection deferred to Phase 5
@@ -249,19 +249,18 @@ Phase 1 does NOT include audio transport. Focus: local mix engine only.
 
 ---
 
-## Required Next Steps (before Phase 5)
+## Follow-up Validation (after selection)
 
-1. [ ] Implement WebRTC signaling endpoint on control server (`/api/v1/audio/offer`)
-2. [ ] Benchmark `webrtc.rs` SFU: latency, CPU on RPi 5 with 2 concurrent streams
-3. [ ] Measure jitter buffer delay under Wi-Fi congestion (2.4GHz vs 5GHz)
-4. [ ] Test RTP/UDP + jitter buffer as reference comparison
-5. [ ] Create ADR-004 final version with measured data
-6. [ ] Define audio codec parameters: Opus 48kHz, stereo, frame size 10ms
+1. [ ] Benchmark WebRTC media: latency and CPU on RPi 5 with 2 concurrent streams.
+2. [ ] Measure jitter buffer delay under Wi-Fi congestion (2.4GHz vs 5GHz).
+3. [ ] Test RTP/UDP + jitter buffer as a reference for a future dedicated receiver.
+4. [ ] Update ADR-004 with measured data when runtime benchmarks exist.
+5. [ ] Validate audio codec parameters: Opus 48kHz, stereo, frame size 10ms.
 
 ---
 
 ## Gap Status
 
-- **GAP-001:** PARTIALLY CLOSED — evaluation complete, WebRTC selected as primary candidate.
-- Final closure requires: Phase 5 benchmarks and ADR-004 update with measured data.
+- **GAP-001:** RESOLVED — evaluation complete and WebRTC selected for browser media.
+- Runtime closure remains pending: Phase 5 benchmarks, real media validation and ADR-004 measured-data update.
 
