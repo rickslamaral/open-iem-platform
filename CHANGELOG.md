@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — P1-001 topology capability model
+- Novo crate `server/topology` com limites de capacidade MVP, `ChannelMode`, source mapping explícito e validação tipada de configuração. PR #65, CI remoto aprovado no run `34894139285`.
+
 ### Added — P0-008 ALSA fallback backend
 - ALSA explicit fallback backend (`AlsaBackend`, feature `alsa`): PCM open, hw_params, fail-safe mute on device error, XRUN recovery, bounded `stop_flag` with `Release`/`Acquire` ordering for ARM correctness (P0-008, PR #63).
 

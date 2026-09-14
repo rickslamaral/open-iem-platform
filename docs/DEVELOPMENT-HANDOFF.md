@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P1-002 — Device Manager: capability discovery, hot-plug and recovery state machine` — P1-001 implementado na PR #65, aguardando CI remoto e merge; não iniciar P1-002 antes do merge sequencial.
+**Next development item:** `P1-002 — Device Manager: capability discovery, hot-plug and recovery state machine` — P1-001 implementado e mergeado na main (PR #65, commit `cdcd796`); P1-002 liberado para execução sequencial.
