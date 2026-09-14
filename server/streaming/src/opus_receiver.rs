@@ -98,6 +98,14 @@ impl JitterBuffer {
         self.packets.insert(pos, (sequence, packet.to_vec()));
         Ok(())
     }
+    /// Inspect lowest sequence packet without removing it.
+    #[must_use]
+    pub fn peek(&self) -> Option<(u64, &[u8])> {
+        self.packets
+            .front()
+            .map(|(sequence, packet)| (*sequence, packet.as_slice()))
+    }
+
     /// Remove lowest sequence packet.
     pub fn pop(&mut self) -> Option<(u64, Vec<u8>)> {
         self.packets.pop_front()
@@ -188,37 +196,52 @@ impl OpusReceiver {
             self.state = ReceiverState::Muted;
             return Err(ReceiverError::OutputFailed);
         }
-        let Some((sequence, packet)) = self.jitter.pop() else {
+        let Some((sequence, _)) = self.jitter.peek() else {
             self.state = ReceiverState::Muted;
             return Ok(());
         };
         if let Some(expected) = self.next_sequence {
             if sequence < expected {
+                let _ = self.jitter.pop();
                 return Ok(());
             }
             if sequence > expected {
                 self.state = ReceiverState::Muted;
-                self.next_sequence = Some(sequence.saturating_add(1));
+                self.next_sequence = Some(sequence);
                 return Ok(());
             }
         }
+        let Some((sequence, packet)) = self.jitter.pop() else {
+            self.state = ReceiverState::Muted;
+            return Ok(());
+        };
         let samples = self
             .decoder
             .decode(&packet, MAX_DECODED_SAMPLES, &mut self.pcm)
             .map_err(|_| {
                 self.state = ReceiverState::Muted;
+                self.next_sequence = Some(sequence.saturating_add(1));
                 ReceiverError::InvalidPacket
             })?;
+        if samples > MAX_DECODED_SAMPLES
+            || samples.checked_mul(2).is_none()
+            || samples * 2 > self.pcm.len()
+        {
+            self.state = ReceiverState::Muted;
+            self.next_sequence = Some(sequence.saturating_add(1));
+            return Err(ReceiverError::InvalidPacket);
+        }
         output.write(&self.pcm[..samples * 2], 2).map_err(|_| {
             self.state = ReceiverState::Muted;
             self.output_failed = true;
+            self.next_sequence = Some(sequence.saturating_add(1));
             ReceiverError::OutputFailed
         })?;
         self.next_sequence = Some(sequence.saturating_add(1));
         self.state = ReceiverState::Playing;
         Ok(())
     }
-    /// Mark transport failure; subsequent playout stays muted until packets return.
+    /// Mark transport failure; subsequent playout stays muted until reconnect.
     pub fn reconnect(&mut self) {
         self.state = ReceiverState::Reconnecting;
         self.generation.fetch_add(1, Ordering::AcqRel);
@@ -227,7 +250,7 @@ impl OpusReceiver {
         self.jitter.packets.clear();
         while self.ingress_rx.try_recv().is_ok() {}
     }
-    /// Number packets rejected after ingress admission (overflow/duplicate).
+    /// Number packets rejected by jitter admission (overflow or duplicate).
     #[must_use]
     pub fn dropped_packets(&self) -> u64 {
         self.dropped_packets
@@ -264,6 +287,13 @@ mod tests {
         let mut j = JitterBuffer::new(1);
         j.push(1, b"a").unwrap();
         assert_eq!(j.push(2, b"b"), Err(ReceiverError::QueueFull));
+    }
+
+    #[test]
+    fn zero_capacity_jitter_rejects_packets() {
+        let mut j = JitterBuffer::new(0);
+        assert_eq!(j.push(1, b"a"), Err(ReceiverError::QueueFull));
+        assert!(j.is_empty());
     }
     #[test]
     fn empty_playout_mutes() {
