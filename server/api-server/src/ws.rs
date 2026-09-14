@@ -31,7 +31,7 @@
 use crate::{
     auth::JwtClaims,
     quota::QuotaRejection,
-    state::{AppState, MasterDelta, SendDelta},
+    state::{AppState, EqBandDelta, MasterDelta, SendDelta},
 };
 use axum::{
     extract::{
@@ -193,6 +193,7 @@ async fn handle_socket(
     // Subscribe to broadcast events before entering the loop.
     let mut event_rx = state.event_tx.subscribe();
     let mut master_event_rx = state.master_event_tx.subscribe();
+    let mut eq_band_event_rx = state.eq_band_event_tx.subscribe();
 
     loop {
         let now = unix_now();
@@ -339,6 +340,7 @@ async fn handle_socket(
                         // Remember whether this is a send mutation before consuming the envelope.
                         let is_send_mutation = send_mix_index(&envelope.payload).is_some();
                         let is_master_mutation = master_mix_index(&envelope.payload).is_some();
+                        let is_eq_mutation = is_eq_band_mutation(&envelope.payload);
 
                         // Dispatch with lock held only for the duration of the call.
                         // Lock is released before any await point.
@@ -401,6 +403,32 @@ async fn handle_socket(
                                 };
                                 if let Err(e) = state.master_event_tx.send(delta) {
                                     warn!("broadcast channel full; master delta dropped: {e}");
+                                }
+                            }
+                        }
+                        if is_eq_mutation {
+                            if let ServerMessage::EqBandAck {
+                                mix_index,
+                                band_index,
+                                frequency_hz,
+                                gain_db,
+                                q,
+                                enabled,
+                                revision,
+                            } = &response.payload
+                            {
+                                let delta = EqBandDelta {
+                                    mix_index: *mix_index,
+                                    band_index: *band_index,
+                                    frequency_hz: *frequency_hz,
+                                    gain_db: *gain_db,
+                                    q: *q,
+                                    enabled: *enabled,
+                                    revision: *revision,
+                                    originator_session_id: session_id,
+                                };
+                                if let Err(e) = state.eq_band_event_tx.send(delta) {
+                                    warn!("broadcast channel full; EQ band delta dropped: {e}");
                                 }
                             }
                         }
@@ -586,6 +614,63 @@ async fn handle_socket(
                     }
                 }
             }
+
+            // Outbound EQ band broadcast — Engineer/Admin only (Musician cannot configure EQ).
+            eq_band_event = eq_band_event_rx.recv() => {
+                match eq_band_event {
+                    Ok(delta) => {
+                        // Skip originator.
+                        if delta.originator_session_id == session_id {
+                            continue;
+                        }
+                        // Musician role does not receive EQ deltas.
+                        if claims.role == Role::Musician {
+                            continue;
+                        }
+                        let ack = Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: "server".to_owned(),
+                            payload: ServerMessage::EqBandAck {
+                                mix_index: delta.mix_index,
+                                band_index: delta.band_index,
+                                frequency_hz: delta.frequency_hz,
+                                gain_db: delta.gain_db,
+                                q: delta.q,
+                                enabled: delta.enabled,
+                                revision: delta.revision,
+                            },
+                        };
+                        if let Ok(json) = serde_json::to_string(&ack) {
+                            if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
+                                break;
+                            }
+                        }
+                    }
+                    Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
+                        warn!(user = %claims.sub, "EQ band broadcast lagged by {n} events; some deltas skipped");
+                        // Send a State notice so the client knows to re-fetch.
+                        let revision = if let Ok(control) = state.control.lock() {
+                            control.revision()
+                        } else {
+                            warn!(session_id, "control state lock poisoned during resync");
+                            break;
+                        };
+                        let state_notice = Envelope {
+                            version: PROTOCOL_VERSION,
+                            request_id: "server".to_owned(),
+                            payload: ServerMessage::State { revision },
+                        };
+                        if let Ok(json) = serde_json::to_string(&state_notice) {
+                            if !send_with_timeout(&mut socket, Message::Text(json.into())).await {
+                                break;
+                            }
+                        }
+                    }
+                    Err(tokio::sync::broadcast::error::RecvError::Closed) => {
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -604,13 +689,14 @@ fn check_permission(claims: &JwtClaims, msg: &ClientMessage) -> bool {
             | ClientMessage::SetSendPan { .. }
             | ClientMessage::SetSendMuted { .. },
         ) => true,
-        // Musician: cannot mutate channel gain/mute directly or master gain/mute.
+        // Musician: cannot mutate channel gain/mute directly, master gain/mute, or EQ.
         (
             Role::Musician,
             ClientMessage::SetChannelGain { .. }
             | ClientMessage::SetChannelMute { .. }
             | ClientMessage::SetMasterGain { .. }
-            | ClientMessage::SetMasterMute { .. },
+            | ClientMessage::SetMasterMute { .. }
+            | ClientMessage::SetEqBand { .. },
         ) => false,
     }
 }
@@ -632,6 +718,11 @@ fn master_mix_index(msg: &ClientMessage) -> Option<u8> {
         | ClientMessage::SetMasterMute { mix_index, .. } => Some(*mix_index),
         _ => None,
     }
+}
+
+/// Returns `true` when the message is an EQ band mutation (Engineer/Admin only).
+fn is_eq_band_mutation(msg: &ClientMessage) -> bool {
+    matches!(msg, ClientMessage::SetEqBand { .. })
 }
 
 fn public_protocol_error(error: &ProtocolError) -> (&'static str, &'static str) {
