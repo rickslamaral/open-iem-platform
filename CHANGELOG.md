@@ -6,10 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added — Phase 91: Biquad reference validation (2026-09-13)
-- Added deterministic RBJ coefficient vectors across four frequency, gain and Q combinations.
-- Validated normalized `BiquadCoeffs` values against independently calculated reference values with `5e-6` tolerance for `f32` rounding.
-- `mix-engine`: 80 unit tests and 3 doc-tests pass.
+### Added — Phase 91: ARM64 cross-compilation CI gate (2026-09-14)
+- CI job `Rust Build (ARM64 cross)` installs `gcc-aarch64-linux-gnu` and builds the Rust workspace for `aarch64-unknown-linux-gnu`.
+- Run `34792164989` executed and passed ARM64 cross-build, alongside all other CI jobs.
+- This validates cross-compilation only; Raspberry Pi 5 runtime and audio hardware remain unvalidated.
 
 ### Added — Phase 87: Engineer Console master gain/mute controls (2026-09-13)
 - `web/engineer/src/protocol.ts`: TypeScript protocol types for engineer WebSocket (`GetState`, `SetMasterGain`, `SetMasterMute`, `MasterAck`, `State`, `Error`).

@@ -1,25 +1,34 @@
-# Phase 91 Review — Biquad Reference Validation
+# Phase 91 Review — ARM64 cross-compilation CI gate
 
-**Status:** PASS WITH CONDITIONS — coefficient validation is local-only; audio runtime and Raspberry Pi 5 remain unvalidated.
+**Status:** PASS — CI run `34792164989` executed real jobs; ARM64 cross-build passed.
 
-## Scope
+**Date:** 2026-09-14
 
-Added deterministic reference vectors for the RBJ peaking-EQ coefficient calculation in `server/mix-engine/src/eq.rs`. Four combinations cover low, mid, high and near-Nyquist frequencies, positive and negative gain, and varied Q values. `scripts/validate_biquad_reference.py` independently recomputes same equations with Python stdlib `math`; it is executable without project dependencies.
+## Objective
 
-## Acceptance criteria
+Close backlog item for ARM64 cross-compilation in GitHub Actions without claiming Raspberry Pi 5 runtime validation.
 
-- [x] Compare normalized `b0`, `b1`, `b2`, `a1`, and `a2`.
-- [x] Use an explicit `5e-6` tolerance for `f32` rounding.
-- [x] Keep reference values independent from production calculation at test runtime.
-- [x] Preserve existing DSP behavior and public API.
-- [ ] Validate real-time audio behavior on Raspberry Pi 5 hardware.
+## Existing implementation validated
+
+The `rust-build-arm64` job in `.github/workflows/ci.yml`:
+
+- runs on `ubuntu-latest`;
+- installs Rust target `aarch64-unknown-linux-gnu`;
+- installs `gcc-aarch64-linux-gnu`;
+- sets `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER`;
+- builds the server workspace in release mode for ARM64.
 
 ## Evidence
 
-- `cargo fmt --all --manifest-path server/Cargo.toml`: PASS.
-- `cargo test --manifest-path server/Cargo.toml -p mix-engine`: 80 unit tests and 3 doc-tests passed.
-- Python baseline: `python3 -m pytest --tb=no -q`: 60 passed before edits.
+- GitHub Actions run `34792164989`:
+  - `Rust Build (ARM64 cross)`: SUCCESS
+  - all 11 listed CI jobs: SUCCESS
+- Local documentation diff passed `git diff --check`.
+
+## Security review
+
+No production code or secret handling changed. Workflow uses pinned third-party actions already present on `main`. No new shell input or credential path introduced.
 
 ## Limitations
 
-Reference vectors validate coefficient arithmetic only. PipeWire, ALSA, audio latency, and Raspberry Pi 5 execution remain `SIMULATED` or pending physical validation.
+Cross-compilation does not validate binary execution, PipeWire/ALSA, WebRTC media, latency, or Raspberry Pi 5 hardware. Release `v0.3.1` and installation remain pending.
