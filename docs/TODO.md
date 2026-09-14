@@ -2,20 +2,30 @@
 
 ## Estado atual — 2026-09-14
 
-- **Phase 92 — WS EQ Control:** backlog; nenhuma implementação local, commit ou PR confirmada no estado atual.
-- **Phase 83–91:** implementadas, CI remoto real verde e mescladas em `main`.
+- **Phase 92 — WS EQ Control:** implementada e mergeada em `main` (PR #54). Backend completo: `SetEqBand`/`EqBandAck`, `EqBandDelta` broadcast, RBAC. Frontend EQ controls pendente (Phase 93+).
+- **Phase 83–92:** implementadas, CI remoto real verde e mescladas em `main`.
 - **Release `v0.3.1`:** tag existe; GitHub Release ainda não publicada.
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
-- **Guias:** espelhos PT/EN/ES existentes; revisar e sincronizar após concluir Phase 92 e validação física.
+- **Guias:** espelhos PT/EN/ES existentes; revisar e sincronizar após validação física.
 
 ## Phase 92 — Controle de EQ por WebSocket
 
-- [ ] Especificar `SetEqBand`/`EqBandAck` no control-protocol.
-- [ ] Validar band index, frequência, gain, Q e mix index no control-server.
-- [ ] Definir broadcast de `EqBandDelta` no api-server com RBAC para Musician.
-- [ ] Executar fmt, clippy, testes completos, revisão independente e scan de segurança.
-- [ ] Atualizar README, CHANGELOG, DEVELOPMENT-LOG e review da Phase 92.
-- [ ] Commitar, abrir PR e confirmar CI remoto 11/11.
+- [x] Especificar `SetEqBand`/`EqBandAck` no control-protocol.
+- [x] Validar band index, frequência, gain, Q e mix index no control-server.
+- [x] Definir broadcast de `EqBandDelta` no api-server com RBAC para Musician.
+- [x] Executar fmt, clippy, testes completos, revisão independente e scan de segurança.
+- [x] Atualizar README, CHANGELOG, DEVELOPMENT-LOG e review da Phase 92.
+- [x] Commitar e abrir PR #54 (mergeado em main via `chore/docs-cleanup-status-sync`).
+- [ ] Confirmar CI remoto 11/11 (aguarda GitHub Actions runner real).
+- [ ] Frontend EQ controls — Phase 93+.
+
+## Phase 93 — Frontend EQ Controls (Engineer Console)
+
+- [ ] Adicionar componente `EqBandControl` no Engineer Console com sliders de frequência, gain e Q por banda.
+- [ ] Conectar ao WebSocket existente via mensagem `SetEqBand`.
+- [ ] Exibir `EqBandAck` e sincronizar estado com snapshot REST.
+- [ ] Executar typecheck, testes, build, revisão independente e scan de segurança.
+- [ ] Commitar, abrir PR e confirmar CI remoto.
 
 ## Phase 89 — Engineer Console: Channel Strip de gain/mute
 

@@ -3419,3 +3419,16 @@ Bumped workspace version `0.1.0` → `0.2.0`. Aligned `admin-cli` Cargo manifest
 **Verificação:** Documentação only. Gates Rust e frontend não afetados.
 
 **Pendências herdadas:** CI remoto, release `v0.3.1`, validação Raspberry Pi 5, frontend EQ controls (Phase 93+).
+
+---
+
+## Ciclo autônomo 2026-09-14 — sincronização de status TODO
+
+**Ação:** TODO.md obsoleto — Phase 92 estava com todos os itens como `[ ]` apesar de PR #54 ter sido mergeado em main com implementação completa do backend WS EQ band control.
+
+**Corrigido:**
+- Estado atual atualizado: "Phase 83–92 implementadas"
+- Phase 92: todos os itens marcados `[x]`; adicionado item pendente para CI remoto e frontend
+- Phase 93 adicionada ao backlog: Frontend EQ Controls (Engineer Console)
+
+**Gates:** cargo fmt PASS; cargo clippy PASS; 245 testes PASS (62 integration, 80 mix-engine, 20 control-server, 38 control-protocol, resto).
