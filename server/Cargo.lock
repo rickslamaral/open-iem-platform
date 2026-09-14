@@ -814,6 +814,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "device-manager"
+version = "0.3.1"
+dependencies = [
+ "thiserror",
+ "topology",
+]
+
+[[package]]
 name = "diff"
 version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"

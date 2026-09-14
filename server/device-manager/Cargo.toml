@@ -1,0 +1,15 @@
+[package]
+name = "device-manager"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Open IEM Platform — bounded audio device capability and recovery state"
+
+[lints]
+workspace = true
+
+[dependencies]
+topology = { path = "../topology" }
+thiserror = "2.0"
