@@ -84,7 +84,7 @@ Evidence-backed current components:
 - CI workflows for Rust, frontend, security, documentation, coverage and ARM64 cross-build.
 - Release archive validation and checksum/provenance workflow.
 
-Not implemented/validated: production WebRTC media, Opus path, native receiver, PipeWire runtime, Pi hardware, bootstrap, topology/device manager, Audio Lab.
+Not implemented/validated: production WebRTC media integration, PipeWire runtime, Pi hardware output, bootstrap, topology/device manager. Opus receiver core exists in P0-004, with OS output and hardware validation pending.
 
 ## Remaining Architecture Gaps
 
@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P0-004 — Native/headless Opus receiver (depende de P0-003 ✓)`.
+**Next development item:** `P0-005 — Clock: timestamps, sequence, drift estimator e adaptive resampling (depende de P0-004 ✓)`.
