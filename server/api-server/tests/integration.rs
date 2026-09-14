@@ -178,7 +178,7 @@ fn seed_user_and_login(state: &AppState, username: &str, password: &str, role: R
         .db
         .create_user(username, &pw_hash, role)
         .expect("create user must succeed");
-    let (user_id, _, _) = state.db.find_user(username).expect("user must exist");
+    let (user_id, _, _, _) = state.db.find_user(username).expect("user must exist");
     // Issue token directly, while preserving persistent session association.
     let jti = uuid::Uuid::new_v4().to_string();
     let raw_refresh = generate_refresh_token();
@@ -467,7 +467,7 @@ async fn engineer_assigns_mix_and_musician_controls_owned_send() {
     let (server, state) = build_test_app();
     let engineer = seed_user_and_login(&state, "eng_mix", "pw", Role::Engineer);
     let musician = seed_user_and_login(&state, "mus_mix", "pw", Role::Musician);
-    let (musician_id, _, _) = state.db.find_user("mus_mix").unwrap();
+    let (musician_id, _, _, _) = state.db.find_user("mus_mix").unwrap();
 
     let assigned = server
         .post("/api/v1/mixes/0/assign")
@@ -504,7 +504,7 @@ async fn musician_send_rejects_invalid_gain() {
     let (server, state) = build_test_app();
     let engineer = seed_user_and_login(&state, "eng_invalid", "pw", Role::Engineer);
     let musician = seed_user_and_login(&state, "mus_invalid", "pw", Role::Musician);
-    let (id, _, _) = state.db.find_user("mus_invalid").unwrap();
+    let (id, _, _, _) = state.db.find_user("mus_invalid").unwrap();
     server
         .post("/api/v1/mixes/0/assign")
         .add_header("Origin", "http://localhost")
@@ -677,7 +677,7 @@ async fn admin_delete_user_returns_204() {
         .db
         .create_user("todelete1", &pw_hash, Role::Musician)
         .unwrap();
-    let (user_id, _, _) = state.db.find_user("todelete1").unwrap();
+    let (user_id, _, _, _) = state.db.find_user("todelete1").unwrap();
     let resp = server
         .delete(&format!("/api/v1/admin/users/{user_id}"))
         .add_header("Origin", "http://localhost")
@@ -705,7 +705,7 @@ async fn admin_delete_nonexistent_user_returns_404() {
 async fn admin_cannot_delete_own_account() {
     let (server, state) = build_test_app();
     let token = seed_user_and_login(&state, "admin_self", "pw", Role::Admin);
-    let (caller_id, _, _) = state.db.find_user("admin_self").unwrap();
+    let (caller_id, _, _, _) = state.db.find_user("admin_self").unwrap();
     let resp = server
         .delete(&format!("/api/v1/admin/users/{caller_id}"))
         .add_header("Origin", "http://localhost")
@@ -761,7 +761,7 @@ async fn admin_revoke_session_by_id_returns_204() {
     let (server, state) = build_test_app();
     let token = seed_user_and_login(&state, "admin_sr2", "pw", Role::Admin);
     // Directly store a refresh token so we have a known session ID to revoke.
-    let (user_id, _, _) = state.db.find_user("admin_sr2").unwrap();
+    let (user_id, _, _, _) = state.db.find_user("admin_sr2").unwrap();
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
@@ -801,7 +801,7 @@ async fn refresh_rotation_invalidates_old_access_mapping() {
         .duration_since(std::time::UNIX_EPOCH)
         .expect("clock must be after epoch")
         .as_secs();
-    let (user_id, _, _) = state.db.find_user("phase31_rotation").unwrap();
+    let (user_id, _, _, _) = state.db.find_user("phase31_rotation").unwrap();
     let old_session_id = state
         .db
         .create_session_with_access(
@@ -1238,7 +1238,7 @@ async fn ws_musician_allowed_set_send_gain_on_assigned_mix() {
     let (server, state) = build_ws_app();
     let token = seed_user_and_login(&state, "mus_ws2", "pw", Role::Musician);
     // Assign mix 1 to the musician.
-    let (user_id, _, _) = state.db.find_user("mus_ws2").unwrap();
+    let (user_id, _, _, _) = state.db.find_user("mus_ws2").unwrap();
     state.db.assign_mix(1, user_id).unwrap();
 
     let mut ws = server
@@ -1608,8 +1608,8 @@ async fn ws_master_broadcast_filtered_by_musician_assignment() {
     let mus0_token = seed_user_and_login(&state, "mus_mf_0", "pw", Role::Musician);
     let mus1_token = seed_user_and_login(&state, "mus_mf_1", "pw", Role::Musician);
 
-    let (mus0_id, _, _) = state.db.find_user("mus_mf_0").unwrap();
-    let (mus1_id, _, _) = state.db.find_user("mus_mf_1").unwrap();
+    let (mus0_id, _, _, _) = state.db.find_user("mus_mf_0").unwrap();
+    let (mus1_id, _, _, _) = state.db.find_user("mus_mf_1").unwrap();
     state.db.assign_mix(0, mus0_id).unwrap();
     state.db.assign_mix(1, mus1_id).unwrap();
 
@@ -1830,7 +1830,7 @@ async fn ws_eq_band_broadcast_not_forwarded_to_musician() {
     let mus_token = seed_user_and_login(&state, "mus_eq_flt", "pw", Role::Musician);
 
     {
-        let (user_id, _, _) = state.db.find_user("mus_eq_flt").unwrap();
+        let (user_id, _, _, _) = state.db.find_user("mus_eq_flt").unwrap();
         state.db.assign_mix(0, user_id).unwrap();
     }
 
