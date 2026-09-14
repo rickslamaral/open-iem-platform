@@ -1,0 +1,18 @@
+[package]
+name = "topology"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Open IEM Platform — topology capability model and Channel Mode validation"
+
+[lints]
+workspace = true
+
+[dependencies]
+mix-engine = { path = "../mix-engine" }
+thiserror = "2.0"
+
+[dev-dependencies]
+# none needed

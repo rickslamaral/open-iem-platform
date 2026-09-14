@@ -601,6 +601,11 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] 80 tests passing — 0 clippy warnings
 
 
+## P1 TOPOLOGY STATUS
+
+- [x] P1-001 — topology capability model and Channel Mode validation: `server/topology`, explicit source mapping, typed invalid-config errors, 11 tests (PR #65; CODE + CI local; remote CI pending).
+- [ ] P1-002 — Device Manager: capability discovery, hot-plug and recovery state machine (depends on P1-001 merge).
+
 ## PHASE 10 STATUS
 
 - [x] SQLite mix assignment model and Engineer/Admin API
