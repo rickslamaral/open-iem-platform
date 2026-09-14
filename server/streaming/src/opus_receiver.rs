@@ -51,6 +51,9 @@ pub trait AudioOutput {
     ///
     /// Returns an output error when sink cannot accept samples.
     fn write(&mut self, samples: &[f32], channels: u8) -> Result<(), OutputError>;
+
+    /// Immediately silence and discard any buffered output.
+    fn mute(&mut self);
 }
 
 /// Audio sink failure marker.
@@ -194,10 +197,12 @@ impl OpusReceiver {
         }
         if self.output_failed {
             self.state = ReceiverState::Muted;
+            output.mute();
             return Err(ReceiverError::OutputFailed);
         }
         let Some((sequence, _)) = self.jitter.peek() else {
             self.state = ReceiverState::Muted;
+            output.mute();
             return Ok(());
         };
         if let Some(expected) = self.next_sequence {
@@ -208,11 +213,13 @@ impl OpusReceiver {
             if sequence > expected {
                 self.state = ReceiverState::Muted;
                 self.next_sequence = Some(sequence);
+                output.mute();
                 return Ok(());
             }
         }
         let Some((sequence, packet)) = self.jitter.pop() else {
             self.state = ReceiverState::Muted;
+            output.mute();
             return Ok(());
         };
         let samples = self
@@ -221,6 +228,7 @@ impl OpusReceiver {
             .map_err(|_| {
                 self.state = ReceiverState::Muted;
                 self.next_sequence = Some(sequence.saturating_add(1));
+                output.mute();
                 ReceiverError::InvalidPacket
             })?;
         if samples > MAX_DECODED_SAMPLES
@@ -229,12 +237,14 @@ impl OpusReceiver {
         {
             self.state = ReceiverState::Muted;
             self.next_sequence = Some(sequence.saturating_add(1));
+            output.mute();
             return Err(ReceiverError::InvalidPacket);
         }
         output.write(&self.pcm[..samples * 2], 2).map_err(|_| {
             self.state = ReceiverState::Muted;
             self.output_failed = true;
             self.next_sequence = Some(sequence.saturating_add(1));
+            output.mute();
             ReceiverError::OutputFailed
         })?;
         self.next_sequence = Some(sequence.saturating_add(1));
@@ -242,8 +252,9 @@ impl OpusReceiver {
         Ok(())
     }
     /// Mark transport failure; subsequent playout stays muted until reconnect.
-    pub fn reconnect(&mut self) {
+    pub fn reconnect<O: AudioOutput>(&mut self, output: &mut O) {
         self.state = ReceiverState::Reconnecting;
+        output.mute();
         self.generation.fetch_add(1, Ordering::AcqRel);
         self.next_sequence = None;
         self.output_failed = false;
@@ -274,6 +285,7 @@ mod tests {
             self.frames += s.len();
             Ok(())
         }
+        fn mute(&mut self) {}
     }
     #[test]
     fn jitter_orders_packets() {
@@ -305,7 +317,7 @@ mod tests {
     #[test]
     fn reconnect_clears_state() {
         let mut r = OpusReceiver::new().unwrap();
-        r.reconnect();
+        r.reconnect(&mut Sink { frames: 0 });
         assert_eq!(r.state(), ReceiverState::Reconnecting);
     }
 }
