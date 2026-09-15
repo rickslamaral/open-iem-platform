@@ -38,7 +38,7 @@
 | GAP-020 | P1 | Recovery | Audio/device/media recovery absent | systemd restart only | IMPLEMENTATION GAP | ADR-003/008 | 003,013,023 | Fail-safe mute/recovery | Fault injection | Yes |
 | GAP-021 | P1 | Docs | ADR traceability now created | ADRs 001–010 exist | RESOLVED | README + ADRs | none | Maintain links | Cross-reference audit | No |
 | GAP-022 | P1 | Registry | Registry now reconciled | This file covers canonical GAPs | RESOLVED | this registry | audit evidence | Update only with evidence | Registry review | No |
-| GAP-023 | P1 | Observability | Audio/XRUN/device/network metrics absent | health/telemetry partial | IMPLEMENTATION GAP | ADR-010 | 010,020 | Add truthful metrics | Fault/runtime metrics | Yes for diagnosis |
+| GAP-023 | P1 | Observability | Audio/XRUN/device/network metrics absent | observability crate P1-003, PR #68 | RESOLVED (CODE+CI/SIMULATED) | ADR-010 | 010,020 | Bounded AtomicU64 metrics for XRUN/device/stream/receiver/network | 16 unit tests, fmt+clippy clean | No (runtime evidence pending) |
 | GAP-024 | P1 | Operations | Backup/restore absent | CLI not found | IMPLEMENTATION GAP | Future ADR | 015,020 | Implement config backup sans secrets | Clean restore | No |
 | GAP-025 | P1 | Release | v0.3.1 release/assets not validated | Tag exists; release absent | BLOCKED | ADR-005/008/010 | 005,009,010 | Clear validation/release gates | Artifact/install/release evidence | Yes |
 | GAP-026 | P1 | DSP | Runtime safe-default validation absent | DSP/unit tests simulated | VALIDATION REQUIRED | ADR-007/008 | 005,007 | Validate chain/overload/limiter | Runtime loopback | Yes for support |
