@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P1-003 — Observability: PR #68 aberta, aguardando CI e merge` — P1-002 implementado e mergeado na main (PR #67, commit `ea81c18`); P1-003 em PR #68 (feat/p1-003-observability-metrics).
+**Next development item:** `P1-005 — Network Tests: loss/jitter/reorder/outage/reconnect fault profiles` — P1-003 (Observability) mergeado em main (PR #68/#69, commit `a213ff0`); P1-004 (Recovery) mergeado em main (PR #70, commit `c67b8f0`). Crate `recovery` com 14 testes; crate `observability` com métricas atômicas bounded.
