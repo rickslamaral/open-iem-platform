@@ -1,3 +1,11 @@
+## 2026-09-15 — docs: sync Phase 93 e P1-008 status
+
+- Phase 93 EQ UI (PR #74, `48c3a1b`) e P1-008 domain routes (PR #75, `45784c9`) mergeados em `main`.
+- TODO.md: Phase 93 marcada como concluída (todos os itens `[x]`); status line superior atualizado.
+- DEVELOPMENT-HANDOFF.md: próxima tarefa atualizada para Phase 94/P1-009; Phase 93 e P1-008 refletem estado real.
+- Gates locais confirmados: cargo fmt OK, clippy OK, cargo test (all) OK, engineer typecheck/29 testes/build OK, musician typecheck/44 testes/build OK, 60 testes Python OK.
+- Release `v0.3.1`: tag existe; GitHub Release ainda exige confirmação explícita de Ricardo; validação física permanece pendente.
+
 ## 2026-09-15 — P1-008: domain API routes
 
 **Branch:** `feat/p1008-domain-routes` — PR #75
@@ -13,6 +21,7 @@
 **Limitações:** músicos, cenas e presets continuam P2; PipeWire/ALSA real, WebRTC/Opus runtime e Raspberry Pi 5 continuam sem validação.
 
 ## 2026-09-14 — P1-005: deterministic network fault profiles
+
 
 **Status:** CODE + CI local; L1 SIMULATED — sem hardware.
 
