@@ -2809,16 +2809,17 @@ make alsa-sim-test
 
 ### 147.3 CI contract
 
-GitHub Actions job `alsa-sim` runs on `ubuntu-latest` and must:
+GitHub Actions job `alsa-sim` runs on Ubuntu and uses ALSA userspace `null` PCM by default. GitHub-hosted Azure runners do not guarantee `snd-dummy` or `/dev/snd`; CI must not fail before tests because kernel module is unavailable.
 
-1. load `snd-dummy`;
-2. verify `/dev/snd`;
-3. build `open-iem-alsa-sim`;
-4. run `aplay -l` inside container;
-5. play test tone on `hw:0,0`;
-6. run pytest suite.
+CI must:
 
-This proves deterministic software simulation only. It does not prove USB audio, PipeWire, speaker output or Raspberry Pi runtime.
+1. set `ALSA_SIM_MODE=null`;
+2. build `open-iem-alsa-sim`;
+3. run ALSA device enumeration inside container;
+4. play test tone on `null` PCM;
+5. run pytest suite.
+
+Local hosts with `snd-dummy` may run `hw:0,0`. Raspberry Pi USB validation remains separate: run `aplay -l`, then use detected `hw:N,M`. This proves deterministic software simulation only. It does not prove USB audio, PipeWire, speaker output or Raspberry Pi runtime.
 
 ### 147.4 Musician + simulated audio tests
 
