@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — P1-005 network fault profiles
+- Novo crate `server/network-fault`: 5 perfis de falha determinísticos L1 SIMULATED: `LossProfile`, `JitterProfile`, `ReorderProfile`, `OutageProfile`, `ReconnectProfile`.
+- `ReconnectProfile` integra `recovery::RecoveryRegistry` para verificar restauração de mix ID após reconexão.
+- Teste de integração valida que resultados de falha alimentam corretamente `observability::{NetworkMetrics, ReceiverMetrics}`.
+- 47 testes verdes; sem I/O, sem async, sem hardware dependency.
+
+
 ### Added — P1-001 topology capability model
 - Novo crate `server/topology` com limites de capacidade MVP, `ChannelMode`, source mapping explícito e validação tipada de configuração. PR #65, CI remoto aprovado no run `34894139285`.
 

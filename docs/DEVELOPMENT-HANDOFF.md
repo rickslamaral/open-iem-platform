@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P1-005 — Network Tests: loss/jitter/reorder/outage/reconnect fault profiles` — P1-003 (Observability) mergeado em main (PR #68/#69, commit `a213ff0`); P1-004 (Recovery) mergeado em main (PR #70, commit `c67b8f0`). Crate `recovery` com 14 testes; crate `observability` com métricas atômicas bounded.
+**Next development item:** `P1-006 — Release: install, artifact, checksum and v0.3.1 release validation` — P1-005 (Network Tests) mergeado em branch `feat/p1-005-network-tests` (commit `5fba6fa`). Crate `network-fault` com 47 testes: LossProfile, JitterProfile, ReorderProfile, OutageProfile, ReconnectProfile. Integração com `recovery` e `observability` validada. PR pendente aprovação CI remoto antes do merge em main.

@@ -1,3 +1,21 @@
+## 2026-09-14 — P1-005: deterministic network fault profiles
+
+**Status:** CODE + CI local; L1 SIMULATED — sem hardware.
+
+- Novo crate `server/network-fault` adicionado ao workspace Rust.
+- 5 perfis de falha determinísticos: `loss`, `jitter`, `reorder`, `outage`, `reconnect`.
+- `LossProfile`: descarta cada N-ésimo pacote (rate ≥ 2, 1-indexed).
+- `JitterProfile`: atrasa cada N-ésimo pacote por `delay_slots` posições (reverse-iteration para estabilidade de índice).
+- `ReorderProfile`: troca par adjacente a cada `interval`-th posição.
+- `OutageProfile`: descarta janela contígua `[start, start+window)`, com clamping seguro.
+- `ReconnectProfile`: divide stream, registra disconnect em `RecoveryRegistry`, pula gap de boundary, recupera `mix_id`, retoma entrega.
+- Teste de integração: resultado de reconnect alimenta contadores `observability::{NetworkMetrics, ReceiverMetrics}`.
+- 47 testes, todos verdes. `cargo fmt`, `cargo clippy --all-targets -D warnings` limpos.
+- Revisão independente (subagente isolado): `passed: true` — sem security_concerns, sem logic_errors.
+- Commit: `5fba6fa [verified] feat(network-fault): P1-005 deterministic network fault profiles`.
+- Dependências: `thiserror`, `recovery`; dev-deps: `observability`, `streaming`.
+- Restrição mantida: L1 SIMULATED — não declara runtime PipeWire, ALSA ou hardware.
+
 ## 2026-09-14 — P0-006: pairing and receiver identity registry
 
 **Status:** implementação CODE/SIMULATED; integração DTLS-SRTP, API e hardware pendente.
