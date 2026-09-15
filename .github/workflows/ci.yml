@@ -356,7 +356,7 @@ jobs:
           retention-days: 30
 
   alsa-sim:
-    name: ALSA Simulation (Docker + snd-dummy)
+    name: ALSA Simulation (Docker + software PCM)
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
