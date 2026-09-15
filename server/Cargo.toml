@@ -10,6 +10,7 @@ members = [
     "admin-cli",
     "topology",
     "device-manager",
+    "observability",
 ]
 
 [workspace.dependencies]

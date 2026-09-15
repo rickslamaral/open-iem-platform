@@ -1,0 +1,16 @@
+[package]
+name = "observability"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Open IEM Platform — bounded audio metrics: XRUN, device, stream, receiver and network quality"
+
+[lints]
+workspace = true
+
+[dependencies]
+serde = { workspace = true }
+
+[dev-dependencies]
