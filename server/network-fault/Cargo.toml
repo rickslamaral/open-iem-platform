@@ -1,0 +1,19 @@
+[package]
+name = "network-fault"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Open IEM Platform — deterministic network fault profiles: loss, jitter, reorder, outage, reconnect (L1 SIMULATED)"
+
+[lints]
+workspace = true
+
+[dependencies]
+thiserror = "1"
+recovery = { path = "../recovery" }
+
+[dev-dependencies]
+observability = { path = "../observability" }
+streaming = { path = "../streaming" }

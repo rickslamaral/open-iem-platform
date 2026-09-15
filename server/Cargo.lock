@@ -1812,6 +1812,16 @@ name = "mix-engine"
 version = "0.3.1"
 
 [[package]]
+name = "network-fault"
+version = "0.3.1"
+dependencies = [
+ "observability",
+ "recovery",
+ "streaming",
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "nom"
 version = "7.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"

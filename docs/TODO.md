@@ -27,6 +27,7 @@
 - [x] P0-006 — registry bounded de pairing, identidade, binding músico/mix, revogação, re-pair explícito e digest Argon2id salted (CODE; DTLS-SRTP/API integration pendente).
 - [x] P0-007 — bootstrap idempotente `soundtech` e fronteira de migração versionada (CODE+CI; PR #62).
 - [x] P0-008 — ALSA explicit fallback backend: abertura PCM, hw_params, fail-safe mute, XRUN recovery, stop_flag Release/Acquire (CODE+CI; PR #63; PipeWire/hardware validation pendente).
+- [x] P1-005 — Network Tests: 5 perfis determinísticos (loss/jitter/reorder/outage/reconnect) no crate `network-fault`. Integração com `recovery` e `observability`. 47 testes verdes (CODE; branch feat/p1-005-network-tests; PR pendente CI remoto).
 
 ## Phase 93 — Frontend EQ Controls (Engineer Console)
 
