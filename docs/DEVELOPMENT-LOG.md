@@ -4,7 +4,7 @@
 - TODO.md: Phase 93 marcada como concluída (todos os itens `[x]`); status line superior atualizado.
 - DEVELOPMENT-HANDOFF.md: próxima tarefa atualizada para Phase 94/P1-009; Phase 93 e P1-008 refletem estado real.
 - Gates locais confirmados: `cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, Engineer `npm run typecheck`, `npm test -- --watchAll=false`, `npm run build`, Musician mesmos três gates e `python3 -m pytest tests/ -q`: todos OK; contagens registradas: Engineer 29, Musician 44, Python 60.
-- Evidência CI: PR #74 (`https://github.com/rickslamaral/open-iem-platform/pull/74`) mergeada; PR #75 (`https://github.com/rickslamaral/open-iem-platform/pull/75`) mergeada com run `34989342335` em 13/13 checks; esta sincronização validada no run `35002437097` (HEAD `c782760d5cd36b47d5a0e46edfe62c48ef4d3d7f`) em 13/13 checks; PR #75 usou HEAD `ddbf2c7c3c2d4f29c7729d2d06479e5489d337c6`.
+- Evidência CI: PR #74 (`https://github.com/rickslamaral/open-iem-platform/pull/74`) mergeada; PR #75 (`https://github.com/rickslamaral/open-iem-platform/pull/75`) mergeada com run `34989342335` em 13/13 checks; esta sincronização validada no run `35005416115` (HEAD `7d58dd4e3e65aa7a666ba9f56fac65c1f7fbc911`) em 13/13 checks; PR #75 usou HEAD `ddbf2c7c3c2d4f29c7729d2d06479e5489d337c6`.
 - Release `v0.3.1`: tag existe; GitHub Release ainda exige confirmação explícita de Ricardo; validação física permanece pendente.
 
 ## 2026-09-15 — P1-008: domain API routes
@@ -22,7 +22,6 @@
 **Limitações:** músicos, cenas e presets continuam P2; PipeWire/ALSA real, WebRTC/Opus runtime e Raspberry Pi 5 continuam sem validação.
 
 ## 2026-09-14 — P1-005: deterministic network fault profiles
-
 
 **Status:** CODE + CI local; L1 SIMULATED — sem hardware.
 
