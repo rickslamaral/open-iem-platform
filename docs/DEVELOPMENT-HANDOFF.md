@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P1-002 — Device Manager: capability discovery, hot-plug and recovery state machine` — P1-001 implementado e mergeado na main (PR #65, commit `cdcd796`); P1-002 liberado para execução sequencial.
+**Next development item:** `P1-003 — Observability: PR #68 aberta, aguardando CI e merge` — P1-002 implementado e mergeado na main (PR #67, commit `ea81c18`); P1-003 em PR #68 (feat/p1-003-observability-metrics).
