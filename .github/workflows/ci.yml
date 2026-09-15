@@ -357,13 +357,17 @@ jobs:
 
   alsa-sim:
     name: ALSA Simulation (Docker + snd-dummy)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Load snd-dummy kernel module
-        run: sudo modprobe snd-dummy
+      - name: Install and load snd-dummy kernel module
+        run: |
+          # ubuntu-latest may boot a kernel whose extra modules are not preinstalled.
+          sudo apt-get update
+          sudo apt-get install -y "linux-modules-extra-$(uname -r)"
+          sudo modprobe snd-dummy
 
       - name: Verify /dev/snd present
         run: ls /dev/snd
