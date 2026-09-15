@@ -12,6 +12,7 @@ export type ClientMessage =
   | { type: 'GetState' }
   | { type: 'SetMasterGain'; data: { mix_index: number; gain_db: number } }
   | { type: 'SetMasterMute'; data: { mix_index: number; muted: boolean } }
+  | { type: 'SetEqBand'; data: { mix_index: number; band_index: number; frequency_hz: number; gain_db: number; q: number; enabled: boolean } }
 
 export type ServerMessage =
   | { type: 'State'; data: { revision: number } }
@@ -24,12 +25,20 @@ export type ServerMessage =
         revision: number;
       };
     }
+  | { type: 'EqBandAck'; data: { mix_index: number; band_index: number; frequency_hz: number; gain_db: number; q: number; enabled: boolean; revision: number } }
   | { type: 'Error'; data: { code: string; message: string } }
 
 export interface MixMasterState {
   master_gain_db: number
   master_muted: boolean
   revision: number
+}
+
+export interface EqBandState {
+  frequency_hz: number
+  gain_db: number
+  q: number
+  enabled: boolean
 }
 
 export type WsStatus = 'disconnected' | 'connecting' | 'connected' | 'error'
