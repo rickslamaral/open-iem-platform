@@ -3649,3 +3649,37 @@ CODE + CI local — sem hardware, sem runtime, sem PipeWire.
 ### Próximo
 
 P1-001 PR #65 aguarda CI remoto. Próxima tarefa na fila: P1-002 Device Manager (depende de P1-001).
+
+
+## 2026-09-15 — Phase 93 EQ Band Controls (PR #74)
+
+**Branch:** feat/phase93-eq-ui
+**Commit:** 2494b39
+
+### O que foi implementado
+
+- `web/engineer/src/protocol.ts`: adicionado `SetEqBand` em ClientMessage, `EqBandAck` em ServerMessage, interface `EqBandState`
+- `web/engineer/src/useEngineerWs.ts`: `eqBands: EqBandState[][]` (2 mixes × 4 bandas), `setEqBand(mixIndex, bandIndex, params)`, handler EqBandAck com bounds check
+- `web/engineer/src/App.tsx`: componente `EqBandControl` com sliders freq (20–20000 Hz) / gain (±24 dB) / Q (0.1–10.0) + toggle enabled; debounce 300 ms; seção "EQ por Mix" por mix
+- `web/engineer/src/App.test.tsx`: 3 novos testes (render 4×2 controles, envio SetEqBand, atualização EqBandAck)
+
+### Gates locais
+
+- `tsc --noEmit`: OK
+- `vitest run`: 29/29 (16 existentes + 3 novos)
+- `vite build`: OK
+- `cargo fmt --check`: OK
+- `cargo clippy --all-targets -D warnings`: OK
+- `cargo test` (workspace): OK
+
+### Revisão independente
+
+passed=true; sem security_concerns; sem logic_errors; sugestão não-bloqueante: debounce refs EqBandControl não limpos no unmount.
+
+### Nível de evidência
+
+CODE — sem runtime, sem hardware, sem PipeWire.
+
+### Próximo
+
+Aguardar CI remoto PR #74. Após merge: P1-008 continua com reconciliação de rotas API faltantes.
