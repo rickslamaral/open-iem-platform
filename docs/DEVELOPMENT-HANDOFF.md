@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P1-006 — Release: install, artifact, checksum and v0.3.1 release validation` — P1-005 (Network Tests) mergeado em branch `feat/p1-005-network-tests` (commit `5fba6fa`). Crate `network-fault` com 47 testes: LossProfile, JitterProfile, ReorderProfile, OutageProfile, ReconnectProfile. Integração com `recovery` e `observability` validada. PR pendente aprovação CI remoto antes do merge em main.
+**Next development item:** `P1-006 — Release: install, artifact, checksum and v0.3.1 release validation` — P1-005 (Network Tests) mergeado em main via PR #72 (`03650da`). Crate `network-fault` com 47 testes: LossProfile, JitterProfile, ReorderProfile, OutageProfile, ReconnectProfile. Integração com `recovery` e `observability` validada. Tag `v0.3.1` existe e aponta para commit versionado; GitHub Release ainda exige confirmação explícita e validação física permanece pendente.

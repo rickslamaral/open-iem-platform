@@ -5,7 +5,7 @@
 - **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
 - **Phase 92 — WS EQ Control:** backend implementado e mergeado em `main` (PR #54): `SetEqBand`/`EqBandAck`, `EqBandDelta` broadcast, RBAC. Frontend EQ controls pendente (Phase 93+).
 - **Phase 83–92:** backend/control changes implementados e mesclados em `main`; runtime de áudio/media permanece não validado.
-- **Release `v0.3.1`:** tag existe; GitHub Release ainda não publicada.
+- **Release `v0.3.1`:** tag existe e CI remoto do HEAD passou 12/12; GitHub Release ainda não publicada por exigir confirmação explícita.
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
 - **Guias:** espelhos PT/EN/ES existentes; revisar e sincronizar após validação física.
 
@@ -27,7 +27,7 @@
 - [x] P0-006 — registry bounded de pairing, identidade, binding músico/mix, revogação, re-pair explícito e digest Argon2id salted (CODE; DTLS-SRTP/API integration pendente).
 - [x] P0-007 — bootstrap idempotente `soundtech` e fronteira de migração versionada (CODE+CI; PR #62).
 - [x] P0-008 — ALSA explicit fallback backend: abertura PCM, hw_params, fail-safe mute, XRUN recovery, stop_flag Release/Acquire (CODE+CI; PR #63; PipeWire/hardware validation pendente).
-- [x] P1-005 — Network Tests: 5 perfis determinísticos (loss/jitter/reorder/outage/reconnect) no crate `network-fault`. Integração com `recovery` e `observability`. 47 testes verdes (CODE; branch feat/p1-005-network-tests; PR pendente CI remoto).
+- [x] P1-005 — Network Tests: 5 perfis determinísticos (loss/jitter/reorder/outage/reconnect) no crate `network-fault`. Integração com `recovery` e `observability`. 47 testes verdes (CODE; PR #72 mergeado em main; CI remoto 12/12).
 
 ## Phase 93 — Frontend EQ Controls (Engineer Console)
 
