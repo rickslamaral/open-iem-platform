@@ -8,7 +8,7 @@
 - Snapshot de canais reutiliza representação existente e inclui `schema_version` e `revision`.
 - Testes de integração cobrem ciclo HTTP músico, contrato WebRTC/telemetria simulado, ownership WebSocket, canais e autenticação.
 - CI ALSA usa PCM `null` de software quando runner não expõe `snd-dummy`; isso não altera claim de hardware.
-- CI remoto no HEAD `54794a5`: 13/13 checks aprovados.
+- CI remoto no HEAD `7de25b9`: 13/13 checks aprovados.
 
 **Limitações:** músicos, cenas e presets continuam P2; PipeWire/ALSA real, WebRTC/Opus runtime e Raspberry Pi 5 continuam sem validação.
 
