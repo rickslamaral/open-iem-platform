@@ -1,4 +1,4 @@
-//! Channel REST handlers: `GET /api/v1/state`, `PUT /api/v1/channels/:index`.
+//! Channel REST handlers: `GET /api/v1/state`, `GET /api/v1/channels`, `PUT /api/v1/channels/:index`.
 
 #![allow(clippy::unused_async)]
 
@@ -94,10 +94,7 @@ pub struct SendSnapshot {
 
 const STATE_SCHEMA_VERSION: u8 = 1;
 
-fn build_snapshot(
-    state: &control_server::ControlState,
-    visible_mix: Option<usize>,
-) -> StateResponse {
+fn build_channels(state: &control_server::ControlState) -> Vec<ChannelSnapshot> {
     let mut channels = Vec::new();
     state.for_each_channel(|index, channel| {
         channels.push(ChannelSnapshot {
@@ -111,6 +108,14 @@ fn build_snapshot(
             revision: channel.revision(),
         });
     });
+    channels
+}
+
+fn build_snapshot(
+    state: &control_server::ControlState,
+    visible_mix: Option<usize>,
+) -> StateResponse {
+    let channels = build_channels(state);
     let mut mixes = Vec::new();
     state.for_each_mix(|index, mix| {
         if visible_mix.is_some_and(|allowed| allowed != index) {
@@ -178,6 +183,39 @@ pub async fn get_state(
         .lock()
         .map_err(|_| ApiError::Internal("lock poisoned".to_owned()))?;
     Ok(Json(build_snapshot(&ctrl, visible_mix)))
+}
+
+/// Response containing configured input channels.
+#[derive(Serialize)]
+pub struct ChannelsResponse {
+    /// Contract schema version.
+    pub schema_version: u8,
+    /// Current state revision.
+    pub revision: u64,
+    /// Configured input channels.
+    pub channels: Vec<ChannelSnapshot>,
+}
+
+/// `GET /api/v1/channels` — returns configured input channels.
+///
+/// Requires at least Musician role.
+///
+/// # Errors
+/// Returns `ApiError::Forbidden` if role insufficient.
+pub async fn list_channels(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<JwtClaims>,
+) -> Result<impl IntoResponse, ApiError> {
+    require_min_role(&claims, Role::Musician)?;
+    let ctrl = state
+        .control
+        .lock()
+        .map_err(|_| ApiError::Internal("lock poisoned".to_owned()))?;
+    Ok(Json(ChannelsResponse {
+        schema_version: STATE_SCHEMA_VERSION,
+        revision: ctrl.revision(),
+        channels: build_channels(&ctrl),
+    }))
 }
 
 /// Build a state snapshot from one consistent control-state lock.

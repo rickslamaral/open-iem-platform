@@ -18,12 +18,13 @@ use api_server::{
         },
         audio::{ice_candidate, offer, sessions},
         auth::{create_user, login, logout, refresh},
-        channels::{get_state, set_channel_gain, set_channel_mute},
+        channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
         health::health,
         mixes::{
             assign_mix, get_send_state, list_mixes, set_send_gain, set_send_muted, set_send_pan,
             unassign_mix,
         },
+        system::get_system_info,
         telemetry::get_telemetry,
     },
     security::validate_origin,
@@ -40,7 +41,7 @@ use axum_test::{TestServer, WsMessage};
 use bytes::Bytes;
 use control_protocol::Role;
 use control_server::ControlState;
-use mix_engine::Mix;
+use mix_engine::{Channel, Mix};
 use serde_json::{json, Value};
 
 // ── Ephemeral test-only Ed25519 PEM pair ────────────────────────────────────
@@ -107,6 +108,7 @@ fn build_test_app() -> (TestServer, AppState) {
 
     let protected = Router::new()
         .route("/api/v1/state", get(get_state))
+        .route("/api/v1/channels", get(list_channels))
         .route("/api/v1/telemetry", get(get_telemetry))
         .route("/api/v1/audio/offer", post(offer))
         .route("/api/v1/audio/ice-candidate", post(ice_candidate))
@@ -153,6 +155,7 @@ fn build_test_app() -> (TestServer, AppState) {
 
     let public = Router::new()
         .route("/api/v1/health", get(health))
+        .route("/api/v1/system", get(get_system_info))
         .route("/api/v1/auth/login", post(login))
         .route("/api/v1/auth/refresh", post(refresh));
 
@@ -926,6 +929,7 @@ fn build_ws_app() -> (axum_test::TestServer, AppState) {
 
     let protected = Router::new()
         .route("/api/v1/state", get(get_state))
+        .route("/api/v1/channels", get(list_channels))
         .route("/api/v1/telemetry", get(get_telemetry))
         .route("/api/v1/audio/offer", post(offer))
         .route("/api/v1/audio/ice-candidate", post(ice_candidate))
@@ -972,6 +976,7 @@ fn build_ws_app() -> (axum_test::TestServer, AppState) {
 
     let public = Router::new()
         .route("/api/v1/health", get(health))
+        .route("/api/v1/system", get(get_system_info))
         .route("/api/v1/auth/login", post(login))
         .route("/api/v1/auth/refresh", post(refresh));
 
@@ -1960,7 +1965,9 @@ async fn musician_audio_simulation_webrtc_and_telemetry_contract() {
         .json(&json!({"sdp": VALID_AUDIO_OFFER, "mix_id": null}))
         .await
         .json();
-    assert!(offer["sdp"].as_str().is_some_and(|sdp| sdp.starts_with("v=0")));
+    assert!(offer["sdp"]
+        .as_str()
+        .is_some_and(|sdp| sdp.starts_with("v=0")));
 
     let telemetry: Value = server
         .get("/api/v1/telemetry")
@@ -2011,4 +2018,51 @@ async fn musician_audio_simulation_ws_ownership_is_enforced() {
     let denied: Value = ws.receive_json().await;
     assert_eq!(denied["payload"]["type"], "Error");
     assert_eq!(denied["payload"]["data"]["code"], "FORBIDDEN");
+}
+
+// ── P1-008 domain routes ───────────────────────────────────────────────────
+
+#[tokio::test]
+async fn channels_list_returns_configured_channels() {
+    let (server, state) = build_test_app();
+    {
+        let mut control = state.control.lock().expect("control lock");
+        control
+            .set_channel(0, Channel::new(1, "VOC 1"))
+            .expect("channel 0 must configure");
+        control
+            .set_channel(1, Channel::new(2, "VOC 2"))
+            .expect("channel 1 must configure");
+    }
+    let auth_credential = seed_user_and_login(&state, "eng_channels", "pw", Role::Engineer);
+    let response = server
+        .get("/api/v1/channels")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(auth_credential)
+        .await;
+    response.assert_status_ok();
+    let body: Value = response.json();
+    assert!(body["channels"]
+        .as_array()
+        .is_some_and(|channels| channels.len() >= 2));
+}
+
+#[tokio::test]
+async fn system_info_returns_200() {
+    let (server, _state) = build_test_app();
+    let response = server.get("/api/v1/system").await;
+    response.assert_status_ok();
+    let body: Value = response.json();
+    assert!(!body["version"].as_str().unwrap_or_default().is_empty());
+    assert_eq!(body["backend_status"], "SIMULATED");
+}
+
+#[tokio::test]
+async fn channels_list_requires_auth() {
+    let (server, _state) = build_test_app();
+    server
+        .get("/api/v1/channels")
+        .add_header("Origin", "http://localhost")
+        .await
+        .assert_status(axum::http::StatusCode::UNAUTHORIZED);
 }
