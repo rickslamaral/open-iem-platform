@@ -3705,4 +3705,4 @@ CODE — sem runtime, sem hardware, sem PipeWire.
 
 ### Próximo
 
-Aguardar CI remoto PR #74. Após merge: P1-008 continua com reconciliação de rotas API faltantes.
+CI remoto PR #74 concluído e mergeado; P1-008 concluído via PR #75, com rotas de domínio implementadas. Próximo item: Phase 94/P1-009.
