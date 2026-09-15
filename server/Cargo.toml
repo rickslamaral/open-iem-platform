@@ -12,6 +12,7 @@ members = [
     "device-manager",
     "observability",
     "recovery",
+    "network-fault",
 ]
 
 [workspace.dependencies]
