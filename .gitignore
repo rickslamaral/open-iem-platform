@@ -66,3 +66,4 @@ coverage/
 lcov.info
 *.profraw
 *.profdata
+.hermes-workdir-lock

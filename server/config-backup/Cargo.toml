@@ -1,0 +1,17 @@
+[package]
+name = "config-backup"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+mix-engine = { path = "../mix-engine" }
+control-server = { path = "../control-server" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = "2"
+
+[lints]
+workspace = true
