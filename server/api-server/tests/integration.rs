@@ -1894,3 +1894,121 @@ async fn ws_eq_band_broadcast_not_forwarded_to_musician() {
         "musician must NOT receive EQ band broadcast"
     );
 }
+
+// End-to-end musician + simulated audio interface coverage.
+#[tokio::test]
+async fn musician_audio_simulation_full_http_cycle() {
+    let (server, state) = build_test_app();
+    let engineer = seed_user_and_login(&state, "eng_audio_cycle", "pw", Role::Engineer);
+    let musician = seed_user_and_login(&state, "mus_audio_cycle", "pw", Role::Musician);
+    let (musician_id, _, _, _) = state.db.find_user("mus_audio_cycle").unwrap();
+
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer)
+        .json(&json!({"user_id": musician_id}))
+        .await
+        .assert_status_ok();
+
+    let gain: Value = server
+        .put("/api/v1/mixes/0/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&musician)
+        .json(&json!({"gain_db": -18.0}))
+        .await
+        .json();
+    assert_eq!(gain["gain_db"], -18.0);
+
+    let mute: Value = server
+        .put("/api/v1/mixes/0/sends/0/mute")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&musician)
+        .json(&json!({"muted": true}))
+        .await
+        .json();
+    assert_eq!(mute["muted"], true);
+
+    let send: Value = server
+        .get("/api/v1/mixes/0/sends/0")
+        .authorization_bearer(&musician)
+        .await
+        .json();
+    assert_eq!(send["gain_db"], -18.0);
+    assert_eq!(send["muted"], true);
+}
+
+#[tokio::test]
+async fn musician_audio_simulation_webrtc_and_telemetry_contract() {
+    let (server, state) = build_test_app();
+    let engineer = seed_user_and_login(&state, "eng_audio_contract", "pw", Role::Engineer);
+    let musician = seed_user_and_login(&state, "mus_audio_contract", "pw", Role::Musician);
+    let (musician_id, _, _, _) = state.db.find_user("mus_audio_contract").unwrap();
+
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer)
+        .json(&json!({"user_id": musician_id}))
+        .await
+        .assert_status_ok();
+
+    let offer: Value = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&musician)
+        .json(&json!({"sdp": VALID_AUDIO_OFFER, "mix_id": null}))
+        .await
+        .json();
+    assert!(offer["sdp"].as_str().is_some_and(|sdp| sdp.starts_with("v=0")));
+
+    let telemetry: Value = server
+        .get("/api/v1/telemetry")
+        .authorization_bearer(&engineer)
+        .await
+        .json();
+    assert_eq!(telemetry["backend"], "simulated");
+    assert_eq!(telemetry["availability"], "simulated");
+
+    server
+        .get("/api/v1/telemetry")
+        .authorization_bearer(&musician)
+        .await
+        .assert_status(axum::http::StatusCode::FORBIDDEN);
+}
+
+#[tokio::test]
+async fn musician_audio_simulation_ws_ownership_is_enforced() {
+    let (server, state) = build_ws_app();
+    let musician = seed_user_and_login(&state, "mus_audio_ws", "pw", Role::Musician);
+    let (musician_id, _, _, _) = state.db.find_user("mus_audio_ws").unwrap();
+    state.db.assign_mix(0, musician_id).unwrap();
+
+    let mut ws = server
+        .get_websocket("/ws/v1")
+        .add_header("Origin", "http://localhost")
+        .add_header(
+            "Sec-WebSocket-Protocol",
+            format!("openiem.bearer.{musician}, openiem.v1"),
+        )
+        .await
+        .into_websocket()
+        .await;
+    ws.send_text(ws_envelope(
+        "SetSendGain",
+        json!({"mix_index": 0, "channel_index": 0, "gain_db": -6.0}),
+    ))
+    .await;
+    let ack: Value = ws.receive_json().await;
+    assert_eq!(ack["payload"]["type"], "SendAck");
+    assert_eq!(ack["payload"]["data"]["gain_db"], -6.0);
+
+    ws.send_text(ws_envelope(
+        "SetSendGain",
+        json!({"mix_index": 1, "channel_index": 0, "gain_db": -6.0}),
+    ))
+    .await;
+    let denied: Value = ws.receive_json().await;
+    assert_eq!(denied["payload"]["type"], "Error");
+    assert_eq!(denied["payload"]["data"]["code"], "FORBIDDEN");
+}
