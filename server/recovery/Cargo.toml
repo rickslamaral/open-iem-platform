@@ -1,0 +1,16 @@
+[package]
+name = "recovery"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Open IEM Platform — bounded session recovery: reconnect restores mix assignment without affecting other sessions"
+
+[lints]
+workspace = true
+
+[dependencies]
+thiserror = "1"
+
+[dev-dependencies]
