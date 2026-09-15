@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — P1-008 domain API routes
+- `GET /api/v1/system` publica versão, capacidades e status honesto `SIMULATED`.
+- `GET /api/v1/channels` autenticada para `Musician` ou papel superior, com canais configurados e revisão do estado.
+
+
 ### Added — P1-005 network fault profiles
 - Novo crate `server/network-fault`: 5 perfis de falha determinísticos L1 SIMULATED: `LossProfile`, `JitterProfile`, `ReorderProfile`, `OutageProfile`, `ReconnectProfile`.
 - `ReconnectProfile` integra `recovery::RecoveryRegistry` para verificar restauração de mix ID após reconexão.

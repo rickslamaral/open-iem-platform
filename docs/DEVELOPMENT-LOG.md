@@ -1,3 +1,17 @@
+## 2026-09-15 — P1-008: domain API routes
+
+**Branch:** `feat/p1008-domain-routes` — PR #75
+**Status:** CODE + CI; áudio permanece `SIMULATED`
+
+- Adicionada rota pública `GET /api/v1/system` com versão do pacote, protocolo, limites de canais/mixes e `backend_status=SIMULATED`.
+- Adicionada rota autenticada `GET /api/v1/channels`; `Musician` pode consultar canais e a autorização impede acesso anônimo.
+- Snapshot de canais reutiliza representação existente e inclui `schema_version` e `revision`.
+- Testes de integração cobrem ciclo HTTP músico, contrato WebRTC/telemetria simulado, ownership WebSocket, canais e autenticação.
+- CI ALSA usa PCM `null` de software quando runner não expõe `snd-dummy`; isso não altera claim de hardware.
+- CI remoto no HEAD `7de25b9`: 13/13 checks aprovados.
+
+**Limitações:** músicos, cenas e presets continuam P2; PipeWire/ALSA real, WebRTC/Opus runtime e Raspberry Pi 5 continuam sem validação.
+
 ## 2026-09-14 — P1-005: deterministic network fault profiles
 
 **Status:** CODE + CI local; L1 SIMULATED — sem hardware.

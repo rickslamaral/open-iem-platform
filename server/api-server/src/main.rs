@@ -19,12 +19,13 @@ use api_server::{
         },
         audio::{ice_candidate, offer, sessions},
         auth::{create_user, login, logout, refresh},
-        channels::{get_state, set_channel_gain, set_channel_mute},
+        channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
         health::health,
         mixes::{
             assign_mix, get_send_state, list_mixes, set_send_gain, set_send_muted, set_send_pan,
             unassign_mix,
         },
+        system::get_system_info,
         telemetry::get_telemetry,
     },
     security::validate_origin,
@@ -113,6 +114,7 @@ async fn main() -> anyhow::Result<()> {
 
     let protected = Router::new()
         .route("/api/v1/state", get(get_state))
+        .route("/api/v1/channels", get(list_channels))
         .route("/api/v1/telemetry", get(get_telemetry))
         .route("/api/v1/audio/offer", post(offer))
         .route("/api/v1/audio/ice-candidate", post(ice_candidate))
@@ -159,6 +161,7 @@ async fn main() -> anyhow::Result<()> {
 
     let public = Router::new()
         .route("/api/v1/health", get(health))
+        .route("/api/v1/system", get(get_system_info))
         .route("/api/v1/auth/login", post(login))
         .route("/api/v1/auth/refresh", post(refresh));
 

@@ -13,8 +13,18 @@
 
 DEVICE="${1:-hw:0,0}"
 
+# Software-only CI fallback. `null` is an ALSA userspace PCM and needs no
+# kernel sound module or /dev/snd. Real RPi/USB runs must pass hw:N,M.
+if [ "${ALSA_SIM_MODE:-}" = "null" ]; then
+    DEVICE="null"
+fi
+
 echo "=== ALSA device list (inside container) ==="
-aplay -l 2>&1
+if [ "${DEVICE}" = "null" ]; then
+    aplay -L 2>&1 | grep -E '^(null|Discard all samples)' || true
+else
+    aplay -l 2>&1
+fi
 
 echo ""
 echo "=== HW params for ${DEVICE} ==="
