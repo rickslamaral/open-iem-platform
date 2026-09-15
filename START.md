@@ -2756,3 +2756,84 @@ Manter `AGENTS.md` sincronizado com `START.md` e `docs/TODO.md`. Ao concluir uma
 O cron job `361e70c8e264` (loop diurno) e `7aee82067e22` (off-hours) usam `workdir=/workspace/open-iem-platform/` e carregam `AGENTS.md` automaticamente.
 
 Nunca remover `AGENTS.md` do repositório: ele é a interface de bootstrapping para toda execução autônoma.
+
+---
+
+## 147. Recent requests — Raspberry Pi, Docker ALSA and musician flow
+
+This section records current operating requirements from Ricardo. Keep it synchronized with code, tests and deployment documentation.
+
+### 147.1 Raspberry Pi service address
+
+The production systemd unit binds the API to loopback only:
+
+```text
+OPENIEM_BIND_ADDR=127.0.0.1:8080
+```
+
+Therefore the API is **not directly reachable through the Raspberry Pi LAN IP**. Caddy terminates TLS and exposes the service through the configured hostname or LAN IP:
+
+```text
+https://iem.local/api/v1/health
+https://<RASPBERRY_PI_LAN_IP>/api/v1/health
+```
+
+Use the actual address assigned by the router/DHCP or configured as static. Do not hard-code an IP in application code. If `iem.local` mDNS is unavailable, use the Pi LAN IP in both Caddy configuration and `OPENIEM_ALLOWED_ORIGINS`.
+
+The development Docker Compose service is different and binds the API container to `0.0.0.0:3000`, published only on the host loopback:
+
+```text
+127.0.0.1:3000 -> container:3000
+```
+
+Never copy this development binding into production. Production remains `127.0.0.1:8080` behind Caddy TLS.
+
+### 147.2 Audio validation status
+
+- VPS and CI audio path: **SIMULATED**.
+- Docker image: `deployment/docker/alsa-sim/`.
+- Host simulation uses Linux `snd-dummy` and mounts `/dev/snd` into the container.
+- `aplay -l` must enumerate the dummy card inside container.
+- Test tone uses `hw:0,0` for dummy card. On Raspberry Pi with USB interface, run `aplay -l` first and replace with detected card/device, commonly `hw:1,0`.
+- `speaker-test -D hw:1,0 -c 2 -t wav` is valid only after confirming real USB card/device. It is not evidence of real audio when run against `snd-dummy`.
+- No claim of real PipeWire/ALSA/Raspberry Pi 5 runtime support until hardware test produces evidence.
+
+Commands:
+
+```bash
+sudo modprobe snd-dummy
+make alsa-sim-build
+make alsa-sim-run ALSA_DEVICE=hw:0,0
+make alsa-sim-test
+```
+
+### 147.3 CI contract
+
+GitHub Actions job `alsa-sim` runs on `ubuntu-latest` and must:
+
+1. load `snd-dummy`;
+2. verify `/dev/snd`;
+3. build `open-iem-alsa-sim`;
+4. run `aplay -l` inside container;
+5. play test tone on `hw:0,0`;
+6. run pytest suite.
+
+This proves deterministic software simulation only. It does not prove USB audio, PipeWire, speaker output or Raspberry Pi runtime.
+
+### 147.4 Musician + simulated audio tests
+
+Integration tests must cover:
+
+- Engineer assigns mix to musician;
+- musician changes send gain and mute through HTTP;
+- musician negotiates WebRTC offer against simulated backend;
+- Engineer telemetry reports `backend=simulated` and `availability=simulated`;
+- musician cannot read restricted telemetry;
+- musician controls only assigned mix through WebSocket;
+- musician receives `FORBIDDEN` for another mix.
+
+Current evidence: 3 dedicated integration tests pass locally. Full suite must remain green before merge.
+
+### 147.5 Release and change discipline
+
+Do not move or recreate an existing release tag without explicit confirmation. Verify current tags, remote tags, HEAD, CI and release metadata before publishing. Keep simulation changes and musician-flow tests in separate commits when practical; preserve branch and worktree state until merge status is verified.
