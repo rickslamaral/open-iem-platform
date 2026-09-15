@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   type ClientMessage,
   type Envelope,
+  type EqBandState,
   type MixMasterState,
   type ServerMessage,
   type WsStatus,
@@ -11,18 +12,34 @@ import {
 const WS_SUBPROTOCOL = 'openiem-v1';
 const RECONNECT_DELAY_MS = 3000;
 const MAX_MIX = 2;
+const MAX_EQ_BANDS = 4;
 
 function uuid(): string {
   return crypto.randomUUID();
 }
 
+const DEFAULT_EQ_BAND: EqBandState = {
+  frequency_hz: 1000,
+  gain_db: 0,
+  q: 1.4,
+  enabled: false,
+};
+
+function defaultEqBands(): EqBandState[][] {
+  return Array.from({ length: MAX_MIX }, () =>
+    Array.from({ length: MAX_EQ_BANDS }, () => ({ ...DEFAULT_EQ_BAND })),
+  );
+}
+
 export interface UseEngineerWsResult {
   status: WsStatus;
   mixes: MixMasterState[];
+  eqBands: EqBandState[][];
   revision: number | null;
   error: string | null;
   setMasterGain: (mixIndex: number, gainDb: number) => void;
   setMasterMute: (mixIndex: number, muted: boolean) => void;
+  setEqBand: (mixIndex: number, bandIndex: number, params: Partial<EqBandState>) => void;
 }
 
 const DEFAULT_MIX: MixMasterState = { master_gain_db: 0, master_muted: false, revision: 0 };
@@ -36,11 +53,23 @@ function isMasterAck(msg: ServerMessage): msg is ServerMessage & { type: 'Master
   );
 }
 
+function isEqBandAck(msg: ServerMessage): msg is ServerMessage & { type: 'EqBandAck' } {
+  return (
+    msg.type === 'EqBandAck' &&
+    typeof (msg as { type: 'EqBandAck'; data: Record<string, unknown> }).data === 'object' &&
+    typeof (msg as { type: 'EqBandAck'; data: { mix_index: unknown } }).data.mix_index === 'number' &&
+    typeof (msg as { type: 'EqBandAck'; data: { band_index: unknown } }).data.band_index === 'number'
+  );
+}
+
 export function useEngineerWs(token: string | null): UseEngineerWsResult {
   const [status, setStatus] = useState<WsStatus>('disconnected');
   const [mixes, setMixes] = useState<MixMasterState[]>(
     Array.from({ length: MAX_MIX }, () => ({ ...DEFAULT_MIX })),
   );
+  const [eqBands, setEqBands] = useState<EqBandState[][]>(defaultEqBands());
+  // Ref mirrors eqBands state so setEqBand can read latest without stale closures
+  const eqBandsRef = useRef<EqBandState[][]>(defaultEqBands());
   const [revision, setRevision] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -66,6 +95,32 @@ export function useEngineerWs(token: string | null): UseEngineerWsResult {
   const setMasterMute = useCallback(
     (mixIndex: number, muted: boolean) => {
       sendMsg({ type: 'SetMasterMute', data: { mix_index: mixIndex, muted } });
+    },
+    [sendMsg],
+  );
+
+  const setEqBand = useCallback(
+    (mixIndex: number, bandIndex: number, params: Partial<EqBandState>) => {
+      // Merge with current state from ref (avoids stale closure)
+      const current = eqBandsRef.current[mixIndex]?.[bandIndex] ?? { ...DEFAULT_EQ_BAND };
+      const merged: EqBandState = { ...current, ...params };
+      // Update ref and state
+      const next = eqBandsRef.current.map((mix) => [...mix]);
+      next[mixIndex][bandIndex] = merged;
+      eqBandsRef.current = next;
+      setEqBands(next);
+      // Send over WS
+      sendMsg({
+        type: 'SetEqBand',
+        data: {
+          mix_index: mixIndex,
+          band_index: bandIndex,
+          frequency_hz: merged.frequency_hz,
+          gain_db: merged.gain_db,
+          q: merged.q,
+          enabled: merged.enabled,
+        },
+      });
     },
     [sendMsg],
   );
@@ -126,6 +181,15 @@ export function useEngineerWs(token: string | null): UseEngineerWsResult {
             });
             setRevision(msg.data.revision);
           }
+        } else if (isEqBandAck(msg)) {
+          const { mix_index, band_index, frequency_hz, gain_db, q, enabled, revision: rev } = msg.data;
+          if (mix_index >= 0 && mix_index < MAX_MIX && band_index >= 0 && band_index < MAX_EQ_BANDS) {
+            const next = eqBandsRef.current.map((mix) => [...mix]);
+            next[mix_index][band_index] = { frequency_hz, gain_db, q, enabled };
+            eqBandsRef.current = next;
+            setEqBands(next);
+            setRevision(rev);
+          }
         } else if (msg.type === 'State') {
           setRevision(msg.data.revision);
         } else if (msg.type === 'Error') {
@@ -156,5 +220,5 @@ export function useEngineerWs(token: string | null): UseEngineerWsResult {
     };
   }, [token]);
 
-  return { status, mixes, revision, error, setMasterGain, setMasterMute };
+  return { status, mixes, eqBands, revision, error, setMasterGain, setMasterMute, setEqBand };
 }

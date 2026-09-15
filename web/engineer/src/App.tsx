@@ -169,6 +169,116 @@ function ChannelStrip({
   );
 }
 
+
+const MAX_EQ_BANDS = 4;
+
+interface EqBandControlProps {
+  mixIndex: number;
+  bandIndex: number;
+  frequencyHz: number;
+  gainDb: number;
+  q: number;
+  enabled: boolean;
+  onChange: (mixIndex: number, bandIndex: number, params: { frequency_hz?: number; gain_db?: number; q?: number; enabled?: boolean }) => void;
+}
+
+function EqBandControl({ mixIndex, bandIndex, frequencyHz, gainDb, q, enabled, onChange }: EqBandControlProps) {
+  const [localFreq, setLocalFreq] = useState(frequencyHz);
+  const [localGain, setLocalGain] = useState(gainDb);
+  const [localQ, setLocalQ] = useState(q);
+  const freqDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const gainDebounceEq = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const qDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => { setLocalFreq(frequencyHz); }, [frequencyHz]);
+  useEffect(() => { setLocalGain(gainDb); }, [gainDb]);
+  useEffect(() => { setLocalQ(q); }, [q]);
+
+  function debounced(
+    ref: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
+    key: 'frequency_hz' | 'gain_db' | 'q',
+    value: number,
+  ) {
+    if (ref.current !== null) clearTimeout(ref.current);
+    ref.current = setTimeout(() => {
+      onChange(mixIndex, bandIndex, { [key]: value });
+      ref.current = null;
+    }, 300);
+  }
+
+  return (
+    <div className="eq-band" aria-label={`EQ Mix ${mixIndex + 1} Band ${bandIndex + 1}`}>
+      <span className="muted" style={{ fontSize: '0.75rem' }}>Band {bandIndex + 1}</span>
+      <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}>
+        <input
+          type="checkbox"
+          aria-label={`EQ band ${bandIndex + 1} mix ${mixIndex + 1} enabled`}
+          checked={enabled}
+          onChange={(e) => onChange(mixIndex, bandIndex, { enabled: e.target.checked })}
+        />
+        On
+      </label>
+      <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}>
+        <span style={{ minWidth: '2.5rem' }}>Freq</span>
+        <input
+          type="range"
+          aria-label={`EQ band ${bandIndex + 1} mix ${mixIndex + 1} frequency`}
+          min={20}
+          max={20000}
+          step={1}
+          value={localFreq}
+          disabled={!enabled}
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            setLocalFreq(v);
+            debounced(freqDebounce, 'frequency_hz', v);
+          }}
+          style={{ flex: 1 }}
+        />
+        <span style={{ minWidth: '3.5rem', textAlign: 'right' }}>{localFreq} Hz</span>
+      </label>
+      <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}>
+        <span style={{ minWidth: '2.5rem' }}>Gain</span>
+        <input
+          type="range"
+          aria-label={`EQ band ${bandIndex + 1} mix ${mixIndex + 1} gain`}
+          min={-24}
+          max={24}
+          step={0.5}
+          value={localGain}
+          disabled={!enabled}
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            setLocalGain(v);
+            debounced(gainDebounceEq, 'gain_db', v);
+          }}
+          style={{ flex: 1 }}
+        />
+        <span style={{ minWidth: '3.5rem', textAlign: 'right' }}>{localGain.toFixed(1)} dB</span>
+      </label>
+      <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}>
+        <span style={{ minWidth: '2.5rem' }}>Q</span>
+        <input
+          type="range"
+          aria-label={`EQ band ${bandIndex + 1} mix ${mixIndex + 1} Q`}
+          min={0.1}
+          max={10.0}
+          step={0.1}
+          value={localQ}
+          disabled={!enabled}
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            setLocalQ(v);
+            debounced(qDebounce, 'q', v);
+          }}
+          style={{ flex: 1 }}
+        />
+        <span style={{ minWidth: '3.5rem', textAlign: 'right' }}>{localQ.toFixed(1)}</span>
+      </label>
+    </div>
+  );
+}
+
 export default function App() {
   const [token, setToken] = useState<string | null>(null);
   const [data, setData] = useState<Dashboard | null>(null);
@@ -383,6 +493,29 @@ export default function App() {
             onGain={(gain) => ws.setMasterGain(mix, gain)}
             onMute={(muted) => ws.setMasterMute(mix, muted)}
           />
+        ))}
+      </div>
+      <div className="card">
+        <h2>EQ por Mix</h2>
+        <p className="muted">Equalização paramétrica por banda — SIMULATED (sem validação em hardware).</p>
+        {[0, 1].map((mix) => (
+          <div key={mix} style={{ marginBottom: '1rem' }}>
+            <strong>Mix {mix + 1} — EQ</strong>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', marginTop: '0.5rem' }}>
+              {Array.from({ length: MAX_EQ_BANDS }, (_, band) => (
+                <EqBandControl
+                  key={band}
+                  mixIndex={mix}
+                  bandIndex={band}
+                  frequencyHz={ws.eqBands[mix]?.[band]?.frequency_hz ?? 1000}
+                  gainDb={ws.eqBands[mix]?.[band]?.gain_db ?? 0}
+                  q={ws.eqBands[mix]?.[band]?.q ?? 1.4}
+                  enabled={ws.eqBands[mix]?.[band]?.enabled ?? false}
+                  onChange={ws.setEqBand}
+                />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
       <div className="card"><h2>Mix assignments</h2><p className="muted">Atribuição exige ID do usuário. Catálogo de usuários fica restrito a Admin.</p>

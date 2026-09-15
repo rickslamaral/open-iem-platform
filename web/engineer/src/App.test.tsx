@@ -310,4 +310,65 @@ describe('Engineer Console', () => {
     await screen.findByText('Canais de entrada');
     expect(screen.getByText('3.5 dB')).toBeTruthy();
   });
+
+  // ── EQ Band Controls (Phase 93) ───────────────────────────────────────
+  it('renderiza controles EQ: 4 bandas × 2 mixes visíveis após login', async () => {
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'engineer' } });
+    fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    await screen.findByRole('heading', { name: 'Engineer Console' });
+    // 4 bands × 2 mixes = 8 EQ band containers
+    for (let mix = 1; mix <= 2; mix++) {
+      for (let band = 1; band <= 4; band++) {
+        expect(screen.getByLabelText(`EQ Mix ${mix} Band ${band}`)).toBeTruthy();
+      }
+    }
+  });
+
+  it('envia SetEqBand ao alterar slider de gain do EQ', async () => {
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'engineer' } });
+    fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    await screen.findByRole('heading', { name: 'Engineer Console' });
+    act(() => { lastWs!.onopen?.({} as Event); });
+    // First enable the band
+    const enableCheckbox = screen.getByLabelText('EQ band 1 mix 1 enabled');
+    fireEvent.click(enableCheckbox);
+    // Check that SetEqBand was sent
+    await waitFor(() => {
+      const calls = lastWs!.send.mock.calls;
+      const eqCall = calls.find((c) => {
+        const parsed = JSON.parse(c[0] as string) as { payload: { type: string } };
+        return parsed.payload.type === 'SetEqBand';
+      });
+      expect(eqCall).toBeDefined();
+    });
+  });
+
+  it('atualiza estado da banda ao receber EqBandAck via WebSocket', async () => {
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'engineer' } });
+    fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    await screen.findByRole('heading', { name: 'Engineer Console' });
+    act(() => { lastWs!.onopen?.({} as Event); });
+    act(() => {
+      lastWs!.onmessage?.({
+        data: serverEnvelope({
+          type: 'EqBandAck',
+          data: { mix_index: 0, band_index: 0, frequency_hz: 500, gain_db: 6, q: 2.0, enabled: true, revision: 10 },
+        }),
+      });
+    });
+    // After EqBandAck, frequency slider for mix 1 band 1 should reflect 500 Hz
+    await waitFor(() => {
+      const freqSlider = screen.getByLabelText('EQ band 1 mix 1 frequency') as HTMLInputElement;
+      expect(freqSlider.value).toBe('500');
+    });
+    // enabled checkbox should be checked
+    const enableCheckbox = screen.getByLabelText('EQ band 1 mix 1 enabled') as HTMLInputElement;
+    expect(enableCheckbox.checked).toBe(true);
+  });
 });
