@@ -11,6 +11,7 @@ members = [
     "topology",
     "device-manager",
     "observability",
+    "recovery",
 ]
 
 [workspace.dependencies]
