@@ -3608,6 +3608,14 @@ SIMULATED — sem hardware, sem PipeWire, sem Opus real. Fronteira de dados corr
 P0-004 — native/headless Opus receiver (depende de P0-003 ✓)
 
 
+## 2026-09-15 — P1-006 release readiness check
+
+- Confirmado PR #72 (P1-005) mergeado em `main`; HEAD `03650da` passou 12/12 checks remotos.
+- Confirmada tag `v0.3.1` em `3dd223e58e47fb1c4d6382cef3264e3ea1167a86`; versões Rust e frontends sincronizadas em `0.3.1`.
+- Validados localmente Rust (fmt, clippy, 338 testes), dois frontends (typecheck, 70 testes, build), 60 testes Python de release, documentação, skills e shell syntax.
+- GitHub Release não publicada: exige confirmação explícita. Validação PipeWire/ALSA, instalação Linux dedicada e Raspberry Pi 5 continua pendente; sem claim de release/runtime físico.
+
+
 ## 2026-09-14 — P0-004 receiver core
 
 Implemented `streaming::opus_receiver`: pure-Rust Opus 48 kHz stereo decoder, bounded non-blocking RTP payload ingress, ordered bounded jitter buffer, headless `AudioOutput` boundary, fail-safe mute on underrun/output failure, and reconnect reset. Evidence remains **SIMULATED**; PipeWire/ALSA device output and physical receiver validation remain pending.

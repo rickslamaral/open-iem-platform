@@ -53,6 +53,17 @@ impl ControlState {
         self.engine.set_mix(index, mix)
     }
 
+    /// Add or replace channel configuration.
+    ///
+    /// # Errors
+    /// Returns `mix_engine::EngineError` when index is outside channel slots.
+    pub fn set_channel(
+        &mut self,
+        index: usize,
+        channel: Channel,
+    ) -> Result<(), mix_engine::EngineError> {
+        self.engine.set_channel(index, channel)
+    }
     /// Read a channel, if configured.
     #[must_use]
     pub fn channel(&self, index: usize) -> Option<&Channel> {
