@@ -127,3 +127,82 @@ Validação física: PipeWire/ALSA, WebRTC/Opus, Raspberry Pi 5 — SIMULATED
 - `docs/DEVELOPMENT-LOG.md` — log de decisões e implementações
 - `docs/ARCHITECTURE-GAPS.md` — desvios arquiteturais detectados
 - `CHANGELOG.md` — histórico de mudanças (Keep a Changelog)
+
+## Robustez de execução Hermes
+
+- Não usar `read_file`, `search_files` ou outros helpers Hermes dentro de `terminal`.
+- Não assumir `rg` instalado; preferir comandos POSIX disponíveis ou helpers Hermes.
+- Evitar Python complexo inline em `python3 -c`; usar script temporário/arquivo.
+- Rust sempre aponta para `server/Cargo.toml` quando executado na raiz.
+- Máximo de 1 tarefa implementada por ciclo e 40 chamadas de modelo; ao atingir limite, salvar estado e encerrar limpo.
+- Se contexto ultrapassar 35% do limite, compactar antes de nova sequência de ferramentas.
+- Não repetir envio Telegram após `flood_control`; registrar bloqueio e usar saída local.
+- Não iniciar ciclo se já houver execução ativa no workspace; aguardar próximo tick.
+
+## Desenvolvimento paralelo de branches
+
+Regra: nunca ficar ocioso aguardando CI. Fluxo por ciclo:
+
+1. Ler AGENTS.md, START.md e docs/DEVELOPMENT-HANDOFF.md.
+2. Verificar PRs abertas com `gh pr list --base main --state open`.
+3. **Se há PR com CI em andamento:**
+   - Verificar status CI: `gh run list --branch <branch> --limit 1`.
+   - CI ainda rodando → iniciar próxima tarefa em branch nova independente (nunca baseada na branch pendente).
+   - CI verde → fazer merge squash + delete branch antes de iniciar nova tarefa.
+   - CI falhou → diagnosticar e corrigir branch com falha; não iniciar nova tarefa.
+4. **Se não há PR aberta** → selecionar próxima tarefa e implementar.
+5. Limite: máximo 1 PR aguardando CI + 1 branch em desenvolvimento local ao mesmo tempo.
+6. Nunca basear branch nova em branch não mergeada em main.
+7. Gates locais completos antes de qualquer push (Rust fmt/clippy/testes, frontends, security scan).
+8. Relatório obrigatório: progresso X/Y (Z%), PRs abertas com estado CI, ação executada, próxima tarefa planejada.
+
+
+## Ritmo de ciclo — máximo throughput local
+
+Objetivo: completar 2–3 tarefas reais por ciclo de 30 min aproveitando CI em background.
+
+Padrão esperado por ciclo:
+- Implementar tarefa A → gates locais → push → PR aberta.
+- Enquanto CI roda em PR A: implementar tarefa B localmente (branch independente de main).
+- CI PR A verde → merge squash + delete + sync main.
+- Push tarefa B → PR → checar CI.
+- Se tempo restante: iniciar tarefa C.
+
+Regra de limite: máximo 2 PRs abertas simultaneamente. Com 2 PRs abertas, aguardar merge antes de abrir terceira.
+
+Nunca: basear branch em branch não mergeada; fazer push sem gates completos; aceitar CI com runner_id=0 ou steps=[].
+
+## Limpeza obrigatória de branches e PRs
+
+Antes de iniciar qualquer nova tarefa, sempre executar:
+
+1. `gh pr list --state open` — se houver PR com CI verde, fazer merge squash + delete imediatamente.
+2. `git branch -r | grep -v HEAD` — identificar branches remotas sem PR aberta (órfãs); deletar com `git push origin --delete <branch>`.
+3. `git branch --merged main | grep -v main` — branches locais já mergeadas; deletar com `git branch -d`.
+4. Nunca acumular mais de 2 PRs abertas. Se houver 2 e CI de uma ficou verde, merge antes de abrir terceira.
+5. Ao final de cada ciclo: confirmar que branches da sessão foram removidas local e remotamente.
+
+Checklist de limpeza (executar no início e fim de cada ciclo):
+```bash
+git fetch --prune
+gh pr list --state open --json number,headRefName,statusCheckRollup
+git branch --merged main | grep -v '^\*\|main'
+```
+
+## Política de merge e correção — obrigatória
+
+### PRs com CI verde
+- Merge squash imediato. Não aguardar instrução externa.
+- Delete branch local e remota após merge.
+- Sync main: `git checkout main && git pull origin main`.
+
+### PRs com CI vermelho
+- Não abandonar. No mesmo ciclo ou no próximo: criar commit de correção na mesma branch e aguardar novo CI.
+- Se CI falhou por flakiness (timeout/runner), re-trigger: `gh run rerun <run_id> --failed`.
+- Se falha é de código: corrigir, gates locais, push; CI re-executa automaticamente.
+- Nunca fechar PR com falha sem corrigir. Nunca abrir PR nova sobre problema não resolvido.
+
+### Ordem de prioridade ao iniciar ciclo
+1. Merge PRs com CI verde (sempre primeiro).
+2. Corrigir PRs com CI vermelho.
+3. Implementar nova tarefa.
