@@ -180,32 +180,42 @@ async fn handle_socket(
     _connection_permit: crate::quota::WebSocketQuotaGuard,
 ) {
     debug!(user = %claims.sub, role = ?claims.role, "WebSocket connected");
-    // Recovery: restore mix assignment for reconnecting Musician sessions.
-    // Drop the MutexGuard before any await point to satisfy Send bounds.
+    // Recovery: claim ownership before restoring. Old teardown cannot overwrite newer state.
     if claims.role == Role::Musician {
-        let reconnect_result = if let Ok(mut reg) = state.recovery.lock() {
-            let uid = claims.user_id.to_string();
-            Some(reg.session_reconnected(&uid))
+        let owns_connection = state.claim_connection(claims.user_id, session_id);
+        if !owns_connection {
+            warn!(session_id, user = %claims.sub, "recovery: failed to claim connection ownership");
+        }
+        let uid = claims.user_id.to_string();
+        let _assignment_guard = state.mix_assignment_lock.lock().await;
+        let reconnect_result = if owns_connection {
+            if let Ok(reg) = state.recovery.lock() {
+                reg.session_reconnected_peek(&uid)
+            } else {
+                warn!(user = %claims.sub, "recovery: registry lock poisoned on connect");
+                Err(recovery::RecoveryError::EmptyUserId)
+            }
         } else {
-            tracing::warn!(user = %claims.sub, "recovery: registry lock poisoned on connect");
-            None
+            Err(recovery::RecoveryError::EmptyUserId)
         };
-        // Guard is dropped here — safe to await.
         match reconnect_result {
-            Some(Ok(Some(mix_id))) => {
-                // Attempt to restore the mix assignment.
-                // Hold the mix_assignment_lock to avoid races.
-                let _guard = state.mix_assignment_lock.lock().await;
+            Ok(Some(mix_id)) => {
                 if let Err(e) = state.db.assign_mix(usize::from(mix_id), claims.user_id) {
-                    tracing::warn!(user = %claims.sub, mix_id, error = %e, "recovery: failed to restore mix assignment");
+                    warn!(user = %claims.sub, mix_id, error = %e, "recovery: failed to restore mix assignment");
                 } else {
+                    match state.recovery.lock() {
+                        Ok(mut reg) => {
+                            let _ = reg.remove_recovered(&uid);
+                        }
+                        Err(_) => {
+                            warn!(user = %claims.sub, "recovery: registry lock poisoned after restore");
+                        }
+                    }
                     tracing::info!(user = %claims.sub, mix_id, "recovery: mix assignment restored");
                 }
             }
-            Some(Ok(None)) | None => {} // No saved state — fresh session.
-            Some(Err(e)) => {
-                tracing::warn!(user = %claims.sub, error = %e, "recovery: reconnect lookup failed");
-            }
+            Ok(None) => {}
+            Err(e) => warn!(user = %claims.sub, error = %e, "recovery: reconnect lookup failed"),
         }
     }
     let mut window_started = unix_now();
@@ -702,21 +712,30 @@ async fn handle_socket(
         }
     }
 
-    // Recovery: save mix assignment for Musician sessions on disconnect.
+    // Recovery: serialize lookup and registry update, and only current owner may save state.
     if claims.role == Role::Musician {
-        if let Ok(Some(mix_idx)) = state.db.get_user_assigned_mix(claims.user_id) {
-            // mix_idx is usize; MAX_MIX_ID is 31 — safe to cast
-            if let Ok(mix_id) = u8::try_from(mix_idx) {
-                if let Ok(mut reg) = state.recovery.lock() {
-                    let uid = claims.user_id.to_string();
-                    if let Err(e) =
-                        reg.session_disconnected(&uid, mix_id, std::time::Instant::now())
-                    {
-                        tracing::warn!(user = %claims.sub, mix_id, error = %e, "recovery: failed to save disconnect state");
+        let _assignment_guard = state.mix_assignment_lock.lock().await;
+        if state.owns_connection(claims.user_id, session_id) {
+            if let Ok(Some(mix_idx)) = state.db.get_user_assigned_mix(claims.user_id) {
+                if let Ok(mix_id) = u8::try_from(mix_idx) {
+                    match state.recovery.lock() {
+                        Ok(mut reg) => {
+                            if let Err(e) = reg.session_disconnected(
+                                &claims.user_id.to_string(),
+                                mix_id,
+                                std::time::Instant::now(),
+                            ) {
+                                warn!(user = %claims.sub, mix_id, error = %e, "recovery: failed to save disconnect state");
+                            }
+                        }
+                        Err(_) => {
+                            warn!(user = %claims.sub, "recovery: registry lock poisoned on disconnect");
+                        }
                     }
-                } else {
-                    tracing::warn!(user = %claims.sub, "recovery: registry lock poisoned on disconnect");
                 }
+            }
+            if !state.release_connection(claims.user_id, session_id) {
+                warn!(session_id, user = %claims.sub, "recovery: connection ownership changed during disconnect");
             }
         }
     }

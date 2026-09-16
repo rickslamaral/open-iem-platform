@@ -5,11 +5,17 @@ use control_server::ControlState;
 use device_manager::DeviceManager;
 use observability::Metrics;
 use recovery::RecoveryRegistry;
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 use streaming::SessionRegistry;
 use tokio::sync::{broadcast, Mutex as AsyncMutex};
 
 pub use crate::quota::MAX_WEBSOCKET_CONNECTIONS;
+
+/// Maximum tracked Musician connection owners.
+const MAX_CONNECTION_OWNERS: usize = 4096;
 
 /// State-delta event broadcast to all connected WebSocket sessions after a
 /// send mutation (gain / pan / mute).  Each session filters by role and
@@ -103,6 +109,8 @@ pub struct AppState {
     pub devices: Arc<Mutex<DeviceManager>>,
     /// Bounded session recovery registry — restores Musician mix assignment on reconnect.
     pub recovery: Arc<Mutex<RecoveryRegistry>>,
+    /// Current WebSocket session owner for each Musician user.
+    pub connection_owners: Arc<Mutex<HashMap<i64, u128>>>,
 }
 
 impl AppState {
@@ -127,6 +135,41 @@ impl AppState {
             metrics: Arc::new(Metrics::new()),
             devices: Arc::new(Mutex::new(DeviceManager::new())),
             recovery: Arc::new(Mutex::new(RecoveryRegistry::new())),
+            connection_owners: Arc::new(Mutex::new(HashMap::new())),
         }
+    }
+    /// Claims current connection ownership for a Musician.
+    #[must_use]
+    pub fn claim_connection(&self, user_id: i64, session_id: u128) -> bool {
+        match self.connection_owners.lock() {
+            Ok(mut owners) => {
+                if !owners.contains_key(&user_id) && owners.len() >= MAX_CONNECTION_OWNERS {
+                    return false;
+                }
+                owners.insert(user_id, session_id);
+                true
+            }
+            Err(_) => false,
+        }
+    }
+
+    /// Returns whether session currently owns user's connection, then releases ownership.
+    #[must_use]
+    pub fn release_connection(&self, user_id: i64, session_id: u128) -> bool {
+        match self.connection_owners.lock() {
+            Ok(mut owners) if owners.get(&user_id) == Some(&session_id) => {
+                owners.remove(&user_id);
+                true
+            }
+            Ok(_) | Err(_) => false,
+        }
+    }
+
+    /// Checks current connection ownership.
+    #[must_use]
+    pub fn owns_connection(&self, user_id: i64, session_id: u128) -> bool {
+        self.connection_owners
+            .lock()
+            .is_ok_and(|owners| owners.get(&user_id) == Some(&session_id))
     }
 }
