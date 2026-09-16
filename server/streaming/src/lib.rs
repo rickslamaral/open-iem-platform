@@ -11,6 +11,7 @@
 pub mod clock;
 pub mod media_bridge;
 pub mod media_plane;
+pub mod media_writer;
 pub mod opus_receiver;
 pub mod pairing;
 pub use media_bridge::{MediaBridge, MediaBridgeError, MEDIA_BRIDGE_CAPACITY};
@@ -18,6 +19,7 @@ pub use media_plane::{
     MediaFrame, MediaPlane, MediaPlaneError, MediaSession, MediaSessionError, StreamMetadata,
     MEDIA_QUEUE_CAPACITY,
 };
+pub use media_writer::{MediaPacket, MediaWriter, MediaWriterError, OPUS_MAX_PACKET_BYTES};
 pub use opus_receiver::{
     AudioOutput, JitterBuffer, OpusReceiver, ReceiverError, ReceiverState, RECEIVER_QUEUE_CAPACITY,
 };
