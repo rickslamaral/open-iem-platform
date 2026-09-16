@@ -139,6 +139,7 @@ dependencies = [
  "axum",
  "axum-test",
  "bytes",
+ "config-backup",
  "control-protocol",
  "control-server",
  "device-manager",

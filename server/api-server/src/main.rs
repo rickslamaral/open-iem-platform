@@ -20,6 +20,7 @@ use api_server::{
         audio::{ice_candidate, offer, sessions},
         auth::{create_user, login, logout, refresh},
         channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
+        config::{backup_config, restore_config},
         devices::get_devices,
         health::health,
         metrics::get_metrics,
@@ -131,6 +132,10 @@ async fn main() -> anyhow::Result<()> {
         )
         .route("/api/v1/scenes/{id}/recall", post(recall_scene))
         .route("/api/v1/metrics", get(get_metrics))
+        .route(
+            "/api/v1/config/backup",
+            get(backup_config).put(restore_config),
+        )
         .route("/api/v1/audio/offer", post(offer))
         .route("/api/v1/audio/ice-candidate", post(ice_candidate))
         .route("/api/v1/audio/sessions", get(sessions))

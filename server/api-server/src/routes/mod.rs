@@ -4,6 +4,7 @@ pub mod admin;
 pub mod audio;
 pub mod auth;
 pub mod channels;
+pub mod config;
 pub mod devices;
 pub mod health;
 pub mod metrics;

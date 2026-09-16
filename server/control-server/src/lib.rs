@@ -10,7 +10,7 @@ use mix_engine::{
 };
 
 /// Mutable control-plane state owned by the server task.
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct ControlState {
     engine: MixEngine,
 }
