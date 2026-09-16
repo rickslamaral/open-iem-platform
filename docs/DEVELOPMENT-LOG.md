@@ -1,3 +1,13 @@
+## 2026-09-16 — P2 gap review: network-fault status and next queue
+
+**Status:** DOCUMENTATION — gap registry reconciled; no runtime or hardware claim.
+
+- GAP-030 now records `network-fault` as CODE+CI/SIMULATED, implemented in [PR #72](https://github.com/rickslamaral/open-iem-platform/pull/72) with recovery/observability integration.
+- Physical LAN impairment and receiver-runtime validation remain required for release evidence.
+- Next implementation selected: durable/transient Scenes/state-store model (GAP-027), requiring specification and ADR before code.
+
+---
+
 ## 2026-09-16 — P1-007 config backup/restore status synchronization
 
 **Status:** CODE + CI/SIMULATED — PR #73 merged in `main` at `4e23c67`; CI run `34961804915` passed.
