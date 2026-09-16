@@ -44,7 +44,7 @@
 - [ ] P1-006 — release bloqueado: confirmação explícita, instalação real e Raspberry Pi 5 ainda pendentes.
 - [x] P1-007 — backup/restore de configuração sem secrets implementado na PR #73; 8 testes unitários; restauração em ambiente limpo ainda pendente.
 - [x] P1-008 — concluído (PR #75).
-- [ ] Próximo item: definir e implementar próximo P2 após revisão de gaps; P1-006 continua bloqueado por validação física/confirmação explícita.
+- [ ] Próximo item P2: especificar e implementar modelo durable/transient de Scenes/state-store após ADR; P1-006 continua bloqueado por validação física/confirmação explícita.
 - [x] P1-009 / Phase 94 — concluído; validação contra servidor/runtime/hardware permanece pendente.
 
 ## Phase 95 — Observability Metrics REST endpoint

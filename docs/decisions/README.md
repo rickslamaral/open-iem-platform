@@ -14,6 +14,7 @@ Final P0 decisions. Implementation remains subject to DEVELOPMENT-HANDOFF.md and
 | ADR-008 | PipeWire native primary; ALSA fallback; Pi headless server | DECIDED — VALIDATION REQUIRED | L1–L4 gates |
 | ADR-009 | Idempotent fixed `soundtech` bootstrap; implementation gap | DECIDED — IMPLEMENTATION GAP | Migrations/auth |
 | ADR-010 | L1/L2 CI lab; L3/L4 hardware evidence | DECIDED | Release gates |
+| ADR-011 | Durable scenes, immutable revisions, transient runtime state | PROPOSED — implementation pending | GAP-027, state store |
 
 ## Non-negotiable boundaries
 
