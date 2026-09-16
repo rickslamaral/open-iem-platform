@@ -11,6 +11,6 @@ description = "Open IEM Platform — bounded session recovery: reconnect restore
 workspace = true
 
 [dependencies]
-thiserror = "1"
+thiserror = "2"
 
 [dev-dependencies]
