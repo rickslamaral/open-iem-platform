@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Strict, versioned `scene-manager` schema foundation for durable Scenes/state-store; SQLite lifecycle remains pending.
+
 ### Added — Phase 94: nomes de canais na Musician UI
 - Musician UI consome `GET /api/v1/channels` com Bearer token mantido somente em memória.
 - Nomes válidos do servidor substituem rótulos padrão; payload inválido mantém fallback local.
