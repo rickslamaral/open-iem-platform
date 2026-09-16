@@ -180,6 +180,34 @@ async fn handle_socket(
     _connection_permit: crate::quota::WebSocketQuotaGuard,
 ) {
     debug!(user = %claims.sub, role = ?claims.role, "WebSocket connected");
+    // Recovery: restore mix assignment for reconnecting Musician sessions.
+    // Drop the MutexGuard before any await point to satisfy Send bounds.
+    if claims.role == Role::Musician {
+        let reconnect_result = if let Ok(mut reg) = state.recovery.lock() {
+            let uid = claims.user_id.to_string();
+            Some(reg.session_reconnected(&uid))
+        } else {
+            tracing::warn!(user = %claims.sub, "recovery: registry lock poisoned on connect");
+            None
+        };
+        // Guard is dropped here — safe to await.
+        match reconnect_result {
+            Some(Ok(Some(mix_id))) => {
+                // Attempt to restore the mix assignment.
+                // Hold the mix_assignment_lock to avoid races.
+                let _guard = state.mix_assignment_lock.lock().await;
+                if let Err(e) = state.db.assign_mix(usize::from(mix_id), claims.user_id) {
+                    tracing::warn!(user = %claims.sub, mix_id, error = %e, "recovery: failed to restore mix assignment");
+                } else {
+                    tracing::info!(user = %claims.sub, mix_id, "recovery: mix assignment restored");
+                }
+            }
+            Some(Ok(None)) | None => {} // No saved state — fresh session.
+            Some(Err(e)) => {
+                tracing::warn!(user = %claims.sub, error = %e, "recovery: reconnect lookup failed");
+            }
+        }
+    }
     let mut window_started = unix_now();
     let mut message_count = 0_u32;
     let mut keepalive = tokio::time::interval_at(
@@ -674,6 +702,24 @@ async fn handle_socket(
         }
     }
 
+    // Recovery: save mix assignment for Musician sessions on disconnect.
+    if claims.role == Role::Musician {
+        if let Ok(Some(mix_idx)) = state.db.get_user_assigned_mix(claims.user_id) {
+            // mix_idx is usize; MAX_MIX_ID is 31 — safe to cast
+            if let Ok(mix_id) = u8::try_from(mix_idx) {
+                if let Ok(mut reg) = state.recovery.lock() {
+                    let uid = claims.user_id.to_string();
+                    if let Err(e) =
+                        reg.session_disconnected(&uid, mix_id, std::time::Instant::now())
+                    {
+                        tracing::warn!(user = %claims.sub, mix_id, error = %e, "recovery: failed to save disconnect state");
+                    }
+                } else {
+                    tracing::warn!(user = %claims.sub, "recovery: registry lock poisoned on disconnect");
+                }
+            }
+        }
+    }
     debug!(user = %claims.sub, "WebSocket disconnected");
 }
 

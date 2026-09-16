@@ -146,6 +146,7 @@ dependencies = [
  "mix-engine",
  "observability",
  "rand 0.10.2",
+ "recovery",
  "rusqlite",
  "serde",
  "serde_json",

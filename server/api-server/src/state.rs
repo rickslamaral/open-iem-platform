@@ -4,6 +4,7 @@ use crate::{auth::JwtKeys, db::Db};
 use control_server::ControlState;
 use device_manager::DeviceManager;
 use observability::Metrics;
+use recovery::RecoveryRegistry;
 use std::sync::{Arc, Mutex};
 use streaming::SessionRegistry;
 use tokio::sync::{broadcast, Mutex as AsyncMutex};
@@ -100,6 +101,8 @@ pub struct AppState {
     pub metrics: Arc<Metrics>,
     /// Bounded audio device registry.
     pub devices: Arc<Mutex<DeviceManager>>,
+    /// Bounded session recovery registry — restores Musician mix assignment on reconnect.
+    pub recovery: Arc<Mutex<RecoveryRegistry>>,
 }
 
 impl AppState {
@@ -123,6 +126,7 @@ impl AppState {
             websocket_auth_failures: crate::quota::WebSocketAuthFailureLimiter::default(),
             metrics: Arc::new(Metrics::new()),
             devices: Arc::new(Mutex::new(DeviceManager::new())),
+            recovery: Arc::new(Mutex::new(RecoveryRegistry::new())),
         }
     }
 }
