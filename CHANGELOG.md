@@ -587,6 +587,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+### Added — P2 operational configuration backup/restore
+- Added authenticated `GET/PUT /api/v1/config/backup` for Engineer/Admin roles.
+- Enforced strict JSON snapshot fields; credentials and transient DSP state remain excluded.
+- Restore remains CODE+CI/SIMULATED; clean-environment and runtime validation remain pending.
+
 ## [0.2.0] — 2026-09-09
 
 ### Added — Phase 11

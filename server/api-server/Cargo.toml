@@ -20,6 +20,7 @@ streaming = { path = "../streaming" }
 observability = { path = "../observability" }
 recovery = { path = "../recovery" }
 scene-manager = { path = "../scene-manager" }
+config-backup = { path = "../config-backup" }
 
 # Web framework
 axum = { version = "0.8", features = ["ws"] }

@@ -9,6 +9,7 @@
 use control_server::ControlState;
 use mix_engine::{Channel, EqBand, Mix, MixSend, MAX_CHANNELS, MAX_EQ_BANDS};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 
 // ---------------------------------------------------------------------------
 // Error types
@@ -42,6 +43,7 @@ pub enum RestoreError {
 
 /// Serializable snapshot of an input channel (no secrets, no revision).
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ChannelSnapshot {
     /// Slot index in the engine.
     pub slot: usize,
@@ -61,6 +63,7 @@ pub struct ChannelSnapshot {
 
 /// Serializable snapshot of one EQ band.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct EqBandSnapshot {
     /// Band index (0-based).
     pub index: usize,
@@ -76,6 +79,7 @@ pub struct EqBandSnapshot {
 
 /// Serializable snapshot of a parametric EQ.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct EqSnapshot {
     /// All bands (always [`MAX_EQ_BANDS`] entries for full restore fidelity).
     pub bands: Vec<EqBandSnapshot>,
@@ -83,6 +87,7 @@ pub struct EqSnapshot {
 
 /// Serializable snapshot of the compressor.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct CompressorSnapshot {
     /// Threshold in dB.
     pub threshold_db: f32,
@@ -98,6 +103,7 @@ pub struct CompressorSnapshot {
 
 /// Serializable snapshot of the output limiter.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct LimiterSnapshot {
     /// Threshold in dB.
     pub threshold_db: f32,
@@ -107,6 +113,7 @@ pub struct LimiterSnapshot {
 
 /// Serializable snapshot of one channel send into a mix.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct SendSnapshot {
     /// Channel slot index (0-based).
@@ -131,6 +138,7 @@ pub struct SendSnapshot {
 
 /// Serializable snapshot of one output mix.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct MixSnapshot {
     /// Slot index in the engine.
     pub slot: usize,
@@ -157,6 +165,7 @@ pub struct MixSnapshot {
 /// Does **not** contain any credentials, tokens, passwords, or transient DSP
 /// state (biquad coefficients, revision counters, filter delay lines).
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConfigSnapshot {
     /// Snapshot format version — always 1 for this crate.
     pub version: u32,
@@ -274,7 +283,85 @@ pub fn backup(state: &ControlState) -> ConfigSnapshot {
 /// # Errors
 /// Returns [`RestoreError::UnsupportedVersion`] when `snapshot.version != 1`.
 /// Returns [`RestoreError::Engine`] when the engine rejects a slot index.
+fn validate_snapshot(snapshot: &ConfigSnapshot) -> Result<(), RestoreError> {
+    if snapshot.version != 1 {
+        return Err(RestoreError::UnsupportedVersion(snapshot.version));
+    }
+    let mut channel_slots = HashSet::new();
+    for channel in &snapshot.channels {
+        if channel.slot >= MAX_CHANNELS
+            || !channel_slots.insert(channel.slot)
+            || channel.name.is_empty()
+            || channel.name.len() > 64
+            || channel.id == 0
+            || !channel.gain_db.is_finite()
+            || !(mix_engine::GAIN_DB_MIN..=mix_engine::GAIN_DB_MAX).contains(&channel.gain_db)
+        {
+            return Err(RestoreError::Engine("invalid channel snapshot".to_owned()));
+        }
+    }
+    let mut mix_slots = HashSet::new();
+    for mix in &snapshot.mixes {
+        if mix.slot >= mix_engine::MAX_MIXES
+            || !mix_slots.insert(mix.slot)
+            || mix.name.is_empty()
+            || mix.name.len() > 64
+            || mix.id == 0
+            || !mix.master_gain_db.is_finite()
+            || !(mix_engine::GAIN_DB_MIN..=mix_engine::GAIN_DB_MAX).contains(&mix.master_gain_db)
+            || !mix.compressor.threshold_db.is_finite()
+            || !mix.compressor.ratio.is_finite()
+            || !mix.compressor.attack_ms.is_finite()
+            || !mix.compressor.release_ms.is_finite()
+            || !mix.limiter.threshold_db.is_finite()
+        {
+            return Err(RestoreError::Engine("invalid mix snapshot".to_owned()));
+        }
+        let mut band_indices = HashSet::new();
+        for band in &mix.eq.bands {
+            if band.index >= MAX_EQ_BANDS
+                || !band_indices.insert(band.index)
+                || !band.frequency_hz.is_finite()
+                || !(20.0..=20_000.0).contains(&band.frequency_hz)
+                || !band.gain_db.is_finite()
+                || !(mix_engine::GAIN_DB_MIN..=mix_engine::GAIN_DB_MAX).contains(&band.gain_db)
+                || !band.q.is_finite()
+                || !(0.1..=10.0).contains(&band.q)
+            {
+                return Err(RestoreError::Engine("invalid EQ snapshot".to_owned()));
+            }
+        }
+        for send in &mix.sends {
+            if send.channel_index >= MAX_CHANNELS
+                || send.mix_id == 0
+                || !send.gain_db.is_finite()
+                || !(mix_engine::GAIN_DB_MIN..=mix_engine::GAIN_DB_MAX).contains(&send.gain_db)
+                || !send.pan.is_finite()
+                || !(-1.0..=1.0).contains(&send.pan)
+            {
+                return Err(RestoreError::Engine("invalid send snapshot".to_owned()));
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Apply validated snapshot atomically to control state.
+///
+/// # Errors
+/// Returns an error when snapshot version or values are unsupported.
 pub fn restore(snapshot: &ConfigSnapshot, state: &mut ControlState) -> Result<(), RestoreError> {
+    validate_snapshot(snapshot)?;
+    let mut candidate = state.clone();
+    restore_in_place(snapshot, &mut candidate)?;
+    *state = candidate;
+    Ok(())
+}
+
+fn restore_in_place(
+    snapshot: &ConfigSnapshot,
+    state: &mut ControlState,
+) -> Result<(), RestoreError> {
     if snapshot.version != 1 {
         return Err(RestoreError::UnsupportedVersion(snapshot.version));
     }
