@@ -206,3 +206,27 @@ git branch --merged main | grep -v '^\*\|main'
 1. Merge PRs com CI verde (sempre primeiro).
 2. Corrigir PRs com CI vermelho.
 3. Implementar nova tarefa.
+
+## Proibição de encerramento prematuro
+
+Concluir uma task NÃO encerra janela horária. Após cada commit validado:
+
+1. Reconsultar backlog e DEVELOPMENT-HANDOFF.
+2. Verificar se PR pendente tem CI em andamento; não esperar passivamente.
+3. Continuar próxima task independente na mesma branch horária.
+4. Repetir até entrar nos 5 minutos finais.
+
+Relatório com `1 task` exige informar motivo objetivo do encerramento. Não parar apenas porque uma task foi commitada, revisada ou enviada para PR. PR pendente não é bloqueio para desenvolvimento local.
+
+## Checkpoints sem interrupção
+
+A cada aproximadamente 15 minutos, criar checkpoint local somente se houver unidade segura de trabalho concluída. Checkpoint não pausa desenvolvimento: não executar gates completos, não fazer push, não abrir PR e não aguardar CI nesse ponto. Voltar imediatamente à próxima task.
+
+Somente no intervalo final de 5 minutos:
+- parar novas tasks;
+- executar gates completos;
+- commitar qualquer trabalho seguro restante;
+- fazer um único push da branch horária;
+- abrir ou atualizar uma única PR.
+
+O objetivo é maximizar tasks concluídas por janela, não maximizar quantidade de checkpoints. Nunca interromper implementação no meio apenas para criar checkpoint; salvar depois do milestone seguro mais próximo.
