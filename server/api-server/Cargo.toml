@@ -19,6 +19,7 @@ mix-engine = { path = "../mix-engine" }
 streaming = { path = "../streaming" }
 observability = { path = "../observability" }
 recovery = { path = "../recovery" }
+scene-manager = { path = "../scene-manager" }
 
 # Web framework
 axum = { version = "0.8", features = ["ws"] }
@@ -59,3 +60,4 @@ tokio = { version = "1", features = ["full", "test-util"] }
 
 [lints]
 workspace = true
+
