@@ -29,7 +29,7 @@
 - [x] Frontend EQ controls — Phase 93 implementada e mergeada em main via PR #74.
 - [x] P0-001 — substituir Mutex no callback JACK por fronteira SPSC bounded e fila de controle non-blocking; callback processa período completo; testes locais passam.
 - [x] P0-002 — Audio Lab L1/L2: harness SIMULATED com 8 testes CI implementado (PR #57).
-- [ ] P0-003 — Media Plane: bounded `MediaBridge` e `SessionRegistry::drive_once` (CODE/SIMULATED); Opus/RTP media writer, transporte WebRTC e runtime permanecem pendentes.
+- [ ] P0-003 — Media Plane: bounded `MediaBridge`, `SessionRegistry::drive_once` e encoder Opus por frame (CODE/SIMULATED); writer WebRTC/RTP, transporte e runtime permanecem pendentes.
 - [x] P0-004 — Native/headless Opus receiver core: bounded ingress/jitter, decode, fail-safe mute e reconnect (SIMULATED; OS output/hardware pendentes, PR #59).
 - [x] P0-005 — Clock: sample timestamps, bounded drift estimator e adaptive resampling (SIMULATED; hardware clock validation pendente).
 - [x] P0-006 — registry bounded de pairing, identidade, binding músico/mix, revogação, re-pair explícito e digest Argon2id salted (CODE; DTLS-SRTP/API integration pendente).

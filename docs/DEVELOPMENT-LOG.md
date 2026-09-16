@@ -222,6 +222,18 @@
 
 # Development Log
 
+## 2026-09-16 — P0-003 bounded Opus media writer
+
+**Status:** CODE + CI/SIMULATED — WebRTC writer attachment, RTP/DTLS-SRTP transmission and runtime remain pending.
+
+- Added `streaming::MediaWriter`, stateful `opus-pure` encoder for bounded 48 kHz stereo frames.
+- Added metadata-preserving `MediaPacket` output and format validation.
+- Kept `SessionRegistry::drive_once` Sans-IO and bounded; no socket/filesystem I/O or hardware claim.
+- Local streaming tests: 47 passed.
+
+**Next:** attach encoded packets to negotiated `str0m::media::Writer` with RTP timing, then validate simulated interoperability before hardware work.
+
+
 ## 2026-09-16 — SceneStore export contract coverage
 
 **Status:** CODE + CI/SIMULATED — export remains configuration-only; restore/import and runtime validation remain pending.

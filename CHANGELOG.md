@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Bounded Opus media writer for simulated MixEngine frame handoff.
 - Bounded per-session media-frame drain API for the future WebRTC writer (CODE/SIMULATED).
 
 ### Added
