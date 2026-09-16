@@ -124,7 +124,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 
 ## P2 Queue
 
-- Scenes/state-store and durable/transient state model.
+- Scenes/state-store durable path exists via `SCENE_STORE_PATH`; durable/transient lifecycle and operational backup/restore remain.
 - Playback/AUX/Hybrid topology after Channel Mode evidence.
 - Windows WASAPI/ASIO runtime validation.
 - Full Engineer matrix, meters, locks and device UI.
@@ -223,4 +223,4 @@ test → review → docs/GAP update → PR/CI
 
 **Current status:** P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI and P1-009/Phase 94 are complete at their recorded evidence levels. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 hardware remain unvalidated. P1-006 release remains blocked by explicit confirmation and physical validation.
 
-**Current next step:** P1-007 code is merged (PR #73, CI run `34961804915`, CODE+CI/SIMULATED). Do not claim full acceptance: clean-environment restore and operational CLI/API remain pending. P1-006 release remains blocked by explicit confirmation and physical validation. Gap review selected `P2 — Scenes/state-store durable/transient model` as next implementation; specification and ADR are required before code.
+**Current next step:** SceneStore file-backed persistence is implemented and covered by reopen testing; durable/transient lifecycle and operational backup/restore remain. P1-007 code is merged (PR #73, CI run `34961804915`, CODE+CI/SIMULATED). Do not claim full acceptance: clean-environment restore and operational CLI/API remain pending. P1-006 release remains blocked by explicit confirmation and physical validation. Gap review selected `P2 — Scenes/state-store durable/transient model` as next implementation; specification and ADR are required before code.
