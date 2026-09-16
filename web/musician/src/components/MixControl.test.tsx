@@ -25,6 +25,12 @@ const defaults = {
 };
 
 describe('MixControl', () => {
+  it('uses channel names supplied by API metadata', () => {
+    render(<MixControl {...defaults} channelNames={['Lead vocal', 'Guitar DI']} />);
+    expect(screen.getByText('Lead vocal')).toBeTruthy();
+    expect(screen.getByText('Guitar DI')).toBeTruthy();
+  });
+
   it('renders 8 channels', () => {
     render(<MixControl {...defaults} />);
     expect(screen.getAllByTestId(/^channel-/).length).toBe(8);
