@@ -1,3 +1,17 @@
+## 2026-09-16 — P1-004 RecoveryRegistry WS lifecycle integration (PR #81)
+
+**Status:** COMPLETE — CODE + CI/SIMULATED. Merged in `main` at `7f7e8c0`; PR #81: https://github.com/rickslamaral/open-iem-platform/pull/81.
+
+- Integrated `RecoveryRegistry` into `AppState` and Musician WebSocket connect/disconnect lifecycle.
+- Restored assigned mix on reconnect; guarded duplicate ownership and handled DB assignment conflicts without replacing existing ownership.
+- Added 5 recovery integration tests.
+- CI run `35055191463`: 13/13 checks passed. Local gates: `cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`, workspace tests, and `scripts/validate-docs.sh` PASS.
+- Evidence boundary preserved: runtime PipeWire/ALSA, WebRTC/Opus media, dedicated Linux installation, and Raspberry Pi 5 hardware remain unvalidated; no physical validation claim.
+
+**Backlog:** P1-003 observability, P1-005 network, P1-008 API/UI, and P1-009/Phase 94 complete. P1-006 release remains blocked by explicit confirmation and physical validation. Next actionable implementation: P1-007 backup/restore without secrets.
+
+---
+
 ## 2026-09-15 — docs: sync Phase 93 e P1-008 status
 
 - Phase 93 EQ UI (PR #74, `48c3a1b`) e P1-008 domain routes (PR #75, `45784c9`) mergeados em `main`.

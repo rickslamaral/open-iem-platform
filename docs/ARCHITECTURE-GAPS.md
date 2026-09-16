@@ -1,6 +1,6 @@
 # Architecture GAP Registry
 
-**Baseline:** 2026-09-14
+**Baseline:** 2026-09-16
 **Source:** architecture audit, reconciliation, final P0 ADR closure
 **Rule:** code/tests/CI/hardware evidence remain separate. Documentation or compilation alone never resolves runtime/hardware GAPs.
 
@@ -35,11 +35,11 @@
 | GAP-017 | P1 | Network | Loss/FEC/congestion policy absent | No media implementation | RESEARCH REQUIRED | ADR-001/002/005 | 001,004 | Benchmark PLC/FEC and impairment | Loss/reorder/jitter tests | Yes for media gate |
 | GAP-018 | P1 | Security | Media key/session binding absent; receiver identity registry exists | DTLS-SRTP/API integration pending | IMPLEMENTATION GAP | ADR-006 | 001,003,009 | Bind authenticated identity to DTLS-SRTP session | Negative/replay/revoke tests | Yes |
 | GAP-019 | P1 | Pairing | Pairing registry exists; runtime reconnect integration absent | `streaming::pairing::PairingRegistry` is CODE/SIMULATED | VALIDATION REQUIRED | ADR-006 | 003,018 | Integrate registry with receiver lifecycle | Pair/revoke/reconnect | Yes |
-| GAP-020 | P1 | Recovery | Audio/device/media recovery absent | systemd restart only | IMPLEMENTATION GAP | ADR-003/008 | 003,013,023 | Fail-safe mute/recovery | Fault injection | Yes |
+| GAP-020 | P1 | Recovery | Recovery lifecycle integration implemented; runtime recovery evidence pending | RecoveryRegistry in AppState; Musician WS reconnect/disconnect lifecycle; duplicate ownership guard; DB assignment conflict handling; PR #81; CI run `35055191463` 13/13; 5 recovery tests | RESOLVED (CODE+CI/SIMULATED) | ADR-003/008 | 003,013,023 | Preserve fail-safe recovery and add runtime evidence | Fault injection, real device/media recovery | Yes for runtime/support claims |
 | GAP-021 | P1 | Docs | ADR traceability now created | ADRs 001–010 exist | RESOLVED | README + ADRs | none | Maintain links | Cross-reference audit | No |
 | GAP-022 | P1 | Registry | Registry now reconciled | This file covers canonical GAPs | RESOLVED | this registry | audit evidence | Update only with evidence | Registry review | No |
 | GAP-023 | P1 | Observability | Audio/XRUN/device/network metrics absent | observability crate P1-003, PR #68 | RESOLVED (CODE+CI/SIMULATED) | ADR-010 | 010,020 | Bounded AtomicU64 metrics for XRUN/device/stream/receiver/network | 16 unit tests, fmt+clippy clean | No (runtime evidence pending) |
-| GAP-024 | P1 | Operations | Backup/restore absent | CLI not found | IMPLEMENTATION GAP | Future ADR | 015,020 | Implement config backup sans secrets | Clean restore | No |
+| GAP-024 | P1 | Operations | Backup/restore absent | CLI not found; next actionable implementation P1-007 | IMPLEMENTATION GAP | Future ADR | 015,020, P1-004 | Implement config backup sans secrets | Clean restore | No |
 | GAP-025 | P1 | Release | v0.3.1 release/assets not validated | Tag exists; release absent | BLOCKED | ADR-005/008/010 | 005,009,010 | Clear validation/release gates | Artifact/install/release evidence | Yes |
 | GAP-026 | P1 | DSP | Runtime safe-default validation absent | DSP/unit tests simulated | VALIDATION REQUIRED | ADR-007/008 | 005,007 | Validate chain/overload/limiter | Runtime loopback | Yes for support |
 | GAP-027 | P2 | State | Scenes/state-store absent | Directories incomplete | DEFERRED | Future ADR | 015,016 | Design durable/transient state | Recall/rollback tests | No |

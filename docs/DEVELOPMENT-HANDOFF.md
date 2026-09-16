@@ -1,6 +1,6 @@
 # Open IEM Platform — Development Handoff
 
-**Date:** 2026-09-14
+**Date:** 2026-09-16
 **Canonical workspace:** `/workspace/open-iem-platform`
 **Architecture status:** P0 decisions closed; implementation and validation remain.
 **No ESP32.**
@@ -116,7 +116,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 | P1-001 | Topology | Add capability model and Channel Mode validation; later AUX/pair/playback/hybrid | P0-008 | Explicit source mapping and invalid-config tests |
 | P1-002 | Device Manager | Capability discovery, hot-plug and recovery state machine | P1-001/P0-008 | Device loss/reconnect safe mute and restore |
 | P1-003 | Observability | XRUN, device, stream, receiver and network quality metrics | P0-004/P0-008 | Truthful telemetry and fault reports |
-| P1-004 | Recovery | Server/device/network/receiver fault handling | P0-004/P1-002 | Other musician survives client failure; reconnect restores assigned mix |
+| P1-004 | Recovery | COMPLETE: RecoveryRegistry in AppState and Musician WebSocket lifecycle; duplicate ownership guard and DB assignment conflict handling | P0-004/P1-002 | Other musician survives client failure; reconnect restores assigned mix |
 | P1-005 | Network Tests | Loss/jitter/reorder/outage/reconnect fault profiles | P0-003/P0-004 | Automated profiles and thresholds |
 | P1-006 | Release | Install, artifact, checksum and v0.3.1 release validation | P0 gates | No release claim before evidence |
 | P1-007 | Backup | Config backup/restore without secrets | P0-007/P1-004 | Clean-environment restore |
@@ -221,4 +221,6 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P1-009 — Phase 94: nomes de canais na Musician UI (P1-006 release gate bloqueado por confirmação explícita e validação física; P1-008 completo; Phase 93 completa)` — Phase 93 EQ UI mergeada em main via PR #74 (`48c3a1b`): componente `EqBandControl` com sliders freq/gain/Q, `SetEqBand`/`EqBandAck` via WebSocket, 29 testes verdes, typecheck e build limpos. P1-008 concluído: rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` via PR #75 (`45784c9`). Phase 94 implementa consumo de nomes de canais na Musician UI; validação runtime permanece pendente. Tag `v0.3.1` existe; GitHub Release exige confirmação explícita e validação física permanece pendente.
+**Current status:** P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-008 API/UI and P1-009/Phase 94 are complete at their recorded evidence levels. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 hardware remain unvalidated. P1-006 release remains blocked by explicit confirmation and physical validation.
+
+**Next development item:** `P1-007 — Backup: config backup/restore without secrets`; acceptance requires clean-environment restore.
