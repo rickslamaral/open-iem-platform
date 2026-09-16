@@ -482,15 +482,23 @@ mod tests {
         drop(server);
         drop(state);
 
-        let reopened =
-            scene_manager::SceneStore::open(path_str).expect("file-backed scene store must reopen");
+        let (private_pem, public_pem) = test_keys();
+        let jwt = JwtKeys::from_ed_pem(&private_pem, &public_pem).expect("test PEM must be valid");
+        let reopened = AppState::new_with_scene_store_path(
+            ControlState::new(),
+            Db::open_in_memory().expect("in-memory DB must open"),
+            jwt,
+            Some(path_str),
+        );
         let scenes = reopened
+            .scenes
             .list_scenes()
-            .expect("reopened scene list must load");
+            .expect("reopened AppState scene list must load");
         assert_eq!(scenes.len(), 1);
         assert_eq!(scenes[0].id, "persisted-scene");
         assert_eq!(scenes[0].active_revision, 2);
         let active = reopened
+            .scenes
             .get_active_scene()
             .expect("active scene lookup must succeed")
             .expect("active scene must persist");

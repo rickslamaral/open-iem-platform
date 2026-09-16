@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- SceneStore API integration test now reopens durable scenes through a fresh `AppState`, covering runtime state construction and active-pointer persistence.
+
+
 ### Fixed
 - P1-015: SQLite schema migration `M001` now records completion in `migrations`, applies once, and upgrades legacy databases that already contain `must_change_password`.
 - SceneStore rejeita snapshots com `revision == 0`, preservando invariantes de revisão monotônica.

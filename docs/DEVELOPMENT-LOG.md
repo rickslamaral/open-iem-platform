@@ -3967,3 +3967,10 @@ Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore 
 - Adicionado teste unitário `zero_revision_rejected`.
 - Gates: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo test --manifest-path server/Cargo.toml -p scene-manager` (24 testes), `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
 - Evidência: CODE; runtime implantado, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
+
+
+## 2026-09-16 — AppState SceneStore restart persistence coverage
+
+- O teste de restore agora descarta o primeiro `AppState` e constrói um segundo `AppState` com o mesmo caminho SQLite explícito.
+- Verificados listagem, revisão ativa, payload e ponteiro ativo pela instância reaberta de `AppState`, não apenas por `SceneStore` direto.
+- Evidência: CODE; persistência operacional implantada, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam não validados.
