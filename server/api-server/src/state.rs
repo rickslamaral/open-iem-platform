@@ -132,18 +132,29 @@ impl AppState {
     /// inaccessible / unwritable.
     #[must_use]
     pub fn new(control: ControlState, db: Db, jwt: JwtKeys) -> Self {
+        let path = std::env::var("SCENE_STORE_PATH").ok();
+        Self::new_with_scene_store_path(control, db, jwt, path.as_deref())
+    }
+
+    /// Create application state with an explicit scene-store path.
+    ///
+    /// `None` selects an in-memory store. A path selects a durable SQLite
+    /// store, which lets callers and tests avoid process-global environment
+    /// mutation while exercising restart persistence.
+    ///
+    /// # Panics
+    /// Panics if the selected scene store cannot be opened.
+    #[must_use]
+    pub fn new_with_scene_store_path(
+        control: ControlState,
+        db: Db,
+        jwt: JwtKeys,
+        scene_store_path: Option<&str>,
+    ) -> Self {
         let (event_tx, _) = broadcast::channel(256);
         let (master_event_tx, _) = broadcast::channel(256);
         let (eq_band_event_tx, _) = broadcast::channel(256);
-        let scenes = Arc::new({
-            let path = std::env::var("SCENE_STORE_PATH").unwrap_or_default();
-            if path.is_empty() {
-                scene_manager::SceneStore::open_in_memory()
-                    .expect("in-memory scene store must open")
-            } else {
-                scene_manager::SceneStore::open(&path).expect("file-backed scene store must open")
-            }
-        });
+        let scenes = Arc::new(open_scene_store(scene_store_path));
         Self {
             control: Arc::new(Mutex::new(control)),
             db,
@@ -202,16 +213,18 @@ impl AppState {
     }
 }
 
+fn open_scene_store(path: Option<&str>) -> SceneStore {
+    match path.filter(|path| !path.is_empty()) {
+        None => SceneStore::open_in_memory().expect("in-memory scene store must open"),
+        Some(path) => SceneStore::open(path).expect("file-backed scene store must open"),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     /// Verifies that `SceneStore::open` (the file-backed code path selected by
-    /// `AppState::new` when `SCENE_STORE_PATH` is set) creates, migrates and
-    /// operates correctly against a temporary file.
-    ///
-    /// NOTE: This test does not mutate the process environment. The two-line
-    /// env-var dispatch in `AppState::new` is trivially verified by source
-    /// inspection; constructing a full `AppState` in a unit test would require
-    /// live `Db` / `JwtKeys` stubs and is out of scope here.
+    /// The same file-backed path used by `AppState::new` creates, migrates and
+    /// operates correctly without mutating process-global environment state.
     #[test]
     fn file_backed_scene_store_open_and_list() {
         use std::time::{SystemTime, UNIX_EPOCH};
@@ -221,7 +234,7 @@ mod tests {
             .subsec_nanos();
         let path = std::env::temp_dir().join(format!("iem_scene_test_{nanos}.db"));
         let path_str = path.to_str().unwrap().to_owned();
-        let store = scene_manager::SceneStore::open(&path_str).expect("file store must open");
+        let store = super::open_scene_store(Some(&path_str));
         let scenes = store.list_scenes().expect("list must work");
         assert!(scenes.is_empty());
         let _ = std::fs::remove_file(&path);

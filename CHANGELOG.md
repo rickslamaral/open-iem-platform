@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Tornada testável a seleção do `SCENE_STORE_PATH`, isolando abertura do `SceneStore` durável sem mutação global de ambiente.
+
+
 - SceneStore file-backed persistence selected by `SCENE_STORE_PATH`, with reopen persistence coverage.
 
 ### Added
