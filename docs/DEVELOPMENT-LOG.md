@@ -4,7 +4,7 @@
 
 - Added Engineer integration test for `PUT /api/v1/scenes/backup`, including durable replacement and active-scene pointer verification.
 - Added Musician negative test proving restore remains Engineer/Admin-only.
-- Focused API test suite: 9 tests passed.
+- Focused API test suite: 10 tests passed.
 
 **Next:** validate clean-environment restore and deployed runtime persistence. API rollback coverage now rejects invalid active pointers without replacing existing state.
 
