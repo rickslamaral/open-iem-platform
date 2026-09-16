@@ -204,30 +204,26 @@ impl AppState {
 
 #[cfg(test)]
 mod tests {
-    /// Tests that `SceneStore::open` works correctly when `SCENE_STORE_PATH` is set.
+    /// Verifies that `SceneStore::open` (the file-backed code path selected by
+    /// `AppState::new` when `SCENE_STORE_PATH` is set) creates, migrates and
+    /// operates correctly against a temporary file.
     ///
-    /// NOTE: `std::env::set_var` is not thread-safe in a multi-threaded test
-    /// harness. This test directly exercises `SceneStore::open` (the same code
-    /// path selected by the env-var branch in `AppState::new`) rather than
-    /// constructing a full `AppState`, which would require live `Db`/`JwtKeys`
-    /// stubs. The env-var wiring in `AppState::new` is verified by reading the
-    /// source.
+    /// NOTE: This test does not mutate the process environment. The two-line
+    /// env-var dispatch in `AppState::new` is trivially verified by source
+    /// inspection; constructing a full `AppState` in a unit test would require
+    /// live `Db` / `JwtKeys` stubs and is out of scope here.
     #[test]
-    fn scene_store_uses_file_when_env_set() {
-        use std::env;
-        let path = env::temp_dir().join(format!(
-            "iem_scene_test_{}.db",
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .subsec_nanos()
-        ));
+    fn file_backed_scene_store_open_and_list() {
+        use std::time::{SystemTime, UNIX_EPOCH};
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .subsec_nanos();
+        let path = std::env::temp_dir().join(format!("iem_scene_test_{nanos}.db"));
         let path_str = path.to_str().unwrap().to_owned();
-        env::set_var("SCENE_STORE_PATH", &path_str);
         let store = scene_manager::SceneStore::open(&path_str).expect("file store must open");
         let scenes = store.list_scenes().expect("list must work");
         assert!(scenes.is_empty());
-        env::remove_var("SCENE_STORE_PATH");
         let _ = std::fs::remove_file(&path);
     }
 }
