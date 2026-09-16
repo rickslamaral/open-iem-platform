@@ -1,3 +1,14 @@
+## 2026-09-16 — P0-003 bounded media handoff
+
+**Status:** CODE + SIMULATED; WebRTC network drive and runtime validation remain pending.
+
+- Added `streaming::MediaBridge` with bounded `crossbeam-channel` queue.
+- `try_send` rejects overflow without waiting; async `drain_to` routes `FrameOutput` to subscribed `MediaPlane` sessions and preserves engine revision metadata.
+- Added tests for overflow and correct mix-slot routing.
+- Evidence: targeted streaming tests and clippy pass; no network I/O or hardware claim.
+
+**Next:** connect bridge consumer to `str0m` media-session polling and add bounded media integration tests.
+
 ## 2026-09-16 — P1-015 versioned SQLite migrations
 
 **Status:** CODE + targeted tests.

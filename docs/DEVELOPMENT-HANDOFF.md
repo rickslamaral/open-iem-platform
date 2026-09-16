@@ -84,7 +84,7 @@ Evidence-backed current components:
 - CI workflows for Rust, frontend, security, documentation, coverage and ARM64 cross-build.
 - Release archive validation and checksum/provenance workflow.
 
-Not implemented/validated: production WebRTC media integration, PipeWire runtime, Pi hardware output, bootstrap, topology/device manager. Opus receiver core exists in P0-004, with OS output and hardware validation pending.
+Implemented but not production-validated: bounded MixEngine-to-media bridge (`streaming::MediaBridge`) routes processed frames into per-session queues without blocking; it remains SIMULATED and does not drive WebRTC network I/O. Production WebRTC media integration, PipeWire runtime, Pi hardware output, bootstrap, topology/device manager remain pending. Opus receiver core exists in P0-004, with OS output and hardware validation pending.
 
 ## Remaining Architecture Gaps
 
@@ -223,4 +223,4 @@ test → review → docs/GAP update → PR/CI
 
 **Current status:** P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI and P1-009/Phase 94 are complete at their recorded evidence levels. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 hardware remain unvalidated. P1-006 release remains blocked by explicit confirmation and physical validation.
 
-**Current next step:** Validate deployed runtime persistence for SceneStore. Clean-environment restore now covers fresh `AppState` reconstruction over the same explicit SQLite path in CODE; durable export/restore, atomic replacement, active-pointer rollback and Engineer-only authorization remain covered by CODE+CI (PRs #94–#97; latest CI run `35126301166`, 13/13). Do not claim runtime acceptance: PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 hardware remain unvalidated. P1-006 release remains blocked by explicit confirmation and physical validation.
+**Current next step:** Integrate bounded `MediaBridge` with the WebRTC session drive loop, then add media-session integration coverage. The bridge currently routes `FrameOutput` into per-session queues in CODE/SIMULATED only; it does not perform network I/O. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. Do not claim runtime acceptance: PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 hardware remain unvalidated. P1-006 release remains blocked by explicit confirmation and physical validation.
