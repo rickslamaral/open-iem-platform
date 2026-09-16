@@ -104,6 +104,9 @@ pub enum SceneError {
     /// Scene contains duplicate slots.
     #[error("scene contains duplicate slots")]
     DuplicateSlot,
+    /// Scene contains duplicate stable IDs.
+    #[error("scene contains duplicate stable IDs")]
+    DuplicateId,
     /// A text field is empty, oversized, or contains invalid data.
     #[error("invalid scene text field")]
     InvalidText,
@@ -117,23 +120,28 @@ pub enum SceneError {
 /// # Errors
 /// Returns a [`SceneError`] when metadata or bounds are invalid.
 pub fn validate(scene: &Scene) -> Result<(), SceneError> {
-    if scene.id.is_empty()
-        || scene.id.len() > MAX_TEXT_BYTES
-        || scene.name.is_empty()
-        || scene.name.len() > MAX_SCENE_NAME_BYTES
-    {
+    if scene.id.is_empty() || scene.id.len() > MAX_TEXT_BYTES {
         return Err(SceneError::InvalidText);
+    }
+    if scene.name.is_empty() || scene.name.len() > MAX_SCENE_NAME_BYTES {
+        return Err(SceneError::InvalidName {
+            max: MAX_SCENE_NAME_BYTES,
+        });
     }
     if scene.schema_version != SCHEMA_VERSION {
         return Err(SceneError::UnsupportedVersion(scene.schema_version));
     }
     let mut channel_slots = HashSet::new();
+    let mut channel_ids = HashSet::new();
     for channel in &scene.config.channels {
         if channel.slot >= 8 {
             return Err(SceneError::InvalidSlot);
         }
         if !channel_slots.insert(channel.slot) {
             return Err(SceneError::DuplicateSlot);
+        }
+        if channel.id == 0 || !channel_ids.insert(channel.id) {
+            return Err(SceneError::DuplicateId);
         }
         if channel.name.is_empty() || channel.name.len() > MAX_TEXT_BYTES {
             return Err(SceneError::InvalidText);
@@ -143,12 +151,16 @@ pub fn validate(scene: &Scene) -> Result<(), SceneError> {
         }
     }
     let mut mix_slots = HashSet::new();
+    let mut mix_ids = HashSet::new();
     for mix in &scene.config.mixes {
         if mix.slot >= 2 {
             return Err(SceneError::InvalidSlot);
         }
         if !mix_slots.insert(mix.slot) {
             return Err(SceneError::DuplicateSlot);
+        }
+        if mix.id == 0 || !mix_ids.insert(mix.id) {
+            return Err(SceneError::DuplicateId);
         }
         if mix.name.is_empty() || mix.name.len() > MAX_TEXT_BYTES {
             return Err(SceneError::InvalidText);
@@ -239,7 +251,12 @@ mod tests {
     fn oversized_name_rejected() {
         let mut s = scene();
         s.name = "x".repeat(MAX_SCENE_NAME_BYTES + 1);
-        assert_eq!(validate(&s), Err(SceneError::InvalidText));
+        assert_eq!(
+            validate(&s),
+            Err(SceneError::InvalidName {
+                max: MAX_SCENE_NAME_BYTES
+            })
+        );
     }
 
     #[test]
@@ -269,5 +286,31 @@ mod tests {
         s.config.channels.truncate(1);
         s.config.channels[0].gain_db = f32::NAN;
         assert_eq!(validate(&s), Err(SceneError::InvalidNumber));
+    }
+
+    #[test]
+    fn zero_and_duplicate_ids_rejected() {
+        let mut s = scene();
+        s.config.channels = vec![ChannelConfig {
+            slot: 0,
+            id: 0,
+            name: "A".into(),
+            gain_db: 0.0,
+            muted: false,
+            locked: false,
+            enabled: true,
+        }];
+        assert_eq!(validate(&s), Err(SceneError::DuplicateId));
+        s.config.channels[0].id = 1;
+        s.config.channels.push(ChannelConfig {
+            slot: 1,
+            id: 1,
+            name: "B".into(),
+            gain_db: 0.0,
+            muted: false,
+            locked: false,
+            enabled: true,
+        });
+        assert_eq!(validate(&s), Err(SceneError::DuplicateId));
     }
 }
