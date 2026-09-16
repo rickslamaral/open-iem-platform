@@ -120,7 +120,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 | P1-005 | Network Tests | Loss/jitter/reorder/outage/reconnect fault profiles | P0-003/P0-004 | Automated profiles and thresholds |
 | P1-006 | Release | Install, artifact, checksum and v0.3.1 release validation | P0 gates | No release claim before evidence |
 | P1-007 | Backup | Config backup/restore without secrets | P0-007/P1-004 | Clean-environment restore |
-| P1-008 | API/UI | PARTIAL/IN PROGRESS: EQ UI done via #74; domain routes `GET /api/v1/system` + `GET /api/v1/channels` added | P0 contracts | Contract/typecheck/frontend tests |
+| P1-008 | API/UI | COMPLETE: EQ UI via #74; domain routes `GET /api/v1/system` + `GET /api/v1/channels` via #75; musicians/scenes/presets remain P2 | P0 contracts | Contract/typecheck/frontend tests |
 
 ## P2 Queue
 
@@ -221,4 +221,4 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Next development item:** `P1-006 — Release: install, artifact, checksum and v0.3.1 release validation` — P1-008 remains partial/in progress; system/channels domain routes and EQ UI complete, musicians/scenes/presets deferred to P2. — P1-005 (Network Tests) mergeado em main via PR #72 (`03650da`). Crate `network-fault` com 47 testes: LossProfile, JitterProfile, ReorderProfile, OutageProfile, ReconnectProfile. Integração com `recovery` e `observability` validada. Tag `v0.3.1` existe e aponta para commit versionado; GitHub Release ainda exige confirmação explícita e validação física permanece pendente.
+**Next development item:** `P1-009 — Phase 94: next UI or API P1 task (P1-006 release gate bloqueado por confirmação explícita e validação física; P1-008 completo; Phase 93 completa)` — Phase 93 EQ UI mergeada em main via PR #74 (`48c3a1b`): componente `EqBandControl` com sliders freq/gain/Q, `SetEqBand`/`EqBandAck` via WebSocket, 29 testes verdes, typecheck e build limpos. P1-008 concluído: rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` via PR #75 (`45784c9`). Tag `v0.3.1` existe; GitHub Release exige confirmação explícita e validação física permanece pendente.

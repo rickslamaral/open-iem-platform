@@ -1,3 +1,12 @@
+## 2026-09-15 — docs: sync Phase 93 e P1-008 status
+
+- Phase 93 EQ UI (PR #74, `48c3a1b`) e P1-008 domain routes (PR #75, `45784c9`) mergeados em `main`.
+- TODO.md: Phase 93 marcada como concluída (todos os itens `[x]`); status line superior atualizado.
+- DEVELOPMENT-HANDOFF.md: próxima tarefa atualizada para Phase 94/P1-009; Phase 93 e P1-008 refletem estado real.
+- Gates locais confirmados: `cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, Engineer `npm run typecheck`, `npm test -- --watchAll=false`, `npm run build`, Musician mesmos três gates e `python3 -m pytest tests/ -q`: todos OK; contagens registradas: Engineer 29, Musician 44, Python 60.
+- Evidência CI: PR #74 (`https://github.com/rickslamaral/open-iem-platform/pull/74`) mergeada; PR #75 (`https://github.com/rickslamaral/open-iem-platform/pull/75`) mergeada com run `34989342335` em 13/13 checks; esta sincronização validada no run `35008343800` (HEAD `1d65d8a0f8755b1f535473e0cf669c0e4dff6fa8`) em 13/13 checks; PR #75 usou HEAD `ddbf2c7c3c2d4f29c7729d2d06479e5489d337c6`.
+- Release `v0.3.1`: tag existe; GitHub Release ainda exige confirmação explícita de Ricardo; validação física permanece pendente.
+
 ## 2026-09-15 — P1-008: domain API routes
 
 **Branch:** `feat/p1008-domain-routes` — PR #75
@@ -3696,4 +3705,4 @@ CODE — sem runtime, sem hardware, sem PipeWire.
 
 ### Próximo
 
-Aguardar CI remoto PR #74. Após merge: P1-008 continua com reconciliação de rotas API faltantes.
+CI remoto PR #74 concluído e mergeado; P1-008 concluído via PR #75, com rotas de domínio implementadas. Próximo item: Phase 94/P1-009.

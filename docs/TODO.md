@@ -18,7 +18,7 @@
 - [x] Atualizar README, CHANGELOG, DEVELOPMENT-LOG e review da Phase 92.
 - [x] Commitar e abrir PR #54 (mergeado em main via `chore/docs-cleanup-status-sync`).
 - [x] Confirmar CI remoto 11/11 para mudanças mergeadas anteriores; cada novo commit exige evidência no HEAD.
-- [ ] Frontend EQ controls — Phase 93+.
+- [x] Frontend EQ controls — Phase 93 implementada e mergeada em main via PR #74.
 - [x] P0-001 — substituir Mutex no callback JACK por fronteira SPSC bounded e fila de controle non-blocking; callback processa período completo; testes locais passam.
 - [x] P0-002 — Audio Lab L1/L2: harness SIMULATED com 8 testes CI implementado (PR #57).
 - [x] P0-003 — Media Plane: conectar MixEngine ao WebRTC media session (SIMULATED, bounded queue, PR #58).
@@ -33,11 +33,11 @@
 
 ## Phase 93 — Frontend EQ Controls (Engineer Console)
 
-- [ ] Adicionar componente `EqBandControl` no Engineer Console com sliders de frequência, gain e Q por banda.
-- [ ] Conectar ao WebSocket existente via mensagem `SetEqBand`.
-- [ ] Exibir `EqBandAck` e sincronizar estado com snapshot REST.
-- [ ] Executar typecheck, testes, build, revisão independente e scan de segurança.
-- [ ] Commitar, abrir PR e confirmar CI remoto.
+- [x] Adicionar componente `EqBandControl` no Engineer Console com sliders de frequência, gain e Q por banda.
+- [x] Conectar ao WebSocket existente via mensagem `SetEqBand`.
+- [x] Exibir `EqBandAck` e sincronizar estado com snapshot REST.
+- [x] Executar typecheck, testes, build, revisão independente e scan de segurança.
+- [x] Commitar, abrir PR e confirmar CI remoto.
 
 ## Phase 89 — Engineer Console: Channel Strip de gain/mute
 
