@@ -3937,3 +3937,10 @@ CODE + CI remoto (13/13). Sem runtime, sem hardware, sem PipeWire/ALSA/RPi5.
 ### Próximo
 
 Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore frontend UI (Engineer Console), músico presets, ou avançar para validação de hardware.
+
+
+## 2026-09-16 — SceneStore runtime path hardening
+
+- `AppState::new` delega seleção de persistência para `new_with_scene_store_path`, mantendo `SCENE_STORE_PATH` como configuração de processo.
+- O construtor explícito permite testes de persistência sem alterar ambiente global, reduzindo flakiness e tornando o caminho file-backed exercitável.
+- Evidência: teste unitário `file_backed_scene_store_open_and_list` PASS; áudio real, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam não validados.
