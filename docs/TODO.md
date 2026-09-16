@@ -1,11 +1,11 @@
 # TODO
 
-## Estado atual — 2026-09-15
+## Estado atual — 2026-09-16
 
 - **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
 - **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; músicos/cenas/presets permanecem P2.
-- **Phase 83–92:** backend/control changes implementados e mesclados em `main`; runtime de áudio/media permanece não validado.
-- **Release `v0.3.1`:** tag existe e CI remoto do HEAD passou 12/12; GitHub Release ainda não publicada por exigir confirmação explícita.
+- **Phase 83–95:** backend/control changes, musician channel names, observability metrics REST endpoint implementados e mesclados em `main`; runtime de áudio/media permanece não validado.
+- **Release `v0.3.1`:** tag existe e CI remoto do HEAD passou 13/13; GitHub Release ainda não publicada por exigir confirmação explícita.
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
 - **Guias:** espelhos PT/EN/ES existentes; revisar e sincronizar após validação física.
 
@@ -31,12 +31,22 @@
 - [x] P1-008 — API/UI: `GET /api/v1/system` pública e `GET /api/v1/channels` protegida por RBAC, com testes de contrato; PR #75. Status de áudio permanece `SIMULATED`.
 
 
+## Phase 95 — Observability Metrics REST endpoint
+
+- [x] Adicionar rota `GET /api/v1/metrics` protegida por RBAC Engineer/Admin.
+- [x] Integrar `observability::AllMetrics` ao `AppState`; snapshot via `state.metrics.snapshot()`.
+- [x] Implementar 3 testes de integração: role guard, schema_version=1, contadores inicializados a zero.
+- [x] Executar fmt, clippy, testes (71 testes de integração), revisão independente e scan de segurança.
+- [x] Commitar, abrir PR #78 e confirmar CI remoto 13/13 (run `35046851737`).
+- [ ] Validar contadores contra áudio real e Raspberry Pi 5.
+
 ## Phase 94 — nomes de canais na Musician UI
 
 - [x] Consumir `GET /api/v1/channels` com Bearer em memória.
 - [x] Exibir nomes retornados pelo servidor, com fallback seguro para nomes padrão.
 - [x] Validar payload, limites de índice e comprimento de nome.
 - [x] Executar typecheck, 50 testes e build do frontend musician.
+- [x] Commitar, abrir PR #77 e confirmar CI remoto 13/13 (run `35044749428`).
 - [ ] Validar UI contra servidor real e Raspberry Pi 5.
 
 ## Phase 93 — Frontend EQ Controls (Engineer Console)
