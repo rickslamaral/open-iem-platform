@@ -24,7 +24,7 @@ pub use opus_receiver::{
 pub use pairing::{DeviceIdentity, PairingError, PairingRegistry};
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc, time::Instant};
-use str0m::{change::SdpOffer, Candidate, Rtc};
+use str0m::{change::SdpOffer, Candidate, Output, Rtc};
 use thiserror::Error;
 use tokio::sync::Mutex;
 use tracing::debug;
@@ -55,6 +55,15 @@ pub enum StreamingError {
 pub struct SessionInfo {
     pub user_id: String,
     pub mix_id: Option<String>,
+}
+
+/// Bounded result of one simulated Sans-IO drive pass.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct DriveReport {
+    pub frames_drained: usize,
+    pub outputs_polled: usize,
+    pub transmitted_bytes: usize,
+    pub budget_exhausted: bool,
 }
 
 struct PeerSession {
@@ -153,6 +162,48 @@ impl SessionRegistry {
         Ok(())
     }
 
+    /// Drain bounded engine frames, then poll each Sans-IO peer without network I/O.
+    ///
+    /// `Transmit` output is counted and discarded deliberately. A future UDP
+    /// adapter owns that output; this method does not claim media runtime support.
+    pub async fn drive_once(
+        &self,
+        bridge: &crate::media_bridge::MediaBridge,
+        media_plane: &crate::media_plane::MediaPlane,
+        frame_budget: usize,
+        output_budget: usize,
+    ) -> DriveReport {
+        let frames_drained = bridge.drain_to_with_budget(media_plane, frame_budget).await;
+        let mut sessions = self.sessions.lock().await;
+        let mut outputs_polled = 0;
+        let mut transmitted_bytes = 0;
+        let mut budget_exhausted = false;
+
+        for peer in sessions.values_mut() {
+            while outputs_polled < output_budget {
+                match peer.rtc.poll_output() {
+                    Ok(Output::Timeout(_)) | Err(_) => break,
+                    Ok(Output::Transmit(transmit)) => {
+                        transmitted_bytes += transmit.contents.len();
+                        outputs_polled += 1;
+                    }
+                    Ok(Output::Event(_)) => outputs_polled += 1,
+                }
+            }
+            if output_budget > 0 && outputs_polled >= output_budget {
+                budget_exhausted = true;
+                break;
+            }
+        }
+
+        DriveReport {
+            frames_drained,
+            outputs_polled,
+            transmitted_bytes,
+            budget_exhausted,
+        }
+    }
+
     pub async fn list(&self) -> Vec<SessionInfo> {
         self.sessions
             .lock()
@@ -207,6 +258,43 @@ mod tests {
     /// Valid trickle ICE candidate in RFC 5245 / browser format (`candidate:` prefix, no `a=`).
     const VALID_CANDIDATE: &str =
         "candidate:1 1 udp 2113937151 192.168.1.100 49152 typ host generation 0";
+
+    #[tokio::test]
+    async fn drive_once_zero_output_budget_is_not_exhausted() {
+        let report = SessionRegistry::new()
+            .drive_once(
+                &crate::media_bridge::MediaBridge::new(),
+                &crate::media_plane::MediaPlane::new(),
+                0,
+                0,
+            )
+            .await;
+        assert_eq!(report.outputs_polled, 0);
+        assert!(!report.budget_exhausted);
+    }
+
+    #[tokio::test]
+    async fn drive_once_routes_bounded_bridge_frames() {
+        let registry = SessionRegistry::new();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.5, 0.25), (0.0, 0.0)],
+                },
+                3,
+            )
+            .unwrap();
+
+        let report = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(report.frames_drained, 1);
+        assert_eq!(report.outputs_polled, 0);
+        assert!(!report.budget_exhausted);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+    }
 
     #[tokio::test]
     async fn registry_starts_empty() {
