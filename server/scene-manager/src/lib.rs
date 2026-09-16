@@ -2,6 +2,9 @@
 #![deny(missing_docs)]
 #![deny(unsafe_code)]
 
+mod store;
+pub use store::{SceneStore, SceneSummary, StoreError};
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
