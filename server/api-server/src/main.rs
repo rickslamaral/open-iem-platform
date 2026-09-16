@@ -20,6 +20,7 @@ use api_server::{
         audio::{ice_candidate, offer, sessions},
         auth::{create_user, login, logout, refresh},
         channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
+        devices::get_devices,
         health::health,
         metrics::get_metrics,
         mixes::{
@@ -117,6 +118,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/state", get(get_state))
         .route("/api/v1/channels", get(list_channels))
         .route("/api/v1/telemetry", get(get_telemetry))
+        .route("/api/v1/devices", get(get_devices))
         .route("/api/v1/metrics", get(get_metrics))
         .route("/api/v1/audio/offer", post(offer))
         .route("/api/v1/audio/ice-candidate", post(ice_candidate))
