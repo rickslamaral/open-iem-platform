@@ -1,3 +1,13 @@
+## 2026-09-16 — P1-007 config backup/restore status synchronization
+
+**Status:** CODE + CI/SIMULATED — PR #73 merged in `main` at `4e23c67`; CI run `34961804915` passed.
+
+- `config-backup` crate serializes/restores channel, mix, EQ, compressor, limiter and send configuration without credentials, tokens or transient DSP state.
+- Eight unit tests cover empty backup, channel/mix/send round trips, JSON round trip, overwrite behavior, unsupported version and secret-key exclusion.
+- Evidence boundary preserved: clean-environment restoration, operational CLI/API, runtime audio and Raspberry Pi 5 hardware remain pending.
+
+---
+
 ## 2026-09-16 — P1-004 RecoveryRegistry WS lifecycle integration (PR #81)
 
 **Status:** COMPLETE — CODE + CI/SIMULATED. Merged in `main` at `7f7e8c0`; PR #81: https://github.com/rickslamaral/open-iem-platform/pull/81.

@@ -119,7 +119,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 | P1-004 | Recovery | COMPLETE: RecoveryRegistry in AppState and Musician WebSocket lifecycle; duplicate ownership guard and DB assignment conflict handling | P0-004/P1-002 | Other musician survives client failure; reconnect restores assigned mix |
 | P1-005 | Network Tests | Loss/jitter/reorder/outage/reconnect fault profiles | P0-003/P0-004 | Automated profiles and thresholds |
 | P1-006 | Release | Install, artifact, checksum and v0.3.1 release validation | P0 gates | No release claim before evidence |
-| P1-007 | Backup | Config backup/restore without secrets | P0-007/P1-004 | Clean-environment restore |
+| P1-007 | Backup | COMPLETE: config-backup crate serializes/restores channel, mix, EQ, compressor, limiter and sends without secrets | P0-007/P1-004 | Clean-environment restore remains pending; operational CLI/API remains future work |
 | P1-008 | API/UI | COMPLETE: EQ UI via #74; domain routes `GET /api/v1/system` + `GET /api/v1/channels` via #75; musicians/scenes/presets remain P2 | P0 contracts | Contract/typecheck/frontend tests |
 
 ## P2 Queue
@@ -221,6 +221,6 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Current status:** P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-008 API/UI and P1-009/Phase 94 are complete at their recorded evidence levels. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 hardware remain unvalidated. P1-006 release remains blocked by explicit confirmation and physical validation.
+**Current status:** P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI and P1-009/Phase 94 are complete at their recorded evidence levels. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 hardware remain unvalidated. P1-006 release remains blocked by explicit confirmation and physical validation.
 
-**Next development item:** `P1-007 — Backup: config backup/restore without secrets`; acceptance requires clean-environment restore.
+**Current next step:** P1-007 code is merged (PR #73, CI run `34961804915`, CODE+CI/SIMULATED). Do not claim full acceptance: clean-environment restore and operational CLI/API remain pending. P1-006 release remains blocked by explicit confirmation and physical validation; select next P2 implementation only after gap review.

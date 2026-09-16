@@ -1,13 +1,13 @@
 # TODO
 
-## Estado atual — 2026-09-16 (P1-004 mergeado, PR #81)
+## Estado atual — 2026-09-16 (P1-007 mergeado, PR #73)
 
 - **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
 - **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; músicos/cenas/presets permanecem P2.
 - **P1-002:** GET /api/v1/devices com RBAC, DeviceManager no AppState; mergeado em main (PR #80; CI 13/13).
 - **P1-003:** Observability concluído (PR #68; CODE+CI/SIMULATED; runtime permanece pendente).
 - **P1-004:** RecoveryRegistry integrado ao ciclo WebSocket de Musician; concluído em main via PR #81, CI run `35055191463` (13/13). CODE+CI; runtime/hardware permanecem pendentes.
-- **Próximo item acionável:** P1-007 — backup/restore sem secrets. P1-006 release permanece bloqueado por confirmação explícita e validação física.
+- **P1-007:** backup/restore sem secrets implementado na PR #73; CODE+CI/SIMULATED. Restauração em ambiente limpo e uso operacional permanecem pendentes. P1-006 release permanece bloqueado por confirmação explícita e validação física.
 - **Phase 83–95:** backend/control changes, musician channel names, observability metrics REST endpoint implementados e mesclados em `main`; runtime de áudio/media permanece não validado.
 - **Release `v0.3.1`:** tag existe e CI remoto do HEAD passou 13/13; GitHub Release ainda não publicada por exigir confirmação explícita.
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
@@ -42,8 +42,9 @@
 - [x] P1-004 — recovery concluído: PR #81, CI run `35055191463` 13/13, gates locais PASS; sem validação física.
 - [x] P1-005 — network concluído (PR #72).
 - [ ] P1-006 — release bloqueado: confirmação explícita, instalação real e Raspberry Pi 5 ainda pendentes.
-- [ ] P1-007 — próximo item acionável: implementar backup/restore de configuração sem secrets.
+- [x] P1-007 — backup/restore de configuração sem secrets implementado na PR #73; 8 testes unitários; restauração em ambiente limpo ainda pendente.
 - [x] P1-008 — concluído (PR #75).
+- [ ] Próximo item: definir e implementar próximo P2 após revisão de gaps; P1-006 continua bloqueado por validação física/confirmação explícita.
 - [x] P1-009 / Phase 94 — concluído; validação contra servidor/runtime/hardware permanece pendente.
 
 ## Phase 95 — Observability Metrics REST endpoint
