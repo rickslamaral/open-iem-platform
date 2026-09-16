@@ -1,3 +1,18 @@
+## 2026-09-16 — P2 Scenes/state-store: strict schema foundation
+
+**Status:** CODE — schema validation only; SQLite lifecycle and runtime integration remain pending.
+
+- Added `server/scene-manager` workspace crate with versioned durable `Scene` model.
+- `serde(deny_unknown_fields)` rejects unknown persisted/runtime fields; IDs, names, slots, gains, duplicates and non-finite values validate fail-closed; JSON input/output bounded at 512 KiB.
+- Seven unit tests cover roundtrip, strict nested fields, schema/slot errors, text bounds, duplicate slots/IDs and non-finite gain.
+- No secrets, sessions, device identities, DSP buffers or audio runtime state represented.
+
+**Verification:** Rust fmt, clippy `-D warnings` and full server workspace tests PASS. Independent review round 2 identified no security concern or logic error after manifest staging correction.
+
+**Next:** implement SQLite migration and immutable scene revisions; then transactional recall.
+
+---
+
 ## 2026-09-16 — P2 gap review: network-fault status and next queue
 
 **Status:** DOCUMENTATION — gap registry reconciled; no runtime or hardware claim.
