@@ -562,4 +562,48 @@ mod tests {
         let err = store.get_scene(&scene.id).unwrap_err();
         assert!(matches!(err, StoreError::CorruptPayload(_)));
     }
+
+    #[test]
+    fn export_empty_store_contains_no_active_scene() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let snapshot: crate::SceneStoreSnapshot =
+            serde_json::from_str(&store.export_snapshot().unwrap()).unwrap();
+        assert_eq!(snapshot.version, SCHEMA_VERSION);
+        assert!(snapshot.scenes.is_empty());
+        assert_eq!(snapshot.active_scene_id, None);
+    }
+
+    #[test]
+    fn export_includes_current_revisions_and_active_pointer() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let first = store.create_scene("First", empty_config()).unwrap();
+        store.save_scene(&first.id, empty_config()).unwrap();
+        let second = store.create_scene("Second", empty_config()).unwrap();
+        store.set_active_scene(Some(&second.id)).unwrap();
+        let snapshot: crate::SceneStoreSnapshot =
+            serde_json::from_str(&store.export_snapshot().unwrap()).unwrap();
+        assert_eq!(snapshot.scenes.len(), 2);
+        let first_export = snapshot
+            .scenes
+            .iter()
+            .find(|scene| scene.id == first.id)
+            .unwrap();
+        assert_eq!(first_export.revision, 2);
+        let second_export = snapshot
+            .scenes
+            .iter()
+            .find(|scene| scene.id == second.id)
+            .unwrap();
+        assert_eq!(second_export.revision, 1);
+        assert_eq!(snapshot.active_scene_id, Some(second.id));
+    }
+
+    #[test]
+    fn export_rejects_corrupt_payload() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Show", empty_config()).unwrap();
+        store.corrupt_for_test(&scene.id);
+        let err = store.export_snapshot().unwrap_err();
+        assert!(matches!(err, StoreError::CorruptPayload(_)));
+    }
 }

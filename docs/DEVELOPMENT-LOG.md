@@ -139,6 +139,17 @@
 
 # Development Log
 
+## 2026-09-16 — SceneStore export contract coverage
+
+**Status:** CODE + CI/SIMULATED — export remains configuration-only; restore/import and runtime validation remain pending.
+
+- Added unit coverage for empty exports, current immutable revisions, active-scene pointer and corrupt persisted payloads.
+- Confirmed export snapshot contains only durable scene data and version metadata; transient runtime state is not represented.
+- Local scene-manager and api-server tests pass: 150 tests.
+
+**Next:** define durable/transient lifecycle and operational import/restore in a separate task.
+
+
 All significant milestones documented here in reverse chronological order.
 
 ---
