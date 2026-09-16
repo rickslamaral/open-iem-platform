@@ -119,13 +119,31 @@ pub struct AppState {
 impl AppState {
     /// Create application state from its components.
     ///
+    /// The scene store backend is selected via the `SCENE_STORE_PATH`
+    /// environment variable:
+    /// - If set to a non-empty string, a file-backed SQLite store is opened at
+    ///   that path (created if it does not exist).
+    /// - Otherwise (unset or empty), an in-memory SQLite store is used
+    ///   (default, data lost on process exit).
+    ///
     /// # Panics
-    /// Panics if the in-memory scene store cannot be opened (should never happen in practice).
+    /// Panics if the scene store cannot be opened — either the in-memory store
+    /// fails (should never happen) or the file-backed store path is
+    /// inaccessible / unwritable.
     #[must_use]
     pub fn new(control: ControlState, db: Db, jwt: JwtKeys) -> Self {
         let (event_tx, _) = broadcast::channel(256);
         let (master_event_tx, _) = broadcast::channel(256);
         let (eq_band_event_tx, _) = broadcast::channel(256);
+        let scenes = Arc::new({
+            let path = std::env::var("SCENE_STORE_PATH").unwrap_or_default();
+            if path.is_empty() {
+                scene_manager::SceneStore::open_in_memory()
+                    .expect("in-memory scene store must open")
+            } else {
+                scene_manager::SceneStore::open(&path).expect("file-backed scene store must open")
+            }
+        });
         Self {
             control: Arc::new(Mutex::new(control)),
             db,
@@ -141,9 +159,7 @@ impl AppState {
             metrics: Arc::new(Metrics::new()),
             devices: Arc::new(Mutex::new(DeviceManager::new())),
             recovery: Arc::new(Mutex::new(RecoveryRegistry::new())),
-            scenes: Arc::new(
-                scene_manager::SceneStore::open_in_memory().expect("scene store must open"),
-            ),
+            scenes,
             connection_owners: Arc::new(Mutex::new(HashMap::new())),
         }
     }
@@ -183,5 +199,31 @@ impl AppState {
         self.connection_owners
             .lock()
             .is_ok_and(|owners| owners.get(&user_id) == Some(&session_id))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    /// Verifies that `SceneStore::open` (the file-backed code path selected by
+    /// `AppState::new` when `SCENE_STORE_PATH` is set) creates, migrates and
+    /// operates correctly against a temporary file.
+    ///
+    /// NOTE: This test does not mutate the process environment. The two-line
+    /// env-var dispatch in `AppState::new` is trivially verified by source
+    /// inspection; constructing a full `AppState` in a unit test would require
+    /// live `Db` / `JwtKeys` stubs and is out of scope here.
+    #[test]
+    fn file_backed_scene_store_open_and_list() {
+        use std::time::{SystemTime, UNIX_EPOCH};
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .subsec_nanos();
+        let path = std::env::temp_dir().join(format!("iem_scene_test_{nanos}.db"));
+        let path_str = path.to_str().unwrap().to_owned();
+        let store = scene_manager::SceneStore::open(&path_str).expect("file store must open");
+        let scenes = store.list_scenes().expect("list must work");
+        assert!(scenes.is_empty());
+        let _ = std::fs::remove_file(&path);
     }
 }
