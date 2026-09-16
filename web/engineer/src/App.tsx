@@ -289,16 +289,22 @@ function ScenePanel({ token }: { token: string }) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const loadGeneration = useRef(0);
   const loadScenes = useCallback(async () => {
+    const generation = ++loadGeneration.current;
     setLoading(true); setError(null);
     try {
       const [list, active] = await Promise.all([
         request<{ scenes: SceneSummary[] }>('/api/v1/scenes', token),
         request<{ scene: Scene | null }>('/api/v1/scenes/active', token),
       ]);
+      if (generation !== loadGeneration.current) return;
       setScenes(Array.isArray(list?.scenes) ? list.scenes : []); setActiveScene(active?.scene ?? null);
-    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Falha ao carregar cenas'); }
-    finally { setLoading(false); }
+    } catch (cause) {
+      if (generation === loadGeneration.current) setError(cause instanceof Error ? cause.message : 'Falha ao carregar cenas');
+    } finally {
+      if (generation === loadGeneration.current) setLoading(false);
+    }
   }, [token]);
   useEffect(() => { void loadScenes(); }, [loadScenes]);
   async function mutate(id: string, method: 'DELETE' | 'POST', action: string) {
