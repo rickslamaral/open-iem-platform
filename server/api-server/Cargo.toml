@@ -18,6 +18,7 @@ device-manager = { path = "../device-manager" }
 mix-engine = { path = "../mix-engine" }
 streaming = { path = "../streaming" }
 observability = { path = "../observability" }
+recovery = { path = "../recovery" }
 
 # Web framework
 axum = { version = "0.8", features = ["ws"] }

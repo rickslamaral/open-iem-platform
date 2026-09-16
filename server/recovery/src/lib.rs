@@ -116,6 +116,24 @@ impl RecoveryRegistry {
         Ok(())
     }
 
+    /// Reads a recovery entry without consuming it.
+    ///
+    /// # Errors
+    /// Returns validation errors when `user_id` is empty or exceeds the maximum length.
+    pub fn session_reconnected_peek(&self, user_id: &str) -> Result<Option<u8>, RecoveryError> {
+        validate_user_id(user_id)?;
+        Ok(self.entries.get(user_id).map(|r| r.mix_id))
+    }
+
+    /// Consumes a recovery entry after successful restoration.
+    ///
+    /// # Errors
+    /// Returns validation errors when `user_id` is empty or exceeds the maximum length.
+    pub fn remove_recovered(&mut self, user_id: &str) -> Result<Option<u8>, RecoveryError> {
+        validate_user_id(user_id)?;
+        Ok(self.entries.remove(user_id).map(|r| r.mix_id))
+    }
+
     /// Attempts to recover a disconnected session.
     ///
     /// Returns `Ok(Some(mix_id))` and removes the entry if one exists for
@@ -328,6 +346,26 @@ mod tests {
     }
 
     // ── double-disconnect at capacity does not block ─────────────────────────
+
+    #[test]
+    fn peek_preserves_entry_until_successful_remove() {
+        let mut reg = RecoveryRegistry::new();
+        reg.session_disconnected("restore-failure", 4, now())
+            .unwrap();
+        assert_eq!(
+            reg.session_reconnected_peek("restore-failure").unwrap(),
+            Some(4)
+        );
+        assert_eq!(
+            reg.session_reconnected_peek("restore-failure").unwrap(),
+            Some(4)
+        );
+        assert_eq!(reg.remove_recovered("restore-failure").unwrap(), Some(4));
+        assert_eq!(
+            reg.session_reconnected_peek("restore-failure").unwrap(),
+            None
+        );
+    }
 
     #[test]
     fn double_disconnect_at_capacity_allowed() {
