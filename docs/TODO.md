@@ -1,9 +1,10 @@
 # TODO
 
-## Estado atual — 2026-09-16
+## Estado atual — 2026-09-16 (atualizado cron off-hours)
 
 - **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
 - **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; músicos/cenas/presets permanecem P2.
+- **P1-002:** GET /api/v1/devices com RBAC, DeviceManager no AppState; mergeado em main (PR #80; CI 13/13).
 - **Phase 83–95:** backend/control changes, musician channel names, observability metrics REST endpoint implementados e mesclados em `main`; runtime de áudio/media permanece não validado.
 - **Release `v0.3.1`:** tag existe e CI remoto do HEAD passou 13/13; GitHub Release ainda não publicada por exigir confirmação explícita.
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
@@ -625,7 +626,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## P1 TOPOLOGY STATUS
 
 - [x] P1-001 — topology capability model and Channel Mode validation: `server/topology`, explicit source mapping, typed invalid-config errors, 11 tests (PR #65; CODE + CI local e remoto aprovados).
-- [ ] P1-002 — Device Manager: capability discovery, hot-plug and recovery state machine (P1-001 mergeado).
+- [x] P1-002 — Device Manager: capability discovery, hot-plug and recovery state machine; integrado ao AppState, GET /api/v1/devices com RBAC; 3 testes de integração; CI remoto 13/13 (run `35052291469`; PR #80).
 
 ## PHASE 10 STATUS
 

@@ -3714,3 +3714,40 @@ CODE — sem runtime, sem hardware, sem PipeWire.
 ### Próximo
 
 CI remoto PR #74 concluído e mergeado; P1-008 concluído via PR #75, com rotas de domínio implementadas. Próximo item: Phase 94/P1-009.
+
+---
+
+## P1-002 — Device Manager: AppState integration + GET /api/v1/devices (2026-09-16)
+
+### Decisão
+
+Integrar `DeviceManager` no `AppState` como `Arc<Mutex<DeviceManager>>` e expor snapshot via `GET /api/v1/devices` com RBAC Engineer/Admin.
+
+### Implementação
+
+- `state.rs`: campo `devices: Arc<Mutex<DeviceManager>>`, inicializado em `AppState::new()`
+- `routes/devices.rs`: handler `get_devices`, DTOs (`DeviceDto`, `DevicesResponse`, `DeviceStateDto`), 3 testes de integração (role guard, empty registry, snapshot after discover/fail/re-discover)
+- `routes/mod.rs`: módulo `devices` exposto
+- `main.rs`: rota `/api/v1/devices` registrada
+- `Cargo.toml`: `device-manager` como prod dep; `topology` como dev dep
+
+### Gates locais
+
+- `cargo fmt --all -- --check`: PASS
+- `cargo clippy --all-targets -- -D warnings`: PASS
+- `cargo test --manifest-path server/Cargo.toml`: PASS (71 integration + todos os crates)
+- `web/musician` typecheck + tests + build: PASS
+- `web/engineer` typecheck + tests + build: PASS
+- Security scan: CLEAN
+
+### CI remoto
+
+PR #80 — run `35052291469` — 13/13 PASS.
+
+### Nível de evidência
+
+CODE + CI remoto. Sem runtime, sem hardware, sem PipeWire/ALSA/RPi5.
+
+### Próximo
+
+P1-002 concluído. Próximo item do backlog a determinar (verificar docs/TODO.md).
