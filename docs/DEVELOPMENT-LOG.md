@@ -3843,3 +3843,48 @@ CODE + CI remoto (13/13). Sem runtime, sem hardware, sem PipeWire/ALSA/RPi5.
 ### Próximo
 
 Próximos itens P2 disponíveis: API REST de scenes (GET/POST/recall/delete), integração de SceneStore no AppState.
+
+## 2026-09-16 — P2 Scenes REST API (PR #87)
+
+**Branch:** feat/p2-scenes-rest-api
+**Commit (squash):** fe75e99
+
+### O que foi implementado
+
+- `server/api-server/Cargo.toml`: adicionado `scene-manager` como dependência
+- `server/api-server/src/state.rs`: campo `scenes: Arc<SceneStore>` adicionado ao `AppState`; inicializado com `SceneStore::open_in_memory()`
+- `server/api-server/src/routes/scenes.rs`: novo módulo com 7 handlers REST:
+  - `GET /api/v1/scenes` — lista cenas (Musician+)
+  - `POST /api/v1/scenes` — cria cena (Engineer+) → 201 Created
+  - `GET /api/v1/scenes/active` — cena ativa (Musician+)
+  - `GET /api/v1/scenes/{id}` — cena por ID (Musician+)
+  - `PUT /api/v1/scenes/{id}` — salva nova revisão (Engineer+)
+  - `DELETE /api/v1/scenes/{id}` — deleta cena (Engineer+) → 204; 400 se ativa
+  - `POST /api/v1/scenes/{id}/recall` — define cena ativa (Engineer+) → 204
+- `server/api-server/src/routes/mod.rs`: módulo `scenes` exposto
+- `server/api-server/src/main.rs`: 4 rotas registradas (`/active` antes de `/{id}`)
+
+### Gates locais
+
+- `cargo fmt --all -- --check`: PASS
+- `cargo clippy --all-targets -- -D warnings`: PASS
+- `cargo test --manifest-path server/Cargo.toml`: PASS (7 novos testes de integração)
+- `web/musician` typecheck + 50 testes + build: PASS
+- `web/engineer` typecheck + 29 testes + build: PASS
+- Security scan: CLEAN
+
+### CI remoto
+
+PR #87 — run `35069569079` — 13/13 PASS.
+
+### Revisão independente
+
+passed=true; 0 security_concerns; 0 logic_errors. Sugestões não-bloqueantes: open_in_memory para produção (estratégia de persistência a definir), sem teste de happy-path para PUT /{id}, log estruturado antes de retornar 500 em LockPoisoned.
+
+### Nível de evidência
+
+CODE + CI remoto (13/13). Sem runtime, sem hardware, sem PipeWire/ALSA/RPi5.
+
+### Próximo
+
+Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore frontend UI (Engineer Console), músico presets, ou avançar para validação de hardware.
