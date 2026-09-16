@@ -1,10 +1,13 @@
 # TODO
 
-## Estado atual — 2026-09-16 (atualizado cron off-hours)
+## Estado atual — 2026-09-16 (P1-004 mergeado, PR #81)
 
 - **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
 - **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; músicos/cenas/presets permanecem P2.
 - **P1-002:** GET /api/v1/devices com RBAC, DeviceManager no AppState; mergeado em main (PR #80; CI 13/13).
+- **P1-003:** Observability concluído (PR #68; CODE+CI/SIMULATED; runtime permanece pendente).
+- **P1-004:** RecoveryRegistry integrado ao ciclo WebSocket de Musician; concluído em main via PR #81, CI run `35055191463` (13/13). CODE+CI; runtime/hardware permanecem pendentes.
+- **Próximo item acionável:** P1-007 — backup/restore sem secrets. P1-006 release permanece bloqueado por confirmação explícita e validação física.
 - **Phase 83–95:** backend/control changes, musician channel names, observability metrics REST endpoint implementados e mesclados em `main`; runtime de áudio/media permanece não validado.
 - **Release `v0.3.1`:** tag existe e CI remoto do HEAD passou 13/13; GitHub Release ainda não publicada por exigir confirmação explícita.
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
@@ -28,9 +31,20 @@
 - [x] P0-006 — registry bounded de pairing, identidade, binding músico/mix, revogação, re-pair explícito e digest Argon2id salted (CODE; DTLS-SRTP/API integration pendente).
 - [x] P0-007 — bootstrap idempotente `soundtech` e fronteira de migração versionada (CODE+CI; PR #62).
 - [x] P0-008 — ALSA explicit fallback backend: abertura PCM, hw_params, fail-safe mute, XRUN recovery, stop_flag Release/Acquire (CODE+CI; PR #63; PipeWire/hardware validation pendente).
+- [x] P1-004 — Recovery: AppState RecoveryRegistry, lifecycle WS de conexão/desconexão, restauração de mix atribuído, guarda de ownership duplicado e conflito de assignment DB; 5 testes de recovery. PR #81; CI run `35055191463` (13/13); gates locais fmt, clippy, testes e documentação PASS. Runtime PipeWire/ALSA, WebRTC/Opus e hardware permanecem pendentes.
 - [x] P1-005 — Network Tests: 5 perfis determinísticos (loss/jitter/reorder/outage/reconnect) no crate `network-fault`. Integração com `recovery` e `observability`. 47 testes verdes (CODE; PR #72 mergeado em main; CI remoto 12/12).
 - [x] P1-008 — API/UI: `GET /api/v1/system` pública e `GET /api/v1/channels` protegida por RBAC, com testes de contrato; PR #75. Status de áudio permanece `SIMULATED`.
 
+
+## P1 backlog status
+
+- [x] P1-003 — observability concluído; runtime/hardware pendentes.
+- [x] P1-004 — recovery concluído: PR #81, CI run `35055191463` 13/13, gates locais PASS; sem validação física.
+- [x] P1-005 — network concluído (PR #72).
+- [ ] P1-006 — release bloqueado: confirmação explícita, instalação real e Raspberry Pi 5 ainda pendentes.
+- [ ] P1-007 — próximo item acionável: implementar backup/restore de configuração sem secrets.
+- [x] P1-008 — concluído (PR #75).
+- [x] P1-009 / Phase 94 — concluído; validação contra servidor/runtime/hardware permanece pendente.
 
 ## Phase 95 — Observability Metrics REST endpoint
 
