@@ -53,14 +53,22 @@ impl MediaBridge {
             })
     }
 
-    /// Drain queued frames and route them to registered media sessions.
-    pub async fn drain_to(&self, media_plane: &MediaPlane) -> usize {
+    /// Drain at most `budget` queued frames and route them to registered media sessions.
+    pub async fn drain_to_with_budget(&self, media_plane: &MediaPlane, budget: usize) -> usize {
         let mut routed = 0;
-        while let Ok((frame, revision)) = self.rx.try_recv() {
+        while routed < budget {
+            let Ok((frame, revision)) = self.rx.try_recv() else {
+                break;
+            };
             media_plane.push_frame_output(&frame, revision).await;
             routed += 1;
         }
         routed
+    }
+
+    /// Drain all currently queued frames and route them to registered media sessions.
+    pub async fn drain_to(&self, media_plane: &MediaPlane) -> usize {
+        self.drain_to_with_budget(media_plane, usize::MAX).await
     }
 }
 

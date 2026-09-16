@@ -1,3 +1,16 @@
+## 2026-09-16 — P0-003 bounded WebRTC session drive
+
+**Status:** CODE + SIMULATED; network media, Opus encoding, runtime and hardware remain pending.
+
+- Added `SessionRegistry::drive_once` with bounded frame and `str0m::Rtc::poll_output` budgets.
+- `MediaBridge` now supports bounded draining; simulated drive reports polled output and deferred transmit bytes without opening sockets.
+- Added integration coverage proving bridge frames route to a subscribed media session.
+- Evidence: `cargo test --manifest-path server/Cargo.toml -p streaming` — 41 tests passed.
+
+**Next:** add explicit media-session/Opus encoder boundary and transport adapter only after str0m media API integration is specified.
+
+---
+
 ## 2026-09-16 — P0-003 bounded media handoff
 
 **Status:** CODE + SIMULATED; WebRTC network drive and runtime validation remain pending.
