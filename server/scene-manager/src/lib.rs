@@ -146,6 +146,9 @@ pub fn validate(scene: &Scene) -> Result<(), SceneError> {
     if scene.schema_version != SCHEMA_VERSION {
         return Err(SceneError::UnsupportedVersion(scene.schema_version));
     }
+    if scene.revision == 0 {
+        return Err(SceneError::InvalidNumber);
+    }
     let mut channel_slots = HashSet::new();
     let mut channel_ids = HashSet::new();
     for channel in &scene.config.channels {
@@ -247,6 +250,13 @@ mod tests {
         let j = r#"{"id":"x","name":"x","schema_version":1,"revision":1,"config":{"channels":[{"slot":0,"id":1,"name":"x","gain_db":0,"muted":false,"locked":false,"enabled":true,"token":"no"}],"mixes":[]}}"#;
         assert!(matches!(decode(j), Err(SceneError::InvalidPayload(_))));
     }
+    #[test]
+    fn zero_revision_rejected() {
+        let mut s = scene();
+        s.revision = 0;
+        assert_eq!(validate(&s), Err(SceneError::InvalidNumber));
+    }
+
     #[test]
     fn invalid_version_and_slot_rejected() {
         let mut s = scene();
