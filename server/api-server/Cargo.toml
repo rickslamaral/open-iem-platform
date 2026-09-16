@@ -16,6 +16,7 @@ control-protocol = { path = "../control-protocol" }
 control-server = { path = "../control-server" }
 mix-engine = { path = "../mix-engine" }
 streaming = { path = "../streaming" }
+observability = { path = "../observability" }
 
 # Web framework
 axum = { version = "0.8", features = ["ws"] }

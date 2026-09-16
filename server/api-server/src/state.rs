@@ -2,6 +2,7 @@
 
 use crate::{auth::JwtKeys, db::Db};
 use control_server::ControlState;
+use observability::Metrics;
 use std::sync::{Arc, Mutex};
 use streaming::SessionRegistry;
 use tokio::sync::{broadcast, Mutex as AsyncMutex};
@@ -94,6 +95,8 @@ pub struct AppState {
     pub websocket_connections: crate::quota::WebSocketQuota,
     /// Bounded failed-authentication limiter for WebSocket upgrades.
     pub websocket_auth_failures: crate::quota::WebSocketAuthFailureLimiter,
+    /// Observability metrics counters.
+    pub metrics: Arc<Metrics>,
 }
 
 impl AppState {
@@ -115,6 +118,7 @@ impl AppState {
             eq_band_event_tx,
             websocket_connections: crate::quota::WebSocketQuota::default(),
             websocket_auth_failures: crate::quota::WebSocketAuthFailureLimiter::default(),
+            metrics: Arc::new(Metrics::new()),
         }
     }
 }
