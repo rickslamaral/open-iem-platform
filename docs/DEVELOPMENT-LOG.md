@@ -3951,3 +3951,11 @@ Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore 
 - Adicionado teste de API que restaura snapshot em SQLite file-backed, descarta o primeiro `AppState` e reabre o banco em estado limpo.
 - Verificados listagem, revisão ativa, payload e ponteiro ativo após reopen; arquivos temporários removidos no teardown.
 - Evidência: CODE; runtime implantado, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
+
+
+## 2026-09-16 — SceneStore revision invariant hardening
+
+- `scene-manager::validate` agora rejeita `revision == 0` com `SceneError::InvalidNumber`; snapshots não podem introduzir revisão inválida no restore.
+- Adicionado teste unitário `zero_revision_rejected`.
+- Gates: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo test --manifest-path server/Cargo.toml -p scene-manager` (24 testes), `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- Evidência: CODE; runtime implantado, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.

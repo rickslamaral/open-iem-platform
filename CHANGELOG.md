@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- SceneStore rejeita snapshots com `revision == 0`, preservando invariantes de revisão monotônica.
+
 ### Tests
 - Added file-backed scenes clean-state reopen coverage for durable restore and active pointer.
 
