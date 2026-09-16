@@ -279,6 +279,57 @@ function EqBandControl({ mixIndex, bandIndex, frequencyHz, gainDb, q, enabled, o
   );
 }
 
+type SceneSummary = { id: string; name: string; active_revision: number; created_at: number; updated_at: number };
+type Scene = { id: string; name: string; revision: number };
+
+function ScenePanel({ token }: { token: string }) {
+  const [scenes, setScenes] = useState<SceneSummary[]>([]);
+  const [activeScene, setActiveScene] = useState<Scene | null>(null);
+  const [name, setName] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const loadScenes = useCallback(async () => {
+    setLoading(true); setError(null);
+    try {
+      const [list, active] = await Promise.all([
+        request<{ scenes: SceneSummary[] }>('/api/v1/scenes', token),
+        request<{ scene: Scene | null }>('/api/v1/scenes/active', token),
+      ]);
+      setScenes(Array.isArray(list?.scenes) ? list.scenes : []); setActiveScene(active?.scene ?? null);
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Falha ao carregar cenas'); }
+    finally { setLoading(false); }
+  }, [token]);
+  useEffect(() => { void loadScenes(); }, [loadScenes]);
+  async function mutate(id: string, method: 'DELETE' | 'POST', action: string) {
+    setBusy(id); setError(null);
+    try { await request(`/api/v1/scenes/${id}${action}`, token, { method }); await loadScenes(); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Falha ao alterar cena'); }
+    finally { setBusy(null); }
+  }
+  async function create(event: FormEvent) {
+    event.preventDefault(); if (!name.trim()) return;
+    setBusy('create'); setError(null);
+    try { await request('/api/v1/scenes', token, { method: 'POST', body: JSON.stringify({ name: name.trim(), config: { channels: [], mixes: [] } }) }); setName(''); await loadScenes(); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Falha ao criar cena'); }
+    finally { setBusy(null); }
+  }
+  return <>
+    <p className="muted">Cena ativa: <strong>{activeScene?.name ?? 'Nenhuma cena ativa'}</strong></p>
+    <form onSubmit={create} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+      <label style={{ flex: 1, minWidth: '12rem' }}><span className="muted">Nome da cena</span><input aria-label="Nome da cena" value={name} onChange={(e) => setName(e.target.value)} required /></label>
+      <button aria-label="Criar cena" disabled={busy !== null}>Criar</button>
+    </form>
+    {loading && <p className="muted" role="status">Carregando cenas…</p>}
+    {error && <p className="error" role="alert">{error}</p>}
+    {!loading && scenes.length === 0 && <p className="muted">Nenhuma cena cadastrada.</p>}
+    {scenes.map((scene) => { const active = activeScene?.id === scene.id; return <div className="row" key={scene.id}>
+      <div><strong>{scene.name}</strong><br /><span className="muted">Revisão {scene.active_revision} · {new Date(scene.created_at * 1000).toLocaleDateString('pt-BR')}</span></div>
+      <div className="row" style={{ gap: '0.5rem' }}><button aria-label={`Recuperar cena ${scene.name}`} disabled={busy !== null} onClick={() => void mutate(scene.id, 'POST', '/recall')}>Recuperar</button><button className="danger" aria-label={`Deletar cena ${scene.name}`} disabled={active || busy !== null} onClick={() => void mutate(scene.id, 'DELETE', '')}>Deletar</button></div>
+    </div>; })}
+  </>;
+}
+
 export default function App() {
   const [token, setToken] = useState<string | null>(null);
   const [data, setData] = useState<Dashboard | null>(null);
@@ -518,6 +569,7 @@ export default function App() {
           </div>
         ))}
       </div>
+      <div className="card"><h2>Cenas</h2>{data && <ScenePanel token={token} />}</div>
       <div className="card"><h2>Mix assignments</h2><p className="muted">Atribuição exige ID do usuário. Catálogo de usuários fica restrito a Admin.</p>
         {[0, 1].map((mix) => { const assignment = data?.assignments.find((item) => item.mix_index === mix); return <div className="row" key={mix}><div><strong>Mix {mix + 1}</strong><br /><span className="muted">{assignment ? `${assignment.username} (ID ${assignment.user_id})` : 'Livre'}</span></div>{assignment ? <button className="danger" onClick={() => void unassign(mix)}>Remover</button> : <div className="assign"><input aria-label={`ID usuário mix ${mix + 1}`} inputMode="numeric" placeholder="ID usuário" value={userId} onChange={(e) => setUserId(e.target.value)} /><button onClick={() => void assign(mix)}>Atribuir</button></div>}</div>; })}
       </div>

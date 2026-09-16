@@ -371,4 +371,57 @@ describe('Engineer Console', () => {
     const enableCheckbox = screen.getByLabelText('EQ band 1 mix 1 enabled') as HTMLInputElement;
     expect(enableCheckbox.checked).toBe(true);
   });
+
+  function sceneDashboardFetch(active: { id: string; name: string } | null = { id: 'scene-1', name: 'Show' }) {
+    return vi.fn().mockImplementation((path: string, init?: RequestInit) => {
+      if (path === '/api/v1/auth/login') return json({ access_token: 'test-token' });
+      if (path === '/api/v1/audio/sessions') return json({ sessions: [] });
+      if (path === '/api/v1/mixes') return json([]);
+      if (path === '/api/v1/state') return json({ revision: 1, channels: [] });
+      if (path === '/api/v1/telemetry') return json({ availability: 'simulated', backend: 'simulated', sample_rate_hz: null, frames_processed: null, xrun_count: null });
+      if (path === '/api/v1/scenes' && init?.method === 'POST') return json({ id: 'new', name: 'Nova', revision: 1 });
+      if (path === '/api/v1/scenes') return json({ scenes: [{ id: 'scene-1', name: 'Show', active_revision: 3, created_at: 1700000000, updated_at: 1700000000 }, { id: 'scene-2', name: 'Ensaio', active_revision: 2, created_at: 1700000000, updated_at: 1700000000 }] });
+      if (path === '/api/v1/scenes/active') return json({ scene: active });
+      return json({}, 204);
+    });
+  }
+
+  async function loginScenes(active: { id: string; name: string } | null = { id: 'scene-1', name: 'Show' }, fetchMock = sceneDashboardFetch(active)) {
+    vi.stubGlobal('fetch', fetchMock);
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'engineer' } });
+    fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    await screen.findAllByText('Show');
+  }
+
+  it('renderiza lista de cenas com revisão e data', async () => {
+    await loginScenes();
+    expect(screen.getByText('Ensaio')).toBeTruthy();
+    expect(screen.getAllByText(/Revisão/).length).toBe(2);
+    expect(screen.getAllByText(/\d{2}\/\d{2}\/\d{4}/).length).toBe(2);
+  });
+  it('renderiza nome da cena ativa', async () => { await loginScenes(); expect(screen.getByText('Cena ativa:')).toBeTruthy(); expect(screen.getAllByText('Show').length).toBeGreaterThan(1); });
+  it('botão recuperar envia POST de recall', async () => {
+    const fetchMock = sceneDashboardFetch(); vi.stubGlobal('fetch', fetchMock); await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
+    fireEvent.click(screen.getByRole('button', { name: 'Recuperar cena Ensaio' }));
+    await waitFor(() => expect(fetchMock.mock.calls.some(([path, init]) => path === '/api/v1/scenes/scene-2/recall' && init?.method === 'POST')).toBe(true));
+  });
+  it('botão deletar envia DELETE', async () => {
+    const fetchMock = sceneDashboardFetch(); vi.stubGlobal('fetch', fetchMock); await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
+    fireEvent.click(screen.getByRole('button', { name: 'Deletar cena Ensaio' }));
+    await waitFor(() => expect(fetchMock.mock.calls.some(([path, init]) => path === '/api/v1/scenes/scene-2' && init?.method === 'DELETE')).toBe(true));
+  });
+  it('desabilita deletar cena ativa', async () => { await loginScenes(); expect(screen.getByRole('button', { name: 'Deletar cena Show' })).toBeDisabled(); });
+  it('formulário cria cena via POST', async () => {
+    const fetchMock = sceneDashboardFetch(); vi.stubGlobal('fetch', fetchMock); await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
+    fireEvent.change(screen.getByLabelText('Nome da cena'), { target: { value: 'Nova' } }); fireEvent.click(screen.getByRole('button', { name: 'Criar cena' }));
+    await waitFor(() => expect(fetchMock.mock.calls.some(([path, init]) => path === '/api/v1/scenes' && init?.method === 'POST' && JSON.parse(String(init.body)).config.channels.length === 0)).toBe(true));
+  });
+  it('mostra nenhuma cena ativa quando não há ativa', async () => { await loginScenes(null); expect(screen.getByText('Nenhuma cena ativa')).toBeTruthy(); });
+  it('mostra erro quando recall falha', async () => {
+    const fetchMock = sceneDashboardFetch(); fetchMock.mockImplementation((path: string, init?: RequestInit) => path.endsWith('/recall') ? json({ error: 'falhou' }, 500) : sceneDashboardFetch() (path, init));
+    vi.stubGlobal('fetch', fetchMock); await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock); fireEvent.click(screen.getByRole('button', { name: 'Recuperar cena Ensaio' })); await screen.findByRole('alert'); expect(screen.getByRole('alert')).toHaveTextContent('500');
+  });
+
 });
