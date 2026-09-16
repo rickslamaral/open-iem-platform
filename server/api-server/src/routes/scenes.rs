@@ -6,6 +6,7 @@
 //! GET    /api/v1/scenes/{id}      — get scene by ID
 //! PUT    /api/v1/scenes/{id}      — save new revision (Engineer/Admin)
 //! DELETE /api/v1/scenes/{id}      — delete scene (Engineer/Admin)
+//! GET    /api/v1/scenes/backup — export durable scenes
 //! POST   /api/v1/scenes/{id}/recall — set as active (Engineer/Admin)
 
 use axum::{
@@ -69,6 +70,20 @@ pub struct ActiveSceneResponse {
     pub scene: Option<scene_manager::Scene>,
 }
 
+/// `GET /api/v1/scenes/backup` — exports durable scene state.
+#[allow(clippy::unused_async)]
+/// # Errors
+/// Returns `ApiError::Forbidden` when caller lacks Engineer role.
+/// Returns `ApiError::Internal` on store failure.
+pub async fn backup_scenes(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<JwtClaims>,
+) -> Result<impl IntoResponse, ApiError> {
+    require_min_role(&claims, Role::Engineer)?;
+    let snapshot = state.scenes.export_snapshot().map_err(map_store_err)?;
+    Ok(([("Content-Type", "application/json")], snapshot))
+}
+
 // ---------------------------------------------------------------------------
 // Error mapping
 // ---------------------------------------------------------------------------
@@ -81,6 +96,7 @@ fn map_store_err(e: StoreError) -> ApiError {
         StoreError::CorruptPayload(msg) => ApiError::Internal(msg),
         StoreError::Db(dbe) => ApiError::Internal(dbe.to_string()),
         StoreError::LockPoisoned => ApiError::Internal("scene store lock poisoned".to_owned()),
+        StoreError::InvalidSnapshot(msg) => ApiError::BadRequest(msg),
     }
 }
 

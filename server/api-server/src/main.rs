@@ -29,8 +29,8 @@ use api_server::{
             unassign_mix,
         },
         scenes::{
-            create_scene, delete_scene, get_active_scene, get_scene, list_scenes, recall_scene,
-            update_scene,
+            backup_scenes, create_scene, delete_scene, get_active_scene, get_scene, list_scenes,
+            recall_scene, update_scene,
         },
         system::get_system_info,
         telemetry::get_telemetry,
@@ -125,6 +125,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/telemetry", get(get_telemetry))
         .route("/api/v1/devices", get(get_devices))
         .route("/api/v1/scenes", get(list_scenes).post(create_scene))
+        .route("/api/v1/scenes/backup", get(backup_scenes))
         .route("/api/v1/scenes/active", get(get_active_scene))
         .route(
             "/api/v1/scenes/{id}",

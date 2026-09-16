@@ -48,6 +48,7 @@
 - [x] P2 — Scenes REST API: 7 rotas REST (GET/POST /api/v1/scenes, GET /api/v1/scenes/active, GET/PUT/DELETE /api/v1/scenes/{id}, POST /api/v1/scenes/{id}/recall) com RBAC, SceneStore integrado ao AppState; 7 testes de integração; PR #87, CI 13/13. CODE+CI; runtime/hardware pendentes.
 - [x] P2 — SceneStore file-backed: `SCENE_STORE_PATH` seleciona SQLite persistente; teste cobre criação, reopen e leitura do payload. CODE+CI; backup/restore operacional e runtime pendentes.
 - [x] P2 — Backup/restore operacional: `GET/PUT /api/v1/config/backup` com RBAC Engineer/Admin, payload estrito e integração ao `ControlState`; CODE+CI/SIMULATED. Restore em ambiente limpo e runtime permanecem pendentes.
+- [x] P2 — SceneStore export: `GET /api/v1/scenes/backup` exporta cenas duráveis e ponteiro ativo em JSON versionado; estado transitório excluído; CODE local.
 - [x] P1-009 / Phase 94 — concluído; validação contra servidor/runtime/hardware permanece pendente.
 
 ## Phase 95 — Observability Metrics REST endpoint
