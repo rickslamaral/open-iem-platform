@@ -125,6 +125,14 @@ L3/L4 permanecem hardware-only conforme ADR-010.
 - GAP-014: IMPLEMENTATION GAP → resolvido no nível CI (evidência SIMULATED)
 - GAP-010/GAP-009: sem mudança — PipeWire real e Pi 5 pendentes (P0-008/P0-010)
 
+## 2026-09-15 — Phase 94 / P1-009 channel metadata
+
+- Musician UI passou a consultar `GET /api/v1/channels` após login e exibir nomes de canais fornecidos pelo servidor.
+- Cliente valida índice `0..7`, nome não vazio e limite de 64 bytes de texto; falha mantém nomes padrão.
+- Token segue somente em memória e cabeçalho `Authorization: Bearer`.
+- Gates frontend: typecheck OK, 50 testes OK, build OK.
+- Evidência: CODE; UI contra servidor real, PipeWire/ALSA e Raspberry Pi 5 continuam pendentes.
+
 ### Próximo
 
 P0-003 — Media Plane: conectar frames do MixEngine à sessão WebRTC.

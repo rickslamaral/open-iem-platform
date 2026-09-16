@@ -31,6 +31,14 @@
 - [x] P1-008 — API/UI: `GET /api/v1/system` pública e `GET /api/v1/channels` protegida por RBAC, com testes de contrato; PR #75. Status de áudio permanece `SIMULATED`.
 
 
+## Phase 94 — nomes de canais na Musician UI
+
+- [x] Consumir `GET /api/v1/channels` com Bearer em memória.
+- [x] Exibir nomes retornados pelo servidor, com fallback seguro para nomes padrão.
+- [x] Validar payload, limites de índice e comprimento de nome.
+- [x] Executar typecheck, 48 testes e build do frontend musician.
+- [ ] Validar UI contra servidor real e Raspberry Pi 5.
+
 ## Phase 93 — Frontend EQ Controls (Engineer Console)
 
 - [x] Adicionar componente `EqBandControl` no Engineer Console com sliders de frequência, gain e Q por banda.

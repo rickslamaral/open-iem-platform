@@ -5,6 +5,7 @@ import { ConnectionStatus } from './components/ConnectionStatus';
 import { useWebSocket } from './hooks/useWebSocket';
 import { login as apiLogin, logout as apiLogout } from './api/auth';
 import styles from './App.module.css';
+import { fetchChannelMetadata } from './api/channels';
 
 const CHANNEL_COUNT = 8;
 
@@ -28,6 +29,7 @@ export default function App() {
 
   // Pan por canal: -1.0 (esquerda) a +1.0 (direita)
   const [panByChannel, setPanByChannel] = useState<number[]>(defaultPan);
+  const [channelNames, setChannelNames] = useState<string[]>([]);
 
   const ws = useWebSocket(token);
 
@@ -62,11 +64,26 @@ export default function App() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!token) return;
+    let active = true;
+    void fetchChannelMetadata(token).then((metadata) => {
+      if (!active) return;
+      const names: string[] = [];
+      metadata.forEach(({ index, name }) => { names[index] = name; });
+      setChannelNames(names);
+    }).catch(() => {
+      if (active) setChannelNames([]);
+    });
+    return () => { active = false; };
+  }, [token]);
+
   const handleLogout = useCallback(async () => {
     ws.disconnect();
     setToken(null);
     setChannels(defaultChannels());
     setPanByChannel(defaultPan());
+    setChannelNames([]);
     await apiLogout().catch(() => undefined);
   }, [ws]);
 
@@ -116,6 +133,7 @@ export default function App() {
       <MixControl
         ws={ws}
         channels={channels}
+        channelNames={channelNames}
         masterGainDb={masterGainDb}
         masterMuted={masterMuted}
         panByChannel={panByChannel}

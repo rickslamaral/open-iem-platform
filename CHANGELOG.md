@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added — Phase 94: nomes de canais na Musician UI
+- Musician UI consome `GET /api/v1/channels` com Bearer token mantido somente em memória.
+- Nomes válidos do servidor substituem rótulos padrão; payload inválido mantém fallback local.
+- 50 testes frontend musician, typecheck e build aprovados.
+
 ### Added — P1-008 domain API routes
 - `GET /api/v1/system` publica versão, capacidades e status honesto `SIMULATED`.
 - `GET /api/v1/channels` autenticada para `Musician` ou papel superior, com canais configurados e revisão do estado.

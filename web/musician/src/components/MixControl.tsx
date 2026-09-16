@@ -24,6 +24,7 @@ interface Props {
   onChannelMute: (ch: number, muted: boolean) => void;
   onChannelPan: (ch: number, pan: number) => void;
   onLogout: () => void;
+  channelNames?: string[];
 }
 
 export function MixControl({
@@ -36,6 +37,7 @@ export function MixControl({
   onChannelMute,
   onChannelPan,
   onLogout,
+  channelNames = [],
 }: Props) {
   return (
     <div className={styles.container}>
@@ -86,7 +88,7 @@ export function MixControl({
           <Channel
             key={i}
             index={i}
-            name={DEFAULT_NAMES[i] ?? `CH${i + 1}`}
+            name={channelNames[i] ?? DEFAULT_NAMES[i] ?? `CH${i + 1}`}
             gainDb={channels[i]?.gainDb ?? 0}
             muted={channels[i]?.muted ?? false}
             pan={panByChannel[i] ?? 0}
