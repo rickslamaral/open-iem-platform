@@ -54,7 +54,7 @@ impl Db {
     }
 
     fn migrate(&self) -> Result<(), ApiError> {
-        let conn = self
+        let mut conn = self
             .conn
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
@@ -105,15 +105,61 @@ impl Db {
         )
         .map_err(|e| ApiError::Internal(e.to_string()))?;
 
-        // M001: add must_change_password column (idempotent — ignore duplicate column error)
-        match conn.execute(
-            "ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0",
-            [],
-        ) {
-            Ok(_) => {}
-            Err(e) if e.to_string().contains("duplicate column name") => {}
-            Err(e) => return Err(ApiError::Internal(e.to_string())),
+        // M001 is recorded only after its schema change succeeds. Legacy databases may
+        // already have the column from the pre-versioned migration implementation.
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let applied: Option<i64> = tx
+            .query_row("SELECT id FROM migrations WHERE name = 'M001'", [], |row| {
+                row.get(0)
+            })
+            .optional()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if applied.is_none() {
+            let has_column = {
+                let mut stmt = tx
+                    .prepare("PRAGMA table_info(users)")
+                    .map_err(|e| ApiError::Internal(e.to_string()))?;
+                let columns = stmt
+                    .query_map([], |row| row.get::<_, String>(1))
+                    .map_err(|e| ApiError::Internal(e.to_string()))?;
+                let mut found = false;
+                for column in columns {
+                    if column.map_err(|e| ApiError::Internal(e.to_string()))?
+                        == "must_change_password"
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                found
+            };
+            if !has_column {
+                tx.execute(
+                    "ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0",
+                    [],
+                )
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+            }
+            tx.execute("INSERT INTO migrations (id, name) VALUES (1, 'M001')", [])
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+        } else {
+            let has_column: bool = tx
+                .query_row(
+                    "SELECT COUNT(*) FROM pragma_table_info('users') WHERE name = 'must_change_password'",
+                    [],
+                    |row| row.get::<_, i64>(0),
+                )
+                .map(|count| count > 0)
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+            if !has_column {
+                return Err(ApiError::Internal(
+                    "migration M001 recorded but must_change_password column is missing".to_owned(),
+                ));
+            }
         }
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
 
         Ok(())
     }
@@ -1075,6 +1121,72 @@ mod tests {
             hash, known_hash,
             "existing user hash must not be overwritten"
         );
+    }
+
+    #[test]
+    fn fresh_database_records_m001_once() {
+        let db = setup();
+        let conn = db.conn.lock().unwrap();
+        let rows: Vec<(i64, String)> = conn
+            .prepare("SELECT id, name FROM migrations ORDER BY id")
+            .unwrap()
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))
+            .unwrap()
+            .map(Result::unwrap)
+            .collect();
+        assert_eq!(rows, vec![(1, "M001".to_owned())]);
+    }
+
+    #[test]
+    fn reopening_database_does_not_reapply_m001() {
+        let path = std::env::temp_dir().join(format!(
+            "open-iem-migration-{}-{}.db",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let _ = std::fs::remove_file(&path);
+        let path = path.to_string_lossy().into_owned();
+        Db::open(&path).unwrap();
+        Db::open(&path).unwrap();
+        let conn = Connection::open(&path).unwrap();
+        let count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM migrations WHERE name = 'M001'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(count, 1);
+        drop(conn);
+        std::fs::remove_file(&path).unwrap();
+        let _ = std::fs::remove_file(format!("{path}-wal"));
+        let _ = std::fs::remove_file(format!("{path}-shm"));
+    }
+
+    #[test]
+    fn legacy_database_with_column_gets_m001_record() {
+        let conn = Connection::open_in_memory().unwrap();
+        conn.execute_batch("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT NOT NULL, pw_hash TEXT NOT NULL, role TEXT NOT NULL, created_at INTEGER NOT NULL DEFAULT (unixepoch()), must_change_password INTEGER NOT NULL DEFAULT 0);
+            CREATE TABLE refresh_tokens (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, token_hash TEXT NOT NULL, expires_at INTEGER NOT NULL, revoked INTEGER NOT NULL DEFAULT 0, family TEXT NOT NULL, created_at INTEGER NOT NULL DEFAULT (unixepoch()));
+            CREATE TABLE access_sessions (jti TEXT PRIMARY KEY, user_id INTEGER NOT NULL, session_id INTEGER NOT NULL, expires_at INTEGER NOT NULL, revoked INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL DEFAULT (unixepoch()));
+            CREATE TABLE mix_assignments (mix_index INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, assigned_at INTEGER NOT NULL DEFAULT (unixepoch()));
+            CREATE TABLE migrations (id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, applied_at INTEGER NOT NULL DEFAULT (unixepoch()));").unwrap();
+        let db = Db {
+            conn: Arc::new(Mutex::new(conn)),
+        };
+        db.migrate().unwrap();
+        let conn = db.conn.lock().unwrap();
+        let count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM migrations WHERE name = 'M001'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(count, 1);
     }
 
     #[test]

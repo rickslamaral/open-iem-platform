@@ -7,13 +7,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Fixed
+- P1-015: SQLite schema migration `M001` now records completion in `migrations`, applies once, and upgrades legacy databases that already contain `must_change_password`.
 - SceneStore rejeita snapshots com `revision == 0`, preservando invariantes de revisão monotônica.
+- Tornada testável a seleção do `SCENE_STORE_PATH`, isolando abertura do `SceneStore` durável sem mutação global de ambiente.
 
 ### Tests
+- Added focused fresh, reopen, and legacy-schema migration coverage.
 - Added file-backed scenes clean-state reopen coverage for durable restore and active pointer.
-
-### Fixed
-- Tornada testável a seleção do `SCENE_STORE_PATH`, isolando abertura do `SceneStore` durável sem mutação global de ambiente.
 
 
 - SceneStore file-backed persistence selected by `SCENE_STORE_PATH`, with reopen persistence coverage.
