@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - SceneStore file-backed persistence selected by `SCENE_STORE_PATH`, with reopen persistence coverage.
 
 ### Added
+- Added REST integration coverage for atomic scene backup restore, active pointer replacement and Engineer-only authorization.
 - P2 SceneStore backup restore: `PUT /api/v1/scenes/backup` validates strict versioned snapshots and atomically replaces durable scenes plus active pointer.
 - P2 Scenes REST API: 7 rotas REST com RBAC (GET/POST /api/v1/scenes, GET /api/v1/scenes/active, GET/PUT/DELETE /api/v1/scenes/{id}, POST /api/v1/scenes/{id}/recall); `SceneStore` integrado ao `AppState`; 7 testes de integração (PR #87, CI 13/13)
 - P2 SceneManager: `SceneStore` SQLite-backed persistence with immutable revision history, transactional save/recall, and corrupt-payload detection (PR #86, CI 13/13)

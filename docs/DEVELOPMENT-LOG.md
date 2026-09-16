@@ -1,3 +1,15 @@
+## 2026-09-16 — P2 Scenes REST backup/restore integration coverage
+
+**Status:** CODE — API integration tests cover RBAC and atomic replacement; runtime validation remains pending.
+
+- Added Engineer integration test for `PUT /api/v1/scenes/backup`, including durable replacement and active-scene pointer verification.
+- Added Musician negative test proving restore remains Engineer/Admin-only.
+- Focused API test suite: 9 tests passed.
+
+**Next:** validate clean-environment restore and deployed runtime persistence. API rollback coverage now rejects invalid active pointers without replacing existing state.
+
+---
+
 ## 2026-09-16 — P2 Scenes operational atomic restore
 
 **Status:** CODE + CI/SIMULATED — runtime and hardware validation remain pending.

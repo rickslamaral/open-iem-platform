@@ -49,6 +49,7 @@
 - [x] P2 — SceneStore file-backed: `SCENE_STORE_PATH` seleciona SQLite persistente; teste cobre criação, reopen e leitura do payload. CODE+CI; backup/restore operacional e runtime pendentes.
 - [x] P2 — Backup/restore operacional: `GET/PUT /api/v1/config/backup` com RBAC Engineer/Admin, payload estrito e integração ao `ControlState`; CODE+CI/SIMULATED. Restore em ambiente limpo e runtime permanecem pendentes.
 - [x] P2 — SceneStore export/restore: `GET /api/v1/scenes/backup` exporta e `PUT` restaura cenas duráveis e ponteiro ativo em JSON versionado; validação estrita e substituição atômica; estado transitório excluído; CODE+CI/SIMULATED.
+- [x] P2 — Scenes REST backup/restore API integration coverage: Engineer-only atomic replacement, active-pointer restore and Musician denial tests.
 - [x] P1-009 / Phase 94 — concluído; validação contra servidor/runtime/hardware permanece pendente.
 
 ## Phase 95 — Observability Metrics REST endpoint
