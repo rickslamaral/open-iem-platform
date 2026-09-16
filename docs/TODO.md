@@ -12,7 +12,7 @@
 - **Release `v0.3.1`:** tag existe e CI remoto do HEAD passou 13/13; GitHub Release ainda não publicada por exigir confirmação explícita.
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
 - **Guias:** espelhos PT/EN/ES existentes; revisar e sincronizar após validação física.
-- **P2 Scenes backup/restore:** PRs #94–#97 mergeadas; exportação durável, restore atômico, rollback de ponteiro ativo e cobertura RBAC concluídos em CODE+CI (run `35126301166`, 13/13). Restauração em ambiente limpo permanece pendente; seleção do caminho persistente agora é testável sem mutação global de ambiente.
+- **P2 Scenes backup/restore:** PRs #94–#97 mergeadas; exportação durável, restore atômico, rollback de ponteiro ativo e cobertura RBAC concluídos em CODE+CI (run `35126301166`, 13/13). Restauração em ambiente limpo coberta por teste de reabertura file-backed; validação operacional implantada permanece pendente; seleção do caminho persistente agora é testável sem mutação global de ambiente.
 
 ## Phase 92 — Controle de EQ por WebSocket
 

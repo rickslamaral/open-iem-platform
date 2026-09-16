@@ -3944,3 +3944,10 @@ Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore 
 - `AppState::new` delega seleção de persistência para `new_with_scene_store_path`, mantendo `SCENE_STORE_PATH` como configuração de processo.
 - O construtor explícito permite testes de persistência sem alterar ambiente global, reduzindo flakiness e tornando o caminho file-backed exercitável.
 - Evidência: teste unitário `file_backed_scene_store_open_and_list` PASS; áudio real, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam não validados.
+
+
+## 2026-09-16 — SceneStore clean-state reopen coverage
+
+- Adicionado teste de API que restaura snapshot em SQLite file-backed, descarta o primeiro `AppState` e reabre o banco em estado limpo.
+- Verificados listagem, revisão ativa, payload e ponteiro ativo após reopen; arquivos temporários removidos no teardown.
+- Evidência: CODE; runtime implantado, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
