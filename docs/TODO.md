@@ -1,9 +1,9 @@
 # TODO
 
-## Estado atual — 2026-09-16 (P2 scene-manager SQLite, PR #86 mergeado)
+## Estado atual — 2026-09-16 (P2 Scenes REST API, PR #87 mergeado)
 
 - **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
-- **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; músicos/cenas/presets permanecem P2.
+- **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; músicos/presets permanecem P2; cenas: GET/POST/PUT/DELETE/recall implementados em PR #87.
 - **P1-002:** GET /api/v1/devices com RBAC, DeviceManager no AppState; mergeado em main (PR #80; CI 13/13).
 - **P1-003:** Observability concluído (PR #68; CODE+CI/SIMULATED; runtime permanece pendente).
 - **P1-004:** RecoveryRegistry integrado ao ciclo WebSocket de Musician; concluído em main via PR #81, CI run `35055191463` (13/13). CODE+CI; runtime/hardware permanecem pendentes.
@@ -45,6 +45,7 @@
 - [x] P1-007 — backup/restore de configuração sem secrets implementado na PR #73; 8 testes unitários; restauração em ambiente limpo ainda pendente.
 - [x] P1-008 — concluído (PR #75).
 - [x] P2 — SceneManager SQLite: `SceneStore` implementado com revisions imutáveis, recall transacional e detecção de payload corrompido; PR #86, CI 13/13 (run `35067216669`). CODE+CI; runtime/hardware pendentes.
+- [x] P2 — Scenes REST API: 7 rotas REST (GET/POST /api/v1/scenes, GET /api/v1/scenes/active, GET/PUT/DELETE /api/v1/scenes/{id}, POST /api/v1/scenes/{id}/recall) com RBAC, SceneStore integrado ao AppState; 7 testes de integração; PR #87, CI 13/13. CODE+CI; runtime/hardware pendentes.
 - [x] P1-009 / Phase 94 — concluído; validação contra servidor/runtime/hardware permanece pendente.
 
 ## Phase 95 — Observability Metrics REST endpoint
