@@ -84,7 +84,9 @@ pub struct SessionRegistry {
 impl SessionRegistry {
     #[must_use]
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            sessions: Arc::new(Mutex::new(HashMap::new())),
+        }
     }
 
     /// Accept browser SDP and return server SDP answer. One active peer per user.
@@ -162,7 +164,9 @@ impl SessionRegistry {
         Ok(())
     }
 
-    /// Drain bounded engine frames, then poll each Sans-IO peer without network I/O.
+    /// Drain bounded engine frames, then consume bounded session frames and poll
+    /// each Sans-IO peer without network I/O. `frame_budget` applies separately
+    /// to bridge input and session output stages.
     ///
     /// `Transmit` output is counted and discarded deliberately. A future UDP
     /// adapter owns that output; this method does not claim media runtime support.
@@ -288,7 +292,7 @@ mod tests {
             )
             .unwrap();
 
-        let report = registry.drive_once(&bridge, &plane, 1, 1).await;
+        let report = registry.drive_once(&bridge, &plane, 2, 1).await;
         assert_eq!(report.frames_drained, 1);
         assert_eq!(report.outputs_polled, 0);
         assert!(!report.budget_exhausted);
