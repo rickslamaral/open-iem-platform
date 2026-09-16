@@ -84,7 +84,7 @@ Evidence-backed current components:
 - CI workflows for Rust, frontend, security, documentation, coverage and ARM64 cross-build.
 - Release archive validation and checksum/provenance workflow.
 
-Implemented but not production-validated: bounded MixEngine-to-media bridge (`streaming::MediaBridge`) routes processed frames into per-session queues without blocking; it remains SIMULATED and does not drive WebRTC network I/O. Production WebRTC media integration, PipeWire runtime, Pi hardware output, bootstrap, topology/device manager remain pending. Opus receiver core exists in P0-004, with OS output and hardware validation pending.
+Implemented but not production-validated: bounded MixEngine-to-media bridge (`streaming::MediaBridge`) routes processed frames into per-session queues without blocking, and `MediaPlane::drain_session_frames_with_budget` exposes bounded per-session consumption for a future writer; it remains SIMULATED and does not drive WebRTC network I/O. Production WebRTC media integration, PipeWire runtime, Pi hardware output, bootstrap, topology/device manager remain pending. Opus receiver core exists in P0-004, with OS output and hardware validation pending.
 
 ## Remaining Architecture Gaps
 
