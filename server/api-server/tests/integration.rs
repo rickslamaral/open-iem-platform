@@ -20,6 +20,7 @@ use api_server::{
         auth::{create_user, login, logout, refresh},
         channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
         health::health,
+        metrics::get_metrics,
         mixes::{
             assign_mix, get_send_state, list_mixes, set_send_gain, set_send_muted, set_send_pan,
             unassign_mix,
@@ -110,6 +111,7 @@ fn build_test_app() -> (TestServer, AppState) {
         .route("/api/v1/state", get(get_state))
         .route("/api/v1/channels", get(list_channels))
         .route("/api/v1/telemetry", get(get_telemetry))
+        .route("/api/v1/metrics", get(get_metrics))
         .route("/api/v1/audio/offer", post(offer))
         .route("/api/v1/audio/ice-candidate", post(ice_candidate))
         .route("/api/v1/audio/sessions", get(sessions))
@@ -2065,4 +2067,53 @@ async fn channels_list_requires_auth() {
         .add_header("Origin", "http://localhost")
         .await
         .assert_status(axum::http::StatusCode::UNAUTHORIZED);
+}
+
+// ── /api/v1/metrics ───────────────────────────────────────────────────────
+
+#[tokio::test]
+async fn metrics_requires_engineer_role() {
+    let (server, state) = build_test_app();
+    let musician_token = seed_user_and_login(&state, "mus_metrics_role", "pw", Role::Musician);
+    server
+        .get("/api/v1/metrics")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician_token)
+        .await
+        .assert_status(axum::http::StatusCode::FORBIDDEN);
+}
+
+#[tokio::test]
+async fn metrics_returns_schema_version_one() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_metrics_schema", "pw", Role::Engineer);
+    let resp = server
+        .get("/api/v1/metrics")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(engineer_token)
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert_eq!(body["schema_version"], 1);
+}
+
+#[tokio::test]
+async fn metrics_counters_start_at_zero() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_metrics_zero", "pw", Role::Engineer);
+    let resp = server
+        .get("/api/v1/metrics")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(engineer_token)
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert_eq!(body["audio"]["xrun_count"], 0);
+    assert_eq!(body["audio"]["frames_processed"], 0);
+    assert_eq!(body["stream"]["frames_sent"], 0);
+    assert_eq!(body["stream"]["frames_lost"], 0);
+    assert_eq!(body["stream"]["frames_plc_recovered"], 0);
+    assert_eq!(body["receiver"]["packets_received"], 0);
+    assert_eq!(body["receiver"]["packets_dropped"], 0);
+    assert_eq!(body["network"]["late_packets"], 0);
 }
