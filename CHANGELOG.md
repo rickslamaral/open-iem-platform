@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- P2 SceneManager: `SceneStore` SQLite-backed persistence with immutable revision history, transactional save/recall, and corrupt-payload detection (PR #86, CI 13/13)
+
+### Added
 - Strict, versioned `scene-manager` schema foundation for durable Scenes/state-store; SQLite lifecycle remains pending.
 
 ### Added — Phase 94: nomes de canais na Musician UI

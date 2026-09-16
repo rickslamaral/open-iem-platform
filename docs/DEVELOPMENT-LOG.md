@@ -3800,3 +3800,46 @@ CODE + CI remoto. Sem runtime, sem hardware, sem PipeWire/ALSA/RPi5.
 ### Próximo
 
 P1-002 concluído. Próximo item do backlog a determinar (verificar docs/TODO.md).
+
+## 2026-09-16 — P2 SceneManager SQLite Persistence (PR #86)
+
+**Branch:** feat/p2-scene-manager-sqlite
+**Commit (squash):** 034fba8
+
+### O que foi implementado
+
+- `server/scene-manager/Cargo.toml`: adicionados `rusqlite = 0.40 bundled` e `uuid = 1 v4`
+- `server/scene-manager/src/store.rs`: novo `SceneStore` com:
+  - Schema WAL+FK: `scenes`, `scene_revisions` (UNIQUE scene_id+revision), `active_scene`
+  - `create_scene`: valida nome, gera UUID v4, valida config, insere em tx única
+  - `save_scene`: SELECT MAX(revision) → new_rev, valida, insere revisão imutável + atualiza active_revision em tx
+  - `get_scene`: JOIN na active_revision, `CorruptPayload` em falha de decode
+  - `delete_scene`: guarda IsActive antes de deletar
+  - `set_active_scene`/`get_active_scene`: pointer de cena ativa
+  - `list_scenes`: summary ordenado por created_at
+- `server/scene-manager/src/lib.rs`: reexporta `SceneStore`, `SceneSummary`, `StoreError`
+
+### Gates locais
+
+- `cargo fmt --all -- --check`: PASS
+- `cargo clippy --all-targets -- -D warnings`: PASS
+- `cargo test` (workspace): PASS — 17 scene-manager (10 store + 7 prior), todos os crates green
+- Frontend musician: 50 testes PASS, build PASS
+- Frontend engineer: 29 testes PASS, build PASS
+- Security scan: CLEAN
+
+### CI remoto
+
+PR #86 — run `35067216669` — 13/13 PASS.
+
+### Revisão independente
+
+passed=true; 0 security_concerns; 0 logic_errors. Sugestões não-bloqueantes: MAX(revision) fora da tx de escrita (Mutex serializa, seguro), unchecked_transaction poderia ter comentário explicativo, sem índice explícito em scene_revisions.
+
+### Nível de evidência
+
+CODE + CI remoto (13/13). Sem runtime, sem hardware, sem PipeWire/ALSA/RPi5.
+
+### Próximo
+
+Próximos itens P2 disponíveis: API REST de scenes (GET/POST/recall/delete), integração de SceneStore no AppState.

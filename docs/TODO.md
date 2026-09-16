@@ -1,6 +1,6 @@
 # TODO
 
-## Estado atual — 2026-09-16 (P1-007 mergeado, PR #73)
+## Estado atual — 2026-09-16 (P2 scene-manager SQLite, PR #86 mergeado)
 
 - **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
 - **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; músicos/cenas/presets permanecem P2.
@@ -44,7 +44,7 @@
 - [ ] P1-006 — release bloqueado: confirmação explícita, instalação real e Raspberry Pi 5 ainda pendentes.
 - [x] P1-007 — backup/restore de configuração sem secrets implementado na PR #73; 8 testes unitários; restauração em ambiente limpo ainda pendente.
 - [x] P1-008 — concluído (PR #75).
-- [ ] Próximo item P2: persistir SceneManager em SQLite com revisões imutáveis e recall transacional; schema strict inicial implementado nesta branch; P1-006 continua bloqueado por validação física/confirmação explícita.
+- [x] P2 — SceneManager SQLite: `SceneStore` implementado com revisions imutáveis, recall transacional e detecção de payload corrompido; PR #86, CI 13/13 (run `35067216669`). CODE+CI; runtime/hardware pendentes.
 - [x] P1-009 / Phase 94 — concluído; validação contra servidor/runtime/hardware permanece pendente.
 
 ## Phase 95 — Observability Metrics REST endpoint
