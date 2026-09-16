@@ -7,6 +7,7 @@
 //! PUT    /api/v1/scenes/{id}      — save new revision (Engineer/Admin)
 //! DELETE /api/v1/scenes/{id}      — delete scene (Engineer/Admin)
 //! GET    /api/v1/scenes/backup — export durable scenes
+//! PUT    /api/v1/scenes/backup — replace durable scenes from export
 //! POST   /api/v1/scenes/{id}/recall — set as active (Engineer/Admin)
 
 use axum::{
@@ -103,6 +104,31 @@ fn map_store_err(e: StoreError) -> ApiError {
 // ---------------------------------------------------------------------------
 // Handlers
 // ---------------------------------------------------------------------------
+
+/// `PUT /api/v1/scenes/backup` — restores a complete durable scene snapshot.
+///
+/// Restore is validated before replacement and commits atomically. Runtime
+/// state is never accepted by the strict snapshot schema.
+///
+/// # Errors
+/// Returns `ApiError::Forbidden` when caller lacks Engineer role,
+/// `ApiError::BadRequest` for invalid snapshots, or `ApiError::Internal`
+/// when persistence fails.
+#[allow(clippy::unused_async)]
+pub async fn restore_scenes(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<JwtClaims>,
+    Json(snapshot): Json<scene_manager::SceneStoreSnapshot>,
+) -> Result<impl IntoResponse, ApiError> {
+    require_min_role(&claims, Role::Engineer)?;
+    let json = serde_json::to_string(&snapshot)
+        .map_err(|e| ApiError::BadRequest(format!("invalid scene snapshot: {e}")))?;
+    state
+        .scenes
+        .restore_snapshot(&json)
+        .map_err(map_store_err)?;
+    Ok(StatusCode::NO_CONTENT)
+}
 
 /// `GET /api/v1/scenes` — list all scenes.
 #[allow(clippy::unused_async)]
