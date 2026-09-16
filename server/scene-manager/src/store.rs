@@ -1,7 +1,8 @@
 //! SQLite-backed scene store with immutable revision history.
 
-use crate::{Scene, SceneConfig, SceneError, SCHEMA_VERSION};
+use crate::{Scene, SceneConfig, SceneError, SceneStoreSnapshot, SCHEMA_VERSION};
 use rusqlite::{params, Connection, OptionalExtension};
+use std::collections::HashSet;
 use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -47,6 +48,9 @@ pub enum StoreError {
     /// Stored payload could not be decoded.
     #[error("corrupt payload: {0}")]
     CorruptPayload(String),
+    /// Snapshot export failed validation.
+    #[error("invalid scene snapshot: {0}")]
+    InvalidSnapshot(String),
 }
 
 /// SQLite-backed scene store.
@@ -133,6 +137,73 @@ impl SceneStore {
             out.push(r?);
         }
         Ok(out)
+    }
+
+    /// Export current durable scenes and active pointer as bounded JSON.
+    /// Transient runtime state is not represented in the snapshot.
+    ///
+    /// # Errors
+    /// Returns an error when the store is unavailable or contains corrupt data.
+    pub fn export_snapshot(&self) -> Result<String, StoreError> {
+        let conn = self.conn.lock().map_err(|_| StoreError::LockPoisoned)?;
+        let tx = conn.unchecked_transaction()?;
+        let mut stmt = tx.prepare(
+            "SELECT sr.payload FROM scene_revisions sr JOIN scenes s ON s.id = sr.scene_id WHERE sr.revision = s.active_revision ORDER BY s.created_at ASC",
+        )?;
+        let rows = stmt.query_map([], |row| row.get::<_, String>(0))?;
+        let mut scenes = Vec::new();
+        let mut estimated_bytes = 32usize;
+        for row in rows {
+            let payload = row?;
+            let scene =
+                crate::decode(&payload).map_err(|e| StoreError::CorruptPayload(e.to_string()))?;
+            let scene_bytes = serde_json::to_vec(&scene)
+                .map_err(|e| StoreError::InvalidSnapshot(e.to_string()))?
+                .len();
+            let scene_bytes_with_separator = scene_bytes
+                .checked_add(1)
+                .ok_or(StoreError::Validation(SceneError::PayloadTooLarge))?;
+            estimated_bytes = estimated_bytes
+                .checked_add(scene_bytes_with_separator)
+                .ok_or(StoreError::Validation(SceneError::PayloadTooLarge))?;
+            if estimated_bytes > crate::MAX_PAYLOAD_BYTES {
+                return Err(StoreError::Validation(SceneError::PayloadTooLarge));
+            }
+            scenes.push(scene);
+        }
+        drop(stmt);
+        let active_scene_id: Option<String> = tx
+            .query_row(
+                "SELECT scene_id FROM active_scene WHERE key = 'active'",
+                [],
+                |row| row.get(0),
+            )
+            .optional()?;
+        if let Some(ref active_id) = active_scene_id {
+            if active_id.is_empty() || active_id.len() > crate::MAX_TEXT_BYTES {
+                return Err(StoreError::InvalidSnapshot(
+                    "active scene ID exceeds bounds".to_owned(),
+                ));
+            }
+            let exported_ids: HashSet<&str> =
+                scenes.iter().map(|scene| scene.id.as_str()).collect();
+            if !exported_ids.contains(active_id.as_str()) {
+                return Err(StoreError::InvalidSnapshot(
+                    "active scene ID does not reference an exported scene".to_owned(),
+                ));
+            }
+        }
+        let json = serde_json::to_string(&SceneStoreSnapshot {
+            version: SCHEMA_VERSION,
+            scenes,
+            active_scene_id,
+        })
+        .map_err(|e| StoreError::InvalidSnapshot(e.to_string()))?;
+        if json.len() > crate::MAX_PAYLOAD_BYTES {
+            return Err(StoreError::Validation(SceneError::PayloadTooLarge));
+        }
+        tx.commit()?;
+        Ok(json)
     }
 
     /// Create a new scene with revision 1.

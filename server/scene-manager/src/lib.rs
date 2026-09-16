@@ -21,6 +21,18 @@ pub const GAIN_DB_MAX: f32 = 12.0;
 /// Maximum serialized payload size.
 pub const MAX_PAYLOAD_BYTES: usize = 512 * 1024;
 
+/// Versioned export containing durable scene state only.
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct SceneStoreSnapshot {
+    /// Snapshot format version.
+    pub version: u32,
+    /// Current revision of each stored scene.
+    pub scenes: Vec<Scene>,
+    /// Currently recalled scene, if any.
+    pub active_scene_id: Option<String>,
+}
+
 /// Strict durable scene configuration. Runtime state has no representation here.
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
