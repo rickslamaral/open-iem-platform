@@ -1,3 +1,11 @@
+## 2026-09-16 — P1-015 versioned SQLite migrations
+
+**Status:** CODE + targeted tests.
+
+- `Db::migrate` now applies `M001` inside transaction and records it in `migrations` only after schema change succeeds.
+- Reopen skips recorded migrations; legacy databases with existing `must_change_password` receive migration record without duplicate `ALTER TABLE`.
+- Evidence: `cargo test --manifest-path server/Cargo.toml -p api-server db::tests` — 16 tests passed.
+
 ## 2026-09-16 — P2 Scenes backup/restore status sync
 
 **Status:** DOCUMENTATION — PR #97 merged; runtime validation remains pending.
