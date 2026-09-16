@@ -148,6 +148,7 @@ dependencies = [
  "rand 0.10.2",
  "recovery",
  "rusqlite",
+ "scene-manager",
  "serde",
  "serde_json",
  "sha2 0.11.0",

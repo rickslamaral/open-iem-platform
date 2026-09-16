@@ -5,6 +5,7 @@ use control_server::ControlState;
 use device_manager::DeviceManager;
 use observability::Metrics;
 use recovery::RecoveryRegistry;
+use scene_manager::SceneStore;
 use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
@@ -109,12 +110,17 @@ pub struct AppState {
     pub devices: Arc<Mutex<DeviceManager>>,
     /// Bounded session recovery registry — restores Musician mix assignment on reconnect.
     pub recovery: Arc<Mutex<RecoveryRegistry>>,
+    /// Durable scene store.
+    pub scenes: Arc<SceneStore>,
     /// Current WebSocket session owner for each Musician user.
     pub connection_owners: Arc<Mutex<HashMap<i64, u128>>>,
 }
 
 impl AppState {
     /// Create application state from its components.
+    ///
+    /// # Panics
+    /// Panics if the in-memory scene store cannot be opened (should never happen in practice).
     #[must_use]
     pub fn new(control: ControlState, db: Db, jwt: JwtKeys) -> Self {
         let (event_tx, _) = broadcast::channel(256);
@@ -135,6 +141,9 @@ impl AppState {
             metrics: Arc::new(Metrics::new()),
             devices: Arc::new(Mutex::new(DeviceManager::new())),
             recovery: Arc::new(Mutex::new(RecoveryRegistry::new())),
+            scenes: Arc::new(
+                scene_manager::SceneStore::open_in_memory().expect("scene store must open"),
+            ),
             connection_owners: Arc::new(Mutex::new(HashMap::new())),
         }
     }
