@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Tests
+- Added file-backed scenes clean-state reopen coverage for durable restore and active pointer.
+
 ### Fixed
 - Tornada testável a seleção do `SCENE_STORE_PATH`, isolando abertura do `SceneStore` durável sem mutação global de ambiente.
 

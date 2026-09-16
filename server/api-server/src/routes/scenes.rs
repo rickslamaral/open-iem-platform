@@ -326,10 +326,17 @@ mod tests {
     }
 
     fn build_test_app() -> (TestServer, AppState) {
+        build_test_app_with_scene_store_path(None)
+    }
+
+    fn build_test_app_with_scene_store_path(
+        scene_store_path: Option<&str>,
+    ) -> (TestServer, AppState) {
         let (private_pem, public_pem) = test_keys();
         let jwt = JwtKeys::from_ed_pem(&private_pem, &public_pem).expect("test PEM must be valid");
         let db = Db::open_in_memory().expect("in-memory DB must open");
-        let state = AppState::new(ControlState::new(), db, jwt);
+        let state =
+            AppState::new_with_scene_store_path(ControlState::new(), db, jwt, scene_store_path);
 
         let protected = Router::new()
             .route("/api/v1/scenes", get(list_scenes).post(create_scene))
@@ -439,6 +446,61 @@ mod tests {
             .await;
         active.assert_status_ok();
         assert_eq!(active.json::<Value>()["scene"]["id"], "imported-scene");
+    }
+
+    #[tokio::test]
+    async fn backup_restore_survives_clean_state_reopen() {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system clock must be valid")
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("open-iem-scenes-reopen-{nonce}.db"));
+        let path_str = path.to_str().expect("temporary path must be UTF-8");
+
+        let (server, state) = build_test_app_with_scene_store_path(Some(path_str));
+        let token = seed_user_and_login(&state, "eng_clean_reopen", "pw", Role::Engineer);
+        let snapshot = json!({
+            "version": 1,
+            "scenes": [{
+                "id": "persisted-scene",
+                "name": "Persisted",
+                "schema_version": 1,
+                "revision": 2,
+                "config": {"channels": [], "mixes": []}
+            }],
+            "active_scene_id": "persisted-scene"
+        });
+
+        server
+            .put("/api/v1/scenes/backup")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .json(&snapshot)
+            .await
+            .assert_status(axum::http::StatusCode::NO_CONTENT);
+
+        drop(server);
+        drop(state);
+
+        let reopened =
+            scene_manager::SceneStore::open(path_str).expect("file-backed scene store must reopen");
+        let scenes = reopened
+            .list_scenes()
+            .expect("reopened scene list must load");
+        assert_eq!(scenes.len(), 1);
+        assert_eq!(scenes[0].id, "persisted-scene");
+        assert_eq!(scenes[0].active_revision, 2);
+        let active = reopened
+            .get_active_scene()
+            .expect("active scene lookup must succeed")
+            .expect("active scene must persist");
+        assert_eq!(active.id, "persisted-scene");
+        assert_eq!(active.revision, 2);
+
+        drop(reopened);
+        let _ = fs::remove_file(&path);
+        let _ = fs::remove_file(path.with_extension("db-wal"));
+        let _ = fs::remove_file(path.with_extension("db-shm"));
     }
 
     #[tokio::test]
