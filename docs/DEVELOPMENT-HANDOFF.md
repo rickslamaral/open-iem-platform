@@ -124,7 +124,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 
 ## P2 Queue
 
-- Scenes/state-store durable path exists via `SCENE_STORE_PATH`; durable/transient lifecycle and operational backup/restore remain.
+- Scenes/state-store durable path exists via `SCENE_STORE_PATH`; `GET/PUT /api/v1/scenes/backup` provides validated atomic export/restore; runtime validation remains pending.
 - Playback/AUX/Hybrid topology after Channel Mode evidence.
 - Windows WASAPI/ASIO runtime validation.
 - Full Engineer matrix, meters, locks and device UI.

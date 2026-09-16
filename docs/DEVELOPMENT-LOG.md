@@ -1,3 +1,17 @@
+## 2026-09-16 — P2 Scenes operational atomic restore
+
+**Status:** CODE + CI/SIMULATED — runtime and hardware validation remain pending.
+
+- Added strict `PUT /api/v1/scenes/backup` restore endpoint with Engineer/Admin RBAC.
+- `SceneStore::restore_snapshot` validates schema, IDs, scene bounds and active pointer before transaction mutation.
+- Replacement clears durable scene revisions and active pointer atomically; transient runtime state remains excluded.
+- Added tests for successful replacement and invalid active-pointer rejection without mutation.
+- Full server workspace tests and clippy pass; archive validation script unavailable at expected `tests/validate_archive.py` path on this checkout.
+
+**Next:** validate clean-environment restore and runtime persistence against deployed server.
+
+---
+
 ## 2026-09-16 — P2 Scenes/state-store: strict schema foundation
 
 **Status:** CODE — schema validation only; SQLite lifecycle and runtime integration remain pending.

@@ -206,6 +206,66 @@ impl SceneStore {
         Ok(json)
     }
 
+    /// Replace durable scenes and active pointer from a versioned JSON snapshot.
+    ///
+    /// Validation runs before transaction mutation. Replacement is atomic.
+    ///
+    /// # Errors
+    /// Returns an error for malformed, unsupported, or inconsistent input.
+    pub fn restore_snapshot(&self, json: &str) -> Result<(), StoreError> {
+        if json.len() > crate::MAX_PAYLOAD_BYTES {
+            return Err(StoreError::Validation(SceneError::PayloadTooLarge));
+        }
+        let snapshot: SceneStoreSnapshot =
+            serde_json::from_str(json).map_err(|e| StoreError::InvalidSnapshot(e.to_string()))?;
+        if snapshot.version != SCHEMA_VERSION {
+            return Err(StoreError::InvalidSnapshot(format!(
+                "unsupported snapshot version {}",
+                snapshot.version
+            )));
+        }
+        let mut ids = HashSet::new();
+        for scene in &snapshot.scenes {
+            if !ids.insert(scene.id.as_str()) {
+                return Err(StoreError::InvalidSnapshot("duplicate scene ID".to_owned()));
+            }
+            crate::validate(scene).map_err(|e| StoreError::InvalidSnapshot(e.to_string()))?;
+        }
+        if let Some(active_id) = snapshot.active_scene_id.as_deref() {
+            if !ids.contains(active_id) {
+                return Err(StoreError::InvalidSnapshot(
+                    "active scene ID does not reference a scene".to_owned(),
+                ));
+            }
+        }
+        let conn = self.conn.lock().map_err(|_| StoreError::LockPoisoned)?;
+        let tx = conn.unchecked_transaction()?;
+        tx.execute("DELETE FROM active_scene WHERE key = 'active'", [])?;
+        tx.execute(
+            "DELETE FROM scene_revisions WHERE scene_id IN (SELECT id FROM scenes)",
+            [],
+        )?;
+        tx.execute("DELETE FROM scenes WHERE 1 = 1", [])?;
+        let now = now_secs();
+        for scene in &snapshot.scenes {
+            let revision = i64::try_from(scene.revision).map_err(|_| {
+                StoreError::InvalidSnapshot("revision exceeds SQLite range".to_owned())
+            })?;
+            let payload =
+                crate::encode(scene).map_err(|e| StoreError::InvalidSnapshot(e.to_string()))?;
+            tx.execute("INSERT INTO scenes (id, name, active_revision, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?4)", params![scene.id, scene.name, revision, now])?;
+            tx.execute("INSERT INTO scene_revisions (scene_id, revision, payload, created_at) VALUES (?1, ?2, ?3, ?4)", params![scene.id, revision, payload, now])?;
+        }
+        if let Some(active_id) = snapshot.active_scene_id {
+            tx.execute(
+                "INSERT INTO active_scene (key, scene_id) VALUES ('active', ?1)",
+                params![active_id],
+            )?;
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
     /// Create a new scene with revision 1.
     ///
     /// # Errors
@@ -561,6 +621,37 @@ mod tests {
         store.corrupt_for_test(&scene.id);
         let err = store.get_scene(&scene.id).unwrap_err();
         assert!(matches!(err, StoreError::CorruptPayload(_)));
+    }
+
+    #[test]
+    fn restore_snapshot_replaces_store_atomically() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let old = store.create_scene("Old", empty_config()).unwrap();
+        let source = SceneStore::open_in_memory().unwrap();
+        let fresh = source.create_scene("Fresh", empty_config()).unwrap();
+        source.set_active_scene(Some(&fresh.id)).unwrap();
+        let snapshot = source.export_snapshot().unwrap();
+        store.restore_snapshot(&snapshot).unwrap();
+        assert!(matches!(
+            store.get_scene(&old.id),
+            Err(StoreError::NotFound(_))
+        ));
+        assert_eq!(store.get_scene(&fresh.id).unwrap().name, "Fresh");
+        assert_eq!(store.get_active_scene().unwrap().unwrap().id, fresh.id);
+    }
+
+    #[test]
+    fn restore_snapshot_rejects_invalid_active_pointer_without_mutation() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let old = store.create_scene("Old", empty_config()).unwrap();
+        let invalid =
+            serde_json::json!({"version": SCHEMA_VERSION, "scenes": [], "active_scene_id": old.id})
+                .to_string();
+        assert!(matches!(
+            store.restore_snapshot(&invalid),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert_eq!(store.get_scene(&old.id).unwrap().name, "Old");
     }
 
     #[test]
