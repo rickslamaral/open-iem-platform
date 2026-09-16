@@ -185,33 +185,60 @@ async fn handle_socket(
         let owns_connection = state.claim_connection(claims.user_id, session_id);
         if !owns_connection {
             warn!(session_id, user = %claims.sub, "recovery: failed to claim connection ownership");
+            let _ = socket.send(Message::Close(None)).await;
+            return;
         }
         let uid = claims.user_id.to_string();
         let _assignment_guard = state.mix_assignment_lock.lock().await;
-        let reconnect_result = if owns_connection {
-            if let Ok(reg) = state.recovery.lock() {
-                reg.session_reconnected_peek(&uid)
-            } else {
-                warn!(user = %claims.sub, "recovery: registry lock poisoned on connect");
-                Err(recovery::RecoveryError::EmptyUserId)
-            }
+        let reconnect_result = if let Ok(reg) = state.recovery.lock() {
+            reg.session_reconnected_peek(&uid)
         } else {
+            warn!(user = %claims.sub, "recovery: registry lock poisoned on connect");
             Err(recovery::RecoveryError::EmptyUserId)
         };
         match reconnect_result {
             Ok(Some(mix_id)) => {
-                if let Err(e) = state.db.assign_mix(usize::from(mix_id), claims.user_id) {
-                    warn!(user = %claims.sub, mix_id, error = %e, "recovery: failed to restore mix assignment");
-                } else {
-                    match state.recovery.lock() {
-                        Ok(mut reg) => {
-                            let _ = reg.remove_recovered(&uid);
+                let mix_index = usize::from(mix_id);
+                let restore_succeeded = match state.db.get_user_assigned_mix(claims.user_id) {
+                    Ok(Some(current_mix)) if current_mix == mix_index => true,
+                    Ok(Some(current_mix)) => {
+                        warn!(
+                            user = %claims.sub,
+                            mix_id,
+                            current_mix,
+                            "recovery: refusing to overwrite different mix assignment"
+                        );
+                        false
+                    }
+                    Ok(None) => match state.db.assign_mix(mix_index, claims.user_id) {
+                        Ok(()) => true,
+                        Err(error) => {
+                            warn!(user = %claims.sub, mix_id, %error, "recovery: failed to restore mix assignment");
+                            false
                         }
+                    },
+                    Err(error) => {
+                        warn!(user = %claims.sub, mix_id, %error, "recovery: failed to read current mix assignment");
+                        false
+                    }
+                };
+                if restore_succeeded {
+                    match state.recovery.lock() {
+                        Ok(mut reg) => match reg.remove_recovered(&uid) {
+                            Ok(Some(_)) => {
+                                tracing::info!(user = %claims.sub, mix_id, "recovery: mix assignment restored");
+                            }
+                            Ok(None) => {
+                                warn!(user = %claims.sub, mix_id, "recovery: restore succeeded but entry was already absent");
+                            }
+                            Err(error) => {
+                                warn!(user = %claims.sub, mix_id, %error, "recovery: failed to consume restored state");
+                            }
+                        },
                         Err(_) => {
-                            warn!(user = %claims.sub, "recovery: registry lock poisoned after restore");
+                            warn!(user = %claims.sub, mix_id, "recovery: restore succeeded but registry lock poisoned; state preserved");
                         }
                     }
-                    tracing::info!(user = %claims.sub, mix_id, "recovery: mix assignment restored");
                 }
             }
             Ok(None) => {}
@@ -716,9 +743,9 @@ async fn handle_socket(
     if claims.role == Role::Musician {
         let _assignment_guard = state.mix_assignment_lock.lock().await;
         if state.owns_connection(claims.user_id, session_id) {
-            if let Ok(Some(mix_idx)) = state.db.get_user_assigned_mix(claims.user_id) {
-                if let Ok(mix_id) = u8::try_from(mix_idx) {
-                    match state.recovery.lock() {
+            match state.db.get_user_assigned_mix(claims.user_id) {
+                Ok(Some(mix_idx)) => match u8::try_from(mix_idx) {
+                    Ok(mix_id) => match state.recovery.lock() {
                         Ok(mut reg) => {
                             if let Err(e) = reg.session_disconnected(
                                 &claims.user_id.to_string(),
@@ -731,7 +758,16 @@ async fn handle_socket(
                         Err(_) => {
                             warn!(user = %claims.sub, "recovery: registry lock poisoned on disconnect");
                         }
+                    },
+                    Err(error) => {
+                        warn!(user = %claims.sub, mix_idx, %error, "recovery: invalid mix assignment; state not saved");
                     }
+                },
+                Ok(None) => {
+                    warn!(user = %claims.sub, "recovery: no mix assignment found; state not saved");
+                }
+                Err(error) => {
+                    warn!(user = %claims.sub, %error, "recovery: failed to read mix assignment; state not saved");
                 }
             }
             if !state.release_connection(claims.user_id, session_id) {

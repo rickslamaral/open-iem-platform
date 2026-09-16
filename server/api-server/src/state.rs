@@ -143,7 +143,10 @@ impl AppState {
     pub fn claim_connection(&self, user_id: i64, session_id: u128) -> bool {
         match self.connection_owners.lock() {
             Ok(mut owners) => {
-                if !owners.contains_key(&user_id) && owners.len() >= MAX_CONNECTION_OWNERS {
+                if owners.contains_key(&user_id) {
+                    return false;
+                }
+                if owners.len() >= MAX_CONNECTION_OWNERS {
                     return false;
                 }
                 owners.insert(user_id, session_id);

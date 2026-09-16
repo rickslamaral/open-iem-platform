@@ -123,3 +123,36 @@ fn musician_reconnect_restores_mix() {
         .expect("get_user_assigned_mix must succeed");
     assert_eq!(assigned, Some(0), "DB must show mix 0 assigned");
 }
+
+#[test]
+fn duplicate_musician_connection_claim_is_rejected() {
+    let state = make_state();
+    assert!(state.claim_connection(42, 1));
+    assert!(!state.claim_connection(42, 2));
+    assert!(state.owns_connection(42, 1));
+    assert!(!state.owns_connection(42, 2));
+    assert!(state.release_connection(42, 1));
+}
+
+#[test]
+fn existing_same_assignment_is_idempotent_and_conflict_is_preserved() {
+    use control_protocol::Role;
+
+    let state = make_state();
+    state
+        .db
+        .create_user("musician-idempotent", "hashed_pw", Role::Musician)
+        .expect("create_user must succeed");
+    let (user_id, _, _, _) = state
+        .db
+        .find_user("musician-idempotent")
+        .expect("find_user must succeed");
+    state
+        .db
+        .assign_mix(0, user_id)
+        .expect("assignment must succeed");
+
+    assert_eq!(state.db.get_user_assigned_mix(user_id).unwrap(), Some(0));
+    assert!(state.db.assign_mix(1, user_id).is_err());
+    assert_eq!(state.db.get_user_assigned_mix(user_id).unwrap(), Some(0));
+}
