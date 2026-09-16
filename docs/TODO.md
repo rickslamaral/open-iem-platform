@@ -46,6 +46,7 @@
 - [x] P1-008 — concluído (PR #75).
 - [x] P2 — SceneManager SQLite: `SceneStore` implementado com revisions imutáveis, recall transacional e detecção de payload corrompido; PR #86, CI 13/13 (run `35067216669`). CODE+CI; runtime/hardware pendentes.
 - [x] P2 — Scenes REST API: 7 rotas REST (GET/POST /api/v1/scenes, GET /api/v1/scenes/active, GET/PUT/DELETE /api/v1/scenes/{id}, POST /api/v1/scenes/{id}/recall) com RBAC, SceneStore integrado ao AppState; 7 testes de integração; PR #87, CI 13/13. CODE+CI; runtime/hardware pendentes.
+- [x] P2 — SceneStore file-backed: `SCENE_STORE_PATH` seleciona SQLite persistente; teste cobre criação, reopen e leitura do payload. CODE+CI; backup/restore operacional e runtime pendentes.
 - [x] P1-009 / Phase 94 — concluído; validação contra servidor/runtime/hardware permanece pendente.
 
 ## Phase 95 — Observability Metrics REST endpoint

@@ -459,6 +459,31 @@ mod tests {
     }
 
     #[test]
+    fn file_store_persists_across_reopen() {
+        let dir = std::env::temp_dir().join(format!("open_iem_scene_{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir(&dir).unwrap();
+        let path = dir.join("scenes.db");
+        let path_str = path.to_str().unwrap().to_owned();
+        let scene = {
+            let store = SceneStore::open(&path_str).unwrap();
+            store
+                .create_scene("Persistent show", empty_config())
+                .unwrap()
+        };
+
+        {
+            let reopened = SceneStore::open(&path_str).unwrap();
+            let fetched = reopened.get_scene(&scene.id).unwrap();
+            assert_eq!(fetched.id, scene.id);
+            assert_eq!(fetched.name, "Persistent show");
+            assert_eq!(fetched.revision, 1);
+            assert_eq!(reopened.list_scenes().unwrap().len(), 1);
+        }
+
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
     fn corrupt_payload_error() {
         let store = SceneStore::open_in_memory().unwrap();
         let scene = store.create_scene("Show", empty_config()).unwrap();
