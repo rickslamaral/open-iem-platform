@@ -271,8 +271,8 @@ mod tests {
         db::Db,
         middleware::jwt_auth,
         routes::scenes::{
-            create_scene, delete_scene, get_active_scene, get_scene, list_scenes, recall_scene,
-            update_scene,
+            backup_scenes, create_scene, delete_scene, get_active_scene, get_scene, list_scenes,
+            recall_scene, restore_scenes, update_scene,
         },
         security::validate_origin,
         state::AppState,
@@ -335,6 +335,10 @@ mod tests {
             .route("/api/v1/scenes", get(list_scenes).post(create_scene))
             .route("/api/v1/scenes/active", get(get_active_scene))
             .route(
+                "/api/v1/scenes/backup",
+                get(backup_scenes).put(restore_scenes),
+            )
+            .route(
                 "/api/v1/scenes/{id}",
                 get(get_scene).put(update_scene).delete(delete_scene),
             )
@@ -384,6 +388,103 @@ mod tests {
                 "mixes": []
             }
         })
+    }
+
+    #[tokio::test]
+    async fn backup_restore_replaces_durable_scenes_for_engineer() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_backup_restore", "pw", Role::Engineer);
+
+        let create_resp = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token.clone())
+            .json(&empty_scene_body())
+            .await;
+        create_resp.assert_status(axum::http::StatusCode::CREATED);
+        let old_id = create_resp.json::<Value>()["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+
+        let replacement = json!({
+            "version": 1,
+            "scenes": [{
+                "id": "imported-scene",
+                "name": "Imported",
+                "schema_version": 1,
+                "revision": 1,
+                "config": {"channels": [], "mixes": []}
+            }],
+            "active_scene_id": "imported-scene"
+        });
+        server
+            .put("/api/v1/scenes/backup")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token.clone())
+            .json(&replacement)
+            .await
+            .assert_status(axum::http::StatusCode::NO_CONTENT);
+
+        server
+            .get(&format!("/api/v1/scenes/{old_id}"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token.clone())
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+        let active = server
+            .get("/api/v1/scenes/active")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await;
+        active.assert_status_ok();
+        assert_eq!(active.json::<Value>()["scene"]["id"], "imported-scene");
+    }
+
+    #[tokio::test]
+    async fn backup_restore_invalid_snapshot_preserves_existing_scene() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_backup_invalid", "pw", Role::Engineer);
+
+        let create_resp = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token.clone())
+            .json(&empty_scene_body())
+            .await;
+        create_resp.assert_status(axum::http::StatusCode::CREATED);
+        let old_id = create_resp.json::<Value>()["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+
+        server
+            .put("/api/v1/scenes/backup")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token.clone())
+            .json(&json!({"version": 1, "scenes": [], "active_scene_id": "missing"}))
+            .await
+            .assert_status(axum::http::StatusCode::BAD_REQUEST);
+
+        server
+            .get(&format!("/api/v1/scenes/{old_id}"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await
+            .assert_status_ok();
+    }
+
+    #[tokio::test]
+    async fn backup_restore_requires_engineer_role() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "mus_backup_restore", "pw", Role::Musician);
+        server
+            .put("/api/v1/scenes/backup")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .json(&json!({"version": 1, "scenes": [], "active_scene_id": null}))
+            .await
+            .assert_status(axum::http::StatusCode::FORBIDDEN);
     }
 
     #[tokio::test]
