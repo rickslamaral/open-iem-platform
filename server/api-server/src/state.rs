@@ -2,6 +2,7 @@
 
 use crate::{auth::JwtKeys, db::Db};
 use control_server::ControlState;
+use device_manager::DeviceManager;
 use observability::Metrics;
 use std::sync::{Arc, Mutex};
 use streaming::SessionRegistry;
@@ -97,6 +98,8 @@ pub struct AppState {
     pub websocket_auth_failures: crate::quota::WebSocketAuthFailureLimiter,
     /// Observability metrics counters.
     pub metrics: Arc<Metrics>,
+    /// Bounded audio device registry.
+    pub devices: Arc<Mutex<DeviceManager>>,
 }
 
 impl AppState {
@@ -119,6 +122,7 @@ impl AppState {
             websocket_connections: crate::quota::WebSocketQuota::default(),
             websocket_auth_failures: crate::quota::WebSocketAuthFailureLimiter::default(),
             metrics: Arc::new(Metrics::new()),
+            devices: Arc::new(Mutex::new(DeviceManager::new())),
         }
     }
 }

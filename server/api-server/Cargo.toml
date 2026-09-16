@@ -14,6 +14,7 @@ path = "src/main.rs"
 # Internal crates
 control-protocol = { path = "../control-protocol" }
 control-server = { path = "../control-server" }
+device-manager = { path = "../device-manager" }
 mix-engine = { path = "../mix-engine" }
 streaming = { path = "../streaming" }
 observability = { path = "../observability" }
@@ -50,6 +51,7 @@ time = { version = "0.3", features = ["serde", "serde-well-known"] }
 anyhow = "1"
 
 [dev-dependencies]
+topology = { path = "../topology" }
 axum-test = { version = "21", features = ["ws"] }
 bytes = "1"
 tokio = { version = "1", features = ["full", "test-util"] }
