@@ -1,3 +1,16 @@
+## 2026-09-16 — P0-003 negotiated Opus/WebRTC writer boundary
+
+**Status:** CODE + SIMULATED; socket transport, runtime and hardware remain pending.
+
+- `SessionRegistry::drive_once` captures negotiated audio `Mid` from `Event::MediaAdded`.
+- Bounded per-session frames are encoded with `MediaWriter`, matched against negotiated Opus payload parameters, and passed to `str0m::media::Writer` with 48 kHz RTP timestamps.
+- Output polling remains bounded; transmit bytes are counted and not sent to sockets.
+- Evidence: server workspace clippy and tests pass; no runtime/hardware claim.
+
+**Next:** add in-memory negotiated media integration coverage, then isolate transport adapter from session drive.
+
+---
+
 ## 2026-09-16 — P0-003 bounded WebRTC session drive
 
 **Status:** CODE + SIMULATED; network media, Opus encoding, runtime and hardware remain pending.

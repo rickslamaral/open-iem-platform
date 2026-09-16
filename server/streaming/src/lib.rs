@@ -26,7 +26,7 @@ pub use opus_receiver::{
 pub use pairing::{DeviceIdentity, PairingError, PairingRegistry};
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc, time::Instant};
-use str0m::{change::SdpOffer, Candidate, Output, Rtc};
+use str0m::{change::SdpOffer, Candidate, Event, Output, Rtc};
 use thiserror::Error;
 use tokio::sync::Mutex;
 use tracing::debug;
@@ -66,6 +66,7 @@ pub struct DriveReport {
     pub outputs_polled: usize,
     pub transmitted_bytes: usize,
     pub budget_exhausted: bool,
+    pub packets_encoded: usize,
 }
 
 struct PeerSession {
@@ -76,6 +77,8 @@ struct PeerSession {
     /// SIMULATED on VPS: no real network I/O occurs; candidates are stored for
     /// future Raspberry Pi use but no `poll_output` loop runs in this phase.
     rtc: Rtc,
+    media_mid: Option<str0m::media::Mid>,
+    writer: MediaWriter,
 }
 
 #[derive(Clone, Default)]
@@ -114,6 +117,10 @@ impl SessionRegistry {
             user_id: user_id.to_owned(),
             mix_id,
             rtc: Rtc::new(Instant::now()),
+            media_mid: None,
+            writer: MediaWriter::new().map_err(|_| {
+                StreamingError::InvalidOffer("media writer initialization failed".into())
+            })?,
         };
         let answer = peer
             .rtc
@@ -172,6 +179,7 @@ impl SessionRegistry {
     ///
     /// `Transmit` output is counted and discarded deliberately. A future UDP
     /// adapter owns that output; this method does not claim media runtime support.
+    #[allow(clippy::too_many_lines)]
     pub async fn drive_once(
         &self,
         bridge: &crate::media_bridge::MediaBridge,
@@ -179,10 +187,31 @@ impl SessionRegistry {
         frame_budget: usize,
         output_budget: usize,
     ) -> DriveReport {
+        if output_budget == 0 {
+            return DriveReport::default();
+        }
         let frames_drained = bridge.drain_to_with_budget(media_plane, frame_budget).await;
+        let session_ids = self
+            .sessions
+            .lock()
+            .await
+            .values()
+            .map(|peer| peer.user_id.clone())
+            .collect::<Vec<_>>();
+        let mut drained = HashMap::new();
+        for user_id in session_ids {
+            if let Ok(frames) = media_plane
+                .drain_session_frames_with_budget(&user_id, frame_budget)
+                .await
+            {
+                drained.insert(user_id, frames);
+            }
+        }
+
         let mut sessions = self.sessions.lock().await;
         let mut outputs_polled = 0;
         let mut transmitted_bytes = 0;
+        let mut packets_encoded = 0;
         let mut budget_exhausted = false;
 
         for peer in sessions.values_mut() {
@@ -193,7 +222,68 @@ impl SessionRegistry {
                         transmitted_bytes += transmit.contents.len();
                         outputs_polled += 1;
                     }
-                    Ok(Output::Event(_)) => outputs_polled += 1,
+                    Ok(Output::Event(event)) => {
+                        if let Event::MediaAdded(media) = event {
+                            if media.kind.is_audio() {
+                                peer.media_mid = Some(media.mid);
+                            }
+                        }
+                        outputs_polled += 1;
+                    }
+                }
+            }
+            if let Some(mid) = peer.media_mid {
+                if let Some(frames) = drained.remove(&peer.user_id) {
+                    for frame in frames {
+                        if packets_encoded >= output_budget {
+                            budget_exhausted = true;
+                            break;
+                        }
+                        let Ok(packet) = peer.writer.encode(&frame) else {
+                            continue;
+                        };
+                        let Some(media_writer) = peer.rtc.writer(mid) else {
+                            continue;
+                        };
+                        let Some(pt) = media_writer
+                            .payload_params()
+                            .find(|params| params.spec().codec == str0m::format::Codec::Opus)
+                            .map(str0m::format::PayloadParams::pt)
+                        else {
+                            continue;
+                        };
+                        if media_writer
+                            .write(
+                                pt,
+                                Instant::now(),
+                                str0m::media::MediaTime::new(
+                                    u64::from(packet.rtp_timestamp),
+                                    str0m::media::Frequency::FORTY_EIGHT_KHZ,
+                                ),
+                                packet.payload,
+                            )
+                            .is_ok()
+                        {
+                            packets_encoded += 1;
+                        }
+                        if outputs_polled < output_budget {
+                            match peer.rtc.poll_output() {
+                                Ok(Output::Transmit(transmit)) => {
+                                    transmitted_bytes += transmit.contents.len();
+                                    outputs_polled += 1;
+                                }
+                                Ok(Output::Event(event)) => {
+                                    if let Event::MediaAdded(media) = event {
+                                        if media.kind.is_audio() {
+                                            peer.media_mid = Some(media.mid);
+                                        }
+                                    }
+                                    outputs_polled += 1;
+                                }
+                                Ok(Output::Timeout(_)) | Err(_) => {}
+                            }
+                        }
+                    }
                 }
             }
             if output_budget > 0 && outputs_polled >= output_budget {
@@ -207,6 +297,7 @@ impl SessionRegistry {
             outputs_polled,
             transmitted_bytes,
             budget_exhausted,
+            packets_encoded,
         }
     }
 
