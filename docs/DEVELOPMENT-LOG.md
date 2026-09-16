@@ -11,6 +11,19 @@
 
 ---
 
+## 2026-09-16 — P0-003 bounded per-session media drain
+
+**Status:** CODE + SIMULATED; Opus encoding, RTP/WebRTC transport, runtime and hardware remain pending.
+
+- Added `MediaSession::drain_frames_with_budget` and `MediaPlane::drain_session_frames_with_budget`.
+- Preserves FIFO order and stream metadata while enforcing a caller-provided frame budget; zero budget does not consume frames.
+- Missing sessions fail with `MediaSessionError::NoSession`; no codec, socket or network I/O was added.
+- Evidence: `cargo test --manifest-path server/Cargo.toml -p streaming` — 43 tests passed; streaming clippy passed.
+
+**Next:** define bounded Opus encoder and RTP/WebRTC writer boundary.
+
+---
+
 ## 2026-09-16 — P0-003 bounded media handoff
 
 **Status:** CODE + SIMULATED; WebRTC network drive and runtime validation remain pending.

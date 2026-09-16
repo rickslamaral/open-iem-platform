@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Bounded per-session media-frame drain API for the future WebRTC writer (CODE/SIMULATED).
+
+### Added
 - P0-003: added bounded simulated WebRTC Sans-IO drive pass; drains MediaBridge with frame/output budgets and reports deferred transmit bytes without network I/O.
 - Added bounded `streaming::MediaBridge` to hand off processed `FrameOutput` values to media sessions without blocking; network/WebRTC drive remains pending.
 - SceneStore API integration test now reopens durable scenes through a fresh `AppState`, covering runtime state construction and active-pointer persistence.

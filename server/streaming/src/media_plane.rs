@@ -151,14 +151,23 @@ impl MediaSession {
         }
     }
 
+    /// Drain at most `budget` frames from the queue without blocking.
+    #[must_use]
+    pub fn drain_frames_with_budget(&self, budget: usize) -> Vec<MediaFrame> {
+        let mut frames = Vec::new();
+        while frames.len() < budget {
+            let Ok(frame) = self.rx.try_recv() else {
+                break;
+            };
+            frames.push(frame);
+        }
+        frames
+    }
+
     /// Drain all available frames from the queue without blocking.
     #[must_use]
     pub fn drain_frames(&self) -> Vec<MediaFrame> {
-        let mut frames = Vec::new();
-        while let Ok(f) = self.rx.try_recv() {
-            frames.push(f);
-        }
-        frames
+        self.drain_frames_with_budget(usize::MAX)
     }
 
     /// Total number of frames dropped on this session due to queue saturation.
@@ -232,6 +241,24 @@ impl MediaPlane {
                 self.dropped_total.fetch_add(1, Ordering::Relaxed);
             }
         }
+    }
+
+    /// Drain at most `budget` frames for one session without waiting.
+    ///
+    /// This is the bounded handoff boundary for a future WebRTC media writer;
+    /// it does not encode, transmit, or perform network I/O.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`MediaSessionError::NoSession`] when `user_id` is not registered.
+    pub async fn drain_session_frames_with_budget(
+        &self,
+        user_id: &str,
+        budget: usize,
+    ) -> Result<Vec<MediaFrame>, MediaSessionError> {
+        let sessions = self.sessions.lock().await;
+        let session = sessions.get(user_id).ok_or(MediaSessionError::NoSession)?;
+        Ok(session.drain_frames_with_budget(budget))
     }
 
     /// Total frames dropped across all sessions (wait-free read).
@@ -334,6 +361,56 @@ mod tests {
         mp.register_session("alice", 0).await.unwrap();
         mp.remove_session("alice").await;
         assert!(mp.sessions().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn drain_session_frames_respects_budget_and_preserves_order() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        let fo = make_frame(0.1, 0.2, 0.3, 0.4);
+        mp.push_frame_output(&fo, 7).await;
+        mp.push_frame_output(&fo, 8).await;
+
+        let first = mp
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap();
+        assert_eq!(first.len(), 1);
+        assert_eq!(first[0].metadata.sequence, 0);
+        assert_eq!(first[0].metadata.revision, 7);
+
+        let second = mp
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap();
+        assert_eq!(second.len(), 1);
+        assert_eq!(second[0].metadata.sequence, 1);
+        assert_eq!(second[0].metadata.revision, 8);
+    }
+
+    #[tokio::test]
+    async fn drain_session_frames_zero_budget_and_missing_session() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        let fo = make_frame(0.1, 0.2, 0.3, 0.4);
+        mp.push_frame_output(&fo, 1).await;
+
+        assert!(mp
+            .drain_session_frames_with_budget("alice", 0)
+            .await
+            .unwrap()
+            .is_empty());
+        assert_eq!(
+            mp.drain_session_frames_with_budget("missing", 1).await,
+            Err(MediaSessionError::NoSession)
+        );
+        assert_eq!(
+            mp.drain_session_frames_with_budget("alice", 1)
+                .await
+                .unwrap()
+                .len(),
+            1
+        );
     }
 
     #[tokio::test]
