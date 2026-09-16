@@ -1,6 +1,6 @@
 # TODO
 
-## Estado atual — 2026-09-16 (P2 Scenes REST API, PR #87 mergeado)
+## Estado atual — 2026-09-16 (P2 Scenes backup/restore API, PR #97 mergeado)
 
 - **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
 - **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; músicos/presets permanecem P2; cenas: GET/POST/PUT/DELETE/recall implementados em PR #87.
@@ -12,6 +12,7 @@
 - **Release `v0.3.1`:** tag existe e CI remoto do HEAD passou 13/13; GitHub Release ainda não publicada por exigir confirmação explícita.
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
 - **Guias:** espelhos PT/EN/ES existentes; revisar e sincronizar após validação física.
+- **P2 Scenes backup/restore:** PRs #94–#97 mergeadas; exportação durável, restore atômico, rollback de ponteiro ativo e cobertura RBAC concluídos em CODE+CI (run `35126301166`, 13/13). Restauração em ambiente limpo e persistência em runtime permanecem pendentes.
 
 ## Phase 92 — Controle de EQ por WebSocket
 

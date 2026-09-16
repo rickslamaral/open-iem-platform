@@ -1,3 +1,15 @@
+## 2026-09-16 — P2 Scenes backup/restore status sync
+
+**Status:** DOCUMENTATION — PR #97 merged; runtime validation remains pending.
+
+- Reconciled handoff and TODO with merged scene export/restore work from PRs #94–#97.
+- Recorded CI run `35126301166` as 13/13 on the latest scene restore test commit.
+- Preserved evidence boundary: clean-environment restore, deployed persistence, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 remain unvalidated.
+
+**Next:** validate SceneStore restore in clean environment and deployed runtime.
+
+---
+
 ## 2026-09-16 — P2 Scenes REST backup/restore integration coverage
 
 **Status:** CODE — API integration tests cover RBAC and atomic replacement; runtime validation remains pending.
