@@ -13,7 +13,7 @@
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
 - **Guias:** espelhos PT/EN/ES existentes; revisar e sincronizar após validação física.
 - **P1-015 — Versioned SQLite migrations:** concluído em CODE; `M001` registrado em `migrations`, reaplicação evitada no reopen e schema legado compatível quando `must_change_password` já existe.
-- **P0-003 media handoff:** PRs #119 and #125 merged. `MediaBridge`, bounded `SessionRegistry::drive_once`, `MediaWriter` Opus encoding, negotiated `str0m::media::Writer` boundary and bounded `TransportAdapter` socket owner exist at CODE/SIMULATED; failed sends requeue within bounded capacity. Runtime and hardware remain pending.
+- **P0-003 media handoff:** PRs #119 and #125 merged. In-memory `TransportAdapter::send_from_registry` UDP delivery coverage now passes in CODE. `MediaBridge`, bounded `SessionRegistry::drive_once`, `MediaWriter` Opus encoding, negotiated `str0m::media::Writer` boundary and bounded `TransportAdapter` socket owner exist at CODE/SIMULATED; failed sends requeue within bounded capacity. Runtime and hardware remain pending.
 - **P2 SceneStore revision invariant:** cenas restauradas agora exigem `revision >= 1`; cobertura unitária rejeita revisão zero antes de persistência. Evidência CODE; runtime/hardware permanecem pendentes.
 - **P2 Scenes backup/restore:** PRs #94–#97 mergeadas; exportação durável, restore atômico, rollback de ponteiro ativo e cobertura RBAC concluídos em CODE+CI (run `35126301166`, 13/13). Restauração em ambiente limpo coberta por teste de reabertura file-backed; validação operacional implantada permanece pendente; seleção do caminho persistente agora é testável sem mutação global de ambiente.
 
