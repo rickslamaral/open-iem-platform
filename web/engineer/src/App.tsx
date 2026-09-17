@@ -286,6 +286,36 @@ function EqBandControl({ mixIndex, bandIndex, frequencyHz, gainDb, q, enabled, o
 
 type SceneSummary = { id: string; name: string; active_revision: number; created_at: number; updated_at: number };
 type Scene = { id: string; name: string; revision: number; config?: unknown };
+type PresetSummary = { id: string; name: string; kind: string; description: string };
+
+function PresetPanel({ token }: { token: string }) {
+  const [presets, setPresets] = useState<PresetSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError(null);
+    setPresets([]);
+    void request<{ presets: PresetSummary[] }>('/api/v1/presets', token)
+      .then((result) => { if (active) setPresets(Array.isArray(result?.presets) ? result.presets : []); })
+      .catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : 'Falha ao carregar presets'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [token]);
+
+  return <>
+    <p className="muted">Catálogo somente leitura. Aplicação e edição de presets ainda não estão disponíveis.</p>
+    {loading && <p className="muted">Carregando presets…</p>}
+    {error && <p className="error" role="alert">{error}</p>}
+    {!loading && !error && presets.length === 0 && <p className="muted">Nenhum preset disponível.</p>}
+    {presets.map((preset) => <div className="row" key={preset.id}>
+      <div><strong>{preset.name}</strong><br /><span className="muted">{preset.kind} · {preset.description}</span></div>
+      <span className="pill">somente leitura</span>
+    </div>)}
+  </>;
+}
 
 function ScenePanel({ token }: { token: string }) {
   const [scenes, setScenes] = useState<SceneSummary[]>([]);
@@ -417,8 +447,8 @@ export default function App() {
       ]);
       if (generation !== loadGeneration.current) return;
       setData({
-        sessions: sessions.sessions,
-        assignments,
+        sessions: Array.isArray(sessions?.sessions) ? sessions.sessions : [],
+        assignments: Array.isArray(assignments) ? assignments : [],
         revision: state.revision,
         telemetry,
         channels: state.channels ?? [],
@@ -614,6 +644,7 @@ export default function App() {
         ))}
       </div>
       <div className="card"><h2>Cenas</h2>{data && <ScenePanel token={token} />}</div>
+      <div className="card"><h2>Presets</h2>{data && <PresetPanel token={token} />}</div>
       <div className="card"><h2>Mix assignments</h2><p className="muted">Atribuição exige ID do usuário. Catálogo de usuários fica restrito a Admin.</p>
         {[0, 1].map((mix) => { const assignment = data?.assignments.find((item) => item.mix_index === mix); return <div className="row" key={mix}><div><strong>Mix {mix + 1}</strong><br /><span className="muted">{assignment ? `${assignment.username} (ID ${assignment.user_id})` : 'Livre'}</span></div>{assignment ? <button className="danger" onClick={() => void unassign(mix)}>Remover</button> : <div className="assign"><input aria-label={`ID usuário mix ${mix + 1}`} inputMode="numeric" placeholder="ID usuário" value={userId} onChange={(e) => setUserId(e.target.value)} /><button onClick={() => void assign(mix)}>Atribuir</button></div>}</div>; })}
       </div>

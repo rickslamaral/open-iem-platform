@@ -437,6 +437,26 @@ describe('Engineer Console', () => {
     await waitFor(() => expect(fetchMock.mock.calls.some(([path, init]) => path === '/api/v1/scenes' && init?.method === 'POST' && JSON.parse(String(init.body)).config.channels.length === 0)).toBe(true));
   });
   it('mostra nenhuma cena ativa quando não há ativa', async () => { await loginScenes(null); expect(screen.getByText('Nenhuma cena ativa')).toBeTruthy(); });
+  it('carrega catálogo de presets somente leitura', async () => {
+    const fetchMock = sceneDashboardFetch();
+    fetchMock.mockImplementation((path: string, init?: RequestInit) => {
+      if (path === '/api/v1/presets') return json({ presets: [{ id: 'vocal', name: 'Vocal', kind: 'channel', description: 'Neutro' }] });
+      return sceneDashboardFetch()(path, init);
+    });
+    await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
+    expect(await screen.findByText('Vocal')).toBeTruthy();
+    expect(screen.getByText(/Catálogo somente leitura/)).toBeTruthy();
+  });
+
+  it('exibe erro ao carregar catálogo de presets', async () => {
+    const fetchMock = sceneDashboardFetch();
+    fetchMock.mockImplementation((path: string, init?: RequestInit) => {
+      if (path === '/api/v1/presets') return json({ error: 'falhou' }, 503);
+      return sceneDashboardFetch()(path, init);
+    });
+    await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
+    expect(await screen.findByRole('alert')).toHaveTextContent('503');
+  });
   it('mostra erro quando recall falha', async () => {
     const fetchMock = sceneDashboardFetch(); fetchMock.mockImplementation((path: string, init?: RequestInit) => path.endsWith('/recall') ? json({ error: 'falhou' }, 500) : sceneDashboardFetch() (path, init));
     vi.stubGlobal('fetch', fetchMock); await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock); fireEvent.click(screen.getByRole('button', { name: 'Recuperar cena Ensaio' })); await screen.findByRole('alert'); expect(screen.getByRole('alert')).toHaveTextContent('500');

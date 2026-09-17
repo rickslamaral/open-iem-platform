@@ -61,6 +61,7 @@
 - [x] P2 — SceneStore export/restore: `GET /api/v1/scenes/backup` exporta e `PUT` restaura cenas duráveis e ponteiro ativo em JSON versionado; validação estrita e substituição atômica; estado transitório excluído; CODE+CI/SIMULATED.
 - [x] P2 — Scenes REST backup/restore API integration coverage: Engineer-only atomic replacement, active-pointer restore and Musician denial tests.
 - [x] P2 — AppState SceneStore restart coverage: fresh `AppState` reopens same file-backed path and preserves scenes, revision, payload and active pointer; deployed runtime validation remains pending.
+- [x] P2 — Preset catalog read-only: `GET /api/v1/presets` Engineer/Admin e catálogo no Engineer Console; aplicação/mutação permanece fora do escopo. CODE+CI; runtime/hardware pendentes.
 - [x] P1-009 / Phase 94 — concluído; validação contra servidor/runtime/hardware permanece pendente.
 
 ## Phase 95 — Observability Metrics REST endpoint
