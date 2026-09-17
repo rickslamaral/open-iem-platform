@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Reconciled GAP-001, GAP-003 and GAP-004 with implemented media, receiver and clock code; runtime and hardware validation remain pending.
 
 ### Added
+- Engineer Console agora aplica presets built-in em canal selecionado e recarrega estado após sucesso.
 - Engineer Console preset catalog now supports authenticated manual refresh with stale-response protection.
 - Musician UI now shows authenticated read-only preset catalog.
 

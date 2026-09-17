@@ -305,11 +305,19 @@ function parsePresets(value: unknown): PresetSummary[] {
   });
 }
 
-function PresetPanel({ token }: { token: string }) {
+function PresetPanel({ token, channels, onApplied }: { token: string; channels: ChannelState[]; onApplied: () => Promise<void> }) {
   const [presets, setPresets] = useState<PresetSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedChannel, setSelectedChannel] = useState<number>(channels[0]?.index ?? 0);
+  const [applying, setApplying] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const requestGeneration = useRef(0);
+
+  useEffect(() => {
+    if (channels.length > 0 && !channels.some((channel) => channel.index === selectedChannel)) {
+      setSelectedChannel(channels[0].index);
+    }
+  }, [channels, selectedChannel]);
 
   const refresh = useCallback(() => {
     const generation = ++requestGeneration.current;
@@ -327,15 +335,37 @@ function PresetPanel({ token }: { token: string }) {
     return () => { requestGeneration.current += 1; };
   }, [refresh]);
 
+  async function applyPreset(presetId: string) {
+    if (applying || channels.length === 0) return;
+    setApplying(presetId); setError(null);
+    try {
+      await request(`/api/v1/presets/${encodeURIComponent(presetId)}/apply`, token, {
+        method: 'POST',
+        body: JSON.stringify({ channel_index: selectedChannel }),
+      });
+      await onApplied();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Falha ao aplicar preset');
+    } finally { setApplying(null); }
+  }
+
   return <>
-    <p className="muted">Catálogo somente leitura. Aplicação e edição de presets ainda não estão disponíveis.</p>
-    <button type="button" onClick={() => void refresh()} disabled={loading}>{loading ? 'Atualizando…' : 'Atualizar presets'}</button>
+    <p className="muted">Presets built-in aplicam defaults seguros em canal selecionado.</p>
+    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+      <span>Canal</span>
+      <select aria-label="Canal do preset" value={selectedChannel} onChange={(event) => setSelectedChannel(Number(event.target.value))} disabled={loading || applying !== null || channels.length === 0}>
+        {channels.map((channel) => <option key={channel.index} value={channel.index}>{channel.index + 1} — {channel.name}</option>)}
+      </select>
+    </label>
+    <button type="button" onClick={() => void refresh()} disabled={loading || applying !== null}>{loading ? 'Atualizando…' : 'Atualizar presets'}</button>
     {loading && <p className="muted">Carregando presets…</p>}
     {error && <p className="error" role="alert">{error}</p>}
     {!loading && !error && presets.length === 0 && <p className="muted">Nenhum preset disponível.</p>}
     {presets.map((preset) => <div className="row" key={preset.id}>
       <div><strong>{preset.name}</strong><br /><span className="muted">{preset.kind} · {preset.description}</span></div>
-      <span className="pill">somente leitura</span>
+      <button type="button" onClick={() => void applyPreset(preset.id)} disabled={loading || applying !== null || channels.length === 0}>
+        {applying === preset.id ? 'Aplicando…' : 'Aplicar'}
+      </button>
     </div>)}
   </>;
 }
@@ -489,7 +519,9 @@ export default function App() {
       } else if (message.startsWith('403:')) {
         setToken(null); setData(null); setError('Conta sem permissão de Engineer/Admin.');
       } else setError(message);
-    } finally { setLoading(false); }
+    } finally {
+      if (generation === loadGeneration.current) setLoading(false);
+    }
   }, [token]);
 
   useEffect(() => { void load(); }, [load]);
@@ -667,7 +699,7 @@ export default function App() {
         ))}
       </div>
       <div className="card"><h2>Cenas</h2>{data && <ScenePanel token={token} />}</div>
-      <div className="card"><h2>Presets</h2>{data && <PresetPanel token={token} />}</div>
+      <div className="card"><h2>Presets</h2>{data && <PresetPanel token={token} channels={data.channels} onApplied={load} />}</div>
       <div className="card"><h2>Mix assignments</h2><p className="muted">Atribuição exige ID do usuário. Catálogo de usuários fica restrito a Admin.</p>
         {[0, 1].map((mix) => { const assignment = data?.assignments.find((item) => item.mix_index === mix); return <div className="row" key={mix}><div><strong>Mix {mix + 1}</strong><br /><span className="muted">{assignment ? `${assignment.username} (ID ${assignment.user_id})` : 'Livre'}</span></div>{assignment ? <button className="danger" onClick={() => void unassign(mix)}>Remover</button> : <div className="assign"><input aria-label={`ID usuário mix ${mix + 1}`} inputMode="numeric" placeholder="ID usuário" value={userId} onChange={(e) => setUserId(e.target.value)} /><button onClick={() => void assign(mix)}>Atribuir</button></div>}</div>; })}
       </div>

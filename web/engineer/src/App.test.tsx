@@ -377,7 +377,7 @@ describe('Engineer Console', () => {
       if (path === '/api/v1/auth/login') return json({ access_token: 'test-token' });
       if (path === '/api/v1/audio/sessions') return json({ sessions: [] });
       if (path === '/api/v1/mixes') return json([]);
-      if (path === '/api/v1/state') return json({ revision: 1, channels: [] });
+      if (path === '/api/v1/state') return json({ revision: 1, channels: [makeChannel(0)] });
       if (path === '/api/v1/telemetry') return json({ availability: 'simulated', backend: 'simulated', sample_rate_hz: null, frames_processed: null, xrun_count: null });
       if (path === '/api/v1/scenes' && init?.method === 'POST') return json({ id: 'new', name: 'Nova', revision: 1 });
       if (path === '/api/v1/scenes') return json({ scenes: [{ id: 'scene-1', name: 'Show', active_revision: 3, created_at: 1700000000, updated_at: 1700000000 }, { id: 'scene-2', name: 'Ensaio', active_revision: 2, created_at: 1700000000, updated_at: 1700000000 }] });
@@ -445,7 +445,21 @@ describe('Engineer Console', () => {
     });
     await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
     expect(await screen.findByText('Vocal')).toBeTruthy();
-    expect(screen.getByText(/Catálogo somente leitura/)).toBeTruthy();
+    expect(screen.getByText(/Presets built-in aplicam defaults/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Aplicar' })).toBeTruthy();
+  });
+
+  it('aplica preset ao canal selecionado e recarrega estado', async () => {
+    const fetchMock = sceneDashboardFetch();
+    fetchMock.mockImplementation((path: string, init?: RequestInit) => {
+      if (path === '/api/v1/presets') return json({ presets: [{ id: 'default-vocal', name: 'Vocal', kind: 'channel', description: 'Neutro' }] });
+      if (path === '/api/v1/presets/default-vocal/apply') return json({ applied: true, revision: 3 });
+      return sceneDashboardFetch()(path, init);
+    });
+    await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
+    fireEvent.click(await screen.findByRole('button', { name: 'Aplicar' }));
+    await waitFor(() => expect(fetchMock.mock.calls.some(([path, init]) => path === '/api/v1/presets/default-vocal/apply' && init?.method === 'POST' && JSON.parse(String(init.body)).channel_index === 0)).toBe(true));
+    expect(fetchMock.mock.calls.filter(([path]) => path === '/api/v1/state').length).toBeGreaterThan(1);
   });
 
   it('ignora entradas de preset inválidas sem quebrar catálogo', async () => {
