@@ -127,7 +127,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 - Scenes/state-store durable path exists via `SCENE_STORE_PATH`; `GET/PUT /api/v1/scenes/backup` provides validated atomic export/restore; Engineer Console supports list/create/recall/edit-revision/delete; runtime validation remains pending.
 - Playback/AUX/Hybrid topology after Channel Mode evidence.
 - Windows WASAPI/ASIO runtime validation.
-- Full Engineer matrix, meters, locks and device UI.
+- Full Engineer matrix, meters, locks and device UI. Built-in channel preset catalog/application is implemented in code/CI; runtime/hardware execution and validation remain pending. Preset authoring, persistence and mix presets remain deferred.
 - Multi-receiver synchronization, only if product requirement changes.
 - Telemetry/privacy policy before any remote telemetry.
 - Scalability beyond 8 channels/2 mixes/2 receivers.

@@ -3,7 +3,7 @@
 ## Estado atual — 2026-09-17 (P2 Engineer preset application UI)
 
 - **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
-- **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; músicos/presets permanecem P2; cenas: GET/POST/PUT/DELETE/recall implementados em PR #87.
+- **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; catálogo de presets e aplicação de presets built-in no Engineer Console concluídos em código/CI nas PRs #144–#148; cenas: GET/POST/PUT/DELETE/recall implementados em PR #87.
 - **P1-002:** GET /api/v1/devices com RBAC, DeviceManager no AppState; mergeado em main (PR #80; CI 13/13).
 - **P1-003:** Observability concluído (PR #68; CODE+CI/SIMULATED; runtime permanece pendente).
 - **P1-004:** RecoveryRegistry integrado ao ciclo WebSocket de Musician; concluído em main via PR #81, CI run `35055191463` (13/13). CODE+CI; runtime/hardware permanecem pendentes.
@@ -19,7 +19,7 @@
 - **P2 Engineer Console scene revisions:** edição JSON e criação de nova revisão via PUT integradas; cobertura CODE+CI (PR #136, run `35189802675`).
 - **P2 Musician scenes read-only:** catálogo autenticado de cenas e cena ativa integrado à Musician UI; músico não recebe permissão de recall/criação. Evidência CODE local; runtime permanece pendente.
 - **P2 Musician scene catalog tests:** cobertura de renderização, estados loading/error/vazio e refresh adicionada; PR #140 mergeada com CI 13/13 (run `35194150143`). Evidência CODE+CI; runtime permanece pendente.
-- **P2 Preset catalog/application:** `GET /api/v1/presets` permanece catálogo read-only para Musician/Engineer/Admin; `POST /api/v1/presets/{id}/apply` agora aplica presets built-in somente para Engineer/Admin em canal validado; Engineer Console oferece seleção de canal e aplicação autenticada. Criação, edição, persistência e aplicação de presets de mix permanecem fora do escopo. Evidência CODE local; runtime permanece pendente.
+- **P2 Preset catalog/application:** `GET /api/v1/presets` fornece catálogo read-only para Musician/Engineer/Admin; `POST /api/v1/presets/{id}/apply` aplica presets built-in somente para Engineer/Admin em canal validado; Engineer Console oferece seleção de canal e aplicação autenticada em código/CI. Criação, edição, persistência e aplicação de presets de mix permanecem fora do escopo. Evidência CODE + CI (PRs #144–#148); execução e integração em runtime/hardware permanecem pendentes.
 - **P2 Engineer preset validation:** entradas inválidas são descartadas no cliente; payload não-array cai em estado vazio sem quebrar renderização. Evidência CODE local; runtime permanece pendente.
 - **P2 Musician scene catalog refresh:** botão autenticado de atualização manual adicionado; respostas concorrentes e respostas após logout são descartadas. Cobertura CODE via typecheck/test/build; runtime permanece pendente.
 - **P2 SceneStore revision invariant:** cenas restauradas agora exigem `revision >= 1`; cobertura unitária rejeita revisão zero antes de persistência. Evidência CODE; runtime/hardware permanecem pendentes.
