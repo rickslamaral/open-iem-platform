@@ -1,3 +1,17 @@
+## 2026-09-16 — P0-003 bounded UDP transport ownership
+
+**Status:** CODE + CI/SIMULATED; runtime and hardware remain pending.
+
+- Merged PR #125 with `TransportAdapter`, the explicit owner of one bounded UDP socket and at most `TRANSPORT_SEND_BUDGET` datagrams per send pass.
+- Added `send_from_registry` to drain registry output, send only the bounded prefix, and requeue failed or unsent datagrams without crossing the queue capacity.
+- Kept `SessionRegistry` Sans-IO: it retains bounded `str0m::Transmit` output and performs no socket I/O.
+- Evidence: remote CI run `35173853572`, 13/13 checks passed; targeted streaming suite: 52 tests passed.
+- No runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim.
+
+**Next:** add in-memory `send_from_registry` integration coverage, then execute L1 Audio Lab validation.
+
+---
+
 ## 2026-09-16 — P0-003 streaming review hardening
 
 **Status:** CODE — local server gates pass; runtime and hardware remain pending.
