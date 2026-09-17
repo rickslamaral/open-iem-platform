@@ -9,6 +9,7 @@ pub mod devices;
 pub mod health;
 pub mod metrics;
 pub mod mixes;
+pub mod presets;
 pub mod scenes;
 pub mod system;
 pub mod telemetry;

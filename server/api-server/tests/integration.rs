@@ -25,6 +25,7 @@ use api_server::{
             assign_mix, get_send_state, list_mixes, set_send_gain, set_send_muted, set_send_pan,
             unassign_mix,
         },
+        presets::list_presets,
         system::get_system_info,
         telemetry::get_telemetry,
     },
@@ -112,6 +113,7 @@ fn build_test_app() -> (TestServer, AppState) {
         .route("/api/v1/channels", get(list_channels))
         .route("/api/v1/telemetry", get(get_telemetry))
         .route("/api/v1/metrics", get(get_metrics))
+        .route("/api/v1/presets", get(list_presets))
         .route("/api/v1/audio/offer", post(offer))
         .route("/api/v1/audio/ice-candidate", post(ice_candidate))
         .route("/api/v1/audio/sessions", get(sessions))
@@ -2067,6 +2069,59 @@ async fn channels_list_requires_auth() {
         .add_header("Origin", "http://localhost")
         .await
         .assert_status(axum::http::StatusCode::UNAUTHORIZED);
+}
+
+// ── /api/v1/presets ───────────────────────────────────────────────────────
+
+#[tokio::test]
+async fn presets_requires_engineer_role() {
+    let (server, state) = build_test_app();
+    let musician_token = seed_user_and_login(&state, "mus_presets_role", "pw", Role::Musician);
+    server
+        .get("/api/v1/presets")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician_token)
+        .await
+        .assert_status(axum::http::StatusCode::FORBIDDEN);
+}
+
+#[tokio::test]
+async fn engineer_can_list_read_only_presets() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_presets_catalog", "pw", Role::Engineer);
+    let response = server
+        .get("/api/v1/presets")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(engineer_token)
+        .await;
+    response.assert_status_ok();
+    let body: Value = response.json();
+    let presets = body["presets"]
+        .as_array()
+        .expect("presets must be an array");
+    assert_eq!(presets.len(), 2);
+    assert_eq!(
+        presets[0],
+        json!({
+            "id": "default-vocal",
+            "name": "Vocal — Default",
+            "kind": "channel",
+            "description": "Safe neutral starting point for vocal channels."
+        })
+    );
+    assert_eq!(presets[1]["id"], "default-instrument");
+}
+
+#[tokio::test]
+async fn admin_can_list_read_only_presets() {
+    let (server, state) = build_test_app();
+    let admin_token = seed_user_and_login(&state, "admin_presets_catalog", "pw", Role::Admin);
+    server
+        .get("/api/v1/presets")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(admin_token)
+        .await
+        .assert_status_ok();
 }
 
 // ── /api/v1/metrics ───────────────────────────────────────────────────────

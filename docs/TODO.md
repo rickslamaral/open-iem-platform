@@ -1,6 +1,6 @@
 # TODO
 
-## Estado atual — 2026-09-17 (P2 Musician scene catalog refresh)
+## Estado atual — 2026-09-17 (P2 Preset catalog read-only)
 
 - **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
 - **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; músicos/presets permanecem P2; cenas: GET/POST/PUT/DELETE/recall implementados em PR #87.
@@ -17,7 +17,8 @@
 - **P2 Engineer Console scenes UI:** listar, criar, recuperar, editar revisões e deletar cenas integrado às rotas REST em `web/engineer`; cobertura CODE permanece nos testes do console.
 - **P2 Engineer Console scene revisions:** edição JSON e criação de nova revisão via PUT integradas; cobertura CODE+CI (PR #136, run `35189802675`).
 - **P2 Musician scenes read-only:** catálogo autenticado de cenas e cena ativa integrado à Musician UI; músico não recebe permissão de recall/criação. Evidência CODE local; runtime permanece pendente.
-- **P2 Musician scene catalog tests:** cobertura de renderização, estados loading/error/vazio e refresh adicionada; CODE local.
+- **P2 Musician scene catalog tests:** cobertura de renderização, estados loading/error/vazio e refresh adicionada; PR #140 mergeada com CI 13/13 (run `35194150143`). Evidência CODE+CI; runtime permanece pendente.
+- **P2 Preset catalog read-only:** `GET /api/v1/presets` Engineer/Admin e catálogo no Engineer Console; aplicação/mutação permanece fora do escopo. Evidência CODE local; runtime permanece pendente.
 - **P2 Musician scene catalog refresh:** botão autenticado de atualização manual adicionado; respostas concorrentes e respostas após logout são descartadas. Cobertura CODE via typecheck/test/build; runtime permanece pendente.
 - **P2 SceneStore revision invariant:** cenas restauradas agora exigem `revision >= 1`; cobertura unitária rejeita revisão zero antes de persistência. Evidência CODE; runtime/hardware permanecem pendentes.
 - **P2 Scenes backup/restore:** PRs #94–#97 mergeadas; exportação durável, restore atômico, rollback de ponteiro ativo e cobertura RBAC concluídos em CODE+CI (run `35126301166`, 13/13). Restauração em ambiente limpo coberta por teste de reabertura file-backed; validação operacional implantada permanece pendente; seleção do caminho persistente agora é testável sem mutação global de ambiente.
@@ -61,6 +62,7 @@
 - [x] P2 — SceneStore export/restore: `GET /api/v1/scenes/backup` exporta e `PUT` restaura cenas duráveis e ponteiro ativo em JSON versionado; validação estrita e substituição atômica; estado transitório excluído; CODE+CI/SIMULATED.
 - [x] P2 — Scenes REST backup/restore API integration coverage: Engineer-only atomic replacement, active-pointer restore and Musician denial tests.
 - [x] P2 — AppState SceneStore restart coverage: fresh `AppState` reopens same file-backed path and preserves scenes, revision, payload and active pointer; deployed runtime validation remains pending.
+- [x] P2 — Preset catalog read-only: `GET /api/v1/presets` Engineer/Admin e catálogo no Engineer Console; aplicação/mutação permanece fora do escopo. CODE+CI; runtime/hardware pendentes.
 - [x] P1-009 / Phase 94 — concluído; validação contra servidor/runtime/hardware permanece pendente.
 
 ## Phase 95 — Observability Metrics REST endpoint
