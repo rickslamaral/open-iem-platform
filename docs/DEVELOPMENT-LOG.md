@@ -4127,3 +4127,9 @@ Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore 
 ## 2026-09-17 — P2 Musician scenes read-only
 
 Added authenticated Musician UI scene catalog using existing read-only REST routes. Active scene is displayed without recall or mutation controls; RBAC remains unchanged. Frontend validation: typecheck, 53 tests and production build passed. Runtime and hardware validation remain pending.
+
+
+## 2026-09-17 — P2 Scenes PUT API coverage
+
+- Adicionados testes de integração para `PUT /api/v1/scenes/{id}`: Engineer cria revisão imutável seguinte e Musician recebe `403 Forbidden`.
+- Evidência: CODE local; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.

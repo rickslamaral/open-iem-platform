@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Tests
+- API de cenas agora cobre atualização de revisão e bloqueio de mutação por Musician.
+
 ### Added
 - Musician UI now lists authenticated scenes and marks active scene read-only.
 
