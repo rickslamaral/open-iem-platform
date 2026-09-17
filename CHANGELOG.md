@@ -8,8 +8,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Catálogo somente leitura de presets no Engineer Console via `GET /api/v1/presets`, restrito a Engineer/Admin.
-
-### Added
 - Engineer Console agora edita configuração de cenas e cria revisões via `PUT /api/v1/scenes/{id}`.
 
 ### Tests
