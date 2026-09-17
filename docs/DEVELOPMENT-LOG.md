@@ -1,3 +1,15 @@
+## 2026-09-17 — P0-003 failed-send requeue coverage
+
+**Status:** CODE + CI/SIMULATED; runtime and hardware remain pending.
+
+- Added streaming integration coverage proving `TransportAdapter::send_from_registry` returns failed UDP datagrams to the bounded registry queue.
+- Preserved bounded ownership and fail-closed error behavior; no runtime or hardware claim.
+- Evidence: full server workspace fmt, clippy and tests pass; streaming suite now has 54 tests.
+
+**Next:** continue P0-003 media integration coverage, then validate L1/L2 evidence against exact CI HEAD.
+
+---
+
 ## 2026-09-17 — L1/L2 Audio Lab status synchronization
 
 **Status:** CODE + CI/SIMULATED; runtime and hardware remain pending.
