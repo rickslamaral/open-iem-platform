@@ -1,3 +1,15 @@
+## 2026-09-16 — P0-003 streaming review hardening
+
+**Status:** CODE — local server gates pass; runtime and hardware remain pending.
+
+- Bounded negotiated `mix_id` and ICE `user_id` inputs before allocation/storage or error construction.
+- `DriveReport.transmitted_bytes` now counts only datagrams retained for transport; poll failures are surfaced through `poll_errors` instead of being silently treated as timeout.
+- Independent review findings fixed; no PipeWire, WebRTC runtime, Opus hardware or Raspberry Pi 5 claim.
+
+**Evidence:** `cargo fmt --manifest-path server/Cargo.toml --all`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml` pass.
+
+---
+
 ## 2026-09-16 — P0-003 negotiated Opus/WebRTC writer boundary
 
 **Status:** CODE + SIMULATED; socket transport, runtime and hardware remain pending.
