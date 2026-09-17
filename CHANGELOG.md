@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- P0-003 media session drive coverage merged in PR #119; transport output remains CODE/SIMULATED and deferred to bounded transport ownership.
+
 ### Tests
 - Cobertura do limite por estágio no drive de mídia WebRTC Sans-IO.
 
