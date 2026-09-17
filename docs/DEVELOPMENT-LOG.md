@@ -4256,3 +4256,10 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Engineer Console agora valida cada entrada do catálogo antes de renderizar; entradas incompletas são descartadas e payload não-array produz estado vazio seguro.
 - Adicionados testes para entrada inválida e payload estruturalmente incorreto.
 - Evidência planejada: typecheck, testes e build frontend; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
+
+
+## 2026-09-17 — P2 Engineer preset application feedback
+
+- Engineer Console agora exibe confirmação após `POST /api/v1/presets/{id}/apply`, identifica preset e canal, e limpa feedback ao trocar canal ou atualizar catálogo.
+- Falhas HTTP permanecem em alerta; requisições obsoletas não sobrescrevem estado atual.
+- Gates: typecheck, 44 testes e build frontend Engineer PASS. Evidência CODE; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.

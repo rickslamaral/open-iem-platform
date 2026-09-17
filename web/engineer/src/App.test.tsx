@@ -459,6 +459,7 @@ describe('Engineer Console', () => {
     await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
     fireEvent.click(await screen.findByRole('button', { name: 'Aplicar' }));
     await waitFor(() => expect(fetchMock.mock.calls.some(([path, init]) => path === '/api/v1/presets/default-vocal/apply' && init?.method === 'POST' && JSON.parse(String(init.body)).channel_index === 0)).toBe(true));
+    expect(await screen.findByText('Preset default-vocal aplicado no canal 1.')).toBeTruthy();
     expect(fetchMock.mock.calls.filter(([path]) => path === '/api/v1/state').length).toBeGreaterThan(1);
   });
 

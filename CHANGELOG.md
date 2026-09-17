@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- Engineer Console agora confirma preset aplicado, canal alvo e falhas sem aceitar respostas obsoletas.
+
 ### Fixed
 - Rejeição antecipada de canal inexistente e cobertura de payload desconhecido na aplicação de presets built-in.
 
