@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Engineer Console: gerenciamento de cenas via API REST (listar, criar, recuperar e deletar).
+
+
 ### Changed
 - P0-003 media-plane status records bounded transport delivery and retry-budget coverage as CODE + CI/SIMULATED; runtime and hardware validation remain pending.
 
