@@ -4122,3 +4122,8 @@ Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore 
 - O Engineer Console já expõe gerenciamento de cenas: listagem, criação, recall e exclusão protegida para cena ativa.
 - A UI usa `GET /api/v1/scenes`, `GET /api/v1/scenes/active`, `POST /api/v1/scenes`, `POST /api/v1/scenes/{id}/recall` e `DELETE /api/v1/scenes/{id}`.
 - Cobertura CODE existente valida sucesso, RBAC/error path, cena ativa e mutações REST; runtime e hardware permanecem pendentes.
+
+
+## 2026-09-17 — P2 Musician scenes read-only
+
+Added authenticated Musician UI scene catalog using existing read-only REST routes. Active scene is displayed without recall or mutation controls; RBAC remains unchanged. Frontend validation: typecheck, 53 tests and production build passed. Runtime and hardware validation remain pending.

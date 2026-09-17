@@ -6,6 +6,9 @@ import { useWebSocket } from './hooks/useWebSocket';
 import { login as apiLogin, logout as apiLogout } from './api/auth';
 import styles from './App.module.css';
 import { fetchChannelMetadata } from './api/channels';
+import { fetchActiveSceneId, fetchScenes } from './api/scenes';
+import type { SceneSummary } from './api/scenes';
+import { SceneList } from './components/SceneList';
 
 const CHANNEL_COUNT = 8;
 
@@ -30,6 +33,10 @@ export default function App() {
   // Pan por canal: -1.0 (esquerda) a +1.0 (direita)
   const [panByChannel, setPanByChannel] = useState<number[]>(defaultPan);
   const [channelNames, setChannelNames] = useState<string[]>([]);
+  const [scenes, setScenes] = useState<SceneSummary[]>([]);
+  const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
+  const [scenesLoading, setScenesLoading] = useState(false);
+  const [scenesError, setScenesError] = useState<string | null>(null);
 
   const ws = useWebSocket(token);
 
@@ -78,12 +85,30 @@ export default function App() {
     return () => { active = false; };
   }, [token]);
 
+  useEffect(() => {
+    if (!token) return;
+    let active = true;
+    setScenesLoading(true);
+    setScenesError(null);
+    setScenes([]);
+    setActiveSceneId(null);
+    void Promise.all([fetchScenes(token), fetchActiveSceneId(token)]).then(([items, current]) => {
+      if (!active) return;
+      setScenes(items); setActiveSceneId(current);
+    }).catch((err) => {
+      if (active) setScenesError(err instanceof Error ? err.message : 'Falha ao carregar cenas');
+    }).finally(() => { if (active) setScenesLoading(false); });
+    return () => { active = false; };
+  }, [token]);
+
   const handleLogout = useCallback(async () => {
     ws.disconnect();
     setToken(null);
     setChannels(defaultChannels());
     setPanByChannel(defaultPan());
     setChannelNames([]);
+    setScenes([]);
+    setActiveSceneId(null);
     await apiLogout().catch(() => undefined);
   }, [ws]);
 
@@ -142,6 +167,7 @@ export default function App() {
         onChannelPan={handleChannelPan}
         onLogout={handleLogout}
       />
+      <SceneList scenes={scenes} activeSceneId={activeSceneId} loading={scenesLoading} error={scenesError} />
     </div>
   );
 }

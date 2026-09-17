@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Musician UI now lists authenticated scenes and marks active scene read-only.
+
+### Added
 - Engineer Console: gerenciamento de cenas via API REST (listar, criar, recuperar e deletar).
 
 
