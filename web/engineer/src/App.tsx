@@ -438,6 +438,15 @@ function ScenePanel({ token }: { token: string }) {
     finally { setBusy(null); }
   }
 
+  async function duplicate(id: string, sceneName: string) {
+    setBusy(id); setError(null);
+    try {
+      await request(`/api/v1/scenes/${id}/duplicate`, token, { method: 'POST', body: JSON.stringify({ name: `${sceneName} (cópia)` }) });
+      await loadScenes();
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Falha ao duplicar cena'); }
+    finally { setBusy(null); }
+  }
+
   async function create(event: FormEvent) {
     event.preventDefault(); if (!name.trim()) return;
     setBusy('create'); setError(null);
@@ -460,7 +469,7 @@ function ScenePanel({ token }: { token: string }) {
     {!loading && scenes.length === 0 && <p className="muted">Nenhuma cena cadastrada.</p>}
     {scenes.map((scene) => { const active = activeScene?.id === scene.id; return <div className="row" key={scene.id}>
       <div><strong>{scene.name}</strong><br /><span className="muted">Revisão {scene.active_revision} · {new Date(scene.created_at * 1000).toLocaleDateString('pt-BR')}</span></div>
-      <div className="row" style={{ gap: '0.5rem' }}><button aria-label={`Editar cena ${scene.name}`} disabled={busy !== null} onClick={() => void editScene(scene.id)}>Editar</button><button aria-label={`Recuperar cena ${scene.name}`} disabled={busy !== null} onClick={() => void mutate(scene.id, 'POST', '/recall')}>Recuperar</button><button className="danger" aria-label={`Deletar cena ${scene.name}`} disabled={active || busy !== null} onClick={() => void mutate(scene.id, 'DELETE', '')}>Deletar</button></div>
+      <div className="row" style={{ gap: '0.5rem' }}><button aria-label={`Editar cena ${scene.name}`} disabled={busy !== null} onClick={() => void editScene(scene.id)}>Editar</button><button aria-label={`Recuperar cena ${scene.name}`} disabled={busy !== null} onClick={() => void mutate(scene.id, 'POST', '/recall')}>Recuperar</button><button aria-label={`Duplicar cena ${scene.name}`} disabled={busy !== null} onClick={() => void duplicate(scene.id, scene.name)}>Duplicar</button><button className="danger" aria-label={`Deletar cena ${scene.name}`} disabled={active || busy !== null} onClick={() => void mutate(scene.id, 'DELETE', '')}>Deletar</button></div>
     </div>; })}
   </>;
 }

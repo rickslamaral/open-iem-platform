@@ -1,6 +1,10 @@
 # TODO
 
-## Estado atual — 2026-09-17 (P2 locked-channel preset boundary)
+## Estado atual — 2026-09-17 (P2 scene duplication)
+
+- **P2 Scene duplication:** API `POST /api/v1/scenes/{id}/duplicate` e ação no Engineer Console implementadas; Engineer/Admin only, cópia inicia revisão 1 e não altera cena ativa. Evidência CODE local; runtime permanece pendente.
+
+## Estado anterior — 2026-09-17 (P2 locked-channel preset boundary)
 
 - **P2 Preset locked-channel boundary:** aplicação server-side rejeita canais `locked` antes de qualquer mutação; cobertura de integração valida resposta e preservação de estado. Evidência CODE local; CI/runtime permanecem pendentes.
 
