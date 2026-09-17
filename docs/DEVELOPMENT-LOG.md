@@ -1,3 +1,14 @@
+## 2026-09-17 — P2 Engineer preset application UI
+
+**Status:** CODE; runtime e hardware permanecem pendentes.
+
+- Engineer Console agora seleciona canal e aplica presets built-in via `POST /api/v1/presets/{id}/apply`.
+- Aplicação fica desabilitada sem canais ou durante requisição; sucesso recarrega estado autoritativo e erro mantém alerta visível.
+- Evidência: typecheck, 44 testes e build do frontend Engineer passaram.
+- Sem claim de runtime, PipeWire/ALSA, WebRTC/Opus ou Raspberry Pi 5.
+
+---
+
 ## 2026-09-17 — Architecture gap status reconciliation
 
 **Status:** DOCUMENTATION — implementation evidence synchronized; runtime and hardware validation remain pending.
