@@ -13,7 +13,7 @@ use uuid::Uuid;
 use crate::{auth::JwtClaims, error::ApiError, middleware::require_min_role, state::AppState};
 
 /// Immutable preset catalog entry.
-#[derive(Debug, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct PresetSummary {
     /// Stable preset identifier.
     pub id: &'static str,
@@ -24,6 +24,22 @@ pub struct PresetSummary {
     /// Human-readable description.
     pub description: &'static str,
 }
+
+/// Canonical built-in presets. Catalog and application use same allowlist.
+const BUILTIN_PRESETS: [PresetSummary; 2] = [
+    PresetSummary {
+        id: "default-vocal",
+        name: "Vocal — Default",
+        kind: "channel",
+        description: "Safe neutral starting point for vocal channels.",
+    },
+    PresetSummary {
+        id: "default-instrument",
+        name: "Instrument — Default",
+        kind: "channel",
+        description: "Safe neutral starting point for instrument channels.",
+    },
+];
 
 /// Response containing immutable preset catalog entries.
 #[derive(Debug, Serialize)]
@@ -46,20 +62,7 @@ pub async fn list_presets(
 ) -> Result<Json<PresetsResponse>, ApiError> {
     require_min_role(&claims, Role::Musician)?;
     Ok(Json(PresetsResponse {
-        presets: vec![
-            PresetSummary {
-                id: "default-vocal",
-                name: "Vocal — Default",
-                kind: "channel",
-                description: "Safe neutral starting point for vocal channels.",
-            },
-            PresetSummary {
-                id: "default-instrument",
-                name: "Instrument — Default",
-                kind: "channel",
-                description: "Safe neutral starting point for instrument channels.",
-            },
-        ],
+        presets: BUILTIN_PRESETS.to_vec(),
     }))
 }
 
@@ -87,7 +90,7 @@ pub async fn apply_preset(
     Json(body): Json<ApplyPresetRequest>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
-    if !matches!(preset_id.as_str(), "default-vocal" | "default-instrument") {
+    if !BUILTIN_PRESETS.iter().any(|preset| preset.id == preset_id) {
         return Err(ApiError::BadRequest("unknown preset".to_owned()));
     }
     if usize::from(body.channel_index) >= MAX_CHANNELS {
