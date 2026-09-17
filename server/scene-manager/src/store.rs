@@ -496,6 +496,7 @@ impl SceneStore {
             }
         }
 
+        Self::load_active_revision(&conn, id)?;
         let affected = conn.execute("DELETE FROM scenes WHERE id = ?1", params![id])?;
         if affected == 0 {
             return Err(StoreError::NotFound(id.to_owned()));
@@ -516,17 +517,7 @@ impl SceneStore {
                 conn.execute("DELETE FROM active_scene WHERE key = 'active'", [])?;
             }
             Some(scene_id) => {
-                let exists: bool = conn
-                    .query_row(
-                        "SELECT 1 FROM scenes WHERE id = ?1",
-                        params![scene_id],
-                        |_| Ok(true),
-                    )
-                    .optional()?
-                    .unwrap_or(false);
-                if !exists {
-                    return Err(StoreError::NotFound(scene_id.to_owned()));
-                }
+                Self::load_active_revision(&conn, scene_id)?;
                 conn.execute(
                     "INSERT OR REPLACE INTO active_scene (key, scene_id) VALUES ('active', ?1)",
                     params![scene_id],
@@ -731,6 +722,14 @@ mod tests {
             store.save_scene(&scene.id, empty_config()),
             Err(StoreError::CorruptPayload(_))
         ));
+        assert!(matches!(
+            store.set_active_scene(Some(&scene.id)),
+            Err(StoreError::CorruptPayload(_))
+        ));
+        assert!(matches!(
+            store.delete_scene(&scene.id),
+            Err(StoreError::CorruptPayload(_))
+        ));
     }
 
     #[test]
@@ -764,9 +763,12 @@ mod tests {
             store.get_scene(&scene.id),
             Err(StoreError::InvalidSnapshot(_))
         ));
-        store.set_active_scene(Some(&scene.id)).unwrap();
         assert!(matches!(
-            store.get_active_scene(),
+            store.set_active_scene(Some(&scene.id)),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.delete_scene(&scene.id),
             Err(StoreError::InvalidSnapshot(_))
         ));
         assert!(matches!(
@@ -793,9 +795,12 @@ mod tests {
             store.get_scene(&scene.id),
             Err(StoreError::InvalidSnapshot(_))
         ));
-        store.set_active_scene(Some(&scene.id)).unwrap();
         assert!(matches!(
-            store.get_active_scene(),
+            store.set_active_scene(Some(&scene.id)),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.delete_scene(&scene.id),
             Err(StoreError::InvalidSnapshot(_))
         ));
         assert!(matches!(
