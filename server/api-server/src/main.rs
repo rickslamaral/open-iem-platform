@@ -28,7 +28,7 @@ use api_server::{
             assign_mix, get_send_state, list_mixes, set_send_gain, set_send_muted, set_send_pan,
             unassign_mix,
         },
-        presets::list_presets,
+        presets::{apply_preset, list_presets},
         scenes::{
             backup_scenes, create_scene, delete_scene, get_active_scene, get_scene, list_scenes,
             recall_scene, restore_scenes, update_scene,
@@ -138,6 +138,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/scenes/{id}/recall", post(recall_scene))
         .route("/api/v1/metrics", get(get_metrics))
         .route("/api/v1/presets", get(list_presets))
+        .route("/api/v1/presets/{id}/apply", post(apply_preset))
         .route(
             "/api/v1/config/backup",
             get(backup_config).put(restore_config),

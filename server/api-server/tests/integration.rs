@@ -25,7 +25,7 @@ use api_server::{
             assign_mix, get_send_state, list_mixes, set_send_gain, set_send_muted, set_send_pan,
             unassign_mix,
         },
-        presets::list_presets,
+        presets::{apply_preset, list_presets},
         system::get_system_info,
         telemetry::get_telemetry,
     },
@@ -114,6 +114,7 @@ fn build_test_app() -> (TestServer, AppState) {
         .route("/api/v1/telemetry", get(get_telemetry))
         .route("/api/v1/metrics", get(get_metrics))
         .route("/api/v1/presets", get(list_presets))
+        .route("/api/v1/presets/{id}/apply", post(apply_preset))
         .route("/api/v1/audio/offer", post(offer))
         .route("/api/v1/audio/ice-candidate", post(ice_candidate))
         .route("/api/v1/audio/sessions", get(sessions))
@@ -606,6 +607,46 @@ async fn ice_candidate_with_malformed_string_returns_400() {
         .json(&json!({"candidate": "not-a-candidate"}))
         .await;
     resp.assert_status(axum::http::StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
+async fn engineer_applies_builtin_preset_to_channel() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "preset_eng", "pw", Role::Engineer);
+    let response = server
+        .post("/api/v1/presets/default-vocal/apply")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"channel_index": 2}))
+        .await;
+    response.assert_status_ok();
+    let body: Value = response.json();
+    assert_eq!(body["preset_id"], "default-vocal");
+    assert_eq!(body["channel_index"], 2);
+    assert_eq!(body["applied"], true);
+    let ctrl = state.control.lock().unwrap();
+    assert!(ctrl.channel(2).unwrap().gain_db().abs() < f32::EPSILON);
+    assert!(!ctrl.channel(2).unwrap().muted);
+}
+
+#[tokio::test]
+async fn musician_cannot_apply_preset_and_invalid_input_does_not_mutate() {
+    let (server, state) = build_test_app();
+    let musician = seed_user_and_login(&state, "preset_mus", "pw", Role::Musician);
+    server
+        .post("/api/v1/presets/default-vocal/apply")
+        .authorization_bearer(musician)
+        .json(&json!({"channel_index": 2}))
+        .await
+        .assert_status(axum::http::StatusCode::FORBIDDEN);
+    let engineer = seed_user_and_login(&state, "preset_eng_bad", "pw", Role::Engineer);
+    server
+        .post("/api/v1/presets/unknown/apply")
+        .authorization_bearer(engineer)
+        .json(&json!({"channel_index": 2}))
+        .await
+        .assert_status(axum::http::StatusCode::BAD_REQUEST);
+    assert!(state.control.lock().unwrap().channel(2).is_none());
 }
 
 // ── /api/v1/channels ────────────────────────────────────────────────────────

@@ -1,3 +1,13 @@
+## 2026-09-17 — Architecture gap status reconciliation
+
+**Status:** DOCUMENTATION — implementation evidence synchronized; runtime and hardware validation remain pending.
+
+- Reclassified GAP-001 from `IMPLEMENTATION GAP` to `VALIDATION REQUIRED` after bounded MediaBridge, Opus writer, negotiated WebRTC boundary and TransportAdapter coverage landed.
+- Reclassified GAP-003 and GAP-004 to `VALIDATION REQUIRED` after receiver-core and clock/drift implementations landed; OS output, long-run clock and hardware evidence remain absent.
+- No PipeWire/ALSA, WebRTC/Opus runtime or Raspberry Pi 5 support claim added.
+
+---
+
 ## P0-007 first-access password enforcement
 
 - Login response exposes bootstrap `must_change_password` state.
@@ -324,6 +334,18 @@
 **Próximo:** P0-006 — pairing, identidade, revogação e binding DTLS-SRTP.
 
 # Development Log
+
+## 2026-09-17 — P2 built-in channel preset application
+
+**Status:** CODE; runtime and hardware validation remain pending.
+
+- Added authenticated `POST /api/v1/presets/{id}/apply` for Engineer/Admin.
+- Server-side allowlist accepts only `default-vocal` and `default-instrument`; payload rejects unknown fields and targets bounded channel slots.
+- Application resets channel gain to 0 dB and mute to false through existing control dispatch; Musician receives 403 and invalid preset/channel leaves state unchanged.
+- Evidence: api-server integration suite 76 tests and full server clippy pass. No runtime, PipeWire/ALSA, WebRTC/Opus or Raspberry Pi 5 claim.
+
+---
+
 
 ## 2026-09-16 — P0-003 bounded Opus media writer
 
