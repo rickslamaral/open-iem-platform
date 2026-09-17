@@ -4140,3 +4140,11 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Adicionado editor JSON autenticado para carregar cena via `GET /api/v1/scenes/{id}` e salvar nova revisão via `PUT /api/v1/scenes/{id}`.
 - JSON inválido é rejeitado no cliente antes de mutação; cobertura inclui PUT válido e bloqueio local de payload inválido.
 - Evidência: typecheck e 39 testes frontend PASS; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
+
+
+## 2026-09-17 — Engineer Console scene revision editor merged
+
+- PR #136 merged after CI run `35189802675` completed 13/13 successfully on exact HEAD.
+- Engineer Console now lists, creates, recalls, edits JSON revisions and deletes scenes through authenticated REST routes.
+- Invalid JSON is rejected before mutation; Musician remains read-only.
+- Evidence: CODE + CI. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 remain unvalidated.
