@@ -285,7 +285,7 @@ function EqBandControl({ mixIndex, bandIndex, frequencyHz, gainDb, q, enabled, o
 }
 
 type SceneSummary = { id: string; name: string; active_revision: number; created_at: number; updated_at: number };
-type Scene = { id: string; name: string; revision: number };
+type Scene = { id: string; name: string; revision: number; config?: unknown };
 
 function ScenePanel({ token }: { token: string }) {
   const [scenes, setScenes] = useState<SceneSummary[]>([]);
@@ -294,6 +294,9 @@ function ScenePanel({ token }: { token: string }) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [configText, setConfigText] = useState('');
+  const editGeneration = useRef(0);
   const loadGeneration = useRef(0);
   const loadScenes = useCallback(async () => {
     const generation = ++loadGeneration.current;
@@ -318,6 +321,32 @@ function ScenePanel({ token }: { token: string }) {
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Falha ao alterar cena'); }
     finally { setBusy(null); }
   }
+  async function editScene(id: string) {
+    const generation = ++editGeneration.current;
+    setBusy(id); setError(null);
+    try {
+      const scene = await request<Scene>(`/api/v1/scenes/${id}`, token);
+      if (generation !== editGeneration.current) return;
+      setEditing(id); setConfigText(JSON.stringify(scene.config ?? { channels: [], mixes: [] }, null, 2));
+    } catch (cause) {
+      if (generation === editGeneration.current) setError(cause instanceof Error ? cause.message : 'Falha ao carregar cena');
+    } finally {
+      if (generation === editGeneration.current) setBusy(null);
+    }
+  }
+  async function saveEdit(event: FormEvent) {
+    event.preventDefault();
+    if (!editing) return;
+    let config: unknown;
+    try { config = JSON.parse(configText); } catch { setError('Configuração JSON inválida.'); return; }
+    setBusy(editing); setError(null);
+    try {
+      await request(`/api/v1/scenes/${editing}`, token, { method: 'PUT', body: JSON.stringify({ config }) });
+      setEditing(null); setConfigText(''); await loadScenes();
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Falha ao salvar cena'); }
+    finally { setBusy(null); }
+  }
+
   async function create(event: FormEvent) {
     event.preventDefault(); if (!name.trim()) return;
     setBusy('create'); setError(null);
@@ -333,10 +362,14 @@ function ScenePanel({ token }: { token: string }) {
     </form>
     {loading && <p className="muted" role="status">Carregando cenas…</p>}
     {error && <p className="error" role="alert">{error}</p>}
+    {editing && <form onSubmit={saveEdit}>
+      <label><span className="muted">Configuração JSON</span><textarea aria-label="Configuração da cena" value={configText} onChange={(e) => setConfigText(e.target.value)} rows={8} required /></label>
+      <div className="row"><button type="submit" disabled={busy !== null}>Salvar revisão</button><button type="button" className="secondary" disabled={busy !== null} onClick={() => { editGeneration.current += 1; setEditing(null); setConfigText(''); }}>Cancelar</button></div>
+    </form>}
     {!loading && scenes.length === 0 && <p className="muted">Nenhuma cena cadastrada.</p>}
     {scenes.map((scene) => { const active = activeScene?.id === scene.id; return <div className="row" key={scene.id}>
       <div><strong>{scene.name}</strong><br /><span className="muted">Revisão {scene.active_revision} · {new Date(scene.created_at * 1000).toLocaleDateString('pt-BR')}</span></div>
-      <div className="row" style={{ gap: '0.5rem' }}><button aria-label={`Recuperar cena ${scene.name}`} disabled={busy !== null} onClick={() => void mutate(scene.id, 'POST', '/recall')}>Recuperar</button><button className="danger" aria-label={`Deletar cena ${scene.name}`} disabled={active || busy !== null} onClick={() => void mutate(scene.id, 'DELETE', '')}>Deletar</button></div>
+      <div className="row" style={{ gap: '0.5rem' }}><button aria-label={`Editar cena ${scene.name}`} disabled={busy !== null} onClick={() => void editScene(scene.id)}>Editar</button><button aria-label={`Recuperar cena ${scene.name}`} disabled={busy !== null} onClick={() => void mutate(scene.id, 'POST', '/recall')}>Recuperar</button><button className="danger" aria-label={`Deletar cena ${scene.name}`} disabled={active || busy !== null} onClick={() => void mutate(scene.id, 'DELETE', '')}>Deletar</button></div>
     </div>; })}
   </>;
 }
