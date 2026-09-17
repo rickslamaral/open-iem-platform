@@ -631,6 +631,55 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn update_scene_creates_new_revision_for_engineer() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_update_revision", "pw", Role::Engineer);
+        let create = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token.clone())
+            .json(&empty_scene_body())
+            .await;
+        create.assert_status(axum::http::StatusCode::CREATED);
+        let scene_id = create.json::<Value>()["id"].as_str().unwrap().to_owned();
+
+        let response = server
+            .put(&format!("/api/v1/scenes/{scene_id}"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .json(&json!({"config": {"channels": [{"slot": 1, "id": 1, "name": "Vocals", "gain_db": 0.0, "muted": false, "locked": false, "enabled": true}], "mixes": []}}))
+            .await;
+        response.assert_status_ok();
+        let body: Value = response.json();
+        assert_eq!(body["id"], scene_id);
+        assert_eq!(body["revision"], 2);
+        assert_eq!(body["config"]["channels"][0]["slot"], 1);
+    }
+
+    #[tokio::test]
+    async fn update_scene_requires_engineer_role() {
+        let (server, state) = build_test_app();
+        let engineer = seed_user_and_login(&state, "eng_update_role", "pw", Role::Engineer);
+        let create = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(engineer)
+            .json(&empty_scene_body())
+            .await;
+        create.assert_status(axum::http::StatusCode::CREATED);
+        let scene_id = create.json::<Value>()["id"].as_str().unwrap().to_owned();
+
+        let musician = seed_user_and_login(&state, "mus_update_role", "pw", Role::Musician);
+        server
+            .put(&format!("/api/v1/scenes/{scene_id}"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(musician)
+            .json(&json!({"config": {"channels": [], "mixes": []}}))
+            .await
+            .assert_status(axum::http::StatusCode::FORBIDDEN);
+    }
+
+    #[tokio::test]
     async fn get_scene_not_found() {
         let (server, state) = build_test_app();
         let token = seed_user_and_login(&state, "eng_get_nf", "pw", Role::Engineer);
