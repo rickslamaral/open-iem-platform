@@ -9,6 +9,8 @@ import { fetchChannelMetadata } from './api/channels';
 import { fetchActiveSceneId, fetchScenes } from './api/scenes';
 import type { SceneSummary } from './api/scenes';
 import { SceneList } from './components/SceneList';
+import { PresetList } from './components/PresetList';
+import { fetchPresets } from './api/presets';
 
 const CHANNEL_COUNT = 8;
 
@@ -37,6 +39,10 @@ export default function App() {
   const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
   const [scenesLoading, setScenesLoading] = useState(false);
   const [scenesError, setScenesError] = useState<string | null>(null);
+  const [presets, setPresets] = useState<import('./api/presets').PresetSummary[]>([]);
+  const [presetsLoading, setPresetsLoading] = useState(false);
+  const [presetsError, setPresetsError] = useState<string | null>(null);
+  const presetsRequestRef = useRef(0);
   const scenesRequestRef = useRef(0);
 
   const ws = useWebSocket(token);
@@ -86,6 +92,21 @@ export default function App() {
     return () => { active = false; };
   }, [token]);
 
+  const refreshPresets = useCallback((accessToken: string) => {
+    const requestId = ++presetsRequestRef.current;
+    setPresetsLoading(true);
+    setPresetsError(null);
+    void fetchPresets(accessToken).then((items) => {
+      if (requestId === presetsRequestRef.current) setPresets(items);
+    }).catch((err) => {
+      if (requestId === presetsRequestRef.current) {
+        setPresetsError(err instanceof Error ? err.message : 'Falha ao carregar presets');
+      }
+    }).finally(() => {
+      if (requestId === presetsRequestRef.current) setPresetsLoading(false);
+    });
+  }, []);
+
   const refreshScenes = useCallback((accessToken: string) => {
     const requestId = ++scenesRequestRef.current;
     setScenesLoading(true);
@@ -108,11 +129,16 @@ export default function App() {
     setScenesError(null);
     setScenes([]);
     setActiveSceneId(null);
+    setPresets([]);
+    setPresetsLoading(true);
+    setPresetsError(null);
     refreshScenes(token);
-  }, [token, refreshScenes]);
+    refreshPresets(token);
+  }, [token, refreshPresets, refreshScenes]);
 
   const handleLogout = useCallback(async () => {
     ++scenesRequestRef.current;
+    ++presetsRequestRef.current;
     ws.disconnect();
     setToken(null);
     setChannels(defaultChannels());
@@ -120,6 +146,9 @@ export default function App() {
     setChannelNames([]);
     setScenes([]);
     setActiveSceneId(null);
+    setPresets([]);
+    setPresetsLoading(false);
+    setPresetsError(null);
     await apiLogout().catch(() => undefined);
   }, [ws]);
 
@@ -179,6 +208,7 @@ export default function App() {
         onLogout={handleLogout}
       />
       <SceneList scenes={scenes} activeSceneId={activeSceneId} loading={scenesLoading} error={scenesError} onRefresh={() => refreshScenes(token)} />
+      <PresetList presets={presets} loading={presetsLoading} error={presetsError} onRefresh={() => refreshPresets(token)} />
     </div>
   );
 }

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+### Added
+- Musician UI now shows authenticated read-only preset catalog.
+
+### Changed
+- Preset catalog endpoint is available to authenticated Musician, Engineer and Admin roles.
 ### Security
 - Enforced first-access password change for bootstrapped `soundtech` accounts through authenticated `PUT /api/v1/auth/password`.
 

@@ -2074,7 +2074,7 @@ async fn channels_list_requires_auth() {
 // ── /api/v1/presets ───────────────────────────────────────────────────────
 
 #[tokio::test]
-async fn presets_requires_engineer_role() {
+async fn presets_requires_authenticated_musician_role() {
     let (server, state) = build_test_app();
     let musician_token = seed_user_and_login(&state, "mus_presets_role", "pw", Role::Musician);
     server
@@ -2082,7 +2082,13 @@ async fn presets_requires_engineer_role() {
         .add_header("Origin", "http://localhost")
         .authorization_bearer(musician_token)
         .await
-        .assert_status(axum::http::StatusCode::FORBIDDEN);
+        .assert_status_ok();
+
+    let response = server
+        .get("/api/v1/presets")
+        .add_header("Origin", "http://localhost")
+        .await;
+    response.assert_status(axum::http::StatusCode::UNAUTHORIZED);
 }
 
 #[tokio::test]
