@@ -13,7 +13,7 @@
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
 - **Guias:** espelhos PT/EN/ES existentes; revisar e sincronizar após validação física.
 - **P1-015 — Versioned SQLite migrations:** concluído em CODE; `M001` registrado em `migrations`, reaplicação evitada no reopen e schema legado compatível quando `must_change_password` já existe.
-- **P0-003 media handoff:** PR #119 merged. `MediaBridge`, bounded `SessionRegistry::drive_once`, `MediaWriter` Opus encoding and negotiated `str0m::media::Writer` boundary exist at CODE/SIMULATED; socket transport, runtime and hardware remain pending.
+- **P0-003 media handoff:** PR #119 merged. `MediaBridge`, bounded `SessionRegistry::drive_once`, `MediaWriter` Opus encoding, negotiated `str0m::media::Writer` boundary and explicit bounded `TransportAdapter` socket owner exist at CODE/SIMULATED; runtime and hardware remain pending.
 - **P2 SceneStore revision invariant:** cenas restauradas agora exigem `revision >= 1`; cobertura unitária rejeita revisão zero antes de persistência. Evidência CODE; runtime/hardware permanecem pendentes.
 - **P2 Scenes backup/restore:** PRs #94–#97 mergeadas; exportação durável, restore atômico, rollback de ponteiro ativo e cobertura RBAC concluídos em CODE+CI (run `35126301166`, 13/13). Restauração em ambiente limpo coberta por teste de reabertura file-backed; validação operacional implantada permanece pendente; seleção do caminho persistente agora é testável sem mutação global de ambiente.
 
@@ -29,7 +29,7 @@
 - [x] Frontend EQ controls — Phase 93 implementada e mergeada em main via PR #74.
 - [x] P0-001 — substituir Mutex no callback JACK por fronteira SPSC bounded e fila de controle non-blocking; callback processa período completo; testes locais passam.
 - [x] P0-002 — Audio Lab L1/L2: harness SIMULATED com 8 testes CI implementado (PR #57).
-- [ ] P0-003 — Media Plane: bridge/session/Opus/negotiated writer merged in PR #119 (CODE/SIMULATED); socket transport, runtime and hardware remain pending.
+- [ ] P0-003 — Media Plane: bridge/session/Opus/negotiated writer plus bounded `TransportAdapter` socket owner implemented (CODE/SIMULATED); runtime and hardware remain pending.
 - [x] P0-004 — Native/headless Opus receiver core: bounded ingress/jitter, decode, fail-safe mute e reconnect (SIMULATED; OS output/hardware pendentes, PR #59).
 - [x] P0-005 — Clock: sample timestamps, bounded drift estimator e adaptive resampling (SIMULATED; hardware clock validation pendente).
 - [x] P0-006 — registry bounded de pairing, identidade, binding músico/mix, revogação, re-pair explícito e digest Argon2id salted (CODE; DTLS-SRTP/API integration pendente).
