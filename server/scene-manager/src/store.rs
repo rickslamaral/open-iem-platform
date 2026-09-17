@@ -307,6 +307,11 @@ impl SceneStore {
 
     /// Duplicate current revision of existing scene as new scene.
     /// Source scene and active-scene pointer remain unchanged.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when the source is missing or corrupt, the name is
+    /// invalid, or the database transaction cannot be completed.
     pub fn duplicate_scene(&self, id: &str, name: &str) -> Result<Scene, StoreError> {
         if name.is_empty() || name.len() > crate::MAX_SCENE_NAME_BYTES {
             return Err(StoreError::Validation(SceneError::InvalidName {

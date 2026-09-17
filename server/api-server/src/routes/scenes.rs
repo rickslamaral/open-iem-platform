@@ -182,6 +182,11 @@ pub async fn create_scene(
 }
 
 /// `POST /api/v1/scenes/{id}/duplicate` — copy current scene revision.
+///
+/// # Errors
+///
+/// Returns an API error when authentication, authorization, validation, or
+/// scene storage fails.
 #[allow(clippy::unused_async)]
 pub async fn duplicate_scene(
     State(state): State<AppState>,
