@@ -448,6 +448,31 @@ describe('Engineer Console', () => {
     expect(screen.getByText(/Catálogo somente leitura/)).toBeTruthy();
   });
 
+  it('ignora entradas de preset inválidas sem quebrar catálogo', async () => {
+    const fetchMock = sceneDashboardFetch();
+    fetchMock.mockImplementation((path: string, init?: RequestInit) => {
+      if (path === '/api/v1/presets') return json({ presets: [
+        { id: 'vocal', name: 'Vocal', kind: 'channel', description: 'Neutro' },
+        { id: 'missing-description', name: 'Inválido', kind: 'channel' },
+        null,
+      ] });
+      return sceneDashboardFetch()(path, init);
+    });
+    await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
+    expect(await screen.findByText('Vocal')).toBeTruthy();
+    expect(screen.queryByText('Inválido')).toBeNull();
+  });
+
+  it('mostra estado vazio para payload de presets não-array', async () => {
+    const fetchMock = sceneDashboardFetch();
+    fetchMock.mockImplementation((path: string, init?: RequestInit) => {
+      if (path === '/api/v1/presets') return json({ presets: {} });
+      return sceneDashboardFetch()(path, init);
+    });
+    await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
+    expect(await screen.findByText('Nenhum preset disponível.')).toBeTruthy();
+  });
+
   it('exibe erro ao carregar catálogo de presets', async () => {
     const fetchMock = sceneDashboardFetch();
     fetchMock.mockImplementation((path: string, init?: RequestInit) => {

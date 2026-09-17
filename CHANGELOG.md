@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Engineer Console preset catalog now supports authenticated manual refresh with stale-response protection.
 - Musician UI now shows authenticated read-only preset catalog.
 
+### Fixed
+- Engineer Console now ignores malformed preset entries and safely renders empty state for invalid catalog payloads.
+
 ### Changed
 - Preset catalog endpoint is available to authenticated Musician, Engineer and Admin roles.
 ### Security
