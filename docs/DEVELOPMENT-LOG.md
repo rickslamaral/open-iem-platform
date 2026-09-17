@@ -1,3 +1,9 @@
+## 2026-09-17 — SceneStore numeric boundary hardening
+
+- `list_scenes` now fails closed when SQLite returns a negative `active_revision`; conversion no longer silently maps invalid data to zero.
+- `save_scene` rejects revision-counter overflow before writing a new revision.
+- Gates: Rust fmt, clippy and full server test suite PASS. Evidência CODE; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
+
 ## 2026-09-17 — bloqueio de preset locked na UI Engineer
 
 **Status:** CODE local; CI, runtime e hardware permanecem pendentes.

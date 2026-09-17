@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Fail closed on invalid or overflowing SceneStore revision counters.
+
 ### Added
 - Engineer Console now blocks built-in preset application on locked channels.
 - Scene duplication endpoint and Engineer Console action.

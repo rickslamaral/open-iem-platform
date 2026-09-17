@@ -1,6 +1,10 @@
 # TODO
 
-## Estado atual — 2026-09-17 (P2 locked-channel preset UI)
+## Estado atual — 2026-09-17 (SceneStore numeric boundary hardening)
+
+- **SceneStore numeric boundary hardening:** revisões SQLite negativas e overflow do contador agora falham fechado antes de produzir ou persistir estado inválido. Evidência CODE local; runtime permanece pendente.
+
+## Estado anterior — 2026-09-17 (P2 locked-channel preset UI)
 
 - **P2 Preset locked-channel UI:** Engineer Console identifica canais `locked`, impede seleção/aplicação e mostra estado bloqueado; cobertura CODE local. Runtime permanece pendente.
 
