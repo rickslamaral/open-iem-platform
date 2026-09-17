@@ -542,6 +542,28 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn transport_adapter_requeues_failed_registry_output() {
+        let registry = SessionRegistry::new();
+        let destination: SocketAddr = "[::1]:9".parse().unwrap();
+        let transmit = str0m::net::Transmit {
+            proto: Protocol::Udp,
+            source: "127.0.0.1:0".parse().unwrap(),
+            destination,
+            contents: b"retry-me".to_vec().into(),
+        };
+        registry.transport_outputs.lock().await.push_back(transmit);
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+
+        let result = adapter.send_from_registry(&registry, 1).await;
+        assert!(result.is_err());
+        let queued = registry.drain_transport_outputs(1).await;
+        assert_eq!(queued.len(), 1);
+        assert_eq!(&queued[0].contents[..], b"retry-me");
+    }
+
+    #[tokio::test]
     async fn registry_starts_empty() {
         assert_eq!(SessionRegistry::new().len().await, 0);
     }
