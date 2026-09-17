@@ -317,6 +317,39 @@ impl ControlState {
         }
     }
 
+    /// Apply complete channel preset atomically after validating its lock state.
+    ///
+    /// The caller must hold any outer application-state lock while invoking this
+    /// method when coordinating with other control-plane routes.
+    ///
+    /// # Errors
+    /// Returns a stable error code when the slot is out of range or locked.
+    pub fn apply_channel_preset(
+        &mut self,
+        index: u8,
+        gain_db: f32,
+        muted: bool,
+    ) -> Result<u64, &'static str> {
+        let index = usize::from(index);
+        if index >= MAX_CHANNELS {
+            return Err("channel is not available");
+        }
+        let mut channel = self
+            .engine
+            .channel(index)
+            .cloned()
+            .unwrap_or_else(|| Channel::new(index as u32, ""));
+        if channel.locked {
+            return Err("channel is locked");
+        }
+        channel.set_gain_db(gain_db);
+        channel.set_muted(muted);
+        self.engine
+            .set_channel(index, channel)
+            .map_err(|_| "channel is not available")?;
+        Ok(self.revision())
+    }
+
     fn update_channel<F>(&mut self, index: u8, update: F) -> ServerMessage
     where
         F: FnOnce(&mut Channel),
@@ -473,6 +506,51 @@ mod tests {
         }));
         assert_eq!(response.payload, ServerMessage::State { revision: 1 });
         assert_eq!(state.channel(1).map(|channel| channel.muted), Some(true));
+    }
+
+    #[test]
+    fn apply_channel_preset_updates_gain_and_mute_atomically() {
+        let mut state = ControlState::new();
+        let revision = state
+            .apply_channel_preset(2, 6.0, true)
+            .expect("valid channel preset");
+        let channel = state.channel(2).expect("channel created");
+        assert!((channel.gain_db() - 6.0).abs() < f32::EPSILON);
+        assert!(channel.muted);
+        assert_eq!(revision, state.revision());
+    }
+
+    #[test]
+    fn apply_channel_preset_rejects_locked_channel_without_mutation() {
+        let mut state = ControlState::new();
+        let mut channel = Channel::new(2, "Locked");
+        channel.set_gain_db(7.0);
+        channel.set_muted(true);
+        channel.set_locked(true);
+        state.set_channel(2, channel).expect("channel setup");
+        let revision = state.revision();
+
+        assert_eq!(
+            state.apply_channel_preset(2, 0.0, false),
+            Err("channel is locked")
+        );
+        let channel = state.channel(2).expect("locked channel retained");
+        assert!((channel.gain_db() - 7.0).abs() < f32::EPSILON);
+        assert!(channel.muted);
+        assert!(channel.locked);
+        assert_eq!(state.revision(), revision);
+    }
+
+    #[test]
+    fn apply_channel_preset_rejects_invalid_channel_without_mutation() {
+        let mut state = ControlState::new();
+        let revision = state.revision();
+        assert_eq!(
+            state.apply_channel_preset(MAX_CHANNELS as u8, 0.0, false),
+            Err("channel is not available")
+        );
+        assert_eq!(state.revision(), revision);
+        assert!(state.channel(MAX_CHANNELS).is_none());
     }
 
     #[test]

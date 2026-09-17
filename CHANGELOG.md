@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Rejeição antecipada de canal inexistente e cobertura de payload desconhecido na aplicação de presets built-in.
+- Aplicação de preset agora rejeita canais bloqueados antes de qualquer mutação no servidor.
 
 
 ### Documentation

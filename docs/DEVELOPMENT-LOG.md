@@ -1,3 +1,13 @@
+## 2026-09-17 — bloqueio de preset em canal locked
+
+**Status:** CODE local; CI, runtime e hardware permanecem pendentes.
+
+- `POST /api/v1/presets/{id}/apply` agora rejeita canal `locked` antes de qualquer dispatch ou mutação.
+- Adicionado teste de integração que confirma resposta `400`, revisão inalterada e preservação de gain/mute.
+- Nenhuma claim de PipeWire/ALSA, WebRTC/Opus ou Raspberry Pi 5.
+
+---
+
 ## 2026-09-17 — reconciliação de status de cenas e presets
 
 **Status:** DOCUMENTATION — CODE+CI; runtime e hardware permanecem pendentes.

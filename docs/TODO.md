@@ -1,6 +1,10 @@
 # TODO
 
-## Estado atual — 2026-09-17 (P2 preset catalog/application status reconciliation)
+## Estado atual — 2026-09-17 (P2 locked-channel preset boundary)
+
+- **P2 Preset locked-channel boundary:** aplicação server-side rejeita canais `locked` antes de qualquer mutação; cobertura de integração valida resposta e preservação de estado. Evidência CODE local; CI/runtime permanecem pendentes.
+
+## Estado anterior — 2026-09-17 (P2 preset catalog/application status reconciliation)
 
 - **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
 - **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; cenas REST e catálogos Musician/Engineer concluídos em código/CI; aplicação de presets built-in no Engineer Console concluída nas PRs #144–#151. Runtime permanece pendente.
