@@ -1,6 +1,10 @@
 # TODO
 
-## Estado atual — 2026-09-17 (P2 scene duplication)
+## Estado atual — 2026-09-17 (P2 locked-channel preset UI)
+
+- **P2 Preset locked-channel UI:** Engineer Console identifica canais `locked`, impede seleção/aplicação e mostra estado bloqueado; cobertura CODE local. Runtime permanece pendente.
+
+## Estado anterior — 2026-09-17 (P2 scene duplication)
 
 - **P2 Scene duplication:** API `POST /api/v1/scenes/{id}/duplicate` e ação no Engineer Console implementadas; Engineer/Admin only, cópia inicia revisão 1 e não altera cena ativa. Evidência CODE local; runtime permanece pendente.
 

@@ -1,3 +1,14 @@
+## 2026-09-17 — bloqueio de preset locked na UI Engineer
+
+**Status:** CODE local; CI, runtime e hardware permanecem pendentes.
+
+- Engineer Console identifica canais `locked` no seletor de presets e impede aplicação client-side.
+- Quando todos canais estão bloqueados, seletor permanece desabilitado e exibe indicação explícita.
+- Cobertura adicionada para catálogo e ausência de POST de aplicação.
+- Nenhuma claim de PipeWire/ALSA, WebRTC/Opus ou Raspberry Pi 5.
+
+---
+
 ## 2026-09-17 — bloqueio de preset em canal locked
 
 **Status:** CODE local; CI, runtime e hardware permanecem pendentes.

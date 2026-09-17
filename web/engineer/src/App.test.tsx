@@ -449,6 +449,21 @@ describe('Engineer Console', () => {
     expect(screen.getByRole('button', { name: 'Aplicar' })).toBeTruthy();
   });
 
+  it('bloqueia aplicação de preset em canal locked', async () => {
+    await loginAndLoad([makeChannel(0, { locked: true, name: 'Bateria' }), makeChannel(1, { locked: true, name: 'Voz' })]);
+    const fetchCalls = vi.mocked(globalThis.fetch);
+    fetchCalls.mockImplementation(async (input) => {
+      const path = String(input);
+      if (path === '/api/v1/presets') return json({ presets: [{ id: 'vocal', name: 'Vocal', kind: 'channel', description: 'Neutro' }] }) as unknown as Response;
+      return json({ revision: 2, channels: [makeChannel(0, { locked: true }), makeChannel(1, { locked: true })] }) as unknown as Response;
+    });
+    expect(await screen.findByText('Canal selecionado está bloqueado para aplicação de preset.')).toBeTruthy();
+    expect(screen.getByRole('option', { name: /Bateria.*bloqueado/ })).toHaveProperty('disabled', true);
+    expect(screen.getByLabelText('Canal do preset')).toHaveProperty('disabled', true);
+    expect(await screen.findByRole('button', { name: 'Aplicar' })).toHaveProperty('disabled', true);
+    expect(fetchCalls.mock.calls.some(([path]) => String(path).includes('/presets/vocal/apply'))).toBe(false);
+  });
+
   it('aplica preset ao canal selecionado e recarrega estado', async () => {
     const fetchMock = sceneDashboardFetch();
     fetchMock.mockImplementation((path: string, init?: RequestInit) => {

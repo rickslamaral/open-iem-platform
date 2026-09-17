@@ -312,14 +312,17 @@ function PresetPanel({ token, channels, onApplied }: { token: string; channels: 
   const [applying, setApplying] = useState<string | null>(null);
   const [applied, setApplied] = useState<{ preset: string; channel: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const selectedChannelData = channels.find((channel) => channel.index === selectedChannel);
+  const selectedChannelLocked = selectedChannelData?.locked === true;
+  const hasUnlockedChannel = channels.some((channel) => !channel.locked);
   const requestGeneration = useRef(0);
 
   useEffect(() => {
-    if (channels.length > 0 && !channels.some((channel) => channel.index === selectedChannel)) {
-      setSelectedChannel(channels[0].index);
+    if (channels.length > 0 && (!channels.some((channel) => channel.index === selectedChannel) || selectedChannelLocked)) {
+      setSelectedChannel((channels.find((channel) => !channel.locked) ?? channels[0]).index);
       setApplied(null);
     }
-  }, [channels, selectedChannel]);
+  }, [channels, selectedChannel, selectedChannelLocked]);
 
   const refresh = useCallback(() => {
     const generation = ++requestGeneration.current;
@@ -339,7 +342,7 @@ function PresetPanel({ token, channels, onApplied }: { token: string; channels: 
   }, [refresh]);
 
   async function applyPreset(presetId: string) {
-    if (applying || channels.length === 0) return;
+    if (applying || channels.length === 0 || selectedChannelLocked) return;
     const generation = requestGeneration.current;
     setApplying(presetId); setError(null); setApplied(null);
     try {
@@ -360,18 +363,19 @@ function PresetPanel({ token, channels, onApplied }: { token: string; channels: 
     <p className="muted">Presets built-in aplicam defaults seguros em canal selecionado.</p>
     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
       <span>Canal</span>
-      <select aria-label="Canal do preset" value={selectedChannel} onChange={(event) => { setSelectedChannel(Number(event.target.value)); setApplied(null); }} disabled={loading || applying !== null || channels.length === 0}>
-        {channels.map((channel) => <option key={channel.index} value={channel.index}>{channel.index + 1} — {channel.name}</option>)}
+      <select aria-label="Canal do preset" value={selectedChannel} onChange={(event) => { setSelectedChannel(Number(event.target.value)); setApplied(null); }} disabled={loading || applying !== null || channels.length === 0 || !hasUnlockedChannel}>
+        {channels.map((channel) => <option key={channel.index} value={channel.index} disabled={channel.locked}>{channel.index + 1} — {channel.name}{channel.locked ? ' (bloqueado)' : ''}</option>)}
       </select>
     </label>
     <button type="button" onClick={() => void refresh()} disabled={loading || applying !== null}>{loading ? 'Atualizando…' : 'Atualizar presets'}</button>
     {loading && <p className="muted">Carregando presets…</p>}
+    {selectedChannelLocked && <p className="muted">Canal selecionado está bloqueado para aplicação de preset.</p>}
     {error && <p className="error" role="alert">{error}</p>}
     {applied && <p role="status">Preset {applied.preset} aplicado no canal {applied.channel + 1}.</p>}
     {!loading && !error && presets.length === 0 && <p className="muted">Nenhum preset disponível.</p>}
     {presets.map((preset) => <div className="row" key={preset.id}>
       <div><strong>{preset.name}</strong><br /><span className="muted">{preset.kind} · {preset.description}</span></div>
-      <button type="button" onClick={() => void applyPreset(preset.id)} disabled={loading || applying !== null || channels.length === 0}>
+      <button type="button" onClick={() => void applyPreset(preset.id)} disabled={loading || applying !== null || channels.length === 0 || !hasUnlockedChannel || selectedChannelLocked}>
         {applying === preset.id ? 'Aplicando…' : 'Aplicar'}
       </button>
     </div>)}
