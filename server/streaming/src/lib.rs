@@ -419,6 +419,8 @@ pub use clock::{AdaptiveResampler, DriftEstimator, SampleTimestamp, NOMINAL_SAMP
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::net::SocketAddr;
+    use str0m::net::Protocol;
 
     const VALID_OFFER: &str = "v=0\r\no=- 0 0 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\nc=IN IP4 0.0.0.0\r\na=mid:0\r\na=sendrecv\r\na=rtcp-mux\r\na=ice-ufrag:test\r\na=ice-pwd:testpassword\r\na=fingerprint:sha-256 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00\r\na=setup:actpass\r\na=rtpmap:111 opus/48000/2\r\n";
 
@@ -500,6 +502,43 @@ mod tests {
     async fn transport_output_drain_respects_budget() {
         let registry = SessionRegistry::new();
         assert!(registry.drain_transport_outputs(1).await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn transport_adapter_sends_registry_output_and_reports_delivery() {
+        let registry = SessionRegistry::new();
+        let receiver = tokio::net::UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let destination: SocketAddr = receiver.local_addr().unwrap();
+        registry
+            .transport_outputs
+            .lock()
+            .await
+            .push_back(str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: "127.0.0.1:0".parse().unwrap(),
+                destination,
+                contents: b"registry-output".to_vec().into(),
+            });
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+
+        let report = adapter.send_from_registry(&registry, 1).await.unwrap();
+        assert_eq!(report.attempted, 1);
+        assert_eq!(report.sent, 1);
+        assert_eq!(report.bytes, 15);
+        assert_eq!(report.dropped, 0);
+        assert!(registry.drain_transport_outputs(1).await.is_empty());
+
+        let mut payload = [0_u8; 32];
+        let (length, _) = tokio::time::timeout(
+            std::time::Duration::from_secs(1),
+            receiver.recv_from(&mut payload),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        assert_eq!(&payload[..length], b"registry-output");
     }
 
     #[tokio::test]
