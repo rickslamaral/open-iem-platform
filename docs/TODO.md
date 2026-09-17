@@ -1,6 +1,6 @@
 # TODO
 
-## Estado atual — 2026-09-16 (P2 SceneStore revision invariant hardening)
+## Estado atual — 2026-09-17 (P2 SceneStore revision invariant hardening)
 
 - **Architecture closure:** P0 technical decisions closed in ADR-001..010; implementation/validation follow `docs/DEVELOPMENT-HANDOFF.md`.
 - **P1-008 — API/UI:** rotas de domínio `GET /api/v1/system` e `GET /api/v1/channels` implementadas na PR #75; EQ UI implementada na PR #74; músicos/presets permanecem P2; cenas: GET/POST/PUT/DELETE/recall implementados em PR #87.
@@ -590,7 +590,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Admin CLI binary (`server/admin-cli/`) — user/session/health commands, JSON/table output
 - [x] Musician Guide PDF (`docs/guides/MUSICIANS-GUIDE.pdf`) — pandoc+xelatex, 61 KB
 - [x] PHASE-8-REVIEW.md
-- [ ] Admin API server-side routes (Phase 9)
+- [x] Admin API server-side routes (Phase 9) — complete and covered by `server/api-server/src/routes/admin.rs` plus integration tests: GET/POST/DELETE `/api/v1/admin/users` and GET/DELETE `/api/v1/admin/sessions`.
 - [ ] Biquad coefficient validation vs reference implementation (scipy)
 - [ ] Generate Musician Guide PDF (Phase 8 documentation) — DONE Phase 8
 - [ ] Biquad coefficient validation vs reference implementation (Phase 8) — deferred Phase 9
