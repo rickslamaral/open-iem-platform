@@ -14,6 +14,8 @@ pub struct TransportSendReport {
     pub attempted: usize,
     pub sent: usize,
     pub bytes: usize,
+    /// Datagrams intentionally not attempted because budget capped the pass.
+    pub dropped: usize,
 }
 
 pub struct TransportAdapter {
@@ -56,7 +58,11 @@ impl TransportAdapter {
     ) -> io::Result<TransportSendReport> {
         let mut report = TransportSendReport::default();
         let limit = budget.min(TRANSPORT_SEND_BUDGET);
-        for transmit in outputs.into_iter().take(limit) {
+        let mut outputs = outputs.into_iter();
+        for _ in 0..limit {
+            let Some(transmit) = outputs.next() else {
+                break;
+            };
             report.attempted += 1;
             let expected = transmit.contents.len();
             let sent = self
@@ -72,6 +78,7 @@ impl TransportAdapter {
             report.sent += 1;
             report.bytes += sent;
         }
+        report.dropped = outputs.count();
         Ok(report)
     }
 
@@ -109,7 +116,9 @@ impl TransportAdapter {
                     unsent.extend(pending);
                     let dropped = registry.requeue_transport_outputs(unsent).await;
                     if dropped > 0 {
-                        return Err(io::Error::other("transport retry queue full"));
+                        return Err(io::Error::other(format!(
+                            "transport retry queue full; dropped {dropped} datagrams"
+                        )));
                     }
                     return Err(io::Error::new(
                         io::ErrorKind::WriteZero,
@@ -121,7 +130,9 @@ impl TransportAdapter {
                     unsent.extend(pending);
                     let dropped = registry.requeue_transport_outputs(unsent).await;
                     if dropped > 0 {
-                        return Err(io::Error::other("transport retry queue full"));
+                        return Err(io::Error::other(format!(
+                            "transport retry queue full; dropped {dropped} datagrams"
+                        )));
                     }
                     return Err(error);
                 }
@@ -176,5 +187,6 @@ mod tests {
         assert_eq!(report.attempted, 2);
         assert_eq!(report.sent, 2);
         assert_eq!(report.bytes, 2);
+        assert_eq!(report.dropped, 1);
     }
 }
