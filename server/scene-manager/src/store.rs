@@ -127,7 +127,16 @@ impl SceneStore {
             Ok(SceneSummary {
                 id: row.get(0)?,
                 name: row.get(1)?,
-                active_revision: u64::try_from(rev).unwrap_or(0),
+                active_revision: u64::try_from(rev).map_err(|_| {
+                    rusqlite::Error::FromSqlConversionFailure(
+                        2,
+                        rusqlite::types::Type::Integer,
+                        Box::new(std::io::Error::new(
+                            std::io::ErrorKind::InvalidData,
+                            "negative active revision",
+                        )),
+                    )
+                })?,
                 created_at: row.get(3)?,
                 updated_at: row.get(4)?,
             })
@@ -359,12 +368,13 @@ impl SceneStore {
     /// # Errors
     /// Returns `StoreError::NotFound` if `id` does not exist,
     /// `StoreError::Validation` if config is invalid,
+    /// or `StoreError::InvalidSnapshot` when stored revision data is invalid,
     /// or `StoreError::Db` / `StoreError::LockPoisoned` on failure.
     pub fn save_scene(&self, id: &str, config: SceneConfig) -> Result<Scene, StoreError> {
         let conn = self.conn.lock().map_err(|_| StoreError::LockPoisoned)?;
         conn.execute_batch("PRAGMA foreign_keys=ON;")?;
 
-        let (name, _cur_rev): (String, i64) = conn
+        let (name, cur_rev): (String, i64) = conn
             .query_row(
                 "SELECT name, active_revision FROM scenes WHERE id = ?1",
                 params![id],
@@ -374,19 +384,33 @@ impl SceneStore {
                 rusqlite::Error::QueryReturnedNoRows => StoreError::NotFound(id.to_owned()),
                 other => StoreError::Db(other),
             })?;
+        if cur_rev < 0 {
+            return Err(StoreError::InvalidSnapshot(
+                "active scene revision is negative".to_owned(),
+            ));
+        }
 
         let max_rev: i64 = conn.query_row(
             "SELECT COALESCE(MAX(revision), 0) FROM scene_revisions WHERE scene_id = ?1",
             params![id],
             |row| row.get(0),
         )?;
-        let new_rev = max_rev + 1;
+        if max_rev < 0 {
+            return Err(StoreError::InvalidSnapshot(
+                "scene revision is negative".to_owned(),
+            ));
+        }
+        let new_rev = max_rev.checked_add(1).ok_or_else(|| {
+            StoreError::InvalidSnapshot("scene revision exceeds SQLite range".to_owned())
+        })?;
 
         let scene = Scene {
             id: id.to_owned(),
             name: name.clone(),
             schema_version: SCHEMA_VERSION,
-            revision: u64::try_from(new_rev).unwrap_or(u64::MAX),
+            revision: u64::try_from(new_rev).map_err(|_| {
+                StoreError::InvalidSnapshot("scene revision exceeds unsigned range".to_owned())
+            })?,
             config,
         };
         crate::validate(&scene)?;
