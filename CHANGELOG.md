@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Changed
+- P0-003 now retains bounded Sans-IO `str0m::Transmit` datagrams for an external socket adapter; no network I/O claim.
+
+### Changed
 - P0-003 media session drive coverage merged in PR #119; transport output remains CODE/SIMULATED and deferred to bounded transport ownership.
 
 ### Tests

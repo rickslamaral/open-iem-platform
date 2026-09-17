@@ -25,7 +25,11 @@ pub use opus_receiver::{
 };
 pub use pairing::{DeviceIdentity, PairingError, PairingRegistry};
 use serde::Serialize;
-use std::{collections::HashMap, sync::Arc, time::Instant};
+use std::{
+    collections::{HashMap, VecDeque},
+    sync::Arc,
+    time::Instant,
+};
 use str0m::{change::SdpOffer, Candidate, Event, Output, Rtc};
 use thiserror::Error;
 use tokio::sync::Mutex;
@@ -35,6 +39,8 @@ pub const AUDIO_SAMPLE_RATE: u32 = 48_000;
 pub const AUDIO_CHANNELS: u8 = 2;
 pub const AUDIO_FRAME_DURATION_MS: u32 = 20;
 pub const AUDIO_FRAME_SAMPLES: usize = 960;
+/// Maximum number of Sans-IO datagrams retained for the transport adapter.
+pub const TRANSPORT_OUTPUT_CAPACITY: usize = 128;
 
 /// Maximum SDP body size accepted (16 KiB).
 const MAX_SDP_BYTES: usize = 16 * 1024;
@@ -75,7 +81,7 @@ struct PeerSession {
     /// Sans-IO WebRTC peer. Holds ICE/DTLS/SRTP state.
     ///
     /// SIMULATED on VPS: no real network I/O occurs; candidates are stored for
-    /// future Raspberry Pi use but no `poll_output` loop runs in this phase.
+    /// future Raspberry Pi use and `poll_output` output stays in the bounded queue.
     rtc: Rtc,
     media_mid: Option<str0m::media::Mid>,
     writer: MediaWriter,
@@ -84,6 +90,7 @@ struct PeerSession {
 #[derive(Clone, Default)]
 pub struct SessionRegistry {
     sessions: Arc<Mutex<HashMap<String, PeerSession>>>,
+    transport_outputs: Arc<Mutex<VecDeque<str0m::net::Transmit>>>,
 }
 
 impl SessionRegistry {
@@ -91,6 +98,9 @@ impl SessionRegistry {
     pub fn new() -> Self {
         Self {
             sessions: Arc::new(Mutex::new(HashMap::new())),
+            transport_outputs: Arc::new(Mutex::new(VecDeque::with_capacity(
+                TRANSPORT_OUTPUT_CAPACITY,
+            ))),
         }
     }
 
@@ -177,8 +187,8 @@ impl SessionRegistry {
     /// each Sans-IO peer without network I/O. `frame_budget` applies separately
     /// to bridge input and session output stages.
     ///
-    /// `Transmit` output is counted and discarded deliberately. A future UDP
-    /// adapter owns that output; this method does not claim media runtime support.
+    /// `Transmit` output is retained in a bounded queue for an external transport
+    /// adapter; this method does not perform network I/O or claim runtime support.
     #[allow(clippy::too_many_lines)]
     pub async fn drive_once(
         &self,
@@ -220,6 +230,10 @@ impl SessionRegistry {
                     Ok(Output::Timeout(_)) | Err(_) => break,
                     Ok(Output::Transmit(transmit)) => {
                         transmitted_bytes += transmit.contents.len();
+                        let mut outputs = self.transport_outputs.lock().await;
+                        if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
+                            outputs.push_back(transmit);
+                        }
                         outputs_polled += 1;
                     }
                     Ok(Output::Event(event)) => {
@@ -270,6 +284,10 @@ impl SessionRegistry {
                             match peer.rtc.poll_output() {
                                 Ok(Output::Transmit(transmit)) => {
                                     transmitted_bytes += transmit.contents.len();
+                                    let mut outputs = self.transport_outputs.lock().await;
+                                    if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
+                                        outputs.push_back(transmit);
+                                    }
                                     outputs_polled += 1;
                                 }
                                 Ok(Output::Event(event)) => {
@@ -299,6 +317,13 @@ impl SessionRegistry {
             budget_exhausted,
             packets_encoded,
         }
+    }
+
+    /// Transfer bounded Sans-IO datagrams to owner of real socket I/O.
+    pub async fn drain_transport_outputs(&self, budget: usize) -> Vec<str0m::net::Transmit> {
+        let mut outputs = self.transport_outputs.lock().await;
+        let count = outputs.len().min(budget);
+        outputs.drain(..count).collect()
     }
 
     pub async fn list(&self) -> Vec<SessionInfo> {
@@ -423,6 +448,13 @@ mod tests {
         assert_eq!(second.frames_drained, 1);
         assert!(first.outputs_polled <= 1);
         assert!(second.outputs_polled <= 1);
+        assert!(registry.drain_transport_outputs(8).await.len() <= 8);
+    }
+
+    #[tokio::test]
+    async fn transport_output_drain_respects_budget() {
+        let registry = SessionRegistry::new();
+        assert!(registry.drain_transport_outputs(1).await.is_empty());
     }
 
     #[tokio::test]
