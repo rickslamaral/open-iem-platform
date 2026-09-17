@@ -564,6 +564,45 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn transport_adapter_requeues_failed_suffix_in_order() {
+        let registry = SessionRegistry::new();
+        let receiver = tokio::net::UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let valid_destination = receiver.local_addr().unwrap();
+        let invalid_destination: SocketAddr = "[::1]:9".parse().unwrap();
+        let transmit = |destination, payload: &str| str0m::net::Transmit {
+            proto: Protocol::Udp,
+            source: "127.0.0.1:0".parse().unwrap(),
+            destination,
+            contents: payload.as_bytes().to_vec().into(),
+        };
+        let mut outputs = registry.transport_outputs.lock().await;
+        outputs.push_back(transmit(valid_destination, "first"));
+        outputs.push_back(transmit(invalid_destination, "second"));
+        outputs.push_back(transmit(valid_destination, "third"));
+        drop(outputs);
+
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+        assert!(adapter.send_from_registry(&registry, 3).await.is_err());
+
+        let mut payload = [0_u8; 16];
+        let (length, _) = tokio::time::timeout(
+            std::time::Duration::from_secs(1),
+            receiver.recv_from(&mut payload),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        assert_eq!(&payload[..length], b"first");
+
+        let queued = registry.drain_transport_outputs(3).await;
+        assert_eq!(queued.len(), 2);
+        assert_eq!(&queued[0].contents[..], b"second");
+        assert_eq!(&queued[1].contents[..], b"third");
+    }
+
+    #[tokio::test]
     async fn registry_starts_empty() {
         assert_eq!(SessionRegistry::new().len().await, 0);
     }
