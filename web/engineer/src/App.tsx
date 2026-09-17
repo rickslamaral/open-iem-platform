@@ -310,12 +310,14 @@ function PresetPanel({ token, channels, onApplied }: { token: string; channels: 
   const [loading, setLoading] = useState(true);
   const [selectedChannel, setSelectedChannel] = useState<number>(channels[0]?.index ?? 0);
   const [applying, setApplying] = useState<string | null>(null);
+  const [applied, setApplied] = useState<{ preset: string; channel: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const requestGeneration = useRef(0);
 
   useEffect(() => {
     if (channels.length > 0 && !channels.some((channel) => channel.index === selectedChannel)) {
       setSelectedChannel(channels[0].index);
+      setApplied(null);
     }
   }, [channels, selectedChannel]);
 
@@ -323,6 +325,7 @@ function PresetPanel({ token, channels, onApplied }: { token: string; channels: 
     const generation = ++requestGeneration.current;
     setLoading(true);
     setError(null);
+    setApplied(null);
     setPresets([]);
     void request<{ presets: PresetSummary[] }>('/api/v1/presets', token)
       .then((result) => { if (generation === requestGeneration.current) setPresets(parsePresets(result?.presets)); })
@@ -337,29 +340,34 @@ function PresetPanel({ token, channels, onApplied }: { token: string; channels: 
 
   async function applyPreset(presetId: string) {
     if (applying || channels.length === 0) return;
-    setApplying(presetId); setError(null);
+    const generation = requestGeneration.current;
+    setApplying(presetId); setError(null); setApplied(null);
     try {
       await request(`/api/v1/presets/${encodeURIComponent(presetId)}/apply`, token, {
         method: 'POST',
         body: JSON.stringify({ channel_index: selectedChannel }),
       });
       await onApplied();
+      if (generation === requestGeneration.current) setApplied({ preset: presetId, channel: selectedChannel });
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Falha ao aplicar preset');
-    } finally { setApplying(null); }
+      if (generation === requestGeneration.current) setError(cause instanceof Error ? cause.message : 'Falha ao aplicar preset');
+    } finally {
+      if (generation === requestGeneration.current) setApplying(null);
+    }
   }
 
   return <>
     <p className="muted">Presets built-in aplicam defaults seguros em canal selecionado.</p>
     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
       <span>Canal</span>
-      <select aria-label="Canal do preset" value={selectedChannel} onChange={(event) => setSelectedChannel(Number(event.target.value))} disabled={loading || applying !== null || channels.length === 0}>
+      <select aria-label="Canal do preset" value={selectedChannel} onChange={(event) => { setSelectedChannel(Number(event.target.value)); setApplied(null); }} disabled={loading || applying !== null || channels.length === 0}>
         {channels.map((channel) => <option key={channel.index} value={channel.index}>{channel.index + 1} — {channel.name}</option>)}
       </select>
     </label>
     <button type="button" onClick={() => void refresh()} disabled={loading || applying !== null}>{loading ? 'Atualizando…' : 'Atualizar presets'}</button>
     {loading && <p className="muted">Carregando presets…</p>}
     {error && <p className="error" role="alert">{error}</p>}
+    {applied && <p role="status">Preset {applied.preset} aplicado no canal {applied.channel + 1}.</p>}
     {!loading && !error && presets.length === 0 && <p className="muted">Nenhum preset disponível.</p>}
     {presets.map((preset) => <div className="row" key={preset.id}>
       <div><strong>{preset.name}</strong><br /><span className="muted">{preset.kind} · {preset.description}</span></div>
