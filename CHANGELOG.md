@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Fixed
+- Engineer EQ controls now cancel pending debounce timers on unmount, preventing stale WebSocket mutations after view teardown.
 - Bound streaming session metadata and ICE lookup identifiers; report dropped transport output accurately and expose Sans-IO poll errors in `DriveReport`.
 
 ### Changed
