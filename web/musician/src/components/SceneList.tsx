@@ -1,11 +1,22 @@
 import styles from './SceneList.module.css';
 import type { SceneSummary } from '../api/scenes';
 
-interface Props { scenes: SceneSummary[]; activeSceneId: string | null; loading: boolean; error: string | null }
+interface Props {
+  scenes: SceneSummary[];
+  activeSceneId: string | null;
+  loading: boolean;
+  error: string | null;
+  onRefresh: () => void;
+}
 
-export function SceneList({ scenes, activeSceneId, loading, error }: Props) {
+export function SceneList({ scenes, activeSceneId, loading, error, onRefresh }: Props) {
   return <section className={styles.panel} aria-labelledby="scenes-title">
-    <h2 id="scenes-title">Cenas</h2>
+    <div className={styles.heading}>
+      <h2 id="scenes-title">Cenas</h2>
+      <button type="button" onClick={onRefresh} disabled={loading} aria-label="Atualizar cenas">
+        {loading ? 'Atualizando…' : 'Atualizar'}
+      </button>
+    </div>
     {loading && <p role="status">Carregando cenas…</p>}
     {error && <p role="alert">{error}</p>}
     {!loading && !error && scenes.length === 0 && <p>Nenhuma cena disponível.</p>}

@@ -5,3 +5,10 @@
 .list li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 9px; border: 1px solid #2d2d4e; border-radius: 5px; }
 .list li.active { border-color: #7c3aed; color: #fff; }
 .list small { color: #718096; }
+
+.heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}

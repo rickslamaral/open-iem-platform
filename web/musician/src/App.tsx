@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Login } from './components/Login';
 import { MixControl } from './components/MixControl';
 import { ConnectionStatus } from './components/ConnectionStatus';
@@ -37,6 +37,7 @@ export default function App() {
   const [activeSceneId, setActiveSceneId] = useState<string | null>(null);
   const [scenesLoading, setScenesLoading] = useState(false);
   const [scenesError, setScenesError] = useState<string | null>(null);
+  const scenesRequestRef = useRef(0);
 
   const ws = useWebSocket(token);
 
@@ -85,23 +86,33 @@ export default function App() {
     return () => { active = false; };
   }, [token]);
 
+  const refreshScenes = useCallback((accessToken: string) => {
+    const requestId = ++scenesRequestRef.current;
+    setScenesLoading(true);
+    setScenesError(null);
+    void Promise.all([fetchScenes(accessToken), fetchActiveSceneId(accessToken)]).then(([items, current]) => {
+      if (requestId !== scenesRequestRef.current) return;
+      setScenes(items); setActiveSceneId(current);
+    }).catch((err) => {
+      if (requestId === scenesRequestRef.current) {
+        setScenesError(err instanceof Error ? err.message : 'Falha ao carregar cenas');
+      }
+    }).finally(() => {
+      if (requestId === scenesRequestRef.current) setScenesLoading(false);
+    });
+  }, []);
+
   useEffect(() => {
     if (!token) return;
-    let active = true;
     setScenesLoading(true);
     setScenesError(null);
     setScenes([]);
     setActiveSceneId(null);
-    void Promise.all([fetchScenes(token), fetchActiveSceneId(token)]).then(([items, current]) => {
-      if (!active) return;
-      setScenes(items); setActiveSceneId(current);
-    }).catch((err) => {
-      if (active) setScenesError(err instanceof Error ? err.message : 'Falha ao carregar cenas');
-    }).finally(() => { if (active) setScenesLoading(false); });
-    return () => { active = false; };
-  }, [token]);
+    refreshScenes(token);
+  }, [token, refreshScenes]);
 
   const handleLogout = useCallback(async () => {
+    ++scenesRequestRef.current;
     ws.disconnect();
     setToken(null);
     setChannels(defaultChannels());
@@ -167,7 +178,7 @@ export default function App() {
         onChannelPan={handleChannelPan}
         onLogout={handleLogout}
       />
-      <SceneList scenes={scenes} activeSceneId={activeSceneId} loading={scenesLoading} error={scenesError} />
+      <SceneList scenes={scenes} activeSceneId={activeSceneId} loading={scenesLoading} error={scenesError} onRefresh={() => refreshScenes(token)} />
     </div>
   );
 }
