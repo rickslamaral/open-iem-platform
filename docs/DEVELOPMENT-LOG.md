@@ -4325,3 +4325,9 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Catálogo  e aplicação  agora compartilham allowlist única de presets built-in.
 - Removida duplicação de IDs e metadados; preset publicado não pode ficar listável sem aplicação, nem aplicável sem aparecer no catálogo.
 - Evidência planejada: gates Rust + revisão independente; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
+
+
+## 2026-09-17 — SceneStore active revision consistency hardening
+
+- `list_scenes`, `duplicate_scene` e `save_scene` agora rejeitam revisão ativa zero, histórico ausente e ponteiro ativo acima do histórico persistido.
+- Revisão independente encontrou o bypass; teste do crate `scene-manager` passou com 25 testes. Evidência CODE; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.

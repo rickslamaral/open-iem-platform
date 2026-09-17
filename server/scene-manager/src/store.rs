@@ -113,6 +113,46 @@ impl SceneStore {
         Ok(())
     }
 
+    fn load_active_revision(conn: &Connection, scene_id: &str) -> Result<Scene, StoreError> {
+        let (active_revision, payload): (i64, Option<String>) = conn
+            .query_row(
+                "SELECT s.active_revision, sr.payload FROM scenes s LEFT JOIN scene_revisions sr ON sr.scene_id = s.id AND sr.revision = s.active_revision WHERE s.id = ?1",
+                params![scene_id],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .map_err(|e| match e {
+                rusqlite::Error::QueryReturnedNoRows => StoreError::NotFound(scene_id.to_owned()),
+                other => StoreError::Db(other),
+            })?;
+        if active_revision <= 0 {
+            return Err(StoreError::InvalidSnapshot(
+                "active scene revision must be positive".to_owned(),
+            ));
+        }
+        let payload = payload.ok_or_else(|| {
+            StoreError::InvalidSnapshot("active scene revision has no persisted payload".to_owned())
+        })?;
+        let scene =
+            crate::decode(&payload).map_err(|e| StoreError::CorruptPayload(e.to_string()))?;
+        if scene.id != scene_id {
+            return Err(StoreError::InvalidSnapshot(
+                "active scene payload ID does not match scene ID".to_owned(),
+            ));
+        }
+        if scene.revision
+            != u64::try_from(active_revision).map_err(|_| {
+                StoreError::InvalidSnapshot(
+                    "active scene revision exceeds unsigned range".to_owned(),
+                )
+            })?
+        {
+            return Err(StoreError::InvalidSnapshot(
+                "active scene payload revision does not match active revision".to_owned(),
+            ));
+        }
+        Ok(scene)
+    }
+
     /// List all scenes ordered by creation time.
     ///
     /// # Errors
@@ -141,11 +181,13 @@ impl SceneStore {
                 updated_at: row.get(4)?,
             })
         })?;
-        let mut out = Vec::new();
-        for r in rows {
-            out.push(r?);
+        let summaries: Result<Vec<_>, _> = rows.collect();
+        let summaries = summaries?;
+        drop(stmt);
+        for summary in &summaries {
+            Self::load_active_revision(&conn, &summary.id)?;
         }
-        Ok(out)
+        Ok(summaries)
     }
 
     /// Export current durable scenes and active pointer as bounded JSON.
@@ -156,16 +198,15 @@ impl SceneStore {
     pub fn export_snapshot(&self) -> Result<String, StoreError> {
         let conn = self.conn.lock().map_err(|_| StoreError::LockPoisoned)?;
         let tx = conn.unchecked_transaction()?;
-        let mut stmt = tx.prepare(
-            "SELECT sr.payload FROM scene_revisions sr JOIN scenes s ON s.id = sr.scene_id WHERE sr.revision = s.active_revision ORDER BY s.created_at ASC",
-        )?;
+        let mut stmt = tx.prepare("SELECT s.id FROM scenes s ORDER BY s.created_at ASC")?;
         let rows = stmt.query_map([], |row| row.get::<_, String>(0))?;
+        let scene_ids: Result<Vec<_>, _> = rows.collect();
+        let scene_ids = scene_ids?;
+        drop(stmt);
         let mut scenes = Vec::new();
         let mut estimated_bytes = 32usize;
-        for row in rows {
-            let payload = row?;
-            let scene =
-                crate::decode(&payload).map_err(|e| StoreError::CorruptPayload(e.to_string()))?;
+        for scene_id in scene_ids {
+            let scene = Self::load_active_revision(&tx, &scene_id)?;
             let scene_bytes = serde_json::to_vec(&scene)
                 .map_err(|e| StoreError::InvalidSnapshot(e.to_string()))?
                 .len();
@@ -180,7 +221,6 @@ impl SceneStore {
             }
             scenes.push(scene);
         }
-        drop(stmt);
         let active_scene_id: Option<String> = tx
             .query_row(
                 "SELECT scene_id FROM active_scene WHERE key = 'active'",
@@ -330,18 +370,7 @@ impl SceneStore {
         let conn = self.conn.lock().map_err(|_| StoreError::LockPoisoned)?;
         conn.execute_batch("PRAGMA foreign_keys=ON;")?;
         let tx = conn.unchecked_transaction()?;
-        let payload: String = tx
-            .query_row(
-                "SELECT sr.payload FROM scene_revisions sr JOIN scenes s ON s.id = sr.scene_id WHERE sr.scene_id = ?1 AND sr.revision = s.active_revision",
-                params![id],
-                |row| row.get(0),
-            )
-            .map_err(|e| match e {
-                rusqlite::Error::QueryReturnedNoRows => StoreError::NotFound(id.to_owned()),
-                other => StoreError::Db(other),
-            })?;
-        let source =
-            crate::decode(&payload).map_err(|e| StoreError::CorruptPayload(e.to_string()))?;
+        let source = Self::load_active_revision(&tx, id)?;
         let copy = Scene {
             id: uuid::Uuid::new_v4().to_string(),
             name: name.to_owned(),
@@ -384,9 +413,16 @@ impl SceneStore {
                 rusqlite::Error::QueryReturnedNoRows => StoreError::NotFound(id.to_owned()),
                 other => StoreError::Db(other),
             })?;
-        if cur_rev < 0 {
+        let active = Self::load_active_revision(&conn, id)?;
+        if active.revision
+            != u64::try_from(cur_rev).map_err(|_| {
+                StoreError::InvalidSnapshot(
+                    "active scene revision exceeds unsigned range".to_owned(),
+                )
+            })?
+        {
             return Err(StoreError::InvalidSnapshot(
-                "active scene revision is negative".to_owned(),
+                "active scene revision does not match loaded revision".to_owned(),
             ));
         }
 
@@ -395,11 +431,6 @@ impl SceneStore {
             params![id],
             |row| row.get(0),
         )?;
-        if max_rev < 0 {
-            return Err(StoreError::InvalidSnapshot(
-                "scene revision is negative".to_owned(),
-            ));
-        }
         let new_rev = max_rev.checked_add(1).ok_or_else(|| {
             StoreError::InvalidSnapshot("scene revision exceeds SQLite range".to_owned())
         })?;
@@ -438,20 +469,7 @@ impl SceneStore {
     /// or `StoreError::Db` / `StoreError::LockPoisoned` on failure.
     pub fn get_scene(&self, id: &str) -> Result<Scene, StoreError> {
         let conn = self.conn.lock().map_err(|_| StoreError::LockPoisoned)?;
-        let payload: String = conn
-            .query_row(
-                "SELECT sr.payload FROM scene_revisions sr
-                 JOIN scenes s ON s.id = sr.scene_id
-                 WHERE sr.scene_id = ?1 AND sr.revision = s.active_revision",
-                params![id],
-                |row| row.get(0),
-            )
-            .map_err(|e| match e {
-                rusqlite::Error::QueryReturnedNoRows => StoreError::NotFound(id.to_owned()),
-                other => StoreError::Db(other),
-            })?;
-
-        crate::decode(&payload).map_err(|e| StoreError::CorruptPayload(e.to_string()))
+        Self::load_active_revision(&conn, id)
     }
 
     /// Delete a scene. Fails if it is currently the active scene.
@@ -478,6 +496,7 @@ impl SceneStore {
             }
         }
 
+        Self::load_active_revision(&conn, id)?;
         let affected = conn.execute("DELETE FROM scenes WHERE id = ?1", params![id])?;
         if affected == 0 {
             return Err(StoreError::NotFound(id.to_owned()));
@@ -498,17 +517,7 @@ impl SceneStore {
                 conn.execute("DELETE FROM active_scene WHERE key = 'active'", [])?;
             }
             Some(scene_id) => {
-                let exists: bool = conn
-                    .query_row(
-                        "SELECT 1 FROM scenes WHERE id = ?1",
-                        params![scene_id],
-                        |_| Ok(true),
-                    )
-                    .optional()?
-                    .unwrap_or(false);
-                if !exists {
-                    return Err(StoreError::NotFound(scene_id.to_owned()));
-                }
+                Self::load_active_revision(&conn, scene_id)?;
                 conn.execute(
                     "INSERT OR REPLACE INTO active_scene (key, scene_id) VALUES ('active', ?1)",
                     params![scene_id],
@@ -525,24 +534,17 @@ impl SceneStore {
     /// or `StoreError::Db` / `StoreError::LockPoisoned` on failure.
     pub fn get_active_scene(&self) -> Result<Option<Scene>, StoreError> {
         let conn = self.conn.lock().map_err(|_| StoreError::LockPoisoned)?;
-        let result = conn
+        let active_scene_id: Option<String> = conn
             .query_row(
-                "SELECT sr.payload FROM active_scene a
-                 JOIN scenes s ON s.id = a.scene_id
-                 JOIN scene_revisions sr ON sr.scene_id = s.id AND sr.revision = s.active_revision
-                 WHERE a.key = 'active'",
+                "SELECT scene_id FROM active_scene WHERE key = 'active'",
                 [],
-                |row| row.get::<_, String>(0),
+                |row| row.get(0),
             )
             .optional()?;
 
-        match result {
+        match active_scene_id {
             None => Ok(None),
-            Some(payload) => {
-                let scene = crate::decode(&payload)
-                    .map_err(|e| StoreError::CorruptPayload(e.to_string()))?;
-                Ok(Some(scene))
-            }
+            Some(scene_id) => Self::load_active_revision(&conn, &scene_id).map(Some),
         }
     }
 
@@ -662,6 +664,149 @@ mod tests {
         store.create_scene("Show", empty_config()).unwrap();
         let list = store.list_scenes().unwrap();
         assert_eq!(list.len(), 1);
+    }
+
+    #[test]
+    fn invalid_active_revision_fails_closed_for_reads_and_writes() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Show", empty_config()).unwrap();
+        let conn = store.conn.lock().unwrap();
+        conn.execute(
+            "UPDATE scenes SET active_revision = 0 WHERE id = ?1",
+            params![scene.id],
+        )
+        .unwrap();
+        drop(conn);
+
+        assert!(matches!(
+            store.list_scenes(),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.duplicate_scene(&scene.id, "Copy"),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.save_scene(&scene.id, empty_config()),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+
+        let conn = store.conn.lock().unwrap();
+        conn.execute(
+            "UPDATE scenes SET active_revision = 2 WHERE id = ?1",
+            params![scene.id],
+        )
+        .unwrap();
+        drop(conn);
+        assert!(matches!(
+            store.save_scene(&scene.id, empty_config()),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+    }
+
+    #[test]
+    fn active_payload_validation_fails_closed_for_invalid_payload() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Show", empty_config()).unwrap();
+        store.corrupt_for_test(&scene.id);
+
+        assert!(matches!(
+            store.list_scenes(),
+            Err(StoreError::CorruptPayload(_))
+        ));
+        assert!(matches!(
+            store.duplicate_scene(&scene.id, "Copy"),
+            Err(StoreError::CorruptPayload(_))
+        ));
+        assert!(matches!(
+            store.save_scene(&scene.id, empty_config()),
+            Err(StoreError::CorruptPayload(_))
+        ));
+        assert!(matches!(
+            store.set_active_scene(Some(&scene.id)),
+            Err(StoreError::CorruptPayload(_))
+        ));
+        assert!(matches!(
+            store.delete_scene(&scene.id),
+            Err(StoreError::CorruptPayload(_))
+        ));
+    }
+
+    #[test]
+    fn active_payload_validation_fails_closed_for_mismatched_identity() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Show", empty_config()).unwrap();
+        let mut payload_scene = scene.clone();
+        payload_scene.id = "different-id".to_owned();
+        let payload = crate::encode(&payload_scene).unwrap();
+        let conn = store.conn.lock().unwrap();
+        conn.execute(
+            "UPDATE scene_revisions SET payload = ?1 WHERE scene_id = ?2 AND revision = 1",
+            params![payload, scene.id],
+        )
+        .unwrap();
+        drop(conn);
+
+        assert!(matches!(
+            store.list_scenes(),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.duplicate_scene(&scene.id, "Copy"),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.save_scene(&scene.id, empty_config()),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.get_scene(&scene.id),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.set_active_scene(Some(&scene.id)),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.delete_scene(&scene.id),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.export_snapshot(),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+    }
+
+    #[test]
+    fn active_payload_validation_fails_closed_for_mismatched_revision_on_reads() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Show", empty_config()).unwrap();
+        let mut payload_scene = scene.clone();
+        payload_scene.revision = 2;
+        let payload = crate::encode(&payload_scene).unwrap();
+        let conn = store.conn.lock().unwrap();
+        conn.execute(
+            "UPDATE scene_revisions SET payload = ?1 WHERE scene_id = ?2 AND revision = 1",
+            params![payload, scene.id],
+        )
+        .unwrap();
+        drop(conn);
+        assert!(matches!(
+            store.get_scene(&scene.id),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.set_active_scene(Some(&scene.id)),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.delete_scene(&scene.id),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.export_snapshot(),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
     }
 
     #[test]
