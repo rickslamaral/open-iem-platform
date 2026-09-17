@@ -630,6 +630,36 @@ async fn engineer_applies_builtin_preset_to_channel() {
 }
 
 #[tokio::test]
+async fn engineer_rejects_out_of_range_preset_channel_without_mutation() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "preset_eng_range", "pw", Role::Engineer);
+    let revision_before = state.control.lock().unwrap().revision();
+    server
+        .post("/api/v1/presets/default-vocal/apply")
+        .authorization_bearer(token)
+        .json(&json!({"channel_index": 8}))
+        .await
+        .assert_status(axum::http::StatusCode::BAD_REQUEST);
+    assert_eq!(state.control.lock().unwrap().revision(), revision_before);
+    assert!(state.control.lock().unwrap().channel(8).is_none());
+}
+
+#[tokio::test]
+async fn engineer_rejects_unknown_preset_fields_without_mutation() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "preset_eng_payload", "pw", Role::Engineer);
+    let revision_before = state.control.lock().unwrap().revision();
+    server
+        .post("/api/v1/presets/default-vocal/apply")
+        .authorization_bearer(token)
+        .json(&json!({"channel_index": 2, "gain_db": 12.0}))
+        .await
+        .assert_status(axum::http::StatusCode::UNPROCESSABLE_ENTITY);
+    assert_eq!(state.control.lock().unwrap().revision(), revision_before);
+    assert!(state.control.lock().unwrap().channel(2).is_none());
+}
+
+#[tokio::test]
 async fn musician_cannot_apply_preset_and_invalid_input_does_not_mutate() {
     let (server, state) = build_test_app();
     let musician = seed_user_and_login(&state, "preset_mus", "pw", Role::Musician);

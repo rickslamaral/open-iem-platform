@@ -4,8 +4,8 @@ use axum::{
     extract::{Path, State},
     Json,
 };
-use control_protocol::Role;
-use control_protocol::{ClientMessage, Envelope, ServerMessage};
+use control_protocol::{ClientMessage, Envelope, Role, ServerMessage};
+use mix_engine::MAX_CHANNELS;
 use serde::Deserialize;
 use serde::Serialize;
 use uuid::Uuid;
@@ -89,6 +89,9 @@ pub async fn apply_preset(
     require_min_role(&claims, Role::Engineer)?;
     if !matches!(preset_id.as_str(), "default-vocal" | "default-instrument") {
         return Err(ApiError::BadRequest("unknown preset".to_owned()));
+    }
+    if usize::from(body.channel_index) >= MAX_CHANNELS {
+        return Err(ApiError::BadRequest("channel is not available".to_owned()));
     }
 
     // Both built-ins intentionally represent safe neutral channel defaults.

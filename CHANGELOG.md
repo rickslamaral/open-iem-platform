@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Rejeição antecipada de canal inexistente e cobertura de payload desconhecido na aplicação de presets built-in.
+
+
 ### Documentation
 - Reconciled GAP-001, GAP-003 and GAP-004 with implemented media, receiver and clock code; runtime and hardware validation remain pending.
 

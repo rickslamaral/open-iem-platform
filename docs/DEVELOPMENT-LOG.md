@@ -1,3 +1,15 @@
+## 2026-09-17 — validação de aplicação de preset por canal
+
+**Status:** CODE + CI local; runtime e hardware permanecem pendentes.
+
+- `POST /api/v1/presets/{id}/apply` agora rejeita `channel_index` fora do limite antes de despachar comandos ao `ControlState`.
+- Adicionada cobertura de integração para canal inexistente e campos JSON desconhecidos, sem mutação de estado.
+- Evidência: fmt, clippy, 78 testes de integração e suíte completa do workspace passaram; Musician 61 testes/build e Engineer 44 testes/build passaram.
+- A tentativa inicial com `--watchAll=false` falhou porque Vitest não aceita essa opção; execução corrigida com `--run` passou.
+- Sem claim de runtime, PipeWire/ALSA, WebRTC/Opus ou Raspberry Pi 5.
+
+---
+
 ## 2026-09-17 — P2 Engineer preset application UI
 
 **Status:** CODE; runtime e hardware permanecem pendentes.
