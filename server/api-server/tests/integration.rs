@@ -48,10 +48,26 @@ use serde_json::{json, Value};
 
 // ── Ephemeral test-only Ed25519 PEM pair ────────────────────────────────────
 // Generate keys at runtime so no private key is stored in the repository.
+struct TestKeyDir(std::path::PathBuf);
+
+#[cfg(unix)]
+fn restrict_test_key_dir(path: &std::path::Path) {
+    std::fs::set_permissions(path, std::os::unix::fs::PermissionsExt::from_mode(0o700))
+        .expect("test key directory permissions must be restricted");
+}
+
+#[cfg(not(unix))]
+fn restrict_test_key_dir(_path: &std::path::Path) {}
+
+impl Drop for TestKeyDir {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
 fn test_keys() -> (Vec<u8>, Vec<u8>) {
     use std::{
         fs,
-        process::Command,
         time::{SystemTime, UNIX_EPOCH},
     };
 
@@ -59,18 +75,24 @@ fn test_keys() -> (Vec<u8>, Vec<u8>) {
         .duration_since(UNIX_EPOCH)
         .expect("system clock must be valid")
         .as_nanos();
-    let private_path = std::env::temp_dir().join(format!("open-iem-test-{nonce}.pem"));
-    let public_path = std::env::temp_dir().join(format!("open-iem-test-{nonce}.pub.pem"));
-    let _ = fs::remove_file(&private_path);
-    let _ = fs::remove_file(&public_path);
+    let dir = std::env::temp_dir().join(format!(
+        "open-iem-test-{}-{nonce}-{}",
+        std::process::id(),
+        rand::random::<u128>()
+    ));
+    fs::create_dir(&dir).expect("test key directory must be created exclusively");
+    restrict_test_key_dir(&dir);
+    let _cleanup = TestKeyDir(dir.clone());
+    let private_path = dir.join("private.pem");
+    let public_path = dir.join("public.pem");
 
-    let status = Command::new("openssl")
+    let status = std::process::Command::new("openssl")
         .args(["genpkey", "-algorithm", "ed25519", "-out"])
         .arg(&private_path)
         .status()
         .expect("openssl must be installed for integration tests");
     assert!(status.success(), "openssl key generation failed");
-    let status = Command::new("openssl")
+    let status = std::process::Command::new("openssl")
         .args(["pkey", "-in"])
         .arg(&private_path)
         .args(["-pubout", "-out"])
@@ -81,8 +103,6 @@ fn test_keys() -> (Vec<u8>, Vec<u8>) {
 
     let private = fs::read(&private_path).expect("generated private key must be readable");
     let public = fs::read(&public_path).expect("generated public key must be readable");
-    let _ = fs::remove_file(private_path);
-    let _ = fs::remove_file(public_path);
     (private, public)
 }
 
