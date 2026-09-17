@@ -4204,3 +4204,10 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Engineer Console agora permite atualização manual do catálogo read-only de presets.
 - Respostas antigas de refresh ou troca de token são descartadas; desmontagem invalida requisições pendentes.
 - Evidência: typecheck, 41 testes frontend e build CODE; runtime permanece pendente.
+
+
+## 2026-09-17 — P2 Engineer preset catalog validation
+
+- Engineer Console agora valida cada entrada do catálogo antes de renderizar; entradas incompletas são descartadas e payload não-array produz estado vazio seguro.
+- Adicionados testes para entrada inválida e payload estruturalmente incorreto.
+- Evidência planejada: typecheck, testes e build frontend; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.

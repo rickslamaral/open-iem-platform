@@ -288,6 +288,23 @@ type SceneSummary = { id: string; name: string; active_revision: number; created
 type Scene = { id: string; name: string; revision: number; config?: unknown };
 type PresetSummary = { id: string; name: string; kind: string; description: string };
 
+function parsePreset(value: unknown): PresetSummary | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const item = value as Record<string, unknown>;
+  if (typeof item.id !== 'string' || item.id.length === 0 ||
+      typeof item.name !== 'string' || typeof item.kind !== 'string' ||
+      typeof item.description !== 'string') return null;
+  return { id: item.id, name: item.name, kind: item.kind, description: item.description };
+}
+
+function parsePresets(value: unknown): PresetSummary[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    const preset = parsePreset(item);
+    return preset ? [preset] : [];
+  });
+}
+
 function PresetPanel({ token }: { token: string }) {
   const [presets, setPresets] = useState<PresetSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -300,7 +317,7 @@ function PresetPanel({ token }: { token: string }) {
     setError(null);
     setPresets([]);
     void request<{ presets: PresetSummary[] }>('/api/v1/presets', token)
-      .then((result) => { if (generation === requestGeneration.current) setPresets(Array.isArray(result?.presets) ? result.presets : []); })
+      .then((result) => { if (generation === requestGeneration.current) setPresets(parsePresets(result?.presets)); })
       .catch((cause) => { if (generation === requestGeneration.current) setError(cause instanceof Error ? cause.message : 'Falha ao carregar presets'); })
       .finally(() => { if (generation === requestGeneration.current) setLoading(false); });
   }, [token]);
