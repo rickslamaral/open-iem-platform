@@ -124,7 +124,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 
 ## P2 Queue
 
-- Scenes/state-store durable path exists via `SCENE_STORE_PATH`; `GET/PUT /api/v1/scenes/backup` provides validated atomic export/restore; runtime validation remains pending.
+- Scenes/state-store durable path exists via `SCENE_STORE_PATH`; `GET/PUT /api/v1/scenes/backup` provides validated atomic export/restore; Engineer Console supports list/create/recall/edit-revision/delete; runtime validation remains pending.
 - Playback/AUX/Hybrid topology after Channel Mode evidence.
 - Windows WASAPI/ASIO runtime validation.
 - Full Engineer matrix, meters, locks and device UI.
@@ -223,4 +223,4 @@ test → review → docs/GAP update → PR/CI
 
 **Current status:** P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI and P1-009/Phase 94 are complete at their recorded evidence levels. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 hardware remain unvalidated. P1-006 release remains blocked by explicit confirmation and physical validation.
 
-**Current next step:** Extend P0-003 media integration coverage after CI run `35176577755` passed the L1/L2 Audio Lab job. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.
+**Current next step:** Select next P2 product slice after scenes UI/revision delivery; musician presets remain unimplemented. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.
