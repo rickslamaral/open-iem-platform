@@ -106,14 +106,14 @@ async fn main() -> anyhow::Result<()> {
 
     // Bootstrap soundtech user (idempotent — no-op if already exists).
     {
-        const DEFAULT_PASSWORD: &str = "changeme-soundtech-2024";
-        let soundtech_password = env::var("OPENIEM_SOUNDTECH_PASSWORD")
-            .unwrap_or_else(|_| {
-                tracing::warn!(
-                    "OPENIEM_SOUNDTECH_PASSWORD not set — using compiled-in default.                      Change this password immediately in any non-development environment."
-                );
-                DEFAULT_PASSWORD.to_owned()
-            });
+        let soundtech_password = env::var("OPENIEM_SOUNDTECH_PASSWORD").map_err(|_| {
+            anyhow::anyhow!(
+                "OPENIEM_SOUNDTECH_PASSWORD is required; refusing bootstrap with a known default"
+            )
+        })?;
+        if soundtech_password.is_empty() {
+            anyhow::bail!("OPENIEM_SOUNDTECH_PASSWORD must not be empty");
+        }
         db.bootstrap_soundtech(&soundtech_password)
             .map_err(|e| anyhow::anyhow!("soundtech bootstrap failed: {e}"))?;
     }
