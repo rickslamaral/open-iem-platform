@@ -630,6 +630,27 @@ async fn engineer_applies_builtin_preset_to_channel() {
 }
 
 #[tokio::test]
+async fn admin_applies_builtin_preset_to_channel() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "preset_admin", "pw", Role::Admin);
+    let response = server
+        .post("/api/v1/presets/default-vocal/apply")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"channel_index": 2}))
+        .await;
+    response.assert_status_ok();
+    let body: Value = response.json();
+    assert_eq!(body["preset_id"], "default-vocal");
+    assert_eq!(body["channel_index"], 2);
+    assert_eq!(body["applied"], true);
+    assert!(body["revision"].as_u64().is_some());
+    let ctrl = state.control.lock().unwrap();
+    assert!(ctrl.channel(2).unwrap().gain_db().abs() < f32::EPSILON);
+    assert!(!ctrl.channel(2).unwrap().muted);
+}
+
+#[tokio::test]
 async fn engineer_rejects_out_of_range_preset_channel_without_mutation() {
     let (server, state) = build_test_app();
     let token = seed_user_and_login(&state, "preset_eng_range", "pw", Role::Engineer);

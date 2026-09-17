@@ -4273,3 +4273,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Engineer Console agora exibe confirmação após `POST /api/v1/presets/{id}/apply`, identifica preset e canal, e limpa feedback ao trocar canal ou atualizar catálogo.
 - Falhas HTTP permanecem em alerta; requisições obsoletas não sobrescrevem estado atual.
 - Gates: typecheck, 44 testes e build frontend Engineer PASS. Evidência CODE; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
+
+## 2026-09-17 — Admin preset application coverage
+
+- Adicionado teste de integração para confirmar que `Admin` pode aplicar preset built-in em canal válido, incluindo resposta, revisão e mutação de estado.
+- Evidência: teste `api-server` local; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
