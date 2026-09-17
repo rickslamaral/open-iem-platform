@@ -95,9 +95,9 @@ impl TransportAdapter {
         registry: &crate::SessionRegistry,
         budget: usize,
     ) -> io::Result<TransportSendReport> {
-        let outputs = registry.drain_transport_outputs(budget).await;
         let mut report = TransportSendReport::default();
         let limit = budget.min(TRANSPORT_SEND_BUDGET);
+        let outputs = registry.drain_transport_outputs(limit).await;
         let mut pending = outputs.into_iter();
         for _ in 0..limit {
             let Some(transmit) = pending.next() else {

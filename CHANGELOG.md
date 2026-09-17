@@ -7,8 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Fixed
+- P0-003 transport adapter now clamps registry dequeue to per-pass budget while preserving bounded retry requeue and drop errors.
+
+### Fixed
 - Engineer EQ controls now cancel pending debounce timers on unmount, preventing stale WebSocket mutations after view teardown.
-- Bound streaming session metadata and ICE lookup identifiers; report dropped transport output accurately and expose Sans-IO poll errors in `DriveReport`.
+- Bound streaming session metadata and ICE lookup identifiers; preserve bounded transport output and expose Sans-IO poll errors in `DriveReport`; retry-capacity drops fail closed through transport errors.
 
 ### Changed
 - P0-003 now retains bounded Sans-IO `str0m::Transmit` datagrams for an external socket adapter; no network I/O claim.

@@ -1,3 +1,15 @@
+## 2026-09-17 — P0-003 transport budget and drop accounting
+
+**Status:** CODE + CI/SIMULATED; runtime and hardware remain pending.
+
+- Clamped registry dequeue before reading the bounded transport budget, preventing oversized caller budgets from draining more than one send pass can process.
+- Preserved retry requeue behavior; retry-capacity drops remain fail-closed through the returned transport error.
+- No runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim.
+
+**Next:** continue P0-003 integration coverage, then validate L1/L2 evidence against exact CI HEAD.
+
+---
+
 ## 2026-09-17 — P0-003 failed-send requeue coverage
 
 **Status:** CODE + CI/SIMULATED; runtime and hardware remain pending.
