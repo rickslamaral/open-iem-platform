@@ -292,21 +292,27 @@ function PresetPanel({ token }: { token: string }) {
   const [presets, setPresets] = useState<PresetSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const requestGeneration = useRef(0);
 
-  useEffect(() => {
-    let active = true;
+  const refresh = useCallback(() => {
+    const generation = ++requestGeneration.current;
     setLoading(true);
     setError(null);
     setPresets([]);
     void request<{ presets: PresetSummary[] }>('/api/v1/presets', token)
-      .then((result) => { if (active) setPresets(Array.isArray(result?.presets) ? result.presets : []); })
-      .catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : 'Falha ao carregar presets'); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+      .then((result) => { if (generation === requestGeneration.current) setPresets(Array.isArray(result?.presets) ? result.presets : []); })
+      .catch((cause) => { if (generation === requestGeneration.current) setError(cause instanceof Error ? cause.message : 'Falha ao carregar presets'); })
+      .finally(() => { if (generation === requestGeneration.current) setLoading(false); });
   }, [token]);
+
+  useEffect(() => {
+    void refresh();
+    return () => { requestGeneration.current += 1; };
+  }, [refresh]);
 
   return <>
     <p className="muted">Catálogo somente leitura. Aplicação e edição de presets ainda não estão disponíveis.</p>
+    <button type="button" onClick={() => void refresh()} disabled={loading}>{loading ? 'Atualizando…' : 'Atualizar presets'}</button>
     {loading && <p className="muted">Carregando presets…</p>}
     {error && <p className="error" role="alert">{error}</p>}
     {!loading && !error && presets.length === 0 && <p className="muted">Nenhum preset disponível.</p>}

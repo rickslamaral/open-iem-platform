@@ -4198,3 +4198,9 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Musician UI consome catálogo autenticado, com estados loading/erro/vazio, atualização manual e descarte de respostas obsoletas após logout. Nenhuma ação de aplicação, edição ou exclusão foi adicionada.
 - Testes: API RBAC/auth, Musician typecheck, 61 testes frontend e build PASS.
 - Evidência: CODE; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
+
+## 2026-09-17 — P2 Engineer preset catalog refresh
+
+- Engineer Console agora permite atualização manual do catálogo read-only de presets.
+- Respostas antigas de refresh ou troca de token são descartadas; desmontagem invalida requisições pendentes.
+- Evidência: typecheck, 41 testes frontend e build CODE; runtime permanece pendente.
