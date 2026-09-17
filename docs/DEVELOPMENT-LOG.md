@@ -4190,3 +4190,11 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Adicionada rota protegida `GET /api/v1/presets` com catálogo imutável de presets iniciais para Engineer/Admin; aplicação, edição e persistência permanecem fora do escopo.
 - Engineer Console exibe catálogo somente leitura, estados loading/erro/vazio e não oferece controles de mutação.
 - Testes frontend adicionados para sucesso e erro; evidência permanece CODE, sem runtime/hardware.
+
+
+## 2026-09-17 — P2 Musician preset catalog
+
+- `GET /api/v1/presets` agora aceita Musician, mantendo catálogo imutável e resumo sem configuração DSP.
+- Musician UI consome catálogo autenticado, com estados loading/erro/vazio, atualização manual e descarte de respostas obsoletas após logout. Nenhuma ação de aplicação, edição ou exclusão foi adicionada.
+- Testes: API RBAC/auth, Musician typecheck, 61 testes frontend e build PASS.
+- Evidência: CODE; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.

@@ -31,14 +31,14 @@ pub struct PresetsResponse {
 /// Built-in entries are deliberately immutable.
 ///
 /// # Errors
-/// Returns `ApiError::Forbidden` when caller lacks Engineer role. Persistence and apply routes
+/// Returns `ApiError::Forbidden` when caller lacks Musician role. Persistence and apply routes
 /// require a separate schema and authorization design.
 #[allow(clippy::unused_async)]
 pub async fn list_presets(
     State(_state): State<AppState>,
     axum::Extension(claims): axum::Extension<JwtClaims>,
 ) -> Result<Json<PresetsResponse>, ApiError> {
-    require_min_role(&claims, Role::Engineer)?;
+    require_min_role(&claims, Role::Musician)?;
     Ok(Json(PresetsResponse {
         presets: vec![
             PresetSummary {
