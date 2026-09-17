@@ -305,6 +305,50 @@ impl SceneStore {
         Ok(scene)
     }
 
+    /// Duplicate current revision of existing scene as new scene.
+    /// Source scene and active-scene pointer remain unchanged.
+    pub fn duplicate_scene(&self, id: &str, name: &str) -> Result<Scene, StoreError> {
+        if name.is_empty() || name.len() > crate::MAX_SCENE_NAME_BYTES {
+            return Err(StoreError::Validation(SceneError::InvalidName {
+                max: crate::MAX_SCENE_NAME_BYTES,
+            }));
+        }
+        let conn = self.conn.lock().map_err(|_| StoreError::LockPoisoned)?;
+        conn.execute_batch("PRAGMA foreign_keys=ON;")?;
+        let tx = conn.unchecked_transaction()?;
+        let payload: String = tx
+            .query_row(
+                "SELECT sr.payload FROM scene_revisions sr JOIN scenes s ON s.id = sr.scene_id WHERE sr.scene_id = ?1 AND sr.revision = s.active_revision",
+                params![id],
+                |row| row.get(0),
+            )
+            .map_err(|e| match e {
+                rusqlite::Error::QueryReturnedNoRows => StoreError::NotFound(id.to_owned()),
+                other => StoreError::Db(other),
+            })?;
+        let source =
+            crate::decode(&payload).map_err(|e| StoreError::CorruptPayload(e.to_string()))?;
+        let copy = Scene {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: name.to_owned(),
+            schema_version: SCHEMA_VERSION,
+            revision: 1,
+            config: source.config,
+        };
+        let encoded = crate::encode(&copy)?;
+        let now = now_secs();
+        tx.execute(
+            "INSERT INTO scenes (id, name, active_revision, created_at, updated_at) VALUES (?1, ?2, 1, ?3, ?3)",
+            params![copy.id, copy.name, now],
+        )?;
+        tx.execute(
+            "INSERT INTO scene_revisions (scene_id, revision, payload, created_at) VALUES (?1, 1, ?2, ?3)",
+            params![copy.id, encoded, now],
+        )?;
+        tx.commit()?;
+        Ok(copy)
+    }
+
     /// Save a new immutable revision for an existing scene.
     ///
     /// # Errors
@@ -515,6 +559,18 @@ mod tests {
         let fetched = store.get_scene(&scene.id).unwrap();
         assert_eq!(fetched.name, "MyShow");
         assert_eq!(fetched.revision, 1);
+    }
+
+    #[test]
+    fn duplicate_copies_config_with_new_id_and_does_not_activate() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let source = store.create_scene("Source", empty_config()).unwrap();
+        store.set_active_scene(Some(&source.id)).unwrap();
+        let copy = store.duplicate_scene(&source.id, "Copy").unwrap();
+        assert_ne!(copy.id, source.id);
+        assert_eq!(copy.revision, 1);
+        assert_eq!(copy.config, source.config);
+        assert_eq!(store.get_active_scene().unwrap().unwrap().id, source.id);
     }
 
     #[test]

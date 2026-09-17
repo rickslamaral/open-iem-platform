@@ -378,6 +378,19 @@
 
 # Development Log
 
+## 2026-09-17 — P2 scene duplication
+
+**Status:** CODE; runtime e hardware permanecem pendentes.
+
+- Adicionado `SceneStore::duplicate_scene`, preservando configuração da revisão atual, gerando novo ID/revisão 1 e sem alterar ponteiro ativo.
+- Adicionada rota autenticada `POST /api/v1/scenes/{id}/duplicate`, restrita a Engineer/Admin.
+- Engineer Console adicionou ação `Duplicar`; recarrega catálogo somente após sucesso.
+- Evidência: api-server 63 testes, scene-manager 25 testes; Engineer 45 testes, typecheck e build passaram.
+- Sem claim de runtime, PipeWire/ALSA, WebRTC/Opus ou Raspberry Pi 5.
+
+---
+
+
 ## 2026-09-17 — P2 built-in channel preset application
 
 **Status:** CODE; runtime and hardware validation remain pending.

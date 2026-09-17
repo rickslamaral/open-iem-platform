@@ -9,6 +9,7 @@
 //! GET    /api/v1/scenes/backup — export durable scenes
 //! PUT    /api/v1/scenes/backup — replace durable scenes from export
 //! POST   /api/v1/scenes/{id}/recall — set as active (Engineer/Admin)
+//! POST   /api/v1/scenes/{id}/duplicate — duplicate current revision (Engineer/Admin)
 
 use axum::{
     extract::{Path, State},
@@ -40,6 +41,13 @@ pub struct CreateSceneRequest {
 pub struct UpdateSceneRequest {
     /// Replacement scene configuration.
     pub config: scene_manager::SceneConfig,
+}
+
+/// Request body for duplicating a scene.
+#[derive(Deserialize)]
+pub struct DuplicateSceneRequest {
+    /// Name for new scene.
+    pub name: String,
 }
 
 /// Summary entry in the list response.
@@ -173,6 +181,22 @@ pub async fn create_scene(
     Ok((StatusCode::CREATED, Json(scene)))
 }
 
+/// `POST /api/v1/scenes/{id}/duplicate` — copy current scene revision.
+#[allow(clippy::unused_async)]
+pub async fn duplicate_scene(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<JwtClaims>,
+    Path(id): Path<String>,
+    Json(body): Json<DuplicateSceneRequest>,
+) -> Result<impl IntoResponse, ApiError> {
+    require_min_role(&claims, Role::Engineer)?;
+    let scene = state
+        .scenes
+        .duplicate_scene(&id, &body.name)
+        .map_err(map_store_err)?;
+    Ok((StatusCode::CREATED, Json(scene)))
+}
+
 /// `GET /api/v1/scenes/active` — get the currently active scene.
 #[allow(clippy::unused_async)]
 /// # Errors
@@ -271,8 +295,8 @@ mod tests {
         db::Db,
         middleware::jwt_auth,
         routes::scenes::{
-            backup_scenes, create_scene, delete_scene, get_active_scene, get_scene, list_scenes,
-            recall_scene, restore_scenes, update_scene,
+            backup_scenes, create_scene, delete_scene, duplicate_scene, get_active_scene,
+            get_scene, list_scenes, recall_scene, restore_scenes, update_scene,
         },
         security::validate_origin,
         state::AppState,
@@ -350,6 +374,7 @@ mod tests {
                 get(get_scene).put(update_scene).delete(delete_scene),
             )
             .route("/api/v1/scenes/{id}/recall", post(recall_scene))
+            .route("/api/v1/scenes/{id}/duplicate", post(duplicate_scene))
             .layer(middleware::from_fn_with_state(state.clone(), jwt_auth));
 
         let app = Router::new()
@@ -760,5 +785,38 @@ mod tests {
             .authorization_bearer(token)
             .await
             .assert_status(axum::http::StatusCode::BAD_REQUEST);
+    }
+
+    #[tokio::test]
+    async fn duplicate_scene_copies_revision_and_requires_engineer() {
+        let (server, state) = build_test_app();
+        let engineer = seed_user_and_login(&state, "eng_duplicate", "pw", Role::Engineer);
+        let create = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(engineer.clone())
+            .json(&empty_scene_body())
+            .await;
+        create.assert_status(axum::http::StatusCode::CREATED);
+        let source_id = create.json::<Value>()["id"].as_str().unwrap().to_owned();
+        let duplicate = server
+            .post(&format!("/api/v1/scenes/{source_id}/duplicate"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(engineer)
+            .json(&json!({"name": "Duplicated"}))
+            .await;
+        duplicate.assert_status(axum::http::StatusCode::CREATED);
+        let copy = duplicate.json::<Value>();
+        assert_ne!(copy["id"], source_id);
+        assert_eq!(copy["name"], "Duplicated");
+        assert_eq!(copy["revision"], 1);
+        let musician = seed_user_and_login(&state, "mus_duplicate", "pw", Role::Musician);
+        server
+            .post(&format!("/api/v1/scenes/{source_id}/duplicate"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(musician)
+            .json(&json!({"name": "Denied"}))
+            .await
+            .assert_status(axum::http::StatusCode::FORBIDDEN);
     }
 }

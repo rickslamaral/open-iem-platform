@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Scene duplication endpoint and Engineer Console action.
+
+
 ### Changed
 - Preset catalog and built-in application now share one server-side allowlist.
 - Reconciliado status documental de rotas de cenas e presets com evidência CODE+CI; runtime/hardware continua pendente.

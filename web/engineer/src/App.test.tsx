@@ -502,4 +502,23 @@ describe('Engineer Console', () => {
     vi.stubGlobal('fetch', fetchMock); await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock); fireEvent.click(screen.getByRole('button', { name: 'Recuperar cena Ensaio' })); await screen.findByRole('alert'); expect(screen.getByRole('alert')).toHaveTextContent('500');
   });
 
+
+  it('duplica cena e envia POST para endpoint', async () => {
+    const fetchMock = sceneDashboardFetch();
+    fetchMock.mockImplementation((path: string) => {
+      if (path.endsWith('/duplicate')) return json({ id: 'copy', name: 'Show (cópia)', revision: 1 });
+      if (path === '/api/v1/auth/login') return json({ access_token: 'test-token' });
+      if (path === '/api/v1/audio/sessions') return json({ sessions: [] });
+      if (path === '/api/v1/mixes') return json([]);
+      if (path === '/api/v1/state') return json({ revision: 1, channels: [makeChannel(0)] });
+      if (path === '/api/v1/telemetry') return json({ availability: 'simulated', backend: 'simulated', sample_rate_hz: null, frames_processed: null, xrun_count: null });
+      if (path === '/api/v1/scenes') return json({ scenes: [{ id: 'scene-1', name: 'Show', active_revision: 3, created_at: 1700000000, updated_at: 1700000000 }] });
+      if (path === '/api/v1/scenes/active') return json({ scene: { id: 'scene-1', name: 'Show' } });
+      return json({}, 204);
+    });
+    await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
+    fireEvent.click(screen.getByRole('button', { name: 'Duplicar cena Show' }));
+    await waitFor(() => expect(fetchMock.mock.calls.some(([path, init]) => path === '/api/v1/scenes/scene-1/duplicate' && (init as RequestInit)?.method === 'POST')).toBe(true));
+  });
+
 });

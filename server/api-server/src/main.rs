@@ -30,8 +30,8 @@ use api_server::{
         },
         presets::{apply_preset, list_presets},
         scenes::{
-            backup_scenes, create_scene, delete_scene, get_active_scene, get_scene, list_scenes,
-            recall_scene, restore_scenes, update_scene,
+            backup_scenes, create_scene, delete_scene, duplicate_scene, get_active_scene,
+            get_scene, list_scenes, recall_scene, restore_scenes, update_scene,
         },
         system::get_system_info,
         telemetry::get_telemetry,
@@ -131,11 +131,12 @@ async fn main() -> anyhow::Result<()> {
             get(backup_scenes).put(restore_scenes),
         )
         .route("/api/v1/scenes/active", get(get_active_scene))
+        .route("/api/v1/scenes/{id}/recall", post(recall_scene))
+        .route("/api/v1/scenes/{id}/duplicate", post(duplicate_scene))
         .route(
             "/api/v1/scenes/{id}",
             get(get_scene).put(update_scene).delete(delete_scene),
         )
-        .route("/api/v1/scenes/{id}/recall", post(recall_scene))
         .route("/api/v1/metrics", get(get_metrics))
         .route("/api/v1/presets", get(list_presets))
         .route("/api/v1/presets/{id}/apply", post(apply_preset))
