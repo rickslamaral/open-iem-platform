@@ -4041,3 +4041,7 @@ Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore 
 
 - Adicionado teste de integração unitária no crate `streaming` para sessão WebRTC negociada, ponte MixEngine→MediaPlane e dois ciclos `drive_once` com orçamento de um frame/output por estágio.
 - Coberta drenagem limitada por ciclo sem exigir rede real; evidência permanece CODE/SIMULATED.
+
+## P0-003 bounded transport ownership
+
+`SessionRegistry` now retains up to `TRANSPORT_OUTPUT_CAPACITY` Sans-IO `str0m::Transmit` datagrams and exposes bounded draining for a future socket owner. Full-queue datagrams are dropped fail-safe; no network I/O or runtime validation claim.
