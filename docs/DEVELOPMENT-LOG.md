@@ -1,3 +1,15 @@
+## 2026-09-17 — L1/L2 Audio Lab status synchronization
+
+**Status:** CODE + CI/SIMULATED; runtime and hardware remain pending.
+
+- Confirmed merged PR #126 keeps deterministic L1 Docker/PipeWire and L2 ALSA-virtual harness coverage in CI; run `35176577755` passed the Audio Lab L1/L2 job.
+- Corrected handoff stale wording that claimed Audio Lab implementation was absent.
+- Preserved evidence boundary: simulated harness does not validate physical PipeWire, ALSA, WebRTC/Opus runtime or Raspberry Pi 5 hardware.
+
+**Next:** extend P0-003 media integration coverage after Audio Lab CI evidence.
+
+---
+
 ## 2026-09-16 — P0-003 bounded UDP transport ownership
 
 **Status:** CODE + CI/SIMULATED; runtime and hardware remain pending.

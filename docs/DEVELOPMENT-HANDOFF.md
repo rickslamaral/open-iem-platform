@@ -202,7 +202,7 @@ Each task: read START and this handoff → implement smallest unit → test → 
 - No physical Pi/audio/interface evidence in this handoff.
 - No measured E2E latency.
 - No production media or receiver.
-- No Audio Lab implementation yet.
+- L1/L2 Audio Lab harness exists as `SIMULATED`; CI run `35176577755` passed its Audio Lab L1/L2 job; physical PipeWire/ALSA validation remains pending.
 - Windows native backend absent.
 - v0.3.1 release not validated/published.
 - Architecture decisions can be reopened only on contradictory evidence: stop implementation, document evidence, assess impact, update ADR/GAP, then resume.
@@ -223,4 +223,4 @@ test → review → docs/GAP update → PR/CI
 
 **Current status:** P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI and P1-009/Phase 94 are complete at their recorded evidence levels. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 hardware remain unvalidated. P1-006 release remains blocked by explicit confirmation and physical validation.
 
-**Current next step:** Validate the media path in L1 Audio Lab. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.
+**Current next step:** Extend P0-003 media integration coverage after CI run `35176577755` passed the L1/L2 Audio Lab job. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.
