@@ -666,6 +666,34 @@ async fn engineer_rejects_out_of_range_preset_channel_without_mutation() {
 }
 
 #[tokio::test]
+async fn engineer_rejects_preset_on_locked_channel_without_mutation() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "preset_eng_locked", "pw", Role::Engineer);
+    let mut locked = control_server::ControlState::new();
+    let mut channel = mix_engine::Channel::new(2, "Locked");
+    channel.set_gain_db(7.0);
+    channel.set_muted(true);
+    channel.set_locked(true);
+    locked.set_channel(2, channel).unwrap();
+    *state.control.lock().unwrap() = locked;
+    let revision_before = state.control.lock().unwrap().revision();
+
+    server
+        .post("/api/v1/presets/default-vocal/apply")
+        .authorization_bearer(token)
+        .json(&json!({"channel_index": 2}))
+        .await
+        .assert_status(axum::http::StatusCode::BAD_REQUEST);
+
+    let ctrl = state.control.lock().unwrap();
+    assert_eq!(ctrl.revision(), revision_before);
+    let channel = ctrl.channel(2).unwrap();
+    assert!(channel.locked);
+    assert!((channel.gain_db() - 7.0).abs() < f32::EPSILON);
+    assert!(channel.muted);
+}
+
+#[tokio::test]
 async fn engineer_rejects_unknown_preset_fields_without_mutation() {
     let (server, state) = build_test_app();
     let token = seed_user_and_login(&state, "preset_eng_payload", "pw", Role::Engineer);

@@ -4,11 +4,10 @@ use axum::{
     extract::{Path, State},
     Json,
 };
-use control_protocol::{ClientMessage, Envelope, Role, ServerMessage};
+use control_protocol::Role;
 use mix_engine::MAX_CHANNELS;
 use serde::Deserialize;
 use serde::Serialize;
-use uuid::Uuid;
 
 use crate::{auth::JwtClaims, error::ApiError, middleware::require_min_role, state::AppState};
 
@@ -96,34 +95,13 @@ pub async fn apply_preset(
     if usize::from(body.channel_index) >= MAX_CHANNELS {
         return Err(ApiError::BadRequest("channel is not available".to_owned()));
     }
-
-    // Both built-ins intentionally represent safe neutral channel defaults.
-    // Dispatch validates slot bounds before any mutation and each valid
-    // dispatch is infallible after that validation.
     let mut ctrl = state
         .control
         .lock()
         .map_err(|_| ApiError::Internal("lock poisoned".to_owned()))?;
-    let gain = ctrl.dispatch(Envelope::new(
-        Uuid::new_v4().to_string(),
-        ClientMessage::SetChannelGain {
-            channel: body.channel_index,
-            gain_db: 0.0,
-        },
-    ));
-    if !matches!(gain.payload, ServerMessage::State { .. }) {
-        return Err(ApiError::BadRequest("channel is not available".to_owned()));
-    }
-    let mute = ctrl.dispatch(Envelope::new(
-        Uuid::new_v4().to_string(),
-        ClientMessage::SetChannelMute {
-            channel: body.channel_index,
-            muted: false,
-        },
-    ));
-    let ServerMessage::State { revision } = mute.payload else {
-        return Err(ApiError::BadRequest("channel is not available".to_owned()));
-    };
+    let revision = ctrl
+        .apply_channel_preset(body.channel_index, 0.0, false)
+        .map_err(|message| ApiError::BadRequest(message.to_owned()))?;
     Ok(Json(serde_json::json!({
         "preset_id": preset_id,
         "channel_index": body.channel_index,
