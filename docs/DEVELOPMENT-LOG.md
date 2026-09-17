@@ -4158,3 +4158,11 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Engineer Console now lists, creates, recalls, edits JSON revisions and deletes scenes through authenticated REST routes.
 - Invalid JSON is rejected before mutation; Musician remains read-only.
 - Evidence: CODE + CI. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 remain unvalidated.
+
+
+## 2026-09-17 — P2 Musician scene catalog tests merged
+
+- PR #140 adicionou cobertura para catálogo de cenas da Musician UI: carregamento, erro, estado vazio e atualização.
+- CI remoto `35194150143` concluiu 13/13 checks com sucesso no HEAD exato; PR foi mergeada via squash e branch removida.
+- Evidência permanece CODE + CI; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam não validados.
+- Próxima fatia P2: catálogo somente leitura de presets no Engineer Console; aplicação/mutação de presets permanece fora do escopo inicial.
