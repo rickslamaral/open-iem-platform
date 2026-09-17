@@ -1,3 +1,13 @@
+## 2026-09-17 — Architecture gap status reconciliation
+
+**Status:** DOCUMENTATION — implementation evidence synchronized; runtime and hardware validation remain pending.
+
+- Reclassified GAP-001 from `IMPLEMENTATION GAP` to `VALIDATION REQUIRED` after bounded MediaBridge, Opus writer, negotiated WebRTC boundary and TransportAdapter coverage landed.
+- Reclassified GAP-003 and GAP-004 to `VALIDATION REQUIRED` after receiver-core and clock/drift implementations landed; OS output, long-run clock and hardware evidence remain absent.
+- No PipeWire/ALSA, WebRTC/Opus runtime or Raspberry Pi 5 support claim added.
+
+---
+
 ## P0-007 first-access password enforcement
 
 - Login response exposes bootstrap `must_change_password` state.
