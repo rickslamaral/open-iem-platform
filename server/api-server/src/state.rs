@@ -89,6 +89,8 @@ pub struct AppState {
     pub jwt: Arc<JwtKeys>,
     /// Serializes refresh issuance, preventing concurrent rotation races.
     pub refresh_lock: Arc<Mutex<()>>,
+    /// Serializes password verification and password replacement.
+    pub auth_lock: Arc<Mutex<()>>,
     /// WebRTC audio transport sessions.
     pub streaming: SessionRegistry,
     /// Serializes mix assignment changes with signaling ownership checks.
@@ -160,6 +162,7 @@ impl AppState {
             db,
             jwt: Arc::new(jwt),
             refresh_lock: Arc::new(Mutex::new(())),
+            auth_lock: Arc::new(Mutex::new(())),
             streaming: SessionRegistry::new(),
             mix_assignment_lock: Arc::new(AsyncMutex::new(())),
             event_tx,

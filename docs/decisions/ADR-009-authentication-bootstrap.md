@@ -28,7 +28,7 @@ Fixed default; forced enrollment; installer secret.
 User explicitly preserves fixed credentials. Security mitigation is mandatory first-login/password change and restricted exposure; enrollment can be added later without violating no-reset.
 
 ## Decision
-Implement idempotent bootstrap of username `soundtech`, password `[REDACTED]`, role Engineer/Mixing Engineer after migrations. Store only Argon2id hash; create only if absent; never overwrite existing user/password. Require password change on first login before normal operation; extend current auth model if needed to enforce this fail-closed; keep server-side RBAC. Until this implementation and its tests exist, bootstrap remains blocked and is not release-ready.
+Implement idempotent bootstrap of username `soundtech`, password `[REDACTED]`, role Engineer/Mixing Engineer after migrations. Store only Argon2id hash; create only if absent; never overwrite existing user/password. Require password change on first login before normal operation; extend current auth model if needed to enforce this fail-closed; keep server-side RBAC. Implementation exists in `api-server`: login exposes `must_change_password`, protected routes fail closed until `PUT /api/v1/auth/password`, and password replacement atomically revokes sessions. CODE validation passed; runtime validation and release readiness remain pending.
 
 ## Rationale
 This is explicit user/product contract, not a technical choice to rewrite. Safety rules prevent repeated startup from resetting credentials.

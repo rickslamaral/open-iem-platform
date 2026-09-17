@@ -18,7 +18,7 @@ use api_server::{
             list_users as admin_list_users, revoke_session as admin_revoke_session,
         },
         audio::{ice_candidate, offer, sessions},
-        auth::{create_user, login, logout, refresh},
+        auth::{change_password, create_user, login, logout, refresh},
         channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
         config::{backup_config, restore_config},
         devices::get_devices,
@@ -169,6 +169,7 @@ async fn main() -> anyhow::Result<()> {
             put(set_send_muted),
         )
         .route("/api/v1/auth/logout", post(logout))
+        .route("/api/v1/auth/password", put(change_password))
         .route(
             "/api/v1/admin/users",
             get(admin_list_users).post(create_user),

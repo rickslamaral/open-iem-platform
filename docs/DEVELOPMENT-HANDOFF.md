@@ -66,7 +66,7 @@ MVP contract:
 - **ADR-006:** Mandatory pairing, device identity, unknown receiver blocked, revocation and DTLS-SRTP media protection.
 - **ADR-007:** Bounded lock-free SPSC/ring audio boundary; separate bounded control queue; no blocking RT operations.
 - **ADR-008:** PipeWire native primary Linux/RPi backend; ALSA explicit fallback/validation path; Pi headless server, receiver future.
-- **ADR-009:** Idempotent `soundtech` / `[REDACTED]` Engineer bootstrap after migrations; Argon2id hash only; no duplicate/reset; implementation still pending.
+- **ADR-009:** Idempotent `soundtech` / `[REDACTED]` Engineer bootstrap after migrations; Argon2id hash only; first login returns `must_change_password`; authenticated `PUT /api/v1/auth/password` clears bootstrap flag; auth issuance and replacement are serialized; ordinary users cannot use bootstrap-only endpoint.
 - **ADR-010:** L1 Docker/PipeWire and L2 ALSA virtual in CI; L3 physical Pi 5 + USB; L4 full mixer/interface/network/receiver/IEM. L3/L4 required for support claims.
 
 ADRs: `docs/decisions/ADR-001` through `ADR-010`.
