@@ -17,6 +17,7 @@
 - **P2 Engineer Console scenes UI:** listar, criar, recuperar, editar revisões e deletar cenas integrado às rotas REST em `web/engineer`; cobertura CODE permanece nos testes do console.
 - **P2 Engineer Console scene revisions:** edição JSON e criação de nova revisão via PUT integradas; cobertura CODE+CI (PR #136, run `35189802675`).
 - **P2 Musician scenes read-only:** catálogo autenticado de cenas e cena ativa integrado à Musician UI; músico não recebe permissão de recall/criação. Evidência CODE local; runtime permanece pendente.
+- **P2 Musician scene catalog tests:** cobertura de renderização, estados loading/error/vazio e refresh adicionada; CODE local.
 - **P2 Musician scene catalog refresh:** botão autenticado de atualização manual adicionado; respostas concorrentes e respostas após logout são descartadas. Cobertura CODE via typecheck/test/build; runtime permanece pendente.
 - **P2 SceneStore revision invariant:** cenas restauradas agora exigem `revision >= 1`; cobertura unitária rejeita revisão zero antes de persistência. Evidência CODE; runtime/hardware permanecem pendentes.
 - **P2 Scenes backup/restore:** PRs #94–#97 mergeadas; exportação durável, restore atômico, rollback de ponteiro ativo e cobertura RBAC concluídos em CODE+CI (run `35126301166`, 13/13). Restauração em ambiente limpo coberta por teste de reabertura file-backed; validação operacional implantada permanece pendente; seleção do caminho persistente agora é testável sem mutação global de ambiente.

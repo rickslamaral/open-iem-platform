@@ -1,3 +1,13 @@
+## 2026-09-17 — P2 Musician scene catalog component coverage
+
+**Status:** CODE; runtime permanece pendente.
+
+- Added `SceneList` component tests for active scene/revision rendering, loading/error/empty states and authenticated refresh interaction.
+- Evidence: Musician typecheck, 56 tests and production build pass.
+- No runtime, PipeWire/ALSA, WebRTC/Opus or Raspberry Pi 5 hardware claim.
+
+---
+
 ## 2026-09-17 — P0-003 transport budget and drop accounting
 
 **Status:** CODE + CI/SIMULATED; runtime and hardware remain pending.
