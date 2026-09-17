@@ -143,7 +143,25 @@ impl SceneStore {
         })?;
         let mut out = Vec::new();
         for r in rows {
-            out.push(r?);
+            let summary = r?;
+            if summary.active_revision == 0 {
+                return Err(StoreError::InvalidSnapshot(
+                    "active scene revision must be positive".to_owned(),
+                ));
+            }
+            let revision_exists: bool = conn.query_row(
+                "SELECT EXISTS(SELECT 1 FROM scene_revisions WHERE scene_id = ?1 AND revision = ?2)",
+                params![summary.id, i64::try_from(summary.active_revision).map_err(|_| {
+                    StoreError::InvalidSnapshot("active scene revision exceeds SQLite range".to_owned())
+                })?],
+                |row| row.get(0),
+            )?;
+            if !revision_exists {
+                return Err(StoreError::InvalidSnapshot(
+                    "active scene revision has no persisted payload".to_owned(),
+                ));
+            }
+            out.push(summary);
         }
         Ok(out)
     }
@@ -330,16 +348,24 @@ impl SceneStore {
         let conn = self.conn.lock().map_err(|_| StoreError::LockPoisoned)?;
         conn.execute_batch("PRAGMA foreign_keys=ON;")?;
         let tx = conn.unchecked_transaction()?;
-        let payload: String = tx
+        let (active_revision, payload): (i64, Option<String>) = tx
             .query_row(
-                "SELECT sr.payload FROM scene_revisions sr JOIN scenes s ON s.id = sr.scene_id WHERE sr.scene_id = ?1 AND sr.revision = s.active_revision",
+                "SELECT s.active_revision, sr.payload FROM scenes s LEFT JOIN scene_revisions sr ON sr.scene_id = s.id AND sr.revision = s.active_revision WHERE s.id = ?1",
                 params![id],
-                |row| row.get(0),
+                |row| Ok((row.get(0)?, row.get(1)?)),
             )
             .map_err(|e| match e {
                 rusqlite::Error::QueryReturnedNoRows => StoreError::NotFound(id.to_owned()),
                 other => StoreError::Db(other),
             })?;
+        if active_revision <= 0 {
+            return Err(StoreError::InvalidSnapshot(
+                "active scene revision must be positive".to_owned(),
+            ));
+        }
+        let payload = payload.ok_or_else(|| {
+            StoreError::InvalidSnapshot("active scene revision has no persisted payload".to_owned())
+        })?;
         let source =
             crate::decode(&payload).map_err(|e| StoreError::CorruptPayload(e.to_string()))?;
         let copy = Scene {
@@ -384,9 +410,9 @@ impl SceneStore {
                 rusqlite::Error::QueryReturnedNoRows => StoreError::NotFound(id.to_owned()),
                 other => StoreError::Db(other),
             })?;
-        if cur_rev < 0 {
+        if cur_rev <= 0 {
             return Err(StoreError::InvalidSnapshot(
-                "active scene revision is negative".to_owned(),
+                "active scene revision must be positive".to_owned(),
             ));
         }
 
@@ -395,9 +421,24 @@ impl SceneStore {
             params![id],
             |row| row.get(0),
         )?;
-        if max_rev < 0 {
+        if max_rev <= 0 {
             return Err(StoreError::InvalidSnapshot(
-                "scene revision is negative".to_owned(),
+                "scene revision history is missing or invalid".to_owned(),
+            ));
+        }
+        if cur_rev > max_rev {
+            return Err(StoreError::InvalidSnapshot(
+                "active scene revision exceeds persisted history".to_owned(),
+            ));
+        }
+        let active_exists: bool = conn.query_row(
+            "SELECT EXISTS(SELECT 1 FROM scene_revisions WHERE scene_id = ?1 AND revision = ?2)",
+            params![id, cur_rev],
+            |row| row.get(0),
+        )?;
+        if !active_exists {
+            return Err(StoreError::InvalidSnapshot(
+                "active scene revision has no persisted payload".to_owned(),
             ));
         }
         let new_rev = max_rev.checked_add(1).ok_or_else(|| {
@@ -662,6 +703,44 @@ mod tests {
         store.create_scene("Show", empty_config()).unwrap();
         let list = store.list_scenes().unwrap();
         assert_eq!(list.len(), 1);
+    }
+
+    #[test]
+    fn invalid_active_revision_fails_closed_for_reads_and_writes() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Show", empty_config()).unwrap();
+        let conn = store.conn.lock().unwrap();
+        conn.execute(
+            "UPDATE scenes SET active_revision = 0 WHERE id = ?1",
+            params![scene.id],
+        )
+        .unwrap();
+        drop(conn);
+
+        assert!(matches!(
+            store.list_scenes(),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.duplicate_scene(&scene.id, "Copy"),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+        assert!(matches!(
+            store.save_scene(&scene.id, empty_config()),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
+
+        let conn = store.conn.lock().unwrap();
+        conn.execute(
+            "UPDATE scenes SET active_revision = 2 WHERE id = ?1",
+            params![scene.id],
+        )
+        .unwrap();
+        drop(conn);
+        assert!(matches!(
+            store.save_scene(&scene.id, empty_config()),
+            Err(StoreError::InvalidSnapshot(_))
+        ));
     }
 
     #[test]

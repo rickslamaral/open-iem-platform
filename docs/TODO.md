@@ -1,6 +1,7 @@
 # TODO
 
 ## Estado atual — 2026-09-17 (SceneStore numeric boundary hardening)
+- **SceneStore active-revision consistency:** listagem, duplicação e save agora falham fechado para ponteiro zero, histórico ausente ou ponteiro acima do histórico. Evidência CODE local; runtime permanece pendente.
 
 - **SceneStore numeric boundary hardening:** revisões SQLite negativas e overflow do contador agora falham fechado antes de produzir ou persistir estado inválido. Evidência CODE local; runtime permanece pendente.
 
