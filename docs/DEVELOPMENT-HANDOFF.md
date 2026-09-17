@@ -120,7 +120,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 | P1-005 | Network Tests | Loss/jitter/reorder/outage/reconnect fault profiles | P0-003/P0-004 | Automated profiles and thresholds |
 | P1-006 | Release | Install, artifact, checksum and v0.3.1 release validation | P0 gates | No release claim before evidence |
 | P1-007 | Backup | COMPLETE: config-backup crate serializes/restores channel, mix, EQ, compressor, limiter and sends without secrets | P0-007/P1-004 | Clean-environment restore remains pending; operational CLI/API remains future work |
-| P1-008 | API/UI | COMPLETE: EQ UI via #74; domain routes `GET /api/v1/system` + `GET /api/v1/channels` via #75; musicians/scenes/presets remain P2 | P0 contracts | Contract/typecheck/frontend tests |
+| P1-008 | API/UI | COMPLETE: EQ UI via #74; domain routes `GET /api/v1/system` + `GET /api/v1/channels` via #75; Musician scene/preset read-only catalogs and Engineer scene/preset controls are implemented in code/CI; runtime remains pending | P0 contracts | Contract/typecheck/frontend tests |
 
 ## P2 Queue
 

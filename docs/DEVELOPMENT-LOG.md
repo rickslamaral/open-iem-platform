@@ -1,3 +1,13 @@
+## 2026-09-17 — reconciliação de status de cenas e presets
+
+**Status:** DOCUMENTATION — CODE+CI; runtime e hardware permanecem pendentes.
+
+- Atualizado P1-008 para refletir cenas REST, catálogo Musician e catálogo/aplicação Engineer já implementados.
+- Fechado GAP-016 como `RESOLVED (CODE+CI)`; resolução não implica validação de runtime.
+- Nenhuma claim adicionada para PipeWire/ALSA, WebRTC/Opus ou Raspberry Pi 5.
+
+---
+
 ## 2026-09-17 — validação de aplicação de preset por canal
 
 **Status:** CODE + CI local; runtime e hardware permanecem pendentes.
