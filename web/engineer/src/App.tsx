@@ -193,6 +193,11 @@ function EqBandControl({ mixIndex, bandIndex, frequencyHz, gainDb, q, enabled, o
   useEffect(() => { setLocalFreq(frequencyHz); }, [frequencyHz]);
   useEffect(() => { setLocalGain(gainDb); }, [gainDb]);
   useEffect(() => { setLocalQ(q); }, [q]);
+  useEffect(() => () => {
+    [freqDebounce, gainDebounceEq, qDebounce].forEach((ref) => {
+      if (ref.current !== null) clearTimeout(ref.current);
+    });
+  }, []);
 
   function debounced(
     ref: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
