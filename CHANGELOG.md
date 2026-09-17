@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Bound streaming session metadata and ICE lookup identifiers; report dropped transport output accurately and expose Sans-IO poll errors in `DriveReport`.
+
 ### Changed
 - P0-003 now retains bounded Sans-IO `str0m::Transmit` datagrams for an external socket adapter; no network I/O claim.
 

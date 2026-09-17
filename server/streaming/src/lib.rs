@@ -50,6 +50,8 @@ const MAX_SDP_BYTES: usize = 16 * 1024;
 const MAX_CANDIDATE_BYTES: usize = 2048;
 /// Maximum user ID length.
 const MAX_USER_ID_BYTES: usize = 128;
+/// Maximum persisted mix identifier length.
+const MAX_MIX_ID_BYTES: usize = 128;
 
 #[derive(Debug, Error)]
 pub enum StreamingError {
@@ -76,6 +78,7 @@ pub struct DriveReport {
     pub budget_exhausted: bool,
     pub packets_encoded: usize,
     pub transport_outputs_dropped: usize,
+    pub poll_errors: usize,
 }
 
 struct PeerSession {
@@ -118,7 +121,13 @@ impl SessionRegistry {
         sdp: &str,
         mix_id: Option<String>,
     ) -> Result<String, StreamingError> {
-        if user_id.is_empty() || user_id.len() > MAX_USER_ID_BYTES || sdp.len() > MAX_SDP_BYTES {
+        if user_id.is_empty()
+            || user_id.len() > MAX_USER_ID_BYTES
+            || sdp.len() > MAX_SDP_BYTES
+            || mix_id
+                .as_ref()
+                .is_some_and(|id| id.len() > MAX_MIX_ID_BYTES)
+        {
             return Err(StreamingError::InvalidOffer("invalid input bounds".into()));
         }
         let offer = SdpOffer::from_sdp_string(sdp)
@@ -166,7 +175,9 @@ impl SessionRegistry {
         candidate: &str,
     ) -> Result<(), StreamingError> {
         // Fast structural checks before acquiring the lock.
-        if candidate.is_empty()
+        if user_id.is_empty()
+            || user_id.len() > MAX_USER_ID_BYTES
+            || candidate.is_empty()
             || candidate.len() > MAX_CANDIDATE_BYTES
             || !candidate.starts_with("candidate:")
         {
@@ -227,15 +238,20 @@ impl SessionRegistry {
         let mut packets_encoded = 0;
         let mut budget_exhausted = false;
         let mut transport_outputs_dropped = 0;
+        let mut poll_errors = 0;
 
         for peer in sessions.values_mut() {
             while outputs_polled < output_budget {
                 match peer.rtc.poll_output() {
-                    Ok(Output::Timeout(_)) | Err(_) => break,
+                    Ok(Output::Timeout(_)) => break,
+                    Err(_) => {
+                        poll_errors += 1;
+                        break;
+                    }
                     Ok(Output::Transmit(transmit)) => {
-                        transmitted_bytes += transmit.contents.len();
                         let mut outputs = self.transport_outputs.lock().await;
                         if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
+                            transmitted_bytes += transmit.contents.len();
                             outputs.push_back(transmit);
                         } else {
                             transport_outputs_dropped += 1;
@@ -289,9 +305,9 @@ impl SessionRegistry {
                         if outputs_polled < output_budget {
                             match peer.rtc.poll_output() {
                                 Ok(Output::Transmit(transmit)) => {
-                                    transmitted_bytes += transmit.contents.len();
                                     let mut outputs = self.transport_outputs.lock().await;
                                     if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
+                                        transmitted_bytes += transmit.contents.len();
                                         outputs.push_back(transmit);
                                     } else {
                                         transport_outputs_dropped += 1;
@@ -306,7 +322,10 @@ impl SessionRegistry {
                                     }
                                     outputs_polled += 1;
                                 }
-                                Ok(Output::Timeout(_)) | Err(_) => {}
+                                Ok(Output::Timeout(_)) => {}
+                                Err(_) => {
+                                    poll_errors += 1;
+                                }
                             }
                         }
                     }
@@ -325,6 +344,7 @@ impl SessionRegistry {
             budget_exhausted,
             packets_encoded,
             transport_outputs_dropped,
+            poll_errors,
         }
     }
 
