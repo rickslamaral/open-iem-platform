@@ -1,6 +1,12 @@
+## P0-007 first-access password enforcement
+
+- Login response exposes bootstrap `must_change_password` state.
+- `PUT /api/v1/auth/password` accepts only bootstrap users, hashes with Argon2id, and clears flag.
+- Coverage: Rust fmt, clippy, 62 unit tests, 74 integration tests, all workspace tests passed. Runtime validation remains pending.
+
 ## 2026-09-17 — P0-007 bootstrap credential hardening
 
-**Status:** CODE; first-access password-change flow remains pending.
+**Status:** CODE; first-access password-change flow implemented; runtime validation remains pending.
 
 - Removed compiled-in `soundtech` password fallback from `api-server`; startup now fails closed when `OPENIEM_SOUNDTECH_PASSWORD` is absent or empty.
 - Preserved idempotent insert-only bootstrap, Argon2id hashing and M001 migration boundary.

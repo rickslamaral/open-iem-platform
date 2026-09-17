@@ -82,6 +82,8 @@ pub struct LoginResponse {
     pub access_token: String,
     /// Role granted.
     pub role: Role,
+    /// Whether first-access password change is mandatory.
+    pub must_change_password: bool,
 }
 
 /// `POST /api/v1/auth/login`
@@ -96,7 +98,11 @@ pub async fn login(
     Json(body): Json<LoginRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     validate_credentials(&body.username, &body.password)?;
-    let (user_id, pw_hash, role, _) = state.db.find_user(&body.username)?;
+    let _auth_guard = state
+        .auth_lock
+        .lock()
+        .map_err(|_| ApiError::Internal("auth lock poisoned".to_owned()))?;
+    let (user_id, pw_hash, role, must_change_password) = state.db.find_user(&body.username)?;
     verify_password(&body.password, &pw_hash)?;
 
     let jti = Uuid::new_v4().to_string();
@@ -138,8 +144,36 @@ pub async fn login(
         Json(LoginResponse {
             access_token: access,
             role,
+            must_change_password,
         }),
     ))
+}
+
+/// Change password for the authenticated user, including first-access bootstrap.
+///
+/// # Errors
+/// Returns `ApiError::BadRequest` for invalid password length or
+/// `ApiError::Internal` when hashing or persisting the password fails.
+pub async fn change_password(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<JwtClaims>,
+    Json(body): Json<ChangePasswordRequest>,
+) -> Result<impl IntoResponse, ApiError> {
+    let _auth_guard = state
+        .auth_lock
+        .lock()
+        .map_err(|_| ApiError::Internal("auth lock poisoned".to_owned()))?;
+    validate_credentials(&claims.sub, &body.new_password)?;
+    let password_hash = hash_password(&body.new_password)?;
+    state.db.change_password(claims.user_id, &password_hash)?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
+/// Change-password request body.
+#[derive(Deserialize)]
+pub struct ChangePasswordRequest {
+    /// New plaintext password (transmitted over HTTPS only).
+    pub new_password: String,
 }
 
 /// Refresh response body.

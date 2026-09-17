@@ -215,6 +215,52 @@ impl Db {
         })
     }
 
+    /// Check whether user still requires first-access password change.
+    pub fn must_change_password(&self, user_id: i64) -> Result<bool, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.query_row(
+            "SELECT must_change_password FROM users WHERE id = ?1",
+            params![user_id],
+            |row| row.get::<_, i64>(0),
+        )
+        .map(|value| value != 0)
+        .map_err(|_| ApiError::Unauthorized("user no longer exists"))
+    }
+
+    /// Replace bootstrap password atomically and revoke existing sessions.
+    pub fn change_password(&self, user_id: i64, password_hash: &str) -> Result<(), ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let changed = tx
+            .execute(
+                "UPDATE users SET pw_hash = ?1, must_change_password = 0 WHERE id = ?2 AND must_change_password = 1",
+                params![password_hash, user_id],
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if changed != 1 {
+            return Err(ApiError::Forbidden("password change is not required"));
+        }
+        tx.execute(
+            "UPDATE refresh_tokens SET revoked = 1 WHERE user_id = ?1",
+            params![user_id],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE access_sessions SET revoked = 1 WHERE user_id = ?1",
+            params![user_id],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
     /// Bootstrap the `soundtech` user with role ENGINEER.
     ///
     /// Idempotent: does nothing if the user already exists.

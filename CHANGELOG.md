@@ -5,9 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
-
 ### Security
-- Remove compiled-in `soundtech` password fallback; startup now fails closed when `OPENIEM_SOUNDTECH_PASSWORD` is absent or empty.
+- Enforced first-access password change for bootstrapped `soundtech` accounts through authenticated `PUT /api/v1/auth/password`.
+
+
 
 ### Added
 - Catálogo somente leitura de presets no Engineer Console via `GET /api/v1/presets`, restrito a Engineer/Admin.

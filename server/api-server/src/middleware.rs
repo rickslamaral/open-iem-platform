@@ -81,6 +81,13 @@ pub async fn jwt_auth(
     if session_id <= 0 {
         return Err(ApiError::Unauthorized("invalid session association"));
     }
+    let bootstrap_exempt = matches!(
+        req.uri().path(),
+        "/api/v1/auth/password" | "/api/v1/auth/logout"
+    );
+    if !bootstrap_exempt && state.db.must_change_password(claims.user_id)? {
+        return Err(ApiError::Forbidden("first-access password change required"));
+    }
     if let Some(attempt) = auth_attempt.as_mut() {
         attempt.mark_success();
     }
