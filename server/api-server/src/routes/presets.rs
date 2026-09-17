@@ -32,13 +32,13 @@ pub struct PresetsResponse {
     pub presets: Vec<PresetSummary>,
 }
 
-/// GET /api/v1/presets — catalog visible to Engineer/Admin.
+/// GET /api/v1/presets — read-only catalog visible to Musician/Engineer/Admin.
 ///
 /// Built-in entries are deliberately immutable.
 ///
 /// # Errors
-/// Returns `ApiError::Forbidden` when caller lacks Musician role. Persistence and apply routes
-/// require a separate schema and authorization design.
+/// Returns `ApiError::Forbidden` when caller lacks Musician role. The catalog is immutable;
+/// persistence and apply routes require a separate schema and authorization design.
 #[allow(clippy::unused_async)]
 pub async fn list_presets(
     State(_state): State<AppState>,
