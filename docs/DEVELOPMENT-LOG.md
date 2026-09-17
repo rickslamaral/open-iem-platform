@@ -1,3 +1,14 @@
+## 2026-09-17 — P0-007 bootstrap credential hardening
+
+**Status:** CODE; first-access password-change flow remains pending.
+
+- Removed compiled-in `soundtech` password fallback from `api-server`; startup now fails closed when `OPENIEM_SOUNDTECH_PASSWORD` is absent or empty.
+- Preserved idempotent insert-only bootstrap, Argon2id hashing and M001 migration boundary.
+- Updated architecture gap and TODO status.
+- No runtime, PipeWire/ALSA, WebRTC/Opus or Raspberry Pi 5 hardware claim.
+
+---
+
 ## 2026-09-17 — P2 Musician scene catalog component coverage
 
 **Status:** CODE; runtime permanece pendente.
