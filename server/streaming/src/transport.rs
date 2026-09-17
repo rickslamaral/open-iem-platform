@@ -14,7 +14,9 @@ pub struct TransportSendReport {
     pub attempted: usize,
     pub sent: usize,
     pub bytes: usize,
-    /// Datagrams intentionally not attempted because budget capped the pass.
+    /// Datagrams dropped while requeueing failed registry sends.
+    /// Generic iterator sends cannot report unconsumed items without traversing
+    /// them, so this remains zero for `send`.
     pub dropped: usize,
 }
 
@@ -49,8 +51,8 @@ impl TransportAdapter {
     /// Returns the OS send error.
     ///
     /// A failed send stops the pass and returns the successful prefix. This
-    /// generic method consumes its iterator; use `send_from_registry` when
-    /// failed registry datagrams must be requeued.
+    /// generic method consumes only the bounded prefix; use
+    /// `send_from_registry` when failed registry datagrams must be requeued.
     pub async fn send(
         &self,
         outputs: impl IntoIterator<Item = str0m::net::Transmit>,
@@ -78,7 +80,8 @@ impl TransportAdapter {
             report.sent += 1;
             report.bytes += sent;
         }
-        report.dropped = outputs.count();
+        // Do not inspect the remainder: a generic iterator may be unbounded.
+        // Registry callers use `send_from_registry`, which tracks requeue drops.
         Ok(report)
     }
 
@@ -146,6 +149,10 @@ impl TransportAdapter {
 mod tests {
     use super::*;
     use std::net::SocketAddr;
+    use std::sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    };
     use str0m::net::Protocol;
 
     #[tokio::test]
@@ -183,10 +190,18 @@ mod tests {
                 contents: vec![b'x'].into(),
             })
             .collect::<Vec<_>>();
+        let consumed = Arc::new(AtomicUsize::new(0));
+        let outputs = outputs.into_iter().inspect({
+            let consumed = Arc::clone(&consumed);
+            move |_| {
+                consumed.fetch_add(1, Ordering::Relaxed);
+            }
+        });
         let report = adapter.send(outputs, 2).await.unwrap();
+        assert_eq!(consumed.load(Ordering::Relaxed), 2);
         assert_eq!(report.attempted, 2);
         assert_eq!(report.sent, 2);
         assert_eq!(report.bytes, 2);
-        assert_eq!(report.dropped, 1);
+        assert_eq!(report.dropped, 0);
     }
 }
