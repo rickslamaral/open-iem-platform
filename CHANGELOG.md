@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- P0-003 media-plane status records bounded transport delivery and retry-budget coverage as CODE + CI/SIMULATED; runtime and hardware validation remain pending.
+
 ### Fixed
 - P0-003 transport adapter now clamps registry dequeue to per-pass budget while preserving bounded retry requeue and drop errors.
 

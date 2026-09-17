@@ -4108,3 +4108,10 @@ Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore 
 ## P0-003 bounded transport ownership
 
 `SessionRegistry` now retains up to `TRANSPORT_OUTPUT_CAPACITY` Sans-IO `str0m::Transmit` datagrams and exposes bounded draining for a future socket owner. Full-queue datagrams are dropped fail-safe; no network I/O or runtime validation claim.
+
+
+## 2026-09-17 — P0-003 bounded transport regression coverage
+
+- PR #131 merged after 13/13 CI checks passed on exact HEAD.
+- Regression coverage covers per-pass dequeue budget and preservation of failed-datagram suffix order during bounded requeue.
+- P0-003 is CODE + CI/SIMULATED; WebRTC runtime, PipeWire/ALSA execution and Raspberry Pi 5 hardware remain unvalidated.
