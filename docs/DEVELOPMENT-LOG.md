@@ -4036,3 +4036,8 @@ Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore 
 - O teste de restore agora descarta o primeiro `AppState` e constrói um segundo `AppState` com o mesmo caminho SQLite explícito.
 - Verificados listagem, revisão ativa, payload e ponteiro ativo pela instância reaberta de `AppState`, não apenas por `SceneStore` direto.
 - Evidência: CODE; persistência operacional implantada, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam não validados.
+
+## 2026-09-16 — Media session drive budget coverage
+
+- Adicionado teste de integração unitária no crate `streaming` para sessão WebRTC negociada, ponte MixEngine→MediaPlane e dois ciclos `drive_once` com orçamento de um frame/output por estágio.
+- Coberta drenagem limitada por ciclo sem exigir rede real; evidência permanece CODE/SIMULATED.

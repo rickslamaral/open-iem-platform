@@ -394,6 +394,38 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drive_once_negotiated_session_applies_stage_budgets() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        for revision in [11, 12] {
+            bridge
+                .try_send(
+                    mix_engine::FrameOutput {
+                        mixes: [(0.5, -0.25), (0.0, 0.0)],
+                    },
+                    revision,
+                )
+                .unwrap();
+        }
+
+        // Each drive pass consumes at most one bridge frame and polls at most
+        // one output. No network I/O is required for this Sans-IO boundary.
+        let first = registry.drive_once(&bridge, &plane, 1, 1).await;
+        let second = registry.drive_once(&bridge, &plane, 1, 1).await;
+
+        assert_eq!(first.frames_drained, 1);
+        assert_eq!(second.frames_drained, 1);
+        assert!(first.outputs_polled <= 1);
+        assert!(second.outputs_polled <= 1);
+    }
+
+    #[tokio::test]
     async fn registry_starts_empty() {
         assert_eq!(SessionRegistry::new().len().await, 0);
     }

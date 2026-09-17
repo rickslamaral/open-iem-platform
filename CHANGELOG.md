@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Tests
+- Cobertura do limite por estágio no drive de mídia WebRTC Sans-IO.
+
 ### Added
 - Bounded Opus media writer and negotiated Sans-IO WebRTC writer handoff (CODE/SIMULATED).
 
