@@ -98,10 +98,10 @@ SPEC → PLAN → IMPLEMENT → TEST → INDEPENDENT REVIEW → SECURITY REVIEW
 ## Estado atual (atualizar a cada merge)
 
 ```text
-Phase 92 — WS EQ Band Control: implementado, mergeado em main (#54)
-                                Frontend EQ controls: pendente (Phase 93+)
-Release v0.3.1: pendente confirmação + validação física
-CI remoto: aguarda runner GitHub Actions (jobs reais, não runner_id=0/steps=[])
+Phase 95 — Observability Metrics REST endpoint: implementado e mergeado em main
+P2 — Preset catalog/application: implementado em código/CI; runtime permanece pendente
+Release v0.3.1: pendente confirmação + instalação/validação física
+CI remoto: exigir jobs reais no exact HEAD; runner_id=0/steps=[] não conta
 Validação física: PipeWire/ALSA, WebRTC/Opus, Raspberry Pi 5 — SIMULATED
 ```
 
