@@ -14,6 +14,7 @@ pub mod media_plane;
 pub mod media_writer;
 pub mod opus_receiver;
 pub mod pairing;
+pub mod transport;
 pub use media_bridge::{MediaBridge, MediaBridgeError, MEDIA_BRIDGE_CAPACITY};
 pub use media_plane::{
     MediaFrame, MediaPlane, MediaPlaneError, MediaSession, MediaSessionError, StreamMetadata,
@@ -34,6 +35,7 @@ use str0m::{change::SdpOffer, Candidate, Event, Output, Rtc};
 use thiserror::Error;
 use tokio::sync::Mutex;
 use tracing::debug;
+pub use transport::{TransportAdapter, TransportSendReport, TRANSPORT_SEND_BUDGET};
 
 pub const AUDIO_SAMPLE_RATE: u32 = 48_000;
 pub const AUDIO_CHANNELS: u8 = 2;
@@ -73,6 +75,7 @@ pub struct DriveReport {
     pub transmitted_bytes: usize,
     pub budget_exhausted: bool,
     pub packets_encoded: usize,
+    pub transport_outputs_dropped: usize,
 }
 
 struct PeerSession {
@@ -223,6 +226,7 @@ impl SessionRegistry {
         let mut transmitted_bytes = 0;
         let mut packets_encoded = 0;
         let mut budget_exhausted = false;
+        let mut transport_outputs_dropped = 0;
 
         for peer in sessions.values_mut() {
             while outputs_polled < output_budget {
@@ -233,6 +237,8 @@ impl SessionRegistry {
                         let mut outputs = self.transport_outputs.lock().await;
                         if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
                             outputs.push_back(transmit);
+                        } else {
+                            transport_outputs_dropped += 1;
                         }
                         outputs_polled += 1;
                     }
@@ -287,6 +293,8 @@ impl SessionRegistry {
                                     let mut outputs = self.transport_outputs.lock().await;
                                     if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
                                         outputs.push_back(transmit);
+                                    } else {
+                                        transport_outputs_dropped += 1;
                                     }
                                     outputs_polled += 1;
                                 }
@@ -316,14 +324,31 @@ impl SessionRegistry {
             transmitted_bytes,
             budget_exhausted,
             packets_encoded,
+            transport_outputs_dropped,
         }
     }
 
     /// Transfer bounded Sans-IO datagrams to owner of real socket I/O.
     pub async fn drain_transport_outputs(&self, budget: usize) -> Vec<str0m::net::Transmit> {
         let mut outputs = self.transport_outputs.lock().await;
-        let count = outputs.len().min(budget);
+        let count = outputs
+            .len()
+            .min(budget.min(crate::transport::TRANSPORT_SEND_BUDGET));
         outputs.drain(..count).collect()
+    }
+
+    /// Return unsent datagrams to the front of the bounded transport queue.
+    pub async fn requeue_transport_outputs(&self, mut outputs: Vec<str0m::net::Transmit>) -> usize {
+        let mut queue = self.transport_outputs.lock().await;
+        let mut dropped = 0;
+        while let Some(output) = outputs.pop() {
+            if queue.len() < TRANSPORT_OUTPUT_CAPACITY {
+                queue.push_front(output);
+            } else {
+                dropped += 1;
+            }
+        }
+        dropped
     }
 
     pub async fn list(&self) -> Vec<SessionInfo> {

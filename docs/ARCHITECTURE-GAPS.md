@@ -16,7 +16,7 @@
 
 | ID | Priority | Category | Description | Evidence | Status | Decision/ADR | Dependencies | Implementation Action | Validation | Blocking |
 |---|---|---|---|---|---|---|---|---|---|---|
-| GAP-001 | P0 | Media | No production media path MixEngine→network | Bounded `MediaBridge`, Opus encoder and negotiated `str0m::media::Writer` handoff route frames to Sans-IO session; no socket I/O | IMPLEMENTATION GAP | ADR-001/002/003 | 006,007 | Connect bridge to WebRTC media drive and frame bridge | Real media integration/L1–L4 | Yes |
+| GAP-001 | P0 | Media | No production media path MixEngine→network | Bounded `MediaBridge`, Opus encoder, negotiated `str0m::media::Writer` handoff and explicit bounded `TransportAdapter` socket owner route frames to Sans-IO/session socket boundary; runtime not exercised | IMPLEMENTATION GAP | ADR-001/002/003 | 006,007 | Exercise adapter against real WebRTC media drive and frame bridge | Real media integration/L1–L4 | Yes |
 | GAP-002 | P0 | Transport | Media transport was previously undecided | ADR-001 now selects WebRTC media/RTP/Opus/DTLS-SRTP | RESOLVED | ADR-001 | 002,003,006 | Implement selected transport | Interop + impairment tests | No |
 | GAP-003 | P0 | Receiver | No decoder/output/reconnect receiver | No receiver crate/runtime | IMPLEMENTATION GAP | ADR-003 | 001,002,008 | Build native/headless receiver | Decode/output/reconnect | Yes |
 | GAP-004 | P0 | Clock | No timestamps/drift/resampling/sync implementation | Only nominal 48 kHz | IMPLEMENTATION GAP | ADR-004 | 001,003,005 | Implement sample timeline and adaptive correction | Long-run drift/physical test | Yes |
