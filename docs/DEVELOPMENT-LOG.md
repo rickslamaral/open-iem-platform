@@ -4115,3 +4115,10 @@ Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore 
 - PR #131 merged after 13/13 CI checks passed on exact HEAD.
 - Regression coverage covers per-pass dequeue budget and preservation of failed-datagram suffix order during bounded requeue.
 - P0-003 is CODE + CI/SIMULATED; WebRTC runtime, PipeWire/ALSA execution and Raspberry Pi 5 hardware remain unvalidated.
+
+
+## 2026-09-17 — Engineer Console scenes UI status sync
+
+- O Engineer Console já expõe gerenciamento de cenas: listagem, criação, recall e exclusão protegida para cena ativa.
+- A UI usa `GET /api/v1/scenes`, `GET /api/v1/scenes/active`, `POST /api/v1/scenes`, `POST /api/v1/scenes/{id}/recall` e `DELETE /api/v1/scenes/{id}`.
+- Cobertura CODE existente valida sucesso, RBAC/error path, cena ativa e mutações REST; runtime e hardware permanecem pendentes.
