@@ -382,6 +382,7 @@ describe('Engineer Console', () => {
       if (path === '/api/v1/scenes' && init?.method === 'POST') return json({ id: 'new', name: 'Nova', revision: 1 });
       if (path === '/api/v1/scenes') return json({ scenes: [{ id: 'scene-1', name: 'Show', active_revision: 3, created_at: 1700000000, updated_at: 1700000000 }, { id: 'scene-2', name: 'Ensaio', active_revision: 2, created_at: 1700000000, updated_at: 1700000000 }] });
       if (path === '/api/v1/scenes/active') return json({ scene: active });
+      if (path === '/api/v1/scenes/scene-2') return json({ id: 'scene-2', name: 'Ensaio', revision: 2, config: { channels: [], mixes: [] } });
       return json({}, 204);
     });
   }
@@ -402,6 +403,23 @@ describe('Engineer Console', () => {
     expect(screen.getAllByText(/\d{2}\/\d{2}\/\d{4}/).length).toBe(2);
   });
   it('renderiza nome da cena ativa', async () => { await loginScenes(); expect(screen.getByText('Cena ativa:')).toBeTruthy(); expect(screen.getAllByText('Show').length).toBeGreaterThan(1); });
+  it('edita cena e envia nova revisão via PUT', async () => {
+    const fetchMock = sceneDashboardFetch(); vi.stubGlobal('fetch', fetchMock); await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
+    fireEvent.click(screen.getByRole('button', { name: 'Editar cena Ensaio' }));
+    const editor = await screen.findByLabelText('Configuração da cena');
+    fireEvent.change(editor, { target: { value: '{\"channels\":[],\"mixes\":[]}' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar revisão' }));
+    await waitFor(() => expect(fetchMock.mock.calls.some(([path, init]) => path === '/api/v1/scenes/scene-2' && init?.method === 'PUT' && JSON.parse(String(init.body)).config.mixes.length === 0)).toBe(true));
+  });
+  it('rejeita configuração JSON inválida antes do PUT', async () => {
+    const fetchMock = sceneDashboardFetch(); vi.stubGlobal('fetch', fetchMock); await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
+    fireEvent.click(screen.getByRole('button', { name: 'Editar cena Ensaio' }));
+    fireEvent.change(await screen.findByLabelText('Configuração da cena'), { target: { value: '{inválido' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar revisão' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('JSON inválida');
+    expect(fetchMock.mock.calls.some(([path, init]) => path === '/api/v1/scenes/scene-2' && init?.method === 'PUT')).toBe(false);
+  });
+
   it('botão recuperar envia POST de recall', async () => {
     const fetchMock = sceneDashboardFetch(); vi.stubGlobal('fetch', fetchMock); await loginScenes({ id: 'scene-1', name: 'Show' }, fetchMock);
     fireEvent.click(screen.getByRole('button', { name: 'Recuperar cena Ensaio' }));
