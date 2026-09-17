@@ -335,6 +335,18 @@
 
 # Development Log
 
+## 2026-09-17 — P2 built-in channel preset application
+
+**Status:** CODE; runtime and hardware validation remain pending.
+
+- Added authenticated `POST /api/v1/presets/{id}/apply` for Engineer/Admin.
+- Server-side allowlist accepts only `default-vocal` and `default-instrument`; payload rejects unknown fields and targets bounded channel slots.
+- Application resets channel gain to 0 dB and mute to false through existing control dispatch; Musician receives 403 and invalid preset/channel leaves state unchanged.
+- Evidence: api-server integration suite 76 tests and full server clippy pass. No runtime, PipeWire/ALSA, WebRTC/Opus or Raspberry Pi 5 claim.
+
+---
+
+
 ## 2026-09-16 — P0-003 bounded Opus media writer
 
 **Status:** CODE + CI/SIMULATED — WebRTC writer attachment, RTP/DTLS-SRTP transmission and runtime remain pending.
