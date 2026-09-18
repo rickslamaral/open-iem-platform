@@ -1,3 +1,10 @@
+## 2026-09-18 — reconciliação do status P1-002 Device Manager
+
+- Handoff e TODO agora marcam capability discovery, snapshot, recovery state machine e `GET /api/v1/devices` como concluídos em CODE/CI.
+- Integração backend hot-plug, runtime de áudio, PipeWire/ALSA e Raspberry Pi 5 continuam pendentes; nenhuma claim física adicionada.
+
+---
+
 ## 2026-09-18 — reconciliação do status do Device Manager
 
 **Status:** CODE + CI; integração hot-plug, runtime de áudio e hardware permanecem pendentes.
