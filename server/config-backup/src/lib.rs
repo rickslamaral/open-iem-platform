@@ -289,6 +289,7 @@ fn validate_snapshot(snapshot: &ConfigSnapshot) -> Result<(), RestoreError> {
     }
     let mut channel_slots = HashSet::new();
     let mut channel_ids = HashSet::new();
+    let mut channel_ids_by_slot = [None; MAX_CHANNELS];
     for channel in &snapshot.channels {
         if channel.slot >= MAX_CHANNELS
             || !channel_slots.insert(channel.slot)
@@ -301,10 +302,10 @@ fn validate_snapshot(snapshot: &ConfigSnapshot) -> Result<(), RestoreError> {
         {
             return Err(RestoreError::Engine("invalid channel snapshot".to_owned()));
         }
+        channel_ids_by_slot[channel.slot] = Some(channel.id);
     }
     let mut mix_slots = HashSet::new();
     let mut mix_ids = HashSet::new();
-    let channel_ids: HashSet<u32> = snapshot.channels.iter().map(|channel| channel.id).collect();
     for mix in &snapshot.mixes {
         if mix.slot >= mix_engine::MAX_MIXES
             || !mix_slots.insert(mix.slot)
@@ -343,8 +344,8 @@ fn validate_snapshot(snapshot: &ConfigSnapshot) -> Result<(), RestoreError> {
         for send in &mix.sends {
             if send.channel_index >= MAX_CHANNELS
                 || !send_indices.insert(send.channel_index)
-                || !channel_ids.contains(&send.channel_id)
-                || !mix_ids.contains(&send.mix_id)
+                || channel_ids_by_slot[send.channel_index] != Some(send.channel_id)
+                || send.mix_id != mix.id
                 || send.mix_id == 0
                 || !send.gain_db.is_finite()
                 || !(mix_engine::GAIN_DB_MIN..=mix_engine::GAIN_DB_MAX).contains(&send.gain_db)
