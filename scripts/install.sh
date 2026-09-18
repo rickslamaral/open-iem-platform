@@ -12,6 +12,8 @@ BIN_DIR="${OPENIEM_BIN_DIR:-/usr/local/bin}"
 STATE_DIR="${OPENIEM_STATE_DIR:-/var/lib/openiem}"
 CONFIG_DIR="${OPENIEM_CONFIG_DIR:-/etc/openiem}"
 SERVICE_NAME="openiem-server.service"
+SOUNDTECH_ENV="$CONFIG_DIR/openiem-server.env"
+SERVICE_DROPIN_DIR="/etc/systemd/system/$SERVICE_NAME.d"
 DRY_RUN=0
 VALIDATE_ONLY=0
 VALIDATION_REPORT=""
@@ -186,12 +188,40 @@ ensure_node_after_deps() {
   log "using existing Node.js $(node --version)"
 }
 
+ensure_soundtech_env() {
+  local tmp
+  if [[ -f "$SOUNDTECH_ENV" ]] && grep -qE '^OPENIEM_SOUNDTECH_PASSWORD=.+$' "$SOUNDTECH_ENV"; then
+    run "${SUDO[@]}" chown root:root "$SOUNDTECH_ENV"
+    run "${SUDO[@]}" chmod 0600 "$SOUNDTECH_ENV"
+    log 'preserving existing SoundTech password'
+    return
+  fi
+  (( DRY_RUN )) && { log "would generate random SoundTech password in $SOUNDTECH_ENV"; return; }
+  tmp="$(mktemp -t openiem-soundtech.XXXXXX)"
+  umask 077
+  printf 'OPENIEM_SOUNDTECH_PASSWORD=%s\n' "$(openssl rand -hex 32)" > "$tmp"
+  run "${SUDO[@]}" install -o root -g root -m 0600 "$tmp" "$SOUNDTECH_ENV"
+  rm -f -- "$tmp"
+  log 'generated SoundTech password and stored it in protected env file'
+}
+
+install_service_env_dropin() {
+  local tmp="$1"
+  (( DRY_RUN )) && { log "would install $SERVICE_DROPIN_DIR/override.conf"; return; }
+  mkdir -p "$tmp/dropin"
+  printf '[Service]\nEnvironmentFile=%s\n' "$SOUNDTECH_ENV" > "$tmp/dropin/override.conf"
+  run "${SUDO[@]}" install -d -m 0755 "$SERVICE_DROPIN_DIR"
+  run "${SUDO[@]}" install -o root -g root -m 0644 "$tmp/dropin/override.conf" "$SERVICE_DROPIN_DIR/override.conf"
+}
+
 validate_host() {
   local report="${VALIDATION_REPORT:-/tmp/openiem-validation.txt}"
   local status=PASS
-  local rust="missing" node_version="missing" release="missing" service="unknown"
+  local rust="missing" node_version="missing" release="missing" service="unknown" soundtech_password="missing" service_env="missing"
   command -v rustc >/dev/null 2>&1 && rust="$(rustc --version)"
   command -v node >/dev/null 2>&1 && node_version="$(node --version)"
+  [[ -f "$SOUNDTECH_ENV" ]] && grep -qE '^OPENIEM_SOUNDTECH_PASSWORD=.+$' "$SOUNDTECH_ENV" && soundtech_password="configured"
+  [[ -f "$SERVICE_DROPIN_DIR/override.conf" ]] && grep -qF "EnvironmentFile=$SOUNDTECH_ENV" "$SERVICE_DROPIN_DIR/override.conf" && service_env="configured"
   RELEASE_DIR="$PREFIX/releases/$REF"
   if ! rustc_is_compatible; then status=FAIL; fi
   if ! command -v node >/dev/null 2>&1; then
@@ -206,7 +236,9 @@ validate_host() {
   else
     release="missing_or_inactive"; status=FAIL
   fi
+  [[ "$soundtech_password" == "configured" ]] || status=FAIL
   if command -v systemctl >/dev/null 2>&1; then
+    [[ "$service_env" == "configured" ]] || status=FAIL
     systemctl is-active --quiet "$SERVICE_NAME" && service="active" || service="inactive"
   fi
   {
@@ -219,6 +251,8 @@ validate_host() {
     printf 'node=%s\n' "$node_version"
     printf 'release=%s\n' "$release"
     printf 'service=%s\n' "$service"
+    printf 'soundtech_password=%s\n' "$soundtech_password"
+    printf 'env_file=%s\n' "$SOUNDTECH_ENV"
     printf 'status=%s\n' "$status"
   } | tee "$report"
   log "validation report: $report"
@@ -237,14 +271,26 @@ if (( VALIDATE_ONLY )); then
   exit $?
 fi
 
-# Fast path: valid immutable release needs no network, dependencies, or rebuild.
+# Fast path: valid immutable release needs no network, dependencies, or rebuild,
+# but still repairs required runtime configuration and systemd integration.
 if (( DRY_RUN == 0 )) && release_is_valid; then
   if [[ "$(readlink "$PREFIX/current" 2>/dev/null || true)" == "$PREFIX/releases/$REF" ]]; then
-    log "release $REF already installed and active; nothing to do"
+    log "release $REF already installed and active"
   else
     atomic_symlink "$PREFIX/releases/$REF" "$PREFIX/current"
     log "release $REF already installed; activated it"
   fi
+  "${SUDO[@]}" install -d -m 0755 "$CONFIG_DIR" "$STATE_DIR"
+  ensure_soundtech_env
+  if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
+    DROPIN_TMP="$(mktemp -d -t openiem-dropin.XXXXXX)"
+    install_service_env_dropin "$DROPIN_TMP"
+    rm -rf -- "$DROPIN_TMP"
+    "${SUDO[@]}" systemctl daemon-reload
+    "${SUDO[@]}" systemctl enable --now "$SERVICE_NAME"
+  fi
+  log 'runtime configuration repaired'
+  printf '%s\\n' "API binary: $BIN_DIR/api-server" "Admin CLI: $BIN_DIR/open-iem-admin" "State: $STATE_DIR" "Config: $CONFIG_DIR" "SoundTech password: generated or preserved (not printed)" "Service: ${SERVICE_NAME} configured"
   exit 0
 fi
 
@@ -368,6 +414,8 @@ if [[ ! -e "$PRIVATE_KEY" && ! -e "$PUBLIC_KEY" ]] || (( ROTATE_KEYS )); then
   log 'JWT keys generated'
 fi
 
+ensure_soundtech_env
+
 if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
   sed -e "s#^WorkingDirectory=.*#WorkingDirectory=$PREFIX#" \
       -e "s#^ExecStart=.*#ExecStart=$PREFIX/current/server/api-server#" \
@@ -376,6 +424,7 @@ if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
       -e "s#^Environment=OPENIEM_JWT_PUBLIC_PEM=.*#Environment=OPENIEM_JWT_PUBLIC_PEM=$CONFIG_DIR/keys/ed25519_public.pem#" \
       "$TMP_DIR/src/deployment/systemd/openiem-server.service" > "$STAGE/$SERVICE_NAME"
   run "${SUDO[@]}" install -o root -g root -m 0644 "$STAGE/$SERVICE_NAME" "/etc/systemd/system/$SERVICE_NAME"
+  install_service_env_dropin "$STAGE"
   run "${SUDO[@]}" systemctl daemon-reload
   run "${SUDO[@]}" systemctl enable --now "$SERVICE_NAME"
 else
@@ -384,4 +433,16 @@ fi
 
 INSTALL_COMMITTED=1
 log 'installation complete'
-printf '%s\n' "API binary: $BIN_DIR/api-server" "Admin CLI: $BIN_DIR/open-iem-admin" "State: $STATE_DIR" "Config: $CONFIG_DIR"
+service_status="disabled_or_unavailable"
+if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
+  service_status="$(systemctl is-active "$SERVICE_NAME" 2>/dev/null || true)"
+  [[ -n "$service_status" ]] || service_status="inactive"
+fi
+printf '%s\n' \
+  "API binary: $BIN_DIR/api-server" \
+  "Admin CLI: $BIN_DIR/open-iem-admin" \
+  "State: $STATE_DIR" \
+  "Config: $CONFIG_DIR" \
+  "SoundTech password: generated or preserved (not printed)" \
+  "SoundTech env file: $SOUNDTECH_ENV" \
+  "Service: $SERVICE_NAME ($service_status)"
