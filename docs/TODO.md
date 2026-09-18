@@ -623,9 +623,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Musician Guide PDF (`docs/guides/MUSICIANS-GUIDE.pdf`) — pandoc+xelatex, 61 KB
 - [x] PHASE-8-REVIEW.md
 - [x] Admin API server-side routes (Phase 9) — complete and covered by `server/api-server/src/routes/admin.rs` plus integration tests: GET/POST/DELETE `/api/v1/admin/users` and GET/DELETE `/api/v1/admin/sessions`.
-- [ ] Biquad coefficient validation vs reference implementation (scipy)
-- [ ] Generate Musician Guide PDF (Phase 8 documentation) — DONE Phase 8
-- [ ] Biquad coefficient validation vs reference implementation (Phase 8) — deferred Phase 9
+- [x] Biquad coefficient validation vs reference implementation (scipy) — covered by deterministic reference vectors and tolerance tests; completed in Phase 91.
+- [x] Generate Musician Guide PDF (Phase 8 documentation) — DONE Phase 8
 
 ## PHASE 1 STATUS
 
