@@ -288,9 +288,11 @@ fn validate_snapshot(snapshot: &ConfigSnapshot) -> Result<(), RestoreError> {
         return Err(RestoreError::UnsupportedVersion(snapshot.version));
     }
     let mut channel_slots = HashSet::new();
+    let mut channel_ids = HashSet::new();
     for channel in &snapshot.channels {
         if channel.slot >= MAX_CHANNELS
             || !channel_slots.insert(channel.slot)
+            || !channel_ids.insert(channel.id)
             || channel.name.is_empty()
             || channel.name.len() > 64
             || channel.id == 0
@@ -301,9 +303,12 @@ fn validate_snapshot(snapshot: &ConfigSnapshot) -> Result<(), RestoreError> {
         }
     }
     let mut mix_slots = HashSet::new();
+    let mut mix_ids = HashSet::new();
+    let channel_ids: HashSet<u32> = snapshot.channels.iter().map(|channel| channel.id).collect();
     for mix in &snapshot.mixes {
         if mix.slot >= mix_engine::MAX_MIXES
             || !mix_slots.insert(mix.slot)
+            || !mix_ids.insert(mix.id)
             || mix.name.is_empty()
             || mix.name.len() > 64
             || mix.id == 0
@@ -318,6 +323,10 @@ fn validate_snapshot(snapshot: &ConfigSnapshot) -> Result<(), RestoreError> {
             return Err(RestoreError::Engine("invalid mix snapshot".to_owned()));
         }
         let mut band_indices = HashSet::new();
+        if mix.eq.bands.len() != MAX_EQ_BANDS {
+            return Err(RestoreError::Engine("invalid EQ snapshot".to_owned()));
+        }
+        let mut send_indices = HashSet::new();
         for band in &mix.eq.bands {
             if band.index >= MAX_EQ_BANDS
                 || !band_indices.insert(band.index)
@@ -333,6 +342,9 @@ fn validate_snapshot(snapshot: &ConfigSnapshot) -> Result<(), RestoreError> {
         }
         for send in &mix.sends {
             if send.channel_index >= MAX_CHANNELS
+                || !send_indices.insert(send.channel_index)
+                || !channel_ids.contains(&send.channel_id)
+                || !mix_ids.contains(&send.mix_id)
                 || send.mix_id == 0
                 || !send.gain_db.is_finite()
                 || !(mix_engine::GAIN_DB_MIN..=mix_engine::GAIN_DB_MAX).contains(&send.gain_db)

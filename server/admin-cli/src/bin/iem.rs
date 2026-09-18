@@ -134,6 +134,12 @@ fn run_config(action: ConfigCommand) -> Result<(), String> {
             println!("wrote configuration snapshot to {}", output.display());
         }
         ConfigCommand::Restore { input } => {
+            if input
+                .symlink_metadata()
+                .is_ok_and(|metadata| metadata.file_type().is_symlink())
+            {
+                return Err(format!("iem: refusing to read symlink {}", input.display()));
+            }
             let json = fs::read_to_string(&input)
                 .map_err(|error| format!("iem: failed to read {}: {error}", input.display()))?;
             let snapshot = config_backup::deserialize(&json).map_err(|error| error.to_string())?;
