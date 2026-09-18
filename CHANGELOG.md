@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security
+- Revalida estado de pairing sob lock após Argon2 para bloquear revogação e rotação concorrentes durante autenticação.
+
 ### Changed
 - Reconciled scene duplication documentation with merged CODE+CI evidence; runtime validation remains pending.
 

@@ -4368,3 +4368,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - `list_scenes`, `duplicate_scene` e `save_scene` agora rejeitam revisão ativa zero, histórico ausente e ponteiro ativo acima do histórico persistido.
 - Revisão independente encontrou o bypass; teste do crate `scene-manager` passou com 25 testes. Evidência CODE; runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
+
+## 2026-09-18 — P0-006 autenticação de receiver
+
+- `PairingRegistry::authenticate` agora relê salt, digest e revogação sob lock após Argon2. Revogação ou rotação concorrente falha fechado antes de autorizar sessão.
+- Evidência: `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` aprovados. Revisão independente PASS. Runtime DTLS-SRTP e hardware continuam pendentes.
