@@ -1,3 +1,12 @@
+## 2026-09-18 — reconciliação do status do Device Manager
+
+**Status:** CODE + CI; integração hot-plug, runtime de áudio e hardware permanecem pendentes.
+
+- Corrigido `GAP-013`: `DeviceManager` e `GET /api/v1/devices` já têm implementação e cobertura CODE/CI; o gap restante é integração com descoberta real e validação de perda/reconexão.
+- Nenhuma claim adicionada para PipeWire/ALSA, WebRTC/Opus ou Raspberry Pi 5.
+
+---
+
 ## 2026-09-17 — instalador e validação de áudio headless
 
 **Status:** CODE + validação local; CI remoto e hardware físico permanecem pendentes.
