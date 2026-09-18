@@ -25,6 +25,8 @@ NO_SERVICE=0
 KEEP_SOURCE=0
 ROTATE_KEYS=0
 ASSUME_YES=0
+RUN_TESTS=0
+TEST_REPORT=""
 
 log() { printf '[open-iem] %s\n' "$*"; }
 warn() { printf '[open-iem] WARNING: %s\n' "$*" >&2; }
@@ -47,6 +49,8 @@ Options:
   --keep-source    Keep temporary checkout after installation
   --rotate-keys    Replace existing JWT keys after explicit confirmation
   --yes            Confirm destructive actions (use with --rotate-keys)
+  --run-tests      Run complete headless/audio test suite after install
+  --test-report PATH  Write test summary report (default: /tmp/openiem-tests-<ref>.txt)
   -h, --help       Show help
 
 Environment equivalents:
@@ -71,6 +75,8 @@ while (($#)); do
     --keep-source) KEEP_SOURCE=1; shift ;;
     --rotate-keys) ROTATE_KEYS=1; shift ;;
     --yes) ASSUME_YES=1; shift ;;
+    --run-tests) RUN_TESTS=1; shift ;;
+    --test-report) TEST_REPORT="${2:?missing test report path}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) fatal "unknown option: $1 (use --help)" ;;
   esac
@@ -78,7 +84,20 @@ done
 
 [[ "$(uname -s)" == Linux ]] || fatal "Linux required"
 [[ "$PREFIX" = /* && "$BIN_DIR" = /* && "$STATE_DIR" = /* && "$CONFIG_DIR" = /* ]] || fatal "paths must be absolute"
-[[ "$PREFIX" =~ ^/[A-Za-z0-9._/-]*$ && "$BIN_DIR" =~ ^/[A-Za-z0-9._/-]*$ && "$STATE_DIR" =~ ^/[A-Za-z0-9._/-]*$ && "$CONFIG_DIR" =~ ^/[A-Za-z0-9._/-]*$ ]] || fatal "paths contain unsafe characters"
+validate_path() {
+  local path="$1" part
+  [[ "$path" =~ ^/[A-Za-z0-9._/-]*$ ]] || return 1
+  [[ "$path" != */../* && "$path" != */./* && "$path" != */.. && "$path" != */. && "$path" != //* ]] || return 1
+  [[ "$path" == / ]] && return 0
+  while [[ "$path" == */* ]]; do
+    part="${path##*/}"
+    [[ "$part" != "" && "$part" != . && "$part" != .. ]] || return 1
+    path="${path%/*}"
+    [[ -n "$path" ]] || path=/
+    [[ "$path" == / ]] && break
+  done
+}
+validate_path "$PREFIX" && validate_path "$BIN_DIR" && validate_path "$STATE_DIR" && validate_path "$CONFIG_DIR" || fatal "paths contain unsafe characters"
 [[ "$REPO_URL" == https://* || "$REPO_URL" == git@* || "$REPO_URL" == ssh://* ]] || fatal "repository URL must use HTTPS or SSH"
 [[ "$REF" =~ ^[0-9a-fA-F]{40}$ ]] || fatal "--ref must be a full 40-character commit SHA; mutable branches and tags are refused"
 
@@ -254,13 +273,35 @@ ensure_soundtech_env() {
   log 'generated SoundTech password and stored it in protected env file'
 }
 
+ensure_service_dropin_dir_secure() {
+  local path="$SERVICE_DROPIN_DIR" info owner mode type
+  local IFS=' '
+  while :; do
+    [[ -d "$path" && ! -L "$path" ]] || fatal "systemd drop-in path is not a directory or is a symlink: $path"
+    info="$("${SUDO[@]}" stat -c '%u %a %F' -- "$path")" || fatal "cannot inspect systemd drop-in path: $path"
+    read -r owner mode type <<< "$info"
+    [[ "$owner" == 0 && "$type" == directory ]] || fatal "systemd drop-in path must be root-owned directory: $path"
+    (( (8#$mode & 0022) == 0 )) || fatal "systemd drop-in path is writable by non-root users: $path"
+    [[ "$path" == / ]] && break
+    path="${path%/*}"
+    [[ -n "$path" ]] || path=/
+  done
+}
+
 install_service_env_dropin() {
   local tmp="$1"
   (( DRY_RUN )) && { log "would install $SERVICE_DROPIN_DIR/override.conf"; return; }
+  "${SUDO[@]}" install -d -o root -g root -m 0755 "$SERVICE_DROPIN_DIR"
+  ensure_service_dropin_dir_secure
   mkdir -p "$tmp/dropin"
   printf '[Service]\nEnvironmentFile=%s\n' "$SOUNDTECH_ENV" > "$tmp/dropin/override.conf"
-  run "${SUDO[@]}" install -d -m 0755 "$SERVICE_DROPIN_DIR"
-  run "${SUDO[@]}" install -o root -g root -m 0644 "$tmp/dropin/override.conf" "$SERVICE_DROPIN_DIR/override.conf"
+  local target="$SERVICE_DROPIN_DIR/override.conf"
+  local staged="$SERVICE_DROPIN_DIR/.override.conf.tmp.$$"
+  [[ ! -L "$target" ]] || fatal "systemd override cannot be a symlink: $target"
+  run "${SUDO[@]}" install -o root -g root -m 0644 "$tmp/dropin/override.conf" "$staged"
+  run "${SUDO[@]}" mv -fT -- "$staged" "$target"
+  [[ ! -L "$target" ]] || fatal "systemd override became a symlink: $target"
+  ensure_service_dropin_dir_secure
 }
 
 validate_host() {
@@ -270,7 +311,7 @@ validate_host() {
   command -v rustc >/dev/null 2>&1 && rust="$(rustc --version)"
   command -v node >/dev/null 2>&1 && node_version="$(node --version)"
   runtime_config_is_secure && soundtech_password="configured"
-  if [[ -f "$SERVICE_DROPIN_DIR/override.conf" && ! -L "$SERVICE_DROPIN_DIR/override.conf" ]]; then
+  if [[ -d "$SERVICE_DROPIN_DIR" && ! -L "$SERVICE_DROPIN_DIR" && -f "$SERVICE_DROPIN_DIR/override.conf" && ! -L "$SERVICE_DROPIN_DIR/override.conf" ]]; then
     dropin_stat="$("${SUDO[@]}" stat -c '%u %a %F' -- "$SERVICE_DROPIN_DIR/override.conf" 2>/dev/null || true)"
     if [[ "$dropin_stat" == "0 644 regular file" ]]; then
       dropin_content="$(cat -- "$SERVICE_DROPIN_DIR/override.conf")"
@@ -324,6 +365,52 @@ release_is_valid() {
      -f "$PREFIX/releases/$REF/web/engineer/index.html" ]]
 }
 
+run_test_suite() {
+  local report="${TEST_REPORT:-/tmp/openiem-tests-${REF}.txt}"
+  local suite_status=0 test_status
+  local source_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+  cd -- "$source_root" || fatal "cannot enter trusted source root"
+  [[ ! -L "$report" ]] || fatal "test report path cannot be a symlink: $report"
+  [[ "$report" = /* ]] || fatal "test report path must be absolute: $report"
+  local report_dir="$(dirname -- "$report")"
+  [[ -d "$report_dir" && ! -L "$report_dir" ]] || fatal "test report directory must be a real directory: $report_dir"
+  [[ -f "$report" || ! -e "$report" ]] || fatal "test report path must be a regular file: $report"
+  : > "$report" || fatal "cannot write test report: $report"
+  {
+    printf 'open-iem headless test report\n'
+    printf 'ref=%s\n' "$REF"
+    printf 'host=%s\n' "$(hostname 2>/dev/null || printf unknown)"
+    printf 'kernel=%s\n' "$(uname -srmo)"
+    printf 'started=%s\n\n' "$(date -Is)"
+  } | tee "$report"
+
+  run_test() {
+    local name="$1"; shift
+    printf '\n== %s ==\n' "$name" | tee -a "$report"
+    if timeout --signal=TERM 600s "$@" 2>&1 | tee -a "$report"; then
+      printf 'result=PASS\n' | tee -a "$report"
+    else
+      test_status=${PIPESTATUS[0]}
+      printf 'result=FAIL exit=%s\n' "$test_status" | tee -a "$report"
+      suite_status=1
+    fi
+  }
+
+  run_test 'shell syntax' bash -n scripts/install.sh scripts/ci/run-headless-audio.sh
+  run_test 'git diff check' git diff --check
+  run_test 'Rust formatter' cargo fmt --manifest-path server/Cargo.toml --all -- --check
+  run_test 'Rust clippy' cargo clippy --manifest-path server/Cargo.toml --workspace --all-targets -- -D warnings
+  run_test 'Rust unit tests' cargo test --manifest-path server/Cargo.toml --workspace --lib
+  run_test 'API integration tests' cargo test --manifest-path server/Cargo.toml --package api-server --test integration
+  run_test 'headless audio and deterministic DSP' scripts/ci/run-headless-audio.sh
+  run_test 'Musician tests' npm test --prefix web/musician -- --run
+  run_test 'Engineer tests' npm test --prefix web/engineer -- --run
+
+  printf '\nstatus=%s\nfinished=%s\n' "$([[ $suite_status -eq 0 ]] && printf PASS || printf FAIL)" "$(date -Is)" | tee -a "$report"
+  log "test report: $report"
+  return "$suite_status"
+}
+
 if (( VALIDATE_ONLY )); then
   validate_host
   exit $?
@@ -359,6 +446,9 @@ if (( DRY_RUN == 0 )) && release_is_valid; then
     fi
   else
     printf '%s\n' "Service: $SERVICE_NAME (systemd unavailable)"
+  fi
+  if (( RUN_TESTS )); then
+    run_test_suite || exit $?
   fi
   exit 0
 fi
@@ -516,3 +606,6 @@ printf '%s\n' \
   "SoundTech password: generated or preserved (not printed)" \
   "SoundTech env file: $SOUNDTECH_ENV" \
   "Service: $SERVICE_NAME ($service_status)"
+if (( RUN_TESTS )); then
+  run_test_suite
+fi

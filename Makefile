@@ -4,7 +4,7 @@ SHELL := /usr/bin/env bash
 PROJECT := open-iem-platform
 SERVER_MANIFEST := server/Cargo.toml
 
-.PHONY: help install run run-local up down logs status lint fmt test test-unit test-integration test-audio build package diagnostics docs validate clean coverage alsa-sim-build alsa-sim-test alsa-sim-run
+.PHONY: help install run run-local up down logs status lint fmt test test-unit test-integration test-audio audio-test audio-load build package diagnostics docs validate clean coverage alsa-sim-build alsa-sim-test alsa-sim-run
 
 ALSA_SIM_IMAGE  := open-iem-alsa-sim
 ALSA_SIM_DIR    := deployment/docker/alsa-sim
@@ -83,7 +83,17 @@ test-integration:
 	@cargo test --manifest-path $(SERVER_MANIFEST) --package api-server --test integration
 
 test-audio:
-	@cargo test --manifest-path $(SERVER_MANIFEST) --package audio-engine --test deterministic_harness
+	@$(MAKE) audio-test
+
+audio-test:
+	@scripts/ci/run-headless-audio.sh
+
+audio-load:
+	@command -v modprobe >/dev/null || { echo 'modprobe missing'; exit 3; }
+	@sudo modprobe snd-aloop
+	@printf 'snd-aloop loaded; devices discovered by name:\n'
+	@aplay -l | grep -i -A4 loopback
+	@arecord -l | grep -i -A4 loopback
 
 build:
 	@cargo build --manifest-path $(SERVER_MANIFEST) --workspace
