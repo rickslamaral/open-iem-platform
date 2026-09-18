@@ -199,8 +199,6 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ---
 
----
-
 ## BLOCKER
 
 - [x] P0 — Confirmar correção da suíte Python de assinatura no GitHub Actions — runs `34761731828` e `34763037883` passaram nos 9 jobs.
@@ -217,18 +215,6 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 
 ---
-
-## BLOCKER
-
-- [x] P0 — Confirmar correção da suíte Python de assinatura no GitHub Actions — runs `34761731828` e `34763037883` passaram nos 9 jobs.
-- [ ] P0 — Publicar release `v0.3.1` após validar artefatos e instalação real.
-
-## Phase 79 — compatibilidade OpenSSL 3.5 na geração de assinaturas
-
-- [x] Adicionar `-rawin` aos helpers de teste Ed25519.
-- [x] Validar suíte combinada localmente: 56 testes aprovados.
-- [x] Confirmar CI remoto verde no run `34760297250` e atualizar documentação.
-- [ ] Validar release, instalação ARM64 e Raspberry Pi 5 real.
 
 ## Phase 78 — rejeição de dados residuais em archives
 
