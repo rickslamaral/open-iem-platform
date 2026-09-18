@@ -49,7 +49,7 @@ IEM              IEM
 
 ## Current Status
 
-**Fase atual: arquitetura P0 fechada; desenvolvimento retomado pela fila em `docs/DEVELOPMENT-HANDOFF.md`.** P0-001 concluído em código; próximo item: P0-002 — Audio Lab L1/L2. Phase 92 backend WS EQ está mergeada; frontend EQ permanece backlog.
+**Fase atual: arquitetura P0 fechada; desenvolvimento retomado pela fila em `docs/DEVELOPMENT-HANDOFF.md`.** P0-001, P0-002, P0-003 e P0-004 estão concluídos em código/CI nos limites documentados; runtime de áudio, WebRTC/Opus e hardware permanecem pendentes. Phase 92 backend WS EQ e Phase 93 frontend EQ estão mergeadas.
 
 **Fases concluídas e mescladas em `main`:**
 
