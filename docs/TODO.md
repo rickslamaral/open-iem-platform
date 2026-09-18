@@ -1,5 +1,8 @@
 # TODO
 
+## Estado atual — 2026-09-18 (Phase 95 review)
+- **Phase 95:** review canônica adicionada para `GET /api/v1/metrics`; endpoint permanece CODE/CI, sem validação de runtime ou hardware.
+
 ## Estado atual — 2026-09-18 (scene duplication status reconciliation)
 - **P2 Scene duplication:** `POST /api/v1/scenes/{id}/duplicate` and Engineer Console action are merged with CODE+CI evidence; runtime and hardware validation remain pending.
 
