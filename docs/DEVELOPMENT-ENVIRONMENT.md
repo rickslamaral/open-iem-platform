@@ -29,7 +29,8 @@
 
 ### Notes
 
-- **VPS environment**: PipeWire and ALSA are not available. This is expected.
+- **VPS environment**: PipeWire may be unavailable. This is expected; use [`HEADLESS-AUDIO-TESTING.md`](HEADLESS-AUDIO-TESTING.md) for deterministic DSP and optional ALSA Loopback.
+- `snd-aloop` requires kernel support and host privilege; Docker cannot load it internally.
 - PipeWire validation requires Raspberry Pi or Linux desktop with audio hardware.
 - Rust installed via `rustup` into `/root/.cargo/`. Source `~/.cargo/env` in new shells.
 - Node 22 LTS — suitable for all frontend tooling.

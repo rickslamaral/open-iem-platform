@@ -82,6 +82,7 @@ Evidence-backed current components:
 - Simulated audio backend and deterministic audio tests.
 - Musician and Engineer React/TypeScript control UIs.
 - CI workflows for Rust, frontend, security, documentation, coverage and ARM64 cross-build.
+- Headless audio verification: deterministic DSP always; optional ALSA `snd-aloop` injection/capture with PCM frame validation; installer `--run-tests` produces a gate report.
 - Release archive validation and checksum/provenance workflow.
 
 Implemented but not production-validated: bounded MixEngine-to-media bridge (`streaming::MediaBridge`) routes processed frames into per-session queues without blocking. `MediaWriter` encodes one bounded 48 kHz stereo frame to Opus, while `SessionRegistry::drive_once` drives bounded bridge input and Sans-IO WebRTC output polling. WebRTC writer attachment, RTP/DTLS-SRTP transmission and runtime remain pending; current media frame representation is a stereo sample pair expanded to 20 ms for deterministic CODE/SIMULATED coverage. Production WebRTC media integration, PipeWire runtime, Pi hardware output, bootstrap, topology/device manager remain pending. Opus receiver core exists in P0-004, with OS output and hardware validation pending.

@@ -197,7 +197,26 @@ curl -fsSL https://raw.githubusercontent.com/rickslamaral/open-iem-platform/main
 bash install.sh --ref <COMMIT-SHA-40-CHARS>
 ```
 
-O instalador recusa branches/tags mutáveis e exige commit SHA completo. Não contém credenciais e não sobrescreve chaves JWT existentes. Para revisar antes de executar:
+O instalador recusa branches/tags mutáveis e exige commit SHA completo. Não contém credenciais e não sobrescreve chaves JWT existentes. Para executar todos os gates locais, incluindo DSP determinístico e ALSA Loopback quando `snd-aloop` estiver disponível, use `--run-tests`. O relatório não contém senhas, tokens ou chaves:
+
+```bash
+sudo bash install.sh \
+  --ref <COMMIT-SHA-40-CHARS> \
+  --run-tests \
+  --test-report /tmp/openiem-tests.txt
+cat /tmp/openiem-tests.txt
+```
+
+Sem `snd-aloop`, o teste determinístico de áudio continua obrigatório; ALSA físico é reportado como indisponível. Para carregar Loopback de forma explícita:
+
+```bash
+sudo modprobe snd-aloop
+aplay -l | grep -i -A4 loopback
+arecord -l | grep -i -A4 loopback
+make audio-test
+```
+
+Para revisar antes de executar:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/rickslamaral/open-iem-platform/main/scripts/install.sh -o install.sh
