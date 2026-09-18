@@ -78,7 +78,7 @@ done
 
 [[ "$(uname -s)" == Linux ]] || fatal "Linux required"
 [[ "$PREFIX" = /* && "$BIN_DIR" = /* && "$STATE_DIR" = /* && "$CONFIG_DIR" = /* ]] || fatal "paths must be absolute"
-[[ "$PREFIX$BIN_DIR$STATE_DIR$CONFIG_DIR" != *$'\n'* && "$PREFIX$BIN_DIR$STATE_DIR$CONFIG_DIR" != *'&'* && "$PREFIX$BIN_DIR$STATE_DIR$CONFIG_DIR" != *'\\'* && "$PREFIX$BIN_DIR$STATE_DIR$CONFIG_DIR" != *'#'* ]] || fatal "paths cannot contain newline, &, \\, or #"
+[[ "$PREFIX" =~ ^/[A-Za-z0-9._/-]*$ && "$BIN_DIR" =~ ^/[A-Za-z0-9._/-]*$ && "$STATE_DIR" =~ ^/[A-Za-z0-9._/-]*$ && "$CONFIG_DIR" =~ ^/[A-Za-z0-9._/-]*$ ]] || fatal "paths contain unsafe characters"
 [[ "$REPO_URL" == https://* || "$REPO_URL" == git@* || "$REPO_URL" == ssh://* ]] || fatal "repository URL must use HTTPS or SSH"
 [[ "$REF" =~ ^[0-9a-fA-F]{40}$ ]] || fatal "--ref must be a full 40-character commit SHA; mutable branches and tags are refused"
 
@@ -188,11 +188,60 @@ ensure_node_after_deps() {
   log "using existing Node.js $(node --version)"
 }
 
+ensure_config_dir_secure() {
+  local path="$CONFIG_DIR" info mode type
+  local IFS=' '
+  while :; do
+    [[ -d "$path" && ! -L "$path" ]] || fatal "config path is not a directory or is a symlink: $path"
+    info="$("${SUDO[@]}" stat -c '%u %a %F' -- "$path")" || fatal "cannot inspect config path: $path"
+    read -r owner mode type <<< "$info"
+    [[ "$owner" == 0 && "$type" == directory ]] || fatal "config path must be root-owned directory: $path"
+    (( (8#$mode & 0022) == 0 )) || fatal "config path is writable by non-root users: $path"
+    [[ "$path" == / ]] && break
+    path="${path%/*}"
+    [[ -n "$path" ]] || path=/
+  done
+}
+
+runtime_config_is_secure() {
+  local path="$CONFIG_DIR" info owner mode type env_content env_bytes env_last_byte env_stat env_owner env_mode env_type
+  local IFS=' '
+  while :; do
+    [[ -d "$path" && ! -L "$path" ]] || return 1
+    info="$("${SUDO[@]}" stat -c '%u %a %F' -- "$path")" || return 1
+    read -r owner mode type <<< "$info"
+    [[ "$owner" == 0 && "$type" == directory ]] || return 1
+    (( (8#$mode & 0022) == 0 )) || return 1
+    [[ "$path" == / ]] && break
+    path="${path%/*}"
+    [[ -n "$path" ]] || path=/
+  done
+  [[ -f "$SOUNDTECH_ENV" && ! -L "$SOUNDTECH_ENV" ]] || return 1
+  env_content="$("${SUDO[@]}" cat -- "$SOUNDTECH_ENV")" || return 1
+  env_bytes="$("${SUDO[@]}" stat -c '%s' -- "$SOUNDTECH_ENV")" || return 1
+  (( env_bytes > 0 )) || return 1
+  env_last_byte="$("${SUDO[@]}" od -An -t x1 -N 1 --skip=$((env_bytes - 1)) "$SOUNDTECH_ENV" | tr -d '[:space:]')" || return 1
+  [[ "$env_last_byte" == 0a && "$env_bytes" -eq $((${#env_content} + 1)) && "$env_content" =~ ^OPENIEM_SOUNDTECH_PASSWORD=[A-Za-z0-9._~+/=-]+$ ]] || return 1
+  env_stat="$("${SUDO[@]}" stat -c '%u %a %F' -- "$SOUNDTECH_ENV")" || return 1
+  read -r env_owner env_mode env_type <<< "$env_stat"
+  [[ "$env_owner" == 0 && "$env_mode" == 600 && "$env_type" == regular\ file ]]
+}
+
 ensure_soundtech_env() {
-  local tmp
-  if [[ -f "$SOUNDTECH_ENV" ]] && grep -qE '^OPENIEM_SOUNDTECH_PASSWORD=.+$' "$SOUNDTECH_ENV"; then
-    run "${SUDO[@]}" chown root:root "$SOUNDTECH_ENV"
-    run "${SUDO[@]}" chmod 0600 "$SOUNDTECH_ENV"
+  local tmp env_content env_bytes env_last_byte env_stat env_owner env_mode env_type
+  local IFS=' '
+  ensure_config_dir_secure
+  [[ ! -L "$SOUNDTECH_ENV" ]] || fatal "SoundTech env file cannot be a symlink: $SOUNDTECH_ENV"
+  if [[ -e "$SOUNDTECH_ENV" ]]; then
+    [[ -f "$SOUNDTECH_ENV" && ! -L "$SOUNDTECH_ENV" ]] || fatal "SoundTech env file must be a regular file: $SOUNDTECH_ENV"
+    env_content="$("${SUDO[@]}" cat -- "$SOUNDTECH_ENV")" || fatal "cannot read SoundTech env file: $SOUNDTECH_ENV"
+    env_bytes="$("${SUDO[@]}" stat -c '%s' -- "$SOUNDTECH_ENV")" || fatal "cannot inspect SoundTech env file: $SOUNDTECH_ENV"
+    (( env_bytes > 0 )) || fatal "unsafe SoundTech env file; expected one OPENIEM_SOUNDTECH_PASSWORD line"
+    env_last_byte="$("${SUDO[@]}" od -An -t x1 -N 1 --skip=$((env_bytes - 1)) "$SOUNDTECH_ENV" | tr -d '[:space:]')" || fatal "cannot inspect SoundTech env file: $SOUNDTECH_ENV"
+    [[ "$env_last_byte" == 0a && "$env_bytes" -eq $((${#env_content} + 1)) && "$env_content" =~ ^OPENIEM_SOUNDTECH_PASSWORD=[A-Za-z0-9._~+/=-]+$ ]] || fatal "unsafe SoundTech env file; expected one OPENIEM_SOUNDTECH_PASSWORD line"
+    env_stat="$("${SUDO[@]}" stat -c '%u %a %F' -- "$SOUNDTECH_ENV")" || fatal "cannot inspect SoundTech env file: $SOUNDTECH_ENV"
+    read -r env_owner env_mode env_type <<< "$env_stat"
+    [[ "$env_owner" == 0 && "$env_mode" == 600 && "$env_type" == regular\ file ]] || fatal "SoundTech env file must be root-owned mode 0600: $SOUNDTECH_ENV"
     log 'preserving existing SoundTech password'
     return
   fi
@@ -217,11 +266,19 @@ install_service_env_dropin() {
 validate_host() {
   local report="${VALIDATION_REPORT:-/tmp/openiem-validation.txt}"
   local status=PASS
-  local rust="missing" node_version="missing" release="missing" service="unknown" soundtech_password="missing" service_env="missing"
+  local rust="missing" node_version="missing" release="missing" service="unknown" soundtech_password="missing" service_env="missing" dropin_stat dropin_content dropin_bytes
   command -v rustc >/dev/null 2>&1 && rust="$(rustc --version)"
   command -v node >/dev/null 2>&1 && node_version="$(node --version)"
-  [[ -f "$SOUNDTECH_ENV" ]] && grep -qE '^OPENIEM_SOUNDTECH_PASSWORD=.+$' "$SOUNDTECH_ENV" && soundtech_password="configured"
-  [[ -f "$SERVICE_DROPIN_DIR/override.conf" ]] && grep -qF "EnvironmentFile=$SOUNDTECH_ENV" "$SERVICE_DROPIN_DIR/override.conf" && service_env="configured"
+  runtime_config_is_secure && soundtech_password="configured"
+  if [[ -f "$SERVICE_DROPIN_DIR/override.conf" && ! -L "$SERVICE_DROPIN_DIR/override.conf" ]]; then
+    dropin_stat="$("${SUDO[@]}" stat -c '%u %a %F' -- "$SERVICE_DROPIN_DIR/override.conf" 2>/dev/null || true)"
+    if [[ "$dropin_stat" == "0 644 regular file" ]]; then
+      dropin_content="$(cat -- "$SERVICE_DROPIN_DIR/override.conf")"
+      dropin_bytes="$(stat -c '%s' -- "$SERVICE_DROPIN_DIR/override.conf")"
+      [[ "$dropin_content" == $'[Service]\nEnvironmentFile='"$SOUNDTECH_ENV" &&
+        "$dropin_bytes" -eq $((${#dropin_content} + 1)) ]] && service_env="configured"
+    fi
+  fi
   RELEASE_DIR="$PREFIX/releases/$REF"
   if ! rustc_is_compatible; then status=FAIL; fi
   if ! command -v node >/dev/null 2>&1; then
@@ -241,6 +298,7 @@ validate_host() {
     [[ "$service_env" == "configured" ]] || status=FAIL
     systemctl is-active --quiet "$SERVICE_NAME" && service="active" || service="inactive"
   fi
+  [[ ! -L "$report" ]] || fatal "validation report path cannot be a symlink: $report"
   {
     printf 'open-iem validation\n'
     printf 'ref=%s\n' "$REF"
@@ -254,7 +312,7 @@ validate_host() {
     printf 'soundtech_password=%s\n' "$soundtech_password"
     printf 'env_file=%s\n' "$SOUNDTECH_ENV"
     printf 'status=%s\n' "$status"
-  } | tee "$report"
+  } | tee "$report" || fatal "cannot write validation report: $report"
   log "validation report: $report"
   [[ "$status" == PASS ]]
 }
@@ -290,7 +348,18 @@ if (( DRY_RUN == 0 )) && release_is_valid; then
     "${SUDO[@]}" systemctl enable --now "$SERVICE_NAME"
   fi
   log 'runtime configuration repaired'
-  printf '%s\\n' "API binary: $BIN_DIR/api-server" "Admin CLI: $BIN_DIR/open-iem-admin" "State: $STATE_DIR" "Config: $CONFIG_DIR" "SoundTech password: generated or preserved (not printed)" "Service: ${SERVICE_NAME} configured"
+  printf '%s\n' "API binary: $BIN_DIR/api-server" "Admin CLI: $BIN_DIR/open-iem-admin" "State: $STATE_DIR" "Config: $CONFIG_DIR" "SoundTech password: generated or preserved (not printed)"
+  if (( NO_SERVICE )); then
+    printf '%s\n' "Service: $SERVICE_NAME (not managed)"
+  elif command -v systemctl >/dev/null 2>&1; then
+    if systemctl is-active --quiet "$SERVICE_NAME"; then
+      printf '%s\n' "Service: $SERVICE_NAME active"
+    else
+      printf '%s\n' "Service: $SERVICE_NAME (managed/requested)"
+    fi
+  else
+    printf '%s\n' "Service: $SERVICE_NAME (systemd unavailable)"
+  fi
   exit 0
 fi
 
@@ -376,6 +445,7 @@ cp -a web/musician/dist/. "$STAGE/web/musician/"
 cp -a web/engineer/dist/. "$STAGE/web/engineer/"
 [[ ! -e "$RELEASE_DIR" ]] || fatal "release already installed at $RELEASE_DIR; choose a different immutable commit"
 run "${SUDO[@]}" install -d -m 0755 "$PREFIX/releases" "$RELEASE_DIR" "$BIN_DIR" "$CONFIG_DIR" "$STATE_DIR"
+ensure_config_dir_secure
 run "${SUDO[@]}" cp -a "$STAGE/." "$RELEASE_DIR/"
 atomic_symlink "$RELEASE_DIR" "$PREFIX/current"
 atomic_symlink "$PREFIX/current/server/api-server" "$BIN_DIR/api-server"
