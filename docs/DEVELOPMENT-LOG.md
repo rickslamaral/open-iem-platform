@@ -1,3 +1,11 @@
+## 2026-09-18 — revisão canônica da Phase 95
+
+- Adicionada `docs/reviews/PHASE-95-REVIEW.md` para registrar contrato, RBAC, `schema_version=1`, contadores zero e evidência CODE/CI da rota `GET /api/v1/metrics`.
+- GAP-031 atualizado: Phase 95 agora possui review canônica; revisões históricas restantes continuam pendentes.
+- Nenhuma claim adicionada para runtime de áudio, WebRTC/Opus, PipeWire/ALSA ou Raspberry Pi 5.
+
+---
+
 ## 2026-09-18 — reconciliação do status de duplicação de cenas
 
 - Handoff e TODO agora registram `POST /api/v1/scenes/{id}/duplicate` e ação do Engineer Console como CODE+CI, após merge da implementação.

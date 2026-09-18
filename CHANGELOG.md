@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Documentation
+- Add canonical Phase 95 review for observability metrics REST endpoint and clarify CODE/CI versus runtime evidence.
+
 ### Security
 - Revalida estado de pairing sob lock após Argon2 para bloquear revogação e rotação concorrentes durante autenticação.
 
