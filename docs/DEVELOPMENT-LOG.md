@@ -1,3 +1,16 @@
+## 2026-09-17 — instalador e validação de áudio headless
+
+**Status:** CODE + validação local; CI remoto e hardware físico permanecem pendentes.
+
+- `make audio-test` executa DSP determinístico e tenta ALSA Loopback via `snd-aloop`.
+- Captura ALSA validada com PCM real: 48 kHz, mono, S16_LE, 144000 frames, não silencioso.
+- `scripts/install.sh --run-tests` executa gates shell, Rust, API, DSP/ALSA e frontends, gera relatório e propaga falhas.
+- Documentados limites de Docker: `snd-aloop` pertence ao kernel host; fallback determinístico não declara hardware.
+- Evidência local: fmt, clippy, workspace Rust, API, Musician, Engineer, ALSA Loopback e `git diff --check` PASS.
+- Sem claim de PipeWire runtime, WebRTC/Opus, USB físico, Raspberry Pi ou release publicada.
+
+---
+
 ## 2026-09-17 — SceneStore numeric boundary hardening
 
 - `list_scenes` now fails closed when SQLite returns a negative `active_revision`; conversion no longer silently maps invalid data to zero.

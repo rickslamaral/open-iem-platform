@@ -121,19 +121,19 @@ install_deps() {
   case "$pm" in
     apt)
       run "${SUDO[@]}" apt-get update
-      run "${SUDO[@]}" apt-get install -y --no-install-recommends git ca-certificates curl build-essential pkg-config openssl nodejs npm
+      run "${SUDO[@]}" apt-get install -y --no-install-recommends git ca-certificates curl build-essential pkg-config openssl nodejs npm alsa-utils kmod python3
       ;;
     dnf|yum)
-      run "${SUDO[@]}" "$pm" install -y git ca-certificates curl gcc gcc-c++ make pkgconf-pkg-config openssl openssl-devel cargo rust nodejs npm
+      run "${SUDO[@]}" "$pm" install -y git ca-certificates curl gcc gcc-c++ make pkgconf-pkg-config openssl openssl-devel cargo rust nodejs npm python3 alsa-utils kmod
       ;;
     pacman)
-      run "${SUDO[@]}" pacman -Sy --needed --noconfirm git ca-certificates curl base-devel openssl rust nodejs npm
+      run "${SUDO[@]}" pacman -Sy --needed --noconfirm git ca-certificates curl base-devel openssl rust nodejs npm python alsa-utils kmod
       ;;
     zypper)
-      run "${SUDO[@]}" zypper --non-interactive install git ca-certificates curl gcc gcc-c++ make pkg-config libopenssl-devel rust nodejs npm
+      run "${SUDO[@]}" zypper --non-interactive install git ca-certificates curl gcc gcc-c++ make pkg-config libopenssl-devel rust nodejs npm python3 alsa-utils kmod
       ;;
     apk)
-      run "${SUDO[@]}" apk add git ca-certificates curl build-base pkgconf openssl-dev rust cargo nodejs npm
+      run "${SUDO[@]}" apk add git ca-certificates curl build-base pkgconf openssl-dev rust cargo nodejs npm python3 alsa-utils kmod
       ;;
   esac
 }
@@ -190,7 +190,7 @@ check_node_version() {
 
 check_tools() {
   local c
-  for c in git curl openssl cargo rustc node npm; do need_cmd "$c"; done
+  for c in git curl openssl cargo rustc node npm timeout python3; do need_cmd "$c"; done
   rustc_is_compatible || fatal "rustc >= ${MIN_RUSTC_MAJOR}.${MIN_RUSTC_MINOR} required; found $(rustc --version)"
   check_node_version
 }
@@ -247,7 +247,7 @@ runtime_config_is_secure() {
 }
 
 ensure_soundtech_env() {
-  local tmp env_content env_bytes env_last_byte env_stat env_owner env_mode env_type
+  local tmp env_content env_bytes env_last_byte env_stat env_owner env_mode env_type password
   local IFS=' '
   ensure_config_dir_secure
   [[ ! -L "$SOUNDTECH_ENV" ]] || fatal "SoundTech env file cannot be a symlink: $SOUNDTECH_ENV"
@@ -267,7 +267,10 @@ ensure_soundtech_env() {
   (( DRY_RUN )) && { log "would generate random SoundTech password in $SOUNDTECH_ENV"; return; }
   tmp="$(mktemp -t openiem-soundtech.XXXXXX)"
   umask 077
-  printf 'OPENIEM_SOUNDTECH_PASSWORD=%s\n' "$(openssl rand -hex 32)" > "$tmp"
+  command -v openssl >/dev/null 2>&1 || fatal "openssl required to generate SoundTech password"
+  password="$(openssl rand -hex 32)" || fatal "cannot generate SoundTech password"
+  [[ "$password" =~ ^[A-Za-z0-9._~+/=-]+$ ]] || fatal "generated SoundTech password is invalid"
+  printf 'OPENIEM_SOUNDTECH_PASSWORD=%s\n' "$password" > "$tmp"
   run "${SUDO[@]}" install -o root -g root -m 0600 "$tmp" "$SOUNDTECH_ENV"
   rm -f -- "$tmp"
   log 'generated SoundTech password and stored it in protected env file'
@@ -305,8 +308,14 @@ install_service_env_dropin() {
 }
 
 validate_host() {
-  local report="${VALIDATION_REPORT:-/tmp/openiem-validation.txt}"
+  local report="${VALIDATION_REPORT:-}"
   local status=PASS
+  if [[ -z "$report" ]]; then
+    report="$(mktemp -t openiem-validation.XXXXXX)"
+  else
+    create_report_file "$report" || fatal "cannot create validation report: $report"
+  fi
+  [[ "$report" = /* ]] || fatal "validation report path must be absolute: $report"
   local rust="missing" node_version="missing" release="missing" service="unknown" soundtech_password="missing" service_env="missing" dropin_stat dropin_content dropin_bytes
   command -v rustc >/dev/null 2>&1 && rust="$(rustc --version)"
   command -v node >/dev/null 2>&1 && node_version="$(node --version)"
@@ -339,7 +348,7 @@ validate_host() {
     [[ "$service_env" == "configured" ]] || status=FAIL
     systemctl is-active --quiet "$SERVICE_NAME" && service="active" || service="inactive"
   fi
-  [[ ! -L "$report" ]] || fatal "validation report path cannot be a symlink: $report"
+  [[ ! -e "$report" || ! -L "$report" ]] || fatal "validation report path cannot be a symlink: $report"
   {
     printf 'open-iem validation\n'
     printf 'ref=%s\n' "$REF"
@@ -365,32 +374,88 @@ release_is_valid() {
      -f "$PREFIX/releases/$REF/web/engineer/index.html" ]]
 }
 
+alsa_utils_version() {
+  if command -v aplay >/dev/null 2>&1; then
+    aplay --version 2>/dev/null | awk 'NR==1 {print $NF; exit}'
+  elif command -v dpkg-query >/dev/null 2>&1; then
+    dpkg-query -W -f='${Version}' alsa-utils 2>/dev/null || printf unavailable
+  else
+    printf unavailable
+  fi
+}
+
+os_release_value() {
+  local key="$1"
+  [[ -r /etc/os-release ]] || { printf unknown; return; }
+  awk -F= -v wanted="$key" '$1 == wanted { value=substr($0, index($0, "=") + 1); gsub(/^"|"$/, "", value); print value; exit }' /etc/os-release
+}
+
+create_report_file() {
+  local path="$1" parent
+  [[ "$path" = /* ]] || fatal "report path must be absolute: $path"
+  parent="$(dirname -- "$path")"
+  [[ -d "$parent" && ! -L "$parent" ]] || fatal "report directory must be a real directory: $parent"
+  python3 - "$path" <<'PY'
+import os
+import stat
+import sys
+path = sys.argv[1]
+flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+if hasattr(os, "O_NOFOLLOW"):
+    flags |= os.O_NOFOLLOW
+try:
+    fd = os.open(path, flags, 0o600)
+except FileExistsError:
+    raise SystemExit("report path already exists")
+except OSError as exc:
+    raise SystemExit(f"cannot create report securely: {exc}")
+os.close(fd)
+PY
+}
+
 run_test_suite() {
-  local report="${TEST_REPORT:-/tmp/openiem-tests-${REF}.txt}"
-  local suite_status=0 test_status
+  local report="${TEST_REPORT:-}"
+  local suite_status=0 test_count=0 pass_count=0 fail_count=0
+  if [[ -z "$report" ]]; then
+    report="$(mktemp -t openiem-tests.XXXXXX)"
+  else
+    create_report_file "$report" || fatal "cannot create test report: $report"
+  fi
   local source_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
   cd -- "$source_root" || fatal "cannot enter trusted source root"
-  [[ ! -L "$report" ]] || fatal "test report path cannot be a symlink: $report"
+  [[ ! -e "$report" || ! -L "$report" ]] || fatal "test report path cannot be a symlink: $report"
   [[ "$report" = /* ]] || fatal "test report path must be absolute: $report"
   local report_dir="$(dirname -- "$report")"
   [[ -d "$report_dir" && ! -L "$report_dir" ]] || fatal "test report directory must be a real directory: $report_dir"
-  [[ -f "$report" || ! -e "$report" ]] || fatal "test report path must be a regular file: $report"
   : > "$report" || fatal "cannot write test report: $report"
   {
     printf 'open-iem headless test report\n'
     printf 'ref=%s\n' "$REF"
     printf 'host=%s\n' "$(hostname 2>/dev/null || printf unknown)"
     printf 'kernel=%s\n' "$(uname -srmo)"
+    printf 'architecture=%s\n' "$(uname -m)"
+    printf 'os=%s\n' "$(os_release_value PRETTY_NAME)"
+    printf 'os_id=%s\n' "$(os_release_value ID)"
+    printf 'os_version=%s\n' "$(os_release_value VERSION_ID)"
+    printf 'rustc=%s\n' "$(rustc --version 2>/dev/null || printf unavailable)"
+    printf 'cargo=%s\n' "$(cargo --version 2>/dev/null || printf unavailable)"
+    printf 'node=%s\n' "$(node --version 2>/dev/null || printf unavailable)"
+    printf 'npm=%s\n' "$(npm --version 2>/dev/null || printf unavailable)"
+    printf 'python=%s\n' "$(python3 --version 2>&1 || printf unavailable)"
+    printf 'alsa_utils=%s\n' "$(alsa_utils_version)"
     printf 'started=%s\n\n' "$(date -Is)"
   } | tee "$report"
 
   run_test() {
     local name="$1"; shift
+    test_count=$((test_count + 1))
     printf '\n== %s ==\n' "$name" | tee -a "$report"
     if timeout --signal=TERM 600s "$@" 2>&1 | tee -a "$report"; then
+      pass_count=$((pass_count + 1))
       printf 'result=PASS\n' | tee -a "$report"
     else
       test_status=${PIPESTATUS[0]}
+      fail_count=$((fail_count + 1))
       printf 'result=FAIL exit=%s\n' "$test_status" | tee -a "$report"
       suite_status=1
     fi
@@ -400,13 +465,39 @@ run_test_suite() {
   run_test 'git diff check' git diff --check
   run_test 'Rust formatter' cargo fmt --manifest-path server/Cargo.toml --all -- --check
   run_test 'Rust clippy' cargo clippy --manifest-path server/Cargo.toml --workspace --all-targets -- -D warnings
-  run_test 'Rust unit tests' cargo test --manifest-path server/Cargo.toml --workspace --lib
+  run_test 'Rust unit and integration tests' cargo test --manifest-path server/Cargo.toml --workspace
+  run_test 'Rust release build' cargo build --manifest-path server/Cargo.toml --workspace --release
   run_test 'API integration tests' cargo test --manifest-path server/Cargo.toml --package api-server --test integration
   run_test 'headless audio and deterministic DSP' scripts/ci/run-headless-audio.sh
+  run_test 'Musician typecheck' npm run typecheck --prefix web/musician
   run_test 'Musician tests' npm test --prefix web/musician -- --run
+  run_test 'Musician release build' npm run build --prefix web/musician
+  run_test 'Engineer typecheck' npm run typecheck --prefix web/engineer
   run_test 'Engineer tests' npm test --prefix web/engineer -- --run
+  run_test 'Engineer release build' npm run build --prefix web/engineer
+  run_test 'documentation validation' bash scripts/validate-docs.sh
+  run_test 'working tree diff check' git diff --check
 
-  printf '\nstatus=%s\nfinished=%s\n' "$([[ $suite_status -eq 0 ]] && printf PASS || printf FAIL)" "$(date -Is)" | tee -a "$report"
+  # Report optional physical ALSA status without weakening deterministic gates.
+  if command -v aplay >/dev/null 2>&1 && command -v arecord >/dev/null 2>&1; then
+    printf '\n== ALSA capability ==\n' | tee -a "$report"
+    aplay -l 2>&1 | tee -a "$report" || true
+    arecord -l 2>&1 | tee -a "$report" || true
+  else
+    printf '\nalsa=unavailable (alsa-utils not installed)\n' | tee -a "$report"
+  fi
+  run_test 'no audio process leaks' bash -c '! pgrep -f "(^|/)(arecord|aplay|pw-record|pw-play)( |$)" >/dev/null'
+
+  local final_status=FAIL
+  [[ $suite_status -eq 0 ]] && final_status=PASS
+  printf '\nsummary=%s\n tests_total=%s\n tests_passed=%s\n tests_failed=%s\nstatus=%s\nfinished=%s\n' \
+    "$([[ $suite_status -eq 0 ]] && printf 'ALL_TESTS_PASSED' || printf 'TESTS_FAILED')" \
+    "$test_count" "$pass_count" "$fail_count" "$final_status" "$(date -Is)" | tee -a "$report"
+  if [[ "$final_status" == PASS ]]; then
+    log "ALL TESTS PASSED ($pass_count/$test_count)"
+  else
+    warn "TESTS FAILED ($fail_count failed, $pass_count passed, $test_count total)"
+  fi
   log "test report: $report"
   return "$suite_status"
 }
