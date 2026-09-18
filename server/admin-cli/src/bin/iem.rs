@@ -7,6 +7,7 @@
 use clap::{Parser, Subcommand};
 use std::{
     fs,
+    io::Write,
     path::PathBuf,
     process::{self, Command},
 };
@@ -80,6 +81,41 @@ impl CommandName {
     }
 }
 
+fn write_snapshot_atomically(output: &PathBuf, contents: &str) -> Result<(), String> {
+    let temporary = output.with_extension(format!(
+        "tmp-{}-{}",
+        process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_err(|error| format!("iem: failed to read system clock: {error}"))?
+            .as_nanos()
+    ));
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&temporary)
+        .map_err(|error| format!("iem: failed to create {}: {error}", temporary.display()))?;
+    if let Err(error) = file
+        .write_all(contents.as_bytes())
+        .and_then(|()| file.sync_all())
+    {
+        let _ = fs::remove_file(&temporary);
+        return Err(format!(
+            "iem: failed to write {}: {error}",
+            output.display()
+        ));
+    }
+    drop(file);
+    if let Err(error) = fs::rename(&temporary, output) {
+        let _ = fs::remove_file(&temporary);
+        return Err(format!(
+            "iem: failed to write {}: {error}",
+            output.display()
+        ));
+    }
+    Ok(())
+}
+
 fn run_config(action: ConfigCommand) -> Result<(), String> {
     match action {
         ConfigCommand::Backup { output } => {
@@ -94,8 +130,7 @@ fn run_config(action: ConfigCommand) -> Result<(), String> {
             }
             let snapshot = config_backup::backup(&control_server::ControlState::new());
             let json = config_backup::serialize(&snapshot).map_err(|error| error.to_string())?;
-            fs::write(&output, format!("{json}\n"))
-                .map_err(|error| format!("iem: failed to write {}: {error}", output.display()))?;
+            write_snapshot_atomically(&output, &format!("{json}\n"))?;
             println!("wrote configuration snapshot to {}", output.display());
         }
         ConfigCommand::Restore { input } => {
