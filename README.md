@@ -49,7 +49,7 @@ IEM              IEM
 
 ## Current Status
 
-**Fase atual: arquitetura P0 fechada; desenvolvimento retomado pela fila em `docs/DEVELOPMENT-HANDOFF.md`.** P0-001, P0-002, P0-003 e P0-004 estão concluídos em código/CI nos limites documentados; runtime de áudio, WebRTC/Opus e hardware permanecem pendentes. Phase 92 backend WS EQ e Phase 93 frontend EQ estão mergeadas.
+**Fase atual: arquitetura P0 fechada; desenvolvimento retomado pela fila em `docs/DEVELOPMENT-HANDOFF.md`.** P0-001, P0-002, P0-003 e P0-004 têm implementação e cobertura CODE/CI nos limites documentados; runtime de áudio, WebRTC/Opus e hardware permanecem pendentes. Phase 92 backend WS EQ e Phase 93 frontend EQ estão mergeadas.
 
 **Fases concluídas e mescladas em `main`:**
 
