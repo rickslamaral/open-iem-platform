@@ -129,7 +129,24 @@ impl PairingRegistry {
         if !constant_time_eq(&device.credential_digest, &candidate_digest) {
             return Err(PairingError::InvalidCredential);
         }
-        Ok(device.identity.clone())
+        // Argon2 runs outside registry lock. Re-read authoritative state before
+        // returning so revoke racing with password verification cannot authorize
+        // a session after revocation completed.
+        let devices = self.devices.lock().await;
+        let current = devices
+            .get(device_id)
+            .ok_or(PairingError::InvalidCredential)?;
+        if current.identity.revoked
+            || current.credential_salt != device.credential_salt
+            || current.credential_digest != device.credential_digest
+        {
+            return Err(if current.identity.revoked {
+                PairingError::Revoked
+            } else {
+                PairingError::InvalidCredential
+            });
+        }
+        Ok(current.identity.clone())
     }
 
     /// Revoke identity. Existing and future media sessions must be closed by caller.
