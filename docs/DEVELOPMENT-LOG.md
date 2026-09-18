@@ -1,3 +1,11 @@
+## 2026-09-18 — reconciliação do status de duplicação de cenas
+
+- Handoff e TODO agora registram `POST /api/v1/scenes/{id}/duplicate` e ação do Engineer Console como CODE+CI, após merge da implementação.
+- Duplicação continua limitada a Engineer/Admin, inicia revisão 1 e não altera cena ativa.
+- Runtime, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 permanecem pendentes.
+
+---
+
 ## 2026-09-18 — reconciliação do status P1-002 Device Manager
 
 - Handoff e TODO agora marcam capability discovery, snapshot, recovery state machine e `GET /api/v1/devices` como concluídos em CODE/CI.
