@@ -518,8 +518,10 @@ mod tests {
     #[test]
     fn test_backup_restore_sends() {
         let mut state = fresh_state();
+        let mut channel = Channel::new(42, "Input");
+        state.set_channel(0, channel).expect("set_channel");
         let mut mix = Mix::new(1, "Mix1");
-        let mut send = MixSend::new(0, 1);
+        let mut send = MixSend::new(42, 1);
         send.set_gain_db(-6.0);
         send.set_pan(0.5);
         mix.set_send(0, send).expect("set_send");
