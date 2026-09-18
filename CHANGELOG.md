@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Documentation
+- Atualizado handoff/TODO: P1-002 Device Manager concluído em CODE/CI; hot-plug/runtime e hardware continuam pendentes.
 - Sincronizado status público do README e handoff com Audio Lab L1/L2 e fases P0 de mídia já implementadas em CODE/CI; runtime e hardware continuam pendentes.
 - Reconciliado `GAP-013` com o Device Manager e a rota de dispositivos já implementados; hot-plug e runtime continuam pendentes.
 

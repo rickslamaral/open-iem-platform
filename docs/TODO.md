@@ -1,6 +1,9 @@
 # TODO
 
-## Estado atual — 2026-09-17 (SceneStore numeric boundary hardening)
+## Estado atual — 2026-09-18 (Device Manager status reconciliation)
+- **P1-002 Device Manager:** capability discovery, bounded snapshot and recovery state machine plus protected `GET /api/v1/devices` are implemented and covered by CODE/CI; backend hot-plug/runtime and hardware validation remain pending.
+
+## Estado anterior — 2026-09-17 (SceneStore numeric boundary hardening)
 - **SceneStore active-revision consistency:** listagem, duplicação e save agora falham fechado para ponteiro zero, histórico ausente ou ponteiro acima do histórico. Evidência CODE local; runtime permanece pendente.
 
 - **SceneStore numeric boundary hardening:** revisões SQLite negativas e overflow do contador agora falham fechado antes de produzir ou persistir estado inválido. Evidência CODE local; runtime permanece pendente.
