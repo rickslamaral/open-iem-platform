@@ -125,7 +125,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 
 ## P2 Queue
 
-- Scene duplication implemented in API and Engineer Console: `POST /api/v1/scenes/{id}/duplicate`; CODE local, runtime pending.
+- Scene duplication implemented in API and Engineer Console: `POST /api/v1/scenes/{id}/duplicate`; CODE+CI evidence is merged, runtime validation remains pending.
 
 - Scenes/state-store durable path exists via `SCENE_STORE_PATH`; `GET/PUT /api/v1/scenes/backup` provides validated atomic export/restore; Engineer Console supports list/create/recall/edit-revision/delete; runtime validation remains pending.
 - Playback/AUX/Hybrid topology after Channel Mode evidence.
