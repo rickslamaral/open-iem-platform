@@ -1,3 +1,11 @@
+## 2026-09-18 — `iem config` local backup/restore
+
+- Adicionados `iem config backup --output PATH` e `iem config restore --input PATH` ao binário `server/admin-cli/src/bin/iem.rs`.
+- Backup grava snapshot JSON local; restore lê, desserializa e valida snapshot sem API, shell ou credenciais.
+- Cobertura focada de parsing Clap adicionada; runtime e hardware não envolvidos.
+
+---
+
 ## 2026-09-18 — revisão canônica da Phase 95
 
 - Adicionada `docs/reviews/PHASE-95-REVIEW.md` para registrar contrato, RBAC, `schema_version=1`, contadores zero e evidência CODE/CI da rota `GET /api/v1/metrics`.
