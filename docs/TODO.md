@@ -1,5 +1,15 @@
 # TODO
 
+## Linux-first release strategy — 2026-09-19
+- [x] Define Debian/Ubuntu/Raspberry Pi OS support for amd64/arm64; Raspberry Pi 3 is family baseline.
+- [x] Separate `SOFTWARE_RELEASE_GATE`, `PACKAGE_RELEASE_GATE`, `HARDWARE_CERTIFICATION`, `OPTIONAL`, `OBSOLETE`.
+- [x] Add initial `.deb` builder, systemd unit, lifecycle scripts, validator and Make targets.
+- [ ] Complete real amd64/arm64 `.deb` artifact matrix and package install/upgrade/uninstall/purge in clean containers.
+- [ ] Complete software PipeWire/WirePlumber virtual sink/source and WebRTC/Opus E2E evidence.
+- [ ] Run 5/15/60-minute software stability profiles; missing runtime is PENDING.
+- [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
+
+
 ## Estado atual — 2026-09-18 (Phase 96 — snapshots locais de configuração)
 - **Phase 96:** `iem config backup` e `iem config restore` fornecem snapshot JSON local sem API, shell ou credenciais; restore limita leitura a 1 MiB antes da desserialização e rejeita symlinks no caminho. Evidência CODE local; CLI implementada; restauração em ambiente limpo, integração operacional e runtime permanecem pendentes.
 
@@ -623,7 +633,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Audio engine crate with simulated backend and feature-gated JACK/PipeWire bridge
 - [x] Phase 1 review completed: PASS WITH CONDITIONS
-- [ ] Validate real PipeWire graph on Raspberry Pi 5 (hardware blocker)
+- [ ] Validate real PipeWire graph on a supported Linux host (`RUNTIME_VALIDATED`); physical Pi graph remains `HARDWARE_CERTIFICATION`.
 
 ## PHASE 21 STATUS
 

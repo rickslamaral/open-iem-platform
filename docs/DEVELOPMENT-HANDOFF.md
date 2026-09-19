@@ -50,7 +50,7 @@ MVP contract:
 - 2 musicians and 2 audio receivers, one receiver per musician.
 - 48 kHz nominal stream, Opus, 20 ms frames.
 - Channel Mode only. AUX Mono, AUX Stereo Pair, Playback Stereo and Hybrid deferred.
-- Linux/PipeWire primary target; Raspberry Pi 5 headless server target.
+- Linux-first primary target: Debian, Ubuntu and Raspberry Pi OS on amd64/arm64; Raspberry Pi 3 is minimum family baseline, while Pi 4/5/future models are capability-based targets.
 - Server Ethernet; receiver Ethernet or supported 5 GHz Wi-Fi. 2.4 GHz has no support claim.
 - LAN-only live audio. Internet optional for administration, never required for audio.
 - PWA is control UI. Audio receiver is native/headless and survives UI disconnect.
@@ -134,6 +134,14 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 - Multi-receiver synchronization, only if product requirement changes.
 - Telemetry/privacy policy before any remote telemetry.
 - Scalability beyond 8 channels/2 mixes/2 receivers.
+
+## Linux-first release architecture
+
+- Supported platforms: Debian, Ubuntu and Raspberry Pi OS.
+- Supported architectures: amd64 and arm64.
+- `.deb` is first official package; lifecycle and systemd checks are software gates.
+- Physical Raspberry Pi, USB, thermal, controller-specific behavior, physical latency, hot-plug and hardware XRUN are `HARDWARE_CERTIFICATION`, not software-release blockers.
+- Canonical details: `docs/COMPATIBILITY.md`, `docs/PACKAGING.md`, `docs/RELEASE-GATES.md`, `docs/HARDWARE-CERTIFICATION.md`.
 
 ## Validation Gates
 
@@ -224,6 +232,6 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Current status:** P1-002 Device Manager, P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI and P1-009/Phase 94 are complete at their recorded evidence levels. P1-002 evidence: CODE + CI; `GET /api/v1/devices` exposes protected snapshots, while backend hot-plug/runtime integration remains pending. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi 5 hardware remain unvalidated. P1-006 release remains blocked by explicit confirmation and physical validation.
+**Current status:** P1-002 Device Manager, P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI and P1-009/Phase 94 are complete at their recorded evidence levels. P1-002 evidence: CODE + CI; `GET /api/v1/devices` exposes protected snapshots, while backend hot-plug/runtime integration remains pending. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi hardware remain unvalidated. These are `PENDING` or `HARDWARE_CERTIFICATION`, not automatic software-release blockers. P1-006 software/package release proceeds when `SOFTWARE_RELEASE_GATE` and `PACKAGE_RELEASE_GATE` pass; publication still requires explicit confirmation.
 
 **Current next step:** Select next P2 product slice after local configuration snapshots; local `iem config backup/restore` CLI is implemented with bounded input and symlink rejection; clean-environment restore and deployment validation remain pending. Built-in channel preset application is implemented for Engineer/Admin via `POST /api/v1/presets/{id}/apply`, with fail-closed channel bounds, payload validation and locked-channel protection before mutation; preset creation, editing, persistence and mix-preset application remain unimplemented. P0-002 Audio Lab L1/L2 is implemented in CI as deterministic CODE/SIMULATED coverage. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.

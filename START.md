@@ -13,7 +13,7 @@ Pendentes:  Phase 8, Phase 9, Phase 10, Phase 11, Phase 12
 Progresso:  6/13 fases concluídas
 ```
 
-Targets atuais: Windows x64, Linux x64 e Raspberry Pi 5 ARM64. Suporte validado permanece limitado ao que possui evidência local; Windows nativo, áudio Linux real e runtime Raspberry Pi 5 ainda exigem validação. macOS, Android e iPadOS permanecem evolução futura/backlog. O core de áudio deve permanecer independente de plataforma; nenhum target vira claim de suporte sem validação.
+Targets Linux-first: Debian, Ubuntu e Raspberry Pi OS em amd64 e arm64. Raspberry Pi 3 é baseline mínimo da família; Pi 4, Pi 5 e futuras versões compatíveis são alvos por capabilities Linux, sem dependência de BCM2712/RP1. Raspberry Pi é plataforma suportada, não requisito de funcionamento. Windows x64 permanece evolução futura/backlog e macOS, Android e iPadOS continuam fora do MVP. Suporte validado permanece limitado à evidência real; software release pode passar sem hardware físico. Testes físicos são `HARDWARE_CERTIFICATION`, nunca bloqueio automático de desenvolvimento/CI/software release. O core de áudio deve permanecer independente de plataforma; nenhum target vira claim sem evidência.
 
 Estado de implementação: o backend Linux usa integração feature-gated JACK/PipeWire e ainda requer validação de hardware; backend nativo Windows WASAPI/ASIO ainda não está implementado; runtime Raspberry Pi 5 ARM64 ainda não foi validado.
 
@@ -174,7 +174,7 @@ synchronization into package metadata where practical.
 
 ## 9. Release engineering
 
-Generate versioned build artifacts.
+Generate versioned build artifacts. The first official package format is `.deb`: `open-iem_<version>_amd64.deb` and `open-iem_<version>_arm64.deb`. Package lifecycle must cover install, configuration, systemd, reinstall, upgrade, uninstall and explicit purge while preserving configuration/data on upgrade. `make test-release` is software-only and must not require physical hardware.
 
 Target where technically feasible:
 
