@@ -3,6 +3,7 @@
 
 - Adicionados `iem config backup --output PATH` e `iem config restore --input PATH` ao binário `server/admin-cli/src/bin/iem.rs`.
 - Backup grava snapshot JSON local; restore lê, desserializa e valida snapshot sem API, shell ou credenciais.
+- Evidência: `cargo test --manifest-path server/Cargo.toml -p admin-cli` passou com 8 testes; validação em instalação/runtime permanece pendente.
 - Cobertura focada de parsing Clap adicionada; runtime e hardware não envolvidos.
 
 ---
