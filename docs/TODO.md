@@ -4,7 +4,7 @@
 - [x] Define Debian/Ubuntu/Raspberry Pi OS support for amd64/arm64; Raspberry Pi 3 is family baseline.
 - [x] Separate `SOFTWARE_RELEASE_GATE`, `PACKAGE_RELEASE_GATE`, `HARDWARE_CERTIFICATION`, `OPTIONAL`, `OBSOLETE`.
 - [x] Add initial `.deb` builder, systemd unit, lifecycle scripts, validator and Make targets.
-- [ ] Complete real amd64/arm64 `.deb` artifact matrix and package install/upgrade/uninstall/purge in clean containers.
+- [ ] Complete real amd64/arm64 `.deb` artifact matrix and package install/upgrade/uninstall/purge in clean containers. amd64 lifecycle evidence: PASS on 2026-09-19; arm64 artifact remains blocked by missing cross-linker.
 - [ ] Complete software PipeWire/WirePlumber virtual sink/source and WebRTC/Opus E2E evidence.
 - [ ] Run 5/15/60-minute software stability profiles; missing runtime is PENDING.
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.

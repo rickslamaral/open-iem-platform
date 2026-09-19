@@ -1,3 +1,9 @@
+## 2026-09-19 — evidência amd64 do ciclo de pacote
+
+- `make test-amd64` passou: build `.deb` `0.3.1`, validador estrutural e ciclo install/reinstall/upgrade/uninstall/purge em container Debian.
+- Resultado: `PACKAGE_RELEASE_GATE lifecycle: PASS` e `SOFTWARE_RELEASE_GATE amd64: PASS (package lifecycle)`.
+- Limite preservado: `make test-arm64` permanece bloqueado por `aarch64-linux-gnu-gcc` ausente; arm64 e hardware continuam pendentes.
+
 ## 2026-09-19 — correção do validador Debian no CI
 
 - Diretório `/etc/openiem` agora entra no pacote com modo `0750`, alinhado ao contrato de permissões.
