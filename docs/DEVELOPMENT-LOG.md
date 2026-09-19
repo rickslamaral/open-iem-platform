@@ -1,3 +1,12 @@
+## 2026-09-19 — hardening software package lifecycle gates
+
+- Restored `.deb` validation to the aggregate `make test` target.
+- Bounded `OPENIEM_SOAK_SECONDS` to decimal values from 1 to 86400 before Bash arithmetic expansion.
+- Added maintainer-path checks for symlinks/non-directories and ELF architecture checks before package creation.
+- Hardened package archive path validation against links and traversal entries.
+- Evidence: Rust fmt/clippy/tests, Musician 61 tests/typecheck/build, Engineer 46 tests/typecheck/build, package validator tests and shell syntax PASS.
+- ARM64 artifact build and runtime/hardware validation remain pending.
+
 ## 2026-09-19 — Linux-first software release architecture
 
 - Package lifecycle amd64 em container Debian Bookworm: `PASS` (install, reinstall/upgrade, uninstall e purge).

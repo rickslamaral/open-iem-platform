@@ -20,7 +20,20 @@ def main() -> int:
     if fields.get("Package") != "openiem": errors.append("Package must be openiem")
     if fields.get("Architecture") not in {"amd64", "arm64"}: errors.append("Architecture must be amd64 or arm64")
     files = subprocess.check_output(["dpkg-deb", "-c", str(pkg)], text=True)
-    names={line.split()[-1].lstrip("./") for line in files.splitlines()}
+    names = set()
+    for line in files.splitlines():
+        raw_name = line.rsplit(maxsplit=1)[-1]
+        if " -> " in line or not raw_name.startswith("./"):
+            errors.append(f"unsafe package entry: {raw_name}")
+            continue
+        name = raw_name[2:]
+        parts = pathlib.PurePosixPath(name).parts
+        if not name:
+            continue
+        if name.startswith("/") or ".." in parts:
+            errors.append(f"unsafe package path: {raw_name}")
+            continue
+        names.add(name)
     payload_required = REQUIRED - {"DEBIAN/control", "DEBIAN/postinst", "DEBIAN/prerm", "DEBIAN/postrm"}
     errors.extend(f"missing payload path: {x}" for x in sorted(payload_required - names))
     control_dir = pathlib.Path(subprocess.check_output(["mktemp", "-d"], text=True).strip())

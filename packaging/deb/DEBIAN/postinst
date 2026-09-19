@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+if [[ -L /etc/openiem || ( -e /etc/openiem && ! -d /etc/openiem ) ]]; then
+  echo "refusing symlink or non-directory /etc/openiem" >&2
+  exit 1
+fi
+if [[ -L /etc/openiem/keys || ( -e /etc/openiem/keys && ! -d /etc/openiem/keys ) ]]; then
+  echo "refusing symlink or non-directory /etc/openiem/keys" >&2
+  exit 1
+fi
+if [[ -L /etc/openiem/openiem-server.env || ( -e /etc/openiem/openiem-server.env && ! -f /etc/openiem/openiem-server.env ) ]]; then
+  echo "refusing symlink or non-regular /etc/openiem/openiem-server.env" >&2
+  exit 1
+fi
+
 if ! getent group openiem >/dev/null; then groupadd --system openiem; fi
 if ! id -u openiem >/dev/null 2>&1; then useradd --system --gid openiem --home-dir /var/lib/openiem --no-create-home --shell /usr/sbin/nologin openiem; fi
 install -d -o openiem -g openiem -m 0750 /var/lib/openiem

@@ -1,4 +1,4 @@
-name: Software Release Gates
+name: Software Package Lifecycle Gates
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   package-amd64:
-    name: .deb amd64 package gate
+    name: .deb amd64 package and lifecycle gate
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -25,7 +25,7 @@ jobs:
       - run: scripts/ci/run-package-lifecycle.sh dist/open-iem_$(cat VERSION)_amd64.deb
 
   package-arm64:
-    name: .deb arm64 package gate
+    name: .deb arm64 package and lifecycle gate
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:

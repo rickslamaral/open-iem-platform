@@ -11,6 +11,17 @@ ADMIN_BIN=${ADMIN_BIN:-$ROOT/server/target/release/open-iem-admin}
 
 case "$ARCH" in amd64|arm64) ;; *) echo "unsupported Debian architecture: $ARCH" >&2; exit 2;; esac
 [[ -x "$API_BIN" && -x "$ADMIN_BIN" ]] || { echo "build release binaries first or set API_BIN/ADMIN_BIN" >&2; exit 3; }
+command -v readelf >/dev/null || { echo "readelf is required to verify package binary architecture" >&2; exit 3; }
+case "$ARCH" in
+  amd64) EXPECTED_MACHINE='Advanced Micro Devices X86-64' ;;
+  arm64) EXPECTED_MACHINE='AArch64' ;;
+esac
+for binary in "$API_BIN" "$ADMIN_BIN"; do
+  readelf -h "$binary" | grep -Fq "Machine:                           $EXPECTED_MACHINE" || {
+    echo "binary architecture mismatch for $ARCH: $binary" >&2
+    exit 2
+  }
+done
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 PKG="$WORK/openiem"
