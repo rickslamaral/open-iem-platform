@@ -198,17 +198,6 @@ fn read_snapshot(path: &PathBuf) -> Result<String, String> {
         .custom_flags(libc::O_NOFOLLOW)
         .open(path)
         .map_err(|error| format!("iem: failed to read {}: {error}", path.display()))?;
-    let size = file
-        .metadata()
-        .map_err(|error| format!("iem: failed to inspect {}: {error}", path.display()))?
-        .len();
-    if size > MAX_CONFIG_SNAPSHOT_BYTES {
-        return Err(format!(
-            "iem: configuration snapshot {} exceeds {} bytes",
-            path.display(),
-            MAX_CONFIG_SNAPSHOT_BYTES
-        ));
-    }
     let mut contents = String::new();
     file.take(MAX_CONFIG_SNAPSHOT_BYTES + 1)
         .read_to_string(&mut contents)
@@ -226,15 +215,6 @@ fn read_snapshot(path: &PathBuf) -> Result<String, String> {
 #[cfg(not(unix))]
 fn read_snapshot(path: &PathBuf) -> Result<String, String> {
     reject_symlink_components(path)?;
-    let metadata = fs::metadata(path)
-        .map_err(|error| format!("iem: failed to inspect {}: {error}", path.display()))?;
-    if metadata.len() > MAX_CONFIG_SNAPSHOT_BYTES {
-        return Err(format!(
-            "iem: configuration snapshot {} exceeds {} bytes",
-            path.display(),
-            MAX_CONFIG_SNAPSHOT_BYTES
-        ));
-    }
     let mut file = fs::File::open(path)
         .map_err(|error| format!("iem: failed to read {}: {error}", path.display()))?;
     let mut contents = String::new();
