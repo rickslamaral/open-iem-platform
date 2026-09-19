@@ -10,11 +10,17 @@ REQUIRED = {
     "DEBIAN/postinst", "DEBIAN/prerm", "DEBIAN/postrm",
 }
 
+ALLOWED_PATHS = REQUIRED | {
+    "DEBIAN/conffiles",
+    "usr/share/doc/openiem/openiem-server.env.example",
+}
+
 EXPECTED_METADATA = {
     "usr/lib/openiem/api-server": ("-rwxr-xr-x", "root/root"),
     "usr/lib/openiem/open-iem-admin": ("-rwxr-xr-x", "root/root"),
     "usr/lib/systemd/system/openiem-server.service": ("-rw-r--r--", "root/root"),
     "usr/share/doc/openiem/README.Debian": ("-rw-r--r--", "root/root"),
+    "usr/share/doc/openiem/openiem-server.env.example": ("-rw-r--r--", "root/root"),
     "etc/openiem/openiem-server.env": ("-rw-r-----", "root/root"),
 }
 
@@ -50,6 +56,8 @@ def main() -> int:
         if name.startswith("/") or ".." in parts:
             errors.append(f"unsafe package path: {raw_name}")
             continue
+        if not (name in ALLOWED_PATHS or name.endswith("/")):
+            errors.append(f"unexpected package path: {raw_name}")
         names.add(name)
     payload_required = REQUIRED - {"DEBIAN/control", "DEBIAN/postinst", "DEBIAN/prerm", "DEBIAN/postrm"}
     errors.extend(f"missing payload path: {x}" for x in sorted(payload_required - names))

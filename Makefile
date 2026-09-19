@@ -119,8 +119,8 @@ test-deb:
 	@packaging/deb/build-deb.sh
 	@python3 scripts/validate-deb-package.py dist/open-iem_$$(cat VERSION)_$$(dpkg --print-architecture).deb
 
-test-amd64: test-deb
-	@echo 'SOFTWARE_RELEASE_GATE amd64: PASS'
+test-amd64: test-deb test-upgrade
+	@echo 'SOFTWARE_RELEASE_GATE amd64: PASS (package lifecycle)'
 
 test-arm64:
 	@command -v aarch64-linux-gnu-gcc >/dev/null || { echo 'ARM64 PACKAGE_RELEASE_GATE: BLOCKED (aarch64-linux-gnu-gcc absent)' >&2; exit 2; }
@@ -131,7 +131,7 @@ test-arm64:
 	@scripts/ci/run-arm64-container-smoke.sh
 
 # Requires a disposable Debian-family container runtime. Never reports PASS without execution.
-test-upgrade:
+test-upgrade: test-deb
 	@scripts/ci/run-package-lifecycle.sh "$${PACKAGE_DEB:-dist/open-iem_$$(cat VERSION)_$$(dpkg --print-architecture).deb}"
 
 test-stability:
