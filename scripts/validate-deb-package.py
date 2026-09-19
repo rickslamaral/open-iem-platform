@@ -6,8 +6,16 @@ import argparse, json, pathlib, subprocess, sys
 REQUIRED = {
     "usr/lib/openiem/api-server", "usr/lib/openiem/open-iem-admin",
     "usr/lib/systemd/system/openiem-server.service",
-    "usr/share/doc/openiem/README.Debian", "DEBIAN/control",
+    "usr/share/doc/openiem/README.Debian", "etc/openiem/openiem-server.env", "DEBIAN/control",
     "DEBIAN/postinst", "DEBIAN/prerm", "DEBIAN/postrm",
+}
+
+EXPECTED_METADATA = {
+    "usr/lib/openiem/api-server": ("-rwxr-xr-x", "root/root"),
+    "usr/lib/openiem/open-iem-admin": ("-rwxr-xr-x", "root/root"),
+    "usr/lib/systemd/system/openiem-server.service": ("-rw-r--r--", "root/root"),
+    "usr/share/doc/openiem/README.Debian": ("-rw-r--r--", "root/root"),
+    "etc/openiem/openiem-server.env": ("-rw-r-----", "root/openiem"),
 }
 
 def main() -> int:
@@ -21,12 +29,21 @@ def main() -> int:
     if fields.get("Architecture") not in {"amd64", "arm64"}: errors.append("Architecture must be amd64 or arm64")
     files = subprocess.check_output(["dpkg-deb", "-c", str(pkg)], text=True)
     names = set()
+    metadata = {}
     for line in files.splitlines():
         raw_name = line.rsplit(maxsplit=1)[-1]
         if " -> " in line or not raw_name.startswith("./"):
             errors.append(f"unsafe package entry: {raw_name}")
             continue
         name = raw_name[2:]
+        columns = line.split()
+        if len(columns) < 5:
+            errors.append(f"malformed package listing: {line}")
+            continue
+        if name in metadata:
+            errors.append(f"duplicate package path: {raw_name}")
+            continue
+        metadata[name] = (columns[0], columns[1])
         parts = pathlib.PurePosixPath(name).parts
         if not name:
             continue
@@ -36,6 +53,12 @@ def main() -> int:
         names.add(name)
     payload_required = REQUIRED - {"DEBIAN/control", "DEBIAN/postinst", "DEBIAN/prerm", "DEBIAN/postrm"}
     errors.extend(f"missing payload path: {x}" for x in sorted(payload_required - names))
+    for path, expected in EXPECTED_METADATA.items():
+        actual = metadata.get(path)
+        if actual is None:
+            errors.append(f"missing metadata for {path}")
+        elif actual != expected:
+            errors.append(f"invalid metadata for {path}: expected {expected[0]} {expected[1]}, got {actual[0]} {actual[1]}")
     control_dir = pathlib.Path(subprocess.check_output(["mktemp", "-d"], text=True).strip())
     try:
         subprocess.run(["dpkg-deb", "--control", str(pkg), str(control_dir)], check=True, stdout=subprocess.DEVNULL)
