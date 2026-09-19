@@ -29,6 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
+      - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87
         with:
@@ -38,6 +39,7 @@ jobs:
       - run: CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc cargo build --manifest-path server/Cargo.toml --target aarch64-unknown-linux-gnu --release --bins
       - run: ARCH=arm64 API_BIN=server/target/aarch64-unknown-linux-gnu/release/api-server ADMIN_BIN=server/target/aarch64-unknown-linux-gnu/release/open-iem-admin packaging/deb/build-deb.sh
       - run: python3 scripts/validate-deb-package.py dist/open-iem_$(cat VERSION)_arm64.deb
+      - run: PACKAGE_PLATFORM=linux/arm64 scripts/ci/run-package-lifecycle.sh dist/open-iem_$(cat VERSION)_arm64.deb
 
   arm64-userspace:
     name: Raspberry Pi OS-compatible ARM64 userspace smoke

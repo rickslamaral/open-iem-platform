@@ -137,8 +137,7 @@ test-upgrade:
 test-stability:
 	@OPENIEM_SOAK_SECONDS=$${OPENIEM_SOAK_SECONDS:-3600} scripts/ci/run-software-release-gates.sh $$(find dist -name 'open-iem_*.deb' | head -1)
 
-test-release: lint test test-amd64 test-arm64 test-upgrade docs
-	@echo 'SOFTWARE_RELEASE_GATE: EVALUATED; inspect PASS/PENDING outputs above before release'
+test-release: lint test test-amd64 test-arm64 test-upgrade test-stability docs
 
 certify-hardware:
 	@echo 'HARDWARE_CERTIFICATION: NOT TESTED'

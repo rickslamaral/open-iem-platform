@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 PACKAGE=${1:?package path required}
+PLATFORM=${PACKAGE_PLATFORM:-linux/amd64}
 if ! command -v docker >/dev/null 2>&1; then
   echo "PACKAGE_RELEASE_GATE lifecycle: PENDING (docker unavailable)" >&2
   exit 2
@@ -8,7 +9,7 @@ fi
 [[ -f "$PACKAGE" ]] || { echo "missing package: $PACKAGE" >&2; exit 2; }
 PACKAGE_DIR=$(cd "$(dirname "$PACKAGE")" && pwd)
 PACKAGE_FILE=$(basename "$PACKAGE")
-docker run --rm -e PACKAGE_FILE="$PACKAGE_FILE" -v "$PACKAGE_DIR:/pkg:ro" debian:bookworm bash -eu -o pipefail -c '
+docker run --rm --platform "$PLATFORM" -e PACKAGE_FILE="$PACKAGE_FILE" -v "$PACKAGE_DIR:/pkg:ro" debian:bookworm bash -eu -o pipefail -c '
   apt-get update >/dev/null
   apt-get install -y --no-install-recommends /pkg/"$PACKAGE_FILE" >/dev/null
   test -x /usr/lib/openiem/api-server
