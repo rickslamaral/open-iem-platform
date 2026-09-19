@@ -1,4 +1,5 @@
 ## 2026-09-18 — `iem config` local backup/restore
+- Restore limita snapshots locais a 1 MiB e rejeita entradas maiores antes da desserialização, evitando alocação sem limite.
 
 - Adicionados `iem config backup --output PATH` e `iem config restore --input PATH` ao binário `server/admin-cli/src/bin/iem.rs`.
 - Backup grava snapshot JSON local; restore lê, desserializa e valida snapshot sem API, shell ou credenciais.
