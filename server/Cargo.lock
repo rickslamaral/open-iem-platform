@@ -9,6 +9,7 @@ dependencies = [
  "clap",
  "config-backup",
  "control-server",
+ "libc",
  "reqwest",
  "serde",
  "serde_json",
