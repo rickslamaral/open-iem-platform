@@ -26,6 +26,7 @@ WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 PKG="$WORK/openiem"
 mkdir -p "$PKG/DEBIAN" "$PKG/usr/lib/openiem" "$PKG/usr/lib/systemd/system" "$PKG/etc/openiem" "$PKG/usr/share/doc/openiem"
+chmod 0750 "$PKG/etc/openiem"
 install -m 0755 "$API_BIN" "$PKG/usr/lib/openiem/api-server"
 install -m 0755 "$ADMIN_BIN" "$PKG/usr/lib/openiem/open-iem-admin"
 install -m 0644 "$ROOT/packaging/deb/usr/lib/systemd/system/openiem-server.service" "$PKG/usr/lib/systemd/system/"

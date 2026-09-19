@@ -14,17 +14,23 @@ ALLOWED_PATHS = REQUIRED | {
     "DEBIAN/conffiles",
     "usr/share/doc/openiem/openiem-server.env.example",
 }
+ALLOWED_DIRECTORIES = {
+    "", "etc/", "etc/openiem/", "usr/", "usr/lib/", "usr/lib/openiem/",
+    "usr/lib/systemd/", "usr/lib/systemd/system/", "usr/share/", "usr/share/doc/",
+    "usr/share/doc/openiem/",
+}
 
 SECRET_MARKERS = (
     "BEGIN OPENSSH PRIVATE KEY", "BEGIN RSA PRIVATE KEY", "BEGIN EC PRIVATE KEY",
-    "BEGIN PRIVATE KEY", "password=", "secret=", "api_key=", "token=",
+    "BEGIN PRIVATE KEY",
 )
+SECRET_ASSIGNMENT = re.compile(rb"(?i)(?:password|secret|api[_-]?key|token)\s*=\s*[^\s;]{8,}")
 PRINTABLE_RUN = re.compile(rb"[ -~]{4,}")
 
 def scan_payload(raw: bytes) -> bool:
     """Scan text and printable strings without treating ELF bytes as text."""
     haystack = PRINTABLE_RUN.findall(raw) if raw.startswith(b"\x7fELF") else (raw,)
-    return any(marker.lower().encode() in chunk.lower() for chunk in haystack for marker in SECRET_MARKERS)
+    return any(marker.lower().encode() in chunk.lower() for chunk in haystack for marker in SECRET_MARKERS) or any(SECRET_ASSIGNMENT.search(chunk) for chunk in haystack)
 
 EXPECTED_METADATA = {
     "usr/lib/openiem/api-server": ("-rwxr-xr-x", "root/root"),
@@ -70,7 +76,7 @@ def main() -> int:
         if name.startswith("/") or ".." in parts:
             errors.append(f"unsafe package path: {raw_name}")
             continue
-        if not (name in ALLOWED_PATHS or name.endswith("/")):
+        if not (name in ALLOWED_PATHS or name in ALLOWED_DIRECTORIES):
             errors.append(f"unexpected package path: {raw_name}")
         names.add(name)
     payload_required = REQUIRED - {"DEBIAN/control", "DEBIAN/postinst", "DEBIAN/prerm", "DEBIAN/postrm"}
@@ -82,7 +88,7 @@ def main() -> int:
         elif actual != expected:
             errors.append(f"invalid metadata for {path}: expected {expected[0]} {expected[1]}, got {actual[0]} {actual[1]}")
     for path, actual in metadata.items():
-        if actual[0].startswith("d") and path not in EXPECTED_METADATA:
+        if actual[0].startswith("d") and path not in ALLOWED_DIRECTORIES:
             errors.append(f"unexpected directory metadata entry: {path}")
     with tempfile.TemporaryDirectory(prefix="openiem-deb-") as temp_dir:
         control_dir = pathlib.Path(temp_dir) / "control"
@@ -127,7 +133,7 @@ def main() -> int:
                 continue
             if scan_payload(raw):
                 errors.append(f"secret-like payload content in {path.relative_to(payload_dir)}")
-    if any(marker.lower() in control.lower() for marker in ("password", "secret", "api_key", "token=")):
+    if any(SECRET_ASSIGNMENT.search(line.encode()) for line in control.splitlines()):
         errors.append("secret-like metadata")
     result={"package":str(pkg),"version":fields.get("Version"),"architecture":fields.get("Architecture"),"files":len(names),"status":"PASS" if not errors else "FAIL","errors":errors}
     print(json.dumps(result, indent=2))

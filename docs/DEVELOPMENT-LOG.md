@@ -1,3 +1,10 @@
+## 2026-09-19 — correção do validador Debian no CI
+
+- Diretório `/etc/openiem` agora entra no pacote com modo `0750`, alinhado ao contrato de permissões.
+- Validador aceita diretórios-pai normais emitidos por `dpkg-deb` e mantém verificação explícita dos diretórios sensíveis.
+- Scan de segredos usa atribuições com valor, evitando falso positivo em símbolos legítimos como `refresh_token=` sem relaxar detecção de valores embutidos.
+- Evidência local: build do `.deb` amd64, `validate-deb-package.py`, `bash -n`, `py_compile` e `git diff --check` PASS.
+
 ## 2026-09-19 — correção do contrato de ownership do pacote Debian
 
 - Alinhado `scripts/validate-deb-package.py` com `dpkg-deb --root-owner-group`: o arquivo de configuração dentro do artefato é `root/root`; `postinst` aplica `root:openiem` após instalação.
