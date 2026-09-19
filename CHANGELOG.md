@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Changed
+- Registrado bloqueio honesto do perfil de estabilidade: o pacote amd64 valida, mas o harness executável de mídia/áudio ainda não está conectado.
 - Reconciled Phase 97 package status: amd64 `.deb` lifecycle passes locally and in CI; arm64 artifact build remains blocked by the unavailable cross-linker.
 
 ### Added
