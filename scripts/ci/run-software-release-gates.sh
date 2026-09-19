@@ -16,6 +16,6 @@ if (( OPENIEM_SOAK_SECONDS < 1 )); then
   echo 'software stability gate: invalid duration' >&2
   exit 2
 fi
-printf 'PACKAGE_RELEASE_GATE: PASS (package validation and maintainer-script syntax)\n'
+printf 'PACKAGE_RELEASE_GATE: PARTIAL (package validation and maintainer-script syntax)\n'
 printf 'SOFTWARE stability soak: BLOCKED (requested %s seconds; executable media/audio soak harness not wired yet)\n' "$OPENIEM_SOAK_SECONDS"
 exit 2

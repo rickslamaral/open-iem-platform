@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 VERSION=${VERSION:-$(tr -d '[:space:]' < "$ROOT/VERSION")}
+[[ "$VERSION" =~ ^[0-9][0-9A-Za-z.+:~-]*$ ]] || { printf "invalid Debian package version: %s\n" "$VERSION" >&2; exit 2; }
 ARCH=${ARCH:-$(dpkg --print-architecture)}
 OUT_DIR=${OUT_DIR:-$ROOT/dist}
 API_BIN=${API_BIN:-$ROOT/server/target/release/api-server}
@@ -22,7 +23,8 @@ install -Dm0640 "$ROOT/packaging/deb/etc/openiem/openiem-server.env.example" "$P
 chown root:openiem "$PKG/etc/openiem/openiem-server.env" 2>/dev/null || true
 install -m 0644 "$ROOT/packaging/deb/usr/share/doc/openiem/README.Debian" "$PKG/usr/share/doc/openiem/"
 install -m 0644 "$ROOT/packaging/deb/DEBIAN/conffiles" "$PKG/DEBIAN/"
-sed -e "s/@VERSION@/$VERSION/g" -e "s/@ARCH@/$ARCH/g" "$ROOT/packaging/deb/DEBIAN/control.in" > "$PKG/DEBIAN/control"
+VERSION_SED=${VERSION//\\/\\\\}; VERSION_SED=${VERSION_SED//&/\\&}; VERSION_SED=${VERSION_SED//|/\\|}
+sed -e "s|@VERSION@|$VERSION_SED|g" -e "s|@ARCH@|$ARCH|g" "$ROOT/packaging/deb/DEBIAN/control.in" > "$PKG/DEBIAN/control"
 for f in postinst prerm postrm; do install -m 0755 "$ROOT/packaging/deb/DEBIAN/$f" "$PKG/DEBIAN/$f"; done
 install -d "$OUT_DIR"
 OUTPUT="$OUT_DIR/open-iem_${VERSION}_${ARCH}.deb"

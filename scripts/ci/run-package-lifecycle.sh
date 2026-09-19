@@ -11,7 +11,12 @@ PACKAGE_DIR=$(cd "$(dirname "$PACKAGE")" && pwd)
 PACKAGE_FILE=$(basename "$PACKAGE")
 docker run --rm --platform "$PLATFORM" -e PACKAGE_FILE="$PACKAGE_FILE" -v "$PACKAGE_DIR:/pkg:ro" debian:bookworm bash -eu -o pipefail -c '
   apt-get update >/dev/null
-  apt-get install -y --no-install-recommends /pkg/"$PACKAGE_FILE" >/dev/null
+  mkdir -p /tmp/old/DEBIAN /tmp/old/usr/lib/openiem
+  dpkg-deb --extract /pkg/"$PACKAGE_FILE" /tmp/old
+  dpkg-deb --control /pkg/"$PACKAGE_FILE" /tmp/old/DEBIAN
+  sed -i 's/^Version:.*/Version: 0.0.1/' /tmp/old/DEBIAN/control
+  dpkg-deb --build --root-owner-group /tmp/old /tmp/openiem-old.deb >/dev/null
+  apt-get install -y --no-install-recommends /tmp/openiem-old.deb >/dev/null
   test -x /usr/lib/openiem/api-server
   test -f /etc/openiem/openiem-server.env
   printf "state-before-upgrade\n" >/var/lib/openiem/lifecycle-marker
