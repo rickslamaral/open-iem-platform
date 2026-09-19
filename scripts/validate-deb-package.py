@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate Open IEM .deb structure and lifecycle metadata without installing it."""
 from __future__ import annotations
-import argparse, json, pathlib, subprocess, sys, tempfile
+import argparse, json, pathlib, re, subprocess, sys, tempfile
 
 REQUIRED = {
     "usr/lib/openiem/api-server", "usr/lib/openiem/open-iem-admin",
@@ -19,6 +19,12 @@ SECRET_MARKERS = (
     "BEGIN OPENSSH PRIVATE KEY", "BEGIN RSA PRIVATE KEY", "BEGIN EC PRIVATE KEY",
     "BEGIN PRIVATE KEY", "password=", "secret=", "api_key=", "token=",
 )
+PRINTABLE_RUN = re.compile(rb"[ -~]{4,}")
+
+def scan_payload(raw: bytes) -> bool:
+    """Scan text and printable strings without treating ELF bytes as text."""
+    haystack = PRINTABLE_RUN.findall(raw) if raw.startswith(b"\x7fELF") else (raw,)
+    return any(marker.lower().encode() in chunk.lower() for chunk in haystack for marker in SECRET_MARKERS)
 
 EXPECTED_METADATA = {
     "usr/lib/openiem/api-server": ("-rwxr-xr-x", "root/root"),
@@ -92,14 +98,12 @@ def main() -> int:
                 continue
             if path.is_file():
                 try:
-                    text = path.read_text(encoding="utf-8", errors="ignore")
+                    raw = path.read_bytes()
                 except OSError as exc:
                     errors.append(f"cannot inspect control file {path.name}: {exc}")
                     continue
-                for marker in SECRET_MARKERS:
-                    if marker.lower() in text.lower():
-                        errors.append(f"secret-like control content in {path.name}")
-                        break
+                if scan_payload(raw):
+                    errors.append(f"secret-like control content in {path.name}")
         for script in ("postinst", "prerm", "postrm"):
             path = control_dir / script
             if path.exists():
@@ -117,14 +121,12 @@ def main() -> int:
             if not path.is_file():
                 continue
             try:
-                text = path.read_text(encoding="utf-8", errors="ignore")
+                raw = path.read_bytes()
             except OSError as exc:
                 errors.append(f"cannot inspect package payload {path}: {exc}")
                 continue
-            for marker in SECRET_MARKERS:
-                if marker.lower() in text.lower():
-                    errors.append(f"secret-like payload content in {path.relative_to(payload_dir)}")
-                    break
+            if scan_payload(raw):
+                errors.append(f"secret-like payload content in {path.relative_to(payload_dir)}")
     if any(marker.lower() in control.lower() for marker in ("password", "secret", "api_key", "token=")):
         errors.append("secret-like metadata")
     result={"package":str(pkg),"version":fields.get("Version"),"architecture":fields.get("Architecture"),"files":len(names),"status":"PASS" if not errors else "FAIL","errors":errors}
