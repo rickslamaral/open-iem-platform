@@ -75,6 +75,9 @@ def main() -> int:
             errors.append(f"missing metadata for {path}")
         elif actual != expected:
             errors.append(f"invalid metadata for {path}: expected {expected[0]} {expected[1]}, got {actual[0]} {actual[1]}")
+    for path, actual in metadata.items():
+        if actual[0].startswith("d") and path not in EXPECTED_METADATA:
+            errors.append(f"unexpected directory metadata entry: {path}")
     with tempfile.TemporaryDirectory(prefix="openiem-deb-") as temp_dir:
         control_dir = pathlib.Path(temp_dir) / "control"
         payload_dir = pathlib.Path(temp_dir) / "payload"
@@ -83,9 +86,25 @@ def main() -> int:
         subprocess.run(["dpkg-deb", "--control", str(pkg), str(control_dir)], check=True, stdout=subprocess.DEVNULL)
         control_files = {p.name for p in control_dir.iterdir()}
         errors.extend(f"missing control script: {x}" for x in {"control", "postinst", "prerm", "postrm"} - control_files)
+        for path in control_dir.rglob("*"):
+            if path.is_symlink():
+                errors.append(f"symlink in control archive: {path.name}")
+                continue
+            if path.is_file():
+                try:
+                    text = path.read_text(encoding="utf-8", errors="ignore")
+                except OSError as exc:
+                    errors.append(f"cannot inspect control file {path.name}: {exc}")
+                    continue
+                for marker in SECRET_MARKERS:
+                    if marker.lower() in text.lower():
+                        errors.append(f"secret-like control content in {path.name}")
+                        break
         for script in ("postinst", "prerm", "postrm"):
             path = control_dir / script
             if path.exists():
+                if path.is_symlink():
+                    continue
                 if path.stat().st_mode & 0o777 != 0o755:
                     errors.append(f"invalid control script mode: {script}")
                 if subprocess.run(["bash", "-n", str(path)], capture_output=True).returncode:
