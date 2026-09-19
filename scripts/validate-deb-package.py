@@ -15,7 +15,7 @@ EXPECTED_METADATA = {
     "usr/lib/openiem/open-iem-admin": ("-rwxr-xr-x", "root/root"),
     "usr/lib/systemd/system/openiem-server.service": ("-rw-r--r--", "root/root"),
     "usr/share/doc/openiem/README.Debian": ("-rw-r--r--", "root/root"),
-    "etc/openiem/openiem-server.env": ("-rw-r-----", "root/openiem"),
+    "etc/openiem/openiem-server.env": ("-rw-r-----", "root/root"),
 }
 
 def main() -> int:

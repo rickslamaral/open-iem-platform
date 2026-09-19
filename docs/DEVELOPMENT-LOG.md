@@ -1,3 +1,8 @@
+## 2026-09-19 — correção do contrato de ownership do pacote Debian
+
+- Alinhado `scripts/validate-deb-package.py` com `dpkg-deb --root-owner-group`: o arquivo de configuração dentro do artefato é `root/root`; `postinst` aplica `root:openiem` após instalação.
+- Revisão independente encontrou e confirmou a inconsistência; teste focado e gates completos passaram.
+
 ## 2026-09-19 — hardening software package lifecycle gates
 
 - Restored `.deb` validation to the aggregate `make test` target.
