@@ -7,6 +7,9 @@ name = "admin-cli"
 version = "0.3.1"
 dependencies = [
  "clap",
+ "config-backup",
+ "control-server",
+ "libc",
  "reqwest",
  "serde",
  "serde_json",

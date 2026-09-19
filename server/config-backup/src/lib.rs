@@ -288,9 +288,12 @@ fn validate_snapshot(snapshot: &ConfigSnapshot) -> Result<(), RestoreError> {
         return Err(RestoreError::UnsupportedVersion(snapshot.version));
     }
     let mut channel_slots = HashSet::new();
+    let mut channel_ids = HashSet::new();
+    let mut channel_ids_by_slot = [None; MAX_CHANNELS];
     for channel in &snapshot.channels {
         if channel.slot >= MAX_CHANNELS
             || !channel_slots.insert(channel.slot)
+            || !channel_ids.insert(channel.id)
             || channel.name.is_empty()
             || channel.name.len() > 64
             || channel.id == 0
@@ -299,11 +302,14 @@ fn validate_snapshot(snapshot: &ConfigSnapshot) -> Result<(), RestoreError> {
         {
             return Err(RestoreError::Engine("invalid channel snapshot".to_owned()));
         }
+        channel_ids_by_slot[channel.slot] = Some(channel.id);
     }
     let mut mix_slots = HashSet::new();
+    let mut mix_ids = HashSet::new();
     for mix in &snapshot.mixes {
         if mix.slot >= mix_engine::MAX_MIXES
             || !mix_slots.insert(mix.slot)
+            || !mix_ids.insert(mix.id)
             || mix.name.is_empty()
             || mix.name.len() > 64
             || mix.id == 0
@@ -318,6 +324,10 @@ fn validate_snapshot(snapshot: &ConfigSnapshot) -> Result<(), RestoreError> {
             return Err(RestoreError::Engine("invalid mix snapshot".to_owned()));
         }
         let mut band_indices = HashSet::new();
+        if mix.eq.bands.len() != MAX_EQ_BANDS {
+            return Err(RestoreError::Engine("invalid EQ snapshot".to_owned()));
+        }
+        let mut send_indices = HashSet::new();
         for band in &mix.eq.bands {
             if band.index >= MAX_EQ_BANDS
                 || !band_indices.insert(band.index)
@@ -333,6 +343,9 @@ fn validate_snapshot(snapshot: &ConfigSnapshot) -> Result<(), RestoreError> {
         }
         for send in &mix.sends {
             if send.channel_index >= MAX_CHANNELS
+                || !send_indices.insert(send.channel_index)
+                || channel_ids_by_slot[send.channel_index] != Some(send.channel_id)
+                || send.mix_id != mix.id
                 || send.mix_id == 0
                 || !send.gain_db.is_finite()
                 || !(mix_engine::GAIN_DB_MIN..=mix_engine::GAIN_DB_MAX).contains(&send.gain_db)
@@ -506,8 +519,10 @@ mod tests {
     #[test]
     fn test_backup_restore_sends() {
         let mut state = fresh_state();
+        let channel = Channel::new(42, "Input");
+        state.set_channel(0, channel).expect("set_channel");
         let mut mix = Mix::new(1, "Mix1");
-        let mut send = MixSend::new(0, 1);
+        let mut send = MixSend::new(42, 1);
         send.set_gain_db(-6.0);
         send.set_pan(0.5);
         mix.set_send(0, send).expect("set_send");
