@@ -1,3 +1,9 @@
+## 2026-09-19 — stability profile gate status
+
+- Executado `OPENIEM_SOAK_SECONDS=5 make test-stability`.
+- Validação do pacote amd64 passou; gate de estabilidade retornou `SOFTWARE stability soak: BLOCKED (requested 5 seconds; executable media/audio soak harness not wired yet)`.
+- Nenhuma claim de estabilidade, WebRTC/Opus real, PipeWire ou hardware adicionada.
+
 ## 2026-09-19 — evidência amd64 do ciclo de pacote
 
 - `make test-amd64` passou: build `.deb` `0.3.1`, validador estrutural e ciclo install/reinstall/upgrade/uninstall/purge em container Debian.
