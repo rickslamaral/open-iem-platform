@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Tests
+- Adicionado round-trip de snapshot de configuração em estado novo, cobrindo serialização, desserialização e restauração de canal, mix e send.
+
+
 ### Changed
 - Stability gate now runs bounded deterministic audio/media regression loops instead of unconditionally reporting blocked.
 - Reconciled Phase 97 package status: amd64 `.deb` lifecycle passes locally and in CI; arm64 artifact build remains blocked by the unavailable cross-linker.
