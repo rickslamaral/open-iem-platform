@@ -39,7 +39,8 @@
 - **P1-007:** backup/restore sem secrets implementado na PR #73; CLI local `iem config backup/restore` adicionada na Phase 96 com limite de 1 MiB e rejeição de symlink. Evidência CODE+CI/SIMULATED; restauração em ambiente limpo, API/uso operacional e runtime permanecem pendentes. P1-006 release permanece bloqueado por confirmação explícita e validação física.
 - **Phase 83–95:** backend/control changes, musician channel names, observability metrics REST endpoint implementados e mesclados em `main`; runtime de áudio/media permanece não validado.
 - **Release `v0.3.1`:** tag existe e CI remoto do HEAD passou 13/13; GitHub Release ainda não publicada por exigir confirmação explícita.
-- **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
+- **Validação headless/emulada:** DSP determinístico, Docker ALSA userspace e ALSA Loopback host passaram; válido para regressão/release headless, sem claim de hardware.
+- **Validação física/runtime:** PipeWire/ALSA no target, WebRTC/Opus real, instalação Linux dedicada e Raspberry Pi 5 continuam pendentes.
 - **Guias:** espelhos PT/EN/ES existentes; revisar e sincronizar após validação física.
 - **P1-015 — Versioned SQLite migrations:** concluído em CODE; `M001` registrado em `migrations`, reaplicação evitada no reopen e schema legado compatível quando `must_change_password` já existe.
 - **P0-007 first-access password:** login exposes `must_change_password`; authenticated `PUT /api/v1/auth/password` replaces Argon2id hash and clears bootstrap flag; ordinary users are denied. CODE evidence; runtime remains pending.

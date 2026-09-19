@@ -100,7 +100,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 | ID | Priority | Component | Task | Why | Dependencies | Acceptance Criteria | Tests | Validation Level | Blocking |
 |---|---|---|---|---|---|---|---|---|---|
 | P0-001 | P0 | RT boundary | Replace blocking JACK/audio callback path with bounded SPSC/ring boundary and separate control queue | RT safety precedes hardware/media | ADR-007 | No mutex/I/O/filesystem/unbounded allocation in callback; overflow policy documented | Rust unit/stress/lock scan | CODE + CI + L1 | Complete in HEAD; runtime/hardware pending |
-| P0-002 | P0 | Audio Lab | Create L1 Docker/PipeWire and L2 ALSA virtual harness | Reproducible audio validation | ADR-010 | Profiles run deterministically and emit metrics | CI lab tests | CI + SIMULATED | Yes |
+| P0-002 | P0 | Audio Lab | Create L1 Docker/PipeWire and L2 ALSA virtual harness | Reproducible audio validation | ADR-010 | Profiles run deterministically and emit metrics | CI lab tests | CI + HEADLESS/EMULATED | Complete in HEAD; target runtime/hardware pending |
 | P0-003 | P0 | Media Plane | Connect MixEngine frames to WebRTC media session and drive output | Current signaling has no media | ADR-001/002/007 | Real frames leave MixEngine; versioned stream metadata; bounded path | Integration/media tests | L1 first | Yes |
 | P0-004 | P0 | Receiver | Implemented receiver core: bounded ingress/jitter, Opus decode, fail-safe mute and reconnect (SIMULATED); OS output/hardware pending with output, jitter and reconnect | No receiver exists | ADR-002/003/004/006 | Decode, playout, mute-on-failure, pairing and reconnect | Receiver integration/fault tests | L1 then L3 | Yes |
 | P0-005 | P0 | Clock | Implement sample timestamps, sequence, drift estimator and adaptive resampling | 48 kHz is not sync | ADR-004 | Long-run bounded drift and no unbounded buffer | Simulation/soak tests | L1/L2 | Yes |
@@ -139,8 +139,8 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 
 1. **CODE VALIDATED:** local tests, fmt, clippy, typecheck, build and security tests.
 2. **CI VALIDATED:** real GitHub jobs with runner/steps/conclusion on exact commit.
-3. **SIMULATED:** L1/L2 virtual audio; never hardware claim.
-4. **RUNTIME VALIDATED:** real Linux PipeWire/ALSA execution.
+3. **HEADLESS/EMULATED:** deterministic DSP, Docker ALSA userspace (`ALSA_SIM_MODE=null`) and host ALSA Loopback; valid for headless regression/release gates, never a hardware claim.
+4. **RUNTIME VALIDATED:** real Linux PipeWire/ALSA execution on target host.
 5. **HARDWARE VALIDATED:** physical Pi/interface report.
 6. **RELEASE VALIDATED:** artifact, checksum, install, upgrade, runtime and required hardware evidence.
 
@@ -153,7 +153,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 ## CI Gates
 
 - Existing CI must pass every relevant commit.
-- Add L1/L2 Audio Lab jobs before media merge.
+- L1/L2 Audio Lab jobs are present and passing; maintain exact-HEAD evidence for every relevant commit.
 - CI must report exact commit, job, runner, steps and artifacts.
 - Hardware evidence remains separate unless a controlled hardware runner exists.
 
@@ -167,7 +167,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 ## Development Order
 
 1. P0-001 RT boundary — code complete in HEAD; runtime/hardware validation remains pending.
-2. P0-002 L1/L2 Audio Lab.
+2. P0-002 Audio Lab — HEADLESS/EMULATED complete; target runtime/hardware validation remains pending.
 3. P0-003 media plane.
 4. P0-004 native receiver.
 5. P0-005 clock/drift.
@@ -205,7 +205,7 @@ Each task: read START and this handoff → implement smallest unit → test → 
 - No physical Pi/audio/interface evidence in this handoff.
 - No measured E2E latency.
 - No production media or receiver.
-- L1/L2 Audio Lab harness exists as `SIMULATED`; CI run `35176577755` passed its Audio Lab L1/L2 job; physical PipeWire/ALSA validation remains pending.
+- Headless audio evidence: deterministic DSP, Docker ALSA userspace and host ALSA Loopback passed; classified `HEADLESS/EMULATED`. CI run `35176577755` passed its Audio Lab job; target PipeWire/ALSA and physical validation remain pending.
 - Windows native backend absent.
 - v0.3.1 release not validated/published.
 - Architecture decisions can be reopened only on contradictory evidence: stop implementation, document evidence, assess impact, update ADR/GAP, then resume.

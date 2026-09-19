@@ -1,3 +1,13 @@
+## 2026-09-19 — validação headless/emulada de áudio
+
+- Docker ALSA userspace em `ALSA_SIM_MODE=null`: `3/3` testes PASS (`alsa-sim-test`).
+- Backend DSP determinístico: `4/4` testes PASS (`make audio-test`).
+- Host ALSA Loopback com `snd-aloop`: captura `144000` frames, RMS `8712.1`, seno `440.0 Hz`, PASS.
+- Evidência promovida para `HEADLESS/EMULATED`: válida para regressão e gates de release headless.
+- Limite preservado: Docker/Loopback não validam PipeWire no target, USB físico, WebRTC/Opus real, latência de produção ou Raspberry Pi 5.
+
+---
+
 ## 2026-09-19 — reconciliação Phase 96 CLI local
 
 - Handoff e TODO agora registram `iem config backup/restore` como CLI implementada, sem declarar restauração em ambiente limpo ou integração operacional validada.
