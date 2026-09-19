@@ -45,5 +45,10 @@ while :; do
   iterations=$((iterations + 1))
 done
 
+if (( iterations == 0 )); then
+  echo 'SOFTWARE stability soak: FAIL (no complete audio-media iteration)' >&2
+  exit 1
+fi
+
 printf 'PACKAGE_RELEASE_GATE: PARTIAL (package validation and maintainer-script syntax)\n'
 printf 'SOFTWARE stability soak: PASS (deterministic CODE/SIMULATED audio-media loop; requested_seconds=%s; iterations=%s)\n' "$SOAK_SECONDS" "$iterations"
