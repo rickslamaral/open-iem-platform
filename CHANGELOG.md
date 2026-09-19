@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Documentado Phase 96: snapshots locais de configuração via `iem config backup` e `iem config restore`.
+
 ### Security
 - Limita leitura de snapshots locais `iem config restore` a 1 MiB antes da desserialização.
 
