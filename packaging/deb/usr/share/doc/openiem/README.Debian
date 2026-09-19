@@ -1,0 +1,10 @@
+Open IEM Debian package
+
+Install:
+  sudo apt install ./openiem_VERSION_ARCH.deb
+
+Upgrade preserves /etc/openiem and /var/lib/openiem.
+Uninstall removes package-managed binaries and unit.
+Purge additionally removes /var/lib/openiem and /etc/openiem only through explicit dpkg purge.
+
+Package gates are software evidence. Physical Raspberry Pi/audio certification remains separate.

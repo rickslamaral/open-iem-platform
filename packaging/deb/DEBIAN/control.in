@@ -1,0 +1,10 @@
+Package: openiem
+Version: @VERSION@
+Section: sound
+Priority: optional
+Architecture: @ARCH@
+Maintainer: Open IEM maintainers <maintainers@open-iem.invalid>
+Depends: libc6, libssl3, systemd
+Description: Open IEM Linux-first immersive audio server
+ Headless Linux audio/control server for Debian-family systems.
+ Supports amd64 and arm64 software release artifacts.

@@ -1,3 +1,43 @@
+## 2026-09-19 — correção do validador Debian no CI
+
+- Diretório `/etc/openiem` agora entra no pacote com modo `0750`, alinhado ao contrato de permissões.
+- Validador aceita diretórios-pai normais emitidos por `dpkg-deb` e mantém verificação explícita dos diretórios sensíveis.
+- Scan de segredos usa atribuições com valor, evitando falso positivo em símbolos legítimos como `refresh_token=` sem relaxar detecção de valores embutidos.
+- Evidência local: build do `.deb` amd64, `validate-deb-package.py`, `bash -n`, `py_compile` e `git diff --check` PASS.
+
+## 2026-09-19 — correção do contrato de ownership do pacote Debian
+
+- Alinhado `scripts/validate-deb-package.py` com `dpkg-deb --root-owner-group`: o arquivo de configuração dentro do artefato é `root/root`; `postinst` aplica `root:openiem` após instalação.
+- Revisão independente encontrou e confirmou a inconsistência; teste focado e gates completos passaram.
+
+## 2026-09-19 — hardening software package lifecycle gates
+
+- Restored `.deb` validation to the aggregate `make test` target.
+- Bounded `OPENIEM_SOAK_SECONDS` to decimal values from 1 to 86400 before Bash arithmetic expansion.
+- Added maintainer-path checks for symlinks/non-directories and ELF architecture checks before package creation.
+- Hardened package archive path validation against links and traversal entries.
+- Evidence: Rust fmt/clippy/tests, Musician 61 tests/typecheck/build, Engineer 46 tests/typecheck/build, package validator tests and shell syntax PASS.
+- ARM64 artifact build and runtime/hardware validation remain pending.
+
+## 2026-09-19 — Linux-first software release architecture
+
+- Package lifecycle amd64 em container Debian Bookworm: `PASS` (install, reinstall/upgrade, uninstall e purge).
+- QEMU/binfmt arm64 habilitado no host; Raspberry Pi OS userspace smoke: `PASS`, arquitetura `arm64`, Debian 12 userspace.
+- Primeira tentativa ARM64 falhou por `exec format error` sem binfmt; segunda falhou por nome de pacote `ALSA-utils`; corrigido para `alsa-utils`.
+- Smoke ARM64 não certifica kernel, áudio físico ou Raspberry Pi.
+- ARM64 `.deb` ainda `PENDING`: host não possui `aarch64-linux-gnu-gcc`; CI workflow preparado para cross-build.
+
+---
+
+## 2026-09-19 — Linux-first software release architecture
+
+- START.md preservado e atualizado: Debian, Ubuntu e Raspberry Pi OS em amd64/arm64; Pi 3 como baseline de família.
+- Criados contratos `SOFTWARE_RELEASE_GATE`, `PACKAGE_RELEASE_GATE` e `HARDWARE_CERTIFICATION`, com ausência física classificada NOT TESTED/NOT CERTIFIED.
+- Adicionados builder `.deb`, systemd, lifecycle scripts, validator, smoke ARM64 e targets `make test-*`; sem commit/push automático.
+- Evidência de package/ARM64/virtual PipeWire/WebRTC E2E/estabilidade longa permanece PENDING até execução real.
+
+---
+
 ## 2026-09-19 — validação headless/emulada de áudio
 
 - Docker ALSA userspace em `ALSA_SIM_MODE=null`: `3/3` testes PASS (`alsa-sim-test`).
@@ -369,7 +409,7 @@
 - CI run `35055191463`: 13/13 checks passed. Local gates: `cargo fmt --all -- --check`, `cargo clippy --all-targets -- -D warnings`, workspace tests, and `scripts/validate-docs.sh` PASS.
 - Evidence boundary preserved: runtime PipeWire/ALSA, WebRTC/Opus media, dedicated Linux installation, and Raspberry Pi 5 hardware remain unvalidated; no physical validation claim.
 
-**Backlog:** P1-003 observability, P1-005 network, P1-008 API/UI, and P1-009/Phase 94 complete. P1-006 release remains blocked by explicit confirmation and physical validation. Next actionable implementation: P1-007 backup/restore without secrets.
+**Backlog:** P1-003 observability, P1-005 network, P1-008 API/UI, and P1-009/Phase 94 complete. P1-006 software/package release is separated from physical validation; hardware remains `HARDWARE_CERTIFICATION`, while publication still requires explicit confirmation. Next actionable implementation: P1-007 backup/restore without secrets.
 
 ---
 
