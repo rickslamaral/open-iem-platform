@@ -23,6 +23,27 @@ if (( SOAK_SECONDS < 1 )); then
   echo 'software stability gate: invalid duration' >&2
   exit 2
 fi
+
+# Bounded-command deterministic software regression loop. This exercises CODE/SIMULATED
+# audio and media paths; it does not claim realtime, PipeWire, WebRTC, or
+# hardware stability. Bound each test command by OPENIEM_SOAK_SECONDS.
+start_epoch=$SECONDS
+iterations=0
+while :; do
+  if ! timeout --signal=TERM --kill-after=5s "$((SOAK_SECONDS + 30))s" scripts/ci/run-headless-audio.sh; then
+    echo 'SOFTWARE stability soak: FAIL (headless audio regression)' >&2
+    exit 1
+  fi
+  if ! timeout --signal=TERM --kill-after=5s "$((SOAK_SECONDS + 30))s" cargo test --manifest-path server/Cargo.toml --package streaming --lib; then
+    echo 'SOFTWARE stability soak: FAIL (streaming regression)' >&2
+    exit 1
+  fi
+  iterations=$((iterations + 1))
+  now_epoch=$SECONDS
+  if (( now_epoch - start_epoch >= SOAK_SECONDS )); then
+    break
+  fi
+done
+
 printf 'PACKAGE_RELEASE_GATE: PARTIAL (package validation and maintainer-script syntax)\n'
-printf 'SOFTWARE stability soak: BLOCKED (requested %s seconds; executable media/audio soak harness not wired yet)\n' "$SOAK_SECONDS"
-exit 2
+printf 'SOFTWARE stability soak: PASS (deterministic CODE/SIMULATED audio-media loop; requested_seconds=%s; iterations=%s)\n' "$SOAK_SECONDS" "$iterations"

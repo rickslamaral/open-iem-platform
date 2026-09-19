@@ -1,3 +1,9 @@
+## 2026-09-19 — deterministic software stability gate
+
+- `scripts/ci/run-software-release-gates.sh` agora executa loop determinístico com cada comando limitado por `OPENIEM_SOAK_SECONDS`; duração reportada é solicitação do perfil sobre `run-headless-audio.sh` e testes `streaming`.
+- O gate reporta `PASS` somente após execução real dos testes; resultado permanece `CODE/SIMULATED`, sem claim de estabilidade realtime, PipeWire, WebRTC runtime ou hardware.
+- Package lifecycle continua separado como `PACKAGE_RELEASE_GATE: PARTIAL`.
+
 ## 2026-09-19 — stability profile gate status
 
 - Executado `OPENIEM_SOAK_SECONDS=5 make test-stability`.
