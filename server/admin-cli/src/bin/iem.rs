@@ -12,6 +12,8 @@ use std::{
     process::{self, Command},
 };
 
+const MAX_CONFIG_SNAPSHOT_BYTES: u64 = 1024 * 1024;
+
 #[derive(Debug, Parser)]
 #[command(
     name = "iem",
@@ -191,22 +193,62 @@ fn write_snapshot_atomically(output: &PathBuf, contents: &str) -> Result<(), Str
 fn read_snapshot(path: &PathBuf) -> Result<String, String> {
     use std::os::unix::fs::OpenOptionsExt;
     reject_symlink_components(path)?;
-    let mut file = fs::OpenOptions::new()
+    let file = fs::OpenOptions::new()
         .read(true)
         .custom_flags(libc::O_NOFOLLOW)
         .open(path)
         .map_err(|error| format!("iem: failed to read {}: {error}", path.display()))?;
+    let size = file
+        .metadata()
+        .map_err(|error| format!("iem: failed to inspect {}: {error}", path.display()))?
+        .len();
+    if size > MAX_CONFIG_SNAPSHOT_BYTES {
+        return Err(format!(
+            "iem: configuration snapshot {} exceeds {} bytes",
+            path.display(),
+            MAX_CONFIG_SNAPSHOT_BYTES
+        ));
+    }
     let mut contents = String::new();
-    file.read_to_string(&mut contents)
+    file.take(MAX_CONFIG_SNAPSHOT_BYTES + 1)
+        .read_to_string(&mut contents)
         .map_err(|error| format!("iem: failed to read {}: {error}", path.display()))?;
+    if contents.len() as u64 > MAX_CONFIG_SNAPSHOT_BYTES {
+        return Err(format!(
+            "iem: configuration snapshot {} exceeds {} bytes",
+            path.display(),
+            MAX_CONFIG_SNAPSHOT_BYTES
+        ));
+    }
     Ok(contents)
 }
 
 #[cfg(not(unix))]
 fn read_snapshot(path: &PathBuf) -> Result<String, String> {
     reject_symlink_components(path)?;
-    fs::read_to_string(path)
-        .map_err(|error| format!("iem: failed to read {}: {error}", path.display()))
+    let metadata = fs::metadata(path)
+        .map_err(|error| format!("iem: failed to inspect {}: {error}", path.display()))?;
+    if metadata.len() > MAX_CONFIG_SNAPSHOT_BYTES {
+        return Err(format!(
+            "iem: configuration snapshot {} exceeds {} bytes",
+            path.display(),
+            MAX_CONFIG_SNAPSHOT_BYTES
+        ));
+    }
+    let mut file = fs::File::open(path)
+        .map_err(|error| format!("iem: failed to read {}: {error}", path.display()))?;
+    let mut contents = String::new();
+    file.take(MAX_CONFIG_SNAPSHOT_BYTES + 1)
+        .read_to_string(&mut contents)
+        .map_err(|error| format!("iem: failed to read {}: {error}", path.display()))?;
+    if contents.len() as u64 > MAX_CONFIG_SNAPSHOT_BYTES {
+        return Err(format!(
+            "iem: configuration snapshot {} exceeds {} bytes",
+            path.display(),
+            MAX_CONFIG_SNAPSHOT_BYTES
+        ));
+    }
+    Ok(contents)
 }
 
 fn run_config(action: ConfigCommand) -> Result<(), String> {
@@ -269,7 +311,7 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::{run_config, Cli, CommandName, ConfigCommand};
+    use super::{run_config, Cli, CommandName, ConfigCommand, MAX_CONFIG_SNAPSHOT_BYTES};
     use clap::Parser;
     use std::path::PathBuf;
 
@@ -334,6 +376,26 @@ mod tests {
         }
         .make_target()
         .is_none());
+    }
+
+    #[test]
+    fn restore_rejects_oversized_snapshot() {
+        let path = std::env::temp_dir().join(format!(
+            "iem-config-large-{}-{}.json",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("system clock")
+                .as_nanos()
+        ));
+        std::fs::write(&path, vec![b' '; (MAX_CONFIG_SNAPSHOT_BYTES + 1) as usize])
+            .expect("large snapshot exists");
+        let error = run_config(ConfigCommand::Restore {
+            input: path.clone(),
+        })
+        .expect_err("oversized snapshot rejected");
+        assert!(error.contains("exceeds"));
+        std::fs::remove_file(path).expect("large snapshot removed");
     }
 
     #[cfg(unix)]
