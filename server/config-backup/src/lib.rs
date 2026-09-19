@@ -556,6 +556,39 @@ mod tests {
     }
 
     #[test]
+    fn test_serialized_snapshot_restores_into_fresh_state() {
+        let mut source = fresh_state();
+        let mut channel = Channel::new(42, "Lead Vocal");
+        channel.set_gain_db(-3.0);
+        channel.set_muted(true);
+        source.set_channel(0, channel).expect("set_channel");
+
+        let mut mix = Mix::new(7, "Monitor A");
+        mix.set_master_gain_db(-6.0);
+        let mut send = MixSend::new(42, 7);
+        send.set_gain_db(-9.0);
+        send.set_pan(0.25);
+        mix.set_send(0, send).expect("set_send");
+        source.set_mix(0, mix).expect("set_mix");
+
+        let snapshot =
+            deserialize(&serialize(&backup(&source)).expect("serialize")).expect("deserialize");
+        let mut fresh = fresh_state();
+        restore(&snapshot, &mut fresh).expect("restore into fresh state");
+
+        let restored_channel = fresh.channel(0).expect("channel 0");
+        assert_eq!(restored_channel.name(), "Lead Vocal");
+        assert!((restored_channel.gain_db() - (-3.0)).abs() < 1e-6);
+        assert!(restored_channel.muted);
+        let restored_mix = fresh.mix(0).expect("mix 0");
+        assert_eq!(restored_mix.name(), "Monitor A");
+        assert!((restored_mix.master_gain_db() - (-6.0)).abs() < 1e-6);
+        let restored_send = restored_mix.send(0).expect("send 0");
+        assert!((restored_send.gain_db() - (-9.0)).abs() < 1e-6);
+        assert!((restored_send.pan() - 0.25).abs() < 1e-6);
+    }
+
+    #[test]
     fn test_restore_clears_nothing() {
         // State A: channel 0 = "OldName"
         let mut state_a = fresh_state();

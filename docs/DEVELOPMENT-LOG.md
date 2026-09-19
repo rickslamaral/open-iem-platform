@@ -1,3 +1,9 @@
+## 2026-09-19 — config snapshot fresh-state round trip
+
+- Adicionado teste `config-backup` que serializa um snapshot não trivial, desserializa e restaura canais, mix e send em `ControlState` novo.
+- Evidência: `cargo fmt --manifest-path server/Cargo.toml --all -- --check` e 9 testes do crate `config-backup` passaram.
+- Limite preservado: teste in-memory não valida processo reiniciado, permissões, deployment, PipeWire/ALSA, WebRTC/Opus ou hardware.
+
 ## 2026-09-19 — deterministic software stability gate
 
 - `scripts/ci/run-software-release-gates.sh` agora executa loop determinístico com cada comando limitado por `OPENIEM_SOAK_SECONDS`; duração reportada é solicitação do perfil sobre `run-headless-audio.sh` e testes `streaming`.
