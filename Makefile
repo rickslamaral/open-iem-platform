@@ -27,7 +27,7 @@ help:
 	@printf '%s\n' '  make test-amd64       run amd64 software release gates'
 	@printf '%s\n' '  make test-arm64       run ARM64 cross/smoke gates when toolchain exists'
 	@printf '%s\n' '  make test-upgrade     validate package upgrade contract'
-	@printf '%s\n' '  make test-stability   run bounded software stability gate (blocked until harness exists)'
+	@printf '%s\n' '  make test-stability   run bounded-command deterministic software stability gate'
 	@printf '%s\n' '  make test-release     run release gates; never requires hardware'
 	@printf '%s\n' '  make certify-hardware report physical certification requirements'
 	@printf '%s\n' '  make diagnostics      report environment validation state'
