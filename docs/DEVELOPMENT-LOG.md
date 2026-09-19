@@ -1,3 +1,8 @@
+## 2026-09-19 — reconciliação Phase 96 CLI local
+
+- Handoff e TODO agora registram `iem config backup/restore` como CLI implementada, sem declarar restauração em ambiente limpo ou integração operacional validada.
+- Preservados limites de evidência: input de restore limitado a 1 MiB, symlink rejeitado, runtime e hardware permanecem pendentes.
+
 ## 2026-09-18 — `iem config` local backup/restore
 - Restore limita snapshots locais a 1 MiB e rejeita entradas maiores antes da desserialização, evitando alocação sem limite.
 

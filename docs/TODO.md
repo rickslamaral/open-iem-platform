@@ -1,7 +1,7 @@
 # TODO
 
 ## Estado atual — 2026-09-18 (Phase 96 — snapshots locais de configuração)
-- **Phase 96:** `iem config backup` e `iem config restore` fornecem snapshot JSON local sem API, shell ou credenciais; restore limita leitura a 1 MiB antes da desserialização e rejeita symlinks no caminho. Evidência CODE local; integração operacional e runtime permanecem pendentes.
+- **Phase 96:** `iem config backup` e `iem config restore` fornecem snapshot JSON local sem API, shell ou credenciais; restore limita leitura a 1 MiB antes da desserialização e rejeita symlinks no caminho. Evidência CODE local; CLI implementada; restauração em ambiente limpo, integração operacional e runtime permanecem pendentes.
 
 ## Estado atual — 2026-09-18 (Phase 95 review)
 - **Phase 95:** review canônica adicionada para `GET /api/v1/metrics`; endpoint permanece CODE/CI, sem validação de runtime ou hardware.
@@ -36,7 +36,7 @@
 - **P1-002:** GET /api/v1/devices com RBAC, DeviceManager no AppState; mergeado em main (PR #80; CI 13/13).
 - **P1-003:** Observability concluído (PR #68; CODE+CI/SIMULATED; runtime permanece pendente).
 - **P1-004:** RecoveryRegistry integrado ao ciclo WebSocket de Musician; concluído em main via PR #81, CI run `35055191463` (13/13). CODE+CI; runtime/hardware permanecem pendentes.
-- **P1-007:** backup/restore sem secrets implementado na PR #73; CODE+CI/SIMULATED. Restauração em ambiente limpo e uso operacional permanecem pendentes. P1-006 release permanece bloqueado por confirmação explícita e validação física.
+- **P1-007:** backup/restore sem secrets implementado na PR #73; CLI local `iem config backup/restore` adicionada na Phase 96 com limite de 1 MiB e rejeição de symlink. Evidência CODE+CI/SIMULATED; restauração em ambiente limpo, API/uso operacional e runtime permanecem pendentes. P1-006 release permanece bloqueado por confirmação explícita e validação física.
 - **Phase 83–95:** backend/control changes, musician channel names, observability metrics REST endpoint implementados e mesclados em `main`; runtime de áudio/media permanece não validado.
 - **Release `v0.3.1`:** tag existe e CI remoto do HEAD passou 13/13; GitHub Release ainda não publicada por exigir confirmação explícita.
 - **Validação física:** PipeWire/ALSA, WebRTC/Opus, instalação Linux dedicada e Raspberry Pi 5 continuam `SIMULATED`/pendentes.
@@ -86,7 +86,7 @@
 - [x] P1-004 — recovery concluído: PR #81, CI run `35055191463` 13/13, gates locais PASS; sem validação física.
 - [x] P1-005 — network concluído (PR #72).
 - [ ] P1-006 — release bloqueado: confirmação explícita, instalação real e Raspberry Pi 5 ainda pendentes.
-- [x] P1-007 — backup/restore de configuração sem secrets implementado na PR #73; 8 testes unitários; restauração em ambiente limpo ainda pendente.
+- [x] P1-007 — backup/restore de configuração sem secrets implementado na PR #73; CLI local `iem config backup/restore` adicionada na Phase 96; 8 testes unitários; restauração em ambiente limpo e integração operacional ainda pendentes.
 - [x] P1-008 — concluído (PR #75).
 - [x] P2 — SceneManager SQLite: `SceneStore` implementado com revisions imutáveis, recall transacional e detecção de payload corrompido; PR #86, CI 13/13 (run `35067216669`). CODE+CI; runtime/hardware pendentes.
 - [x] P2 — Scenes REST API: 7 rotas REST (GET/POST /api/v1/scenes, GET /api/v1/scenes/active, GET/PUT/DELETE /api/v1/scenes/{id}, POST /api/v1/scenes/{id}/recall) com RBAC, SceneStore integrado ao AppState; 7 testes de integração; PR #87, CI 13/13. CODE+CI; runtime/hardware pendentes.
