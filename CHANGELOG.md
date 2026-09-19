@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- Reconciled Phase 97 package status: amd64 `.deb` lifecycle passes locally and in CI; arm64 artifact build remains blocked by the unavailable cross-linker.
+
 ### Added
 - Documentado Phase 96: snapshots locais de configuração via `iem config backup` e `iem config restore`.
 
