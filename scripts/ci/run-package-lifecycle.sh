@@ -14,7 +14,7 @@ docker run --rm --platform "$PLATFORM" -e PACKAGE_FILE="$PACKAGE_FILE" -v "$PACK
   mkdir -p /tmp/old/DEBIAN /tmp/old/usr/lib/openiem
   dpkg-deb --extract /pkg/"$PACKAGE_FILE" /tmp/old
   dpkg-deb --control /pkg/"$PACKAGE_FILE" /tmp/old/DEBIAN
-  sed -i 's/^Version:.*/Version: 0.0.1/' /tmp/old/DEBIAN/control
+  sed -i "s/^Version:.*/Version: 0.0.1/" /tmp/old/DEBIAN/control
   dpkg-deb --build --root-owner-group /tmp/old /tmp/openiem-old.deb >/dev/null
   apt-get install -y --no-install-recommends /tmp/openiem-old.deb >/dev/null
   test -x /usr/lib/openiem/api-server
