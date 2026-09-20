@@ -147,6 +147,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 
 - CI now installs `pipewire`, `pipewire-bin` and `wireplumber` and runs `scripts/ci/run-pipewire-software-e2e.sh`.
 - Deterministic Opus writer/receiver round-trip remains covered by CODE + CI.
+- Phase 100 adds a two-packet out-of-order Opus round-trip test with jitter-buffer reordering and per-frame decoded-content assertions; this remains CODE evidence, not network/runtime WebRTC validation.
 - Evidence level remains `SOFTWARE/SIMULATED`: this does not validate a target virtual sink/source, WebRTC over network, latency, or hardware.
 
 ## Validation Gates
