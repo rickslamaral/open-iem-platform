@@ -11,16 +11,12 @@ command -v timeout >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (timeout
 timeout --foreground 1s true >/dev/null 2>&1 || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (timeout lacks --foreground)' >&2; exit 2; }
 command -v pipewire >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (pipewire missing)' >&2; exit 2; }
 command -v wireplumber >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (wireplumber missing)' >&2; exit 2; }
+python3 -c 'import os; raise SystemExit(0 if hasattr(os, "pidfd_open") and hasattr(os, "pidfd_send_signal") else 1)' || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (pidfd unavailable)' >&2; exit 2; }
 WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}/openiem-pipewire.XXXXXX")
 process_start_time() {
-  local pid=$1 stat rest
-  stat=$(<"/proc/$pid/stat") || return 0
-  rest=${stat##*) }
-  local -a fields=()
-  local IFS=" "
-  read -r -a fields <<< "$rest"
-  printf '%s\n' "${fields[19]:-}"
+  python3 "$ROOT/scripts/ci/read-proc-start-time.py" "$1"
 }
+
 daemon_alive() {
   local pid=$1 expected_start=$2 state actual_start
   kill -0 "$pid" 2>/dev/null || return 1
@@ -39,7 +35,10 @@ stop_daemon() {
     sleep 0.1
   done
   python3 "$ROOT/scripts/ci/signal-pid.py" "$pid" "$expected_start" KILL 2>/dev/null || true
-  wait "$pid" 2>/dev/null || true
+  for _ in $(seq 1 20); do
+    daemon_alive "$pid" "$expected_start" || { wait "$pid" 2>/dev/null || true; return; }
+    sleep 0.1
+  done
 }
 cleanup() {
   local status=$?
@@ -56,12 +55,21 @@ PIPEWIRE_LOG="$WORK_DIR/pipewire.log"
 WIREPLUMBER_LOG="$WORK_DIR/wireplumber.log"
 NODE_LIST="$WORK_DIR/nodes.txt"
 export XDG_RUNTIME_DIR="$RUNTIME_DIR"
+deadline=$((SECONDS + 30))
+check_deadline() {
+  (( SECONDS < deadline )) || { echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (startup deadline exceeded)' >&2; exit 1; }
+}
 pw_cli() {
-  timeout --foreground 5s pw-cli "$@"
+  check_deadline
+  timeout --foreground 2s pw-cli "$@"
+  local status=$?
+  check_deadline
+  return "$status"
 }
 pipewire >"$PIPEWIRE_LOG" 2>&1 & PIPEWIRE_PID=$!
 PIPEWIRE_START_TIME=$(process_start_time "$PIPEWIRE_PID")
 for _ in $(seq 1 50); do
+  check_deadline
   pw_cli info 0 >/dev/null 2>&1 && break
   daemon_alive "$PIPEWIRE_PID" "$PIPEWIRE_START_TIME" || { cat "$PIPEWIRE_LOG" >&2; exit 1; }
   sleep 0.1
@@ -70,6 +78,7 @@ pw_cli info 0 >/dev/null 2>&1 || { cat "$PIPEWIRE_LOG" >&2; exit 1; }
 wireplumber >"$WIREPLUMBER_LOG" 2>&1 & WIREPLUMBER_PID=$!
 WIREPLUMBER_START_TIME=$(process_start_time "$WIREPLUMBER_PID")
 for _ in $(seq 1 50); do
+  check_deadline
   nodes=$(pw_cli list-objects Node 2>/dev/null || true)
   grep -q 'node.name' <<<"$nodes" && break
   daemon_alive "$WIREPLUMBER_PID" "$WIREPLUMBER_START_TIME" || { cat "$WIREPLUMBER_LOG" >&2; exit 1; }
@@ -96,6 +105,7 @@ assert_node_properties() {
   ' "$NODE_LIST"
 }
 for _ in $(seq 1 20); do
+  check_deadline
   pw_cli list-objects Node >"$NODE_LIST"
   assert_node_properties openiem.virtual_sink Audio/Sink &&
     assert_node_properties openiem.virtual_source Audio/Source && break

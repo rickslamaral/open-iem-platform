@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Signal process only while verified PID identity remains open."""
 import os
+import re
 import signal
 import sys
 
 def process_start_time(pid: int) -> str:
     with open(f"/proc/{pid}/stat", encoding="ascii") as handle:
-        rest = handle.read().rsplit(")", 1)[1].split()
-    return rest[19]
+        match = re.match(r"^\d+ \(.*\) [A-Z] (.*)$", handle.read(), re.DOTALL)
+    if match is None:
+        raise ValueError("invalid proc stat")
+    return match.group(1).split()[18]
 
 def main() -> int:
     if len(sys.argv) != 4 or sys.argv[3] not in {"TERM", "KILL"}:
