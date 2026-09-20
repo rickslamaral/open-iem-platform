@@ -1,3 +1,9 @@
+## 2026-09-20 — binding de sessão ao pairing (GAP-018/019)
+
+- `SessionRegistry` agora preserva `device_id` em sessões autenticadas e rejeita musician/mix divergentes da identidade pareada.
+- `POST /api/v1/audio/offer` transporta identidade autenticada até a sessão; revogação encerra sessões ativas do dispositivo.
+- Testes CODE cobrem isolamento de músico/mix e remoção por dispositivo. DTLS-SRTP fingerprint binding, WebRTC runtime e hardware continuam pendentes.
+
 ## 2026-09-20 — reconciliação do status Phase 99
 
 - START, TODO e handoff agora identificam Phase 99 como último trabalho mergeado: smoke CI de PipeWire/WirePlumber com grafo virtual sink/source.
