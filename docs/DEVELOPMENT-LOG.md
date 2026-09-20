@@ -4502,6 +4502,13 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Host local não possui `pw-cli`; execução local retornou `PIPEWIRE_SOFTWARE_E2E: BLOCKED (pw-cli missing)`.
 
 
+## 2026-09-20 — Phase 99 WirePlumber session bus correction
+
+- Corrigida a inicialização do WirePlumber no runner CI: o smoke agora cria um `dbus-daemon` de sessão privado e exporta `DBUS_SESSION_BUS_ADDRESS`, evitando dependência de `$DISPLAY`/autolaunch.
+- Cleanup valida identidade do processo D-Bus por `starttime`, igual aos demais daemons, antes de sinalizar.
+- Evidência local permanece bloqueada por `pw-cli` ausente; CI anterior falhou com `Cannot autolaunch D-Bus without X11 $DISPLAY`.
+
+
 ## 2026-09-20 — Phase 99 PipeWire smoke cleanup hardening
 
 - O smoke agora valida `timeout --foreground` antes de iniciar processos e identifica cada daemon por `starttime` de `/proc/<pid>/stat`.

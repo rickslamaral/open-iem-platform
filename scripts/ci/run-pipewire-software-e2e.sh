@@ -11,7 +11,7 @@ command -v timeout >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (timeout
 timeout --foreground 1s true >/dev/null 2>&1 || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (timeout lacks --foreground)' >&2; exit 2; }
 command -v pipewire >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (pipewire missing)' >&2; exit 2; }
 command -v wireplumber >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (wireplumber missing)' >&2; exit 2; }
-command -v dbus-run-session >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (dbus-run-session missing)' >&2; exit 2; }
+command -v dbus-daemon >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (dbus-daemon missing)' >&2; exit 2; }
 WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}/openiem-pipewire.XXXXXX")
 process_start_time() {
   python3 "$ROOT/scripts/ci/read-proc-start-time.py" "$1"
@@ -46,6 +46,7 @@ cleanup() {
   set +e
   [[ -n "${WIREPLUMBER_PID:-}" ]] && stop_daemon "$WIREPLUMBER_PID" "${WIREPLUMBER_START_TIME:-}"
   [[ -n "${PIPEWIRE_PID:-}" ]] && stop_daemon "$PIPEWIRE_PID" "${PIPEWIRE_START_TIME:-}"
+  [[ -n "${DBUS_PID:-}" ]] && stop_daemon "$DBUS_PID" "${DBUS_START_TIME:-}"
   rm -rf -- "$WORK_DIR"
   exit "$status"
 }
@@ -56,6 +57,21 @@ PIPEWIRE_LOG="$WORK_DIR/pipewire.log"
 WIREPLUMBER_LOG="$WORK_DIR/wireplumber.log"
 NODE_LIST="$WORK_DIR/nodes.txt"
 export XDG_RUNTIME_DIR="$RUNTIME_DIR"
+DBUS_INFO=$(dbus-daemon --session --fork --print-address=1 --print-pid=1)
+DBUS_ADDRESS=${DBUS_INFO%%$'\n'*}
+DBUS_PID=${DBUS_INFO##*$'\n'}
+if [[ "$DBUS_INFO" != "$DBUS_ADDRESS"$'\n'"$DBUS_PID" || "$DBUS_ADDRESS" != unix:* ]] || ! [[ "$DBUS_PID" =~ ^[0-9]+$ ]]; then
+  [[ "$DBUS_PID" =~ ^[0-9]+$ ]] && kill "$DBUS_PID" 2>/dev/null || true
+  echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (invalid private D-Bus startup output)' >&2
+  exit 1
+fi
+DBUS_START_TIME=$(process_start_time "$DBUS_PID" || true)
+if [[ -z "$DBUS_START_TIME" ]]; then
+  kill "$DBUS_PID" 2>/dev/null || true
+  echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (private D-Bus process disappeared)' >&2
+  exit 1
+fi
+export DBUS_SESSION_BUS_ADDRESS="$DBUS_ADDRESS"
 deadline=$((SECONDS + 30))
 check_deadline() {
   (( SECONDS < deadline )) || { echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (startup deadline exceeded)' >&2; exit 1; }
@@ -76,7 +92,7 @@ for _ in $(seq 1 50); do
   sleep 0.1
 done
 pw_cli info 0 >/dev/null 2>&1 || { cat "$PIPEWIRE_LOG" >&2; exit 1; }
-dbus-run-session -- wireplumber >"$WIREPLUMBER_LOG" 2>&1 & WIREPLUMBER_PID=$!
+wireplumber >"$WIREPLUMBER_LOG" 2>&1 & WIREPLUMBER_PID=$!
 WIREPLUMBER_START_TIME=$(process_start_time "$WIREPLUMBER_PID")
 for _ in $(seq 1 50); do
   check_deadline
