@@ -16,6 +16,15 @@ WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}/openiem-pipewire.XXXXXX")
 process_start_time() {
   python3 "$ROOT/scripts/ci/read-proc-start-time.py" "$1"
 }
+capture_start_time() {
+  local pid=$1 start=
+  for _ in $(seq 1 20); do
+    start=$(process_start_time "$pid" 2>/dev/null || true)
+    [[ -n "$start" ]] && { printf "%s\n" "$start"; return 0; }
+    sleep 0.05
+  done
+  return 1
+}
 
 daemon_alive() {
   local pid=$1 expected_start=$2 state actual_start
@@ -70,7 +79,7 @@ for _ in $(seq 1 20); do
 done
 DBUS_ADDRESS=${DBUS_INFO%%$'\n'*}
 DBUS_REPORTED_PID=${DBUS_INFO##*$'\n'}
-DBUS_START_TIME=$(process_start_time "$DBUS_PID" || true)
+DBUS_START_TIME=$(capture_start_time "$DBUS_PID" || true)
 if [[ "$DBUS_INFO" != "$DBUS_ADDRESS"$'\n'"$DBUS_REPORTED_PID" || "$DBUS_ADDRESS" != unix:* ]] ||
    ! [[ "$DBUS_PID" =~ ^[0-9]+$ && "$DBUS_REPORTED_PID" == "$DBUS_PID" ]] ||
    [[ -z "$DBUS_START_TIME" ]]; then
@@ -90,7 +99,8 @@ pw_cli() {
   return "$status"
 }
 pipewire >"$PIPEWIRE_LOG" 2>&1 & PIPEWIRE_PID=$!
-PIPEWIRE_START_TIME=$(process_start_time "$PIPEWIRE_PID")
+PIPEWIRE_START_TIME=$(capture_start_time "$PIPEWIRE_PID" || true)
+[[ -n "$PIPEWIRE_START_TIME" ]] || { cat "$PIPEWIRE_LOG" >&2; exit 1; }
 for _ in $(seq 1 50); do
   check_deadline
   pw_cli info 0 >/dev/null 2>&1 && break
@@ -99,7 +109,8 @@ for _ in $(seq 1 50); do
 done
 pw_cli info 0 >/dev/null 2>&1 || { cat "$PIPEWIRE_LOG" >&2; exit 1; }
 wireplumber >"$WIREPLUMBER_LOG" 2>&1 & WIREPLUMBER_PID=$!
-WIREPLUMBER_START_TIME=$(process_start_time "$WIREPLUMBER_PID")
+WIREPLUMBER_START_TIME=$(capture_start_time "$WIREPLUMBER_PID" || true)
+[[ -n "$WIREPLUMBER_START_TIME" ]] || { cat "$WIREPLUMBER_LOG" >&2; exit 1; }
 for _ in $(seq 1 50); do
   check_deadline
   nodes=$(pw_cli list-objects Node 2>/dev/null || true)
