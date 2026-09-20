@@ -84,6 +84,7 @@ cleanup() {
   if [[ -n "${WIREPLUMBER_PID:-}" ]] && ! stop_daemon "$WIREPLUMBER_PID" "${WIREPLUMBER_START_TIME:-}"; then cleanup_status=1; fi
   if [[ -n "${PIPEWIRE_PID:-}" ]] && ! stop_daemon "$PIPEWIRE_PID" "${PIPEWIRE_START_TIME:-}"; then cleanup_status=1; fi
   if [[ -n "${DBUS_PID:-}" ]] && ! stop_daemon "$DBUS_PID" "${DBUS_START_TIME:-}"; then cleanup_status=1; fi
+  if [[ -n "${DBUS_LAUNCH_PID:-}" && "${DBUS_LAUNCH_PID:-}" != "${DBUS_PID:-}" ]] && ! stop_daemon "$DBUS_LAUNCH_PID" "${DBUS_LAUNCH_START_TIME:-}"; then cleanup_status=1; fi
   rm -rf -- "$WORK_DIR"
   (( cleanup_status == 0 )) || {
     printf '%s\n' 'PIPEWIRE_SOFTWARE_E2E: FAIL (daemon cleanup could not verify termination)' >&2
@@ -103,11 +104,11 @@ DBUS_ERROR_FILE="$WORK_DIR/dbus.error"
 # Keep daemon in this shell process. Cleanup always has its PID, including
 # malformed startup output, and identity checks still prevent PID reuse.
 dbus-daemon --session --nofork --print-address=1 --print-pid=1 >"$DBUS_INFO_FILE" 2>"$DBUS_ERROR_FILE" &
-DBUS_PID=$!
-DBUS_START_TIME=''
+DBUS_LAUNCH_PID=$!
+DBUS_LAUNCH_START_TIME=$(capture_start_time "$DBUS_LAUNCH_PID" 2>/dev/null || true)
+DBUS_START_TIME="$DBUS_LAUNCH_START_TIME"
 DBUS_INFO=''
 for _ in $(seq 1 40); do
-  [[ -n "$DBUS_START_TIME" ]] || DBUS_START_TIME=$(capture_start_time "$DBUS_PID" 2>/dev/null || true)
   if [[ -r "$DBUS_INFO_FILE" ]]; then
     DBUS_INFO=$(python3 -c "import pathlib,sys; print(pathlib.Path(sys.argv[1]).read_bytes()[:65537].decode('utf-8'),end='')" "$DBUS_INFO_FILE" 2>/dev/null || true)
     if (( ${#DBUS_INFO} > 65536 )); then
@@ -118,8 +119,11 @@ for _ in $(seq 1 40); do
       DBUS_INFO=''
     fi
   fi
-  [[ -n "$DBUS_INFO" ]] && break
-  daemon_alive "$DBUS_PID" "$DBUS_START_TIME" 2>/dev/null || true
+  if [[ -n "$DBUS_INFO" ]]; then
+    daemon_alive "$DBUS_LAUNCH_PID" "$DBUS_LAUNCH_START_TIME" || { DBUS_INFO=""; sleep 0.05; continue; }
+    break
+  fi
+  daemon_alive "$DBUS_LAUNCH_PID" "$DBUS_LAUNCH_START_TIME" 2>/dev/null || true
   sleep 0.05
 done
 [[ -n "$DBUS_INFO" ]] || { echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (D-Bus startup output timeout)' >&2; exit 1; }
@@ -127,11 +131,14 @@ mapfile -t DBUS_LINES < <(printf '%s\n' "$DBUS_INFO" | awk 'NF { print }')
 DBUS_ADDRESS=${DBUS_LINES[0]-}
 DBUS_REPORTED_PID=${DBUS_LINES[1]-}
 if (( ${#DBUS_LINES[@]} != 2 )) || [[ "$DBUS_ADDRESS" != unix:* ]] ||
-   ! [[ "$DBUS_PID" =~ ^[0-9]+$ && "$DBUS_REPORTED_PID" == "$DBUS_PID" ]] ||
-   [[ -z "$DBUS_START_TIME" ]]; then
+   ! [[ "$DBUS_REPORTED_PID" =~ ^[0-9]+$ && "$DBUS_REPORTED_PID" == "$DBUS_LAUNCH_PID" ]]; then
   echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (invalid or unavailable private D-Bus startup identity)' >&2
   exit 1
 fi
+daemon_alive "$DBUS_LAUNCH_PID" "$DBUS_LAUNCH_START_TIME" || { echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (D-Bus process exited during startup validation)' >&2; exit 1; }
+DBUS_START_TIME=$(capture_start_time "$DBUS_REPORTED_PID" 2>/dev/null || true)
+[[ -n "$DBUS_START_TIME" && "$DBUS_START_TIME" == "$DBUS_LAUNCH_START_TIME" ]] || { echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (D-Bus process identity changed during startup)' >&2; exit 1; }
+DBUS_PID="$DBUS_REPORTED_PID"
 export DBUS_SESSION_BUS_ADDRESS="$DBUS_ADDRESS"
 deadline=$((SECONDS + 30))
 check_deadline() {
