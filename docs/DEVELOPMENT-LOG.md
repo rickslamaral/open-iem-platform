@@ -4580,3 +4580,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - `/api/v1/audio/offer` aceita campos opcionais `device_id` e `credential` para autenticação retrocompatível; revogação retorna 403 antes de negociação SDP.
 - 7 novos testes de integração cobrem: RBAC para pair/revoke, par bem-sucedido, revogação bem-sucedida, 404 para dispositivo inexistente, retrocompatibilidade sem pairing e 403 para dispositivo revogado.
 - Evidência: CI 16/16 SUCCESS no SHA d80b7ef (PR #189). DTLS-SRTP session binding, runtime e hardware continuam pendentes.
+
+## 2026-09-20 — P0-006 status reconciliation
+
+- TODO reconciliado: integração API, autenticação de ofertas e binding de fingerprint DTLS-SRTP já estão implementados em CODE+CI.
+- Runtime WebRTC/DTLS-SRTP e hardware continuam pendentes; nenhum claim de validação física foi alterado.
