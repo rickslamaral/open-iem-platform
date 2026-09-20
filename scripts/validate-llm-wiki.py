@@ -16,6 +16,28 @@ TAG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 TAXONOMY_ITEM = re.compile(r"^\s*-\s*`?([a-z0-9]+(?:-[a-z0-9]+)*)`?\s*(?:#.*)?$")
 
 
+def safe_read_text(path: Path, wiki: Path) -> str:
+    parts = path.relative_to(wiki).parts
+    root_fd = os.open(wiki, os.O_RDONLY | os.O_DIRECTORY | getattr(os, "O_NOFOLLOW", 0))
+    fd = root_fd
+    try:
+        for part in parts[:-1]:
+            next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | getattr(os, "O_NOFOLLOW", 0), dir_fd=fd)
+            if fd != root_fd:
+                os.close(fd)
+            fd = next_fd
+        file_fd = os.open(parts[-1], os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0), dir_fd=fd)
+        try:
+            return os.fdopen(file_fd, encoding="utf-8").read()
+        except BaseException:
+            os.close(file_fd)
+            raise
+    finally:
+        os.close(fd)
+        if fd != root_fd:
+            os.close(root_fd)
+
+
 def fields(text: str) -> dict[str, str] | None:
     match = FRONTMATTER.match(text)
     if not match:
@@ -78,7 +100,7 @@ def main() -> int:
     taxonomy_found = False
     if schema.is_file() and not schema.is_symlink() and schema in safe_files and schema.resolve().is_relative_to(wiki):
         try:
-            schema_text = schema.read_text(encoding="utf-8")
+            schema_text = safe_read_text(schema, wiki)
         except (OSError, UnicodeError) as exc:
             errors.append(f"SCHEMA.md: unable to read file: {exc}")
         else:
@@ -106,13 +128,13 @@ def main() -> int:
     indexed = ""
     if index.is_file() and not index.is_symlink() and index in safe_files and index.resolve().is_relative_to(wiki):
         try:
-            indexed = index.read_text(encoding="utf-8")
+            indexed = safe_read_text(index, wiki)
         except (OSError, UnicodeError) as exc:
             errors.append(f"index.md: unable to read file: {exc}")
 
     for page in pages:
         try:
-            text = page.read_text(encoding="utf-8")
+            text = safe_read_text(page, wiki)
         except (OSError, UnicodeError) as exc:
             errors.append(f"{page.relative_to(wiki)}: unable to read file: {exc}")
             continue
@@ -161,15 +183,18 @@ def main() -> int:
     if raw_root.is_dir() and not raw_root.is_symlink():
         for root, dirs, files in os.walk(raw_root, followlinks=False, onerror=walk_error):
             dirs[:] = [name for name in dirs if not (Path(root) / name).is_symlink()]
-            raw_files.extend(Path(root) / name for name in files if name.endswith(".md"))
+            raw_files.extend(Path(root) / name for name in files)
     for raw in raw_files:
         if raw.is_symlink() or not raw.resolve().is_relative_to(wiki):
             errors.append(f"{raw.relative_to(wiki)}: unsafe path")
             continue
+        if raw.suffix != ".md":
+            errors.append(f"{raw.relative_to(wiki)}: unsupported raw source format; use Markdown")
+            continue
         if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*\.md", raw.name):
             errors.append(f"{raw.relative_to(wiki)}: filename must be lowercase kebab-case")
         try:
-            text = raw.read_text(encoding="utf-8")
+            text = safe_read_text(raw, wiki)
         except (OSError, UnicodeError) as exc:
             errors.append(f"{raw.relative_to(wiki)}: unable to read file: {exc}")
             continue

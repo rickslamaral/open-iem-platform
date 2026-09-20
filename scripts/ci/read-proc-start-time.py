@@ -7,9 +7,12 @@ if len(sys.argv) != 2 or not sys.argv[1].isdigit():
     raise SystemExit(2)
 try:
     text = open(f"/proc/{sys.argv[1]}/stat", encoding="ascii").read()
-    match = re.match(r"^\d+ \(.*\) [A-Z] (.*)$", text, re.DOTALL)
-    if match is None:
+    closing = text.rfind(")")
+    if closing < 0:
         raise ValueError
-    print(match.group(1).split()[18])
+    fields = text[closing + 1 :].split()
+    if len(fields) <= 19 or len(fields[0]) != 1 or not fields[0].isalpha():
+        raise ValueError
+    print(fields[19])
 except (OSError, ValueError, IndexError):
     raise SystemExit(1)

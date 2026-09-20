@@ -38,10 +38,14 @@ def send_signal(pidfd: int, sig: signal.Signals) -> None:
 
 def process_start_time(pid: int) -> str:
     with open(f"/proc/{pid}/stat", encoding="ascii") as handle:
-        match = re.match(r"^\d+ \(.*\) [A-Z] (.*)$", handle.read(), re.DOTALL)
-    if match is None:
+        text = handle.read()
+    closing = text.rfind(")")
+    if closing < 0:
         raise ValueError("invalid proc stat")
-    return match.group(1).split()[18]
+    fields = text[closing + 1 :].split()
+    if len(fields) <= 19 or len(fields[0]) != 1 or not fields[0].isalpha():
+        raise ValueError("invalid proc stat")
+    return fields[19]
 
 def main() -> int:
     if len(sys.argv) != 4 or sys.argv[3] not in {"TERM", "KILL"}:

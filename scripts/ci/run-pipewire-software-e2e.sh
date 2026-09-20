@@ -35,19 +35,34 @@ daemon_alive() {
   [[ -n "$state" && "$state" != Z* && "$state" != T* && "$state" != t* ]]
 }
 stop_daemon() {
-  local pid=$1 expected_start=$2
-  [[ -n "$pid" && -n "$expected_start" ]] || return 0
-  daemon_alive "$pid" "$expected_start" || return 0
+  local pid=$1 expected_start=$2 actual_start
+  [[ -n "$pid" ]] || return 0
+  # Never signal unverified PID. PID reuse can target unrelated process.
+  [[ -n "$expected_start" ]] || return 1
+  actual_start=$(process_start_time "$pid" 2>/dev/null || true)
+  if [[ -z "$actual_start" || "$actual_start" != "$expected_start" ]]; then
+    wait "$pid" 2>/dev/null || true
+    return 0
+  fi
   python3 "$ROOT/scripts/ci/signal-pid.py" "$pid" "$expected_start" TERM 2>/dev/null || true
   for _ in $(seq 1 20); do
-    daemon_alive "$pid" "$expected_start" || { wait "$pid" 2>/dev/null || true; return; }
+    actual_start=$(process_start_time "$pid" 2>/dev/null || true)
+    [[ -z "$actual_start" || "$actual_start" != "$expected_start" ]] && {
+      wait "$pid" 2>/dev/null || true
+      return 0
+    }
     sleep 0.1
   done
   python3 "$ROOT/scripts/ci/signal-pid.py" "$pid" "$expected_start" KILL 2>/dev/null || true
   for _ in $(seq 1 20); do
-    daemon_alive "$pid" "$expected_start" || { wait "$pid" 2>/dev/null || true; return; }
+    actual_start=$(process_start_time "$pid" 2>/dev/null || true)
+    [[ -z "$actual_start" || "$actual_start" != "$expected_start" ]] && {
+      wait "$pid" 2>/dev/null || true
+      return 0
+    }
     sleep 0.1
   done
+  wait "$pid" 2>/dev/null || true
   return 1
 }
 cleanup() {
