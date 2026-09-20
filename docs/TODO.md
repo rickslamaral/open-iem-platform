@@ -91,7 +91,7 @@
 - [x] P0-003 — Media Plane: bridge/session/Opus/negotiated writer plus bounded `TransportAdapter` socket owner implemented; bounded UDP delivery, failed-send requeue, dequeue-budget and suffix-order coverage pass in CODE/CI/SIMULATED. Runtime WebRTC/PipeWire/ALSA and hardware remain pending.
 - [x] P0-004 — Native/headless Opus receiver core: bounded ingress/jitter, decode, fail-safe mute e reconnect (SIMULATED; OS output/hardware pendentes, PR #59).
 - [x] P0-005 — Clock: sample timestamps, bounded drift estimator e adaptive resampling (SIMULATED; hardware clock validation pendente).
-- [x] P0-006 — registry bounded de pairing, identidade, binding músico/mix, revogação, re-pair explícito e digest Argon2id salted (CODE; DTLS-SRTP/API integration pendente).
+- [x] P0-006 — registry bounded de pairing, identidade, binding músico/mix, revogação, re-pair explícito e digest Argon2id salted; integração API, autenticação de ofertas e binding de fingerprint DTLS-SRTP concluídos em CODE+CI. Runtime/hardware permanecem pendentes.
 - [x] P0-007 — bootstrap idempotente `soundtech` e fronteira de migração versionada (CODE+CI; PR #62).
 - [x] P0-008 — ALSA explicit fallback backend: abertura PCM, hw_params, fail-safe mute, XRUN recovery, stop_flag Release/Acquire (CODE+CI; PR #63; PipeWire/hardware validation pendente).
 - [x] P1-004 — Recovery: AppState RecoveryRegistry, lifecycle WS de conexão/desconexão, restauração de mix atribuído, guarda de ownership duplicado e conflito de assignment DB; 5 testes de recovery. PR #81; CI run `35055191463` (13/13); gates locais fmt, clippy, testes e documentação PASS. Runtime PipeWire/ALSA, WebRTC/Opus e hardware permanecem pendentes.
