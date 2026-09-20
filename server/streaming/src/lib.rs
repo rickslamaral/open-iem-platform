@@ -68,6 +68,7 @@ pub enum StreamingError {
 pub struct SessionInfo {
     pub user_id: String,
     pub mix_id: Option<String>,
+    pub device_id: Option<String>,
 }
 
 /// Bounded result of one simulated Sans-IO drive pass.
@@ -85,6 +86,7 @@ pub struct DriveReport {
 struct PeerSession {
     user_id: String,
     mix_id: Option<String>,
+    device_id: Option<String>,
     /// Sans-IO WebRTC peer. Holds ICE/DTLS/SRTP state.
     ///
     /// SIMULATED on VPS: no real network I/O occurs; candidates are stored for
@@ -122,6 +124,19 @@ impl SessionRegistry {
         sdp: &str,
         mix_id: Option<String>,
     ) -> Result<String, StreamingError> {
+        self.negotiate_offer_bound(user_id, sdp, mix_id, None).await
+    }
+
+    /// # Errors
+    ///
+    /// Returns [`StreamingError::InvalidOffer`] when bounds, identity binding, or SDP validation fails.
+    pub async fn negotiate_offer_bound(
+        &self,
+        user_id: &str,
+        sdp: &str,
+        mix_id: Option<String>,
+        identity: Option<&DeviceIdentity>,
+    ) -> Result<String, StreamingError> {
         if user_id.is_empty()
             || user_id.len() > MAX_USER_ID_BYTES
             || sdp.len() > MAX_SDP_BYTES
@@ -131,6 +146,17 @@ impl SessionRegistry {
         {
             return Err(StreamingError::InvalidOffer("invalid input bounds".into()));
         }
+        if let Some(identity) = identity {
+            if identity.musician_id != user_id
+                || mix_id
+                    .as_deref()
+                    .is_some_and(|mix| mix.parse::<usize>().ok() != Some(identity.mix_index))
+            {
+                return Err(StreamingError::InvalidOffer(
+                    "device identity does not match session".into(),
+                ));
+            }
+        }
         let offer = SdpOffer::from_sdp_string(sdp)
             .map_err(|error| StreamingError::InvalidOffer(error.to_string()))?;
         // Serialize offers. This prevents returning an answer for a peer that a
@@ -139,6 +165,7 @@ impl SessionRegistry {
         let mut peer = PeerSession {
             user_id: user_id.to_owned(),
             mix_id,
+            device_id: identity.map(|value| value.device_id.clone()),
             rtc: Rtc::new(Instant::now()),
             media_mid: None,
             writer: MediaWriter::new().map_err(|_| {
@@ -380,12 +407,20 @@ impl SessionRegistry {
             .map(|peer| SessionInfo {
                 user_id: peer.user_id.clone(),
                 mix_id: peer.mix_id.clone(),
+                device_id: peer.device_id.clone(),
             })
             .collect()
     }
 
     pub async fn remove(&self, user_id: &str) -> bool {
         self.sessions.lock().await.remove(user_id).is_some()
+    }
+
+    pub async fn remove_by_device_id(&self, device_id: &str) -> usize {
+        let mut sessions = self.sessions.lock().await;
+        let before = sessions.len();
+        sessions.retain(|_, peer| peer.device_id.as_deref() != Some(device_id));
+        before - sessions.len()
     }
 
     pub async fn len(&self) -> usize {
@@ -704,6 +739,44 @@ mod tests {
     #[tokio::test]
     async fn list_empty() {
         assert!(SessionRegistry::new().list().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn bound_session_keeps_device_identity_and_revoke_removes_it() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "rx-1".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+        };
+        registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .unwrap();
+        let sessions = registry.list().await;
+        assert_eq!(sessions[0].device_id.as_deref(), Some("rx-1"));
+        assert_eq!(registry.remove_by_device_id("rx-1").await, 1);
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn bound_session_rejects_wrong_musician_or_mix() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "rx-1".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+        };
+        assert!(registry
+            .negotiate_offer_bound("bob", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .is_err());
+        assert!(registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("1".into()), Some(&identity))
+            .await
+            .is_err());
     }
 
     #[tokio::test]

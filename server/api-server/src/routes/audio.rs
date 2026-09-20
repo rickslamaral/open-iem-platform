@@ -122,7 +122,10 @@ pub async fn offer(
         }
         _ => {}
     }
+    let _assignment_guard = state.mix_assignment_lock.lock().await;
     // Device pairing authentication (optional, backward-compatible).
+    let mut authenticated_identity = None;
+    let mut session_mix_id = body.mix_id.clone();
     if let (Some(ref device_id), Some(ref cred_str)) = (&body.device_id, &body.credential) {
         let cred_bytes = general_purpose::STANDARD
             .decode(cred_str)
@@ -143,12 +146,18 @@ pub async fn offer(
                 return Err(ApiError::Forbidden("device is not authorized for this mix"));
             }
         }
+        session_mix_id = Some(identity.mix_index.to_string());
+        authenticated_identity = Some(identity);
     }
-    let _assignment_guard = state.mix_assignment_lock.lock().await;
-    validate_mix_id(body.mix_id.as_deref(), &claims, &state)?;
+    validate_mix_id(session_mix_id.as_deref(), &claims, &state)?;
     let answer = state
         .streaming
-        .negotiate_offer(&claims.sub, &body.sdp, body.mix_id)
+        .negotiate_offer_bound(
+            &claims.sub,
+            &body.sdp,
+            session_mix_id,
+            authenticated_identity.as_ref(),
+        )
         .await
         .map_err(|_| ApiError::BadRequest("invalid SDP offer".to_owned()))?;
     Ok(Json(OfferResponse { sdp: answer }))
@@ -241,6 +250,7 @@ pub async fn revoke_device(
     Path(device_id): Path<String>,
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
+    let _assignment_guard = state.mix_assignment_lock.lock().await;
     state
         .pairing
         .revoke(&device_id)
@@ -249,5 +259,6 @@ pub async fn revoke_device(
             PairingError::NotFound => ApiError::NotFound(format!("device {device_id} not found")),
             _ => ApiError::Internal("revoke failed".to_owned()),
         })?;
+    state.streaming.remove_by_device_id(&device_id).await;
     Ok(Json(RevokeDeviceResponse { revoked: true }))
 }
