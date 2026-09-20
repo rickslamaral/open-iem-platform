@@ -104,9 +104,10 @@ DBUS_ERROR_FILE="$WORK_DIR/dbus.error"
 # malformed startup output, and identity checks still prevent PID reuse.
 dbus-daemon --session --nofork --print-address=1 --print-pid=1 >"$DBUS_INFO_FILE" 2>"$DBUS_ERROR_FILE" &
 DBUS_PID=$!
-DBUS_START_TIME=$(capture_start_time "$DBUS_PID" 2>/dev/null || true)
+DBUS_START_TIME=''
 DBUS_INFO=''
 for _ in $(seq 1 40); do
+  [[ -n "$DBUS_START_TIME" ]] || DBUS_START_TIME=$(capture_start_time "$DBUS_PID" 2>/dev/null || true)
   if [[ -r "$DBUS_INFO_FILE" ]]; then
     DBUS_INFO=$(python3 -c "import pathlib,sys; print(pathlib.Path(sys.argv[1]).read_bytes()[:65537].decode('utf-8'),end='')" "$DBUS_INFO_FILE" 2>/dev/null || true)
     if (( ${#DBUS_INFO} > 65536 )); then
