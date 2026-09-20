@@ -58,6 +58,27 @@ done
 daemon_alive "$PIPEWIRE_PID" || { cat "$PIPEWIRE_LOG" >&2; exit 1; }
 daemon_alive "$WIREPLUMBER_PID" || { cat "$WIREPLUMBER_LOG" >&2; exit 1; }
 pw-cli list-objects Node >"$NODE_LIST"
-# Core graph existence proves only userspace daemon startup, not audio device support.
-grep -q 'node.name' "$NODE_LIST" || { cat "$WIREPLUMBER_LOG" >&2; exit 1; }
-printf '%s\n' 'PIPEWIRE_SOFTWARE_E2E: PASS (SOFTWARE/SIMULATED userspace graph; no hardware/WebRTC claim)'
+# Create deterministic null sink/source nodes in private userspace graph. These prove
+# virtual graph plumbing only; they do not prove physical devices or WebRTC media.
+sink_output=$(pw-cli create-node adapter '{ factory.name = support.null-audio-sink node.name = openiem.virtual_sink node.description = OpenIEM\ Virtual\ Sink media.class = Audio/Sink audio.rate = 48000 audio.channels = 2 }' 2>&1) || { printf '%s\n' "$sink_output" >&2; exit 1; }
+source_output=$(pw-cli create-node adapter '{ factory.name = support.null-audio-source node.name = openiem.virtual_source node.description = OpenIEM\ Virtual\ Source media.class = Audio/Source audio.rate = 48000 audio.channels = 2 }' 2>&1) || { printf '%s\n' "$source_output" >&2; exit 1; }
+assert_node_properties() {
+  local node_name=$1 media_class=$2
+  awk -v node_name="$node_name" -v media_class="$media_class" '
+    BEGIN { RS = ""; found = 0 }
+    index($0, "node.name = \"" node_name "\"") &&
+    index($0, "media.class = \"" media_class "\"") &&
+    index($0, "audio.rate = 48000") &&
+    index($0, "audio.channels = 2") { found = 1 }
+    END { exit(found ? 0 : 1) }
+  ' "$NODE_LIST"
+}
+for _ in $(seq 1 20); do
+  pw-cli list-objects Node >"$NODE_LIST"
+  assert_node_properties openiem.virtual_sink Audio/Sink &&
+    assert_node_properties openiem.virtual_source Audio/Source && break
+  sleep 0.1
+done
+assert_node_properties openiem.virtual_sink Audio/Sink || { cat "$NODE_LIST" >&2; exit 1; }
+assert_node_properties openiem.virtual_source Audio/Source || { cat "$NODE_LIST" >&2; exit 1; }
+printf '%s\n' 'PIPEWIRE_SOFTWARE_E2E: PASS (SOFTWARE/SIMULATED virtual sink/source enumeration; no hardware/WebRTC claim)'
