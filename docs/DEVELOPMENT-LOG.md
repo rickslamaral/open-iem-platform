@@ -4487,3 +4487,11 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - `PairingRegistry::authenticate` agora relê salt, digest e revogação sob lock após Argon2. Revogação ou rotação concorrente falha fechado antes de autorizar sessão.
 - Evidência: `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` aprovados. Revisão independente PASS. Runtime DTLS-SRTP e hardware continuam pendentes.
+
+
+## 2026-09-20 — Phase 99 PipeWire virtual graph smoke
+
+- O smoke de CI agora inicia PipeWire/WirePlumber em runtime privado e cria nós null sink/source determinísticos via `pw-cli`.
+- Cada nó é validado no mesmo bloco de propriedades (`node.name`, `media.class`, `audio.rate=48000`, `audio.channels=2`), com espera bounded para criação assíncrona.
+- Evidência permanece SOFTWARE/SIMULATED: enumeração de nós não prova hardware, fluxo de áudio, WebRTC/Opus ou Raspberry Pi 5.
+- Host local não possui `pw-cli`; execução local retornou `PIPEWIRE_SOFTWARE_E2E: BLOCKED (pw-cli missing)`.
