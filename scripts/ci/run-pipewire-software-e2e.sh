@@ -31,7 +31,7 @@ daemon_alive() {
   kill -0 "$pid" 2>/dev/null || return 1
   actual_start=$(process_start_time "$pid")
   [[ -n "$actual_start" && "$actual_start" == "$expected_start" ]] || return 1
-  state=$(ps -o stat= -p "$pid" 2>/dev/null || true)
+  state=$(ps -o stat= -p "$pid" 2>/dev/null | tr -d '[:space:]' || true)
   [[ -n "$state" && "$state" != Z* && "$state" != T* && "$state" != t* ]]
 }
 stop_daemon() {
@@ -62,12 +62,21 @@ stop_daemon() {
       wait "$pid" 2>/dev/null || true
       return 0
     }
+    state=$(ps -o stat= -p "$pid" 2>/dev/null | tr -d '[:space:]' || true)
+    [[ "$state" == Z* ]] && {
+      wait "$pid" 2>/dev/null || true
+      return 0
+    }
     sleep 0.1
   done
-  if kill -0 "$pid" 2>/dev/null; then
-    return 1
-  fi
-  wait "$pid" 2>/dev/null || true
+  actual_start=$(process_start_time "$pid" 2>/dev/null || true)
+  [[ -z "$actual_start" || "$actual_start" != "$expected_start" ]] && {
+    wait "$pid" 2>/dev/null || true
+    return 0
+  }
+  state=$(ps -o stat= -p "$pid" 2>/dev/null | tr -d '[:space:]' || true)
+  [[ "$state" == Z* ]] && { wait "$pid" 2>/dev/null || true; return 0; }
+  return 1
   (( term_status == 0 || kill_status == 0 )) || return 1
   return 0
 }
@@ -97,13 +106,15 @@ DBUS_INFO_FILE="$WORK_DIR/dbus.info"
 dbus-daemon --session --nofork --print-address=1 --print-pid=1 >"$DBUS_INFO_FILE" 2>&1 &
 DBUS_PID=$!
 DBUS_INFO=''
-for _ in $(seq 1 20); do
+for _ in $(seq 1 40); do
   if [[ -r "$DBUS_INFO_FILE" ]]; then
     DBUS_INFO=$(python3 -c 'import pathlib,sys; t=pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"); print(t,end="") if t.count("\n") >= 2 else None' "$DBUS_INFO_FILE" 2>/dev/null || true)
   fi
   [[ -n "$DBUS_INFO" ]] && break
+  daemon_alive "$DBUS_PID" "${DBUS_START_TIME:-$(capture_start_time "$DBUS_PID" 2>/dev/null || true)}" 2>/dev/null || true
   sleep 0.05
 done
+[[ -n "$DBUS_INFO" ]] || { echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (D-Bus startup output timeout)' >&2; exit 1; }
 mapfile -t DBUS_LINES <"$DBUS_INFO_FILE"
 DBUS_ADDRESS=${DBUS_LINES[0]-}
 DBUS_REPORTED_PID=${DBUS_LINES[1]-}
