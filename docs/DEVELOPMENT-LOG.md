@@ -1,3 +1,9 @@
+## 2026-09-20 — GAP-018 revoked receiver session guard
+
+- `SessionRegistry::negotiate_offer_bound` agora rejeita `DeviceIdentity` revogada antes de criar sessão WebRTC.
+- Adicionado teste de integração unitária cobrindo tentativa de negociação com identidade revogada.
+- Evidência: streaming 58 testes unitários + 2 testes de round-trip Opus PASS; runtime DTLS-SRTP, WebRTC em rede e hardware continuam pendentes.
+
 ## 2026-09-20 — binding de sessão ao pairing (GAP-018/019)
 
 - `SessionRegistry` agora preserva `device_id` em sessões autenticadas e rejeita musician/mix divergentes da identidade pareada.
