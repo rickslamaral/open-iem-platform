@@ -1,3 +1,9 @@
+## 2026-09-20 — correção final de identidade no cleanup D-Bus
+
+- Smoke PipeWire captura `DBUS_START_TIME` antes de qualquer caminho de erro; cleanup agora encerra daemon somente após validar PID e start time, evitando PID reuse sem deixar processo órfão.
+- Evidência: revisão independente PASS, `bash -n`, `py_compile`, `git diff --check`; execução local permanece BLOCKED porque `pw-cli` não está instalado.
+- Nenhuma claim adicionada para PipeWire real, WebRTC, latência ou hardware.
+
 ## 2026-09-20 — revisão independente do ciclo Phase 99
 
 - Corrigido fallback syscall de `pidfd_open`: cleanup agora alcança `pidfd_send_signal` via ctypes quando APIs Python não existem.

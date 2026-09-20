@@ -60,15 +60,14 @@ export XDG_RUNTIME_DIR="$RUNTIME_DIR"
 DBUS_INFO=$(dbus-daemon --session --fork --print-address=1 --print-pid=1)
 DBUS_ADDRESS=${DBUS_INFO%%$'\n'*}
 DBUS_PID=${DBUS_INFO##*$'\n'}
-if [[ "$DBUS_INFO" != "$DBUS_ADDRESS"$'\n'"$DBUS_PID" || "$DBUS_ADDRESS" != unix:* ]] || ! [[ "$DBUS_PID" =~ ^[0-9]+$ ]]; then
-  [[ "$DBUS_PID" =~ ^[0-9]+$ ]] && kill "$DBUS_PID" 2>/dev/null || true
-  echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (invalid private D-Bus startup output)' >&2
-  exit 1
+DBUS_START_TIME=''
+# Capture identity before any validation path can exit. Cleanup then remains
+# able to stop a numerically identified daemon without risking PID reuse.
+if [[ "$DBUS_PID" =~ ^[0-9]+$ ]]; then
+  DBUS_START_TIME=$(process_start_time "$DBUS_PID" || true)
 fi
-DBUS_START_TIME=$(process_start_time "$DBUS_PID" || true)
-if [[ -z "$DBUS_START_TIME" ]]; then
-  kill "$DBUS_PID" 2>/dev/null || true
-  echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (private D-Bus process disappeared)' >&2
+if [[ "$DBUS_INFO" != "$DBUS_ADDRESS"$'\n'"$DBUS_PID" || "$DBUS_ADDRESS" != unix:* ]] || ! [[ "$DBUS_PID" =~ ^[0-9]+$ ]] || [[ -z "$DBUS_START_TIME" ]]; then
+  echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (invalid or unavailable private D-Bus startup identity)' >&2
   exit 1
 fi
 export DBUS_SESSION_BUS_ADDRESS="$DBUS_ADDRESS"
