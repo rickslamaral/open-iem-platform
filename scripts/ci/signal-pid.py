@@ -36,16 +36,22 @@ def main() -> int:
         pid, expected = int(sys.argv[1]), sys.argv[2]
     except ValueError:
         return 2
-    try:
-        pidfd_open = os.pidfd_open
-    except AttributeError:
-        return 2
     pidfd = None
     try:
-        pidfd = pidfd_open(pid)
         if process_start_time(pid) != expected:
             return 1
-        send_signal(pidfd, getattr(signal, f"SIG{sys.argv[3]}"))
+        sig = getattr(signal, f"SIG{sys.argv[3]}")
+        if hasattr(os, "pidfd_open"):
+            pidfd = os.pidfd_open(pid)
+            if process_start_time(pid) != expected:
+                return 1
+            send_signal(pidfd, sig)
+        else:
+            # Older CI Python lacks pidfd APIs. Recheck identity immediately before
+            # kill; this is best-effort fallback, not a production process supervisor.
+            if process_start_time(pid) != expected:
+                return 1
+            os.kill(pid, sig)
     except (OSError, ValueError, IndexError):
         return 1
     finally:

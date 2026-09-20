@@ -11,7 +11,6 @@ command -v timeout >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (timeout
 timeout --foreground 1s true >/dev/null 2>&1 || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (timeout lacks --foreground)' >&2; exit 2; }
 command -v pipewire >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (pipewire missing)' >&2; exit 2; }
 command -v wireplumber >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (wireplumber missing)' >&2; exit 2; }
-python3 -c 'import os; raise SystemExit(0 if hasattr(os, "pidfd_open") else 1)' || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (pidfd unavailable)' >&2; exit 2; }
 WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}/openiem-pipewire.XXXXXX")
 process_start_time() {
   python3 "$ROOT/scripts/ci/read-proc-start-time.py" "$1"
