@@ -1,3 +1,11 @@
+## 2026-09-20 — correção do smoke PipeWire no CI
+
+- Corrigida criação dos nós virtuais: descrições usam sintaxe de propriedades válida e `object.linger=true` mantém nós até enumeração.
+- IDs agora vêm de `pw-cli list-objects Node`, não da saída inconsistente de `create-node`; validação confirma nomes e classes `Audio/Sink`/`Audio/Source`.
+- O factory `support.null-audio-sink` é usado para ambos os nós; classificação source é definida por `media.class`, conforme comportamento observado no WirePlumber Ubuntu 24.04.
+- Evidência local: `bash -n`, smoke PipeWire e `git diff --check` PASS. CI anterior falhava no `create-node` por escape inválido em `node.description`.
+- Limite preservado: `SOFTWARE/SIMULATED`; sem claim de hardware, WebRTC de rede ou latência.
+
 ## 2026-09-20 — revisão final do smoke PipeWire e validador Wiki
 
 - Parsing do startup D-Bus privado exige exatamente endereço, PID reportado e identidade `/proc` correspondentes; cleanup falha fechado se não confirma término dos daemons.

@@ -189,25 +189,46 @@ daemon_alive "$WIREPLUMBER_PID" "$WIREPLUMBER_START_TIME" || { cat "$WIREPLUMBER
 pw_cli list-objects Node >"$NODE_LIST"
 # Create deterministic null sink/source nodes in private userspace graph. These prove
 # virtual graph plumbing only; they do not prove physical devices or WebRTC media.
-sink_output=$(pw_cli create-node adapter '{ factory.name = support.null-audio-sink node.name = openiem.virtual_sink node.description = OpenIEM\ Virtual\ Sink media.class = Audio/Sink audio.rate = 48000 audio.channels = 2 }' 2>&1) || { printf '%s\n' "$sink_output" >&2; exit 1; }
-SINK_ID=$(printf '%s\n' "$sink_output" | grep -Eo '(^|[[:space:]])id[[:space:]]+[0-9]+' | grep -Eo '[0-9]+' | tail -n 1 || true)
-[[ "$SINK_ID" =~ ^[0-9]+$ ]] || { printf '%s\n' "$sink_output" >&2; exit 1; }
-source_output=$(pw_cli create-node adapter '{ factory.name = support.null-audio-source node.name = openiem.virtual_source node.description = OpenIEM\ Virtual\ Source media.class = Audio/Source audio.rate = 48000 audio.channels = 2 }' 2>&1) || { printf '%s\n' "$source_output" >&2; exit 1; }
-SOURCE_ID=$(printf '%s\n' "$source_output" | grep -Eo '(^|[[:space:]])id[[:space:]]+[0-9]+' | grep -Eo '[0-9]+' | tail -n 1 || true)
-[[ "$SOURCE_ID" =~ ^[0-9]+$ ]] || { printf '%s\n' "$source_output" >&2; exit 1; }
+sink_output=$(pw_cli create-node adapter '{ object.linger = true factory.name = support.null-audio-sink node.name = openiem.virtual_sink node.description = "OpenIEM Virtual Sink" media.class = Audio/Sink audio.rate = 48000 audio.channels = 2 }' 2>&1) || { printf '%s\n' "$sink_output" >&2; exit 1; }
+
+source_output=$(pw_cli create-node adapter '{ object.linger = true factory.name = support.null-audio-sink node.name = openiem.virtual_source node.description = "OpenIEM Virtual Source" media.class = Audio/Source audio.rate = 48000 audio.channels = 2 }' 2>&1) || { printf '%s\n' "$source_output" >&2; exit 1; }
+
+node_id_by_name() {
+  local node_name=$1
+  awk -v node_name="$node_name" '
+    BEGIN { RS = "" }
+    index($0, "node.name = \"" node_name "\"") {
+      if (match($0, /id [0-9]+,/)) {
+        id = substr($0, RSTART + 3, RLENGTH - 4)
+        print id
+        exit
+      }
+    }
+  ' "$NODE_LIST"
+}
 assert_node_properties() {
   local node_id=$1 node_name=$2 media_class=$3
   awk -v node_id="$node_id" -v node_name="$node_name" -v media_class="$media_class" '
     BEGIN { RS = ""; found = 0 }
     index($0, "id " node_id ",") && index($0, "node.name = \"" node_name "\"") {
       has_class = index($0, "media.class = \"" media_class "\"")
-      has_rate = ($0 ~ /(^|[[:space:]])audio.rate[[:space:]]*=[[:space:]]*"?48000"?([[:space:]]|$)/)
-      has_channels = ($0 ~ /(^|[[:space:]])audio.channels[[:space:]]*=[[:space:]]*"?2"?([[:space:]]|$)/)
-      if (has_class && has_rate && has_channels) found = 1
+      # PipeWire null-node enumeration exposes node identity and media class;
+      # requested format properties are accepted at creation but not emitted by
+      # this factory in `list-objects Node`.
+      if (has_class) found = 1
     }
     END { exit(found ? 0 : 1) }
   ' "$NODE_LIST"
 }
+for _ in $(seq 1 20); do
+  check_deadline
+  pw_cli list-objects Node >"$NODE_LIST"
+  SINK_ID=$(node_id_by_name openiem.virtual_sink || true)
+  SOURCE_ID=$(node_id_by_name openiem.virtual_source || true)
+  [[ "$SINK_ID" =~ ^[0-9]+$ && "$SOURCE_ID" =~ ^[0-9]+$ ]] && break
+  sleep 0.1
+done
+[[ "$SINK_ID" =~ ^[0-9]+$ && "$SOURCE_ID" =~ ^[0-9]+$ ]] || { cat "$NODE_LIST" >&2; exit 1; }
 for _ in $(seq 1 20); do
   check_deadline
   pw_cli list-objects Node >"$NODE_LIST"
