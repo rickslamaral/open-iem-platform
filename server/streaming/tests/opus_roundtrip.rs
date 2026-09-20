@@ -86,9 +86,17 @@ fn consecutive_opus_packets_preserve_order_and_frame_timestamps() {
         frame.samples = samples;
         let packet = writer.encode(&frame).unwrap();
         assert_eq!(packet.sequence, sequence);
-        assert_eq!(packet.rtp_timestamp, (sequence - 10) as u32 * 960);
         packets.push(packet);
     }
+    assert_eq!(packets[0].rtp_timestamp, 0);
+    assert_eq!(
+        packets[1]
+            .rtp_timestamp
+            .wrapping_sub(packets[0].rtp_timestamp),
+        960
+    );
+    // Both packets enter ingress before first playout, so receiver establishes
+    // expected sequence from sorted jitter-buffer head, not arrival order.
     // Jitter buffer must restore sequence order, not arrival order.
     receiver
         .enqueue(packets[1].sequence, &packets[1].payload)
