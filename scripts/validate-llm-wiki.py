@@ -71,23 +71,41 @@ def main() -> int:
         dirs[:] = [name for name in dirs if not (Path(root) / name).is_symlink()]
 
     taxonomy: set[str] = set()
+    taxonomy_found = False
     if schema.is_file() and not schema.is_symlink() and schema in safe_files and schema.resolve().is_relative_to(wiki):
-        in_taxonomy = False
-        for line in schema.read_text(encoding="utf-8").splitlines():
-            if line.strip().lower().startswith("## tag taxonomy"):
-                in_taxonomy = True
-            elif in_taxonomy and line.startswith("## "):
-                in_taxonomy = False
-            elif in_taxonomy:
-                taxonomy.update(TAG.findall(line.split("#", 1)[0]))
+        try:
+            schema_text = schema.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            errors.append(f"SCHEMA.md: unable to read file: {exc}")
+        else:
+            in_taxonomy = False
+            for line in schema_text.splitlines():
+                if line.strip().lower().startswith("## tag taxonomy"):
+                    taxonomy_found = True
+                    in_taxonomy = True
+                elif in_taxonomy and line.startswith("## "):
+                    in_taxonomy = False
+                elif in_taxonomy:
+                    taxonomy.update(TAG.findall(line.split("#", 1)[0]))
+    if not taxonomy_found or not taxonomy:
+        errors.append("SCHEMA.md: missing or empty Tag Taxonomy")
 
     pages = [p for p in wiki.rglob("*.md") if not p.is_symlink() and p.resolve().is_relative_to(wiki) and p.is_file() and "raw" not in p.relative_to(wiki).parts and "_archive" not in p.relative_to(wiki).parts and p.name not in {"SCHEMA.md", "index.md", "log.md"}]
     known = {str(p.resolve()) for p in pages if p.resolve().is_relative_to(wiki)} | {str((wiki / "index.md").resolve())}
     inbound: dict[str, int] = {str(p.resolve()): 0 for p in pages}
-    indexed = index.read_text(encoding="utf-8") if index.is_file() and not index.is_symlink() and index in safe_files and index.resolve().is_relative_to(wiki) else ""
+    indexed = ""
+    if index.is_file() and not index.is_symlink() and index in safe_files and index.resolve().is_relative_to(wiki):
+        try:
+            indexed = index.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            errors.append(f"index.md: unable to read file: {exc}")
 
     for page in pages:
-        text = page.read_text(encoding="utf-8")
+        try:
+            text = page.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            errors.append(f"{page.relative_to(wiki)}: unable to read file: {exc}")
+            continue
         fm = fields(text)
         rel = page.relative_to(wiki)
         if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*\.md", page.name):
@@ -132,7 +150,13 @@ def main() -> int:
         if raw.is_symlink() or not raw.resolve().is_relative_to(wiki):
             errors.append(f"{raw.relative_to(wiki)}: unsafe path")
             continue
-        text = raw.read_text(encoding="utf-8")
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*\.md", raw.name):
+            errors.append(f"{raw.relative_to(wiki)}: filename must be lowercase kebab-case")
+        try:
+            text = raw.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            errors.append(f"{raw.relative_to(wiki)}: unable to read file: {exc}")
+            continue
         fm = fields(text)
         if not fm or any(field not in fm for field in ("source_url", "ingested", "sha256")):
             errors.append(f"{raw.relative_to(wiki)}: raw source missing source_url, ingested, or sha256")
