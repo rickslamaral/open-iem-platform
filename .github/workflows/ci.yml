@@ -83,7 +83,7 @@ jobs:
       - name: Install PipeWire software smoke dependencies
         run: sudo apt-get update && sudo apt-get install -y pipewire pipewire-bin wireplumber
       - name: PipeWire/WirePlumber userspace smoke
-        run: scripts/ci/run-pipewire-software-e2e.sh
+        run: timeout --foreground 120s scripts/ci/run-pipewire-software-e2e.sh
       - name: Audio Lab L1/L2 tests
         run: |
           cargo test --manifest-path server/Cargo.toml --test audio_lab_l1_l2 -- --nocapture 2>&1 | tee /tmp/audio-lab-results.txt
