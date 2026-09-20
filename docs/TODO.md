@@ -10,8 +10,8 @@
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
 
 
-## Estado atual — 2026-09-18 (Phase 96 — snapshots locais de configuração)
-- **Phase 96:** `iem config backup` e `iem config restore` fornecem snapshot JSON local sem API, shell ou credenciais; restore limita leitura a 1 MiB antes da desserialização e rejeita symlinks no caminho. Evidência CODE local; CLI implementada; restauração em ambiente limpo, integração operacional e runtime permanecem pendentes.
+## Estado atual — 2026-09-20 (Phase 99 — smoke PipeWire virtual no CI)
+- **Phase 99:** o CI executa smoke software de PipeWire/WirePlumber com grafo virtual sink/source e round-trip Opus determinístico. Evidência CODE+CI/SIMULATED; runtime alvo, WebRTC em rede, latência e hardware permanecem pendentes.
 
 ## Estado atual — 2026-09-18 (Phase 95 review)
 - **Phase 95:** review canônica adicionada para `GET /api/v1/metrics`; endpoint permanece CODE/CI, sem validação de runtime ou hardware.

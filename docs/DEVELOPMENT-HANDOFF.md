@@ -143,7 +143,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 - Physical Raspberry Pi, USB, thermal, controller-specific behavior, physical latency, hot-plug and hardware XRUN are `HARDWARE_CERTIFICATION`, not software-release blockers.
 - Canonical details: `docs/COMPATIBILITY.md`, `docs/PACKAGING.md`, `docs/RELEASE-GATES.md`, `docs/HARDWARE-CERTIFICATION.md`.
 
-## Phase 98 status — PipeWire CI smoke
+## Phase 99 status — PipeWire/WirePlumber virtual graph CI smoke
 
 - CI now installs `pipewire`, `pipewire-bin` and `wireplumber` and runs `scripts/ci/run-pipewire-software-e2e.sh`.
 - Deterministic Opus writer/receiver round-trip remains covered by CODE + CI.

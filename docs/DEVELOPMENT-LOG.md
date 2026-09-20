@@ -1,3 +1,8 @@
+## 2026-09-20 — reconciliação do status Phase 99
+
+- START, TODO e handoff agora identificam Phase 99 como último trabalho mergeado: smoke CI de PipeWire/WirePlumber com grafo virtual sink/source.
+- Evidência permanece CODE+CI/SIMULATED; runtime alvo, WebRTC em rede, latência e hardware continuam pendentes.
+
 ## 2026-09-20 — correção do smoke PipeWire no CI
 
 - Corrigida criação dos nós virtuais: descrições usam sintaxe de propriedades válida e `object.linger=true` mantém nós até enumeração.
