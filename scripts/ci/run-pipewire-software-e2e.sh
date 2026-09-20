@@ -44,7 +44,8 @@ stop_daemon() {
     wait "$pid" 2>/dev/null || true
     return 0
   fi
-  python3 "$ROOT/scripts/ci/signal-pid.py" "$pid" "$expected_start" TERM 2>/dev/null || true
+  local term_status=0
+  python3 "$ROOT/scripts/ci/signal-pid.py" "$pid" "$expected_start" TERM 2>/dev/null || term_status=$?
   for _ in $(seq 1 20); do
     actual_start=$(process_start_time "$pid" 2>/dev/null || true)
     [[ -z "$actual_start" || "$actual_start" != "$expected_start" ]] && {
@@ -53,7 +54,8 @@ stop_daemon() {
     }
     sleep 0.1
   done
-  python3 "$ROOT/scripts/ci/signal-pid.py" "$pid" "$expected_start" KILL 2>/dev/null || true
+  local kill_status=0
+  python3 "$ROOT/scripts/ci/signal-pid.py" "$pid" "$expected_start" KILL 2>/dev/null || kill_status=$?
   for _ in $(seq 1 20); do
     actual_start=$(process_start_time "$pid" 2>/dev/null || true)
     [[ -z "$actual_start" || "$actual_start" != "$expected_start" ]] && {
@@ -62,7 +64,11 @@ stop_daemon() {
     }
     sleep 0.1
   done
+  if kill -0 "$pid" 2>/dev/null; then
+    return 1
+  fi
   wait "$pid" 2>/dev/null || true
+  (( term_status == 0 || kill_status == 0 )) || return 1
   return 0
 }
 cleanup() {
