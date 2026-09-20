@@ -62,6 +62,8 @@ pub struct PairDeviceRequest {
     pub mix_index: usize,
     /// Base64-encoded device credential.
     pub credential: String,
+    /// Optional canonical DTLS fingerprint enrolled during pairing.
+    pub dtls_fingerprint: Option<String>,
 }
 
 /// Pair device response.
@@ -211,11 +213,12 @@ pub async fn pair_device(
         .map_err(|_| ApiError::BadRequest("credential is not valid base64".to_owned()))?;
     let identity = state
         .pairing
-        .pair(
+        .pair_with_fingerprint(
             &body.device_id,
             &body.musician_id,
             body.mix_index,
             &cred_bytes,
+            body.dtls_fingerprint,
         )
         .await
         .map_err(|e| match e {

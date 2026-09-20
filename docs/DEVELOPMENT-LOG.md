@@ -1,3 +1,10 @@
+## 2026-09-20 — GAP-018/019 DTLS fingerprint binding
+
+- Pairing agora pode registrar fingerprint DTLS-SRTP SHA-256 normalizado.
+- Oferta autenticada por dispositivo com fingerprint registrado exige correspondência exata antes de criar sessão; mismatch, ausência ou formato inválido falham fechado. Identidades legadas sem fingerprint preservam compatibilidade.
+- Ofertas sem pairing mantêm compatibilidade legada.
+- Evidência: `cargo test --manifest-path server/Cargo.toml -p streaming -p api-server` passou: 59 testes streaming, 2 round-trip Opus, 63 unitários api-server, 88 integração e 5 recovery. Runtime WebRTC/DTLS-SRTP e hardware continuam pendentes.
+
 ## 2026-09-20 — GAP-018 revoked receiver session guard
 
 - `SessionRegistry::negotiate_offer_bound` agora rejeita `DeviceIdentity` revogada antes de criar sessão WebRTC.
