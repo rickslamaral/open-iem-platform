@@ -102,6 +102,42 @@ pub struct SessionRegistry {
     transport_outputs: Arc<Mutex<VecDeque<str0m::net::Transmit>>>,
 }
 
+pub(crate) fn canonicalize_dtls_fingerprint(value: &str) -> Result<String, StreamingError> {
+    let canonical = value.trim().to_ascii_lowercase();
+    let (algorithm, digest) = canonical
+        .split_once(' ')
+        .ok_or_else(|| StreamingError::InvalidOffer("invalid DTLS fingerprint".into()))?;
+    if algorithm != "sha-256"
+        || digest.len() != 95
+        || digest
+            .bytes()
+            .enumerate()
+            .any(|(i, b)| (i % 3 == 2 && b != b':') || (i % 3 != 2 && !b.is_ascii_hexdigit()))
+    {
+        return Err(StreamingError::InvalidOffer(
+            "invalid DTLS fingerprint".into(),
+        ));
+    }
+    Ok(format!("{algorithm} {digest}"))
+}
+
+fn extract_dtls_fingerprint(sdp: &str) -> Result<String, StreamingError> {
+    let fingerprints = sdp
+        .lines()
+        .filter_map(|line| line.strip_prefix("a=fingerprint:"))
+        .map(canonicalize_dtls_fingerprint)
+        .collect::<Result<Vec<_>, _>>()?;
+    let fingerprint = fingerprints
+        .first()
+        .ok_or_else(|| StreamingError::InvalidOffer("missing a=fingerprint".into()))?;
+    if fingerprints.iter().any(|value| value != fingerprint) {
+        return Err(StreamingError::InvalidOffer(
+            "conflicting DTLS fingerprints".into(),
+        ));
+    }
+    Ok(fingerprint.clone())
+}
+
 impl SessionRegistry {
     #[must_use]
     pub fn new() -> Self {
@@ -160,6 +196,16 @@ impl SessionRegistry {
         }
         let offer = SdpOffer::from_sdp_string(sdp)
             .map_err(|error| StreamingError::InvalidOffer(error.to_string()))?;
+        if let Some(identity) = identity {
+            if let Some(expected_fingerprint) = identity.dtls_fingerprint.as_deref() {
+                let offered_fingerprint = extract_dtls_fingerprint(sdp)?;
+                if expected_fingerprint != offered_fingerprint {
+                    return Err(StreamingError::InvalidOffer(
+                        "DTLS fingerprint does not match paired device".into(),
+                    ));
+                }
+            }
+        }
         // Serialize offers. This prevents returning an answer for a peer that a
         // concurrent offer would immediately replace.
         let mut sessions = self.sessions.lock().await;
@@ -725,6 +771,13 @@ mod tests {
     }
 
     #[test]
+    fn conflicting_dtls_fingerprints_are_rejected() {
+        let first = extract_dtls_fingerprint(VALID_OFFER).unwrap();
+        let second = format!("{VALID_OFFER}a=fingerprint:{first}\r\na=fingerprint:sha-256 FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00:FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00\r\n");
+        assert!(extract_dtls_fingerprint(&second).is_err());
+    }
+
+    #[test]
     fn silence_frame_matches_iem_defaults() {
         assert_eq!(SilenceFrame::default().samples_per_channel, 960);
     }
@@ -743,6 +796,22 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn legacy_bound_identity_without_fingerprint_remains_compatible() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "rx-legacy".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+        registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .expect("legacy paired identity must remain compatible");
+    }
+
+    #[tokio::test]
     async fn bound_session_keeps_device_identity_and_revoke_removes_it() {
         let registry = SessionRegistry::new();
         let identity = DeviceIdentity {
@@ -750,6 +819,7 @@ mod tests {
             musician_id: "alice".into(),
             mix_index: 0,
             revoked: false,
+            dtls_fingerprint: extract_dtls_fingerprint(VALID_OFFER).ok(),
         };
         registry
             .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
@@ -773,6 +843,7 @@ mod tests {
             musician_id: "alice".into(),
             mix_index: 0,
             revoked: true,
+            dtls_fingerprint: None,
         };
         assert!(registry
             .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
@@ -791,6 +862,7 @@ mod tests {
             musician_id: "alice".into(),
             mix_index: 0,
             revoked: false,
+            dtls_fingerprint: Some("sha-256 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00".into()),
         };
         assert!(registry
             .negotiate_offer_bound("bob", VALID_OFFER, Some("0".into()), Some(&identity))

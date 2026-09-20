@@ -7,6 +7,8 @@ use argon2::Argon2;
 use rand::random;
 use std::{collections::HashMap, sync::Arc};
 use thiserror::Error;
+
+use crate::canonicalize_dtls_fingerprint;
 use tokio::sync::Mutex;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -15,6 +17,7 @@ pub struct DeviceIdentity {
     pub musician_id: String,
     pub mix_index: usize,
     pub revoked: bool,
+    pub dtls_fingerprint: Option<String>,
 }
 
 #[derive(Debug, Error, PartialEq, Eq)]
@@ -61,6 +64,27 @@ impl PairingRegistry {
         mix_index: usize,
         credential: &[u8],
     ) -> Result<DeviceIdentity, PairingError> {
+        self.pair_with_fingerprint(device_id, musician_id, mix_index, credential, None)
+            .await
+    }
+
+    /// Pair receiver and optionally enroll its trusted DTLS-SRTP fingerprint.
+    ///
+    /// # Errors
+    /// Returns [`PairingError::InvalidIdentity`] for malformed or unsupported fingerprints.
+    pub async fn pair_with_fingerprint(
+        &self,
+        device_id: &str,
+        musician_id: &str,
+        mix_index: usize,
+        credential: &[u8],
+        dtls_fingerprint: Option<String>,
+    ) -> Result<DeviceIdentity, PairingError> {
+        let dtls_fingerprint = dtls_fingerprint
+            .map(|value| {
+                canonicalize_dtls_fingerprint(&value).map_err(|_| PairingError::InvalidIdentity)
+            })
+            .transpose()?;
         if !valid_id(device_id)
             || !valid_id(musician_id)
             || mix_index >= 16
@@ -92,6 +116,7 @@ impl PairingRegistry {
             musician_id: musician_id.to_owned(),
             mix_index,
             revoked: false,
+            dtls_fingerprint,
         };
         devices.insert(
             device_id.to_owned(),
