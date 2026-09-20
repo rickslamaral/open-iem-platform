@@ -77,8 +77,6 @@ stop_daemon() {
   state=$(ps -o stat= -p "$pid" 2>/dev/null | tr -d '[:space:]' || true)
   [[ "$state" == Z* ]] && { wait "$pid" 2>/dev/null || true; return 0; }
   return 1
-  (( term_status == 0 || kill_status == 0 )) || return 1
-  return 0
 }
 cleanup() {
   local status=$? cleanup_status=0
