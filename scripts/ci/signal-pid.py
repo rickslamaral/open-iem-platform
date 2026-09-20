@@ -56,12 +56,12 @@ def main() -> int:
         return 2
     pidfd = None
     try:
-        if process_start_time(pid) != expected:
-            return 1
-        sig = getattr(signal, f"SIG{sys.argv[3]}")
+        # Open pidfd first; validate identity after fd acquisition. This closes
+        # PID-reuse window between /proc inspection and pidfd_open.
         pidfd = open_pidfd(pid)
         if process_start_time(pid) != expected:
             return 1
+        sig = getattr(signal, f"SIG{sys.argv[3]}")
         send_signal(pidfd, sig)
     except (OSError, ValueError, IndexError):
         return 1
