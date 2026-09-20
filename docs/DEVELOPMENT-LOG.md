@@ -4589,4 +4589,3 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - TODO atualizado: matriz de artefatos `.deb` amd64/arm64 e ciclo install/upgrade/uninstall/purge já possui evidência de CI no run `35533396414`.
 - O item permanece CODE + PACKAGE_RELEASE_GATE; instalação em host físico e validação Raspberry Pi 5 continuam pendentes.
-
