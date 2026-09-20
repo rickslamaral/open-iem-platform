@@ -10,7 +10,7 @@ use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
 };
-use streaming::SessionRegistry;
+use streaming::{PairingRegistry, SessionRegistry};
 use tokio::sync::{broadcast, Mutex as AsyncMutex};
 
 pub use crate::quota::MAX_WEBSOCKET_CONNECTIONS;
@@ -116,6 +116,8 @@ pub struct AppState {
     pub scenes: Arc<SceneStore>,
     /// Current WebSocket session owner for each Musician user.
     pub connection_owners: Arc<Mutex<HashMap<i64, u128>>>,
+    /// Device pairing registry for receiver identity verification.
+    pub pairing: Arc<PairingRegistry>,
 }
 
 impl AppState {
@@ -175,6 +177,7 @@ impl AppState {
             recovery: Arc::new(Mutex::new(RecoveryRegistry::new())),
             scenes,
             connection_owners: Arc::new(Mutex::new(HashMap::new())),
+            pairing: Arc::new(PairingRegistry::new()),
         }
     }
     /// Claims current connection ownership for a Musician.

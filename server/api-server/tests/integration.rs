@@ -16,7 +16,7 @@ use api_server::{
             delete_user as admin_delete_user, list_sessions as admin_list_sessions,
             list_users as admin_list_users, revoke_session as admin_revoke_session,
         },
-        audio::{ice_candidate, offer, sessions},
+        audio::{ice_candidate, offer, pair_device, revoke_device, sessions},
         auth::{create_user, login, logout, refresh},
         channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
         health::health,
@@ -138,6 +138,11 @@ fn build_test_app() -> (TestServer, AppState) {
         .route("/api/v1/audio/offer", post(offer))
         .route("/api/v1/audio/ice-candidate", post(ice_candidate))
         .route("/api/v1/audio/sessions", get(sessions))
+        .route("/api/v1/audio/pairing", post(pair_device))
+        .route(
+            "/api/v1/audio/pairing/{device_id}",
+            axum::routing::delete(revoke_device),
+        )
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
         .route("/api/v1/mixes", get(list_mixes))
@@ -1078,6 +1083,11 @@ fn build_ws_app() -> (axum_test::TestServer, AppState) {
         .route("/api/v1/audio/offer", post(offer))
         .route("/api/v1/audio/ice-candidate", post(ice_candidate))
         .route("/api/v1/audio/sessions", get(sessions))
+        .route("/api/v1/audio/pairing", post(pair_device))
+        .route(
+            "/api/v1/audio/pairing/{device_id}",
+            axum::routing::delete(revoke_device),
+        )
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
         .route("/api/v1/mixes", get(list_mixes))
@@ -2317,4 +2327,180 @@ async fn metrics_counters_start_at_zero() {
     assert_eq!(body["receiver"]["packets_received"], 0);
     assert_eq!(body["receiver"]["packets_dropped"], 0);
     assert_eq!(body["network"]["late_packets"], 0);
+}
+
+// ── /api/v1/audio/pairing ─────────────────────────────────────────────────
+
+/// Build a valid base64-encoded credential (at least 16 bytes).
+fn make_credential(raw: &str) -> String {
+    use base64::{engine::general_purpose, Engine as _};
+    general_purpose::STANDARD.encode(raw.as_bytes())
+}
+
+#[tokio::test]
+async fn pair_device_requires_engineer_role() {
+    let (server, state) = build_test_app();
+    let musician_token = seed_user_and_login(&state, "mus_pair_role", "pw", Role::Musician);
+    let resp = server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician_token)
+        .json(&json!({
+            "device_id": "rx-pair-role",
+            "musician_id": "musician-1",
+            "mix_index": 0,
+            "credential": make_credential("pairing-secret-1234")
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::FORBIDDEN);
+}
+
+#[tokio::test]
+async fn pair_device_engineer_succeeds() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_pair_ok", "pw", Role::Engineer);
+    let resp = server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-eng-ok",
+            "musician_id": "musician-1",
+            "mix_index": 0,
+            "credential": make_credential("pairing-secret-1234")
+        }))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert_eq!(body["device_id"], "rx-eng-ok");
+    assert_eq!(body["mix_index"], 0);
+}
+
+#[tokio::test]
+async fn revoke_device_succeeds() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_revoke_ok", "pw", Role::Engineer);
+    // First pair the device.
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-revoke-ok",
+            "musician_id": "musician-1",
+            "mix_index": 0,
+            "credential": make_credential("pairing-secret-1234")
+        }))
+        .await
+        .assert_status_ok();
+    // Now revoke it.
+    let resp = server
+        .delete("/api/v1/audio/pairing/rx-revoke-ok")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert_eq!(body["revoked"], true);
+}
+
+#[tokio::test]
+async fn revoke_nonexistent_device_returns_404() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_revoke_404", "pw", Role::Engineer);
+    let resp = server
+        .delete("/api/v1/audio/pairing/no-such-device")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::NOT_FOUND);
+}
+
+#[tokio::test]
+async fn offer_without_pairing_fields_is_backward_compatible() {
+    let (server, state) = build_test_app();
+    let musician_token = seed_user_and_login(&state, "mus_compat", "pw", Role::Musician);
+    let resp = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician_token)
+        .json(&json!({"sdp": VALID_AUDIO_OFFER, "mix_id": null}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert!(!body["sdp"].as_str().unwrap_or_default().is_empty());
+}
+
+#[tokio::test]
+async fn offer_with_invalid_credential_returns_401() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_cred_401", "pw", Role::Engineer);
+    let musician_token = seed_user_and_login(&state, "mus_cred_401", "pw", Role::Musician);
+    // Pair the device with a known credential.
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-cred-401",
+            "musician_id": "musician-1",
+            "mix_index": 0,
+            "credential": make_credential("correct-secret-1234")
+        }))
+        .await
+        .assert_status_ok();
+    // Try offer with wrong credential.
+    let resp = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician_token)
+        .json(&json!({
+            "sdp": VALID_AUDIO_OFFER,
+            "mix_id": null,
+            "device_id": "rx-cred-401",
+            "credential": make_credential("wrong-secret-1234567")
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn offer_with_revoked_device_returns_403() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_revoke_403", "pw", Role::Engineer);
+    let musician_token = seed_user_and_login(&state, "mus_revoke_403", "pw", Role::Musician);
+    let cred = make_credential("pairing-secret-1234");
+    // Pair device.
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-revoke-403",
+            "musician_id": "musician-1",
+            "mix_index": 0,
+            "credential": &cred
+        }))
+        .await
+        .assert_status_ok();
+    // Revoke it.
+    server
+        .delete("/api/v1/audio/pairing/rx-revoke-403")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .await
+        .assert_status_ok();
+    // Offer with revoked device must be 403.
+    let resp = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician_token)
+        .json(&json!({
+            "sdp": VALID_AUDIO_OFFER,
+            "mix_id": null,
+            "device_id": "rx-revoke-403",
+            "credential": &cred
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::FORBIDDEN);
 }

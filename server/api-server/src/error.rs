@@ -34,6 +34,10 @@ pub enum ApiError {
     /// Too many failed authentication attempts.
     #[error("too many requests")]
     TooManyRequests,
+
+    /// Resource conflict (e.g. duplicate).
+    #[error("conflict: {0}")]
+    Conflict(String),
 }
 
 #[derive(Serialize)]
@@ -51,6 +55,7 @@ impl IntoResponse for ApiError {
             ApiError::Internal(_) => (StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_ERROR"),
             ApiError::Forbidden(_) => (StatusCode::FORBIDDEN, "FORBIDDEN"),
             ApiError::TooManyRequests => (StatusCode::TOO_MANY_REQUESTS, "TOO_MANY_REQUESTS"),
+            ApiError::Conflict(_) => (StatusCode::CONFLICT, "CONFLICT"),
         };
         let message = match &self {
             ApiError::Internal(_) => "internal server error".to_owned(),

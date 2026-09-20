@@ -1,11 +1,16 @@
 //! WebRTC audio transport signaling routes.
 
 use crate::{auth::JwtClaims, error::ApiError, middleware::require_min_role, state::AppState};
-use axum::{extract::State, response::IntoResponse, Json};
+use axum::{
+    extract::{Path, State},
+    response::IntoResponse,
+    Json,
+};
+use base64::{engine::general_purpose, Engine as _};
 use control_protocol::Role;
 use mix_engine::MAX_MIXES;
 use serde::{Deserialize, Serialize};
-use streaming::SessionInfo;
+use streaming::{PairingError, SessionInfo};
 
 const MAX_MIX_ID_BYTES: usize = 128;
 
@@ -40,6 +45,39 @@ pub struct OfferRequest {
     pub sdp: String,
     /// Optional server-side mix assignment.
     pub mix_id: Option<String>,
+    /// Optional device ID for pairing-based authentication.
+    pub device_id: Option<String>,
+    /// Optional base64-encoded device credential.
+    pub credential: Option<String>,
+}
+
+/// Pair device request body.
+#[derive(Debug, Deserialize)]
+pub struct PairDeviceRequest {
+    /// Unique device identifier.
+    pub device_id: String,
+    /// Musician user identifier to bind this device to.
+    pub musician_id: String,
+    /// Mix slot index this device is authorized for.
+    pub mix_index: usize,
+    /// Base64-encoded device credential.
+    pub credential: String,
+}
+
+/// Pair device response.
+#[derive(Debug, Serialize)]
+pub struct PairDeviceResponse {
+    /// Paired device identifier.
+    pub device_id: String,
+    /// Mix slot index the device was paired to.
+    pub mix_index: usize,
+}
+
+/// Revoke device response.
+#[derive(Debug, Serialize)]
+pub struct RevokeDeviceResponse {
+    /// Whether the device was successfully revoked.
+    pub revoked: bool,
 }
 
 /// SDP answer response.
@@ -74,6 +112,28 @@ pub async fn offer(
     Json(body): Json<OfferRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Musician)?;
+    // Device pairing authentication (optional, backward-compatible).
+    if let (Some(ref device_id), Some(ref cred_str)) = (&body.device_id, &body.credential) {
+        let cred_bytes = general_purpose::STANDARD
+            .decode(cred_str)
+            .map_err(|_| ApiError::BadRequest("credential is not valid base64".to_owned()))?;
+        let identity = state
+            .pairing
+            .authenticate(device_id, &cred_bytes)
+            .await
+            .map_err(|e| match e {
+                PairingError::Revoked => ApiError::Forbidden("device has been revoked"),
+                _ => ApiError::Unauthorized("device authentication failed"),
+            })?;
+        if let Some(ref mix_id_str) = body.mix_id {
+            let requested_mix: usize = mix_id_str.parse().map_err(|_| {
+                ApiError::BadRequest("mix_id must be a numeric mix index".to_owned())
+            })?;
+            if identity.mix_index != requested_mix {
+                return Err(ApiError::Forbidden("device is not authorized for this mix"));
+            }
+        }
+    }
     let _assignment_guard = state.mix_assignment_lock.lock().await;
     validate_mix_id(body.mix_id.as_deref(), &claims, &state)?;
     let answer = state
@@ -115,4 +175,69 @@ pub async fn sessions(
     Ok(Json(SessionsResponse {
         sessions: state.streaming.list().await,
     }))
+}
+
+/// `POST /api/v1/audio/pairing` — pair a device to a musician/mix. Engineer/Admin only.
+///
+/// # Errors
+/// Returns appropriate `ApiError` variants for invalid identity, duplicate devices, etc.
+pub async fn pair_device(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<JwtClaims>,
+    Json(body): Json<PairDeviceRequest>,
+) -> Result<impl IntoResponse, ApiError> {
+    require_min_role(&claims, Role::Engineer)?;
+    let cred_bytes = general_purpose::STANDARD
+        .decode(&body.credential)
+        .map_err(|_| ApiError::BadRequest("credential is not valid base64".to_owned()))?;
+    let identity = state
+        .pairing
+        .pair(
+            &body.device_id,
+            &body.musician_id,
+            body.mix_index,
+            &cred_bytes,
+        )
+        .await
+        .map_err(|e| match e {
+            PairingError::InvalidIdentity => {
+                ApiError::BadRequest("invalid device identity".to_owned())
+            }
+            PairingError::AlreadyPaired => {
+                ApiError::Conflict("device is already paired".to_owned())
+            }
+            PairingError::InvalidCredential => {
+                ApiError::BadRequest("invalid credential".to_owned())
+            }
+            PairingError::CapacityReached => {
+                ApiError::Internal("pairing capacity reached".to_owned())
+            }
+            PairingError::NotFound => ApiError::NotFound("device not found".to_owned()),
+            PairingError::Revoked => ApiError::BadRequest("device is revoked".to_owned()),
+        })?;
+    Ok(Json(PairDeviceResponse {
+        device_id: identity.device_id,
+        mix_index: identity.mix_index,
+    }))
+}
+
+/// `DELETE /api/v1/audio/pairing/:device_id` — revoke device pairing. Engineer/Admin only.
+///
+/// # Errors
+/// Returns `ApiError::NotFound` when the device is not registered.
+pub async fn revoke_device(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<JwtClaims>,
+    Path(device_id): Path<String>,
+) -> Result<impl IntoResponse, ApiError> {
+    require_min_role(&claims, Role::Engineer)?;
+    state
+        .pairing
+        .revoke(&device_id)
+        .await
+        .map_err(|e| match e {
+            PairingError::NotFound => ApiError::NotFound(format!("device {device_id} not found")),
+            _ => ApiError::Internal("revoke failed".to_owned()),
+        })?;
+    Ok(Json(RevokeDeviceResponse { revoked: true }))
 }
