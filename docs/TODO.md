@@ -5,7 +5,7 @@
 - [x] Separate `SOFTWARE_RELEASE_GATE`, `PACKAGE_RELEASE_GATE`, `HARDWARE_CERTIFICATION`, `OPTIONAL`, `OBSOLETE`.
 - [x] Add initial `.deb` builder, systemd unit, lifecycle scripts, validator and Make targets.
 - [ ] Complete real amd64/arm64 `.deb` artifact matrix and package install/upgrade/uninstall/purge in clean containers. amd64 lifecycle evidence: PASS on 2026-09-19 (CODE + PACKAGE_RELEASE_GATE); arm64 artifact remains blocked by missing `aarch64-linux-gnu-gcc` and is not claimed.
-- [ ] Complete software PipeWire/WirePlumber virtual sink/source and WebRTC/Opus E2E evidence.
+- [ ] Complete software PipeWire/WirePlumber virtual sink/source and WebRTC/Opus E2E evidence. PipeWire userspace smoke and deterministic Opus writer/receiver round-trip are now covered in CODE; CI wiring and virtual sink/source remain pending.
 - [x] Run configurable software stability profile with bounded test commands over deterministic CODE/SIMULATED audio and media paths; `run-software-release-gates.sh` now repeats headless audio plus streaming tests for `OPENIEM_SOAK_SECONDS`. This does not validate realtime, PipeWire, WebRTC runtime or hardware.
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
 

@@ -1,3 +1,9 @@
+## 2026-09-19 — deterministic PipeWire/Opus software evidence
+
+- Adicionado teste de integração `streaming/tests/opus_roundtrip.rs`: frame 48 kHz estéreo determinístico passa por `MediaWriter` e `OpusReceiver` até sink de teste.
+- Adicionado smoke `scripts/ci/run-pipewire-software-e2e.sh` para daemons PipeWire/WirePlumber em runtime temporário.
+- Evidência permanece `SOFTWARE/SIMULATED`; não cobre sink/source virtual específico, backend nativo, WebRTC em rede, latência, hardware ou Raspberry Pi.
+
 ## 2026-09-19 — config snapshot fresh-state round trip
 
 - Adicionado teste `config-backup` que serializa um snapshot não trivial, desserializa e restaura canais, mix e send em `ControlState` novo.

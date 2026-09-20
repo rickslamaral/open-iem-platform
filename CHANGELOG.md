@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Deterministic Opus writer/receiver round-trip test and PipeWire/WirePlumber userspace smoke script, both explicitly classified SOFTWARE/SIMULATED.
+
 ### Tests
 - Adicionado round-trip de snapshot de configuração em estado novo, cobrindo serialização, desserialização e restauração de canal, mix e send.
 

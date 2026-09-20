@@ -137,3 +137,9 @@ arecord -l
 ```
 
 Use nome/dispositivo descoberto no host. Validação USB, PipeWire, WebRTC/Opus, XRUN, latência e Raspberry Pi continuam gates de runtime/hardware. Backend determinístico e ALSA Loopback não autorizam claim de hardware real.
+
+## PipeWire/WirePlumber userspace smoke
+
+CI pode executar `scripts/ci/run-pipewire-software-e2e.sh` após instalar `pipewire`, `pipewire-bin` e `wireplumber`. O script inicia daemons em `XDG_RUNTIME_DIR` temporário, verifica o grafo userspace com `pw-cli` e limpa processos/arquivos ao sair.
+
+Resultado `PIPEWIRE_SOFTWARE_E2E: PASS` significa somente `SOFTWARE/SIMULATED`: não valida dispositivo físico, backend nativo Open IEM, WebRTC sobre rede, latência, Opus em runtime ou Raspberry Pi.
