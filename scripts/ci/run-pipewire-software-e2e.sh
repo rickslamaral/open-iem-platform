@@ -48,7 +48,7 @@ stop_daemon() {
     daemon_alive "$pid" "$expected_start" || { wait "$pid" 2>/dev/null || true; return; }
     sleep 0.1
   done
-  wait "$pid" 2>/dev/null || true
+  return 1
 }
 cleanup() {
   local status=$?
@@ -73,7 +73,9 @@ dbus-daemon --session --nofork --print-address=1 --print-pid=1 >"$DBUS_INFO_FILE
 DBUS_PID=$!
 DBUS_INFO=''
 for _ in $(seq 1 20); do
-  DBUS_INFO=$(python3 -c 'import pathlib,sys; t=pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"); print(t,end="") if t.count("\n") >= 2 else None' "$DBUS_INFO_FILE")
+  if [[ -r "$DBUS_INFO_FILE" ]]; then
+    DBUS_INFO=$(python3 -c 'import pathlib,sys; t=pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"); print(t,end="") if t.count("\n") >= 2 else None' "$DBUS_INFO_FILE" 2>/dev/null || true)
+  fi
   [[ -n "$DBUS_INFO" ]] && break
   sleep 0.05
 done
