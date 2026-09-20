@@ -186,7 +186,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 3. P0-003 media plane.
 4. P0-004 native receiver.
 5. P0-005 clock/drift.
-6. P0-006 pairing/security.
+6. P0-006 pairing/security; CODE binding now includes canonical DTLS-SRTP fingerprint matching, while runtime remains pending.
 7. P0-007 auth/migrations.
 8. P0-008 PipeWire backend.
 9. P1 topology/device/recovery/observability.
