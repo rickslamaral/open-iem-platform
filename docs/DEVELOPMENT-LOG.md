@@ -4585,3 +4585,7 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - TODO reconciliado: integração API, autenticação de ofertas e binding de fingerprint DTLS-SRTP já estão implementados em CODE+CI.
 - Runtime WebRTC/DTLS-SRTP e hardware continuam pendentes; nenhum claim de validação física foi alterado.
+## 2026-09-20 — `.deb` amd64/arm64 package matrix status reconciliation
+
+- TODO atualizado: matriz de artefatos `.deb` amd64/arm64 e ciclo install/upgrade/uninstall/purge já possui evidência de CI no run `35533396414`.
+- O item permanece CODE + PACKAGE_RELEASE_GATE; instalação em host físico e validação Raspberry Pi 5 continuam pendentes.
