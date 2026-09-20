@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Phase reviews added: PHASE-97, PHASE-98, PHASE-99 and PHASE-100 documenting PipeWire smoke CI, CI reconciliation, virtual graph integration and multi-packet Opus reorder coverage; evidence levels remain CODE/CI or SOFTWARE/SIMULATED as documented per phase.
+- Pair and revoke device pairing routes (`POST /api/v1/audio/pairing`, `DELETE /api/v1/audio/pairing/:device_id`) integrated into api-server. CODE+CI evidence (PR #189, CI 16/16 SUCCESS); DTLS-SRTP session binding and runtime remain pending.
 - CI audio-lab now runs the PipeWire/WirePlumber userspace smoke gate; evidence remains SOFTWARE/SIMULATED.
 - Added multi-packet Opus round-trip coverage with out-of-order arrival, jitter-buffer ordering and per-frame content assertions.
 - Deterministic Opus writer/receiver round-trip test and PipeWire/WirePlumber userspace smoke script, both explicitly classified SOFTWARE/SIMULATED.

@@ -46,7 +46,7 @@
 | GAP-028 | P2 | UI | EQ/full matrix/device/audio status incomplete | Current UI subset | DEFERRED | Future ADR | 001,003,016 | Phase 93 UI after contracts | Browser integration | No |
 | GAP-029 | P2 | Platform | Windows/native support unvalidated | WASAPI/ASIO absent | VALIDATION REQUIRED | ADR-008 | backend | Validate each claim separately | Target runtime | No MVP |
 | GAP-030 | P2 | Network testing | Fault injection suite implemented; physical network validation absent | `network-fault` crate integrated with recovery/observability; [PR #72](https://github.com/rickslamaral/open-iem-platform/pull/72); CODE+CI/SIMULATED | VALIDATION REQUIRED | ADR-010 | 001,005,017 | Validate profiles against real LAN and receiver runtime | Automated profiles plus physical loss/jitter/reconnect evidence | Yes for release |
-| GAP-031 | P2 | Docs | Phase reviews/guides incomplete | Canonical reviews now cover Phases 92–95; remaining historical review/guides still require reconciliation | IMPLEMENTATION GAP | Future docs task | registry | Reconcile remaining claims | Docs validator | No |
+| GAP-031 | P2 | Docs | Phase reviews/guides incomplete | Canonical reviews now cover Phases 92–100; historical reviews Phase 16 and earlier remain partial; guides pending runtime validation | PARTIAL (CODE) | Future docs task | registry | Reconcile remaining claims | Docs validator | No |
 | GAP-032 | P2 | Scale | 8 channels/2 mixes hardcoded | MVP constants | ACCEPTED RISK | Future ADR | topology | Keep explicit MVP boundary | MVP tests | No |
 | GAP-033 | P3 | Privacy | Telemetry policy absent | Local-first/no remote telemetry contract | DEFERRED | Future ADR | security | Decide before remote telemetry | Privacy review | No |
 
