@@ -39,6 +39,7 @@ stop_daemon() {
     daemon_alive "$pid" "$expected_start" || { wait "$pid" 2>/dev/null || true; return; }
     sleep 0.1
   done
+  wait "$pid" 2>/dev/null || true
 }
 cleanup() {
   local status=$?
