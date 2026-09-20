@@ -112,6 +112,16 @@ pub async fn offer(
     Json(body): Json<OfferRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Musician)?;
+    // Pairing fields are an inseparable credential boundary. Do not silently
+    // downgrade a partially supplied pairing attempt to legacy auth.
+    match (&body.device_id, &body.credential) {
+        (Some(_), None) | (None, Some(_)) => {
+            return Err(ApiError::BadRequest(
+                "device_id and credential must be provided together".to_owned(),
+            ));
+        }
+        _ => {}
+    }
     // Device pairing authentication (optional, backward-compatible).
     if let (Some(ref device_id), Some(ref cred_str)) = (&body.device_id, &body.credential) {
         let cred_bytes = general_purpose::STANDARD

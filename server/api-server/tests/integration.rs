@@ -2432,6 +2432,25 @@ async fn offer_without_pairing_fields_is_backward_compatible() {
 }
 
 #[tokio::test]
+async fn offer_rejects_partial_pairing_fields() {
+    let (server, state) = build_test_app();
+    let musician_token = seed_user_and_login(&state, "mus_partial_pairing", "pw", Role::Musician);
+
+    for payload in [
+        json!({"sdp": VALID_AUDIO_OFFER, "mix_id": null, "device_id": "rx-partial"}),
+        json!({"sdp": VALID_AUDIO_OFFER, "mix_id": null, "credential": make_credential("partial-secret-1234")}),
+    ] {
+        let resp = server
+            .post("/api/v1/audio/offer")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(&musician_token)
+            .json(&payload)
+            .await;
+        resp.assert_status(axum::http::StatusCode::BAD_REQUEST);
+    }
+}
+
+#[tokio::test]
 async fn offer_with_invalid_credential_returns_401() {
     let (server, state) = build_test_app();
     let engineer_token = seed_user_and_login(&state, "eng_cred_401", "pw", Role::Engineer);
