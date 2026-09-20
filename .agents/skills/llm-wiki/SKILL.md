@@ -4,7 +4,7 @@ description: Use when a project needs persistent research memory, source ingesti
 version: 1.0.0
 author: Open IEM Platform
 license: MIT
-platforms: [linux, macos, windows]
+platforms: [linux, macos]
 metadata:
   hermes:
     tags: [wiki, knowledge-base, research, markdown, provenance, obsidian]

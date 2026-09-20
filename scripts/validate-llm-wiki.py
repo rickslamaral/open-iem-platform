@@ -110,22 +110,34 @@ def main() -> int:
     entry_count = 0
     markdown_files: list[Path] = []
     raw_files: list[Path] = []
-    def walk_error(exc: OSError) -> None:
-        errors.append(f"unable to traverse {exc.filename or wiki}: {exc.strerror or exc}")
 
-    for root, dirs, files in os.walk(wiki, followlinks=False, onerror=walk_error):
-        entry_count += len(dirs) + len(files)
-        if entry_count > MAX_FILES:
-            errors.append("wiki exceeds file-count limit")
-            dirs[:] = []
-            break
-        for name in [*dirs, *files]:
-            entry = Path(root) / name
-            if entry.is_symlink() or not entry.resolve().is_relative_to(wiki):
-                errors.append(f"unsafe path: {entry.relative_to(wiki)}")
-        dirs[:] = [name for name in dirs if not (Path(root) / name).is_symlink()]
-        markdown_files.extend(Path(root) / name for name in files if name.endswith(".md"))
-        raw_files.extend(Path(root) / name for name in files if (Path(root) / name).relative_to(wiki).parts[:1] == ("raw",))
+    def inspect_tree(directory: Path, depth: int = 0) -> None:
+        nonlocal entry_count
+        if depth > 64:
+            errors.append(f"path depth exceeds validator limit: {directory.relative_to(wiki)}")
+            return
+        try:
+            with os.scandir(directory) as entries:
+                for entry in entries:
+                    entry_count += 1
+                    if entry_count > MAX_FILES:
+                        raise OSError("wiki exceeds file-count limit")
+                    path = Path(entry.path)
+                    if entry.is_symlink():
+                        errors.append(f"unsafe path: {path.relative_to(wiki)}")
+                        continue
+                    if entry.is_dir(follow_symlinks=False):
+                        inspect_tree(path, depth + 1)
+                    elif entry.is_file(follow_symlinks=False):
+                        relative = path.relative_to(wiki)
+                        if path.suffix == ".md":
+                            markdown_files.append(path)
+                        if relative.parts[:1] == ("raw",):
+                            raw_files.append(path)
+        except OSError as exc:
+            errors.append(f"unable to traverse {directory.relative_to(wiki)}: {exc}")
+
+    inspect_tree(wiki)
 
     taxonomy: set[str] = set()
     taxonomy_found = False
