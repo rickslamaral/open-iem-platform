@@ -774,6 +774,7 @@ mod tests {
             .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
             .await
             .is_err());
+        assert!(registry.is_empty().await);
     }
 
     #[tokio::test]
