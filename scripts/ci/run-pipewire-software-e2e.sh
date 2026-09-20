@@ -8,30 +8,42 @@ cd "$ROOT"
 unset PIPEWIRE_REMOTE PIPEWIRE_RUNTIME_DIR PIPEWIRE_CONFIG WIREPLUMBER_CONFIG_DIR
 command -v pw-cli >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (pw-cli missing)' >&2; exit 2; }
 command -v timeout >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (timeout missing)' >&2; exit 2; }
+timeout --foreground 1s true >/dev/null 2>&1 || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (timeout lacks --foreground)' >&2; exit 2; }
 command -v pipewire >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (pipewire missing)' >&2; exit 2; }
 command -v wireplumber >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (wireplumber missing)' >&2; exit 2; }
 WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}/openiem-pipewire.XXXXXX")
+process_start_time() {
+  local pid=$1 stat rest
+  stat=$(<"/proc/$pid/stat") || return 0
+  rest=${stat##*) }
+  set -- $rest
+  printf '%s\n' "${20:-}"
+}
 daemon_alive() {
-  local pid=$1 state
+  local pid=$1 expected_start=$2 state actual_start
   kill -0 "$pid" 2>/dev/null || return 1
+  actual_start=$(process_start_time "$pid")
+  [[ -n "$actual_start" && "$actual_start" == "$expected_start" ]] || return 1
   state=$(ps -o stat= -p "$pid" 2>/dev/null || true)
   [[ -n "$state" && "$state" != Z* && "$state" != T* && "$state" != t* ]]
 }
 stop_daemon() {
-  local pid=$1
-  kill "$pid" 2>/dev/null || true
+  local pid=$1 expected_start=$2
+  [[ -n "$pid" && -n "$expected_start" ]] || return 0
+  daemon_alive "$pid" "$expected_start" || return 0
+  python3 "$ROOT/scripts/ci/signal-pid.py" "$pid" "$expected_start" TERM 2>/dev/null || true
   for _ in $(seq 1 20); do
-    daemon_alive "$pid" || { wait "$pid" 2>/dev/null || true; return; }
+    daemon_alive "$pid" "$expected_start" || { wait "$pid" 2>/dev/null || true; return; }
     sleep 0.1
   done
-  kill -KILL "$pid" 2>/dev/null || true
+  python3 "$ROOT/scripts/ci/signal-pid.py" "$pid" "$expected_start" KILL 2>/dev/null || true
   wait "$pid" 2>/dev/null || true
 }
 cleanup() {
   local status=$?
   set +e
-  [[ -n "${WIREPLUMBER_PID:-}" ]] && stop_daemon "$WIREPLUMBER_PID"
-  [[ -n "${PIPEWIRE_PID:-}" ]] && stop_daemon "$PIPEWIRE_PID"
+  [[ -n "${WIREPLUMBER_PID:-}" ]] && stop_daemon "$WIREPLUMBER_PID" "${WIREPLUMBER_START_TIME:-}"
+  [[ -n "${PIPEWIRE_PID:-}" ]] && stop_daemon "$PIPEWIRE_PID" "${PIPEWIRE_START_TIME:-}"
   rm -rf -- "$WORK_DIR"
   exit "$status"
 }
@@ -46,21 +58,23 @@ pw_cli() {
   timeout --foreground 5s pw-cli "$@"
 }
 pipewire >"$PIPEWIRE_LOG" 2>&1 & PIPEWIRE_PID=$!
+PIPEWIRE_START_TIME=$(process_start_time "$PIPEWIRE_PID")
 for _ in $(seq 1 50); do
   pw_cli info 0 >/dev/null 2>&1 && break
-  daemon_alive "$PIPEWIRE_PID" || { cat "$PIPEWIRE_LOG" >&2; exit 1; }
+  daemon_alive "$PIPEWIRE_PID" "$PIPEWIRE_START_TIME" || { cat "$PIPEWIRE_LOG" >&2; exit 1; }
   sleep 0.1
 done
 pw_cli info 0 >/dev/null 2>&1 || { cat "$PIPEWIRE_LOG" >&2; exit 1; }
 wireplumber >"$WIREPLUMBER_LOG" 2>&1 & WIREPLUMBER_PID=$!
+WIREPLUMBER_START_TIME=$(process_start_time "$WIREPLUMBER_PID")
 for _ in $(seq 1 50); do
   nodes=$(pw_cli list-objects Node 2>/dev/null || true)
   grep -q 'node.name' <<<"$nodes" && break
-  daemon_alive "$WIREPLUMBER_PID" || { cat "$WIREPLUMBER_LOG" >&2; exit 1; }
+  daemon_alive "$WIREPLUMBER_PID" "$WIREPLUMBER_START_TIME" || { cat "$WIREPLUMBER_LOG" >&2; exit 1; }
   sleep 0.1
 done
-daemon_alive "$PIPEWIRE_PID" || { cat "$PIPEWIRE_LOG" >&2; exit 1; }
-daemon_alive "$WIREPLUMBER_PID" || { cat "$WIREPLUMBER_LOG" >&2; exit 1; }
+daemon_alive "$PIPEWIRE_PID" "$PIPEWIRE_START_TIME" || { cat "$PIPEWIRE_LOG" >&2; exit 1; }
+daemon_alive "$WIREPLUMBER_PID" "$WIREPLUMBER_START_TIME" || { cat "$WIREPLUMBER_LOG" >&2; exit 1; }
 pw_cli list-objects Node >"$NODE_LIST"
 # Create deterministic null sink/source nodes in private userspace graph. These prove
 # virtual graph plumbing only; they do not prove physical devices or WebRTC media.
@@ -70,10 +84,12 @@ assert_node_properties() {
   local node_name=$1 media_class=$2
   awk -v node_name="$node_name" -v media_class="$media_class" '
     BEGIN { RS = ""; found = 0 }
-    index($0, "node.name = \"" node_name "\"") &&
-    index($0, "media.class = \"" media_class "\"") &&
-    $0 ~ /(^|[[:space:]])audio.rate[[:space:]]*=[[:space:]]*"?48000"?([[:space:]]|$)/ &&
-    $0 ~ /(^|[[:space:]])audio.channels[[:space:]]*=[[:space:]]*"?2"?([[:space:]]|$)/ { found = 1 }
+    index($0, "node.name = \"" node_name "\"") {
+      has_class = index($0, "media.class = \"" media_class "\"")
+      has_rate = ($0 ~ /(^|[[:space:]])audio.rate[[:space:]]*=[[:space:]]*"?48000"?([[:space:]]|$)/)
+      has_channels = ($0 ~ /(^|[[:space:]])audio.channels[[:space:]]*=[[:space:]]*"?2"?([[:space:]]|$)/)
+      if (has_class && has_rate && has_channels) found = 1
+    }
     END { exit(found ? 0 : 1) }
   ' "$NODE_LIST"
 }

@@ -4500,3 +4500,11 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Cada nó é validado no mesmo bloco de propriedades (`node.name`, `media.class`, `audio.rate=48000`, `audio.channels=2`), com espera bounded para criação assíncrona.
 - Evidência permanece SOFTWARE/SIMULATED: enumeração de nós não prova hardware, fluxo de áudio, WebRTC/Opus ou Raspberry Pi 5.
 - Host local não possui `pw-cli`; execução local retornou `PIPEWIRE_SOFTWARE_E2E: BLOCKED (pw-cli missing)`.
+
+
+## 2026-09-20 — Phase 99 PipeWire smoke cleanup hardening
+
+- O smoke agora valida `timeout --foreground` antes de iniciar processos e identifica cada daemon por `starttime` de `/proc/<pid>/stat`.
+- Cleanup usa `pidfd_open`/`pidfd_send_signal` com verificação de identidade, evitando sinalizar PID reciclado.
+- O host local não possui `pw-cli`; execução permanece bloqueada com `PIPEWIRE_SOFTWARE_E2E: BLOCKED (pw-cli missing)`.
+- Evidência de código: revisão independente PASS; Rust e frontends passaram gates locais.
