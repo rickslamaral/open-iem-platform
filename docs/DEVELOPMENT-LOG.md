@@ -1,3 +1,8 @@
+## 2026-09-19 — CI wiring for PipeWire software smoke
+
+- O job `audio-lab` instala `pipewire`, `pipewire-bin` e `wireplumber` e executa `run-pipewire-software-e2e.sh`.
+- Gate continua `SOFTWARE/SIMULATED`; não cobre sink/source virtual específico, WebRTC em rede, latência ou hardware.
+
 ## 2026-09-19 — hardening PipeWire/Opus software smoke
 
 - Cleanup de `run-pipewire-software-e2e.sh` agora limita espera, aplica `SIGKILL` e rejeita processos parados/zumbis.
