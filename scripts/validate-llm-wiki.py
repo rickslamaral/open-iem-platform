@@ -63,7 +63,10 @@ def main() -> int:
     if not index.is_file(): errors.append("missing index.md")
     if not log.is_file(): errors.append("missing log.md")
 
-    for root, dirs, files in os.walk(wiki, followlinks=False):
+    def walk_error(exc: OSError) -> None:
+        errors.append(f"unable to traverse {exc.filename or wiki}: {exc.strerror or exc}")
+
+    for root, dirs, files in os.walk(wiki, followlinks=False, onerror=walk_error):
         for name in [*dirs, *files]:
             entry = Path(root) / name
             if entry.is_symlink() or not entry.resolve().is_relative_to(wiki):
@@ -90,7 +93,11 @@ def main() -> int:
     if not taxonomy_found or not taxonomy:
         errors.append("SCHEMA.md: missing or empty Tag Taxonomy")
 
-    pages = [p for p in wiki.rglob("*.md") if not p.is_symlink() and p.resolve().is_relative_to(wiki) and p.is_file() and "raw" not in p.relative_to(wiki).parts and "_archive" not in p.relative_to(wiki).parts and p.name not in {"SCHEMA.md", "index.md", "log.md"}]
+    markdown_files: list[Path] = []
+    for root, dirs, files in os.walk(wiki, followlinks=False, onerror=walk_error):
+        dirs[:] = [name for name in dirs if not (Path(root) / name).is_symlink()]
+        markdown_files.extend(Path(root) / name for name in files if name.endswith(".md"))
+    pages = [p for p in markdown_files if not p.is_symlink() and p.resolve().is_relative_to(wiki) and p.is_file() and "raw" not in p.relative_to(wiki).parts and "_archive" not in p.relative_to(wiki).parts and p.name not in {"SCHEMA.md", "index.md", "log.md"}]
     known = {str(p.resolve()) for p in pages if p.resolve().is_relative_to(wiki)} | {str((wiki / "index.md").resolve())}
     inbound: dict[str, int] = {str(p.resolve()): 0 for p in pages}
     indexed = ""
@@ -146,7 +153,13 @@ def main() -> int:
         if count == 0:
             warnings.append(f"{Path(path).relative_to(wiki)}: orphan page")
 
-    for raw in (wiki / "raw").rglob("*.md") if (wiki / "raw").is_dir() else []:
+    raw_files: list[Path] = []
+    raw_root = wiki / "raw"
+    if raw_root.is_dir() and not raw_root.is_symlink():
+        for root, dirs, files in os.walk(raw_root, followlinks=False, onerror=walk_error):
+            dirs[:] = [name for name in dirs if not (Path(root) / name).is_symlink()]
+            raw_files.extend(Path(root) / name for name in files if name.endswith(".md"))
+    for raw in raw_files:
         if raw.is_symlink() or not raw.resolve().is_relative_to(wiki):
             errors.append(f"{raw.relative_to(wiki)}: unsafe path")
             continue
