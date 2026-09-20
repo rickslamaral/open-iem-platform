@@ -13,11 +13,15 @@ FRONTMATTER = re.compile(r"\A---\n(.*?)\n---\n", re.S)
 WIKILINK = re.compile(r"\[\[([^]|#]+)(?:[|#][^]]*)?\]\]")
 FIELD = re.compile(r"^([A-Za-z_][\w-]*):\s*(.*)$")
 TAG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+MAX_FILE_BYTES = 2 * 1024 * 1024
+MAX_FILES = 10_000
 TAXONOMY_ITEM = re.compile(r"^\s*-\s*`?([a-z0-9]+(?:-[a-z0-9]+)*)`?\s*(?:#.*)?$")
 
 
 def safe_read_text(path: Path, wiki: Path) -> str:
     parts = path.relative_to(wiki).parts
+    if len(parts) > 64:
+        raise OSError("path depth exceeds validator limit")
     root_fd = os.open(wiki, os.O_RDONLY | os.O_DIRECTORY | getattr(os, "O_NOFOLLOW", 0))
     fd = root_fd
     try:
@@ -28,7 +32,13 @@ def safe_read_text(path: Path, wiki: Path) -> str:
             fd = next_fd
         file_fd = os.open(parts[-1], os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0), dir_fd=fd)
         try:
-            return os.fdopen(file_fd, encoding="utf-8").read()
+            size = os.fstat(file_fd).st_size
+            if size > MAX_FILE_BYTES:
+                raise OSError("file exceeds validator size limit")
+            payload = os.read(file_fd, MAX_FILE_BYTES + 1)
+            if len(payload) > MAX_FILE_BYTES:
+                raise OSError("file exceeds validator size limit")
+            return payload.decode("utf-8")
         except BaseException:
             os.close(file_fd)
             raise
@@ -86,10 +96,16 @@ def main() -> int:
     if not index.is_file(): errors.append("missing index.md")
     if not log.is_file(): errors.append("missing log.md")
 
+    entry_count = 0
     def walk_error(exc: OSError) -> None:
         errors.append(f"unable to traverse {exc.filename or wiki}: {exc.strerror or exc}")
 
     for root, dirs, files in os.walk(wiki, followlinks=False, onerror=walk_error):
+        entry_count += len(dirs) + len(files)
+        if entry_count > MAX_FILES:
+            errors.append("wiki exceeds file-count limit")
+            dirs[:] = []
+            break
         for name in [*dirs, *files]:
             entry = Path(root) / name
             if entry.is_symlink() or not entry.resolve().is_relative_to(wiki):
@@ -119,7 +135,13 @@ def main() -> int:
         errors.append("SCHEMA.md: missing or empty Tag Taxonomy")
 
     markdown_files: list[Path] = []
+    collected_entries = 0
     for root, dirs, files in os.walk(wiki, followlinks=False, onerror=walk_error):
+        collected_entries += len(dirs) + len(files)
+        if collected_entries > MAX_FILES:
+            errors.append("wiki exceeds file-count limit")
+            dirs[:] = []
+            break
         dirs[:] = [name for name in dirs if not (Path(root) / name).is_symlink()]
         markdown_files.extend(Path(root) / name for name in files if name.endswith(".md"))
     pages = [p for p in markdown_files if not p.is_symlink() and p.resolve().is_relative_to(wiki) and p.is_file() and "raw" not in p.relative_to(wiki).parts and "_archive" not in p.relative_to(wiki).parts and p.name not in {"SCHEMA.md", "index.md", "log.md"}]
@@ -181,7 +203,13 @@ def main() -> int:
     raw_files: list[Path] = []
     raw_root = wiki / "raw"
     if raw_root.is_dir() and not raw_root.is_symlink():
+        raw_entries = 0
         for root, dirs, files in os.walk(raw_root, followlinks=False, onerror=walk_error):
+            raw_entries += len(dirs) + len(files)
+            if raw_entries > MAX_FILES:
+                errors.append("raw source tree exceeds file-count limit")
+                dirs[:] = []
+                break
             dirs[:] = [name for name in dirs if not (Path(root) / name).is_symlink()]
             raw_files.extend(Path(root) / name for name in files)
     for raw in raw_files:

@@ -1,3 +1,9 @@
+## 2026-09-20 — revisão final do smoke PipeWire e validador Wiki
+
+- Parsing do startup D-Bus privado exige exatamente endereço, PID reportado e identidade `/proc` correspondentes; cleanup falha fechado se não confirma término dos daemons.
+- `validate-llm-wiki.py` limita profundidade, tamanho de arquivo, crescimento durante leitura e entradas em todas as travessias, incluindo fontes raw.
+- Evidência: revisão independente PASS, Rust fmt/clippy/testes, frontends Musician/Engineer typecheck/test/build, `bash -n`, `py_compile` e `git diff --check` PASS. Host não possui `pw-cli`; smoke PipeWire permanece BLOCKED localmente.
+
 ## 2026-09-20 — correção final de identidade no cleanup D-Bus
 
 - Smoke PipeWire captura `DBUS_START_TIME` antes de qualquer caminho de erro; cleanup agora encerra daemon somente após validar PID e start time, evitando PID reuse sem deixar processo órfão.

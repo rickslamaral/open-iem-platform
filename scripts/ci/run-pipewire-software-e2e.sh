@@ -66,12 +66,16 @@ stop_daemon() {
   return 1
 }
 cleanup() {
-  local status=$?
+  local status=$? cleanup_status=0
   set +e
-  [[ -n "${WIREPLUMBER_PID:-}" ]] && stop_daemon "$WIREPLUMBER_PID" "${WIREPLUMBER_START_TIME:-}"
-  [[ -n "${PIPEWIRE_PID:-}" ]] && stop_daemon "$PIPEWIRE_PID" "${PIPEWIRE_START_TIME:-}"
-  [[ -n "${DBUS_PID:-}" ]] && stop_daemon "$DBUS_PID" "${DBUS_START_TIME:-}"
+  if [[ -n "${WIREPLUMBER_PID:-}" ]] && ! stop_daemon "$WIREPLUMBER_PID" "${WIREPLUMBER_START_TIME:-}"; then cleanup_status=1; fi
+  if [[ -n "${PIPEWIRE_PID:-}" ]] && ! stop_daemon "$PIPEWIRE_PID" "${PIPEWIRE_START_TIME:-}"; then cleanup_status=1; fi
+  if [[ -n "${DBUS_PID:-}" ]] && ! stop_daemon "$DBUS_PID" "${DBUS_START_TIME:-}"; then cleanup_status=1; fi
   rm -rf -- "$WORK_DIR"
+  (( cleanup_status == 0 )) || {
+    printf '%s\n' 'PIPEWIRE_SOFTWARE_E2E: FAIL (daemon cleanup could not verify termination)' >&2
+    status=1
+  }
   exit "$status"
 }
 trap cleanup EXIT INT TERM
@@ -94,10 +98,11 @@ for _ in $(seq 1 20); do
   [[ -n "$DBUS_INFO" ]] && break
   sleep 0.05
 done
-DBUS_ADDRESS=${DBUS_INFO%%$'\n'*}
-DBUS_REPORTED_PID=${DBUS_INFO##*$'\n'}
+mapfile -t DBUS_LINES <"$DBUS_INFO_FILE"
+DBUS_ADDRESS=${DBUS_LINES[0]-}
+DBUS_REPORTED_PID=${DBUS_LINES[1]-}
 DBUS_START_TIME=$(capture_start_time "$DBUS_PID" || true)
-if [[ "$DBUS_INFO" != "$DBUS_ADDRESS"$'\n'"$DBUS_REPORTED_PID" || "$DBUS_ADDRESS" != unix:* ]] ||
+if (( ${#DBUS_LINES[@]} != 2 )) || [[ "$DBUS_ADDRESS" != unix:* ]] ||
    ! [[ "$DBUS_PID" =~ ^[0-9]+$ && "$DBUS_REPORTED_PID" == "$DBUS_PID" ]] ||
    [[ -z "$DBUS_START_TIME" ]]; then
   echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (invalid or unavailable private D-Bus startup identity)' >&2
