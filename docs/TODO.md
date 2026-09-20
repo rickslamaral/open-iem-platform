@@ -12,6 +12,7 @@
 
 ## Estado atual — 2026-09-20 (GAP-018/019 PairingRegistry integration)
 - **GAP-018/019:** `PairingRegistry` integrado ao api-server via PR #189 (CI 16/16 SUCCESS, SHA d80b7ef); rotas `POST /api/v1/audio/pairing`, `DELETE /api/v1/audio/pairing/:device_id` e autenticação de dispositivo no `/api/v1/audio/offer` implementadas com 7 testes de integração. DTLS-SRTP session binding e validação runtime/hardware permanecem pendentes.
+- **GAP-018:** negociação de oferta agora rejeita identidade pareada revogada antes de criar sessão; evidência CODE local, DTLS-SRTP fingerprint binding e runtime permanecem pendentes.
 
 ## Estado atual — 2026-09-20 (Phase 99 — smoke PipeWire virtual no CI)
 - **Phase 99:** o CI executa smoke software de PipeWire/WirePlumber com grafo virtual sink/source e round-trip Opus determinístico. Evidência CODE+CI/SIMULATED; runtime alvo, WebRTC em rede, latência e hardware permanecem pendentes.

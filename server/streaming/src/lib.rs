@@ -147,7 +147,8 @@ impl SessionRegistry {
             return Err(StreamingError::InvalidOffer("invalid input bounds".into()));
         }
         if let Some(identity) = identity {
-            if identity.musician_id != user_id
+            if identity.revoked
+                || identity.musician_id != user_id
                 || mix_id
                     .as_deref()
                     .is_some_and(|mix| mix.parse::<usize>().ok() != Some(identity.mix_index))
@@ -758,6 +759,21 @@ mod tests {
         assert_eq!(sessions[0].device_id.as_deref(), Some("rx-1"));
         assert_eq!(registry.remove_by_device_id("rx-1").await, 1);
         assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn bound_session_rejects_revoked_identity() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "rx-1".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: true,
+        };
+        assert!(registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .is_err());
     }
 
     #[tokio::test]
