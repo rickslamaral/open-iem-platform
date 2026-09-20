@@ -4528,3 +4528,11 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Cleanup usa `pidfd_open`/`pidfd_send_signal` com verificação de identidade, evitando sinalizar PID reciclado.
 - O host local não possui `pw-cli`; execução permanece bloqueada com `PIPEWIRE_SOFTWARE_E2E: BLOCKED (pw-cli missing)`.
 - Evidência de código: revisão independente PASS; Rust e frontends passaram gates locais.
+
+## 2026-09-20 — Phase 99 CI smoke timeout boundary
+
+- O job `Audio Lab L1/L2 (SIMULATED)` agora envolve o smoke PipeWire em `timeout --foreground 120s`.
+- O smoke já possui deadline interno de 30 segundos; o limite externo impede cancelamento silencioso por travamento do processo e libera diagnóstico determinístico antes do timeout de 15 minutos do job.
+- Evidência local: `bash -n` e helpers Python passam; host sem `pw-cli` retorna `PIPEWIRE_SOFTWARE_E2E: BLOCKED (pw-cli missing)`.
+- O run remoto `35490711066` no SHA anterior foi cancelado no smoke após 15 minutos; novo commit ainda requer CI exato.
+- Nível: CODE local; PipeWire virtual, WebRTC/Opus, runtime e hardware continuam não validados.
