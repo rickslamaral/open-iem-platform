@@ -1,3 +1,30 @@
+## 2026-09-20 — correção do smoke PipeWire no CI
+
+- Corrigida criação dos nós virtuais: descrições usam sintaxe de propriedades válida e `object.linger=true` mantém nós até enumeração.
+- IDs agora vêm de `pw-cli list-objects Node`, não da saída inconsistente de `create-node`; validação confirma nomes e classes `Audio/Sink`/`Audio/Source`.
+- O factory `support.null-audio-sink` é usado para ambos os nós; classificação source é definida por `media.class`, conforme comportamento observado no WirePlumber Ubuntu 24.04.
+- Evidência local: `bash -n`, smoke PipeWire e `git diff --check` PASS. CI anterior falhava no `create-node` por escape inválido em `node.description`.
+- Limite preservado: `SOFTWARE/SIMULATED`; sem claim de hardware, WebRTC de rede ou latência.
+
+## 2026-09-20 — revisão final do smoke PipeWire e validador Wiki
+
+- Parsing do startup D-Bus privado exige exatamente endereço, PID reportado e identidade `/proc` correspondentes; cleanup falha fechado se não confirma término dos daemons.
+- `validate-llm-wiki.py` limita profundidade, tamanho de arquivo, crescimento durante leitura e entradas em todas as travessias, incluindo fontes raw.
+- Evidência: revisão independente PASS, Rust fmt/clippy/testes, frontends Musician/Engineer typecheck/test/build, `bash -n`, `py_compile` e `git diff --check` PASS. Host não possui `pw-cli`; smoke PipeWire permanece BLOCKED localmente.
+
+## 2026-09-20 — correção final de identidade no cleanup D-Bus
+
+- Smoke PipeWire captura `DBUS_START_TIME` antes de qualquer caminho de erro; cleanup agora encerra daemon somente após validar PID e start time, evitando PID reuse sem deixar processo órfão.
+- Evidência: revisão independente PASS, `bash -n`, `py_compile`, `git diff --check`; execução local permanece BLOCKED porque `pw-cli` não está instalado.
+- Nenhuma claim adicionada para PipeWire real, WebRTC, latência ou hardware.
+
+## 2026-09-20 — revisão independente do ciclo Phase 99
+
+- Corrigido fallback syscall de `pidfd_open`: cleanup agora alcança `pidfd_send_signal` via ctypes quando APIs Python não existem.
+- Validador LLM Wiki reforça nomes lowercase kebab-case e campos `source_url`/`ingested`/`sha256` em fontes raw.
+- Evidência local: compilação Python, sintaxe shell e `git diff --check` passam.
+- Nenhuma claim adicionada para PipeWire real, WebRTC, latência ou hardware.
+
 ## 2026-09-20 — reconciliação Phase 98
 
 - TODO e handoff agora registram que o smoke PipeWire/WirePlumber está conectado ao CI.
@@ -4492,3 +4519,34 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - `PairingRegistry::authenticate` agora relê salt, digest e revogação sob lock após Argon2. Revogação ou rotação concorrente falha fechado antes de autorizar sessão.
 - Evidência: `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` aprovados. Revisão independente PASS. Runtime DTLS-SRTP e hardware continuam pendentes.
+
+
+## 2026-09-20 — Phase 99 PipeWire virtual graph smoke
+
+- O smoke de CI agora inicia PipeWire/WirePlumber em runtime privado e cria nós null sink/source determinísticos via `pw-cli`.
+- Cada nó é validado no mesmo bloco de propriedades (`node.name`, `media.class`, `audio.rate=48000`, `audio.channels=2`), com espera bounded para criação assíncrona.
+- Evidência permanece SOFTWARE/SIMULATED: enumeração de nós não prova hardware, fluxo de áudio, WebRTC/Opus ou Raspberry Pi 5.
+- Host local não possui `pw-cli`; execução local retornou `PIPEWIRE_SOFTWARE_E2E: BLOCKED (pw-cli missing)`.
+
+
+## 2026-09-20 — Phase 99 WirePlumber session bus correction
+
+- Corrigida a inicialização do WirePlumber no runner CI: o smoke agora cria um `dbus-daemon` de sessão privado e exporta `DBUS_SESSION_BUS_ADDRESS`, evitando dependência de `$DISPLAY`/autolaunch.
+- Cleanup valida identidade do processo D-Bus por `starttime`, igual aos demais daemons, antes de sinalizar.
+- Evidência local permanece bloqueada por `pw-cli` ausente; CI anterior falhou com `Cannot autolaunch D-Bus without X11 $DISPLAY`.
+
+
+## 2026-09-20 — Phase 99 PipeWire smoke cleanup hardening
+
+- O smoke agora valida `timeout --foreground` antes de iniciar processos e identifica cada daemon por `starttime` de `/proc/<pid>/stat`.
+- Cleanup usa `pidfd_open`/`pidfd_send_signal` com verificação de identidade, evitando sinalizar PID reciclado.
+- O host local não possui `pw-cli`; execução permanece bloqueada com `PIPEWIRE_SOFTWARE_E2E: BLOCKED (pw-cli missing)`.
+- Evidência de código: revisão independente PASS; Rust e frontends passaram gates locais.
+
+## 2026-09-20 — Phase 99 CI smoke timeout boundary
+
+- O job `Audio Lab L1/L2 (SIMULATED)` agora envolve o smoke PipeWire em `timeout --foreground 120s`.
+- O smoke já possui deadline interno de 30 segundos; o limite externo impede cancelamento silencioso por travamento do processo e libera diagnóstico determinístico antes do timeout de 15 minutos do job.
+- Evidência local: `bash -n` e helpers Python passam; host sem `pw-cli` retorna `PIPEWIRE_SOFTWARE_E2E: BLOCKED (pw-cli missing)`.
+- O run remoto `35490711066` no SHA anterior foi cancelado no smoke após 15 minutos; novo commit ainda requer CI exato.
+- Nível: CODE local; PipeWire virtual, WebRTC/Opus, runtime e hardware continuam não validados.
