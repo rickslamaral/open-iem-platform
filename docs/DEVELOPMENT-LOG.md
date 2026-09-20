@@ -4555,3 +4555,9 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Evidência local: `bash -n` e helpers Python passam; host sem `pw-cli` retorna `PIPEWIRE_SOFTWARE_E2E: BLOCKED (pw-cli missing)`.
 - O run remoto `35490711066` no SHA anterior foi cancelado no smoke após 15 minutos; novo commit ainda requer CI exato.
 - Nível: CODE local; PipeWire virtual, WebRTC/Opus, runtime e hardware continuam não validados.
+## 2026-09-20 — GAP-018/019 PairingRegistry integration into api-server
+
+- `PairingRegistry` integrado ao `AppState` do api-server; rotas `POST /api/v1/audio/pairing` e `DELETE /api/v1/audio/pairing/:device_id` adicionadas com RBAC Engineer/Admin.
+- `/api/v1/audio/offer` aceita campos opcionais `device_id` e `credential` para autenticação retrocompatível; revogação retorna 403 antes de negociação SDP.
+- 7 novos testes de integração cobrem: RBAC para pair/revoke, par bem-sucedido, revogação bem-sucedida, 404 para dispositivo inexistente, retrocompatibilidade sem pairing e 403 para dispositivo revogado.
+- Evidência: CI 16/16 SUCCESS no SHA d80b7ef (PR #189). DTLS-SRTP session binding, runtime e hardware continuam pendentes.
