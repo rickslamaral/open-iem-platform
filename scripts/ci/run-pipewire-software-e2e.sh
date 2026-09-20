@@ -108,14 +108,21 @@ DBUS_START_TIME=$(capture_start_time "$DBUS_PID" 2>/dev/null || true)
 DBUS_INFO=''
 for _ in $(seq 1 40); do
   if [[ -r "$DBUS_INFO_FILE" ]]; then
-    DBUS_INFO=$(python3 -c 'import pathlib,sys; t=pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"); print(t,end="") if t.count("\n") >= 2 else None' "$DBUS_INFO_FILE" 2>/dev/null || true)
+    DBUS_INFO=$(python3 -c "import pathlib,sys; print(pathlib.Path(sys.argv[1]).read_bytes()[:65537].decode('utf-8'),end='')" "$DBUS_INFO_FILE" 2>/dev/null || true)
+    if (( ${#DBUS_INFO} > 65536 )); then
+      DBUS_INFO=''
+    elif [[ $(printf '%s' "$DBUS_INFO" | awk 'END { print NR }') -ge 2 ]]; then
+      :
+    else
+      DBUS_INFO=''
+    fi
   fi
   [[ -n "$DBUS_INFO" ]] && break
   daemon_alive "$DBUS_PID" "$DBUS_START_TIME" 2>/dev/null || true
   sleep 0.05
 done
 [[ -n "$DBUS_INFO" ]] || { echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (D-Bus startup output timeout)' >&2; exit 1; }
-mapfile -t DBUS_LINES <"$DBUS_INFO_FILE"
+mapfile -t DBUS_LINES < <(printf '%s\n' "$DBUS_INFO" | awk 'NF { print }')
 DBUS_ADDRESS=${DBUS_LINES[0]-}
 DBUS_REPORTED_PID=${DBUS_LINES[1]-}
 if (( ${#DBUS_LINES[@]} != 2 )) || [[ "$DBUS_ADDRESS" != unix:* ]] ||
