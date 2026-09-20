@@ -1,0 +1,152 @@
+#!/usr/bin/env python3
+"""Validate an interlinked Markdown LLM wiki without third-party dependencies."""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import os
+import re
+import sys
+from pathlib import Path
+
+FRONTMATTER = re.compile(r"\A---\n(.*?)\n---\n", re.S)
+WIKILINK = re.compile(r"\[\[([^]|#]+)(?:[|#][^]]*)?\]\]")
+FIELD = re.compile(r"^([A-Za-z_][\w-]*):\s*(.*)$")
+TAG = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]*")
+
+
+def fields(text: str) -> dict[str, str] | None:
+    match = FRONTMATTER.match(text)
+    if not match:
+        return None
+    result: dict[str, str] = {}
+    for line in match.group(1).splitlines():
+        item = FIELD.match(line)
+        if not item or not item.group(2).strip():
+            return None
+        if item.group(1) in result:
+            return None
+        result[item.group(1)] = item.group(2).strip()
+    return result
+
+
+def slug_candidates(wiki: Path, target: str) -> set[str]:
+    normalized = target.strip().replace("\\", "/")
+    path = Path(normalized)
+    if path.is_absolute() or ".." in path.parts or any(part == "" for part in path.parts):
+        return set()
+    candidates = {normalized, normalized.removesuffix(".md")}
+    if path.suffix != ".md":
+        candidates.add(f"{normalized}.md")
+    return {str((wiki / candidate).resolve()) for candidate in candidates}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--wiki", required=True, type=Path)
+    args = parser.parse_args()
+    wiki = args.wiki.expanduser().resolve()
+    errors: list[str] = []
+    warnings: list[str] = []
+    if not wiki.is_dir():
+        print(f"ERROR: wiki directory missing: {wiki}")
+        return 1
+
+    schema = wiki / "SCHEMA.md"
+    index = wiki / "index.md"
+    log = wiki / "log.md"
+    safe_files = {schema, index, log}
+    for candidate in (schema, index, log):
+        if candidate.exists() and (candidate.is_symlink() or not candidate.resolve().is_relative_to(wiki)):
+            errors.append(f"unsafe path: {candidate.relative_to(wiki)}")
+    if not schema.is_file(): errors.append("missing SCHEMA.md")
+    if not index.is_file(): errors.append("missing index.md")
+    if not log.is_file(): errors.append("missing log.md")
+
+    for root, dirs, files in os.walk(wiki, followlinks=False):
+        for name in [*dirs, *files]:
+            entry = Path(root) / name
+            if entry.is_symlink() or not entry.resolve().is_relative_to(wiki):
+                errors.append(f"unsafe path: {entry.relative_to(wiki)}")
+        dirs[:] = [name for name in dirs if not (Path(root) / name).is_symlink()]
+
+    taxonomy: set[str] = set()
+    if schema.is_file() and not schema.is_symlink() and schema in safe_files and schema.resolve().is_relative_to(wiki):
+        in_taxonomy = False
+        for line in schema.read_text(encoding="utf-8").splitlines():
+            if line.strip().lower().startswith("## tag taxonomy"):
+                in_taxonomy = True
+            elif in_taxonomy and line.startswith("## "):
+                in_taxonomy = False
+            elif in_taxonomy:
+                taxonomy.update(TAG.findall(line.split("#", 1)[0]))
+
+    pages = [p for p in wiki.rglob("*.md") if not p.is_symlink() and p.resolve().is_relative_to(wiki) and p.is_file() and "raw" not in p.relative_to(wiki).parts and "_archive" not in p.relative_to(wiki).parts and p.name not in {"SCHEMA.md", "index.md", "log.md"}]
+    known = {str(p.resolve()) for p in pages if p.resolve().is_relative_to(wiki)} | {str((wiki / "index.md").resolve())}
+    inbound: dict[str, int] = {str(p.resolve()): 0 for p in pages}
+    indexed = index.read_text(encoding="utf-8") if index.is_file() and not index.is_symlink() and index in safe_files and index.resolve().is_relative_to(wiki) else ""
+
+    for page in pages:
+        text = page.read_text(encoding="utf-8")
+        fm = fields(text)
+        rel = page.relative_to(wiki)
+        if fm is None:
+            errors.append(f"{rel}: missing or malformed frontmatter")
+        else:
+            for required in ("title", "created", "updated", "type", "tags", "sources"):
+                if required not in fm:
+                    errors.append(f"{rel}: missing frontmatter field {required}")
+            if taxonomy and "tags" in fm:
+                used = set(TAG.findall(fm["tags"]))
+                unknown = sorted(used - taxonomy)
+                if unknown:
+                    errors.append(f"{rel}: tags outside taxonomy: {', '.join(unknown)}")
+        if len(text.splitlines()) > 200:
+            warnings.append(f"{rel}: over 200 lines; consider splitting")
+        if not re.search(r"\[\[[^]]+\]\]", text):
+            warnings.append(f"{rel}: no outbound wikilinks")
+        for target in WIKILINK.findall(text):
+            matches = slug_candidates(wiki, target)
+            existing = next((candidate for candidate in matches if candidate in known), None)
+            if existing is None:
+                errors.append(f"{rel}: broken wikilink [[{target}]]")
+            elif existing in inbound:
+                inbound[existing] += 1
+        index_links = set(WIKILINK.findall(indexed))
+        page_targets = {str(rel).replace("\\", "/"), str(rel.with_suffix("")).replace("\\", "/")}
+        if not any(target in page_targets for target in index_links):
+            errors.append(f"{rel}: missing from index.md")
+
+    for target in WIKILINK.findall(indexed):
+        if not any(candidate in known for candidate in slug_candidates(wiki, target)):
+            errors.append(f"index.md: broken wikilink [[{target}]]")
+
+    for path, count in inbound.items():
+        if count == 0:
+            warnings.append(f"{Path(path).relative_to(wiki)}: orphan page")
+
+    for raw in (wiki / "raw").rglob("*.md") if (wiki / "raw").is_dir() else []:
+        if raw.is_symlink() or not raw.resolve().is_relative_to(wiki):
+            errors.append(f"{raw.relative_to(wiki)}: unsafe path")
+            continue
+        text = raw.read_text(encoding="utf-8")
+        fm = fields(text)
+        if not fm or "sha256" not in fm:
+            errors.append(f"{raw.relative_to(wiki)}: raw source missing sha256")
+            continue
+        body = text.split("\n---\n", 1)[1] if "\n---\n" in text else ""
+        digest = hashlib.sha256(body.encode()).hexdigest()
+        if digest != fm["sha256"]:
+            errors.append(f"{raw.relative_to(wiki)}: sha256 mismatch")
+
+    print(f"WIKI: {wiki}")
+    print(f"PAGES: {len(pages)}")
+    for item in errors: print(f"ERROR: {item}")
+    for item in warnings: print(f"WARNING: {item}")
+    print(f"ERRORS: {len(errors)}")
+    print(f"WARNINGS: {len(warnings)}")
+    return 1 if errors else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

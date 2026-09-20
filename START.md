@@ -113,6 +113,8 @@ For every significant feature:
 DISCOVER -> RESEARCH -> SPECIFY -> ARCHITECT -> PLAN -> IMPLEMENT -> TEST -> SECURITY REVIEW -> CODE REVIEW -> DOCUMENT -> PACKAGE -> CHANGELOG -> COMMIT / PR
 ```
 
+For research that must survive sessions, use the project LLM Wiki skill during `RESEARCH`: orient with `SCHEMA.md`, `index.md` and recent `log.md`; capture immutable raw sources; create cited, interlinked notes; run `python3 scripts/validate-llm-wiki.py --wiki <path>`. Keep implementation truth in source and canonical `docs/`; wiki never replaces `START.md`, `TODO.md`, handoff, changelog or release gates.
+
 Do not skip specification for architectural or audio features.
 
 ## 6. Documentation is mandatory every round

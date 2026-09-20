@@ -30,6 +30,22 @@ Not every task requires every skill. Use the minimum appropriate set.
 
 ## Skills
 
+### llm-wiki
+
+| Field | Value |
+|-------|-------|
+| **Path** | `.agents/skills/llm-wiki/` |
+| **Purpose** | Persistent, source-grounded, interlinked Markdown knowledge base |
+| **Trigger** | Research, architecture evidence, source ingestion, wiki query or health-check |
+| **Inputs** | Source URLs/files, domain schema, existing wiki state |
+| **Outputs** | Raw source capture, linked entity/concept pages, index, log, lint report |
+| **Dependencies** | `code-documenter`, `grounded-citations` when available |
+| **Validator** | `python3 scripts/validate-llm-wiki.py --wiki <path>` |
+
+Use project-local wiki only when knowledge belongs to Open IEM. Keep canonical implementation truth in source and `docs/`.
+
+---
+
 ### architect-designer
 
 | Field | Value |
