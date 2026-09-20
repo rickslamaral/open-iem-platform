@@ -22,7 +22,8 @@ pub use media_plane::{
 };
 pub use media_writer::{MediaPacket, MediaWriter, MediaWriterError, OPUS_MAX_PACKET_BYTES};
 pub use opus_receiver::{
-    AudioOutput, JitterBuffer, OpusReceiver, ReceiverError, ReceiverState, RECEIVER_QUEUE_CAPACITY,
+    AudioOutput, JitterBuffer, OpusReceiver, OutputError, ReceiverError, ReceiverState,
+    RECEIVER_QUEUE_CAPACITY,
 };
 pub use pairing::{DeviceIdentity, PairingError, PairingRegistry};
 use serde::Serialize;
