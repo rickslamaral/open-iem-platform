@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- CI audio-lab now runs the PipeWire/WirePlumber userspace smoke gate; evidence remains SOFTWARE/SIMULATED.
 - Deterministic Opus writer/receiver round-trip test and PipeWire/WirePlumber userspace smoke script, both explicitly classified SOFTWARE/SIMULATED.
 
 ### Tests
