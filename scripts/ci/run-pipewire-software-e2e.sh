@@ -16,8 +16,10 @@ process_start_time() {
   local pid=$1 stat rest
   stat=$(<"/proc/$pid/stat") || return 0
   rest=${stat##*) }
-  set -- $rest
-  printf '%s\n' "${20:-}"
+  local -a fields=()
+  local IFS=" "
+  read -r -a fields <<< "$rest"
+  printf '%s\n' "${fields[19]:-}"
 }
 daemon_alive() {
   local pid=$1 expected_start=$2 state actual_start
