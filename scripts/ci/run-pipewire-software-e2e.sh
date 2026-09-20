@@ -14,15 +14,23 @@ daemon_alive() {
   local pid=$1 state
   kill -0 "$pid" 2>/dev/null || return 1
   state=$(ps -o stat= -p "$pid" 2>/dev/null || true)
-  [[ -n "$state" && "$state" != Z* ]]
+  [[ -n "$state" && "$state" != Z* && "$state" != T* && "$state" != t* ]]
+}
+stop_daemon() {
+  local pid=$1
+  kill "$pid" 2>/dev/null || true
+  for _ in $(seq 1 20); do
+    daemon_alive "$pid" || { wait "$pid" 2>/dev/null || true; return; }
+    sleep 0.1
+  done
+  kill -KILL "$pid" 2>/dev/null || true
+  wait "$pid" 2>/dev/null || true
 }
 cleanup() {
   local status=$?
   set +e
-  [[ -n "${WIREPLUMBER_PID:-}" ]] && kill "$WIREPLUMBER_PID" 2>/dev/null
-  [[ -n "${PIPEWIRE_PID:-}" ]] && kill "$PIPEWIRE_PID" 2>/dev/null
-  [[ -n "${WIREPLUMBER_PID:-}" ]] && wait "$WIREPLUMBER_PID" 2>/dev/null
-  [[ -n "${PIPEWIRE_PID:-}" ]] && wait "$PIPEWIRE_PID" 2>/dev/null
+  [[ -n "${WIREPLUMBER_PID:-}" ]] && stop_daemon "$WIREPLUMBER_PID"
+  [[ -n "${PIPEWIRE_PID:-}" ]] && stop_daemon "$PIPEWIRE_PID"
   rm -rf -- "$WORK_DIR"
   exit "$status"
 }

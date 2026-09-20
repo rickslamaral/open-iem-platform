@@ -1,3 +1,9 @@
+## 2026-09-19 — hardening PipeWire/Opus software smoke
+
+- Cleanup de `run-pipewire-software-e2e.sh` agora limita espera, aplica `SIGKILL` e rejeita processos parados/zumbis.
+- Roundtrip Opus verifica média decodificada dos canais contra frame de entrada, além de não-silêncio.
+- Evidência continua `SOFTWARE/SIMULATED`; host atual bloqueia execução porque `pw-cli` não está instalado.
+
 ## 2026-09-19 — deterministic PipeWire/Opus software evidence
 
 - Adicionado teste de integração `streaming/tests/opus_roundtrip.rs`: frame 48 kHz estéreo determinístico passa por `MediaWriter` e `OpusReceiver` até sink de teste.

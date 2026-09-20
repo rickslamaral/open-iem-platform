@@ -63,4 +63,14 @@ fn deterministic_frame_survives_opus_writer_receiver_round_trip() {
         .sum();
     assert!(left_energy > 1.0, "decoded left channel is silent");
     assert!(right_energy > 1.0, "decoded right channel is silent");
+    let left_mean: f32 = output.samples.iter().step_by(2).sum::<f32>() / 960.0;
+    let right_mean: f32 = output.samples.iter().skip(1).step_by(2).sum::<f32>() / 960.0;
+    assert!(
+        (left_mean - 0.2).abs() < 0.08,
+        "left channel corrupted: {left_mean}"
+    );
+    assert!(
+        (right_mean + 0.1).abs() < 0.08,
+        "right channel corrupted: {right_mean}"
+    );
 }
