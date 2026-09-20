@@ -1,3 +1,9 @@
+## 2026-09-20 — P0-003 media readiness queue guard
+
+- `SessionRegistry::drive_once` agora drena frames do `MediaPlane` somente para sessões com áudio negociado (`media_mid`), preservando frames durante a janela de setup Sans-IO.
+- Adicionado teste de regressão que confirma que sessão sem `MediaAdded` não perde frame enfileirado.
+- Evidência: 61 testes unitários do `streaming`, 6 testes de integração de clock/media e 2 round-trips Opus PASS. Runtime WebRTC/PipeWire/ALSA e hardware continuam pendentes.
+
 ## 2026-09-20 — GAP-018/019 DTLS fingerprint binding
 
 - Pairing agora pode registrar fingerprint DTLS-SRTP SHA-256 normalizado.
