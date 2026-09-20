@@ -762,8 +762,12 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn bound_session_rejects_revoked_identity() {
+    async fn bound_session_rejects_revoked_identity_without_mutating_registry() {
         let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("existing", VALID_OFFER, None)
+            .await
+            .unwrap();
         let identity = DeviceIdentity {
             device_id: "rx-1".into(),
             musician_id: "alice".into(),
@@ -774,6 +778,9 @@ mod tests {
             .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
             .await
             .is_err());
+        let sessions = registry.list().await;
+        assert_eq!(sessions.len(), 1);
+        assert_eq!(sessions[0].user_id, "existing");
     }
 
     #[tokio::test]
