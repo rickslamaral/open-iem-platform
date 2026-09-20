@@ -64,14 +64,17 @@ def fields(text: str) -> dict[str, str] | None:
 
 
 def slug_candidates(wiki: Path, target: str) -> set[str]:
-    normalized = target.strip().replace("\\", "/")
-    path = Path(normalized)
-    if path.is_absolute() or ".." in path.parts or any(part == "" for part in path.parts):
+    try:
+        normalized = target.strip().replace("\\", "/")
+        path = Path(normalized)
+        if path.is_absolute() or ".." in path.parts or any(part == "" for part in path.parts):
+            return set()
+        candidates = {normalized, normalized.removesuffix(".md")}
+        if path.suffix != ".md":
+            candidates.add(f"{normalized}.md")
+        return {str((wiki / candidate).resolve()) for candidate in candidates}
+    except (OSError, ValueError):
         return set()
-    candidates = {normalized, normalized.removesuffix(".md")}
-    if path.suffix != ".md":
-        candidates.add(f"{normalized}.md")
-    return {str((wiki / candidate).resolve()) for candidate in candidates}
 
 
 def main() -> int:

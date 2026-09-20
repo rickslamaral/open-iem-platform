@@ -99,24 +99,25 @@ WIREPLUMBER_LOG="$WORK_DIR/wireplumber.log"
 NODE_LIST="$WORK_DIR/nodes.txt"
 export XDG_RUNTIME_DIR="$RUNTIME_DIR"
 DBUS_INFO_FILE="$WORK_DIR/dbus.info"
+DBUS_ERROR_FILE="$WORK_DIR/dbus.error"
 # Keep daemon in this shell process. Cleanup always has its PID, including
 # malformed startup output, and identity checks still prevent PID reuse.
-dbus-daemon --session --nofork --print-address=1 --print-pid=1 >"$DBUS_INFO_FILE" 2>&1 &
+dbus-daemon --session --nofork --print-address=1 --print-pid=1 >"$DBUS_INFO_FILE" 2>"$DBUS_ERROR_FILE" &
 DBUS_PID=$!
+DBUS_START_TIME=$(capture_start_time "$DBUS_PID" 2>/dev/null || true)
 DBUS_INFO=''
 for _ in $(seq 1 40); do
   if [[ -r "$DBUS_INFO_FILE" ]]; then
     DBUS_INFO=$(python3 -c 'import pathlib,sys; t=pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"); print(t,end="") if t.count("\n") >= 2 else None' "$DBUS_INFO_FILE" 2>/dev/null || true)
   fi
   [[ -n "$DBUS_INFO" ]] && break
-  daemon_alive "$DBUS_PID" "${DBUS_START_TIME:-$(capture_start_time "$DBUS_PID" 2>/dev/null || true)}" 2>/dev/null || true
+  daemon_alive "$DBUS_PID" "$DBUS_START_TIME" 2>/dev/null || true
   sleep 0.05
 done
 [[ -n "$DBUS_INFO" ]] || { echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (D-Bus startup output timeout)' >&2; exit 1; }
 mapfile -t DBUS_LINES <"$DBUS_INFO_FILE"
 DBUS_ADDRESS=${DBUS_LINES[0]-}
 DBUS_REPORTED_PID=${DBUS_LINES[1]-}
-DBUS_START_TIME=$(capture_start_time "$DBUS_PID" || true)
 if (( ${#DBUS_LINES[@]} != 2 )) || [[ "$DBUS_ADDRESS" != unix:* ]] ||
    ! [[ "$DBUS_PID" =~ ^[0-9]+$ && "$DBUS_REPORTED_PID" == "$DBUS_PID" ]] ||
    [[ -z "$DBUS_START_TIME" ]]; then
@@ -161,12 +162,16 @@ pw_cli list-objects Node >"$NODE_LIST"
 # Create deterministic null sink/source nodes in private userspace graph. These prove
 # virtual graph plumbing only; they do not prove physical devices or WebRTC media.
 sink_output=$(pw_cli create-node adapter '{ factory.name = support.null-audio-sink node.name = openiem.virtual_sink node.description = OpenIEM\ Virtual\ Sink media.class = Audio/Sink audio.rate = 48000 audio.channels = 2 }' 2>&1) || { printf '%s\n' "$sink_output" >&2; exit 1; }
+SINK_ID=$(printf '%s\n' "$sink_output" | grep -Eo '(^|[[:space:]])id[[:space:]]+[0-9]+' | grep -Eo '[0-9]+' | tail -n 1 || true)
+[[ "$SINK_ID" =~ ^[0-9]+$ ]] || { printf '%s\n' "$sink_output" >&2; exit 1; }
 source_output=$(pw_cli create-node adapter '{ factory.name = support.null-audio-source node.name = openiem.virtual_source node.description = OpenIEM\ Virtual\ Source media.class = Audio/Source audio.rate = 48000 audio.channels = 2 }' 2>&1) || { printf '%s\n' "$source_output" >&2; exit 1; }
+SOURCE_ID=$(printf '%s\n' "$source_output" | grep -Eo '(^|[[:space:]])id[[:space:]]+[0-9]+' | grep -Eo '[0-9]+' | tail -n 1 || true)
+[[ "$SOURCE_ID" =~ ^[0-9]+$ ]] || { printf '%s\n' "$source_output" >&2; exit 1; }
 assert_node_properties() {
-  local node_name=$1 media_class=$2
-  awk -v node_name="$node_name" -v media_class="$media_class" '
+  local node_id=$1 node_name=$2 media_class=$3
+  awk -v node_id="$node_id" -v node_name="$node_name" -v media_class="$media_class" '
     BEGIN { RS = ""; found = 0 }
-    index($0, "node.name = \"" node_name "\"") {
+    index($0, "id " node_id ",") && index($0, "node.name = \"" node_name "\"") {
       has_class = index($0, "media.class = \"" media_class "\"")
       has_rate = ($0 ~ /(^|[[:space:]])audio.rate[[:space:]]*=[[:space:]]*"?48000"?([[:space:]]|$)/)
       has_channels = ($0 ~ /(^|[[:space:]])audio.channels[[:space:]]*=[[:space:]]*"?2"?([[:space:]]|$)/)
@@ -178,10 +183,10 @@ assert_node_properties() {
 for _ in $(seq 1 20); do
   check_deadline
   pw_cli list-objects Node >"$NODE_LIST"
-  assert_node_properties openiem.virtual_sink Audio/Sink &&
-    assert_node_properties openiem.virtual_source Audio/Source && break
+  assert_node_properties "$SINK_ID" openiem.virtual_sink Audio/Sink &&
+    assert_node_properties "$SOURCE_ID" openiem.virtual_source Audio/Source && break
   sleep 0.1
 done
-assert_node_properties openiem.virtual_sink Audio/Sink || { cat "$NODE_LIST" >&2; exit 1; }
-assert_node_properties openiem.virtual_source Audio/Source || { cat "$NODE_LIST" >&2; exit 1; }
+assert_node_properties "$SINK_ID" openiem.virtual_sink Audio/Sink || { cat "$NODE_LIST" >&2; exit 1; }
+assert_node_properties "$SOURCE_ID" openiem.virtual_source Audio/Source || { cat "$NODE_LIST" >&2; exit 1; }
 printf '%s\n' 'PIPEWIRE_SOFTWARE_E2E: PASS (SOFTWARE/SIMULATED virtual sink/source enumeration; no hardware/WebRTC claim)'
