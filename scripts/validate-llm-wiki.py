@@ -90,6 +90,8 @@ def main() -> int:
         text = page.read_text(encoding="utf-8")
         fm = fields(text)
         rel = page.relative_to(wiki)
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*\.md", page.name):
+            errors.append(f"{rel}: filename must be lowercase kebab-case")
         if fm is None:
             errors.append(f"{rel}: missing or malformed frontmatter")
         else:
@@ -103,8 +105,9 @@ def main() -> int:
                     errors.append(f"{rel}: tags outside taxonomy: {', '.join(unknown)}")
         if len(text.splitlines()) > 200:
             warnings.append(f"{rel}: over 200 lines; consider splitting")
-        if not re.search(r"\[\[[^]]+\]\]", text):
-            warnings.append(f"{rel}: no outbound wikilinks")
+        link_count = len(WIKILINK.findall(text))
+        if link_count < 2:
+            warnings.append(f"{rel}: fewer than two outbound wikilinks; record legitimate exception")
         for target in WIKILINK.findall(text):
             matches = slug_candidates(wiki, target)
             existing = next((candidate for candidate in matches if candidate in known), None)
@@ -131,8 +134,8 @@ def main() -> int:
             continue
         text = raw.read_text(encoding="utf-8")
         fm = fields(text)
-        if not fm or "sha256" not in fm:
-            errors.append(f"{raw.relative_to(wiki)}: raw source missing sha256")
+        if not fm or any(field not in fm for field in ("source_url", "ingested", "sha256")):
+            errors.append(f"{raw.relative_to(wiki)}: raw source missing source_url, ingested, or sha256")
             continue
         body = text.split("\n---\n", 1)[1] if "\n---\n" in text else ""
         digest = hashlib.sha256(body.encode()).hexdigest()

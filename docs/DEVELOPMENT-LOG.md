@@ -1,3 +1,10 @@
+## 2026-09-20 — revisão independente do ciclo Phase 99
+
+- Corrigido fallback syscall de `pidfd_open`: cleanup agora alcança `pidfd_send_signal` via ctypes quando APIs Python não existem.
+- Validador LLM Wiki reforça nomes lowercase kebab-case e campos `source_url`/`ingested`/`sha256` em fontes raw.
+- Evidência local: compilação Python, sintaxe shell e `git diff --check` passam.
+- Nenhuma claim adicionada para PipeWire real, WebRTC, latência ou hardware.
+
 ## 2026-09-20 — reconciliação Phase 98
 
 - TODO e handoff agora registram que o smoke PipeWire/WirePlumber está conectado ao CI.

@@ -8,6 +8,20 @@ import sys
 import ctypes
 
 
+def open_pidfd(pid: int) -> int:
+    if hasattr(os, "pidfd_open"):
+        return os.pidfd_open(pid)
+    syscall_numbers = {"x86_64": 434, "aarch64": 434, "arm64": 434}
+    number = syscall_numbers.get(platform.machine())
+    if number is None:
+        raise OSError("pidfd_open syscall unavailable on architecture")
+    libc = ctypes.CDLL(None, use_errno=True)
+    result = libc.syscall(number, pid, 0)
+    if result < 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error))
+    return result
+
 def send_signal(pidfd: int, sig: signal.Signals) -> None:
     if hasattr(os, "pidfd_send_signal"):
         os.pidfd_send_signal(pidfd, sig)
@@ -41,9 +55,7 @@ def main() -> int:
         if process_start_time(pid) != expected:
             return 1
         sig = getattr(signal, f"SIG{sys.argv[3]}")
-        if not hasattr(os, "pidfd_open") or not hasattr(os, "pidfd_send_signal"):
-            return 1
-        pidfd = os.pidfd_open(pid)
+        pidfd = open_pidfd(pid)
         if process_start_time(pid) != expected:
             return 1
         send_signal(pidfd, sig)
