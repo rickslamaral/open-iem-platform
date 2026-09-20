@@ -1,3 +1,8 @@
+## 2026-09-20 — reconciliação Phase 98
+
+- TODO e handoff agora registram que o smoke PipeWire/WirePlumber está conectado ao CI.
+- Evidência permanece `SOFTWARE/SIMULATED`; sink/source virtual específico, WebRTC em rede, latência e hardware continuam pendentes.
+
 ## 2026-09-19 — CI wiring for PipeWire software smoke
 
 - O job `audio-lab` instala `pipewire`, `pipewire-bin` e `wireplumber` e executa `run-pipewire-software-e2e.sh`.

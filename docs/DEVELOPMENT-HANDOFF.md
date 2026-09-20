@@ -143,6 +143,12 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 - Physical Raspberry Pi, USB, thermal, controller-specific behavior, physical latency, hot-plug and hardware XRUN are `HARDWARE_CERTIFICATION`, not software-release blockers.
 - Canonical details: `docs/COMPATIBILITY.md`, `docs/PACKAGING.md`, `docs/RELEASE-GATES.md`, `docs/HARDWARE-CERTIFICATION.md`.
 
+## Phase 98 status — PipeWire CI smoke
+
+- CI now installs `pipewire`, `pipewire-bin` and `wireplumber` and runs `scripts/ci/run-pipewire-software-e2e.sh`.
+- Deterministic Opus writer/receiver round-trip remains covered by CODE + CI.
+- Evidence level remains `SOFTWARE/SIMULATED`: this does not validate a target virtual sink/source, WebRTC over network, latency, or hardware.
+
 ## Validation Gates
 
 1. **CODE VALIDATED:** local tests, fmt, clippy, typecheck, build and security tests.

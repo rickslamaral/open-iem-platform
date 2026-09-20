@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Limita leitura de snapshots locais `iem config restore` a 1 MiB antes da desserialização.
 
 ### Documentation
+- Reconciliado o status da Phase 98: smoke PipeWire/WirePlumber agora roda no CI; sink/source virtual, WebRTC E2E e hardware continuam pendentes.
 - Add canonical Phase 95 review for observability metrics REST endpoint and clarify CODE/CI versus runtime evidence.
 
 ### Security
