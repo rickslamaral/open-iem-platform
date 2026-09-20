@@ -19,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Stability gate now runs bounded deterministic audio/media regression loops instead of unconditionally reporting blocked.
-- Reconciled Phase 97 package status: amd64 `.deb` lifecycle passes locally and in CI; arm64 artifact build remains blocked by the unavailable cross-linker.
+- Reconciled Phase 97 package status: amd64 and arm64 `.deb` lifecycle gates pass in CI; local arm64 cross-linker availability remains irrelevant to CI artifact evidence.
 
 ### Added
 - Documentado Phase 96: snapshots locais de configuração via `iem config backup` e `iem config restore`.
