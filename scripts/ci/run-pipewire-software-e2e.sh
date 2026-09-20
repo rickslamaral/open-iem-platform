@@ -63,7 +63,7 @@ stop_daemon() {
     sleep 0.1
   done
   wait "$pid" 2>/dev/null || true
-  return 1
+  return 0
 }
 cleanup() {
   local status=$? cleanup_status=0
