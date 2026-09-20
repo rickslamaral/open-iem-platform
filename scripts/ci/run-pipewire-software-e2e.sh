@@ -120,25 +120,38 @@ for _ in $(seq 1 40); do
     fi
   fi
   if [[ -n "$DBUS_INFO" ]]; then
-    daemon_alive "$DBUS_LAUNCH_PID" "$DBUS_LAUNCH_START_TIME" || { DBUS_INFO=""; sleep 0.05; continue; }
     break
   fi
-  daemon_alive "$DBUS_LAUNCH_PID" "$DBUS_LAUNCH_START_TIME" 2>/dev/null || true
   sleep 0.05
 done
-[[ -n "$DBUS_INFO" ]] || { echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (D-Bus startup output timeout)' >&2; exit 1; }
+[[ -n "$DBUS_INFO" ]] || {
+  cat "$DBUS_ERROR_FILE" >&2
+  echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (D-Bus startup output timeout)' >&2
+  exit 1
+}
 mapfile -t DBUS_LINES < <(printf '%s\n' "$DBUS_INFO" | awk 'NF { print }')
 DBUS_ADDRESS=${DBUS_LINES[0]-}
 DBUS_REPORTED_PID=${DBUS_LINES[1]-}
 if (( ${#DBUS_LINES[@]} != 2 )) || [[ "$DBUS_ADDRESS" != unix:* ]] ||
-   ! [[ "$DBUS_REPORTED_PID" =~ ^[0-9]+$ && "$DBUS_REPORTED_PID" == "$DBUS_LAUNCH_PID" ]]; then
-  echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (invalid or unavailable private D-Bus startup identity)' >&2
+   ! [[ "$DBUS_REPORTED_PID" =~ ^[0-9]+$ ]]; then
+  cat "$DBUS_ERROR_FILE" >&2
+  echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (invalid private D-Bus startup identity)' >&2
   exit 1
 fi
-daemon_alive "$DBUS_LAUNCH_PID" "$DBUS_LAUNCH_START_TIME" || { echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (D-Bus process exited during startup validation)' >&2; exit 1; }
 DBUS_START_TIME=$(capture_start_time "$DBUS_REPORTED_PID" 2>/dev/null || true)
-[[ -n "$DBUS_START_TIME" && "$DBUS_START_TIME" == "$DBUS_LAUNCH_START_TIME" ]] || { echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (D-Bus process identity changed during startup)' >&2; exit 1; }
+[[ -n "$DBUS_START_TIME" ]] || {
+  cat "$DBUS_ERROR_FILE" >&2
+  echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (reported D-Bus process unavailable)' >&2
+  exit 1
+}
+# dbus-daemon may report a daemon PID different from the shell launch PID.
+# Validate the reported process independently; cleanup tracks both identities.
 DBUS_PID="$DBUS_REPORTED_PID"
+daemon_alive "$DBUS_PID" "$DBUS_START_TIME" || {
+  cat "$DBUS_ERROR_FILE" >&2
+  echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (reported D-Bus process identity invalid)' >&2
+  exit 1
+}
 export DBUS_SESSION_BUS_ADDRESS="$DBUS_ADDRESS"
 deadline=$((SECONDS + 30))
 check_deadline() {
