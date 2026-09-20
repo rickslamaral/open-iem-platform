@@ -11,6 +11,7 @@ command -v timeout >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (timeout
 timeout --foreground 1s true >/dev/null 2>&1 || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (timeout lacks --foreground)' >&2; exit 2; }
 command -v pipewire >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (pipewire missing)' >&2; exit 2; }
 command -v wireplumber >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (wireplumber missing)' >&2; exit 2; }
+command -v dbus-run-session >/dev/null || { echo 'PIPEWIRE_SOFTWARE_E2E: BLOCKED (dbus-run-session missing)' >&2; exit 2; }
 WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}/openiem-pipewire.XXXXXX")
 process_start_time() {
   python3 "$ROOT/scripts/ci/read-proc-start-time.py" "$1"
@@ -75,7 +76,7 @@ for _ in $(seq 1 50); do
   sleep 0.1
 done
 pw_cli info 0 >/dev/null 2>&1 || { cat "$PIPEWIRE_LOG" >&2; exit 1; }
-wireplumber >"$WIREPLUMBER_LOG" 2>&1 & WIREPLUMBER_PID=$!
+dbus-run-session -- wireplumber >"$WIREPLUMBER_LOG" 2>&1 & WIREPLUMBER_PID=$!
 WIREPLUMBER_START_TIME=$(process_start_time "$WIREPLUMBER_PID")
 for _ in $(seq 1 50); do
   check_deadline
