@@ -12,7 +12,8 @@ from pathlib import Path
 FRONTMATTER = re.compile(r"\A---\n(.*?)\n---\n", re.S)
 WIKILINK = re.compile(r"\[\[([^]|#]+)(?:[|#][^]]*)?\]\]")
 FIELD = re.compile(r"^([A-Za-z_][\w-]*):\s*(.*)$")
-TAG = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]*")
+TAG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+TAXONOMY_ITEM = re.compile(r"^\s*-\s*`?([a-z0-9]+(?:-[a-z0-9]+)*)`?\s*(?:#.*)?$")
 
 
 def fields(text: str) -> dict[str, str] | None:
@@ -89,7 +90,9 @@ def main() -> int:
                 elif in_taxonomy and line.startswith("## "):
                     in_taxonomy = False
                 elif in_taxonomy:
-                    taxonomy.update(TAG.findall(line.split("#", 1)[0]))
+                    item = TAXONOMY_ITEM.fullmatch(line)
+                    if item:
+                        taxonomy.add(item.group(1))
     if not taxonomy_found or not taxonomy:
         errors.append("SCHEMA.md: missing or empty Tag Taxonomy")
 

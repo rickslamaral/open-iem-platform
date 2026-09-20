@@ -57,16 +57,23 @@ PIPEWIRE_LOG="$WORK_DIR/pipewire.log"
 WIREPLUMBER_LOG="$WORK_DIR/wireplumber.log"
 NODE_LIST="$WORK_DIR/nodes.txt"
 export XDG_RUNTIME_DIR="$RUNTIME_DIR"
-DBUS_INFO=$(dbus-daemon --session --fork --print-address=1 --print-pid=1)
+DBUS_INFO_FILE="$WORK_DIR/dbus.info"
+# Keep daemon in this shell process. Cleanup always has its PID, including
+# malformed startup output, and identity checks still prevent PID reuse.
+dbus-daemon --session --nofork --print-address=1 --print-pid=1 >"$DBUS_INFO_FILE" 2>&1 &
+DBUS_PID=$!
+DBUS_INFO=''
+for _ in $(seq 1 20); do
+  DBUS_INFO=$(python3 -c 'import pathlib,sys; t=pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"); print(t,end="") if t.count("\n") >= 2 else None' "$DBUS_INFO_FILE")
+  [[ -n "$DBUS_INFO" ]] && break
+  sleep 0.05
+done
 DBUS_ADDRESS=${DBUS_INFO%%$'\n'*}
-DBUS_PID=${DBUS_INFO##*$'\n'}
-DBUS_START_TIME=''
-# Capture identity before any validation path can exit. Cleanup then remains
-# able to stop a numerically identified daemon without risking PID reuse.
-if [[ "$DBUS_PID" =~ ^[0-9]+$ ]]; then
-  DBUS_START_TIME=$(process_start_time "$DBUS_PID" || true)
-fi
-if [[ "$DBUS_INFO" != "$DBUS_ADDRESS"$'\n'"$DBUS_PID" || "$DBUS_ADDRESS" != unix:* ]] || ! [[ "$DBUS_PID" =~ ^[0-9]+$ ]] || [[ -z "$DBUS_START_TIME" ]]; then
+DBUS_REPORTED_PID=${DBUS_INFO##*$'\n'}
+DBUS_START_TIME=$(process_start_time "$DBUS_PID" || true)
+if [[ "$DBUS_INFO" != "$DBUS_ADDRESS"$'\n'"$DBUS_REPORTED_PID" || "$DBUS_ADDRESS" != unix:* ]] ||
+   ! [[ "$DBUS_PID" =~ ^[0-9]+$ && "$DBUS_REPORTED_PID" == "$DBUS_PID" ]] ||
+   [[ -z "$DBUS_START_TIME" ]]; then
   echo 'PIPEWIRE_SOFTWARE_E2E: FAIL (invalid or unavailable private D-Bus startup identity)' >&2
   exit 1
 fi
