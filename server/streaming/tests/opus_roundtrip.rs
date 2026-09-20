@@ -30,6 +30,7 @@ fn deterministic_frame_survives_opus_writer_receiver_round_trip() {
             sample_rate: 48_000,
             channels: 2,
             frame_duration_ms: 20,
+            capture_timestamp: None,
         },
         samples: (0.2, -0.1),
     };
@@ -129,6 +130,7 @@ fn test_frame() -> MediaFrame {
             sample_rate: 48_000,
             channels: 2,
             frame_duration_ms: 20,
+            capture_timestamp: None,
         },
         samples: (0.2, -0.1),
     }

@@ -10,7 +10,7 @@ const MIN_RESAMPLE_RATIO: f64 = 0.9995;
 const MAX_RESAMPLE_RATIO: f64 = 1.0005;
 
 /// Monotonic media position on capture/audio-interface timeline.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct SampleTimestamp {
     pub sequence: u64,
     pub sample: u64,

@@ -5,6 +5,7 @@
 //! no socket or filesystem I/O and remains CODE/SIMULATED until connected to a
 //! negotiated `str0m::media::Writer`.
 
+use crate::clock::SampleTimestamp;
 use crate::media_plane::MediaFrame;
 use opus_pure::{Application, OpusEncoder};
 use thiserror::Error;
@@ -78,6 +79,7 @@ impl MediaWriter {
             frame_duration_ms: frame.metadata.frame_duration_ms,
             rtp_timestamp,
             payload: self.packet[..len].to_vec(),
+            capture_timestamp: frame.metadata.capture_timestamp,
         })
     }
 }
@@ -92,6 +94,7 @@ pub struct MediaPacket {
     /// RTP audio clock timestamp; increments by 960 samples per 20 ms frame.
     pub rtp_timestamp: u32,
     pub payload: Vec<u8>,
+    pub capture_timestamp: Option<SampleTimestamp>,
 }
 
 #[cfg(test)]
@@ -109,6 +112,7 @@ mod tests {
                 sample_rate: 48_000,
                 channels: 2,
                 frame_duration_ms: 20,
+                capture_timestamp: None,
             },
             samples: (0.1, -0.1),
         }

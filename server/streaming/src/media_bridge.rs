@@ -5,6 +5,7 @@
 //! frames and fans them out through [`MediaPlane`]. Evidence remains
 //! SIMULATED; this bridge does not drive WebRTC network I/O.
 
+use crate::clock::SampleTimestamp;
 use crate::media_plane::MediaPlane;
 use crossbeam_channel::{bounded, Receiver, Sender, TrySendError};
 use mix_engine::FrameOutput;
@@ -23,8 +24,8 @@ pub enum MediaBridgeError {
 
 /// Non-blocking producer and async media-plane consumer.
 pub struct MediaBridge {
-    tx: Sender<(FrameOutput, u64)>,
-    rx: Receiver<(FrameOutput, u64)>,
+    tx: Sender<(FrameOutput, u64, Option<SampleTimestamp>)>,
+    rx: Receiver<(FrameOutput, u64, Option<SampleTimestamp>)>,
 }
 
 impl MediaBridge {
@@ -44,9 +45,10 @@ impl MediaBridge {
         &self,
         frame: FrameOutput,
         engine_revision: u64,
+        capture_timestamp: Option<SampleTimestamp>,
     ) -> Result<(), MediaBridgeError> {
         self.tx
-            .try_send((frame, engine_revision))
+            .try_send((frame, engine_revision, capture_timestamp))
             .map_err(|error| match error {
                 TrySendError::Full(_) => MediaBridgeError::Full,
                 TrySendError::Disconnected(_) => MediaBridgeError::Disconnected,
@@ -57,10 +59,12 @@ impl MediaBridge {
     pub async fn drain_to_with_budget(&self, media_plane: &MediaPlane, budget: usize) -> usize {
         let mut routed = 0;
         while routed < budget {
-            let Ok((frame, revision)) = self.rx.try_recv() else {
+            let Ok((frame, revision, capture_timestamp)) = self.rx.try_recv() else {
                 break;
             };
-            media_plane.push_frame_output(&frame, revision).await;
+            media_plane
+                .push_frame_output(&frame, revision, capture_timestamp)
+                .await;
             routed += 1;
         }
         routed
@@ -91,9 +95,12 @@ mod tests {
     fn full_queue_rejects_without_waiting() {
         let bridge = MediaBridge::new();
         for _ in 0..MEDIA_BRIDGE_CAPACITY {
-            bridge.try_send(frame(), 1).unwrap();
+            bridge.try_send(frame(), 1, None).unwrap();
         }
-        assert_eq!(bridge.try_send(frame(), 1), Err(MediaBridgeError::Full));
+        assert_eq!(
+            bridge.try_send(frame(), 1, None),
+            Err(MediaBridgeError::Full)
+        );
     }
 
     #[tokio::test]
@@ -101,8 +108,8 @@ mod tests {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();
         plane.register_session("alice", 1).await.unwrap();
-        bridge.try_send(frame(), 7).unwrap();
-        bridge.try_send(frame(), 8).unwrap();
+        bridge.try_send(frame(), 7, None).unwrap();
+        bridge.try_send(frame(), 8, None).unwrap();
 
         assert_eq!(bridge.drain_to(&plane).await, 2);
         let sessions = plane.sessions.lock().await;

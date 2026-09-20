@@ -9,6 +9,7 @@
 //!   consumers can detect gaps and stale frames.
 //! - Evidence level: **SIMULATED** (ADR-001/002, ADR-010 L1/L2).
 
+use crate::clock::SampleTimestamp;
 use crossbeam_channel::{bounded, TrySendError};
 use mix_engine::{FrameOutput, MAX_MIXES};
 use std::{
@@ -43,6 +44,8 @@ pub struct StreamMetadata {
     pub channels: u8,
     /// Nominal frame duration in milliseconds (always 20).
     pub frame_duration_ms: u32,
+    /// Optional capture-timeline timestamp from the audio interface clock.
+    pub capture_timestamp: Option<SampleTimestamp>,
 }
 
 /// A single audio frame as routed from the mix engine to a consumer session.
@@ -125,6 +128,7 @@ impl MediaSession {
         &mut self,
         samples: (f32, f32),
         engine_revision: u64,
+        capture_timestamp: Option<SampleTimestamp>,
     ) -> Result<(), MediaSessionError> {
         let metadata = StreamMetadata {
             stream_id: format!("mix_{}", self.mix_index),
@@ -134,6 +138,7 @@ impl MediaSession {
             sample_rate: 48_000,
             channels: 2,
             frame_duration_ms: 20,
+            capture_timestamp,
         };
         self.frame_sequence += 1;
         let frame = MediaFrame { metadata, samples };
@@ -232,11 +237,17 @@ impl MediaPlane {
     ///
     /// Each session receives the stereo pair for its subscribed mix slot.\
     /// Dropped frames (queue full) are counted in `dropped_total`.
-    pub async fn push_frame_output(&self, frame_output: &FrameOutput, engine_revision: u64) {
+    pub async fn push_frame_output(
+        &self,
+        frame_output: &FrameOutput,
+        engine_revision: u64,
+        capture_timestamp: Option<SampleTimestamp>,
+    ) {
         let mut sessions = self.sessions.lock().await;
         for session in sessions.values_mut() {
             let samples = frame_output.mixes[session.mix_index];
-            if let Err(MediaSessionError::QueueFull) = session.push_frame(samples, engine_revision)
+            if let Err(MediaSessionError::QueueFull) =
+                session.push_frame(samples, engine_revision, capture_timestamp)
             {
                 self.dropped_total.fetch_add(1, Ordering::Relaxed);
             }
@@ -322,7 +333,7 @@ mod tests {
         mp.register_session("alice", 0).await.unwrap();
         let fo = make_frame(0.1, 0.2, 0.3, 0.4);
         for _ in 0..3 {
-            mp.push_frame_output(&fo, 1).await;
+            mp.push_frame_output(&fo, 1, None).await;
         }
         let sessions = mp.sessions.lock().await;
         let frames = sessions["alice"].drain_frames();
@@ -338,7 +349,7 @@ mod tests {
         mp.register_session("alice", 0).await.unwrap();
         let fo = make_frame(0.1, 0.2, 0.3, 0.4);
         for _ in 0..(MEDIA_QUEUE_CAPACITY + 5) {
-            mp.push_frame_output(&fo, 1).await;
+            mp.push_frame_output(&fo, 1, None).await;
         }
         let sessions = mp.sessions.lock().await;
         assert!(sessions["alice"].drop_count() >= 5);
@@ -349,7 +360,7 @@ mod tests {
         let mp = MediaPlane::new();
         mp.register_session("alice", 1).await.unwrap();
         let fo = make_frame(0.1, 0.2, 0.8, 0.9);
-        mp.push_frame_output(&fo, 1).await;
+        mp.push_frame_output(&fo, 1, None).await;
         let sessions = mp.sessions.lock().await;
         let frames = sessions["alice"].drain_frames();
         assert_eq!(frames[0].samples, (0.8, 0.9));
@@ -368,8 +379,8 @@ mod tests {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
         let fo = make_frame(0.1, 0.2, 0.3, 0.4);
-        mp.push_frame_output(&fo, 7).await;
-        mp.push_frame_output(&fo, 8).await;
+        mp.push_frame_output(&fo, 7, None).await;
+        mp.push_frame_output(&fo, 8, None).await;
 
         let first = mp
             .drain_session_frames_with_budget("alice", 1)
@@ -393,7 +404,7 @@ mod tests {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
         let fo = make_frame(0.1, 0.2, 0.3, 0.4);
-        mp.push_frame_output(&fo, 1).await;
+        mp.push_frame_output(&fo, 1, None).await;
 
         assert!(mp
             .drain_session_frames_with_budget("alice", 0)
@@ -419,7 +430,7 @@ mod tests {
         mp.register_session("alice", 0).await.unwrap();
         let fo = make_frame(0.0, 0.0, 0.0, 0.0);
         for _ in 0..=MEDIA_QUEUE_CAPACITY {
-            mp.push_frame_output(&fo, 1).await;
+            mp.push_frame_output(&fo, 1, None).await;
         }
         assert!(mp.total_dropped() > 0);
     }
@@ -429,7 +440,7 @@ mod tests {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
         let fo = make_frame(0.1, 0.2, 0.3, 0.4);
-        mp.push_frame_output(&fo, 1).await;
+        mp.push_frame_output(&fo, 1, None).await;
         let sessions = mp.sessions.lock().await;
         let frames = sessions["alice"].drain_frames();
         assert_eq!(frames[0].metadata.stream_id, "mix_0");
@@ -440,7 +451,7 @@ mod tests {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
         let fo = make_frame(0.1, 0.2, 0.3, 0.4);
-        mp.push_frame_output(&fo, 1).await;
+        mp.push_frame_output(&fo, 1, None).await;
         let sessions = mp.sessions.lock().await;
         let frames = sessions["alice"].drain_frames();
         let meta = &frames[0].metadata;
