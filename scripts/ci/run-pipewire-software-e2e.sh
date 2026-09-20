@@ -62,8 +62,8 @@ check_deadline() {
 }
 pw_cli() {
   check_deadline
-  timeout --foreground 2s pw-cli "$@"
-  local status=$?
+  local status=0
+  timeout --foreground 2s pw-cli "$@" || status=$?
   check_deadline
   return "$status"
 }
