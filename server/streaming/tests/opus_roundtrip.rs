@@ -74,3 +74,62 @@ fn deterministic_frame_survives_opus_writer_receiver_round_trip() {
         "right channel corrupted: {right_mean}"
     );
 }
+
+#[test]
+fn consecutive_opus_packets_preserve_order_and_frame_timestamps() {
+    let mut writer = MediaWriter::new().unwrap();
+    let mut receiver = OpusReceiver::new().unwrap();
+    let mut packets = Vec::new();
+    for (sequence, samples) in [(10_u64, (0.1, -0.1)), (11, (0.3, -0.3))] {
+        let mut frame = test_frame();
+        frame.metadata.sequence = sequence;
+        frame.samples = samples;
+        let packet = writer.encode(&frame).unwrap();
+        assert_eq!(packet.sequence, sequence);
+        packets.push(packet);
+    }
+    assert_eq!(packets[0].rtp_timestamp, 0);
+    assert_eq!(
+        packets[1]
+            .rtp_timestamp
+            .wrapping_sub(packets[0].rtp_timestamp),
+        960
+    );
+    // Both packets enter ingress before first playout, so receiver establishes
+    // expected sequence from sorted jitter-buffer head, not arrival order.
+    // Jitter buffer must restore sequence order, not arrival order.
+    receiver
+        .enqueue(packets[1].sequence, &packets[1].payload)
+        .unwrap();
+    receiver
+        .enqueue(packets[0].sequence, &packets[0].payload)
+        .unwrap();
+    let mut output = Capture {
+        samples: Vec::new(),
+        muted: 0,
+    };
+    receiver.playout(&mut output).unwrap();
+    receiver.playout(&mut output).unwrap();
+    assert_eq!(output.samples.len(), 3_840);
+    assert_eq!(output.muted, 0);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    let first_left_mean: f32 = output.samples[..1_920].iter().step_by(2).sum::<f32>() / 960.0;
+    let second_left_mean: f32 = output.samples[1_920..].iter().step_by(2).sum::<f32>() / 960.0;
+    assert!((first_left_mean - 0.1).abs() < 0.08);
+    assert!((second_left_mean - 0.3).abs() < 0.08);
+}
+
+fn test_frame() -> MediaFrame {
+    MediaFrame {
+        metadata: StreamMetadata {
+            stream_id: "mix_0".into(),
+            mix_index: 0,
+            revision: 7,
+            sequence: 41,
+            sample_rate: 48_000,
+            channels: 2,
+            frame_duration_ms: 20,
+        },
+        samples: (0.2, -0.1),
+    }
+}

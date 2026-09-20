@@ -12,6 +12,7 @@
 
 ## Estado atual — 2026-09-20 (Phase 99 — smoke PipeWire virtual no CI)
 - **Phase 99:** o CI executa smoke software de PipeWire/WirePlumber com grafo virtual sink/source e round-trip Opus determinístico. Evidência CODE+CI/SIMULATED; runtime alvo, WebRTC em rede, latência e hardware permanecem pendentes.
+- **Phase 100:** round-trip Opus agora cobre dois pacotes fora de ordem, reordenação por jitter buffer e conteúdo por frame; evidência local CODE. WebRTC em rede, PipeWire runtime e hardware continuam pendentes.
 
 ## Estado atual — 2026-09-18 (Phase 95 review)
 - **Phase 95:** review canônica adicionada para `GET /api/v1/metrics`; endpoint permanece CODE/CI, sem validação de runtime ou hardware.
