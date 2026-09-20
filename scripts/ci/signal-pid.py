@@ -3,7 +3,24 @@
 import os
 import re
 import signal
+import platform
 import sys
+import ctypes
+
+
+def send_signal(pidfd: int, sig: signal.Signals) -> None:
+    if hasattr(os, "pidfd_send_signal"):
+        os.pidfd_send_signal(pidfd, sig)
+        return
+    syscall_numbers = {"x86_64": 424, "aarch64": 424, "arm64": 424}
+    number = syscall_numbers.get(platform.machine())
+    if number is None:
+        raise OSError("pidfd_send_signal syscall unavailable on architecture")
+    libc = ctypes.CDLL(None, use_errno=True)
+    result = libc.syscall(number, pidfd, int(sig), 0, 0)
+    if result != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error))
 
 def process_start_time(pid: int) -> str:
     with open(f"/proc/{pid}/stat", encoding="ascii") as handle:
@@ -21,7 +38,6 @@ def main() -> int:
         return 2
     try:
         pidfd_open = os.pidfd_open
-        pidfd_send_signal = os.pidfd_send_signal
     except AttributeError:
         return 2
     pidfd = None
@@ -29,7 +45,7 @@ def main() -> int:
         pidfd = pidfd_open(pid)
         if process_start_time(pid) != expected:
             return 1
-        pidfd_send_signal(pidfd, getattr(signal, f"SIG{sys.argv[3]}"))
+        send_signal(pidfd, getattr(signal, f"SIG{sys.argv[3]}"))
     except (OSError, ValueError, IndexError):
         return 1
     finally:
