@@ -3,6 +3,12 @@
 - START, AGENTS e handoff agora apontam Phase 116 como último trabalho mergeado: reset protegido de métricas e controle no Engineer Console.
 - Próximo limite permanece CODE/SIMULATED: integrar fluxo headless receiver/media onde houver fronteira concreta, sem alegar WebRTC/DTLS-SRTP, PipeWire/ALSA ou hardware.
 
+## 2026-09-21 — Phase 117 deterministic network fault receiver path
+
+- Adicionado teste de integração `network-fault` que gera payloads Opus reais, aplica perda determinística `LossProfile` e entrega pacotes sobreviventes ao `OpusReceiver` headless.
+- Cobertura valida oito frames de saída, dois frames PLC, `plc_consecutive_max == 1` e ausência de `output_failures`.
+- Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## 2026-09-21 — Phase 116 observability metrics reset
 
 - Added Engineer/Admin-only `POST /api/v1/metrics/reset`; reset clears audio, device, stream, receiver and network counters without changing audio/session state.
