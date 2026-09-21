@@ -81,7 +81,7 @@ impl ReceiverMetrics {
         self.plc_consecutive_max.store(0, Ordering::Relaxed);
     }
 
-    /// Return a consistent snapshot.
+    /// Return a best-effort snapshot.
     #[must_use]
     pub fn snapshot(&self) -> ReceiverSnapshot {
         ReceiverSnapshot {

@@ -222,6 +222,11 @@ impl OpusReceiver {
         let generation = self.generation.load(Ordering::Acquire);
         while let Ok(packet) = self.ingress_rx.try_recv() {
             if packet.0 != generation {
+                // Reconnect can race with an ingress sender after the drain above.
+                // Count late packets here instead of silently losing telemetry.
+                if let Some(ref m) = self.metrics {
+                    m.record_dropped();
+                }
                 continue;
             }
             if self.jitter.push(packet.1, &packet.2[..packet.3]).is_err() {
@@ -559,6 +564,28 @@ mod tests {
             "good packet must increment received"
         );
         assert_eq!(snap.packets_dropped, 0);
+    }
+
+    #[test]
+    fn metrics_record_dropped_for_stale_generation_after_reconnect_race() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.reconnect(&mut s);
+        // Inject old-generation ingress after reconnect drain. This exercises
+        // the stale-generation branch in playout deterministically.
+        let mut payload = [0_u8; MAX_PACKET_BYTES];
+        payload[..pkt.len()].copy_from_slice(&pkt);
+        r.ingress
+            .try_send((0, 1, payload, pkt.len()))
+            .expect("test stale packet enqueue");
+        r.playout(&mut s).unwrap();
+
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
     }
 
     #[test]
