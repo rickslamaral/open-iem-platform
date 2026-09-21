@@ -123,7 +123,7 @@ describe('Engineer Console', () => {
         .mockReturnValueOnce(json([]))
         .mockReturnValueOnce(json({ revision: 1, channels: [] }))
         .mockReturnValueOnce(json({ availability: 'simulated', backend: 'simulated', sample_rate_hz: null, frames_processed: null, xrun_count: null }))
-        .mockReturnValueOnce(json({ receiver: { packets_received: 0, packets_dropped: 0, late_packets: 0, reconnect_count: 0, plc_frames_total: 0, plc_consecutive_max: 0, output_failures: 0 } })),
+        .mockReturnValueOnce(json({ receiver: { packets_received: 0, packets_dropped: 0, late_packets: 0, reconnect_count: 0, plc_frames_total: 0, plc_consecutive_max: 0, output_failures: 0 }, network: { late_packets: 0, reordered_packets: 0, jitter_events: 0 }, stream: { frames_sent: 0, frames_lost: 0, frames_plc_recovered: 0 } })),
     );
     render(<App />);
     fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'engineer' } });
@@ -132,7 +132,7 @@ describe('Engineer Console', () => {
     await screen.findByRole('heading', { name: 'Receiver — métricas' });
     expect(screen.getByText('Pacotes recebidos')).toBeTruthy();
     expect(screen.getByText('Falhas de saída')).toBeTruthy();
-    await waitFor(() => expect(screen.getAllByText('0').length).toBeGreaterThanOrEqual(7));
+    await waitFor(() => expect(screen.getAllByText('0').length).toBeGreaterThanOrEqual(13));
   });
 
   it('substitui contador u64 fora de precisão segura por zero', async () => {
@@ -144,7 +144,7 @@ describe('Engineer Console', () => {
         .mockReturnValueOnce(json([]))
         .mockReturnValueOnce(json({ revision: 1, channels: [] }))
         .mockReturnValueOnce(json({ availability: 'simulated', backend: 'simulated', sample_rate_hz: null, frames_processed: null, xrun_count: null }))
-        .mockReturnValueOnce(json({ receiver: { packets_received: Number.MAX_SAFE_INTEGER + 2, packets_dropped: 0, late_packets: 0, reconnect_count: 0, plc_frames_total: 0, plc_consecutive_max: 0, output_failures: 0 } })),
+        .mockReturnValueOnce(json({ receiver: { packets_received: Number.MAX_SAFE_INTEGER + 2, packets_dropped: 0, late_packets: 0, reconnect_count: 0, plc_frames_total: 0, plc_consecutive_max: 0, output_failures: 0 }, network: { late_packets: 0, reordered_packets: 0, jitter_events: 0 }, stream: { frames_sent: 0, frames_lost: 0, frames_plc_recovered: 0 } })),
     );
     render(<App />);
     fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'engineer' } });

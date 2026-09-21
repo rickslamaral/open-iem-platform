@@ -20,6 +20,16 @@ type ReceiverMetrics = {
   plc_consecutive_max: number;
   output_failures: number;
 };
+type NetworkQuality = {
+  late_packets: number;
+  reordered_packets: number;
+  jitter_events: number;
+};
+type StreamMetrics = {
+  frames_sent: number;
+  frames_lost: number;
+  frames_plc_recovered: number;
+};
 function metricValue(value: unknown): number {
   return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : 0;
 }
@@ -40,6 +50,8 @@ type Dashboard = {
   revision: number;
   telemetry: Telemetry;
   receiver: ReceiverMetrics | null;
+  network: NetworkQuality | null;
+  stream: StreamMetrics | null;
   channels: ChannelState[];
 };
 
@@ -521,7 +533,7 @@ export default function App() {
     const generation = ++loadGeneration.current;
     setLoading(true); setError(null);
     try {
-      const [sessions, assignments, state, telemetry, receiver] = await Promise.all([
+      const [sessions, assignments, state, telemetry, metrics] = await Promise.all([
         request<{ sessions: Session[] }>('/api/v1/audio/sessions', token),
         request<Assignment[]>('/api/v1/mixes', token),
         request<{ revision: number; channels?: ChannelState[] }>('/api/v1/state', token),
@@ -532,17 +544,29 @@ export default function App() {
           frames_processed: null,
           xrun_count: null,
         })),
-        request<{ receiver?: Partial<ReceiverMetrics> }>('/api/v1/metrics', token)
+        request<{ receiver?: Partial<ReceiverMetrics>; network?: Partial<NetworkQuality>; stream?: Partial<StreamMetrics> }>('/api/v1/metrics', token)
           .then((metrics) => ({
-            packets_received: metricValue(metrics.receiver?.packets_received),
-            packets_dropped: metricValue(metrics.receiver?.packets_dropped),
-            late_packets: metricValue(metrics.receiver?.late_packets),
-            reconnect_count: metricValue(metrics.receiver?.reconnect_count),
-            plc_frames_total: metricValue(metrics.receiver?.plc_frames_total),
-            plc_consecutive_max: metricValue(metrics.receiver?.plc_consecutive_max),
-            output_failures: metricValue(metrics.receiver?.output_failures),
+            receiver: {
+              packets_received: metricValue(metrics.receiver?.packets_received),
+              packets_dropped: metricValue(metrics.receiver?.packets_dropped),
+              late_packets: metricValue(metrics.receiver?.late_packets),
+              reconnect_count: metricValue(metrics.receiver?.reconnect_count),
+              plc_frames_total: metricValue(metrics.receiver?.plc_frames_total),
+              plc_consecutive_max: metricValue(metrics.receiver?.plc_consecutive_max),
+              output_failures: metricValue(metrics.receiver?.output_failures),
+            },
+            network: {
+              late_packets: metricValue(metrics.network?.late_packets),
+              reordered_packets: metricValue(metrics.network?.reordered_packets),
+              jitter_events: metricValue(metrics.network?.jitter_events),
+            },
+            stream: {
+              frames_sent: metricValue(metrics.stream?.frames_sent),
+              frames_lost: metricValue(metrics.stream?.frames_lost),
+              frames_plc_recovered: metricValue(metrics.stream?.frames_plc_recovered),
+            },
           }))
-          .catch(() => null),
+          .catch(() => ({ receiver: null, network: null, stream: null })),
       ]);
       if (generation !== loadGeneration.current) return;
       setData({
@@ -550,7 +574,9 @@ export default function App() {
         assignments: Array.isArray(assignments) ? assignments : [],
         revision: state.revision,
         telemetry,
-        receiver,
+        receiver: metrics?.receiver ?? null,
+        network: metrics?.network ?? null,
+        stream: metrics?.stream ?? null,
         channels: state.channels ?? [],
       });
       // Keep overlays while mutations are in flight; each mutation clears its own overlay.
@@ -696,6 +722,22 @@ export default function App() {
       <div className="metrics">
         {([['Pacotes recebidos', 'packets_received'], ['Pacotes descartados', 'packets_dropped'], ['Pacotes tardios', 'late_packets'], ['Reconnects', 'reconnect_count'], ['Frames PLC', 'plc_frames_total'], ['PLC consecutivo máximo', 'plc_consecutive_max'], ['Falhas de saída', 'output_failures']] as const).map(([label, key]) => (
           <div className="card" key={key}><span className="muted">{label}</span><strong>{data?.receiver?.[key] ?? 'UNKNOWN'}</strong></div>
+        ))}
+      </div>
+    </section>
+    <section className="card network-metrics" aria-labelledby="network-metrics-title">
+      <h2 id="network-metrics-title">Rede — qualidade</h2>
+      <div className="metrics">
+        {([['Pacotes atrasados (rede)', 'late_packets'], ['Pacotes reordenados', 'reordered_packets'], ['Eventos de jitter', 'jitter_events']] as const).map(([label, key]) => (
+          <div className="card" key={key}><span className="muted">{label}</span><strong>{data?.network?.[key] ?? 'UNKNOWN'}</strong></div>
+        ))}
+      </div>
+    </section>
+    <section className="card stream-metrics" aria-labelledby="stream-metrics-title">
+      <h2 id="stream-metrics-title">Stream — quadros</h2>
+      <div className="metrics">
+        {([['Quadros enviados', 'frames_sent'], ['Quadros perdidos', 'frames_lost'], ['Quadros PLC', 'frames_plc_recovered']] as const).map(([label, key]) => (
+          <div className="card" key={key}><span className="muted">{label}</span><strong>{data?.stream?.[key] ?? 'UNKNOWN'}</strong></div>
         ))}
       </div>
     </section>
