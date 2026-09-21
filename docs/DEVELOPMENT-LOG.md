@@ -1,3 +1,8 @@
+## 2026-09-21 — Phase 107 receiver snapshot coverage
+
+- Adicionados testes puros para preservar contadores preenchidos e nomes de campos serializados no snapshot de métricas do receiver.
+- Evidência: `cargo fmt --manifest-path server/Cargo.toml --all -- --check` e 21 testes do crate `observability` PASS. Sem claim de runtime WebRTC/DTLS-SRTP, PipeWire/ALSA ou hardware.
+
 ## 2026-09-21 — Phase 101 PLC duration guard
 
 - Revisão independente detectou risco de orçamento incorreto quando Opus entrega frames variáveis; `OpusReceiver` agora aceita somente frames decodificados de 20 ms no contrato MVP e falha fechado para outras durações.

@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Tests
+- Added receiver observability snapshot coverage for populated counters and stable REST field names.
+
 ### Observability
 - Count invalid receiver ingress payloads as dropped packets.
 - Reconciled Phase 106 receiver metrics coverage: ingress, jitter overflow, reconnect and REST snapshot serialization remain CODE evidence only.

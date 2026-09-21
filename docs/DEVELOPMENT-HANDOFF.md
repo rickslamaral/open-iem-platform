@@ -1,3 +1,7 @@
+## Phase 107 status — receiver snapshot coverage
+
+- Testes unitários cobrem snapshot com contadores populated e serialização dos nomes estáveis (`schema_version`, `packets_received`, `packets_dropped`, `reconnect_count`, `plc_frames_total`, `plc_consecutive_max`). Evidência CODE local; integração com binário headless, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware continuam pendentes.
+
 # Open IEM Platform — Development Handoff
 
 **Date:** 2026-09-21
