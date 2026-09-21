@@ -98,7 +98,7 @@ SPEC → PLAN → IMPLEMENT → TEST → INDEPENDENT REVIEW → SECURITY REVIEW
 ## Estado atual (atualizar a cada merge)
 
 ```text
-Phase 95 — Observability Metrics REST endpoint: implementado e mergeado em main
+Phase 116 — Observability Metrics reset endpoint e Engineer Console: implementado e mergeado em main
 GAP-018/019 — PairingRegistry integrado em api-server: PR #189 mergeado, CI 16/16 SUCCESS; DTLS-SRTP e runtime pendentes
 P2 — Preset catalog/application: implementado em código/CI; runtime permanece pendente
 Release v0.3.1: pendente confirmação + instalação/validação física
