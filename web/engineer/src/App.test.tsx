@@ -154,6 +154,29 @@ describe('Engineer Console', () => {
     await waitFor(() => expect(screen.getByText('Pacotes recebidos').parentElement).toHaveTextContent('Pacotes recebidos0'));
   });
 
+  it('exibe UNKNOWN quando endpoint de métricas falha', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn()
+        .mockReturnValueOnce(json({ access_token: 'test-token' }))
+        .mockReturnValueOnce(json({ sessions: [] }))
+        .mockReturnValueOnce(json([]))
+        .mockReturnValueOnce(json({ revision: 1, channels: [] }))
+        .mockReturnValueOnce(json({ availability: 'simulated', backend: 'simulated', sample_rate_hz: null, frames_processed: null, xrun_count: null }))
+        .mockReturnValueOnce(json({}, 503)),
+    );
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'engineer' } });
+    fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    await screen.findByRole('heading', { name: 'Receiver — métricas' });
+    await waitFor(() => {
+      for (const label of ['Pacotes recebidos', 'Pacotes descartados', 'Pacotes tardios', 'Reconnects', 'Frames PLC', 'PLC consecutivo máximo', 'Falhas de saída']) {
+        expect(screen.getByText(label).parentElement).toHaveTextContent(`${label}UNKNOWN`);
+      }
+    });
+  });
+
   it('exibe falha de API ao carregar dashboard', async () => {
     vi.stubGlobal(
       'fetch',

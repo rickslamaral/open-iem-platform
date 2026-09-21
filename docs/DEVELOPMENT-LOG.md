@@ -1,3 +1,8 @@
+## 2026-09-21 — Phase 113 receiver metrics failure coverage
+
+- Adicionado teste do Engineer Console para resposta HTTP 503 em `GET /api/v1/metrics`; os sete contadores permanecem `UNKNOWN` sem quebrar o dashboard.
+- Evidência: typecheck, 49 testes e build do Engineer PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## 2026-09-21 — Phase 112 receiver reset coverage
 
 - Estendido teste `ReceiverMetrics::reset` para popular e verificar limpeza de `output_failures` e `late_packets`.
