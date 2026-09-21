@@ -19,7 +19,7 @@ pub const RECEIVER_QUEUE_CAPACITY: usize = 32;
 const MAX_PACKET_BYTES: usize = 1500;
 const MAX_JITTER_CAPACITY: usize = 256;
 const MAX_DECODED_SAMPLES: usize = 5760;
-/// 20 ms at 48 kHz; used for PLC concealment frame size.
+/// MVP Opus packetization is fixed at 20 ms, 48 kHz stereo.
 const PLC_FRAME_SAMPLES: usize = 960;
 /// Maximum consecutive PLC-concealed frames before fail-safe mute (4 × 20 ms = 80 ms).
 const PLC_MAX_CONSECUTIVE: u32 = 4;
@@ -192,7 +192,8 @@ impl OpusReceiver {
                 TrySendError::Disconnected(_) => ReceiverError::Disconnected,
             })
     }
-    /// Decode one packet and write PCM. Missing packet mutes output.
+    /// Decode one fixed 20 ms packet and write PCM. Missing packet uses bounded PLC.
+    /// Variable-duration Opus packets fail closed so PLC budget remains time-bounded.
     ///
     /// # Errors
     ///
@@ -235,7 +236,7 @@ impl OpusReceiver {
                         output.mute();
                         return Err(ReceiverError::InvalidPacket);
                     };
-                    if samples == 0
+                    if samples != PLC_FRAME_SAMPLES
                         || samples.checked_mul(2).is_none()
                         || samples * 2 > self.pcm.len()
                     {
@@ -277,7 +278,8 @@ impl OpusReceiver {
                 output.mute();
                 ReceiverError::InvalidPacket
             })?;
-        if samples > MAX_DECODED_SAMPLES
+        if samples != PLC_FRAME_SAMPLES
+            || samples > MAX_DECODED_SAMPLES
             || samples.checked_mul(2).is_none()
             || samples * 2 > self.pcm.len()
         {

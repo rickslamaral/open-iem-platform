@@ -1,3 +1,9 @@
+## 2026-09-21 — Phase 101 PLC duration guard
+
+- Revisão independente detectou risco de orçamento incorreto quando Opus entrega frames variáveis; `OpusReceiver` agora aceita somente frames decodificados de 20 ms no contrato MVP e falha fechado para outras durações.
+- Evidência: streaming 65 testes, clippy e suíte Rust completa PASS; frontends Musician 61 testes/build e Engineer 46 testes/build PASS.
+- Limite preservado: PLC continua CODE/SIMULATED; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## 2026-09-20 — P0-003 media readiness queue guard
 
 - `SessionRegistry::drive_once` agora drena frames do `MediaPlane` somente para sessões com áudio negociado (`media_mid`), preservando frames durante a janela de setup Sans-IO.

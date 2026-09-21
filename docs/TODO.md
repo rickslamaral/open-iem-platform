@@ -11,7 +11,7 @@
 
 
 ## Estado atual — 2026-09-21 (Phase 101 PLC concealment)
-- **Phase 101:** `OpusReceiver` aplica concealment PLC bounded para gaps Opus, trava mute após quatro frames de 20 ms e falha fechado em erro de decoder/output. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+- **Phase 101:** `OpusReceiver` aplica concealment PLC bounded para gaps Opus, trava mute após quatro frames de 20 ms e falha fechado em erro de decoder/output. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes. Frames Opus fora do contrato fixo de 20 ms também falham fechado, preservando limite temporal do PLC.
 
 ## Estado atual — 2026-09-20 (P0-003 media readiness queue guard)
 - **P0-003:** `SessionRegistry::drive_once` no longer drains MediaPlane frames until negotiated audio media exists, preventing frame loss during Sans-IO session setup. Regression coverage passes in CODE; runtime WebRTC/PipeWire/ALSA and hardware remain pending.
