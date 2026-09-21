@@ -1,3 +1,8 @@
+## 2026-09-21 - Phase 123 deterministic receiver PLC burst limit enforcement
+
+- Adicionado teste integrado `network-fault` para limite de budget PLC com janela de outage de cinco pacotes (posicoes 2-6 de oito). O teste confirma tres pacotes entregues, quatro frames PLC, mute fail-safe no quinto frame ausente, uma transicao `output_failures` e ausencia de contagem duplicada em chamadas posteriores.
+- Evidencia: teste headless local PASS; WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem pendentes.
+
 ## 2026-09-21 — Phase 121 deterministic reorder receiver path
 
 - Revisado `JitterProfile` após revisão independente detectar erro de índice quando múltiplos pacotes atrasados interagiam. Agendamento por slot original, desempate estável e teste de múltiplos eventos adicionados. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
