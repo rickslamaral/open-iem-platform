@@ -21,7 +21,7 @@ const MAX_JITTER_CAPACITY: usize = 256;
 const MAX_DECODED_SAMPLES: usize = 5760;
 /// MVP Opus packetization is fixed at 20 ms, 48 kHz stereo.
 const PLC_FRAME_SAMPLES: usize = 960;
-/// Maximum consecutive PLC-concealed frames before fail-safe mute (4 × 20 ms = 80 ms).
+/// Maximum consecutive PLC-concealed frames before fail-safe mute.
 const PLC_MAX_CONSECUTIVE: u32 = 4;
 
 /// Receiver lifecycle. `Muted` is fail-safe: no stale audio reaches output.
@@ -255,9 +255,8 @@ impl OpusReceiver {
                     self.state = ReceiverState::Playing;
                     // Expected sequence already advanced before decode.
                 } else {
-                    // Consume received packet and resynchronize before latching mute.
-                    let _ = self.jitter.pop();
-                    self.next_sequence = Some(sequence.saturating_add(1));
+                    // Preserve received packet for explicit reconnect/resynchronization.
+                    self.next_sequence = Some(sequence);
                     self.state = ReceiverState::Muted;
                     self.output_failed = true;
                     output.mute();
