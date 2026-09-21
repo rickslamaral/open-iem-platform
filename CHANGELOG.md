@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Phase 126: `CombinedFaultProfile` accepts deterministic `BandwidthProfile` stages for byte-budget fault pipelines. Evidence remains CODE/CI; real network, WebRTC/DTLS-SRTP, PipeWire/ALSA and hardware remain unvalidated.
+
 ### Tests
 - Phase 118 adiciona cobertura headless determinística de jitter: pacotes Opus reordenados chegam ao `OpusReceiver` sem perda, PLC, mute ou falhas de saída. Evidência limitada a CODE/CI; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 

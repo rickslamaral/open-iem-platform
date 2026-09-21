@@ -1,3 +1,6 @@
+## Estado atual - 2026-09-21 (Phase 126 combined bandwidth fault stage)
+- `Stage::Bandwidth` integra `BandwidthProfile` ao `CombinedFaultProfile`; teste unitário cobre encadeamento bandwidth→loss. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Estado atual - 2026-09-21 (Phase 125 combined fault profile pipeline)
 - `CombinedFaultProfile` e `Stage` enum adicionados ao crate `network-fault`: encadeia Loss/Reorder/Duplicate/Jitter/Outage sem dispatch dinâmico. Rejeita lista vazia com `FaultError::InvalidParameter`. Testes unitários cobrem estágio único e cadeias duplas; integração headless confirma 12 pacotes Opus através de Loss→Reorder→Duplicate com `packets_received=9`, `late_packets=3`, `plc_frames_total=2`. Evidência CODE+CI (PR #230 mergeada, 13/13 SUCCESS); runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
