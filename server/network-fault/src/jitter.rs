@@ -4,6 +4,8 @@
 //! to a sliding window, simulating late-arriving packets.  Packets that arrive
 //! out of their original position increment the jitter-event counter.
 
+use std::collections::VecDeque;
+
 use crate::{FaultError, Packet, SimResult};
 
 /// Maximum delay in packet slots.
@@ -55,44 +57,55 @@ impl JitterProfile {
     /// stream length the packet is appended at the end.
     #[must_use]
     pub fn apply(&self, packets: &[Packet]) -> SimResult {
-        // Assign each packet its intended delivery slot from the original stream,
-        // then sort by slot. Stable original-index tie breaking keeps collisions
-        // deterministic without index-shift bugs from repeated remove/insert.
-        let mut scheduled: Vec<(usize, usize, Packet)> = packets
-            .iter()
-            .cloned()
-            .enumerate()
-            .map(|(original_index, packet)| {
-                let target = if (original_index + 1) % self.interval == 0 {
-                    original_index
-                        .saturating_add(self.delay_slots)
-                        .saturating_add(1)
-                        .min(packets.len().saturating_sub(1))
-                } else {
-                    original_index
-                };
-                (target, original_index, packet)
-            })
-            .collect();
-        scheduled.sort_by_key(|(target, original_index, _)| (*target, *original_index));
+        // Hold affected packets until `delay_slots` later original positions.
+        // This models delay as a packet-count guarantee and handles collisions
+        // without allowing one delayed packet to leapfrog another.
+        let mut pending: VecDeque<(usize, usize, Packet)> = VecDeque::new();
+        let mut delivered: Vec<(usize, Packet)> = Vec::with_capacity(packets.len());
 
-        let delivered: Vec<Packet> = scheduled
-            .iter()
-            .map(|(_, _, packet)| packet.clone())
-            .collect();
-        let reordered = scheduled
+        for (original_index, packet) in packets.iter().cloned().enumerate() {
+            let affected = original_index
+                .saturating_add(1)
+                .is_multiple_of(self.interval);
+            if affected {
+                pending.push_back((
+                    original_index.saturating_add(self.delay_slots),
+                    original_index,
+                    packet,
+                ));
+            } else {
+                delivered.push((original_index, packet));
+            }
+
+            while pending
+                .front()
+                .is_some_and(|(target, _, _)| *target <= original_index)
+            {
+                if let Some((_, source_index, packet)) = pending.pop_front() {
+                    delivered.push((source_index, packet));
+                }
+            }
+        }
+
+        delivered.extend(
+            pending
+                .into_iter()
+                .map(|(_, source_index, packet)| (source_index, packet)),
+        );
+
+        let reordered = delivered
             .iter()
             .enumerate()
-            .filter(|(delivery_index, (_, original_index, _))| delivery_index != original_index)
+            .filter(|(delivery_index, (original_index, _))| *delivery_index != *original_index)
             .count();
         let jitter_events = packets
             .iter()
             .enumerate()
-            .filter(|(index, _)| (index + 1) % self.interval == 0)
+            .filter(|(index, _)| index.saturating_add(1).is_multiple_of(self.interval))
             .count();
 
         SimResult {
-            delivered,
+            delivered: delivered.into_iter().map(|(_, packet)| packet).collect(),
             dropped: 0,
             reordered,
             jitter_events,
