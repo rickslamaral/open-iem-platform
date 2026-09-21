@@ -1,3 +1,11 @@
+## Phase 125 status — combined fault profile pipeline
+
+- `CombinedFaultProfile` added to `network-fault` crate: `Stage` enum dispatches Loss/Reorder/Duplicate/Jitter/Outage profiles; pipeline chains stages left-to-right without dynamic dispatch overhead.
+- `CombinedFaultProfile::new(stages)` rejects empty stage list with `FaultError::InvalidParameter`.
+- Unit tests: `empty_stages_rejected`, `single_stage_loss_works`, `chain_loss_then_reorder`, `chain_loss_then_duplicate`; doc-test in example block.
+- Integration test `combined_loss_reorder_duplicate_headless_receiver`: 12 Opus packets through Loss(4)→Reorder(3)→Duplicate(3) pipeline into `OpusReceiver`; confirms `packets_received=9`, `late_packets=3`, `packets_dropped=0`, `plc_frames_total=2`, `output_failures=0`.
+- Evidence level is `CODE` + CI (PR #230 merged, 13/13 SUCCESS). WebRTC/DTLS-SRTP negotiation, real LAN fault injection, PipeWire/ALSA runtime and hardware remain unvalidated.
+
 ## Phase 124 status — duplicate packet receiver path
 
 - `ReceiverError::DuplicateSequence` added; `JitterBuffer::push` returns it for duplicate sequence numbers instead of `InvalidPacket`.
