@@ -1,3 +1,8 @@
+## Phase 121 status — deterministic reorder receiver path
+
+- `network-fault/tests/headless_receiver.rs` applies `ReorderProfile` to eight encoded Opus packets before `OpusReceiver`; coverage confirms reordered arrival, ordered playout, zero PLC, zero late packets and no output failures.
+- Evidence level is `CODE` local only. WebRTC/DTLS-SRTP negotiation, real LAN reordering, PipeWire/ALSA runtime and hardware remain unvalidated.
+
 ## Phase 120 status — deterministic reconnect receiver path
 
 - `network-fault/tests/headless_receiver.rs` aplica `ReconnectProfile` a sete payloads Opus reais, simula uma perda de fronteira, executa `OpusReceiver::reconnect` e valida recuperação do mix, contador de reconnect, estado `Playing`, áudio pós-reconexão e ausência de PLC/falha de saída.

@@ -1,3 +1,8 @@
+## 2026-09-21 — Phase 121 deterministic reorder receiver path
+
+- Adicionado teste de integração `network-fault` que aplica `ReorderProfile` a payloads Opus reais e entrega a sequência reordenada ao `OpusReceiver` headless.
+- Cobertura valida playout ordenado, oito pacotes recebidos, zero PLC, zero pacotes tardios e zero falhas de saída. Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## 2026-09-21 — Phase 116 status reconciliation
 
 - START, AGENTS e handoff agora apontam Phase 116 como último trabalho mergeado: reset protegido de métricas e controle no Engineer Console.
