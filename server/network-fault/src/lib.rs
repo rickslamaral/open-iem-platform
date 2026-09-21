@@ -22,9 +22,11 @@
 //! | [`reconnect`] | Split stream at a point, pass state through [`RecoveryRegistry`], resume. |
 //! | [`duplicate`] | Replay selected packets (duplicate sequence injection). |
 //! | [`combined`] | Chain multiple profiles in sequence. |
+//! | [`bandwidth`] | Enforce a deterministic byte budget per packet window. |
 
 #![deny(missing_docs, unsafe_code)]
 
+pub mod bandwidth;
 pub mod combined;
 pub mod duplicate;
 pub mod jitter;
@@ -33,6 +35,7 @@ pub mod outage;
 pub mod reconnect;
 pub mod reorder;
 
+pub use bandwidth::BandwidthProfile;
 pub use combined::{CombinedFaultProfile, Stage};
 pub use duplicate::DuplicateProfile;
 pub use jitter::JitterProfile;
