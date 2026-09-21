@@ -255,7 +255,9 @@ impl OpusReceiver {
                     self.state = ReceiverState::Playing;
                     // Expected sequence already advanced before decode.
                 } else {
-                    // Exceeded concealment budget; latch hard mute until reconnect.
+                    // Consume received packet and resynchronize before latching mute.
+                    let _ = self.jitter.pop();
+                    self.next_sequence = Some(sequence.saturating_add(1));
                     self.state = ReceiverState::Muted;
                     self.output_failed = true;
                     output.mute();
@@ -274,6 +276,7 @@ impl OpusReceiver {
             .decode(&packet, MAX_DECODED_SAMPLES, &mut self.pcm)
             .map_err(|_| {
                 self.state = ReceiverState::Muted;
+                self.output_failed = true;
                 self.next_sequence = Some(sequence.saturating_add(1));
                 output.mute();
                 ReceiverError::InvalidPacket
@@ -284,6 +287,7 @@ impl OpusReceiver {
             || samples * 2 > self.pcm.len()
         {
             self.state = ReceiverState::Muted;
+            self.output_failed = true;
             self.next_sequence = Some(sequence.saturating_add(1));
             output.mute();
             return Err(ReceiverError::InvalidPacket);
