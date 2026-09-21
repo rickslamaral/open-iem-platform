@@ -11,7 +11,7 @@
 
 
 ## Estado atual — 2026-09-21 (Phase 114 headless UDP/Opus loopback)
-- Teste bounded de loopback UDP conecta `TransportAdapter` ao `OpusReceiver` headless, valida 48 kHz estéreo/20 ms, PCM decodificado e métricas sem falha. Evidência CODE local; não cobre negociação WebRTC completa, DTLS-SRTP, PipeWire/ALSA ou hardware.
+- Teste bounded de loopback UDP valida envio pelo `TransportAdapter`, encaminhamento manual ao `OpusReceiver` headless, 48 kHz estéreo/20 ms, PCM não silencioso e métricas sem falha. Evidência CODE local; não cobre negociação WebRTC completa, DTLS-SRTP, PipeWire/ALSA ou hardware.
 
 ## Estado atual — 2026-09-21 (Phase 111 decoder/output failure metrics)
 - `ReceiverMetrics.output_failures` cobre falhas de decoder, PLC, frame PCM inválido, exaustão PLC e saída; testes unitários confirmam contagem única no latch fail-safe. Evidência CODE; integração headless, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.

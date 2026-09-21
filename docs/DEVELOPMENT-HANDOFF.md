@@ -197,7 +197,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 
 ## Phase 114 status — headless UDP/Opus loopback
 
-- `TransportAdapter` agora tem teste bounded de loopback UDP que entrega payload Opus ao `OpusReceiver`, valida PCM estéreo de 20 ms e confirma `packets_received` sem `output_failures`.
+- `TransportAdapter` agora tem teste bounded de loopback UDP entrega payload Opus ao socket e o encaminha manualmente ao `OpusReceiver`; valida duração/canais PCM estéreo de 20 ms e confirma `packets_received` sem `output_failures`.
 - Evidência permanece `CODE` local. Isso não prova negociação WebRTC completa, DTLS-SRTP, PipeWire/ALSA, runtime de produção ou hardware.
 
 ## Validation Gates

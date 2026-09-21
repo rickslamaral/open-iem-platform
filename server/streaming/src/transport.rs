@@ -177,12 +177,19 @@ mod tests {
 
     struct CaptureOutput {
         samples: usize,
+        peak: f32,
     }
 
     impl AudioOutput for CaptureOutput {
         fn write(&mut self, samples: &[f32], channels: u8) -> Result<(), OutputError> {
             assert_eq!(channels, 2);
             self.samples += samples.len();
+            self.peak = self.peak.max(
+                samples
+                    .iter()
+                    .map(|sample| sample.abs())
+                    .fold(0.0, f32::max),
+            );
             Ok(())
         }
 
@@ -237,10 +244,14 @@ mod tests {
             .unwrap()
             .with_metrics(Arc::clone(&metrics));
         receiver.enqueue(packet.sequence, &payload[..len]).unwrap();
-        let mut output = CaptureOutput { samples: 0 };
+        let mut output = CaptureOutput {
+            samples: 0,
+            peak: 0.0,
+        };
         receiver.playout(&mut output).unwrap();
 
         assert_eq!(output.samples, 1_920);
+        assert!(output.peak > 0.0);
         let snapshot = metrics.snapshot();
         assert_eq!(snapshot.packets_received, 1);
         assert_eq!(snapshot.output_failures, 0);
