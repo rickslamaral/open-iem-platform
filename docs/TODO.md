@@ -10,6 +10,9 @@
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
 
 
+## Estado atual — 2026-09-21 (Phase 117 deterministic network fault receiver path)
+- Perfil determinístico `LossProfile` agora dirige payloads Opus reais por `OpusReceiver` headless em teste bounded, cobrindo perda, PLC e métricas sem falha de saída. Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Estado atual — 2026-09-21 (Phase 116 observability metrics reset)
 - Endpoint `POST /api/v1/metrics/reset` protegido por Engineer/Admin limpa contadores de áudio, dispositivo, stream, receiver e rede sem alterar estado de áudio ou sessões. Engineer Console expõe `Resetar Contadores` com refresh após sucesso e falha fechada. Evidência CODE+CI; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
 
