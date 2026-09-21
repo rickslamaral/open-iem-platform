@@ -218,6 +218,11 @@ impl OpusReceiver {
             }
             if self.jitter.push(packet.1, &packet.2[..packet.3]).is_err() {
                 self.dropped_packets = self.dropped_packets.saturating_add(1);
+                if let Some(ref m) = self.metrics {
+                    m.record_dropped();
+                }
+            } else if let Some(ref m) = self.metrics {
+                m.record_received();
             }
         }
         if self.output_failed {
@@ -326,6 +331,9 @@ impl OpusReceiver {
         self.next_sequence = None;
         self.output_failed = false;
         self.plc_consecutive = 0;
+        if let Some(ref m) = self.metrics {
+            m.record_reconnect();
+        }
         // Preserve queued packet for explicit resynchronization after PLC exhaustion.
         while self.ingress_rx.try_recv().is_ok() {}
     }
@@ -516,5 +524,79 @@ mod tests {
         assert_eq!(r.plc_consecutive(), 1);
         r.reconnect(&mut s);
         assert_eq!(r.plc_consecutive(), 0, "reconnect must reset PLC counter");
+    }
+
+    #[test]
+    fn metrics_record_received_on_good_packet() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        let mut r = r;
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap();
+        let snap = metrics.snapshot();
+        assert_eq!(
+            snap.packets_received, 1,
+            "good packet must increment received"
+        );
+        assert_eq!(snap.packets_dropped, 0);
+    }
+
+    #[test]
+    fn metrics_record_dropped_on_overflow() {
+        // Strategy: fill jitter to (capacity-1) via round-1 playout, then push
+        // 2 more packets; the second overflows jitter and must be metered as dropped.
+        //
+        // Jitter capacity = RECEIVER_QUEUE_CAPACITY = 32.
+        // Round 1: enqueue seq 1..=32, playout drains all into jitter then pops seq=1
+        //          (playing one frame). After round 1: jitter has 31 entries.
+        // Round 2: enqueue seq 33 (fits, jitter=32) and seq 34 (overflows).
+        //          playout drains both; seq 33 increments received, seq 34 increments dropped.
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+        // Round 1: fill ingress with seq 1..=32.
+        for i in 1..=(RECEIVER_QUEUE_CAPACITY as u64) {
+            r.enqueue(i, &pkt).ok();
+        }
+        r.playout(&mut s).unwrap(); // drains ingress → jitter(31 remaining), pops seq=1
+        let snap = metrics.snapshot();
+        assert_eq!(snap.packets_received, RECEIVER_QUEUE_CAPACITY as u64);
+        assert_eq!(snap.packets_dropped, 0);
+        // Round 2: enqueue seq 33 (fills jitter to 32) and seq 34 (overflows).
+        r.enqueue(33, &pkt).ok();
+        r.enqueue(34, &pkt).ok();
+        r.playout(&mut s).unwrap();
+        let snap = metrics.snapshot();
+        assert_eq!(
+            snap.packets_received,
+            RECEIVER_QUEUE_CAPACITY as u64 + 1,
+            "seq 33 is the 33rd received packet"
+        );
+        assert_eq!(snap.packets_dropped, 1, "seq 34 should overflow jitter");
+    }
+
+    #[test]
+    fn metrics_record_reconnect_on_reconnect_call() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let mut s = Sink { frames: 0 };
+        assert_eq!(metrics.snapshot().reconnect_count, 0);
+        r.reconnect(&mut s);
+        assert_eq!(
+            metrics.snapshot().reconnect_count,
+            1,
+            "reconnect must increment counter"
+        );
+        r.reconnect(&mut s);
+        assert_eq!(metrics.snapshot().reconnect_count, 2);
     }
 }
