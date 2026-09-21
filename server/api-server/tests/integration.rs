@@ -2309,6 +2309,29 @@ async fn metrics_returns_schema_version_one() {
 }
 
 #[tokio::test]
+async fn metrics_exposes_receiver_counters() {
+    let (server, state) = build_test_app();
+    state.metrics.receiver.record_received();
+    state.metrics.receiver.record_dropped();
+    state.metrics.receiver.record_reconnect();
+    state.metrics.receiver.record_plc_frame(3);
+
+    let engineer_token = seed_user_and_login(&state, "eng_metrics_receiver", "pw", Role::Engineer);
+    let resp = server
+        .get("/api/v1/metrics")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(engineer_token)
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert_eq!(body["receiver"]["packets_received"], 1);
+    assert_eq!(body["receiver"]["packets_dropped"], 1);
+    assert_eq!(body["receiver"]["reconnect_count"], 1);
+    assert_eq!(body["receiver"]["plc_frames_total"], 1);
+    assert_eq!(body["receiver"]["plc_consecutive_max"], 3);
+}
+
+#[tokio::test]
 async fn metrics_counters_start_at_zero() {
     let (server, state) = build_test_app();
     let engineer_token = seed_user_and_login(&state, "eng_metrics_zero", "pw", Role::Engineer);
