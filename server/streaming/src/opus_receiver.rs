@@ -325,6 +325,9 @@ impl OpusReceiver {
             .map_err(|_| {
                 self.state = ReceiverState::Muted;
                 self.output_failed = true;
+                if let Some(ref m) = self.metrics {
+                    m.record_output_failure();
+                }
                 self.next_sequence = Some(sequence.saturating_add(1));
                 output.mute();
                 ReceiverError::InvalidPacket
@@ -582,6 +585,19 @@ mod tests {
         assert_eq!(r.playout(&mut s), Err(ReceiverError::OutputFailed));
         assert_eq!(metrics.snapshot().output_failures, 1);
         assert_eq!(r.playout(&mut s), Err(ReceiverError::OutputFailed));
+        assert_eq!(metrics.snapshot().output_failures, 1);
+    }
+
+    #[test]
+    fn metrics_record_output_failure_on_decoder_error() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let mut s = Sink { frames: 0 };
+        r.enqueue(1, &[0xff]).unwrap();
+
+        assert_eq!(r.playout(&mut s), Err(ReceiverError::InvalidPacket));
         assert_eq!(metrics.snapshot().output_failures, 1);
     }
 
