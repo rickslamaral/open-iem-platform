@@ -4,6 +4,8 @@
 //! to a sliding window, simulating late-arriving packets.  Packets that arrive
 //! out of their original position increment the jitter-event counter.
 
+use std::collections::VecDeque;
+
 use crate::{FaultError, Packet, SimResult};
 
 /// Maximum delay in packet slots.
@@ -55,31 +57,55 @@ impl JitterProfile {
     /// stream length the packet is appended at the end.
     #[must_use]
     pub fn apply(&self, packets: &[Packet]) -> SimResult {
-        let mut stream: Vec<Packet> = packets.to_vec();
-        let mut jitter_events = 0usize;
-        let mut reordered = 0usize;
+        // Hold affected packets until `delay_slots` later original positions.
+        // This models delay as a packet-count guarantee and handles collisions
+        // without allowing one delayed packet to leapfrog another.
+        let mut pending: VecDeque<(usize, usize, Packet)> = VecDeque::new();
+        let mut delivered: Vec<(usize, Packet)> = Vec::with_capacity(packets.len());
 
-        // Collect indices that will be delayed (0-indexed, interval-th = multiples of interval).
-        let affected: Vec<usize> = (0..packets.len())
-            .filter(|&i| (i + 1) % self.interval == 0)
-            .collect();
+        for (original_index, packet) in packets.iter().cloned().enumerate() {
+            let affected = original_index
+                .saturating_add(1)
+                .is_multiple_of(self.interval);
+            if affected {
+                pending.push_back((
+                    original_index.saturating_add(self.delay_slots),
+                    original_index,
+                    packet,
+                ));
+            } else {
+                delivered.push((original_index, packet));
+            }
 
-        // Process in reverse so that earlier removals don't shift later indices.
-        for &src_idx in affected.iter().rev() {
-            let pkt = stream.remove(src_idx);
-            let insert_at = (src_idx + self.delay_slots).min(stream.len());
-            stream.insert(insert_at, pkt);
-            jitter_events += 1;
-            if insert_at != src_idx {
-                reordered += 1;
+            while pending
+                .front()
+                .is_some_and(|(target, _, _)| *target <= original_index)
+            {
+                if let Some((_, source_index, packet)) = pending.pop_front() {
+                    delivered.push((source_index, packet));
+                }
             }
         }
 
-        // Count how many packets are not at their original position.
-        // The metric above already counts each moved packet once.
+        delivered.extend(
+            pending
+                .into_iter()
+                .map(|(_, source_index, packet)| (source_index, packet)),
+        );
+
+        let reordered = delivered
+            .iter()
+            .enumerate()
+            .filter(|(delivery_index, (original_index, _))| *delivery_index != *original_index)
+            .count();
+        let jitter_events = packets
+            .iter()
+            .enumerate()
+            .filter(|(index, _)| index.saturating_add(1).is_multiple_of(self.interval))
+            .count();
 
         SimResult {
-            delivered: stream,
+            delivered: delivered.into_iter().map(|(_, packet)| packet).collect(),
             dropped: 0,
             reordered,
             jitter_events,
@@ -156,5 +182,18 @@ mod tests {
         let result = profile.apply(&burst(1));
         assert_eq!(result.delivered.len(), 1);
         assert_eq!(result.reordered, 0);
+    }
+
+    #[test]
+    fn multiple_delayed_packets_keep_deterministic_order() {
+        let profile = JitterProfile::new(2, 2).unwrap();
+        let result = profile.apply(&burst(6));
+        let seqs: Vec<u64> = result
+            .delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect();
+        assert_eq!(seqs, vec![1, 3, 2, 5, 4, 6]);
+        assert_eq!(result.reordered, 4);
     }
 }

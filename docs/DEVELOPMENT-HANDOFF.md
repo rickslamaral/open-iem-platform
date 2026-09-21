@@ -1,5 +1,7 @@
 ## Phase 121 status — deterministic reorder receiver path
 
+- Revisado `JitterProfile`: múltiplos eventos agora calculam slots de entrega determinísticos sem deslocamento por `remove/insert`; cobertura confirma colisões e contagem de reordenação. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem não validados.
+
 - `network-fault/tests/headless_receiver.rs` applies `ReorderProfile` to eight encoded Opus packets before `OpusReceiver`; coverage confirms reordered arrival, ordered playout, zero PLC, zero late packets and no output failures.
 - Evidence level is `CODE` local only. WebRTC/DTLS-SRTP negotiation, real LAN reordering, PipeWire/ALSA runtime and hardware remain unvalidated.
 
