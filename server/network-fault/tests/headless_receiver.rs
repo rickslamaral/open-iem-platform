@@ -143,6 +143,72 @@ fn deterministic_outage_profile_drives_opus_receiver_plc_burst() {
 }
 
 #[test]
+fn deterministic_outage_profile_enforces_receiver_plc_burst_limit() {
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let result = network_fault::OutageProfile::new(2, 5)
+        .unwrap()
+        .apply(&encoded);
+    assert_eq!(result.dropped, 5);
+    assert_eq!(result.delivered.len(), 3);
+    assert_eq!(
+        result
+            .delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 8]
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &result.delivered {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    receiver.playout(&mut output).unwrap();
+    receiver.playout(&mut output).unwrap();
+    for _ in 0..4 {
+        receiver.playout(&mut output).unwrap();
+    }
+    let failure = receiver.playout(&mut output);
+    assert!(
+        failure.is_err(),
+        "fifth consecutive missing frame must fail closed"
+    );
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 6);
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Muted);
+    assert_eq!(snapshot.packets_received, 3);
+    assert_eq!(snapshot.plc_frames_total, 4);
+    assert_eq!(snapshot.plc_consecutive_max, 4);
+    assert_eq!(snapshot.output_failures, 1);
+
+    let second_failure = receiver.playout(&mut output);
+    assert!(second_failure.is_err());
+    assert_eq!(metrics.snapshot().output_failures, 1);
+    assert_eq!(output.muted, 2);
+}
+
+#[test]
 fn deterministic_jitter_profile_drives_reordered_opus_receiver() {
     let mut writer = MediaWriter::new().unwrap();
     let mut encoded = Vec::new();

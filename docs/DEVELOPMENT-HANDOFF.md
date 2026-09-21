@@ -1,3 +1,8 @@
+## Phase 123 status — deterministic receiver PLC burst limit enforcement
+
+- `network-fault/tests/headless_receiver.rs` drives an eight-packet sequence with a five-packet gap (positions 2-6) into `OpusReceiver`; coverage confirms three delivered packets, four PLC frames, fail-safe mute on the next missing frame, one `output_failures` transition and no duplicate failure count on subsequent calls.
+- Evidence level is `CODE` local only. WebRTC/DTLS-SRTP negotiation, real LAN outage, PipeWire/ALSA runtime and hardware remain unvalidated.
+
 ## Phase 121 status — deterministic reorder receiver path
 
 - Revisado `JitterProfile`: múltiplos eventos agora calculam slots de entrega determinísticos sem deslocamento por `remove/insert`; cobertura confirma colisões e contagem de reordenação. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem não validados.
