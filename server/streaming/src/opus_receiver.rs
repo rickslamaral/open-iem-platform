@@ -240,23 +240,25 @@ impl OpusReceiver {
                         || samples * 2 > self.pcm.len()
                     {
                         self.state = ReceiverState::Muted;
+                        self.output_failed = true;
                         output.mute();
-                    } else {
-                        self.plc_frames_total = self.plc_frames_total.saturating_add(1);
-                        if output.write(&self.pcm[..samples * 2], 2).is_err() {
-                            self.state = ReceiverState::Muted;
-                            self.output_failed = true;
-                            output.mute();
-                            return Err(ReceiverError::OutputFailed);
-                        }
-                        self.state = ReceiverState::Playing;
+                        return Err(ReceiverError::InvalidPacket);
                     }
+                    self.plc_frames_total = self.plc_frames_total.saturating_add(1);
+                    if output.write(&self.pcm[..samples * 2], 2).is_err() {
+                        self.state = ReceiverState::Muted;
+                        self.output_failed = true;
+                        output.mute();
+                        return Err(ReceiverError::OutputFailed);
+                    }
+                    self.state = ReceiverState::Playing;
                     // Expected sequence already advanced before decode.
                 } else {
-                    // Exceeded concealment budget; hard mute and resync to arrived packet.
+                    // Exceeded concealment budget; latch hard mute until reconnect.
                     self.state = ReceiverState::Muted;
-                    self.next_sequence = Some(sequence);
+                    self.output_failed = true;
                     output.mute();
+                    return Err(ReceiverError::OutputFailed);
                 }
                 return Ok(());
             }
@@ -449,13 +451,18 @@ mod tests {
                 );
             }
         }
-        // 5th call: budget exhausted → mute
-        r.playout(&mut s).unwrap();
+        // 5th call: budget exhausted → latched mute
+        assert_eq!(r.playout(&mut s), Err(ReceiverError::OutputFailed));
         assert_eq!(r.state(), ReceiverState::Muted, "budget exhausted → muted");
         assert_eq!(
             r.plc_consecutive(),
             4,
             "budget remains exhausted until good decode"
+        );
+        assert_eq!(
+            r.playout(&mut s),
+            Err(ReceiverError::OutputFailed),
+            "budget exhaustion must remain latched"
         );
     }
 
