@@ -295,6 +295,7 @@ impl SessionRegistry {
             .lock()
             .await
             .values()
+            .filter(|peer| peer.media_mid.is_some())
             .map(|peer| peer.user_id.clone())
             .collect::<Vec<_>>();
         let mut drained = HashMap::new();
@@ -545,6 +546,32 @@ mod tests {
         assert_eq!(report.frames_drained, 1);
         assert_eq!(report.outputs_polled, 0);
         assert!(!report.budget_exhausted);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_keeps_frames_until_audio_media_is_ready() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                11,
+                None,
+            )
+            .unwrap();
+
+        registry.drive_once(&bridge, &plane, 1, 1).await;
+
         let sessions = plane.sessions.lock().await;
         assert_eq!(sessions["alice"].drain_frames().len(), 1);
     }

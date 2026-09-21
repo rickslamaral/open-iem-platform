@@ -10,6 +10,9 @@
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
 
 
+## Estado atual — 2026-09-20 (P0-003 media readiness queue guard)
+- **P0-003:** `SessionRegistry::drive_once` no longer drains MediaPlane frames until negotiated audio media exists, preventing frame loss during Sans-IO session setup. Regression coverage passes in CODE; runtime WebRTC/PipeWire/ALSA and hardware remain pending.
+
 ## Estado atual — 2026-09-20 (GAP-018/019 DTLS fingerprint binding)
 - **GAP-018/019:** pairing aceita fingerprint DTLS-SRTP SHA-256 canônico opcional e ofertas autenticadas com fingerprint registrado exigem correspondência exata antes de criar sessão; identidades pareadas legadas sem fingerprint permanecem compatíveis. Evidência CODE local; runtime WebRTC/DTLS-SRTP e hardware permanecem pendentes.
 
