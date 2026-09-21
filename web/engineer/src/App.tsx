@@ -21,7 +21,7 @@ type ReceiverMetrics = {
   output_failures: number;
 };
 function metricValue(value: unknown): number {
-  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : 0;
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : 0;
 }
 
 type ChannelState = {
