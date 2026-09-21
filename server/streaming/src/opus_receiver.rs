@@ -191,6 +191,9 @@ impl OpusReceiver {
     /// Returns an error for invalid payloads, full queue, or disconnected receiver.
     pub fn enqueue(&self, sequence: u64, packet: &[u8]) -> Result<(), ReceiverError> {
         if packet.is_empty() || packet.len() > MAX_PACKET_BYTES {
+            if let Some(ref m) = self.metrics {
+                m.record_dropped();
+            }
             return Err(ReceiverError::InvalidPacket);
         }
         let generation = self.generation.load(Ordering::Acquire);
@@ -552,6 +555,22 @@ mod tests {
             "good packet must increment received"
         );
         assert_eq!(snap.packets_dropped, 0);
+    }
+
+    #[test]
+    fn metrics_record_dropped_on_invalid_ingress_packet() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let oversized = vec![0_u8; MAX_PACKET_BYTES + 1];
+
+        assert_eq!(r.enqueue(1, &[]), Err(ReceiverError::InvalidPacket));
+        assert_eq!(r.enqueue(2, &oversized), Err(ReceiverError::InvalidPacket));
+
+        let snap = metrics.snapshot();
+        assert_eq!(snap.packets_received, 0);
+        assert_eq!(snap.packets_dropped, 2);
     }
 
     #[test]

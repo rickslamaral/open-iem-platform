@@ -145,6 +145,8 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 
 ## Phase 106 status — receiver metrics continuation
 
+- `OpusReceiver::enqueue` agora registra rejeições de payload inválido (`empty` ou >1500 bytes) em `ReceiverMetrics::packets_dropped`; cobertura unitária confirma duas rejeições, duas contagens. Evidência CODE; runtime/hardware permanecem pendentes.
+
 - Phase 105 receiver ingress overflow metric is implemented and covered by 71 streaming tests. Phase 104/105 metrics wire-up remains CODE-only; no headless receiver binary currently consumes `AppState.metrics.receiver`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain pending.
 
 ## Phase 105 status — receiver ingress drop metric
