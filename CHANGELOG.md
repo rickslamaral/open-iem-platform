@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Phase 127: deterministic bandwidth fault profile now drives encoded Opus receiver coverage; evidence remains CODE/CI, with real network, WebRTC/DTLS-SRTP, PipeWire/ALSA and hardware unvalidated.
+
 - Phase 126: `CombinedFaultProfile` accepts deterministic `BandwidthProfile` stages for byte-budget fault pipelines. Evidence remains CODE/CI; real network, WebRTC/DTLS-SRTP, PipeWire/ALSA and hardware remain unvalidated.
 
 ### Tests

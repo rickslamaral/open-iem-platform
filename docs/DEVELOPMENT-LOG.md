@@ -1,3 +1,9 @@
+## 2026-09-21 — Phase 127 deterministic bandwidth receiver path
+
+- Adicionado teste integrado que aplica `BandwidthProfile` a payloads Opus codificados e entrega pacotes sobreviventes ao `OpusReceiver` headless.
+- Cobertura confirma pacotes recebidos, playout dos pacotes admitidos, ausência de falhas de saída e estado `Playing`.
+- Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## 2026-09-21 — Phase 126 combined bandwidth fault stage
 
 - `Stage::Bandwidth` integra `BandwidthProfile` ao pipeline `CombinedFaultProfile`, preservando composição estática e ordem determinística.

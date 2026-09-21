@@ -1,3 +1,9 @@
+## Phase 127 status — deterministic bandwidth receiver path
+
+- `network-fault/tests/headless_receiver.rs` applies a byte-budget `BandwidthProfile` to encoded Opus packets before feeding `OpusReceiver`.
+- Coverage confirms admitted packet count, output frame count, zero output failures and `Playing` state.
+- Evidence level is CODE local. Real network, WebRTC/DTLS-SRTP negotiation, PipeWire/ALSA runtime and hardware remain unvalidated.
+
 ## Phase 126 status — combined bandwidth fault stage
 
 - `Stage::Bandwidth` now composes `BandwidthProfile` into deterministic combined fault pipelines; unit coverage validates bandwidth→loss ordering.
