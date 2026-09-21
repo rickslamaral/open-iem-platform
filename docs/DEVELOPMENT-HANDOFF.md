@@ -1,3 +1,8 @@
+## Phase 126 status — combined bandwidth fault stage
+
+- `Stage::Bandwidth` now composes `BandwidthProfile` into deterministic combined fault pipelines; unit coverage validates bandwidth→loss ordering.
+- Evidence level is CODE local. Real network, WebRTC/DTLS-SRTP negotiation, PipeWire/ALSA runtime and hardware remain unvalidated.
+
 ## Phase 125 status — combined fault profile pipeline
 
 - `CombinedFaultProfile` added to `network-fault` crate: `Stage` enum dispatches Loss/Reorder/Duplicate/Jitter/Outage profiles; pipeline chains stages left-to-right without dynamic dispatch overhead.

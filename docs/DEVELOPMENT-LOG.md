@@ -1,3 +1,9 @@
+## 2026-09-21 — Phase 126 combined bandwidth fault stage
+
+- `Stage::Bandwidth` integra `BandwidthProfile` ao pipeline `CombinedFaultProfile`, preservando composição estática e ordem determinística.
+- Teste unitário cobre bandwidth→loss e confirma que cada estágio recebe somente saída do anterior.
+- Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## 2026-09-21 - Phase 123 deterministic receiver PLC burst limit enforcement
 
 - Adicionado teste integrado `network-fault` para limite de budget PLC com janela de outage de cinco pacotes (posicoes 2-6 de oito). O teste confirma tres pacotes entregues, quatro frames PLC, mute fail-safe no quinto frame ausente, uma transicao `output_failures` e ausencia de contagem duplicada em chamadas posteriores.

@@ -5,7 +5,8 @@
 //! without incurring dynamic dispatch overhead.
 
 use crate::{
-    DuplicateProfile, FaultError, JitterProfile, LossProfile, OutageProfile, Packet, ReorderProfile,
+    BandwidthProfile, DuplicateProfile, FaultError, JitterProfile, LossProfile, OutageProfile,
+    Packet, ReorderProfile,
 };
 
 /// A single stage in a [`CombinedFaultProfile`] pipeline.
@@ -16,6 +17,8 @@ use crate::{
 pub enum Stage {
     /// Apply fixed-rate packet loss.
     Loss(LossProfile),
+    /// Enforce a deterministic byte budget per packet window.
+    Bandwidth(BandwidthProfile),
     /// Apply fixed-interval packet reordering.
     Reorder(ReorderProfile),
     /// Apply duplicate packet injection.
@@ -32,6 +35,7 @@ impl Stage {
     fn apply(&self, packets: &[Packet]) -> Vec<Packet> {
         match self {
             Stage::Loss(p) => p.apply(packets).delivered,
+            Stage::Bandwidth(p) => p.apply(packets).delivered,
             Stage::Reorder(p) => p.apply(packets).delivered,
             Stage::Duplicate(p) => p.apply(packets),
             Stage::Jitter(p) => p.apply(packets).delivered,
@@ -115,6 +119,22 @@ mod tests {
         // Sequences 4 and 8 dropped.
         let seqs: Vec<u64> = result.iter().map(|p| p.sequence).collect();
         assert_eq!(seqs, vec![1, 2, 3, 5, 6, 7]);
+    }
+
+    #[test]
+    fn chain_bandwidth_then_loss() {
+        // One-byte sentinel packets: bandwidth admits two per window, then
+        // loss removes every fourth surviving packet.
+        let profile = CombinedFaultProfile::new(vec![
+            Stage::Bandwidth(BandwidthProfile::new(2, 4).unwrap()),
+            Stage::Loss(LossProfile::new(2).unwrap()),
+        ])
+        .unwrap();
+        let result = profile.apply(&burst(8));
+        assert_eq!(
+            result.iter().map(|p| p.sequence).collect::<Vec<_>>(),
+            vec![1, 5]
+        );
     }
 
     #[test]
