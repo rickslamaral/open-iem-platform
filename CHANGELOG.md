@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Tests
+- Phase 118 adiciona cobertura headless determinística de jitter: pacotes Opus reordenados chegam ao `OpusReceiver` sem perda, PLC, mute ou falhas de saída. Evidência limitada a CODE/CI; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ### Fixed
 - Phase 111: `OpusReceiver` contabiliza falhas de decoder, validação de frame, PLC e saída como `output_failures`, mantendo mute fail-safe sem dupla contagem.
 
