@@ -4737,3 +4737,13 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Adicionado teste `udp_loopback_delivers_opus_payload_to_headless_receiver` no `TransportAdapter`. O teste usa UDP `127.0.0.1`, frame Opus estéreo 48 kHz/20 ms, deadline de 1 segundo, decodificação para 1.920 amostras não silenciosas e métricas `packets_received=1`/`output_failures=0`.
 - Gates locais: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS. Revisão independente PASS; sugestões não bloqueantes aplicadas.
 - Evidência `CODE`; negociação WebRTC completa, DTLS-SRTP, PipeWire/ALSA, runtime e Raspberry Pi 5 continuam pendentes.
+
+## 2026-09-21 — Phase 124 duplicate packet receiver path
+
+- Added `ReceiverError::DuplicateSequence` variant; `JitterBuffer::push` returns it for duplicate sequence numbers (previously returned `InvalidPacket` conflating two distinct error cases).
+- `OpusReceiver::playout` now matches `DuplicateSequence` separately: calls `record_late()` for duplicates, `record_dropped()` for genuinely invalid packets. `dropped_packets` internal counter incremented for both (docstring: "overflow or duplicate").
+- Added `server/network-fault/src/duplicate.rs`: `DuplicateProfile::new(interval)` validated (zero → `InvalidParameter`), `apply(&[Packet])` inserts a copy after every `interval`-th packet.
+- `server/network-fault/src/lib.rs` updated: module table comment, `pub mod duplicate`, `pub use duplicate::DuplicateProfile`.
+- `deterministic_duplicate_profile_classifies_duplicates_as_late` test in `headless_receiver.rs`: 6 encoded Opus packets, `DuplicateProfile(2)` yields 9, receiver counts 6 `packets_received`, 3 `late_packets`, 0 `packets_dropped`, 0 PLC, 0 output failures, state `Playing`.
+- Gates: `cargo fmt --check` PASS, `cargo clippy --all-targets -- -D warnings` PASS, `cargo test` PASS (all suites). Frontend typecheck/test/build PASS (musician 61 tests, engineer 50 tests).
+- Evidence: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and hardware remain unvalidated.

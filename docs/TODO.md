@@ -1,3 +1,6 @@
+## Estado atual - 2026-09-21 (Phase 124 duplicate packet receiver path)
+- `ReceiverError::DuplicateSequence` distingue pacotes duplicados de inválidos no `JitterBuffer::push`. `OpusReceiver::playout` chama `record_late()` para duplicatas e `record_dropped()` para inválidos. `DuplicateProfile` injeta duplicatas em intervalos regulares. Teste headless confirma classificação correta. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Estado atual - 2026-09-21 (Phase 123 deterministic receiver PLC burst limit enforcement)
 - `OpusReceiver` agora tem cobertura para limite de budget PLC com outage de cinco pacotes consecutivos: quatro frames PLC validos, quinto frame ausente falha fechado, `output_failures` conta uma unica transicao e chamadas posteriores nao duplicam contador. Evidencia CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 

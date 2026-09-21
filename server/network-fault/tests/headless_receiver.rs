@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
-use network_fault::{JitterProfile, LossProfile, Packet, ReconnectProfile, ReorderProfile};
+use network_fault::{
+    DuplicateProfile, JitterProfile, LossProfile, Packet, ReconnectProfile, ReorderProfile,
+};
 use observability::ReceiverMetrics;
 use streaming::{
     AudioOutput, MediaFrame, MediaWriter, OpusReceiver, OutputError, ReceiverState, StreamMetadata,
@@ -389,6 +391,60 @@ fn deterministic_reconnect_profile_resumes_opus_receiver() {
             "decoded frame at playout {index} has wrong source: {left_mean}"
         );
     }
+}
+
+#[test]
+fn deterministic_duplicate_profile_classifies_duplicates_as_late() {
+    // Encode 6 real Opus packets. DuplicateProfile(interval=2) replays every
+    // 2nd packet. The receiver must:
+    // - deliver all 6 original packets (packets_received == 6)
+    // - classify each duplicate as late_packets (not packets_dropped)
+    // - play out 6 frames without PLC or output failure
+    // - stay in Playing state
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=6u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    // interval=2 → duplicates at positions 2,4,6 → 3 duplicates injected
+    let with_dupes = DuplicateProfile::new(2).unwrap().apply(&encoded);
+    assert_eq!(with_dupes.len(), 9, "6 originals + 3 duplicates");
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &with_dupes {
+        // Enqueue may return DuplicateSequence for replays; that is expected.
+        let _ = receiver.enqueue(pkt.sequence, &pkt.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..6 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 6, "six frames played");
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 6, "six unique packets received");
+    assert_eq!(snapshot.late_packets, 3, "three duplicates counted as late");
+    assert_eq!(snapshot.packets_dropped, 0, "no packets dropped");
+    assert_eq!(snapshot.plc_frames_total, 0, "no PLC needed");
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
 }
 
 fn test_frame(sequence: u64) -> MediaFrame {

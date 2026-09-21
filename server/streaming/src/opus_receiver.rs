@@ -46,6 +46,8 @@ pub enum ReceiverError {
     InvalidPacket,
     #[error("audio output failed")]
     OutputFailed,
+    #[error("duplicate sequence number")]
+    DuplicateSequence,
 }
 
 /// Headless audio sink. Implementations must return quickly; no sink call runs
@@ -94,7 +96,7 @@ impl JitterBuffer {
             return Err(ReceiverError::InvalidPacket);
         }
         if self.packets.iter().any(|(seq, _)| *seq == sequence) {
-            return Err(ReceiverError::InvalidPacket);
+            return Err(ReceiverError::DuplicateSequence);
         }
         if self.packets.len() >= self.capacity {
             return Err(ReceiverError::QueueFull);
@@ -229,13 +231,24 @@ impl OpusReceiver {
                 }
                 continue;
             }
-            if self.jitter.push(packet.1, &packet.2[..packet.3]).is_err() {
-                self.dropped_packets = self.dropped_packets.saturating_add(1);
-                if let Some(ref m) = self.metrics {
-                    m.record_dropped();
+            match self.jitter.push(packet.1, &packet.2[..packet.3]) {
+                Err(ReceiverError::DuplicateSequence) => {
+                    self.dropped_packets = self.dropped_packets.saturating_add(1);
+                    if let Some(ref m) = self.metrics {
+                        m.record_late();
+                    }
                 }
-            } else if let Some(ref m) = self.metrics {
-                m.record_received();
+                Err(_) => {
+                    self.dropped_packets = self.dropped_packets.saturating_add(1);
+                    if let Some(ref m) = self.metrics {
+                        m.record_dropped();
+                    }
+                }
+                Ok(()) => {
+                    if let Some(ref m) = self.metrics {
+                        m.record_received();
+                    }
+                }
             }
         }
         if self.output_failed {
