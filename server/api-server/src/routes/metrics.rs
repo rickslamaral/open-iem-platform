@@ -20,3 +20,21 @@ pub async fn get_metrics(
     require_min_role(&claims, Role::Engineer)?;
     Ok(Json(state.metrics.snapshot()))
 }
+
+/// `POST /api/v1/metrics/reset` — resets all bounded observability counters to zero.
+///
+/// Requires at least Engineer role. Counters restart accumulation from zero
+/// after this call. This is a management operation; it does not affect audio
+/// processing or session state.
+///
+/// # Errors
+/// Returns `ApiError::Forbidden` when caller lacks Engineer or Admin role.
+#[allow(clippy::unused_async)]
+pub async fn reset_metrics(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<JwtClaims>,
+) -> Result<impl IntoResponse, ApiError> {
+    require_min_role(&claims, Role::Engineer)?;
+    state.metrics.reset_all();
+    Ok(axum::http::StatusCode::NO_CONTENT)
+}

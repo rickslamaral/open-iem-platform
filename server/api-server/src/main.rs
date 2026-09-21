@@ -23,7 +23,7 @@ use api_server::{
         config::{backup_config, restore_config},
         devices::get_devices,
         health::health,
-        metrics::get_metrics,
+        metrics::{get_metrics, reset_metrics},
         mixes::{
             assign_mix, get_send_state, list_mixes, set_send_gain, set_send_muted, set_send_pan,
             unassign_mix,
@@ -138,6 +138,7 @@ async fn main() -> anyhow::Result<()> {
             get(get_scene).put(update_scene).delete(delete_scene),
         )
         .route("/api/v1/metrics", get(get_metrics))
+        .route("/api/v1/metrics/reset", post(reset_metrics))
         .route("/api/v1/presets", get(list_presets))
         .route("/api/v1/presets/{id}/apply", post(apply_preset))
         .route(

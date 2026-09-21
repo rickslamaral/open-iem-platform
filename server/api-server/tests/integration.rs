@@ -20,7 +20,7 @@ use api_server::{
         auth::{create_user, login, logout, refresh},
         channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
         health::health,
-        metrics::get_metrics,
+        metrics::{get_metrics, reset_metrics},
         mixes::{
             assign_mix, get_send_state, list_mixes, set_send_gain, set_send_muted, set_send_pan,
             unassign_mix,
@@ -133,6 +133,7 @@ fn build_test_app() -> (TestServer, AppState) {
         .route("/api/v1/channels", get(list_channels))
         .route("/api/v1/telemetry", get(get_telemetry))
         .route("/api/v1/metrics", get(get_metrics))
+        .route("/api/v1/metrics/reset", post(reset_metrics))
         .route("/api/v1/presets", get(list_presets))
         .route("/api/v1/presets/{id}/apply", post(apply_preset))
         .route("/api/v1/audio/offer", post(offer))
@@ -2333,6 +2334,29 @@ async fn metrics_exposes_receiver_counters() {
     assert_eq!(body["receiver"]["plc_consecutive_max"], 3);
     assert_eq!(body["receiver"]["output_failures"], 1);
     assert_eq!(body["receiver"]["late_packets"], 1);
+}
+
+#[tokio::test]
+async fn metrics_reset_requires_engineer_and_clears_counters() {
+    let (server, state) = build_test_app();
+    state.metrics.audio.record_xrun();
+    state.metrics.network.record_late();
+    let engineer = seed_user_and_login(&state, "eng_metrics_reset", "pw", Role::Engineer);
+    server
+        .post("/api/v1/metrics/reset")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(engineer)
+        .await
+        .assert_status(axum::http::StatusCode::NO_CONTENT);
+    assert_eq!(state.metrics.snapshot().audio.xrun_count, 0);
+    assert_eq!(state.metrics.snapshot().network.late_packets, 0);
+    let musician = seed_user_and_login(&state, "mus_metrics_reset", "pw", Role::Musician);
+    server
+        .post("/api/v1/metrics/reset")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician)
+        .await
+        .assert_status(axum::http::StatusCode::FORBIDDEN);
 }
 
 #[tokio::test]

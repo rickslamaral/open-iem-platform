@@ -1,3 +1,9 @@
+## 2026-09-21 — Phase 116 observability metrics reset
+
+- Added Engineer/Admin-only `POST /api/v1/metrics/reset`; reset clears audio, device, stream, receiver and network counters without changing audio/session state.
+- Engineer Console adds `Resetar Contadores`, disables during request, refreshes metrics after success and fails closed with console logging.
+- Integration and frontend tests cover RBAC, clearing counters and authenticated POST. Evidence CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi hardware remain pending.
+
 ## 2026-09-21 — Phase 113 receiver metrics failure coverage
 
 - Adicionado teste do Engineer Console para resposta HTTP 503 em `GET /api/v1/metrics`; os sete contadores permanecem `UNKNOWN` sem quebrar o dashboard.
