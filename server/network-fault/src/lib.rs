@@ -20,15 +20,18 @@
 //! | [`reorder`] | Swap adjacent pair every Nth position. |
 //! | [`outage`] | Drop a contiguous window of packets (link outage). |
 //! | [`reconnect`] | Split stream at a point, pass state through [`RecoveryRegistry`], resume. |
+//! | [`duplicate`] | Replay selected packets (duplicate sequence injection). |
 
 #![deny(missing_docs, unsafe_code)]
 
+pub mod duplicate;
 pub mod jitter;
 pub mod loss;
 pub mod outage;
 pub mod reconnect;
 pub mod reorder;
 
+pub use duplicate::DuplicateProfile;
 pub use jitter::JitterProfile;
 pub use loss::LossProfile;
 pub use outage::OutageProfile;

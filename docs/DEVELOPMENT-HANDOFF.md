@@ -1,3 +1,11 @@
+## Phase 124 status — duplicate packet receiver path
+
+- `ReceiverError::DuplicateSequence` added; `JitterBuffer::push` returns it for duplicate sequence numbers instead of `InvalidPacket`.
+- `OpusReceiver::playout` routes `DuplicateSequence` push errors to `record_late()` instead of `record_dropped()`.
+- `DuplicateProfile` added to `network-fault` crate: `new(interval)` validated, `apply(&[Packet])` injects copies at every `interval`-th position.
+- `deterministic_duplicate_profile_classifies_duplicates_as_late` test confirms 6 originals received, 3 duplicates counted as `late_packets`, zero `packets_dropped`, zero PLC, zero output failures.
+- Evidence level is `CODE` local only. WebRTC/DTLS-SRTP negotiation, real LAN duplicate injection, PipeWire/ALSA runtime and hardware remain unvalidated.
+
 ## Phase 123 status — deterministic receiver PLC burst limit enforcement
 
 - `network-fault/tests/headless_receiver.rs` drives an eight-packet sequence with a five-packet gap (positions 2-6) into `OpusReceiver`; coverage confirms three delivered packets, four PLC frames, fail-safe mute on the next missing frame, one `output_failures` transition and no duplicate failure count on subsequent calls.
