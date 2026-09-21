@@ -74,6 +74,13 @@ fn deterministic_loss_profile_drives_opus_receiver_plc() {
             "decoded frame at playout {index} has wrong source: {left_mean}"
         );
     }
+    for index in [2, 5] {
+        let plc_peak = output.frames[index]
+            .iter()
+            .map(|sample| sample.abs())
+            .fold(0.0_f32, f32::max);
+        assert!(plc_peak > 0.001, "PLC frame at playout {index} is silent");
+    }
     assert_eq!(output.muted, 0);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.packets_received, 6);
