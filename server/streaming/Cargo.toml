@@ -35,6 +35,8 @@ mix-engine = { path = "../mix-engine" }
 # Pure-Rust Opus decoder; avoids host libopus dependency in CI.
 opus-pure = "0.2.1"
 
+observability = { path = "../observability" }
+
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
 

@@ -158,6 +158,8 @@ mod tests {
         assert_eq!(s.receiver.packets_received, 0);
         assert_eq!(s.receiver.packets_dropped, 0);
         assert_eq!(s.receiver.reconnect_count, 0);
+        assert_eq!(s.receiver.plc_frames_total, 0);
+        assert_eq!(s.receiver.plc_consecutive_max, 0);
         assert_eq!(s.network.late_packets, 0);
         assert_eq!(s.network.reordered_packets, 0);
         assert_eq!(s.network.jitter_events, 0);

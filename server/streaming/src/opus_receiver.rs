@@ -14,6 +14,8 @@ use std::{
 };
 use thiserror::Error;
 
+use observability::ReceiverMetrics;
+
 /// Maximum encoded packets retained before newest packet is dropped.
 pub const RECEIVER_QUEUE_CAPACITY: usize = 32;
 const MAX_PACKET_BYTES: usize = 1500;
@@ -145,6 +147,7 @@ pub struct OpusReceiver {
     plc_frames_total: u64,
     generation: Arc<AtomicU64>,
     output_failed: bool,
+    metrics: Option<Arc<ReceiverMetrics>>,
 }
 
 impl OpusReceiver {
@@ -169,8 +172,16 @@ impl OpusReceiver {
             plc_frames_total: 0,
             generation: Arc::new(AtomicU64::new(0)),
             output_failed: false,
+            metrics: None,
         })
     }
+    /// Attach observability metrics to this receiver.
+    #[must_use]
+    pub fn with_metrics(mut self, metrics: Arc<ReceiverMetrics>) -> Self {
+        self.metrics = Some(metrics);
+        self
+    }
+
     /// Enqueue encoded payload without waiting. `sequence` must be a monotonic
     /// extended RTP sequence number; rollover must be extended by transport layer.
     ///
@@ -198,6 +209,7 @@ impl OpusReceiver {
     /// # Errors
     ///
     /// Returns an error for invalid Opus data or failed output.
+    #[allow(clippy::too_many_lines)]
     pub fn playout<O: AudioOutput>(&mut self, output: &mut O) -> Result<(), ReceiverError> {
         let generation = self.generation.load(Ordering::Acquire);
         while let Ok(packet) = self.ingress_rx.try_recv() {
@@ -246,6 +258,9 @@ impl OpusReceiver {
                         return Err(ReceiverError::InvalidPacket);
                     }
                     self.plc_frames_total = self.plc_frames_total.saturating_add(1);
+                    if let Some(ref m) = self.metrics {
+                        m.record_plc_frame(self.plc_consecutive);
+                    }
                     if output.write(&self.pcm[..samples * 2], 2).is_err() {
                         self.state = ReceiverState::Muted;
                         self.output_failed = true;
