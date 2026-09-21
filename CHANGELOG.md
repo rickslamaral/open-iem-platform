@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Documentation
+- Reconciliado status de observabilidade do receiver: métricas Phase 104/105 estão em CODE, sem claim de runtime enquanto não houver integração com binário headless.
+
 ### Fixed
 - `OpusReceiver` agora contabiliza pacotes atrasados descartados no jitter buffer, evitando subcontagem em `ReceiverMetrics`.
 

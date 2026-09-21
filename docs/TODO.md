@@ -10,6 +10,9 @@
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
 
 
+## Estado atual — 2026-09-21 (Phase 106 receiver metrics boundary)
+- **Phase 106:** métricas do receiver estão conectadas ao `OpusReceiver` e expostas no snapshot observability, mas nenhum binário headless consome `AppState.metrics.receiver`; integração de runtime permanece pendente. Não criar claim de WebRTC/DTLS-SRTP, PipeWire/ALSA ou Raspberry Pi 5.
+
 ## Estado atual — 2026-09-21 (Phase 105 receiver ingress drop metric)
 - **Phase 105:** `OpusReceiver::enqueue` agora registra `packets_dropped` quando a fila bounded de ingress rejeita pacote por overflow; teste dedicado confirma contagem única. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
