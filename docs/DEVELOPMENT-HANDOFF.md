@@ -145,6 +145,9 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 
 ## Phase 106 status — receiver metrics continuation
 
+- Phase 106 está reconciliada: `OpusReceiver` registra recebidos, drops por overflow e payload inválido, reconnect e métricas PLC; endpoint REST serializa snapshot com schema versionado. Evidência CODE local nos commits `2ac4a77`, `3ba17dc`, `48fa714` e `49e0d1d`; integração do snapshot ao binário headless receiver ainda não existe. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 continuam pendentes.
+
+
 - `OpusReceiver::enqueue` agora registra rejeições de payload inválido (`empty` ou >1500 bytes) em `ReceiverMetrics::packets_dropped`; cobertura unitária confirma duas rejeições, duas contagens. Evidência CODE; runtime/hardware permanecem pendentes.
 
 - Phase 105 receiver ingress overflow metric is implemented and covered by 71 streaming tests. Phase 104/105 metrics wire-up remains CODE-only; no headless receiver binary currently consumes `AppState.metrics.receiver`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain pending.

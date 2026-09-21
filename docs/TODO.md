@@ -11,6 +11,8 @@
 
 
 ## Estado atual — 2026-09-21 (Phase 106 receiver metrics boundary)
+- **Phase 106 review:** cobertura local confirma métricas de receiver para pacotes recebidos, overflow de jitter/ingress, reconnect e payload inválido; serialização REST confirma `schema_version` e contadores. Commits verificados: `2ac4a77`, `3ba17dc`, `48fa714`, `49e0d1d`. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 - **Phase 106 follow-up:** `OpusReceiver::enqueue` contabiliza payloads vazios ou acima de 1500 bytes como `packets_dropped`, com teste unitário para contagem única por rejeição. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
 - **Phase 106:** métricas do receiver estão conectadas ao `OpusReceiver` e expostas no snapshot observability, mas nenhum binário headless consome `AppState.metrics.receiver`; integração de runtime permanece pendente. Não criar claim de WebRTC/DTLS-SRTP, PipeWire/ALSA ou Raspberry Pi 5.
