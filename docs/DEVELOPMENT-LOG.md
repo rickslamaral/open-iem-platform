@@ -1,3 +1,12 @@
+## 2026-09-21 — Phase 110 late_packets counter
+
+- Campo `late_packets: AtomicU64` adicionado a `ReceiverMetrics` e `ReceiverSnapshot` para separar pacotes descartados por chegada tardia ou duplicação dos demais drops.
+- `record_late()` adicionado; caminho stale de playout em `OpusReceiver` chama `record_late()` em vez de `record_dropped()`.
+- `reset()` e `snapshot()` atualizados para incluir `late_packets`.
+- Testes de integração REST cobrem `output_failures` e `late_packets` expostos em `GET /api/v1/metrics`.
+- Evidência: CODE local (commit d937b7a); runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+
 ## 2026-09-21 — Phase 108 receiver metrics round-trip coverage
 
 - Adicionado teste de integração no round-trip Opus para confirmar `packets_received`, `packets_dropped` e `reconnect_count` no mesmo `ReceiverMetrics` compartilhado pelo receiver.

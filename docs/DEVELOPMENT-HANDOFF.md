@@ -1,3 +1,8 @@
+## Phase 110 status — late_packets counter
+
+- `ReceiverMetrics` agora distingue `late_packets` (stale/duplicados) de `packets_dropped` (overflow/inválido); `OpusReceiver` chama `record_late()` no caminho stale. `GET /api/v1/metrics` expõe o campo. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
+
 ## Phase 109 status — receiver fail-safe output metrics
 
 - `ReceiverMetrics` e snapshot REST agora incluem `output_failures`; `OpusReceiver` conta falhas de decode, PLC/output e mute latch sem duplicar chamadas já mutadas. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware continuam pendentes.

@@ -10,6 +10,9 @@
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
 
 
+## Estado atual — 2026-09-21 (Phase 110 late_packets counter)
+- `late_packets` separado de `packets_dropped` em `ReceiverMetrics`: pacotes stale/duplicados incrementam `late_packets` via `record_late()`. REST `GET /api/v1/metrics` expõe campo. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Estado atual — 2026-09-21 (Phase 109 receiver fail-safe output metrics)
 - `ReceiverMetrics` registra `output_failures` e `OpusReceiver` contabiliza transições de falha para mute fail-safe; cobertura de erro de saída, exaustão PLC e snapshot adicionada. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
