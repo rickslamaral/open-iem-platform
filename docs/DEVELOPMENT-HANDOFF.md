@@ -1,3 +1,7 @@
+## Phase 109 status — receiver fail-safe output metrics
+
+- `ReceiverMetrics` e snapshot REST agora incluem `output_failures`; `OpusReceiver` conta falhas de decode, PLC/output e mute latch sem duplicar chamadas já mutadas. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware continuam pendentes.
+
 ## Phase 108 status — receiver metrics round-trip coverage
 
 - Teste de integração confirma métricas compartilhadas no fluxo OpusReceiver: pacote válido incrementa `packets_received`, payload inválido incrementa `packets_dropped` e `reconnect` incrementa `reconnect_count`. Evidência CODE local; binário headless, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware continuam pendentes.

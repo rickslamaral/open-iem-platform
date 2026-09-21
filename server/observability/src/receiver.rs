@@ -17,6 +17,8 @@ pub struct ReceiverMetrics {
     plc_frames_total: AtomicU64,
     /// Peak consecutive PLC frames observed in a single gap.
     plc_consecutive_max: AtomicU64,
+    /// Number of receiver failures that latched fail-safe mute.
+    output_failures: AtomicU64,
 }
 
 /// Point-in-time snapshot of receiver counters.
@@ -32,6 +34,8 @@ pub struct ReceiverSnapshot {
     pub plc_frames_total: u64,
     /// Peak consecutive PLC frames observed in a single gap since last reset.
     pub plc_consecutive_max: u64,
+    /// Failures that latched fail-safe mute.
+    pub output_failures: u64,
 }
 
 impl ReceiverMetrics {
@@ -48,6 +52,11 @@ impl ReceiverMetrics {
     /// Record one completed reconnect cycle.
     pub fn record_reconnect(&self) {
         saturating_inc(&self.reconnect_count);
+    }
+
+    /// Record one failure that latched fail-safe mute.
+    pub fn record_output_failure(&self) {
+        saturating_inc(&self.output_failures);
     }
 
     /// Record one PLC frame. `consecutive` is the current consecutive count
@@ -79,6 +88,7 @@ impl ReceiverMetrics {
         self.reconnect_count.store(0, Ordering::Relaxed);
         self.plc_frames_total.store(0, Ordering::Relaxed);
         self.plc_consecutive_max.store(0, Ordering::Relaxed);
+        self.output_failures.store(0, Ordering::Relaxed);
     }
 
     /// Return a best-effort snapshot.
@@ -90,6 +100,7 @@ impl ReceiverMetrics {
             reconnect_count: self.reconnect_count.load(Ordering::Acquire),
             plc_frames_total: self.plc_frames_total.load(Ordering::Acquire),
             plc_consecutive_max: self.plc_consecutive_max.load(Ordering::Acquire),
+            output_failures: self.output_failures.load(Ordering::Acquire),
         }
     }
 }

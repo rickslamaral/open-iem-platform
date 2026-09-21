@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Receiver fail-safe output failure counter in observability snapshots.
+
 ### Tested
 - Phase 108 adiciona teste de integração do fluxo OpusReceiver com métricas de pacote descartado e reconnect; evidência permanece CODE/SIMULATED.
 

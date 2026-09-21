@@ -160,6 +160,7 @@ mod tests {
         assert_eq!(s.receiver.reconnect_count, 0);
         assert_eq!(s.receiver.plc_frames_total, 0);
         assert_eq!(s.receiver.plc_consecutive_max, 0);
+        assert_eq!(s.receiver.output_failures, 0);
         assert_eq!(s.network.late_packets, 0);
         assert_eq!(s.network.reordered_packets, 0);
         assert_eq!(s.network.jitter_events, 0);
@@ -174,6 +175,7 @@ mod tests {
         m.receiver.record_reconnect();
         m.receiver.record_plc_frame(4);
         m.receiver.record_plc_frame(2);
+        m.receiver.record_output_failure();
 
         let s = m.snapshot();
         assert_eq!(s.receiver.packets_received, 2);
@@ -181,6 +183,7 @@ mod tests {
         assert_eq!(s.receiver.reconnect_count, 1);
         assert_eq!(s.receiver.plc_frames_total, 2);
         assert_eq!(s.receiver.plc_consecutive_max, 4);
+        assert_eq!(s.receiver.output_failures, 1);
     }
 
     #[test]
@@ -194,5 +197,6 @@ mod tests {
         assert_eq!(value["receiver"]["reconnect_count"], 0);
         assert_eq!(value["receiver"]["plc_frames_total"], 0);
         assert_eq!(value["receiver"]["plc_consecutive_max"], 0);
+        assert_eq!(value["receiver"]["output_failures"], 0);
     }
 }

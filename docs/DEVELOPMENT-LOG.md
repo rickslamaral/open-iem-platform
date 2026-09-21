@@ -4652,3 +4652,12 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - Reconciliado o status da Phase 106: métricas de recebimento, jitter, overflow de ingress, payload inválido, reconnect e PLC possuem cobertura de código; snapshot REST possui cobertura de serialização dos contadores.
 - Evidência distribuída nos commits `7f25428` (PLC), `2ac4a77` (recebimento/jitter/reconnect), `3ba17dc` (payload inválido), `ce8f3b1` (ingress overflow), `48fa714` (snapshot REST) e `49e0d1d` (reconciliação documental); integração com binário headless receiver, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+
+## 2026-09-21 — Phase 109 receiver fail-safe output metrics
+
+- `ReceiverMetrics` agora expõe `output_failures`, contador saturating de falhas que travam mute fail-safe.
+- `OpusReceiver` registra exatamente uma falha por transição para `output_failed`; playouts já mutados não duplicam contagem.
+- Testes cobrem exaustão do orçamento PLC, erro de escrita e serialização do snapshot.
+- Gates locais: `cargo fmt`, `cargo clippy --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS. Frontends typecheck PASS; comando legado `npm test -- --watchAll=false` é incompatível com Vitest e retornou `Unknown option --watchAll`; teste correto ainda será executado.
+- Evidência: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.

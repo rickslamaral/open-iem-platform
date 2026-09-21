@@ -267,6 +267,9 @@ impl OpusReceiver {
                     else {
                         self.state = ReceiverState::Muted;
                         self.output_failed = true;
+                        if let Some(ref m) = self.metrics {
+                            m.record_output_failure();
+                        }
                         output.mute();
                         return Err(ReceiverError::InvalidPacket);
                     };
@@ -276,6 +279,9 @@ impl OpusReceiver {
                     {
                         self.state = ReceiverState::Muted;
                         self.output_failed = true;
+                        if let Some(ref m) = self.metrics {
+                            m.record_output_failure();
+                        }
                         output.mute();
                         return Err(ReceiverError::InvalidPacket);
                     }
@@ -286,6 +292,9 @@ impl OpusReceiver {
                     if output.write(&self.pcm[..samples * 2], 2).is_err() {
                         self.state = ReceiverState::Muted;
                         self.output_failed = true;
+                        if let Some(ref m) = self.metrics {
+                            m.record_output_failure();
+                        }
                         output.mute();
                         return Err(ReceiverError::OutputFailed);
                     }
@@ -296,6 +305,9 @@ impl OpusReceiver {
                     self.next_sequence = Some(sequence);
                     self.state = ReceiverState::Muted;
                     self.output_failed = true;
+                    if let Some(ref m) = self.metrics {
+                        m.record_output_failure();
+                    }
                     output.mute();
                     return Err(ReceiverError::OutputFailed);
                 }
@@ -324,6 +336,9 @@ impl OpusReceiver {
         {
             self.state = ReceiverState::Muted;
             self.output_failed = true;
+            if let Some(ref m) = self.metrics {
+                m.record_output_failure();
+            }
             self.next_sequence = Some(sequence.saturating_add(1));
             output.mute();
             return Err(ReceiverError::InvalidPacket);
@@ -331,6 +346,9 @@ impl OpusReceiver {
         output.write(&self.pcm[..samples * 2], 2).map_err(|_| {
             self.state = ReceiverState::Muted;
             self.output_failed = true;
+            if let Some(ref m) = self.metrics {
+                m.record_output_failure();
+            }
             self.next_sequence = Some(sequence.saturating_add(1));
             output.mute();
             ReceiverError::OutputFailed
@@ -545,6 +563,48 @@ mod tests {
         assert_eq!(r.plc_consecutive(), 1);
         r.reconnect(&mut s);
         assert_eq!(r.plc_consecutive(), 0, "reconnect must reset PLC counter");
+    }
+
+    #[test]
+    fn metrics_record_output_failure_once_when_plc_budget_exhausts() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(7, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap();
+        for _ in 0..4 {
+            r.playout(&mut s).unwrap();
+        }
+        assert_eq!(r.playout(&mut s), Err(ReceiverError::OutputFailed));
+        assert_eq!(metrics.snapshot().output_failures, 1);
+        assert_eq!(r.playout(&mut s), Err(ReceiverError::OutputFailed));
+        assert_eq!(metrics.snapshot().output_failures, 1);
+    }
+
+    #[test]
+    fn metrics_record_output_failure_on_output_error() {
+        struct FailingSink;
+        impl AudioOutput for FailingSink {
+            fn write(&mut self, _: &[f32], _: u8) -> Result<(), OutputError> {
+                Err(OutputError)
+            }
+            fn mute(&mut self) {}
+        }
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        assert_eq!(
+            r.playout(&mut FailingSink),
+            Err(ReceiverError::OutputFailed)
+        );
+        assert_eq!(metrics.snapshot().output_failures, 1);
     }
 
     #[test]
