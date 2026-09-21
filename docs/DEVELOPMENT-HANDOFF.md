@@ -1,3 +1,7 @@
+## Phase 111 status — decoder/output failure metrics
+
+- `OpusReceiver` registra `output_failures` para falhas de decode normal e PLC, duração PCM inválida, exaustão do orçamento PLC e erro de saída. O latch de mute impede dupla contagem em chamadas posteriores. Evidência CODE local; integração headless, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Phase 110 status — late_packets counter
 
 - `ReceiverMetrics` agora distingue `late_packets` (stale/duplicados) de `packets_dropped` (overflow/inválido); `OpusReceiver` chama `record_late()` no caminho stale. `GET /api/v1/metrics` expõe o campo. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
