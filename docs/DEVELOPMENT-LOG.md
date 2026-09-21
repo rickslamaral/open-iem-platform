@@ -4595,3 +4595,9 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - TODO atualizado: matriz de artefatos `.deb` amd64/arm64 e ciclo install/upgrade/uninstall/purge já possui evidência de CI no run `35533396414`.
 - O item permanece CODE + PACKAGE_RELEASE_GATE; instalação em host físico e validação Raspberry Pi 5 continuam pendentes.
+
+## 2026-09-21 — Phase 101 PLC concealment fail-safe hardening
+
+- `OpusReceiver` gera até quatro frames PLC de 20 ms para lacunas; após exceder o orçamento, mantém mute fail-safe e ressincroniza no pacote recebido.
+- Falhas de decode e escrita de saída agora falham fechado; orçamento é consumido antes do decode e métricas PLC permanecem bounded/saturating.
+- Testes dedicados cobrem disparo, reset em decode válido, exaustão e reconnect. Evidência CODE; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.

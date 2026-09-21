@@ -225,25 +225,35 @@ impl OpusReceiver {
             if sequence > expected {
                 // Packet missing. Attempt PLC up to PLC_MAX_CONSECUTIVE frames.
                 if self.plc_consecutive < PLC_MAX_CONSECUTIVE {
-                    let samples = self
-                        .decoder
-                        .decode(&[], PLC_FRAME_SAMPLES, &mut self.pcm)
-                        .unwrap_or(0);
-                    // Always count the concealment attempt; decoder failure still exhausts budget.
+                    // Consume budget before decoding; decoder failure must not reopen PLC.
                     self.plc_consecutive += 1;
-                    self.plc_frames_total += 1;
-                    if samples > 0 && samples * 2 <= self.pcm.len() {
-                        let _ = output.write(&self.pcm[..samples * 2], 2);
-                        self.state = ReceiverState::Playing;
-                    } else {
+                    self.next_sequence = Some(expected.saturating_add(1));
+                    let Ok(samples) = self.decoder.decode(&[], PLC_FRAME_SAMPLES, &mut self.pcm)
+                    else {
+                        self.state = ReceiverState::Muted;
+                        self.output_failed = true;
+                        output.mute();
+                        return Err(ReceiverError::InvalidPacket);
+                    };
+                    if samples == 0
+                        || samples.checked_mul(2).is_none()
+                        || samples * 2 > self.pcm.len()
+                    {
                         self.state = ReceiverState::Muted;
                         output.mute();
+                    } else {
+                        self.plc_frames_total = self.plc_frames_total.saturating_add(1);
+                        if output.write(&self.pcm[..samples * 2], 2).is_err() {
+                            self.state = ReceiverState::Muted;
+                            self.output_failed = true;
+                            output.mute();
+                            return Err(ReceiverError::OutputFailed);
+                        }
+                        self.state = ReceiverState::Playing;
                     }
-                    // Advance expected by one; buffer the next-arrived packet for next call.
-                    self.next_sequence = Some(expected.saturating_add(1));
+                    // Expected sequence already advanced before decode.
                 } else {
                     // Exceeded concealment budget; hard mute and resync to arrived packet.
-                    self.plc_consecutive = 0;
                     self.state = ReceiverState::Muted;
                     self.next_sequence = Some(sequence);
                     output.mute();
@@ -442,7 +452,11 @@ mod tests {
         // 5th call: budget exhausted → mute
         r.playout(&mut s).unwrap();
         assert_eq!(r.state(), ReceiverState::Muted, "budget exhausted → muted");
-        assert_eq!(r.plc_consecutive(), 0, "counter reset on budget exhaust");
+        assert_eq!(
+            r.plc_consecutive(),
+            4,
+            "budget remains exhausted until good decode"
+        );
     }
 
     #[test]
