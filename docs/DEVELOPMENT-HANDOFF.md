@@ -1,3 +1,7 @@
+## Phase 113 status — Engineer receiver metrics
+
+- Engineer Console consulta `GET /api/v1/metrics` durante refresh e renderiza `packets_received`, `packets_dropped`, `late_packets`, `reconnect_count`, `plc_frames_total`, `plc_consecutive_max` e `output_failures`. Payload ausente/parcial não quebra UI; falha do endpoint exibe `UNKNOWN`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Phase 112 status — receiver reset coverage
 
 - Teste de reset agora confirma limpeza de `output_failures` e `late_packets`, além dos contadores existentes. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
