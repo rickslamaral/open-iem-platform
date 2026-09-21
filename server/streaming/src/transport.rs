@@ -148,11 +148,11 @@ impl TransportAdapter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{AudioOutput, MediaFrame, MediaWriter, OpusReceiver, OutputError, StreamMetadata};
+    use observability::ReceiverMetrics;
     use std::net::SocketAddr;
-    use std::sync::{
-        atomic::{AtomicUsize, Ordering},
-        Arc,
-    };
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Arc;
     use str0m::net::Protocol;
 
     #[tokio::test]
@@ -173,6 +173,88 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(report, TransportSendReport::default());
+    }
+
+    struct CaptureOutput {
+        samples: usize,
+        peak: f32,
+    }
+
+    impl AudioOutput for CaptureOutput {
+        fn write(&mut self, samples: &[f32], channels: u8) -> Result<(), OutputError> {
+            assert_eq!(channels, 2);
+            self.samples += samples.len();
+            self.peak = self.peak.max(
+                samples
+                    .iter()
+                    .map(|sample| sample.abs())
+                    .fold(0.0, f32::max),
+            );
+            Ok(())
+        }
+
+        fn mute(&mut self) {}
+    }
+
+    #[tokio::test]
+    async fn udp_loopback_delivers_opus_payload_to_headless_receiver() {
+        let sink = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let destination = sink.local_addr().unwrap();
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+        let frame = MediaFrame {
+            metadata: StreamMetadata {
+                stream_id: "loopback".into(),
+                mix_index: 0,
+                revision: 1,
+                sequence: 9,
+                sample_rate: 48_000,
+                channels: 2,
+                frame_duration_ms: 20,
+                capture_timestamp: None,
+            },
+            samples: (0.2, -0.1),
+        };
+        let packet = MediaWriter::new().unwrap().encode(&frame).unwrap();
+        let report = adapter
+            .send(
+                [str0m::net::Transmit {
+                    proto: Protocol::Udp,
+                    source: adapter.local_addr().unwrap(),
+                    destination,
+                    contents: packet.payload.clone().into(),
+                }],
+                1,
+            )
+            .await
+            .unwrap();
+        assert_eq!(report.sent, 1);
+
+        let mut payload = vec![0; packet.payload.len()];
+        let (len, _) = tokio::time::timeout(
+            std::time::Duration::from_secs(1),
+            sink.recv_from(&mut payload),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut receiver = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        receiver.enqueue(packet.sequence, &payload[..len]).unwrap();
+        let mut output = CaptureOutput {
+            samples: 0,
+            peak: 0.0,
+        };
+        receiver.playout(&mut output).unwrap();
+
+        assert_eq!(output.samples, 1_920);
+        assert!(output.peak > 0.0);
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.packets_received, 1);
+        assert_eq!(snapshot.output_failures, 0);
     }
 
     #[tokio::test]

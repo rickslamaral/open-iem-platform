@@ -4690,3 +4690,10 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - Engineer Console passou a consumir `GET /api/v1/metrics` no refresh do dashboard e exibir os sete contadores do receiver. Campos ausentes ou inválidos usam zero; falha do endpoint preserva o console com estado `UNKNOWN`.
 - Teste frontend cobre autenticação, request de métricas e valores zero. Gates frontend passam; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+
+## 2026-09-21 — Phase 114 headless UDP/Opus loopback
+
+- Adicionado teste `udp_loopback_delivers_opus_payload_to_headless_receiver` no `TransportAdapter`. O teste usa UDP `127.0.0.1`, frame Opus estéreo 48 kHz/20 ms, deadline de 1 segundo, decodificação para 1.920 amostras não silenciosas e métricas `packets_received=1`/`output_failures=0`.
+- Gates locais: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS. Revisão independente PASS; sugestões não bloqueantes aplicadas.
+- Evidência `CODE`; negociação WebRTC completa, DTLS-SRTP, PipeWire/ALSA, runtime e Raspberry Pi 5 continuam pendentes.

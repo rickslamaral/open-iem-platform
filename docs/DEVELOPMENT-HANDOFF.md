@@ -195,6 +195,11 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 - Phase 100 adds a two-packet out-of-order Opus round-trip test with jitter-buffer reordering and per-frame decoded-content assertions; this remains CODE evidence, not network/runtime WebRTC validation.
 - Evidence level remains `SOFTWARE/SIMULATED`: this does not validate a target virtual sink/source, WebRTC over network, latency, or hardware.
 
+## Phase 114 status — headless UDP/Opus loopback
+
+- `TransportAdapter` agora tem teste bounded de loopback UDP entrega payload Opus ao socket e o encaminha manualmente ao `OpusReceiver`; valida duração/canais PCM estéreo de 20 ms e confirma `packets_received` sem `output_failures`.
+- Evidência permanece `CODE` local. Isso não prova negociação WebRTC completa, DTLS-SRTP, PipeWire/ALSA, runtime de produção ou hardware.
+
 ## Validation Gates
 
 1. **CODE VALIDATED:** local tests, fmt, clippy, typecheck, build and security tests.
