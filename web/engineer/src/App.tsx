@@ -11,6 +11,19 @@ type Telemetry = {
   frames_processed: number | null;
   xrun_count: number | null;
 };
+type ReceiverMetrics = {
+  packets_received: number;
+  packets_dropped: number;
+  late_packets: number;
+  reconnect_count: number;
+  plc_frames_total: number;
+  plc_consecutive_max: number;
+  output_failures: number;
+};
+function metricValue(value: unknown): number {
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : 0;
+}
+
 type ChannelState = {
   index: number;
   id: number;
@@ -26,6 +39,7 @@ type Dashboard = {
   assignments: Assignment[];
   revision: number;
   telemetry: Telemetry;
+  receiver: ReceiverMetrics | null;
   channels: ChannelState[];
 };
 
@@ -507,7 +521,7 @@ export default function App() {
     const generation = ++loadGeneration.current;
     setLoading(true); setError(null);
     try {
-      const [sessions, assignments, state, telemetry] = await Promise.all([
+      const [sessions, assignments, state, telemetry, receiver] = await Promise.all([
         request<{ sessions: Session[] }>('/api/v1/audio/sessions', token),
         request<Assignment[]>('/api/v1/mixes', token),
         request<{ revision: number; channels?: ChannelState[] }>('/api/v1/state', token),
@@ -518,6 +532,17 @@ export default function App() {
           frames_processed: null,
           xrun_count: null,
         })),
+        request<{ receiver?: Partial<ReceiverMetrics> }>('/api/v1/metrics', token)
+          .then((metrics) => ({
+            packets_received: metricValue(metrics.receiver?.packets_received),
+            packets_dropped: metricValue(metrics.receiver?.packets_dropped),
+            late_packets: metricValue(metrics.receiver?.late_packets),
+            reconnect_count: metricValue(metrics.receiver?.reconnect_count),
+            plc_frames_total: metricValue(metrics.receiver?.plc_frames_total),
+            plc_consecutive_max: metricValue(metrics.receiver?.plc_consecutive_max),
+            output_failures: metricValue(metrics.receiver?.output_failures),
+          }))
+          .catch(() => null),
       ]);
       if (generation !== loadGeneration.current) return;
       setData({
@@ -525,6 +550,7 @@ export default function App() {
         assignments: Array.isArray(assignments) ? assignments : [],
         revision: state.revision,
         telemetry,
+        receiver,
         channels: state.channels ?? [],
       });
       // Keep overlays while mutations are in flight; each mutation clears its own overlay.
@@ -664,6 +690,14 @@ export default function App() {
       <div className="card"><span className="muted">Sessões ativas</span><strong>{data?.sessions.length ?? 0}</strong></div>
       <div className="card"><span className="muted">Backend</span><strong>{loading ? 'carregando' : (data?.telemetry.backend ?? '—')}</strong></div>
       <div className="card"><span className="muted">XRUNs</span><strong>{data?.telemetry.xrun_count ?? 'UNKNOWN'}</strong></div>
+    </section>
+    <section className="card receiver-metrics" aria-labelledby="receiver-metrics-title">
+      <h2 id="receiver-metrics-title">Receiver — métricas</h2>
+      <div className="metrics">
+        {([['Pacotes recebidos', 'packets_received'], ['Pacotes descartados', 'packets_dropped'], ['Pacotes tardios', 'late_packets'], ['Reconnects', 'reconnect_count'], ['Frames PLC', 'plc_frames_total'], ['PLC consecutivo máximo', 'plc_consecutive_max'], ['Falhas de saída', 'output_failures']] as const).map(([label, key]) => (
+          <div className="card" key={key}><span className="muted">{label}</span><strong>{data?.receiver?.[key] ?? 'UNKNOWN'}</strong></div>
+        ))}
+      </div>
     </section>
     {channels.length > 0 && (
       <section className="channel-section">
