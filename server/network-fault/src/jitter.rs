@@ -55,31 +55,44 @@ impl JitterProfile {
     /// stream length the packet is appended at the end.
     #[must_use]
     pub fn apply(&self, packets: &[Packet]) -> SimResult {
-        let mut stream: Vec<Packet> = packets.to_vec();
-        let mut jitter_events = 0usize;
-        let mut reordered = 0usize;
-
-        // Collect indices that will be delayed (0-indexed, interval-th = multiples of interval).
-        let affected: Vec<usize> = (0..packets.len())
-            .filter(|&i| (i + 1) % self.interval == 0)
+        // Assign each packet its intended delivery slot from the original stream,
+        // then sort by slot. Stable original-index tie breaking keeps collisions
+        // deterministic without index-shift bugs from repeated remove/insert.
+        let mut scheduled: Vec<(usize, usize, Packet)> = packets
+            .iter()
+            .cloned()
+            .enumerate()
+            .map(|(original_index, packet)| {
+                let target = if (original_index + 1) % self.interval == 0 {
+                    original_index
+                        .saturating_add(self.delay_slots)
+                        .saturating_add(1)
+                        .min(packets.len().saturating_sub(1))
+                } else {
+                    original_index
+                };
+                (target, original_index, packet)
+            })
             .collect();
+        scheduled.sort_by_key(|(target, original_index, _)| (*target, *original_index));
 
-        // Process in reverse so that earlier removals don't shift later indices.
-        for &src_idx in affected.iter().rev() {
-            let pkt = stream.remove(src_idx);
-            let insert_at = (src_idx + self.delay_slots).min(stream.len());
-            stream.insert(insert_at, pkt);
-            jitter_events += 1;
-            if insert_at != src_idx {
-                reordered += 1;
-            }
-        }
-
-        // Count how many packets are not at their original position.
-        // The metric above already counts each moved packet once.
+        let delivered: Vec<Packet> = scheduled
+            .iter()
+            .map(|(_, _, packet)| packet.clone())
+            .collect();
+        let reordered = scheduled
+            .iter()
+            .enumerate()
+            .filter(|(delivery_index, (_, original_index, _))| delivery_index != original_index)
+            .count();
+        let jitter_events = packets
+            .iter()
+            .enumerate()
+            .filter(|(index, _)| (index + 1) % self.interval == 0)
+            .count();
 
         SimResult {
-            delivered: stream,
+            delivered,
             dropped: 0,
             reordered,
             jitter_events,
@@ -156,5 +169,18 @@ mod tests {
         let result = profile.apply(&burst(1));
         assert_eq!(result.delivered.len(), 1);
         assert_eq!(result.reordered, 0);
+    }
+
+    #[test]
+    fn multiple_delayed_packets_keep_deterministic_order() {
+        let profile = JitterProfile::new(2, 2).unwrap();
+        let result = profile.apply(&burst(6));
+        let seqs: Vec<u64> = result
+            .delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect();
+        assert_eq!(seqs, vec![1, 3, 2, 5, 4, 6]);
+        assert_eq!(result.reordered, 4);
     }
 }

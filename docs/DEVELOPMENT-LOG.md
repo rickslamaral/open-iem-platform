@@ -1,5 +1,7 @@
 ## 2026-09-21 — Phase 121 deterministic reorder receiver path
 
+- Revisado `JitterProfile` após revisão independente detectar erro de índice quando múltiplos pacotes atrasados interagiam. Agendamento por slot original, desempate estável e teste de múltiplos eventos adicionados. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 - Adicionado teste de integração `network-fault` que aplica `ReorderProfile` a payloads Opus reais e entrega a sequência reordenada ao `OpusReceiver` headless.
 - Cobertura valida playout ordenado, oito pacotes recebidos, zero PLC, zero pacotes tardios e zero falhas de saída. Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
