@@ -10,6 +10,22 @@
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
 
 
+## Estado atual — 2026-09-21 (Phase 109 receiver fail-safe output metrics)
+- `ReceiverMetrics` registra `output_failures` e `OpusReceiver` contabiliza transições de falha para mute fail-safe; cobertura de erro de saída, exaustão PLC e snapshot adicionada. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
+## Estado atual — 2026-09-21 (Phase 108 receiver metrics round-trip coverage)
+- Teste de integração do round-trip Opus confirma contadores compartilhados de recebido, descarte e reconnect. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
+## Estado atual — 2026-09-21 (Phase 106 receiver metrics boundary)
+- **Phase 106 review:** cobertura local confirma métricas de receiver para pacotes recebidos, overflow de jitter/ingress, reconnect e payload inválido; serialização REST confirma `schema_version` e contadores. Commits verificados: `2ac4a77`, `3ba17dc`, `48fa714`, `49e0d1d`. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
+- **Phase 106 follow-up:** `OpusReceiver::enqueue` contabiliza payloads vazios ou acima de 1500 bytes como `packets_dropped`, com teste unitário para contagem única por rejeição. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
+- **Phase 106:** métricas do receiver estão conectadas ao `OpusReceiver` e expostas no snapshot observability, mas nenhum binário headless consome `AppState.metrics.receiver`; integração de runtime permanece pendente. Não criar claim de WebRTC/DTLS-SRTP, PipeWire/ALSA ou Raspberry Pi 5.
+
+## Estado atual — 2026-09-21 (Phase 105 receiver ingress drop metric)
+- **Phase 105:** `OpusReceiver::enqueue` agora registra `packets_dropped` quando a fila bounded de ingress rejeita pacote por overflow; teste dedicado confirma contagem única. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Estado atual — 2026-09-21 (Phase 101 PLC concealment)
 - **Phase 101:** `OpusReceiver` aplica concealment PLC bounded para gaps Opus, trava mute após quatro frames PLC de 20 ms e falha fechado em erro de decoder/output. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes. Frames Opus fora do contrato fixo de 20 ms também falham fechado, preservando limite temporal do PLC.
 

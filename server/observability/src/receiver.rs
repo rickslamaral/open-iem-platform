@@ -13,6 +13,12 @@ pub struct ReceiverMetrics {
     packets_dropped: AtomicU64,
     /// Number of receiver reconnect cycles completed.
     reconnect_count: AtomicU64,
+    /// Cumulative PLC frames generated across all gaps.
+    plc_frames_total: AtomicU64,
+    /// Peak consecutive PLC frames observed in a single gap.
+    plc_consecutive_max: AtomicU64,
+    /// Number of receiver failures that latched fail-safe mute.
+    output_failures: AtomicU64,
 }
 
 /// Point-in-time snapshot of receiver counters.
@@ -24,6 +30,12 @@ pub struct ReceiverSnapshot {
     pub packets_dropped: u64,
     /// Total receiver reconnect cycles since last reset.
     pub reconnect_count: u64,
+    /// Cumulative PLC frames generated across all gaps since last reset.
+    pub plc_frames_total: u64,
+    /// Peak consecutive PLC frames observed in a single gap since last reset.
+    pub plc_consecutive_max: u64,
+    /// Failures that latched fail-safe mute.
+    pub output_failures: u64,
 }
 
 impl ReceiverMetrics {
@@ -42,20 +54,53 @@ impl ReceiverMetrics {
         saturating_inc(&self.reconnect_count);
     }
 
+    /// Record one failure that latched fail-safe mute.
+    pub fn record_output_failure(&self) {
+        saturating_inc(&self.output_failures);
+    }
+
+    /// Record one PLC frame. `consecutive` is the current consecutive count
+    /// (already incremented) for this gap. Lock-free, safe from near-RT paths.
+    pub fn record_plc_frame(&self, consecutive: u32) {
+        saturating_inc(&self.plc_frames_total);
+        let c = u64::from(consecutive);
+        let mut cur = self.plc_consecutive_max.load(Ordering::Relaxed);
+        loop {
+            if c <= cur {
+                break;
+            }
+            match self.plc_consecutive_max.compare_exchange_weak(
+                cur,
+                c,
+                Ordering::Relaxed,
+                Ordering::Relaxed,
+            ) {
+                Ok(_) => break,
+                Err(v) => cur = v,
+            }
+        }
+    }
+
     /// Reset all receiver counters.
     pub fn reset(&self) {
         self.packets_received.store(0, Ordering::Relaxed);
         self.packets_dropped.store(0, Ordering::Relaxed);
         self.reconnect_count.store(0, Ordering::Relaxed);
+        self.plc_frames_total.store(0, Ordering::Relaxed);
+        self.plc_consecutive_max.store(0, Ordering::Relaxed);
+        self.output_failures.store(0, Ordering::Relaxed);
     }
 
-    /// Return a consistent snapshot.
+    /// Return a best-effort snapshot.
     #[must_use]
     pub fn snapshot(&self) -> ReceiverSnapshot {
         ReceiverSnapshot {
             packets_received: self.packets_received.load(Ordering::Acquire),
             packets_dropped: self.packets_dropped.load(Ordering::Acquire),
             reconnect_count: self.reconnect_count.load(Ordering::Acquire),
+            plc_frames_total: self.plc_frames_total.load(Ordering::Acquire),
+            plc_consecutive_max: self.plc_consecutive_max.load(Ordering::Acquire),
+            output_failures: self.output_failures.load(Ordering::Acquire),
         }
     }
 }
@@ -88,5 +133,32 @@ mod tests {
         assert_eq!(s.packets_received, 0);
         assert_eq!(s.packets_dropped, 0);
         assert_eq!(s.reconnect_count, 0);
+    }
+
+    #[test]
+    fn plc_frame_increments_total() {
+        let m = ReceiverMetrics::default();
+        m.record_plc_frame(1);
+        m.record_plc_frame(2);
+        assert_eq!(m.snapshot().plc_frames_total, 2);
+    }
+
+    #[test]
+    fn plc_consecutive_max_tracks_peak() {
+        let m = ReceiverMetrics::default();
+        m.record_plc_frame(1);
+        m.record_plc_frame(3);
+        m.record_plc_frame(2);
+        assert_eq!(m.snapshot().plc_consecutive_max, 3);
+    }
+
+    #[test]
+    fn reset_clears_plc_counters() {
+        let m = ReceiverMetrics::default();
+        m.record_plc_frame(5);
+        m.reset();
+        let s = m.snapshot();
+        assert_eq!(s.plc_frames_total, 0);
+        assert_eq!(s.plc_consecutive_max, 0);
     }
 }

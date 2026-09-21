@@ -1970,6 +1970,7 @@ name = "observability"
 version = "0.3.1"
 dependencies = [
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -3023,6 +3024,7 @@ dependencies = [
  "argon2",
  "crossbeam-channel",
  "mix-engine",
+ "observability",
  "opus-pure",
  "rand 0.10.2",
  "serde",

@@ -14,6 +14,8 @@ use std::{
 };
 use thiserror::Error;
 
+use observability::ReceiverMetrics;
+
 /// Maximum encoded packets retained before newest packet is dropped.
 pub const RECEIVER_QUEUE_CAPACITY: usize = 32;
 const MAX_PACKET_BYTES: usize = 1500;
@@ -145,6 +147,7 @@ pub struct OpusReceiver {
     plc_frames_total: u64,
     generation: Arc<AtomicU64>,
     output_failed: bool,
+    metrics: Option<Arc<ReceiverMetrics>>,
 }
 
 impl OpusReceiver {
@@ -169,8 +172,16 @@ impl OpusReceiver {
             plc_frames_total: 0,
             generation: Arc::new(AtomicU64::new(0)),
             output_failed: false,
+            metrics: None,
         })
     }
+    /// Attach observability metrics to this receiver.
+    #[must_use]
+    pub fn with_metrics(mut self, metrics: Arc<ReceiverMetrics>) -> Self {
+        self.metrics = Some(metrics);
+        self
+    }
+
     /// Enqueue encoded payload without waiting. `sequence` must be a monotonic
     /// extended RTP sequence number; rollover must be extended by transport layer.
     ///
@@ -180,6 +191,9 @@ impl OpusReceiver {
     /// Returns an error for invalid payloads, full queue, or disconnected receiver.
     pub fn enqueue(&self, sequence: u64, packet: &[u8]) -> Result<(), ReceiverError> {
         if packet.is_empty() || packet.len() > MAX_PACKET_BYTES {
+            if let Some(ref m) = self.metrics {
+                m.record_dropped();
+            }
             return Err(ReceiverError::InvalidPacket);
         }
         let generation = self.generation.load(Ordering::Acquire);
@@ -188,7 +202,12 @@ impl OpusReceiver {
         self.ingress
             .try_send((generation, sequence, payload, packet.len()))
             .map_err(|e| match e {
-                TrySendError::Full(_) => ReceiverError::QueueFull,
+                TrySendError::Full(_) => {
+                    if let Some(ref m) = self.metrics {
+                        m.record_dropped();
+                    }
+                    ReceiverError::QueueFull
+                }
                 TrySendError::Disconnected(_) => ReceiverError::Disconnected,
             })
     }
@@ -198,14 +217,25 @@ impl OpusReceiver {
     /// # Errors
     ///
     /// Returns an error for invalid Opus data or failed output.
+    #[allow(clippy::too_many_lines)]
     pub fn playout<O: AudioOutput>(&mut self, output: &mut O) -> Result<(), ReceiverError> {
         let generation = self.generation.load(Ordering::Acquire);
         while let Ok(packet) = self.ingress_rx.try_recv() {
             if packet.0 != generation {
+                // Reconnect can race with an ingress sender after the drain above.
+                // Count late packets here instead of silently losing telemetry.
+                if let Some(ref m) = self.metrics {
+                    m.record_dropped();
+                }
                 continue;
             }
             if self.jitter.push(packet.1, &packet.2[..packet.3]).is_err() {
                 self.dropped_packets = self.dropped_packets.saturating_add(1);
+                if let Some(ref m) = self.metrics {
+                    m.record_dropped();
+                }
+            } else if let Some(ref m) = self.metrics {
+                m.record_received();
             }
         }
         if self.output_failed {
@@ -221,6 +251,10 @@ impl OpusReceiver {
         if let Some(expected) = self.next_sequence {
             if sequence < expected {
                 let _ = self.jitter.pop();
+                self.dropped_packets = self.dropped_packets.saturating_add(1);
+                if let Some(ref m) = self.metrics {
+                    m.record_dropped();
+                }
                 return Ok(());
             }
             if sequence > expected {
@@ -233,6 +267,9 @@ impl OpusReceiver {
                     else {
                         self.state = ReceiverState::Muted;
                         self.output_failed = true;
+                        if let Some(ref m) = self.metrics {
+                            m.record_output_failure();
+                        }
                         output.mute();
                         return Err(ReceiverError::InvalidPacket);
                     };
@@ -242,13 +279,22 @@ impl OpusReceiver {
                     {
                         self.state = ReceiverState::Muted;
                         self.output_failed = true;
+                        if let Some(ref m) = self.metrics {
+                            m.record_output_failure();
+                        }
                         output.mute();
                         return Err(ReceiverError::InvalidPacket);
                     }
                     self.plc_frames_total = self.plc_frames_total.saturating_add(1);
+                    if let Some(ref m) = self.metrics {
+                        m.record_plc_frame(self.plc_consecutive);
+                    }
                     if output.write(&self.pcm[..samples * 2], 2).is_err() {
                         self.state = ReceiverState::Muted;
                         self.output_failed = true;
+                        if let Some(ref m) = self.metrics {
+                            m.record_output_failure();
+                        }
                         output.mute();
                         return Err(ReceiverError::OutputFailed);
                     }
@@ -259,6 +305,9 @@ impl OpusReceiver {
                     self.next_sequence = Some(sequence);
                     self.state = ReceiverState::Muted;
                     self.output_failed = true;
+                    if let Some(ref m) = self.metrics {
+                        m.record_output_failure();
+                    }
                     output.mute();
                     return Err(ReceiverError::OutputFailed);
                 }
@@ -287,6 +336,9 @@ impl OpusReceiver {
         {
             self.state = ReceiverState::Muted;
             self.output_failed = true;
+            if let Some(ref m) = self.metrics {
+                m.record_output_failure();
+            }
             self.next_sequence = Some(sequence.saturating_add(1));
             output.mute();
             return Err(ReceiverError::InvalidPacket);
@@ -294,6 +346,9 @@ impl OpusReceiver {
         output.write(&self.pcm[..samples * 2], 2).map_err(|_| {
             self.state = ReceiverState::Muted;
             self.output_failed = true;
+            if let Some(ref m) = self.metrics {
+                m.record_output_failure();
+            }
             self.next_sequence = Some(sequence.saturating_add(1));
             output.mute();
             ReceiverError::OutputFailed
@@ -311,8 +366,15 @@ impl OpusReceiver {
         self.next_sequence = None;
         self.output_failed = false;
         self.plc_consecutive = 0;
-        // Preserve queued packet for explicit resynchronization after PLC exhaustion.
-        while self.ingress_rx.try_recv().is_ok() {}
+        if let Some(ref m) = self.metrics {
+            m.record_reconnect();
+        }
+        // Discard stale ingress packets and account for each rejected packet.
+        while self.ingress_rx.try_recv().is_ok() {
+            if let Some(ref m) = self.metrics {
+                m.record_dropped();
+            }
+        }
     }
     /// Number packets rejected by jitter admission (overflow or duplicate).
     #[must_use]
@@ -501,5 +563,204 @@ mod tests {
         assert_eq!(r.plc_consecutive(), 1);
         r.reconnect(&mut s);
         assert_eq!(r.plc_consecutive(), 0, "reconnect must reset PLC counter");
+    }
+
+    #[test]
+    fn metrics_record_output_failure_once_when_plc_budget_exhausts() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(7, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap();
+        for _ in 0..4 {
+            r.playout(&mut s).unwrap();
+        }
+        assert_eq!(r.playout(&mut s), Err(ReceiverError::OutputFailed));
+        assert_eq!(metrics.snapshot().output_failures, 1);
+        assert_eq!(r.playout(&mut s), Err(ReceiverError::OutputFailed));
+        assert_eq!(metrics.snapshot().output_failures, 1);
+    }
+
+    #[test]
+    fn metrics_record_output_failure_on_output_error() {
+        struct FailingSink;
+        impl AudioOutput for FailingSink {
+            fn write(&mut self, _: &[f32], _: u8) -> Result<(), OutputError> {
+                Err(OutputError)
+            }
+            fn mute(&mut self) {}
+        }
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        assert_eq!(
+            r.playout(&mut FailingSink),
+            Err(ReceiverError::OutputFailed)
+        );
+        assert_eq!(metrics.snapshot().output_failures, 1);
+    }
+
+    #[test]
+    fn metrics_record_received_on_good_packet() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        let mut r = r;
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap();
+        let snap = metrics.snapshot();
+        assert_eq!(
+            snap.packets_received, 1,
+            "good packet must increment received"
+        );
+        assert_eq!(snap.packets_dropped, 0);
+    }
+
+    #[test]
+    fn metrics_record_dropped_for_stale_generation_after_reconnect_race() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.reconnect(&mut s);
+        // Inject old-generation ingress after reconnect drain. This exercises
+        // the stale-generation branch in playout deterministically.
+        let mut payload = [0_u8; MAX_PACKET_BYTES];
+        payload[..pkt.len()].copy_from_slice(&pkt);
+        r.ingress
+            .try_send((0, 1, payload, pkt.len()))
+            .expect("test stale packet enqueue");
+        r.playout(&mut s).unwrap();
+
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
+    }
+
+    #[test]
+    fn metrics_record_dropped_on_invalid_ingress_packet() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let oversized = vec![0_u8; MAX_PACKET_BYTES + 1];
+
+        assert_eq!(r.enqueue(1, &[]), Err(ReceiverError::InvalidPacket));
+        assert_eq!(r.enqueue(2, &oversized), Err(ReceiverError::InvalidPacket));
+
+        let snap = metrics.snapshot();
+        assert_eq!(snap.packets_received, 0);
+        assert_eq!(snap.packets_dropped, 2);
+    }
+
+    #[test]
+    fn metrics_record_dropped_on_overflow() {
+        // Strategy: fill jitter to (capacity-1) via round-1 playout, then push
+        // 2 more packets; the second overflows jitter and must be metered as dropped.
+        //
+        // Jitter capacity = RECEIVER_QUEUE_CAPACITY = 32.
+        // Round 1: enqueue seq 1..=32, playout drains all into jitter then pops seq=1
+        //          (playing one frame). After round 1: jitter has 31 entries.
+        // Round 2: enqueue seq 33 (fits, jitter=32) and seq 34 (overflows).
+        //          playout drains both; seq 33 increments received, seq 34 increments dropped.
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+        // Round 1: fill ingress with seq 1..=32.
+        for i in 1..=(RECEIVER_QUEUE_CAPACITY as u64) {
+            r.enqueue(i, &pkt).ok();
+        }
+        r.playout(&mut s).unwrap(); // drains ingress → jitter(31 remaining), pops seq=1
+        let snap = metrics.snapshot();
+        assert_eq!(snap.packets_received, RECEIVER_QUEUE_CAPACITY as u64);
+        assert_eq!(snap.packets_dropped, 0);
+        // Round 2: enqueue seq 33 (fills jitter to 32) and seq 34 (overflows).
+        r.enqueue(33, &pkt).ok();
+        r.enqueue(34, &pkt).ok();
+        r.playout(&mut s).unwrap();
+        let snap = metrics.snapshot();
+        assert_eq!(
+            snap.packets_received,
+            RECEIVER_QUEUE_CAPACITY as u64 + 1,
+            "seq 33 is the 33rd received packet"
+        );
+        assert_eq!(snap.packets_dropped, 1, "seq 34 should overflow jitter");
+    }
+
+    #[test]
+    fn metrics_record_dropped_on_stale_packet() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+        r.enqueue(1, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue(1, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
+    }
+
+    #[test]
+    fn metrics_record_dropped_on_ingress_overflow() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        for sequence in 1..=RECEIVER_QUEUE_CAPACITY as u64 {
+            r.enqueue(sequence, &pkt).unwrap();
+        }
+        assert_eq!(r.enqueue(33, &pkt), Err(ReceiverError::QueueFull));
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
+    }
+
+    #[test]
+    fn metrics_record_reconnect_drops_stale_ingress_packets() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(2, &pkt).unwrap();
+        r.reconnect(&mut s);
+
+        assert_eq!(metrics.snapshot().packets_dropped, 2);
+    }
+
+    #[test]
+    fn metrics_record_reconnect_on_reconnect_call() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let mut s = Sink { frames: 0 };
+        assert_eq!(metrics.snapshot().reconnect_count, 0);
+        r.reconnect(&mut s);
+        assert_eq!(
+            metrics.snapshot().reconnect_count,
+            1,
+            "reconnect must increment counter"
+        );
+        r.reconnect(&mut s);
+        assert_eq!(metrics.snapshot().reconnect_count, 2);
     }
 }

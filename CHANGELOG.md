@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Receiver fail-safe output failure counter in observability snapshots.
+
+### Tested
+- Phase 108 adiciona teste de integração do fluxo OpusReceiver com métricas de pacote descartado e reconnect; evidência permanece CODE/SIMULATED.
+
+### Tests
+- Added receiver observability snapshot coverage for populated counters and stable REST field names.
+
+### Observability
+- Count invalid receiver ingress payloads as dropped packets.
+- Reconciled Phase 106 receiver metrics coverage: ingress, jitter overflow, reconnect and REST snapshot serialization remain CODE evidence only.
+
+### Documentation
+- Reconciliado status de observabilidade do receiver: métricas Phase 104/105 estão em CODE, sem claim de runtime enquanto não houver integração com binário headless.
+
+### Fixed
+- `OpusReceiver` agora contabiliza pacotes atrasados descartados no jitter buffer, evitando subcontagem em `ReceiverMetrics`.
+
+
 ### Fixed
 - Preserve media frames while WebRTC Sans-IO sessions await negotiated audio media.
 

@@ -1,3 +1,13 @@
+## 2026-09-21 — Phase 108 receiver metrics round-trip coverage
+
+- Adicionado teste de integração no round-trip Opus para confirmar `packets_received`, `packets_dropped` e `reconnect_count` no mesmo `ReceiverMetrics` compartilhado pelo receiver.
+- Evidência: 3 testes `opus_roundtrip` e 21 testes `observability` PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
+## 2026-09-21 — Phase 107 receiver snapshot coverage
+
+- Adicionados testes puros para preservar contadores preenchidos e nomes de campos serializados no snapshot de métricas do receiver.
+- Evidência: `cargo fmt --manifest-path server/Cargo.toml --all -- --check` e 21 testes do crate `observability` PASS. Sem claim de runtime WebRTC/DTLS-SRTP, PipeWire/ALSA ou hardware.
+
 ## 2026-09-21 — Phase 101 PLC duration guard
 
 - Revisão independente detectou risco de orçamento incorreto quando Opus entrega frames variáveis; `OpusReceiver` agora aceita somente frames decodificados de 20 ms no contrato MVP e falha fechado para outras durações.
@@ -4616,3 +4626,38 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Adicionado teste `reconnect_preserves_queued_packet_for_resynchronization` que prova o ciclo completo: exaustão PLC → mute → reconnect → decode do pacote preservado → estado Playing.
 - Gates: 66 testes streaming + 88 integração + frontends (61 Musician, 46 Engineer) PASS; clippy e fmt limpos. Revisão independente PASS (round 2).
 - Evidência CODE; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+## 2026-09-21 — Phase 103 OpusReceiver metrics builder
+
+- `OpusReceiver` agora aceita métricas observabilidade opcionais via builder `with_metrics(Arc<ReceiverMetrics>)`.
+- `record_plc_frame(consecutive)` é chamado no path de playout PLC; cada frame PLC incrementa `plc_frames_total` e atualiza `plc_consecutive_max` via CAS lock-free.
+- Todas as chamadas são guardadas por `if let Some(ref m) = self.metrics`; sem métricas anexadas, comportamento existente é preservado.
+- Evidência: CODE local; commit 7f25428; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+## 2026-09-21 — Phase 104 wireup completo de métricas de receiver
+
+- `record_received()` chamado quando jitter buffer aceita pacote; `record_dropped()` chamado quando jitter buffer rejeita por overflow.
+- `record_reconnect()` chamado ao início de `reconnect()`, após reset de estado.
+- Três novos testes unitários: `metrics_record_received_on_good_packet`, `metrics_record_dropped_on_overflow`, `metrics_record_reconnect_on_reconnect_call`. Todos passam (69/69 streaming tests green).
+- Revisão independente: PASS; static scan: clean.
+- Evidência: CODE local; commit 2ac4a77; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+- Pendente: conexão de `AppState.metrics.receiver` ao binário headless receiver (fora do escopo do api-server).
+## 2026-09-21 — Phase 105 receiver ingress drop metric
+
+- `OpusReceiver::enqueue` agora registra `packets_dropped` quando a fila bounded de ingress rejeita pacote por overflow; `Disconnected` não gera contagem falsa.
+- Adicionado teste dedicado de overflow da fila de ingress, confirmando exatamente uma queda.
+- Evidência: 71 testes streaming, fmt e revisão independente PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 continuam pendentes.
+
+## 2026-09-21 — Phase 106 receiver metrics documentation reconciliation
+
+- Reconciliado o status da Phase 106: métricas de recebimento, jitter, overflow de ingress, payload inválido, reconnect e PLC possuem cobertura de código; snapshot REST possui cobertura de serialização dos contadores.
+- Evidência distribuída nos commits `7f25428` (PLC), `2ac4a77` (recebimento/jitter/reconnect), `3ba17dc` (payload inválido), `ce8f3b1` (ingress overflow), `48fa714` (snapshot REST) e `49e0d1d` (reconciliação documental); integração com binário headless receiver, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+
+## 2026-09-21 — Phase 109 receiver fail-safe output metrics
+
+- `ReceiverMetrics` agora expõe `output_failures`, contador saturating de falhas que travam mute fail-safe.
+- `OpusReceiver` registra exatamente uma falha por transição para `output_failed`; playouts já mutados não duplicam contagem.
+- Testes cobrem exaustão do orçamento PLC, erro de escrita e serialização do snapshot.
+- Gates locais: `cargo fmt`, `cargo clippy --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS. Frontends typecheck PASS; comando legado `npm test -- --watchAll=false` é incompatível com Vitest e retornou `Unknown option --watchAll`; teste correto ainda será executado.
+- Evidência: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
