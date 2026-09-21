@@ -4638,3 +4638,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Adicionado teste dedicado de overflow da fila de ingress, confirmando exatamente uma queda.
 - Evidência: 71 testes streaming, fmt e revisão independente PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 continuam pendentes.
 
+## 2026-09-21 — Phase 106 receiver metrics documentation reconciliation
+
+- Reconciliado o status da Phase 106: métricas de recebimento, jitter, overflow de ingress, payload inválido, reconnect e PLC possuem cobertura de código; snapshot REST possui cobertura de serialização dos contadores.
+- Evidência distribuída nos commits `7f25428` (PLC), `2ac4a77` (recebimento/jitter/reconnect), `3ba17dc` (payload inválido), `ce8f3b1` (ingress overflow), `48fa714` (snapshot REST) e `49e0d1d` (reconciliação documental); integração com binário headless receiver, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
