@@ -346,8 +346,12 @@ impl OpusReceiver {
         if let Some(ref m) = self.metrics {
             m.record_reconnect();
         }
-        // Preserve queued packet for explicit resynchronization after PLC exhaustion.
-        while self.ingress_rx.try_recv().is_ok() {}
+        // Discard stale ingress packets and account for each rejected packet.
+        while self.ingress_rx.try_recv().is_ok() {
+            if let Some(ref m) = self.metrics {
+                m.record_dropped();
+            }
+        }
     }
     /// Number packets rejected by jitter admission (overflow or duplicate).
     #[must_use]
@@ -637,6 +641,22 @@ mod tests {
         }
         assert_eq!(r.enqueue(33, &pkt), Err(ReceiverError::QueueFull));
         assert_eq!(metrics.snapshot().packets_dropped, 1);
+    }
+
+    #[test]
+    fn metrics_record_reconnect_drops_stale_ingress_packets() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(2, &pkt).unwrap();
+        r.reconnect(&mut s);
+
+        assert_eq!(metrics.snapshot().packets_dropped, 2);
     }
 
     #[test]
