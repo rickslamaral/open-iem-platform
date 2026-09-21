@@ -114,6 +114,18 @@ describe('Engineer Console', () => {
     expect(screen.getByText('UNKNOWN')).toBeTruthy();
   });
 
+  it('reseta contadores via POST /api/v1/metrics/reset', async () => {
+    const fetchMock = vi.fn()
+      .mockReturnValueOnce(json({ access_token: 'test-token' })).mockReturnValueOnce(json({ sessions: [] })).mockReturnValueOnce(json([]))
+      .mockReturnValueOnce(json({ revision: 1, channels: [] })).mockReturnValueOnce(json({ availability: 'simulated', backend: 'simulated', sample_rate_hz: null, frames_processed: null, xrun_count: null }))
+      .mockReturnValueOnce(json({ receiver: {}, network: {}, stream: {} }))
+      .mockImplementation((path: string) => path === '/api/v1/metrics/reset' ? json({}, 204) : json({ receiver: {}, network: {}, stream: {} }));
+    vi.stubGlobal('fetch', fetchMock); render(<App />);
+    fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'engineer' } }); fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'password' } }); fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    await screen.findByRole('button', { name: 'Resetar Contadores' }); fireEvent.click(screen.getByRole('button', { name: 'Resetar Contadores' }));
+    await waitFor(() => expect(fetchMock.mock.calls.some(([path, init]) => path === '/api/v1/metrics/reset' && init?.method === 'POST')).toBe(true));
+  });
+
   it('exibe métricas do receiver com valores zero válidos', async () => {
     vi.stubGlobal(
       'fetch',

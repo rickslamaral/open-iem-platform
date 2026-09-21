@@ -509,6 +509,7 @@ export default function App() {
   const [data, setData] = useState<Dashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [userId, setUserId] = useState('');
   /** Tracks in-flight channel mutations so UI reflects optimistic state. */
   const [pendingChannels, setPendingChannels] = useState<Record<number, Partial<ChannelState>>>({});
@@ -603,6 +604,14 @@ export default function App() {
     const timer = window.setInterval(() => { if (document.visibilityState === 'visible') void load(); }, 5000);
     return () => window.clearInterval(timer);
   }, [load, token]);
+
+  async function resetCounters() {
+    if (!token || resetting) return;
+    setResetting(true);
+    try { await request('/api/v1/metrics/reset', token, { method: 'POST' }); await load(); }
+    catch (cause) { console.error('Falha ao resetar contadores', cause); }
+    finally { setResetting(false); }
+  }
 
   async function login(username: string, password: string) {
     setError(null);
@@ -719,6 +728,7 @@ export default function App() {
     </section>
     <section className="card receiver-metrics" aria-labelledby="receiver-metrics-title">
       <h2 id="receiver-metrics-title">Receiver — métricas</h2>
+      <button type="button" onClick={() => void resetCounters()} disabled={resetting}>{resetting ? 'Resetando…' : 'Resetar Contadores'}</button>
       <div className="metrics">
         {([['Pacotes recebidos', 'packets_received'], ['Pacotes descartados', 'packets_dropped'], ['Pacotes tardios', 'late_packets'], ['Reconnects', 'reconnect_count'], ['Frames PLC', 'plc_frames_total'], ['PLC consecutivo máximo', 'plc_consecutive_max'], ['Falhas de saída', 'output_failures']] as const).map(([label, key]) => (
           <div className="card" key={key}><span className="muted">{label}</span><strong>{data?.receiver?.[key] ?? 'UNKNOWN'}</strong></div>

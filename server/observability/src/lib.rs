@@ -92,6 +92,16 @@ impl Metrics {
             network: self.network.snapshot(),
         }
     }
+
+    /// Reset all metric groups to zero. Safe to call from any thread;
+    /// does not guarantee atomicity across groups.
+    pub fn reset_all(&self) {
+        self.audio.reset();
+        self.device.reset();
+        self.stream.reset();
+        self.receiver.reset();
+        self.network.reset();
+    }
 }
 
 /// Helper: saturating atomic increment with `Relaxed` ordering.
@@ -136,6 +146,23 @@ mod tests {
         let c = AtomicU64::new(0);
         saturating_inc(&c);
         assert_eq!(c.load(Ordering::Relaxed), 1);
+    }
+
+    #[test]
+    fn reset_all_clears_every_group() {
+        let m = Metrics::new();
+        m.audio.record_xrun();
+        m.device.record_loss();
+        m.stream.record_sent();
+        m.receiver.record_received();
+        m.network.record_late();
+        m.reset_all();
+        let s = m.snapshot();
+        assert_eq!(s.audio.xrun_count, 0);
+        assert_eq!(s.device.loss_events, 0);
+        assert_eq!(s.stream.frames_sent, 0);
+        assert_eq!(s.receiver.packets_received, 0);
+        assert_eq!(s.network.late_packets, 0);
     }
 
     #[test]
