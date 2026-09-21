@@ -1,3 +1,9 @@
+## 2026-09-21 — Phase 101 PLC duration guard
+
+- Revisão independente detectou risco de orçamento incorreto quando Opus entrega frames variáveis; `OpusReceiver` agora aceita somente frames decodificados de 20 ms no contrato MVP e falha fechado para outras durações.
+- Evidência: streaming 65 testes, clippy e suíte Rust completa PASS; frontends Musician 61 testes/build e Engineer 46 testes/build PASS.
+- Limite preservado: PLC continua CODE/SIMULATED; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## 2026-09-20 — P0-003 media readiness queue guard
 
 - `SessionRegistry::drive_once` agora drena frames do `MediaPlane` somente para sessões com áudio negociado (`media_mid`), preservando frames durante a janela de setup Sans-IO.
@@ -4595,3 +4601,18 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - TODO atualizado: matriz de artefatos `.deb` amd64/arm64 e ciclo install/upgrade/uninstall/purge já possui evidência de CI no run `35533396414`.
 - O item permanece CODE + PACKAGE_RELEASE_GATE; instalação em host físico e validação Raspberry Pi 5 continuam pendentes.
+
+## 2026-09-21 — Phase 101 PLC concealment fail-safe hardening
+
+- `OpusReceiver` gera até quatro frames PLC de 20 ms por lacuna; após exceder o orçamento, mantém mute fail-safe e preserva pacote recebido para ressincronização explícita.
+- Falhas de decode e escrita de saída agora falham fechado; orçamento é consumido antes do decode e métricas PLC permanecem bounded/saturating.
+- Testes dedicados cobrem disparo, reset em decode válido, exaustão e reconnect. Evidência CODE; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+## 2026-09-21 — Phase 101 PLC reconnect packet-preservation fix
+
+- Revisão independente identificou que `reconnect()` limpava o jitter buffer (`self.jitter.packets.clear()`), descartando o pacote preservado após exaustão de PLC, contradizendo a semântica de ressincronização explícita.
+- Correção: removido `self.jitter.packets.clear()` do `reconnect()`; o pacote pós-gap permanece no jitter buffer para ser decodificado na primeira chamada de `playout()` após reconnect.
+- O campo `next_sequence` já é resetado para `None` em `reconnect()`, portanto o receiver aceita naturalmente o pacote preservado como primeiro frame sem verificação de sequência.
+- Adicionado teste `reconnect_preserves_queued_packet_for_resynchronization` que prova o ciclo completo: exaustão PLC → mute → reconnect → decode do pacote preservado → estado Playing.
+- Gates: 66 testes streaming + 88 integração + frontends (61 Musician, 46 Engineer) PASS; clippy e fmt limpos. Revisão independente PASS (round 2).
+- Evidência CODE; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
