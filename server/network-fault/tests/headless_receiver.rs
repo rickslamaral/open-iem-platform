@@ -90,6 +90,59 @@ fn deterministic_loss_profile_drives_opus_receiver_plc() {
 }
 
 #[test]
+fn deterministic_outage_profile_drives_opus_receiver_plc_burst() {
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let result = network_fault::OutageProfile::new(3, 2)
+        .unwrap()
+        .apply(&encoded);
+    assert_eq!(result.dropped, 2);
+    assert_eq!(
+        result
+            .delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 3, 6, 7, 8]
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &result.delivered {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 8);
+    assert_eq!(output.muted, 0);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 6);
+    assert_eq!(snapshot.plc_frames_total, 2);
+    assert_eq!(snapshot.plc_consecutive_max, 2);
+    assert_eq!(snapshot.output_failures, 0);
+}
+
+#[test]
 fn deterministic_jitter_profile_drives_reordered_opus_receiver() {
     let mut writer = MediaWriter::new().unwrap();
     let mut encoded = Vec::new();
