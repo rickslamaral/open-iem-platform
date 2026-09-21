@@ -1,3 +1,7 @@
+## Phase 112 status — receiver reset coverage
+
+- Teste de reset agora confirma limpeza de `output_failures` e `late_packets`, além dos contadores existentes. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Phase 111 status — decoder/output failure metrics
 
 - `OpusReceiver` registra `output_failures` para falhas de decode normal e PLC, duração PCM inválida, exaustão do orçamento PLC e erro de saída. O latch de mute impede dupla contagem em chamadas posteriores. Evidência CODE local; integração headless, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.

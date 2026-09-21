@@ -139,11 +139,15 @@ mod tests {
         m.record_received();
         m.record_dropped();
         m.record_reconnect();
+        m.record_output_failure();
+        m.record_late();
         m.reset();
         let s = m.snapshot();
         assert_eq!(s.packets_received, 0);
         assert_eq!(s.packets_dropped, 0);
         assert_eq!(s.reconnect_count, 0);
+        assert_eq!(s.output_failures, 0);
+        assert_eq!(s.late_packets, 0);
     }
 
     #[test]
