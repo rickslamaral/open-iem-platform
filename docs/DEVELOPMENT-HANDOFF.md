@@ -1,3 +1,8 @@
+## Phase 118 status — deterministic jitter receiver path
+
+- `network-fault/tests/headless_receiver.rs` now applies `JitterProfile` to eight encoded Opus packets before `OpusReceiver`; coverage confirms all packets survive reordering, PCM playout remains valid, and the receiver stays `Playing` without PLC, mute or output failures.
+- Evidence level is `CODE` and CI only. This remains bounded/in-memory coverage; WebRTC/DTLS-SRTP negotiation, real LAN jitter, PipeWire/ALSA runtime and hardware remain unvalidated.
+
 ## Phase 117 status — deterministic network fault receiver path
 
 - `network-fault/tests/headless_receiver.rs` now drives encoded Opus packets through `LossProfile` into `OpusReceiver`, covering deterministic packet loss, PLC concealment, decoded frame content, receiver state and shared metrics.
