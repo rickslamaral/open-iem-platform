@@ -1,3 +1,8 @@
+## 2026-09-21 — Phase 108 receiver metrics round-trip coverage
+
+- Adicionado teste de integração no round-trip Opus para confirmar `packets_received`, `packets_dropped` e `reconnect_count` no mesmo `ReceiverMetrics` compartilhado pelo receiver.
+- Evidência: 3 testes `opus_roundtrip` e 21 testes `observability` PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## 2026-09-21 — Phase 107 receiver snapshot coverage
 
 - Adicionados testes puros para preservar contadores preenchidos e nomes de campos serializados no snapshot de métricas do receiver.

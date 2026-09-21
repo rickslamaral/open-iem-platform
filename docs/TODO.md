@@ -10,6 +10,9 @@
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
 
 
+## Estado atual — 2026-09-21 (Phase 108 receiver metrics round-trip coverage)
+- Teste de integração do round-trip Opus confirma contadores compartilhados de recebido, descarte e reconnect. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Estado atual — 2026-09-21 (Phase 106 receiver metrics boundary)
 - **Phase 106 review:** cobertura local confirma métricas de receiver para pacotes recebidos, overflow de jitter/ingress, reconnect e payload inválido; serialização REST confirma `schema_version` e contadores. Commits verificados: `2ac4a77`, `3ba17dc`, `48fa714`, `49e0d1d`. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 

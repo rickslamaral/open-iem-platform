@@ -1,3 +1,6 @@
+use std::sync::Arc;
+
+use observability::ReceiverMetrics;
 use streaming::{
     AudioOutput, MediaFrame, MediaWriter, OpusReceiver, OutputError, ReceiverState, StreamMetadata,
 };
@@ -118,6 +121,29 @@ fn consecutive_opus_packets_preserve_order_and_frame_timestamps() {
     let second_left_mean: f32 = output.samples[1_920..].iter().step_by(2).sum::<f32>() / 960.0;
     assert!((first_left_mean - 0.1).abs() < 0.08);
     assert!((second_left_mean - 0.3).abs() < 0.08);
+}
+
+#[test]
+fn receiver_metrics_follow_roundtrip_drop_and_reconnect() {
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    let packet = MediaWriter::new().unwrap().encode(&test_frame()).unwrap();
+    receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    receiver.enqueue(packet.sequence + 1, &[]).unwrap_err();
+
+    let mut output = Capture {
+        samples: Vec::new(),
+        muted: 0,
+    };
+    receiver.playout(&mut output).unwrap();
+    receiver.reconnect(&mut output);
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(snapshot.packets_received, 1);
+    assert_eq!(snapshot.packets_dropped, 1);
+    assert_eq!(snapshot.reconnect_count, 1);
 }
 
 fn test_frame() -> MediaFrame {

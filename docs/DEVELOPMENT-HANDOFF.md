@@ -1,3 +1,7 @@
+## Phase 108 status — receiver metrics round-trip coverage
+
+- Teste de integração confirma métricas compartilhadas no fluxo OpusReceiver: pacote válido incrementa `packets_received`, payload inválido incrementa `packets_dropped` e `reconnect` incrementa `reconnect_count`. Evidência CODE local; binário headless, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware continuam pendentes.
+
 ## Phase 107 status — receiver snapshot coverage
 
 - Testes unitários cobrem snapshot com contadores populated e serialização dos nomes estáveis (`schema_version`, `packets_received`, `packets_dropped`, `reconnect_count`, `plc_frames_total`, `plc_consecutive_max`). Evidência CODE local; integração com binário headless, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware continuam pendentes.

@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Tested
+- Phase 108 adiciona teste de integração do fluxo OpusReceiver com métricas de pacote descartado e reconnect; evidência permanece CODE/SIMULATED.
+
 ### Tests
 - Added receiver observability snapshot coverage for populated counters and stable REST field names.
 
