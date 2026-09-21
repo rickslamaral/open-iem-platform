@@ -243,6 +243,10 @@ impl OpusReceiver {
         if let Some(expected) = self.next_sequence {
             if sequence < expected {
                 let _ = self.jitter.pop();
+                self.dropped_packets = self.dropped_packets.saturating_add(1);
+                if let Some(ref m) = self.metrics {
+                    m.record_dropped();
+                }
                 return Ok(());
             }
             if sequence > expected {
@@ -585,6 +589,21 @@ mod tests {
             "seq 33 is the 33rd received packet"
         );
         assert_eq!(snap.packets_dropped, 1, "seq 34 should overflow jitter");
+    }
+
+    #[test]
+    fn metrics_record_dropped_on_stale_packet() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+        r.enqueue(1, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue(1, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
     }
 
     #[test]

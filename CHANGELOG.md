@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Fixed
+- `OpusReceiver` agora contabiliza pacotes atrasados descartados no jitter buffer, evitando subcontagem em `ReceiverMetrics`.
+
+
+### Fixed
 - Preserve media frames while WebRTC Sans-IO sessions await negotiated audio media.
 
 ### Added

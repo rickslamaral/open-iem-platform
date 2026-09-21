@@ -4636,5 +4636,5 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - `OpusReceiver::enqueue` agora registra `packets_dropped` quando a fila bounded de ingress rejeita pacote por overflow; `Disconnected` não gera contagem falsa.
 - Adicionado teste dedicado de overflow da fila de ingress, confirmando exatamente uma queda.
-- Evidência: 70 testes streaming, fmt e revisão independente PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 continuam pendentes.
+- Evidência: 71 testes streaming, fmt e revisão independente PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 continuam pendentes.
 
