@@ -4616,3 +4616,19 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Adicionado teste `reconnect_preserves_queued_packet_for_resynchronization` que prova o ciclo completo: exaustão PLC → mute → reconnect → decode do pacote preservado → estado Playing.
 - Gates: 66 testes streaming + 88 integração + frontends (61 Musician, 46 Engineer) PASS; clippy e fmt limpos. Revisão independente PASS (round 2).
 - Evidência CODE; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+## 2026-09-21 — Phase 103 OpusReceiver metrics builder
+
+- `OpusReceiver` agora aceita métricas observabilidade opcionais via builder `with_metrics(Arc<ReceiverMetrics>)`.
+- `record_plc_frame(consecutive)` é chamado no path de playout PLC; cada frame PLC incrementa `plc_frames_total` e atualiza `plc_consecutive_max` via CAS lock-free.
+- Todas as chamadas são guardadas por `if let Some(ref m) = self.metrics`; sem métricas anexadas, comportamento existente é preservado.
+- Evidência: CODE local; commit 7f25428; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+## 2026-09-21 — Phase 104 wireup completo de métricas de receiver
+
+- `record_received()` chamado quando jitter buffer aceita pacote; `record_dropped()` chamado quando jitter buffer rejeita por overflow.
+- `record_reconnect()` chamado ao início de `reconnect()`, após reset de estado.
+- Três novos testes unitários: `metrics_record_received_on_good_packet`, `metrics_record_dropped_on_overflow`, `metrics_record_reconnect_on_reconnect_call`. Todos passam (69/69 streaming tests green).
+- Revisão independente: PASS; static scan: clean.
+- Evidência: CODE local; commit 2ac4a77; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+- Pendente: conexão de `AppState.metrics.receiver` ao binário headless receiver (fora do escopo do api-server).
