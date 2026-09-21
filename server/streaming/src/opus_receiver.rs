@@ -19,6 +19,10 @@ pub const RECEIVER_QUEUE_CAPACITY: usize = 32;
 const MAX_PACKET_BYTES: usize = 1500;
 const MAX_JITTER_CAPACITY: usize = 256;
 const MAX_DECODED_SAMPLES: usize = 5760;
+/// 20 ms at 48 kHz; used for PLC concealment frame size.
+const PLC_FRAME_SAMPLES: usize = 960;
+/// Maximum consecutive PLC-concealed frames before fail-safe mute (4 × 20 ms = 80 ms).
+const PLC_MAX_CONSECUTIVE: u32 = 4;
 
 /// Receiver lifecycle. `Muted` is fail-safe: no stale audio reaches output.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -135,6 +139,10 @@ pub struct OpusReceiver {
     next_sequence: Option<u64>,
     pcm: Vec<f32>,
     dropped_packets: u64,
+    /// Count of PLC-concealed frames since last good decode.
+    plc_consecutive: u32,
+    /// Total PLC frames generated (cumulative, never resets).
+    plc_frames_total: u64,
     generation: Arc<AtomicU64>,
     output_failed: bool,
 }
@@ -157,6 +165,8 @@ impl OpusReceiver {
             next_sequence: None,
             pcm: vec![0.0; MAX_DECODED_SAMPLES * 2],
             dropped_packets: 0,
+            plc_consecutive: 0,
+            plc_frames_total: 0,
             generation: Arc::new(AtomicU64::new(0)),
             output_failed: false,
         })
@@ -213,9 +223,31 @@ impl OpusReceiver {
                 return Ok(());
             }
             if sequence > expected {
-                self.state = ReceiverState::Muted;
-                self.next_sequence = Some(sequence);
-                output.mute();
+                // Packet missing. Attempt PLC up to PLC_MAX_CONSECUTIVE frames.
+                if self.plc_consecutive < PLC_MAX_CONSECUTIVE {
+                    let samples = self
+                        .decoder
+                        .decode(&[], PLC_FRAME_SAMPLES, &mut self.pcm)
+                        .unwrap_or(0);
+                    // Always count the concealment attempt; decoder failure still exhausts budget.
+                    self.plc_consecutive += 1;
+                    self.plc_frames_total += 1;
+                    if samples > 0 && samples * 2 <= self.pcm.len() {
+                        let _ = output.write(&self.pcm[..samples * 2], 2);
+                        self.state = ReceiverState::Playing;
+                    } else {
+                        self.state = ReceiverState::Muted;
+                        output.mute();
+                    }
+                    // Advance expected by one; buffer the next-arrived packet for next call.
+                    self.next_sequence = Some(expected.saturating_add(1));
+                } else {
+                    // Exceeded concealment budget; hard mute and resync to arrived packet.
+                    self.plc_consecutive = 0;
+                    self.state = ReceiverState::Muted;
+                    self.next_sequence = Some(sequence);
+                    output.mute();
+                }
                 return Ok(());
             }
         }
@@ -250,6 +282,7 @@ impl OpusReceiver {
             ReceiverError::OutputFailed
         })?;
         self.next_sequence = Some(sequence.saturating_add(1));
+        self.plc_consecutive = 0;
         self.state = ReceiverState::Playing;
         Ok(())
     }
@@ -260,6 +293,7 @@ impl OpusReceiver {
         self.generation.fetch_add(1, Ordering::AcqRel);
         self.next_sequence = None;
         self.output_failed = false;
+        self.plc_consecutive = 0;
         self.jitter.packets.clear();
         while self.ingress_rx.try_recv().is_ok() {}
     }
@@ -273,6 +307,18 @@ impl OpusReceiver {
     #[must_use]
     pub fn state(&self) -> ReceiverState {
         self.state
+    }
+
+    /// Consecutive PLC frames generated since last good decode.
+    #[must_use]
+    pub fn plc_consecutive(&self) -> u32 {
+        self.plc_consecutive
+    }
+
+    /// Total PLC frames generated (cumulative, never resets on reconnect).
+    #[must_use]
+    pub fn plc_frames_total(&self) -> u64 {
+        self.plc_frames_total
     }
 }
 
@@ -321,5 +367,96 @@ mod tests {
         let mut r = OpusReceiver::new().unwrap();
         r.reconnect(&mut Sink { frames: 0 });
         assert_eq!(r.state(), ReceiverState::Reconnecting);
+    }
+
+    fn make_opus_packet() -> Vec<u8> {
+        use opus_pure::{Application, OpusEncoder};
+        let mut enc = OpusEncoder::new(48_000, 2, Application::Audio).unwrap();
+        let pcm = vec![0.0f32; 960 * 2]; // 20 ms stereo silence
+        let mut out = vec![0u8; 4000];
+        let n = enc.encode(&pcm, 960, &mut out).unwrap();
+        out[..n].to_vec()
+    }
+
+    #[test]
+    fn plc_triggers_on_missing_packet() {
+        // Enqueue seq=1, then seq=3 (seq=2 missing). After decoding seq=1,
+        // next call sees seq=3 > expected=2 → PLC fires.
+        let r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(3, &pkt).unwrap(); // seq=2 is missing
+        let mut r = r;
+        let mut s = Sink { frames: 0 };
+        // First playout: seq=1 decodes normally.
+        r.playout(&mut s).unwrap();
+        assert_eq!(r.state(), ReceiverState::Playing);
+        assert_eq!(r.plc_consecutive(), 0);
+        // Second playout: seq=3 arrives but expected=2 → PLC.
+        r.playout(&mut s).unwrap();
+        assert_eq!(r.state(), ReceiverState::Playing, "PLC should keep Playing");
+        assert_eq!(r.plc_consecutive(), 1, "one PLC frame generated");
+        assert_eq!(r.plc_frames_total(), 1);
+    }
+
+    #[test]
+    fn plc_reset_on_good_decode() {
+        let r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        // seq=1 good, seq=2 missing → PLC, seq=3 good → reset
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(3, &pkt).unwrap();
+        let mut r = r;
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap(); // decode seq=1
+        r.playout(&mut s).unwrap(); // PLC for missing seq=2
+        assert_eq!(r.plc_consecutive(), 1);
+        // Next playout: PLC still fires (expected advances to 3, but seq=3 in jitter → decode good)
+        // After advancing expected from 2 to 3, seq=3 == expected=3 → good decode
+        r.playout(&mut s).unwrap(); // decode seq=3
+        assert_eq!(r.plc_consecutive(), 0, "PLC counter reset on good decode");
+    }
+
+    #[test]
+    fn plc_budget_exhaustion_mutes() {
+        let r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        // seq=1 good, then gap of 5 missing packets (2,3,4,5,6), seq=7 arrives.
+        // PLC fires 4 times, then budget exhausted → mute + resync.
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(7, &pkt).unwrap();
+        let mut r = r;
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap(); // decode seq=1
+                                    // PLC frames 1..4
+        for i in 1..=4 {
+            r.playout(&mut s).unwrap();
+            if i < 4 {
+                assert_eq!(
+                    r.state(),
+                    ReceiverState::Playing,
+                    "PLC frame {i} should play"
+                );
+            }
+        }
+        // 5th call: budget exhausted → mute
+        r.playout(&mut s).unwrap();
+        assert_eq!(r.state(), ReceiverState::Muted, "budget exhausted → muted");
+        assert_eq!(r.plc_consecutive(), 0, "counter reset on budget exhaust");
+    }
+
+    #[test]
+    fn plc_counter_reset_on_reconnect() {
+        let r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(3, &pkt).unwrap();
+        let mut r = r;
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap();
+        r.playout(&mut s).unwrap(); // PLC
+        assert_eq!(r.plc_consecutive(), 1);
+        r.reconnect(&mut s);
+        assert_eq!(r.plc_consecutive(), 0, "reconnect must reset PLC counter");
     }
 }
