@@ -1,3 +1,8 @@
+## 2026-09-21 — Phase 112 receiver reset coverage
+
+- Estendido teste `ReceiverMetrics::reset` para popular e verificar limpeza de `output_failures` e `late_packets`.
+- Evidência: Rust fmt/clippy/testes e frontends Musician/Engineer typecheck/test/build PASS; sem claim de runtime WebRTC/DTLS-SRTP, PipeWire/ALSA ou hardware.
+
 ## 2026-09-21 — Phase 111 decoder/output failure metrics
 
 - `OpusReceiver` agora registra `output_failures` em falhas de decoder normal e PLC, duração PCM inválida, exaustão do orçamento PLC e erro de escrita no output. O estado fail-safe mutado impede contagem duplicada.
