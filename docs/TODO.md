@@ -10,6 +10,9 @@
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
 
 
+## Estado atual — 2026-09-21 (Phase 118 deterministic outage receiver path)
+- Perfil determinístico `OutageProfile` agora dirige uma janela contígua de perda com dois frames PLC pelo `OpusReceiver` headless; cobertura confirma `plc_consecutive_max == 2`, saída válida e ausência de falhas. Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Estado atual — 2026-09-21 (Phase 117 deterministic network fault receiver path)
 - Perfil determinístico `LossProfile` agora dirige payloads Opus reais por `OpusReceiver` headless em teste bounded, cobrindo perda, PLC e métricas sem falha de saída. Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
