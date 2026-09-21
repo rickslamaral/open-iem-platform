@@ -1,3 +1,8 @@
+## Phase 120 status — deterministic reconnect receiver path
+
+- `network-fault/tests/headless_receiver.rs` aplica `ReconnectProfile` a sete payloads Opus reais, simula uma perda de fronteira, executa `OpusReceiver::reconnect` e valida recuperação do mix, contador de reconnect, estado `Playing`, áudio pós-reconexão e ausência de PLC/falha de saída.
+- Evidência nível `CODE` local; WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
 ## Phase 119 status — deterministic outage receiver path
 
 - `network-fault/tests/headless_receiver.rs` aplica `OutageProfile` a seis payloads Opus reais sobreviventes e valida dois frames PLC consecutivos no `OpusReceiver`, `plc_consecutive_max == 2`, estado `Playing` e ausência de falhas de saída.

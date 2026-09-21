@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use network_fault::{JitterProfile, LossProfile, Packet};
+use network_fault::{JitterProfile, LossProfile, Packet, ReconnectProfile};
 use observability::ReceiverMetrics;
 use streaming::{
     AudioOutput, MediaFrame, MediaWriter, OpusReceiver, OutputError, ReceiverState, StreamMetadata,
@@ -195,6 +195,69 @@ fn deterministic_jitter_profile_drives_reordered_opus_receiver() {
     assert_eq!(snapshot.output_failures, 0);
     assert_eq!(snapshot.late_packets, 0);
     for (index, expected_left) in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8].iter().enumerate() {
+        let left_mean: f32 = output.frames[index].iter().step_by(2).sum::<f32>() / 960.0;
+        assert!(
+            (left_mean - expected_left).abs() < 0.08,
+            "decoded frame at playout {index} has wrong source: {left_mean}"
+        );
+    }
+}
+
+#[test]
+fn deterministic_reconnect_profile_resumes_opus_receiver() {
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let result = ReconnectProfile::new(4, 1, "musician-1", 0)
+        .unwrap()
+        .apply(&encoded);
+    assert_eq!(result.pre_disconnect.len(), 4);
+    assert_eq!(result.post_reconnect.len(), 3);
+    assert_eq!(result.lost_at_disconnect, 1);
+    assert_eq!(result.recovered_mix_id, Some(0));
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &result.pre_disconnect {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in &result.pre_disconnect {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    receiver.reconnect(&mut output);
+    for packet in &result.post_reconnect {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+    for _ in &result.post_reconnect {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 7);
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 7);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.plc_frames_total, 0);
+    assert_eq!(snapshot.output_failures, 0);
+    for (index, expected_left) in [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8].iter().enumerate() {
         let left_mean: f32 = output.frames[index].iter().step_by(2).sum::<f32>() / 960.0;
         assert!(
             (left_mean - expected_left).abs() < 0.08,
