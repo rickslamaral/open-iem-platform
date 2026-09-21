@@ -311,7 +311,7 @@ impl OpusReceiver {
         self.next_sequence = None;
         self.output_failed = false;
         self.plc_consecutive = 0;
-        self.jitter.packets.clear();
+        // Preserve queued packet for explicit resynchronization after PLC exhaustion.
         while self.ingress_rx.try_recv().is_ok() {}
     }
     /// Number packets rejected by jitter admission (overflow or duplicate).
@@ -384,6 +384,23 @@ mod tests {
         let mut r = OpusReceiver::new().unwrap();
         r.reconnect(&mut Sink { frames: 0 });
         assert_eq!(r.state(), ReceiverState::Reconnecting);
+    }
+
+    #[test]
+    fn reconnect_preserves_queued_packet_for_resynchronization() {
+        let mut r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(7, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap();
+        for _ in 0..4 {
+            r.playout(&mut s).unwrap();
+        }
+        assert_eq!(r.playout(&mut s), Err(ReceiverError::OutputFailed));
+        r.reconnect(&mut s);
+        assert_eq!(r.playout(&mut s), Ok(()));
+        assert_eq!(r.state(), ReceiverState::Playing);
     }
 
     fn make_opus_packet() -> Vec<u8> {

@@ -4607,3 +4607,12 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - `OpusReceiver` gera até quatro frames PLC de 20 ms por lacuna; após exceder o orçamento, mantém mute fail-safe e preserva pacote recebido para ressincronização explícita.
 - Falhas de decode e escrita de saída agora falham fechado; orçamento é consumido antes do decode e métricas PLC permanecem bounded/saturating.
 - Testes dedicados cobrem disparo, reset em decode válido, exaustão e reconnect. Evidência CODE; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+## 2026-09-21 — Phase 101 PLC reconnect packet-preservation fix
+
+- Revisão independente identificou que `reconnect()` limpava o jitter buffer (`self.jitter.packets.clear()`), descartando o pacote preservado após exaustão de PLC, contradizendo a semântica de ressincronização explícita.
+- Correção: removido `self.jitter.packets.clear()` do `reconnect()`; o pacote pós-gap permanece no jitter buffer para ser decodificado na primeira chamada de `playout()` após reconnect.
+- O campo `next_sequence` já é resetado para `None` em `reconnect()`, portanto o receiver aceita naturalmente o pacote preservado como primeiro frame sem verificação de sequência.
+- Adicionado teste `reconnect_preserves_queued_packet_for_resynchronization` que prova o ciclo completo: exaustão PLC → mute → reconnect → decode do pacote preservado → estado Playing.
+- Gates: 66 testes streaming + 88 integração + frontends (61 Musician, 46 Engineer) PASS; clippy e fmt limpos. Revisão independente PASS (round 2).
+- Evidência CODE; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
