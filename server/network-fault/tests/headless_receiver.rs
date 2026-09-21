@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
 use network_fault::{
-    DuplicateProfile, JitterProfile, LossProfile, Packet, ReconnectProfile, ReorderProfile,
+    CombinedFaultProfile, DuplicateProfile, JitterProfile, LossProfile, Packet, ReconnectProfile,
+    ReorderProfile, Stage,
 };
 use observability::ReceiverMetrics;
 use streaming::{
@@ -461,4 +462,74 @@ fn test_frame(sequence: u64) -> MediaFrame {
         },
         samples: (0.0, 0.0),
     }
+}
+
+#[test]
+fn combined_loss_reorder_duplicate_headless_receiver() {
+    // 12 Opus packets (seq 1..=12)
+    // → LossProfile(4) drops 1-indexed positions 4,8,12 (seqs 4,8,12) → 9 survive: 1,2,3,5,6,7,9,10,11
+    // → ReorderProfile(3) swaps 0-indexed pos 2 and 5 → seqs: 1,2,5,3,6,9,7,10,11
+    // → DuplicateProfile(3) duplicates every 3rd (1-indexed pos 3,6,9) → 3 duplicates → 12 total
+    // Receiver sees 12 packets; 9 unique seqs + 3 duplicates
+    // Playout covers seq 1..=11 (seq 12 dropped): 9 real frames + 2 PLC (seqs 4,8 missing)
+    // Expected: packets_received=9, late_packets=3, packets_dropped=0, plc_frames_total=2
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Loss(LossProfile::new(4).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+
+    let result = combined.apply(&encoded);
+    // 9 originals after loss + 3 duplicates = 12 total
+    assert_eq!(result.len(), 12, "12 packets after combined pipeline");
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &result {
+        // Duplicates return DuplicateSequence; ignore that error.
+        let _ = receiver.enqueue(pkt.sequence, &pkt.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    // seq 1..=11 span (seq 12 dropped) → 11 playout calls: 9 real + 2 PLC (seqs 4,8)
+    for _ in 0..11 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(
+        output.frames.len(),
+        11,
+        "eleven frames played (9 real + 2 PLC)"
+    );
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 9, "nine unique packets received");
+    assert_eq!(snapshot.late_packets, 3, "three duplicates counted as late");
+    assert_eq!(snapshot.packets_dropped, 0, "no packets dropped");
+    assert_eq!(
+        snapshot.plc_frames_total, 2,
+        "PLC for seqs 4 and 8 (dropped by loss)"
+    );
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
 }
