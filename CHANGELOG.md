@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Phase 111: `OpusReceiver` contabiliza falhas de decoder, validação de frame, PLC e saída como `output_failures`, mantendo mute fail-safe sem dupla contagem.
+
 ### Added
 - Receiver fail-safe output failure counter in observability snapshots.
 - Receiver `late_packets` counter separates stale/duplicate packets from other drops.

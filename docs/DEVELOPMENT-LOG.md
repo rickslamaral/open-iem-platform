@@ -1,3 +1,8 @@
+## 2026-09-21 — Phase 111 decoder/output failure metrics
+
+- `OpusReceiver` agora registra `output_failures` em falhas de decoder normal e PLC, duração PCM inválida, exaustão do orçamento PLC e erro de escrita no output. O estado fail-safe mutado impede contagem duplicada.
+- Evidência: testes unitários locais; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
 ## 2026-09-21 — Phase 110 late_packets counter
 
 - Campo `late_packets: AtomicU64` adicionado a `ReceiverMetrics` e `ReceiverSnapshot` para separar pacotes descartados por chegada tardia ou duplicação dos demais drops.

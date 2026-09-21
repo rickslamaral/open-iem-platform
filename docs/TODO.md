@@ -10,6 +10,9 @@
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
 
 
+## Estado atual — 2026-09-21 (Phase 111 decoder/output failure metrics)
+- `ReceiverMetrics.output_failures` cobre falhas de decoder, PLC, frame PCM inválido, exaustão PLC e saída; testes unitários confirmam contagem única no latch fail-safe. Evidência CODE; integração headless, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Estado atual — 2026-09-21 (Phase 110 late_packets counter)
 - `late_packets` separado de `packets_dropped` em `ReceiverMetrics`: pacotes stale/duplicados incrementam `late_packets` via `record_late()`. REST `GET /api/v1/metrics` expõe campo. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
