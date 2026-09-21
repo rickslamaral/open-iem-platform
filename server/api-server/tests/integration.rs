@@ -2315,6 +2315,8 @@ async fn metrics_exposes_receiver_counters() {
     state.metrics.receiver.record_dropped();
     state.metrics.receiver.record_reconnect();
     state.metrics.receiver.record_plc_frame(3);
+    state.metrics.receiver.record_output_failure();
+    state.metrics.receiver.record_late();
 
     let engineer_token = seed_user_and_login(&state, "eng_metrics_receiver", "pw", Role::Engineer);
     let resp = server
@@ -2329,6 +2331,8 @@ async fn metrics_exposes_receiver_counters() {
     assert_eq!(body["receiver"]["reconnect_count"], 1);
     assert_eq!(body["receiver"]["plc_frames_total"], 1);
     assert_eq!(body["receiver"]["plc_consecutive_max"], 3);
+    assert_eq!(body["receiver"]["output_failures"], 1);
+    assert_eq!(body["receiver"]["late_packets"], 1);
 }
 
 #[tokio::test]
@@ -2349,6 +2353,8 @@ async fn metrics_counters_start_at_zero() {
     assert_eq!(body["stream"]["frames_plc_recovered"], 0);
     assert_eq!(body["receiver"]["packets_received"], 0);
     assert_eq!(body["receiver"]["packets_dropped"], 0);
+    assert_eq!(body["receiver"]["output_failures"], 0);
+    assert_eq!(body["receiver"]["late_packets"], 0);
     assert_eq!(body["network"]["late_packets"], 0);
 }
 

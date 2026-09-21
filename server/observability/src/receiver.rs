@@ -19,6 +19,8 @@ pub struct ReceiverMetrics {
     plc_consecutive_max: AtomicU64,
     /// Number of receiver failures that latched fail-safe mute.
     output_failures: AtomicU64,
+    /// Packets discarded because they arrived after the expected sequence (late or duplicate).
+    late_packets: AtomicU64,
 }
 
 /// Point-in-time snapshot of receiver counters.
@@ -36,6 +38,8 @@ pub struct ReceiverSnapshot {
     pub plc_consecutive_max: u64,
     /// Failures that latched fail-safe mute.
     pub output_failures: u64,
+    /// Packets discarded because they arrived late or as duplicates.
+    pub late_packets: u64,
 }
 
 impl ReceiverMetrics {
@@ -57,6 +61,11 @@ impl ReceiverMetrics {
     /// Record one failure that latched fail-safe mute.
     pub fn record_output_failure(&self) {
         saturating_inc(&self.output_failures);
+    }
+
+    /// Record one late or duplicate packet discarded by the playout path.
+    pub fn record_late(&self) {
+        saturating_inc(&self.late_packets);
     }
 
     /// Record one PLC frame. `consecutive` is the current consecutive count
@@ -89,6 +98,7 @@ impl ReceiverMetrics {
         self.plc_frames_total.store(0, Ordering::Relaxed);
         self.plc_consecutive_max.store(0, Ordering::Relaxed);
         self.output_failures.store(0, Ordering::Relaxed);
+        self.late_packets.store(0, Ordering::Relaxed);
     }
 
     /// Return a best-effort snapshot.
@@ -101,6 +111,7 @@ impl ReceiverMetrics {
             plc_frames_total: self.plc_frames_total.load(Ordering::Acquire),
             plc_consecutive_max: self.plc_consecutive_max.load(Ordering::Acquire),
             output_failures: self.output_failures.load(Ordering::Acquire),
+            late_packets: self.late_packets.load(Ordering::Acquire),
         }
     }
 }

@@ -253,7 +253,7 @@ impl OpusReceiver {
                 let _ = self.jitter.pop();
                 self.dropped_packets = self.dropped_packets.saturating_add(1);
                 if let Some(ref m) = self.metrics {
-                    m.record_dropped();
+                    m.record_late();
                 }
                 return Ok(());
             }
@@ -702,7 +702,9 @@ mod tests {
     }
 
     #[test]
-    fn metrics_record_dropped_on_stale_packet() {
+    fn metrics_record_late_on_stale_packet() {
+        // A packet replayed at the same sequence after it was already played
+        // must increment late_packets, not packets_dropped.
         let metrics = Arc::new(observability::ReceiverMetrics::default());
         let mut r = OpusReceiver::new()
             .unwrap()
@@ -711,9 +713,18 @@ mod tests {
         let mut s = Sink { frames: 0 };
         r.enqueue(1, &pkt).unwrap();
         r.playout(&mut s).unwrap();
+        // Replay same sequence: should be stale.
         r.enqueue(1, &pkt).unwrap();
         r.playout(&mut s).unwrap();
-        assert_eq!(metrics.snapshot().packets_dropped, 1);
+        let snap = metrics.snapshot();
+        assert_eq!(
+            snap.late_packets, 1,
+            "replayed packet must be counted as late"
+        );
+        assert_eq!(
+            snap.packets_dropped, 0,
+            "late packet must not increment packets_dropped"
+        );
     }
 
     #[test]
