@@ -10,6 +10,9 @@
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
 
 
+## Estado atual — 2026-09-21 (Phase 105 receiver ingress drop metric)
+- **Phase 105:** `OpusReceiver::enqueue` agora registra `packets_dropped` quando a fila bounded de ingress rejeita pacote por overflow; teste dedicado confirma contagem única. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Estado atual — 2026-09-21 (Phase 101 PLC concealment)
 - **Phase 101:** `OpusReceiver` aplica concealment PLC bounded para gaps Opus, trava mute após quatro frames PLC de 20 ms e falha fechado em erro de decoder/output. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes. Frames Opus fora do contrato fixo de 20 ms também falham fechado, preservando limite temporal do PLC.
 

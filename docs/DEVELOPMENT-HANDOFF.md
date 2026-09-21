@@ -143,6 +143,11 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 - Physical Raspberry Pi, USB, thermal, controller-specific behavior, physical latency, hot-plug and hardware XRUN are `HARDWARE_CERTIFICATION`, not software-release blockers.
 - Canonical details: `docs/COMPATIBILITY.md`, `docs/PACKAGING.md`, `docs/RELEASE-GATES.md`, `docs/HARDWARE-CERTIFICATION.md`.
 
+## Phase 105 status — receiver ingress drop metric
+
+- `OpusReceiver::enqueue` registra `ReceiverMetrics::record_dropped()` somente quando `try_send` rejeita por fila de ingress cheia; canal desconectado não é contado como pacote descartado.
+- Teste dedicado confirma overflow bounded contado uma vez. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
 ## Phase 99 status — PipeWire/WirePlumber virtual graph CI smoke
 
 - CI now installs `pipewire`, `pipewire-bin` and `wireplumber` and runs `scripts/ci/run-pipewire-software-e2e.sh`.

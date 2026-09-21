@@ -199,7 +199,12 @@ impl OpusReceiver {
         self.ingress
             .try_send((generation, sequence, payload, packet.len()))
             .map_err(|e| match e {
-                TrySendError::Full(_) => ReceiverError::QueueFull,
+                TrySendError::Full(_) => {
+                    if let Some(ref m) = self.metrics {
+                        m.record_dropped();
+                    }
+                    ReceiverError::QueueFull
+                }
                 TrySendError::Disconnected(_) => ReceiverError::Disconnected,
             })
     }
@@ -580,6 +585,20 @@ mod tests {
             "seq 33 is the 33rd received packet"
         );
         assert_eq!(snap.packets_dropped, 1, "seq 34 should overflow jitter");
+    }
+
+    #[test]
+    fn metrics_record_dropped_on_ingress_overflow() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        for sequence in 1..=RECEIVER_QUEUE_CAPACITY as u64 {
+            r.enqueue(sequence, &pkt).unwrap();
+        }
+        assert_eq!(r.enqueue(33, &pkt), Err(ReceiverError::QueueFull));
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
     }
 
     #[test]
