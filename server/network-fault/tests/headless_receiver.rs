@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use network_fault::{JitterProfile, LossProfile, Packet, ReconnectProfile};
+use network_fault::{JitterProfile, LossProfile, Packet, ReconnectProfile, ReorderProfile};
 use observability::ReceiverMetrics;
 use streaming::{
     AudioOutput, MediaFrame, MediaWriter, OpusReceiver, OutputError, ReceiverState, StreamMetadata,
@@ -194,6 +194,65 @@ fn deterministic_jitter_profile_drives_reordered_opus_receiver() {
     assert_eq!(snapshot.plc_frames_total, 0);
     assert_eq!(snapshot.output_failures, 0);
     assert_eq!(snapshot.late_packets, 0);
+    for (index, expected_left) in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8].iter().enumerate() {
+        let left_mean: f32 = output.frames[index].iter().step_by(2).sum::<f32>() / 960.0;
+        assert!(
+            (left_mean - expected_left).abs() < 0.08,
+            "decoded frame at playout {index} has wrong source: {left_mean}"
+        );
+    }
+}
+
+#[test]
+fn deterministic_reorder_profile_drives_ordered_opus_receiver() {
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let result = ReorderProfile::new(3).unwrap().apply(&encoded);
+    assert_eq!(result.dropped, 0);
+    assert_eq!(result.reordered, 4);
+    assert_eq!(
+        result
+            .delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 4, 3, 5, 7, 6, 8]
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &result.delivered {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 8);
+    assert_eq!(output.muted, 0);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 8);
+    assert_eq!(snapshot.plc_frames_total, 0);
+    assert_eq!(snapshot.late_packets, 0);
+    assert_eq!(snapshot.output_failures, 0);
     for (index, expected_left) in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8].iter().enumerate() {
         let left_mean: f32 = output.frames[index].iter().step_by(2).sum::<f32>() / 960.0;
         assert!(

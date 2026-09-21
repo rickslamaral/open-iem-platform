@@ -47,6 +47,9 @@
 ## Estado atual — 2026-09-21 (Phase 101 PLC concealment)
 - **Phase 101:** `OpusReceiver` aplica concealment PLC bounded para gaps Opus, trava mute após quatro frames PLC de 20 ms e falha fechado em erro de decoder/output. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes. Frames Opus fora do contrato fixo de 20 ms também falham fechado, preservando limite temporal do PLC.
 
+## Estado atual — 2026-09-21 (Phase 121 deterministic reorder receiver path)
+- Perfil determinístico `ReorderProfile` agora entrega pacotes Opus reordenados ao `OpusReceiver` headless; cobertura confirma playout ordenado, zero PLC, zero pacotes tardios e ausência de falhas. Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Estado atual — 2026-09-21 (Phase 120 deterministic reconnect receiver path)
 - **Phase 120:** `ReconnectProfile` agora tem cobertura integrada com `OpusReceiver`, incluindo perda na fronteira, recuperação de mix, contador de reconnect e playout pós-reconexão. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
