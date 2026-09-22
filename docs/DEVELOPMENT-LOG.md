@@ -1,3 +1,9 @@
+## 2026-09-22 — Phase 171 bandwidth + outage + reorder receiver path
+
+- Adicionada cobertura headless determinística para composição Stage::Bandwidth -> Stage::Outage -> Stage::Reorder antes do OpusReceiver.
+- Teste confirma sete pacotes recebidos, dois frames PLC, máximo de dois PLC consecutivos, estado Playing, zero late_packets e zero output_failures.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-22 — Phase 170 bandwidth + jitter + duplicate receiver path
 
 - Adicionada cobertura headless determinística para composição `Stage::Bandwidth` → `Stage::Jitter` → `Stage::Duplicate` antes do `OpusReceiver`.

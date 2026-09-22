@@ -35,6 +35,10 @@
 
 # TODO
 
+## Estado atual - 2026-09-22 (Phase 171 bandwidth + outage + reorder receiver path)
+- Teste headless compõe bandwidth, outage e reordenação determinísticos, confirma sete pacotes recebidos, dois frames PLC, estado Playing, zero late_packets e zero falhas de saída. Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem pendentes.
+
+
 ## Estado atual - 2026-09-22 (Phase 170 bandwidth + jitter + duplicate receiver path)
 - Teste headless compõe bandwidth, jitter e duplicação determinísticos, confirma seis pacotes únicos, três duplicatas classificadas como `late_packets`, zero frames PLC, estado `Playing` e zero falhas de saída. Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem pendentes.
 
