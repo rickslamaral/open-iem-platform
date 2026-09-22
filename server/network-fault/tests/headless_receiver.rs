@@ -498,6 +498,63 @@ fn deterministic_bandwidth_profile_drives_opus_receiver_plc() {
     assert_eq!(receiver.state(), ReceiverState::Playing);
 }
 
+#[test]
+fn combined_bandwidth_loss_drives_opus_receiver() {
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=10u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let budget = encoded[0].payload.len() + encoded[1].payload.len();
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(budget, 4).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert_eq!(
+        delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 6, 9],
+        "bandwidth then loss must preserve deterministic stage composition"
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..delivered.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(delivered.len(), 4);
+    assert_eq!(snapshot.packets_received, 4);
+    assert_eq!(snapshot.plc_frames_total, 2);
+    assert_eq!(snapshot.plc_consecutive_max, 2);
+    assert_eq!(snapshot.output_failures, 0);
+    assert_eq!(output.muted, 0);
+    assert_eq!(output.frames.len(), delivered.len());
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+}
+
 fn test_frame(sequence: u64) -> MediaFrame {
     MediaFrame {
         metadata: StreamMetadata {
