@@ -1,3 +1,9 @@
+## 2026-09-22 — Phase 182 reconnect after outage + loss + jitter receiver path
+
+- Adicionado teste headless que compõe `OutageProfile`, `LossProfile` e `JitterProfile` antes do reconnect do `OpusReceiver`.
+- Cobertura confirma recuperação do playout, estado `Playing` e zero `output_failures`.
+- Gate focado: teste headless PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## 2026-09-22 — Phase 154 reconnect after bandwidth + loss receiver path
 
 - Adicionado teste headless que compõe admissão de bandwidth e perda determinística antes do reconnect do `OpusReceiver`.
