@@ -1,3 +1,9 @@
+## 2026-09-22 — Phase 148 reconnect after combined outage + duplicate
+
+- Adicionado teste headless que compõe `OutageProfile` e `DuplicateProfile` antes do reconnect do `OpusReceiver`.
+- Cobertura confirma recuperação do playout, uma transição de mute no reconnect, duplicatas tardias e estado seguro do receiver.
+- Gate focado: `cargo test --manifest-path server/Cargo.toml -p network-fault --test headless_receiver reconnect_after_combined_outage_duplicate_resumes_opus_receiver` PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## 2026-09-22 — Phase 147 reconnect after combined outage + loss
 
 - Adicionado teste headless que compõe `OutageProfile` e `LossProfile` antes do `OpusReceiver`, executa reconnect após os dois primeiros frames e valida recuperação do fluxo.
