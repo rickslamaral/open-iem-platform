@@ -4796,6 +4796,12 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Evidence: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and hardware remain unvalidated.
 
 ## 2026-09-22 — Phase 144 reconnect after loss receiver path
+## 2026-09-22 — Phase 145 reconnect after bandwidth receiver path
+
+- Adicionado teste headless que compõe `BandwidthProfile` e `ReconnectProfile` antes do `OpusReceiver`.
+- Cobertura confirma oito frames reproduzidos, um reconnect, estado `Playing`, zero PLC e zero `output_failures`.
+- Gate focado passou; evidência `CODE` local. Rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
 
 - Adicionado teste headless que compõe `LossProfile` e `ReconnectProfile` antes do `OpusReceiver`, preservando sequência determinística de sobreviventes e recuperação de mix.
 - Cobertura confirma três frames PLC totais de perda, seis frames reproduzidos, um reconnect, estado `Playing` e zero `output_failures`.

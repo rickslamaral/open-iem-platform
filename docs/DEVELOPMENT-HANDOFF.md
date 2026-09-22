@@ -107,6 +107,11 @@
 - Testes unitários cobrem snapshot com contadores populated e serialização dos nomes estáveis (`schema_version`, `packets_received`, `packets_dropped`, `reconnect_count`, `plc_frames_total`, `plc_consecutive_max`). Evidência CODE local; integração com binário headless, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware continuam pendentes.
 
 # Open IEM Platform — Development Handoff
+## Phase 145 status — reconnect after bandwidth receiver path
+
+- `network-fault/tests/headless_receiver.rs` compõe `BandwidthProfile` e `ReconnectProfile` antes do `OpusReceiver`, validando oito frames reproduzidos, recuperação de mix, um reconnect, estado `Playing`, zero PLC e zero falhas de saída.
+- Evidência nível `CODE` local. Rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 
 **Date:** 2026-09-21
 **Canonical workspace:** `/workspace/open-iem-platform`
