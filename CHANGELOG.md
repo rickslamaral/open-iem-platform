@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Phases 187-207: cobertura headless determinística de todas as combinações restantes de triple/quad/penta-fault com reconnect; evidência CODE/CI, sem validação de rede real, WebRTC/DTLS-SRTP runtime, PipeWire/ALSA físico ou Raspberry Pi 5.
+- Phase 186: reconnect após outage + jitter + duplicate no receiver Opus.
+- Phase 185: reconnect após outage + reorder + duplicate no receiver Opus.
+- Phase 184: reconnect após outage + loss + duplicate no receiver Opus.
 - Phase 130: cobertura headless determinística para composição bandwidth + duplicate no receiver Opus.
 - Teste headless para composição determinística de bandwidth e outage no receiver Opus.
 - Phase 129: combined bandwidth/loss fault pipeline drives encoded Opus receiver coverage; evidence remains CODE/CI, with runtime and hardware unvalidated.

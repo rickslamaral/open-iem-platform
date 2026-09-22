@@ -1,3 +1,17 @@
+## Estado atual - 2026-09-22 (Phases 208-214 deterministic combined receiver coverage)
+
+- [x] Phases 208-214 — cobrir cinco combinações quad-fault, duas penta-fault e uma hexa-fault sem reconnect no `OpusReceiver`.
+- Evidência: 91 testes `headless_receiver` PASS localmente; classificação CODE local. Rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA físico e Raspberry Pi 5 permanecem não validados.
+
+## Estado atual - 2026-09-22 (Phases 187-207 receiver reconnect fault coverage)
+
+- [x] Phases 187-192 — completar combinações triple-fault com reconnect: outage+jitter+reorder, bandwidth+reorder+duplicate, loss+jitter+reorder, loss+jitter+duplicate, loss+reorder+duplicate e jitter+reorder+duplicate.
+- [x] Phases 193-197 — completar combinações quad-fault sem outage: bandwidth+loss+jitter+reorder, bandwidth+loss+jitter+duplicate, bandwidth+loss+reorder+duplicate, bandwidth+jitter+reorder+duplicate e loss+jitter+reorder+duplicate.
+- [x] Phases 198-203 — combinações outage+quad-fault com reconnect.
+- [x] Phases 204-207 — quatro combinações penta-fault com reconnect.
+- Evidência: 83 testes `headless_receiver` e 66 testes unitários PASS em CI; classificação CODE/CI. Rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA físico e Raspberry Pi 5 permanecem não validados.
+- Phases 208-214 sem reconnect estão concluídas: oito combinações determinísticas (cinco quad-fault, duas penta-fault e uma hexa-fault).
+
 ## Estado atual - 2026-09-22 (Phase 186 reconnect after outage + jitter + duplicate receiver path)
 - Teste headless compõe outage, jitter e duplicate determinísticos antes do reconnect, confirma playout pós-reconexão, classificação de duplicatas em `late_packets`, estado `Playing` e zero `output_failures`. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
 

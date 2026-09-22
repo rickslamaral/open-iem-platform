@@ -1,3 +1,6 @@
+## Estado atual - 2026-09-22 (Phases 208-214 deterministic combined receiver coverage)
+- `network-fault/tests/headless_receiver.rs` adiciona oito cenários sem reconnect: cinco quad-fault, duas penta-fault e uma hexa-fault, todos alimentando `OpusReceiver`. Gate focado: 91 testes `headless_receiver` PASS localmente. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-22 (Phase 154 reconnect after bandwidth + loss receiver path)
 - Teste headless compõe bandwidth e loss determinísticos antes do `OpusReceiver`, executa reconnect e confirma seis frames reproduzidos, um reconnect, estado `Playing`, três frames PLC e zero `output_failures`. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
 
@@ -398,6 +401,15 @@ Each task: read START and this handoff → implement smallest unit → test → 
 - Windows native backend absent.
 - v0.3.1 release not validated/published.
 - Architecture decisions can be reopened only on contradictory evidence: stop implementation, document evidence, assess impact, update ADR/GAP, then resume.
+
+## Phase 187-207 status — receiver reconnect fault coverage
+
+- Phases 187-192 complete remaining triple-fault reconnect combinations.
+- Phases 193-197 complete five quad-fault combinations without outage.
+- Phases 198-203 cover outage + quad-fault reconnect paths; Phases 204-207 cover four penta-fault reconnect paths.
+- Main is [`e5aa286`](https://github.com/rickslamaral/open-iem-platform/commit/e5aa286332bb49ad6b5a0f753d749e306123cd89) after [PR #255](https://github.com/rickslamaral/open-iem-platform/pull/255); CI evidence: 83 `headless_receiver` tests and 66 unit tests PASS.
+- Evidence remains CODE/CI. Real network, WebRTC/DTLS-SRTP runtime, PipeWire/ALSA hardware and Raspberry Pi 5 remain unvalidated.
+- Phases 208-214 sem reconnect estão concluídas: oito combinações determinísticas (cinco quad-fault, duas penta-fault e uma hexa-fault).
 
 ## Phase 183 status — reconnect after outage + loss + reorder receiver path
 
