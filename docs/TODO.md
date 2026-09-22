@@ -1,3 +1,6 @@
+## Estado atual - 2026-09-21 (Phase 127 deterministic bandwidth receiver path)
+- Teste headless aplica `BandwidthProfile` a payloads Opus codificados e valida playout do receiver para pacotes admitidos, sem falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Estado atual - 2026-09-21 (Phase 126 combined bandwidth fault stage)
 - `Stage::Bandwidth` integra `BandwidthProfile` ao `CombinedFaultProfile`; teste unitário cobre encadeamento bandwidth→loss. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 

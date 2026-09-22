@@ -448,6 +448,56 @@ fn deterministic_duplicate_profile_classifies_duplicates_as_late() {
     assert_eq!(snapshot.output_failures, 0, "no output failures");
 }
 
+#[test]
+fn deterministic_bandwidth_profile_drives_opus_receiver_plc() {
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let minimum_payload = encoded
+        .iter()
+        .map(|packet| packet.payload.len())
+        .min()
+        .unwrap();
+    let profile = CombinedFaultProfile::new(vec![Stage::Bandwidth(
+        network_fault::BandwidthProfile::new(minimum_payload, 2).unwrap(),
+    )])
+    .unwrap();
+    let delivered = profile.apply(&encoded);
+    assert!(!delivered.is_empty());
+    assert!(delivered.len() < encoded.len());
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..delivered.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), delivered.len());
+    assert_eq!(snapshot.packets_received, delivered.len() as u64);
+    assert_eq!(snapshot.output_failures, 0);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+}
+
 fn test_frame(sequence: u64) -> MediaFrame {
     MediaFrame {
         metadata: StreamMetadata {
