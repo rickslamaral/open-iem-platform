@@ -1,3 +1,6 @@
+## Estado atual - 2026-09-22 (Phase 153 reconnect after bandwidth + jitter receiver path)
+- Teste headless compõe bandwidth e jitter determinísticos antes do `OpusReceiver`, executa reconnect e confirma dez frames reproduzidos em ordem, um reconnect, estado `Playing`, zero PLC e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
 ## 2026-09-22 — Phase 152 reconnect after combined bandwidth + reorder
 
 - Adicionado teste headless que compõe admissão de bandwidth e reorder determinísticos antes do reconnect do `OpusReceiver`.
