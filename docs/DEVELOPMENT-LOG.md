@@ -1,3 +1,9 @@
+## 2026-09-22 — Phase 130 bandwidth + duplicate receiver path
+
+- Adicionado teste integrado que compõe `Stage::Bandwidth` e `Stage::Duplicate` antes do `OpusReceiver` headless.
+- Cobertura confirma seis pacotes únicos, três duplicatas em `late_packets`, seis frames de saída, zero PLC, estado `Playing` e zero falhas.
+- Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## 2026-09-22 — Phase 129 bandwidth + outage receiver path
 
 - Adicionado teste integrado `network-fault` que encadeia `BandwidthProfile` e `OutageProfile` antes do `OpusReceiver` headless.

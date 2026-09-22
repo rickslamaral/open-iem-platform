@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Phase 130: cobertura headless determinística para composição bandwidth + duplicate no receiver Opus.
 - Teste headless para composição determinística de bandwidth e outage no receiver Opus.
 - Phase 129: combined bandwidth/loss fault pipeline drives encoded Opus receiver coverage; evidence remains CODE/CI, with runtime and hardware unvalidated.
 
