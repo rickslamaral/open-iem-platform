@@ -1,3 +1,8 @@
+## Phase 147 status — reconnect after combined outage + loss
+
+- `network-fault/tests/headless_receiver.rs` compõe `OutageProfile` e `LossProfile` antes do `OpusReceiver`, executa reconnect após dois frames e confirma seis frames/pacotes reproduzidos, estado `Playing`, um reconnect e zero `output_failures`.
+- Gates locais: 66 testes unitários + 29 testes headless PASS; fmt PASS. Evidência nível `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## Phase 146 status — outage + loss + duplicate receiver path
 
 - `network-fault/tests/headless_receiver.rs` compõe `OutageProfile`, `LossProfile` e `DuplicateProfile` antes do `OpusReceiver`.
