@@ -448,6 +448,12 @@
 
 ---
 
+## 2026-09-22 — Phase 165: bandwidth + loss + duplicate receiver path
+
+- Added bounded headless receiver coverage for `Stage::Bandwidth` + `Stage::Loss` + `Stage::Duplicate`.
+- Verified six unique packets, three late duplicate packets, two PLC frames, eight output frames and zero output failures.
+- Evidence remains CODE local; no real network, WebRTC/DTLS-SRTP, PipeWire/ALSA or hardware claim.
+
 ## 2026-09-16 — P0-003 bounded UDP transport ownership
 
 **Status:** CODE + CI/SIMULATED; runtime and hardware remain pending.
