@@ -1172,3 +1172,232 @@ fn combined_outage_then_duplicate_classifies_receiver_late_packets() {
     );
     assert_eq!(snapshot.output_failures, 0, "no output failures");
 }
+
+#[test]
+fn combined_outage_then_reorder_drives_opus_receiver() {
+    // Phase 137
+    // 10 packets seq 1..=10
+    // OutageProfile(start=3, window=2): drops 0-indexed positions 3,4 -> seqs 4,5 lost
+    //   Survivors: [seq1,seq2,seq3,seq6,seq7,seq8,seq9,seq10] -- 8 packets
+    // ReorderProfile(3) on 8 survivors: swaps pos2<->3 (seq3<->seq6) and pos5<->6 (seq8<->seq9)
+    //   Delivered: [seq1,seq2,seq6,seq3,seq7,seq9,seq8,seq10]
+    // Receiver: seq3 arrives after seq6 — jitter buffer reorders -> no PLC for seq3 (within window)
+    //   PLC: seqs 4,5 (outage) -> 2 PLC frames
+    // Span seq1..seq10: 8 real + 2 PLC = 10 playout calls
+    // Assert: delivered.len()==8, output.frames.len()==10, output.muted==0, state==Playing,
+    //         packets_received==8, plc_frames_total==2, output_failures==0
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=10u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Outage(network_fault::OutageProfile::new(3, 2).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    assert_eq!(
+        delivered.len(),
+        8,
+        "8 packets survive outage+reorder pipeline"
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        let _ = receiver.enqueue(pkt.sequence, &pkt.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    // Span seq1..seq10: 8 real + 2 PLC (seqs 4,5 from outage) = 10 playout calls
+    for _ in 0..10 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(
+        output.frames.len(),
+        10,
+        "ten frames played (8 real + 2 PLC)"
+    );
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(
+        snapshot.packets_received, 8,
+        "eight unique packets received"
+    );
+    assert_eq!(
+        snapshot.plc_frames_total, 2,
+        "PLC for seqs 4 and 5 (outage window)"
+    );
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
+}
+
+#[test]
+fn combined_jitter_then_reorder_drives_opus_receiver() {
+    // Phase 138
+    // 8 packets seq 1..=8
+    // JitterProfile::new(20, 3).unwrap() reorders but delivers all 8 packets
+    // ReorderProfile(4) on 8 delivered: swaps pos3<->4 (additional reorder)
+    // All 8 packets delivered (reordered only, no drops)
+    // Receiver handles reordered packets via jitter buffer
+    // Assert: delivered.len()==8, output.frames.len()==8, output.muted==0,
+    //         state==Playing, packets_received==8, plc_frames_total==0, output_failures==0
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 8.0, -(sequence as f32) / 8.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Jitter(JitterProfile::new(20, 3).unwrap()),
+        Stage::Reorder(ReorderProfile::new(4).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    assert_eq!(
+        delivered.len(),
+        8,
+        "8 packets after jitter+reorder (no drops)"
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        let _ = receiver.enqueue(pkt.sequence, &pkt.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    // All 8 packets delivered (reordered only), jitter buffer handles reorder
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(
+        output.frames.len(),
+        8,
+        "eight frames played (all real, no PLC)"
+    );
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(
+        snapshot.packets_received, 8,
+        "eight unique packets received"
+    );
+    assert_eq!(
+        snapshot.plc_frames_total, 0,
+        "no PLC frames (all packets delivered)"
+    );
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
+}
+
+#[test]
+fn combined_jitter_then_duplicate_drives_opus_receiver() {
+    // Phase 139
+    // 8 packets seq 1..=8
+    // JitterProfile::new(20, 3).unwrap() reorders but delivers all 8 packets
+    // DuplicateProfile(4) on 8 delivered: inserts copies at pos4 and pos8 -> 10 total
+    // Receiver: 8 unique + 2 duplicates (late_packets += 2)
+    // All real packets delivered (no PLC gaps)
+    // Assert: delivered.len()==10, output.frames.len()==8, output.muted==0,
+    //         state==Playing, packets_received==8, late_packets==2, plc_frames_total==0, output_failures==0
+    // Note: playout calls == 8 (not 10) because duplicates are rejected at enqueue
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 8.0, -(sequence as f32) / 8.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Jitter(JitterProfile::new(20, 3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(4).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    // 8 originals + 2 duplicates (after pos4 and pos8) = 10
+    assert_eq!(
+        delivered.len(),
+        10,
+        "10 packets after jitter+duplicate pipeline (8 originals + 2 duplicates)"
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        // Duplicates return DuplicateSequence; count them as late.
+        let _ = receiver.enqueue(pkt.sequence, &pkt.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    // playout calls == 8 (duplicates rejected at enqueue, no PLC needed)
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(
+        output.frames.len(),
+        8,
+        "eight frames played (8 real, duplicates rejected)"
+    );
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(
+        snapshot.packets_received, 8,
+        "eight unique packets received"
+    );
+    assert_eq!(
+        snapshot.late_packets, 2,
+        "two duplicate packets counted as late"
+    );
+    assert_eq!(
+        snapshot.plc_frames_total, 0,
+        "no PLC frames (all unique packets delivered)"
+    );
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
+}
