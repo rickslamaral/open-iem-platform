@@ -1,3 +1,9 @@
+## Phase 146 status — outage + loss + duplicate receiver path
+
+- `network-fault/tests/headless_receiver.rs` compõe `OutageProfile`, `LossProfile` e `DuplicateProfile` antes do `OpusReceiver`.
+- Cobertura confirma 11 frames reproduzidos, seis pacotes únicos, duas duplicatas em `late_packets`, cinco frames PLC, `plc_consecutive_max == 4`, estado `Playing` e zero `output_failures`.
+- Gate focado: 28 testes passaram localmente. Evidência nível `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## Phase 145 status — reconnect after bandwidth receiver path
 
 - `headless_receiver.rs` composes deterministic bandwidth, outage, jitter, reorder, loss and duplicate stages before feeding encoded Opus payloads to `OpusReceiver`.

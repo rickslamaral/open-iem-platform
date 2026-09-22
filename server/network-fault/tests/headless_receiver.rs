@@ -1828,6 +1828,70 @@ fn combined_loss_then_duplicate_classifies_receiver_late_packets() {
 }
 
 #[test]
+fn combined_outage_loss_duplicate_drives_opus_receiver() {
+    // Phase 146: compose a contiguous outage, periodic loss and duplicates.
+    // Outage removes seq4..=6; Loss(3) then removes seq6 and seq9 from the
+    // nine survivors; Duplicate(3) duplicates seq7 and seq11.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 12.0, -(sequence as f32) / 12.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Outage(network_fault::OutageProfile::new(3, 3).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert_eq!(
+        delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 7, 7, 8, 10, 11, 11],
+        "outage, loss and duplicate stages must preserve deterministic composition",
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..11 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(
+        output.frames.len(),
+        11,
+        "six real frames plus five PLC frames"
+    );
+    assert_eq!(output.muted, 0);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 6);
+    assert_eq!(snapshot.late_packets, 2);
+    assert_eq!(snapshot.plc_frames_total, 5);
+    assert_eq!(snapshot.plc_consecutive_max, 4);
+    assert_eq!(snapshot.output_failures, 0);
+}
+
+#[test]
 fn reconnect_after_outage_resumes_opus_receiver() {
     // Phase 142: reconnect after outage gap
     // 12 packets seq 1..=12

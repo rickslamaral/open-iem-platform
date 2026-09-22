@@ -1,3 +1,9 @@
+## 2026-09-22 — Phase 146 outage + loss + duplicate receiver path
+
+- Adicionado teste headless que compõe `OutageProfile`, `LossProfile` e `DuplicateProfile` antes do `OpusReceiver`.
+- Cobertura confirma oito pacotes entregues, seis únicos, duas duplicatas tardias, cinco frames PLC, `plc_consecutive_max == 4`, estado `Playing` e zero falhas de saída.
+- Gate focado: 28 testes `headless_receiver` PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## 2026-09-22 — Phase 143 reconnect after jitter receiver path
 
 - Adicionado teste headless que compõe `JitterProfile` e `ReconnectProfile`, valida metadados de recuperação de mix, uma perda na fronteira de desconexão, playout de sete frames e estado `Playing` após reconexão.
