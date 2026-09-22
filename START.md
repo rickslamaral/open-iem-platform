@@ -4,7 +4,7 @@
 
 ## Estado canônico atual
 
-As 13 fases canônicas permanecem fixas. A Phase 120 é o trabalho incremental mais recente mergeado em main; as fases incrementais 27–120 não substituem nem renumeram as fases canônicas.
+As 13 fases canônicas permanecem fixas. A Phase 214 é o trabalho incremental mais recente mergeado em main; as fases incrementais não substituem nem renumeram as fases canônicas.
 
 ```text
 Concluídas: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 6
