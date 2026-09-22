@@ -2127,6 +2127,69 @@ fn reconnect_after_combined_outage_duplicate_resumes_opus_receiver() {
 }
 
 #[test]
+fn reconnect_after_combined_bandwidth_outage_resumes_opus_receiver() {
+    // Phase 151: bandwidth admission followed by an outage and reconnect.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 12.0, -(sequence as f32) / 12.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 10).unwrap()),
+        Stage::Outage(network_fault::OutageProfile::new(3, 3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert_eq!(
+        delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 3, 7, 8, 9, 10, 11, 12],
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered[..3] {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..3 {
+        receiver.playout(&mut output).unwrap();
+    }
+    receiver.reconnect(&mut output);
+
+    for packet in &delivered[3..] {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+    for _ in 0..6 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 9);
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 9);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.plc_frames_total, 0);
+    assert_eq!(snapshot.output_failures, 0);
+}
+
+#[test]
 fn reconnect_after_outage_resumes_opus_receiver() {
     // Phase 142: reconnect after outage gap
     // 12 packets seq 1..=12

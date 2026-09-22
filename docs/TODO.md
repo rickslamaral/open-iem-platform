@@ -1,3 +1,6 @@
+## Estado atual - 2026-09-22 (Phase 151 reconnect after bandwidth + outage)
+- Teste headless compõe bandwidth e outage determinísticos, executa reconnect e confirma nove frames reproduzidos, um reconnect, estado `Playing`, zero PLC e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
 ## Estado atual - 2026-09-22 (Phase 150 reconnect after outage + reorder)
 - Teste headless compõe outage e reorder determinísticos, executa reconnect e confirma 10 frames reproduzidos, dois frames PLC, estado `Playing`, um reconnect e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
 
