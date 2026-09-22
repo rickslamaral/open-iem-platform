@@ -1025,3 +1025,150 @@ fn combined_outage_then_jitter_drives_opus_receiver_plc() {
     );
     assert_eq!(snapshot.output_failures, 0, "no output failures");
 }
+
+#[test]
+fn combined_outage_then_loss_drives_opus_receiver_plc() {
+    // Phase 135
+    // Generate 10 Opus packets (seq 1..=10, 0-indexed 0..9)
+    // OutageProfile(start=2, window=3): drops 0-indexed positions 2,3,4 -> seqs 3,4,5 lost
+    //   Survivors (in order): [seq1, seq2, seq6, seq7, seq8, seq9, seq10] -- 7 packets
+    // LossProfile(4) on 7 survivors: drops every 4th (1-indexed pos 4 = seq7)
+    //   After loss: [seq1, seq2, seq6, seq8, seq9, seq10] -- 6 packets
+    // Receiver gaps: seqs 3,4,5 (outage) and seq7 (loss) -> 4 PLC frames
+    // Span seq1..seq10: 6 real + 4 PLC = 10 playout calls
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=10u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Outage(network_fault::OutageProfile::new(2, 3).unwrap()),
+        Stage::Loss(LossProfile::new(4).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    // 7 survive outage; loss drops 1 of 7 -> 6 remain
+    assert_eq!(delivered.len(), 6, "6 packets survive outage+loss pipeline");
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        receiver.enqueue(pkt.sequence, &pkt.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    // Span seq1..seq10: 6 real + 4 PLC (seqs 3,4,5,7) = 10 playout calls
+    for _ in 0..10 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(
+        output.frames.len(),
+        10,
+        "ten frames played (6 real + 4 PLC)"
+    );
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 6, "six unique packets received");
+    assert_eq!(
+        snapshot.plc_frames_total, 4,
+        "PLC for seqs 3,4,5 (outage) and seq7 (loss)"
+    );
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
+}
+
+#[test]
+fn combined_outage_then_duplicate_classifies_receiver_late_packets() {
+    // Phase 136
+    // Generate 10 Opus packets (seq 1..=10, 0-indexed 0..9)
+    // OutageProfile(start=1, window=2): drops 0-indexed positions 1,2 -> seqs 2,3 lost
+    //   Survivors (in order): [seq1, seq4, seq5, seq6, seq7, seq8, seq9, seq10] -- 8 packets
+    // DuplicateProfile(4) on 8 survivors: duplicates every 4th (1-indexed pos 4 = seq7, pos 8 = seq10)
+    //   Delivered: [seq1, seq4, seq5, seq6, seq7, seq7_dup, seq8, seq9, seq10, seq10_dup] -- 10 packets
+    // Receiver: duplicates return DuplicateSequence -> late_packets += 2
+    // PLC: seqs 2,3 (outage) -> 2 PLC frames
+    // Span seq1..seq10: 8 real + 2 PLC = 10 playout calls
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=10u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Outage(network_fault::OutageProfile::new(1, 2).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(4).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    // 8 survive outage; duplicate adds 2 copies -> 10 total
+    assert_eq!(
+        delivered.len(),
+        10,
+        "10 packets after outage+duplicate pipeline (8 originals + 2 duplicates)"
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        // Duplicates return DuplicateSequence; count them as late.
+        let _ = receiver.enqueue(pkt.sequence, &pkt.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    // Span seq1..seq10: 8 real + 2 PLC (seqs 2,3) = 10 playout calls
+    for _ in 0..10 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(
+        output.frames.len(),
+        10,
+        "ten frames played (8 real + 2 PLC)"
+    );
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(
+        snapshot.packets_received, 8,
+        "eight unique packets received"
+    );
+    assert_eq!(
+        snapshot.late_packets, 2,
+        "two duplicate packets counted as late"
+    );
+    assert_eq!(
+        snapshot.plc_frames_total, 2,
+        "PLC for seqs 2 and 3 (outage window)"
+    );
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
+}
