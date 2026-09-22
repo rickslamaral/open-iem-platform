@@ -1,3 +1,6 @@
+## Estado atual - 2026-09-22 (Phase 186 reconnect after outage + jitter + duplicate receiver path)
+- Teste headless compõe outage, jitter e duplicate determinísticos antes do reconnect, confirma playout pós-reconexão, classificação de duplicatas em `late_packets`, estado `Playing` e zero `output_failures`. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
 ## Estado atual - 2026-09-22 (Phase 185 reconnect after outage + reorder + duplicate receiver path)
 - Teste headless compõe outage, reorder e duplicate determinísticos antes do reconnect, confirma playout pós-reconexão, classificação de duplicatas em `late_packets`, estado `Playing` e zero `output_failures`. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
 
