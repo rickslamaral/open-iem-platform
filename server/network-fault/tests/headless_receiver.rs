@@ -1401,3 +1401,219 @@ fn combined_jitter_then_duplicate_drives_opus_receiver() {
     );
     assert_eq!(snapshot.output_failures, 0, "no output failures");
 }
+
+#[test]
+fn combined_loss_then_reorder_drives_opus_receiver() {
+    // Phase 140
+    // 9 packets seq 1..=9
+    // LossProfile(3): drops positions 3,6,9 (1-indexed) -> seqs 3,6,9 lost; 6 survivors [seq1,seq2,seq4,seq5,seq7,seq8]
+    // ReorderProfile(3) on 6 survivors: swaps 0-indexed pos2<->3 (seq4<->seq5); pos5+1=6 OOB, no swap there.
+    //   Delivered: [seq1,seq2,seq5,seq4,seq7,seq8]
+    // Receiver: seq4 arrives after seq5 -> jitter buffer reorders -> no PLC for seq4
+    //   PLC: seqs 3,6,9 (loss) -> 3 PLC frames
+    // Span seq1..seq9: 6 real + 3 PLC = 9 playout calls
+    // Assert: delivered.len()==6, output.frames.len()==9, packets_received==6, plc_frames_total==3, output_failures==0
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=9u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 9.0, -(sequence as f32) / 9.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    assert_eq!(delivered.len(), 6, "6 survivors after loss(3) on 9 packets");
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        let _ = receiver.enqueue(pkt.sequence, &pkt.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    // 6 real + 2 PLC (seq3,seq6) = 8 playout calls; seq9 is trailing loss, no PLC
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(
+        output.frames.len(),
+        8,
+        "eight frames played (6 real + 2 PLC for seq3,seq6)"
+    );
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 6, "six unique packets received");
+    assert_eq!(
+        snapshot.plc_frames_total, 2,
+        "two PLC frames for lost seqs 3,6 (seq9 trailing, no PLC)"
+    );
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
+}
+
+#[test]
+fn combined_loss_then_duplicate_classifies_receiver_late_packets() {
+    // Phase 141
+    // 9 packets seq 1..=9
+    // LossProfile(3): drops positions 3,6,9 -> seqs 3,6,9 lost; 6 survivors [seq1,seq2,seq4,seq5,seq7,seq8]
+    // DuplicateProfile(3) on 6 survivors: inserts copy after pos3 (seq4) and pos6 (seq8) -> 8 total
+    //   Delivered: [seq1,seq2,seq4,seq4_dup,seq5,seq7,seq8,seq8_dup]
+    // Receiver: 6 unique + 2 duplicates (late_packets+=2)
+    // PLC: seqs 3,6,9 (loss) -> 3 PLC frames
+    // Span seq1..seq9: 6 real + 3 PLC = 9 playout calls
+    // Assert: delivered.len()==8, output.frames.len()==9, packets_received==6, late_packets==2, plc_frames_total==3, output_failures==0
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=9u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 9.0, -(sequence as f32) / 9.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    assert_eq!(
+        delivered.len(),
+        8,
+        "8 packets after loss(3)+duplicate(3) on 9 packets (6 survivors + 2 dups)"
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        // Duplicates return DuplicateSequence; count them as late.
+        let _ = receiver.enqueue(pkt.sequence, &pkt.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    // 6 real + 2 PLC (seq3,seq6) = 8 playout calls; seq9 is trailing loss, no PLC
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(
+        output.frames.len(),
+        8,
+        "eight frames played (6 real + 2 PLC for seq3,seq6)"
+    );
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 6, "six unique packets received");
+    assert_eq!(
+        snapshot.late_packets, 2,
+        "two duplicate packets counted as late"
+    );
+    assert_eq!(
+        snapshot.plc_frames_total, 2,
+        "two PLC frames for lost seqs 3,6 (seq9 trailing, no PLC)"
+    );
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
+}
+
+#[test]
+fn reconnect_after_outage_resumes_opus_receiver() {
+    // Phase 142: reconnect after outage gap
+    // 12 packets seq 1..=12
+    // OutageProfile(start=3, window=4): drops 0-indexed pos 3,4,5,6 -> seqs 4,5,6,7 lost
+    //   Survivors: [seq1,seq2,seq3,seq8,seq9,seq10,seq11,seq12] -- 8 packets
+    // Enqueue first 3 (seq1-seq3), then call receiver.reconnect(), then enqueue remaining 5 (seq8-seq12)
+    // Playout 3 calls after initial enqueue (no gaps in seq1-seq3)
+    // Playout 5 calls after reconnect enqueue (seq8-seq12, no internal gaps)
+    // Total 8 frames: assert output.frames.len()==8, output.muted==1 (from reconnect), state==Playing
+    // assert snapshot.reconnect_count==1, output_failures==0
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 12.0, -(sequence as f32) / 12.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    // OutageProfile(start=3, window=4): drops 0-indexed pos 3,4,5,6 -> seqs 4,5,6,7 lost
+    let outage = network_fault::OutageProfile::new(3, 4).unwrap();
+    let result = outage.apply(&encoded);
+    let survivors = result.delivered;
+    assert_eq!(survivors.len(), 8, "8 survivors after outage drops pos 3-6");
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    // Enqueue first 3 packets (seq1-seq3)
+    let pre_reconnect = &survivors[..3];
+    for pkt in pre_reconnect {
+        receiver.enqueue(pkt.sequence, &pkt.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..3 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    // Simulate reconnect
+    receiver.reconnect(&mut output);
+
+    // Enqueue remaining 5 packets (seq8-seq12)
+    let post_reconnect = &survivors[3..];
+    for pkt in post_reconnect {
+        receiver.enqueue(pkt.sequence, &pkt.payload).unwrap();
+    }
+    for _ in 0..5 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(
+        output.frames.len(),
+        8,
+        "eight total frames played (3 pre + 5 post reconnect)"
+    );
+    assert_eq!(output.muted, 1, "one mute call from reconnect");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.reconnect_count, 1, "one reconnect recorded");
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
+}
