@@ -428,3 +428,11 @@ test → review → docs/GAP update → PR/CI
 ## Phase 144 status — reconnect after loss receiver path
 
 - `headless_receiver.rs` compõe `LossProfile` e `ReconnectProfile` sobre frames Opus codificados, confirma três perdas da cadeia, perda de fronteira, três frames PLC totais, recuperação de mix, seis frames reproduzidos, estado `Playing` e zero falhas de saída. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## Estado atual - 2026-09-22 (Phases 198-207 outage-quad e penta-fault reconnect receiver paths)
+- Dez novos testes headless cobrem combinações com quatro e cinco falhas simultâneas antes do reconnect:
+  - Fases 198-201: outage+loss+jitter+reorder, outage+loss+jitter+duplicate, outage+loss+reorder+duplicate, outage+jitter+reorder+duplicate
+  - Fases 202-203: bandwidth+outage+jitter+reorder, bandwidth+outage+loss+duplicate
+  - Fases 204-207 (penta): bandwidth+outage+loss+jitter+reorder, bandwidth+outage+loss+jitter+duplicate, bandwidth+loss+jitter+reorder+duplicate, bandwidth+outage+loss+reorder+duplicate
+- Cada teste confirma playout pós-reconexão, estado `Playing`, um reconnect, frame muted e zero `output_failures`.
+- Gate completo: 83 testes headless + 66 unitários PASS, fmt PASS, clippy PASS. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
