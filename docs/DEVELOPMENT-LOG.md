@@ -1,3 +1,4 @@
+- Phase 186: added deterministic headless outage+jitter+duplicate reconnect coverage through OpusReceiver; confirms post-reconnect playout, late packet classification, Playing state and zero output failures. CODE evidence only; runtime/hardware remain pending.
 ## Phase 185 — reconnect after outage + reorder + duplicate receiver path
 
 - Added bounded headless receiver coverage composing outage, reorder and duplicate profiles before reconnect. The test confirms post-reconnect playout, late-packet classification, `Playing` state and zero output failures. Evidence remains CODE-only; WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi hardware remain pending.
