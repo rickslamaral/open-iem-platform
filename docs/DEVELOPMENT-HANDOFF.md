@@ -1,3 +1,8 @@
+## Phase 149 status — reconnect after combined outage + jitter
+
+- `network-fault/tests/headless_receiver.rs` compõe `OutageProfile` e `JitterProfile`, executa reconnect e confirma 10 frames reproduzidos, três frames PLC, estado `Playing`, um reconnect e zero `output_failures`.
+- Gate focado: teste headless PASS. Evidência nível `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## Phase 148 status — reconnect after combined outage + duplicate
 
 - `network-fault/tests/headless_receiver.rs` compõe `OutageProfile` e `DuplicateProfile`, executa reconnect e confirma playout recuperado, duplicatas classificadas como `late_packets`, estado `Playing` e zero `output_failures`.
