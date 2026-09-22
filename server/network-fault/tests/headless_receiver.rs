@@ -2491,3 +2491,122 @@ fn reconnect_after_combined_bandwidth_jitter_resumes_opus_receiver() {
     assert_eq!(snapshot.plc_frames_total, 0);
     assert_eq!(snapshot.output_failures, 0);
 }
+
+#[test]
+fn combined_reorder_then_loss_drives_opus_receiver_plc() {
+    // Phase 156: ReorderProfile(3) swaps positions, then LossProfile(4) drops every 4th.
+    // ReorderProfile(3): swaps at 0-indexed positions 2,5,8
+    //   swap idx2(seq3)<->idx3(seq4): [1,2,4,3,5,6,7,8,9]
+    //   swap idx5(seq6)<->idx6(seq7): [1,2,4,3,5,7,6,8,9]
+    //   idx8(seq9)<->idx9: doesn't exist -> no swap
+    //   Result: [seq1,seq2,seq4,seq3,seq5,seq7,seq6,seq8,seq9]
+    // LossProfile(4): drops 1-indexed pos4,8 -> drops seq3 (pos4), seq8 (pos8)
+    //   Surviving: [seq1,seq2,seq4,seq5,seq7,seq6,seq9] (7 packets)
+    //   Missing seqs: 3 and 8 -> 2 PLC frames
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=9u64 {
+        let frame = test_frame(sequence);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+        Stage::Loss(LossProfile::new(4).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    assert_eq!(delivered.len(), 7, "7 packets survive after reorder+loss");
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        receiver.enqueue(pkt.sequence, &pkt.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    // seq1..=seq9 span, gaps at seq3 and seq8 -> 9 playout calls
+    for _ in 0..9 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(delivered.len(), 7);
+    assert_eq!(snapshot.packets_received, 7);
+    assert_eq!(snapshot.plc_frames_total, 2);
+    assert_eq!(snapshot.output_failures, 0);
+    assert_eq!(output.frames.len(), 9);
+    assert_eq!(output.muted, 0);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+}
+
+#[test]
+fn combined_reorder_then_duplicate_classifies_receiver_late_packets() {
+    // Phase 157: ReorderProfile(4) swaps, then DuplicateProfile(4) inserts copies.
+    // ReorderProfile(4): swaps at 0-indexed positions 3,7
+    //   swap idx3(seq4)<->idx4(seq5): [1,2,3,5,4,6,7,8]
+    //   swap idx7(seq8)<->idx8: idx8 doesn't exist -> no swap
+    //   Result: [seq1,seq2,seq3,seq5,seq4,seq6,seq7,seq8]
+    // DuplicateProfile(4): duplicates at 1-indexed pos4,8
+    //   pos4=seq5 -> copy after, pos8=seq8 -> copy after
+    //   Result: [seq1,seq2,seq3,seq5,seq5_dup,seq4,seq6,seq7,seq8,seq8_dup] -> 10 packets
+    //   2 late/duplicate packets (seq5_dup seen after seq5, seq8_dup after seq8)
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8u64 {
+        let frame = test_frame(sequence);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Reorder(ReorderProfile::new(4).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(4).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    assert_eq!(delivered.len(), 10, "8 originals + 2 duplicates = 10");
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        let _ = receiver.enqueue(pkt.sequence, &pkt.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    // seq 1..=8, no gaps -> 8 playout calls
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(delivered.len(), 10);
+    assert_eq!(snapshot.packets_received, 8);
+    assert_eq!(snapshot.late_packets, 2);
+    assert_eq!(snapshot.plc_frames_total, 0);
+    assert_eq!(snapshot.output_failures, 0);
+    assert_eq!(output.frames.len(), 8);
+    assert_eq!(output.muted, 0);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+}
