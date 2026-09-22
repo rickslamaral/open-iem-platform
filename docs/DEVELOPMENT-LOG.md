@@ -1,3 +1,7 @@
+## Phase 185 — reconnect after outage + reorder + duplicate receiver path
+
+- Added bounded headless receiver coverage composing outage, reorder and duplicate profiles before reconnect. The test confirms post-reconnect playout, late-packet classification, `Playing` state and zero output failures. Evidence remains CODE-only; WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi hardware remain pending.
+
 ## 2026-09-22 — Phase 184 reconnect after outage + loss + duplicate receiver path
 
 - Adicionado teste headless que compõe `OutageProfile`, `LossProfile` e `DuplicateProfile` antes do reconnect do `OpusReceiver`.
