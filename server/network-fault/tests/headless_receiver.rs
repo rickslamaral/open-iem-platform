@@ -765,6 +765,86 @@ fn deterministic_bandwidth_then_duplicate_classifies_receiver_late_packets() {
     assert_eq!(snapshot.output_failures, 0);
 }
 
+#[test]
+fn reconnect_after_loss_resumes_opus_receiver() {
+    // Phase 144: loss before reconnect, then bounded post-reconnect playout.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=10u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let loss = LossProfile::new(3).unwrap().apply(&encoded);
+    assert_eq!(loss.dropped, 3);
+    assert_eq!(
+        loss.delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 4, 5, 7, 8, 10],
+    );
+
+    let reconnect = ReconnectProfile::new(3, 1, "musician-loss", 2)
+        .unwrap()
+        .apply(&loss.delivered);
+    assert_eq!(reconnect.pre_disconnect.len(), 3);
+    assert_eq!(reconnect.lost_at_disconnect, 1);
+    assert_eq!(reconnect.post_reconnect.len(), 3);
+    assert_eq!(reconnect.recovered_mix_id, Some(2));
+    assert_eq!(
+        reconnect
+            .pre_disconnect
+            .iter()
+            .chain(reconnect.post_reconnect.iter())
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 4, 7, 8, 10],
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &reconnect.pre_disconnect {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in &reconnect.pre_disconnect {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    receiver.reconnect(&mut output);
+    for packet in &reconnect.post_reconnect {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+    for _ in &reconnect.post_reconnect {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 6);
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 6);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.plc_frames_total, 3);
+    assert_eq!(snapshot.output_failures, 0);
+    assert!(output
+        .frames
+        .iter()
+        .all(|frame| frame.iter().any(|sample| sample.abs() > 0.001)));
+}
+
 fn test_frame(sequence: u64) -> MediaFrame {
     MediaFrame {
         metadata: StreamMetadata {

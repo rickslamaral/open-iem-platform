@@ -4794,3 +4794,10 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - `deterministic_duplicate_profile_classifies_duplicates_as_late` test in `headless_receiver.rs`: 6 encoded Opus packets, `DuplicateProfile(2)` yields 9, receiver counts 6 `packets_received`, 3 `late_packets`, 0 `packets_dropped`, 0 PLC, 0 output failures, state `Playing`.
 - Gates: `cargo fmt --check` PASS, `cargo clippy --all-targets -- -D warnings` PASS, `cargo test` PASS (all suites). Frontend typecheck/test/build PASS (musician 61 tests, engineer 50 tests).
 - Evidence: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and hardware remain unvalidated.
+
+## 2026-09-22 — Phase 144 reconnect after loss receiver path
+
+- Adicionado teste headless que compõe `LossProfile` e `ReconnectProfile` antes do `OpusReceiver`, preservando sequência determinística de sobreviventes e recuperação de mix.
+- Cobertura confirma três frames PLC totais de perda, seis frames reproduzidos, um reconnect, estado `Playing` e zero `output_failures`.
+- Gates Rust: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` passaram nos testes compiláveis. Doctest `mix-engine::db_to_linear` falhou por crash `rust-lld`/`Bus error`, falha de infraestrutura do linker sem erro de código reportado.
+- Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
