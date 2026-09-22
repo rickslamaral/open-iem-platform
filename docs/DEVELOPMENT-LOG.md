@@ -1,3 +1,9 @@
+## 2026-09-22 — Phase 183 reconnect after outage + loss + reorder receiver path
+
+- Adicionado teste headless que compõe `OutageProfile`, `LossProfile` e `ReorderProfile` antes de `ReconnectProfile`.
+- Cobertura confirma playout pós-reconexão, estado `Playing`, um reconnect e zero `output_failures`.
+- Gates focados: teste Phase 183 passou; fmt, clippy e suíte server completa passaram. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
 ## 2026-09-22 — Phase 182 reconnect after outage + loss + jitter receiver path
 
 - Adicionado teste headless que compõe `OutageProfile`, `LossProfile` e `JitterProfile` antes do reconnect do `OpusReceiver`.
