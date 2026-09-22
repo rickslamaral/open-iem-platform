@@ -4750,6 +4750,11 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Gates locais: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS. Revisão independente PASS; sugestões não bloqueantes aplicadas.
 - Evidência `CODE`; negociação WebRTC completa, DTLS-SRTP, PipeWire/ALSA, runtime e Raspberry Pi 5 continuam pendentes.
 
+## 2026-09-21 — Phase 128 variable-payload bandwidth boundary
+
+- Added unit coverage proving `BandwidthProfile` accounts for actual payload bytes, not packet count, across a mixed-size packet window. Delivery order and deterministic overflow behavior remain explicit.
+- Evidence: CODE local; real network, WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-21 — Phase 124 duplicate packet receiver path
 
 - Added `ReceiverError::DuplicateSequence` variant; `JitterBuffer::push` returns it for duplicate sequence numbers (previously returned `InvalidPacket` conflating two distinct error cases).
