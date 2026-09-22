@@ -2814,3 +2814,235 @@ fn reconnect_after_combined_jitter_loss_resumes_opus_receiver() {
     assert_eq!(snapshot.reconnect_count, 1);
     assert_eq!(snapshot.output_failures, 0);
 }
+
+#[test]
+fn reconnect_after_combined_reorder_duplicate_resumes_opus_receiver() {
+    // Phase 161: ReorderProfile(3) + DuplicateProfile(4) via CombinedFaultProfile, then reconnect.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(4).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+
+    let reconnect = ReconnectProfile::new(5, 1, "musician-reorder-dup", 1)
+        .unwrap()
+        .apply(&delivered);
+    assert_eq!(reconnect.pre_disconnect.len(), 5);
+    assert_eq!(reconnect.lost_at_disconnect, 1);
+    assert!(!reconnect.post_reconnect.is_empty());
+
+    // Count unique sequences in each segment for correct playout call count.
+    let pre_unique: std::collections::HashSet<u64> = reconnect
+        .pre_disconnect
+        .iter()
+        .map(|p| p.sequence)
+        .collect();
+    let post_unique: std::collections::HashSet<u64> = reconnect
+        .post_reconnect
+        .iter()
+        .map(|p| p.sequence)
+        .collect();
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for packet in &reconnect.pre_disconnect {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..pre_unique.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    receiver.reconnect(&mut output);
+
+    for packet in &reconnect.post_reconnect {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+    for _ in 0..post_unique.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.output_failures, 0);
+}
+
+#[test]
+fn reconnect_after_combined_jitter_duplicate_resumes_opus_receiver() {
+    // Phase 162: JitterProfile(3,1) + DuplicateProfile(4) via CombinedFaultProfile, then reconnect.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(4).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+
+    let reconnect = ReconnectProfile::new(5, 1, "musician-jitter-dup", 0)
+        .unwrap()
+        .apply(&delivered);
+    assert_eq!(reconnect.pre_disconnect.len(), 5);
+    assert_eq!(reconnect.lost_at_disconnect, 1);
+    assert!(!reconnect.post_reconnect.is_empty());
+
+    // Count unique sequences in each segment for correct playout call count.
+    let pre_unique: std::collections::HashSet<u64> = reconnect
+        .pre_disconnect
+        .iter()
+        .map(|p| p.sequence)
+        .collect();
+    let post_unique: std::collections::HashSet<u64> = reconnect
+        .post_reconnect
+        .iter()
+        .map(|p| p.sequence)
+        .collect();
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for packet in &reconnect.pre_disconnect {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..pre_unique.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    receiver.reconnect(&mut output);
+
+    for packet in &reconnect.post_reconnect {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+    for _ in 0..post_unique.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.output_failures, 0);
+}
+
+#[test]
+fn reconnect_after_combined_loss_duplicate_resumes_opus_receiver() {
+    // Phase 163: LossProfile(3) + DuplicateProfile(3) via CombinedFaultProfile, then reconnect.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=10u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+
+    let reconnect = ReconnectProfile::new(4, 1, "musician-loss-dup", 2)
+        .unwrap()
+        .apply(&delivered);
+    assert_eq!(reconnect.pre_disconnect.len(), 4);
+    assert_eq!(reconnect.lost_at_disconnect, 1);
+    assert!(!reconnect.post_reconnect.is_empty());
+
+    // Count unique sequences in each segment for correct playout call count.
+    let pre_unique: std::collections::HashSet<u64> = reconnect
+        .pre_disconnect
+        .iter()
+        .map(|p| p.sequence)
+        .collect();
+    let post_unique: std::collections::HashSet<u64> = reconnect
+        .post_reconnect
+        .iter()
+        .map(|p| p.sequence)
+        .collect();
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for packet in &reconnect.pre_disconnect {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..pre_unique.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    receiver.reconnect(&mut output);
+
+    for packet in &reconnect.post_reconnect {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+    for _ in 0..post_unique.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.output_failures, 0);
+    let _ = snapshot.late_packets;
+}
