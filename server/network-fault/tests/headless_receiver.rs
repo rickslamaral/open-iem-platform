@@ -1996,7 +1996,9 @@ fn combined_outage_loss_duplicate_drives_opus_receiver() {
         .unwrap()
         .with_metrics(Arc::clone(&metrics));
     for packet in &delivered {
-        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+        receiver
+            .enqueue(packet.sequence, &packet.payload)
+            .expect("pre-reconnect packet must enter bounded receiver ingress");
     }
 
     let mut output = Capture {
@@ -2124,7 +2126,9 @@ fn reconnect_after_combined_outage_duplicate_resumes_opus_receiver() {
     receiver.playout(&mut output).unwrap();
     receiver.reconnect(&mut output);
     for packet in &delivered[1..] {
-        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+        receiver
+            .enqueue(packet.sequence, &packet.payload)
+            .expect("post-reconnect packet must enter bounded receiver ingress");
     }
     for _ in 0..7 {
         receiver.playout(&mut output).unwrap();
@@ -5541,6 +5545,88 @@ fn reconnect_after_combined_bandwidth_outage_loss_reorder_duplicate_resumes_opus
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.output_failures, 0);
+}
+
+#[test]
+fn reconnect_after_combined_bandwidth_outage_loss_jitter_reorder_duplicate_resumes_opus_receiver() {
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=24u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 24.0, -(sequence as f32) / 24.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 24).unwrap()),
+        Stage::Outage(OutageProfile::new(3, 3).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    let delivered_sequences: Vec<u64> = delivered.iter().map(|packet| packet.sequence).collect();
+    assert_eq!(
+        delivered_sequences,
+        vec![1, 2, 7, 7, 8, 10, 11, 11, 13, 14, 16, 16, 17, 19, 20, 20]
+    );
+    let unique_sequences: std::collections::HashSet<u64> =
+        delivered_sequences.iter().copied().collect();
+    assert!(unique_sequences.len() < delivered_sequences.len());
+    let split_at = std::cmp::max(2, delivered.len() / 2);
+    let reconnect = ReconnectProfile::new(
+        split_at,
+        1,
+        "musician-bandwidth-outage-loss-jitter-reorder-duplicate",
+        2,
+    )
+    .unwrap()
+    .apply(&delivered);
+    assert!(!reconnect.pre_disconnect.is_empty());
+    assert!(!reconnect.post_reconnect.is_empty());
+    assert_eq!(reconnect.lost_at_disconnect, 1);
+    assert_eq!(reconnect.recovered_mix_id, Some(2));
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &reconnect.pre_disconnect {
+        receiver
+            .enqueue(packet.sequence, &packet.payload)
+            .expect("packet must enter bounded receiver ingress");
+    }
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..reconnect.pre_disconnect.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+    let pre_reconnect_frames = output.frames.len();
+    let packets_before_reconnect = metrics.snapshot().packets_received;
+    receiver.reconnect(&mut output);
+    for packet in &reconnect.post_reconnect {
+        receiver
+            .enqueue(packet.sequence, &packet.payload)
+            .expect("packet must enter bounded receiver ingress");
+    }
+    for _ in 0..reconnect.post_reconnect.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+    let snapshot = metrics.snapshot();
+    assert!(output.frames.len() > pre_reconnect_frames);
+    assert!(metrics.snapshot().packets_received > packets_before_reconnect);
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert!(snapshot.packets_received > 0);
+    assert!(snapshot.late_packets > 0);
     assert_eq!(snapshot.output_failures, 0);
 }
 
