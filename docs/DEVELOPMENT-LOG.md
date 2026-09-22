@@ -7,7 +7,7 @@
 
 - Added bounded headless Opus receiver integration coverage for outage+jitter, outage+loss, outage+duplicate, outage+reorder, jitter+reorder, jitter+duplicate, loss+reorder, loss+duplicate and reconnect-after-outage paths.
 - Assertions cover admitted/late packets, PLC budget, frame output, reconnect state and fail-safe output counters.
-- Focused gate: `cargo test --manifest-path server/Cargo.toml -p network-fault --test headless_receiver` passed 24/24.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p network-fault --test headless_receiver` passed 25/25.
 - Evidence is CODE local only; real network, WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
 
 ## 2026-09-22 — Phase 130 bandwidth + duplicate receiver path
@@ -4541,7 +4541,7 @@ Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore 
 
 - `scene-manager::validate` agora rejeita `revision == 0` com `SceneError::InvalidNumber`; snapshots não podem introduzir revisão inválida no restore.
 - Adicionado teste unitário `zero_revision_rejected`.
-- Gates: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo test --manifest-path server/Cargo.toml -p scene-manager` (24 testes), `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- Gates: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo test --manifest-path server/Cargo.toml -p scene-manager` (25 testes), `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
 - Evidência: CODE; runtime implantado, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
 
 
