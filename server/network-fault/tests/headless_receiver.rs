@@ -3033,6 +3033,7 @@ fn reconnect_after_combined_loss_duplicate_resumes_opus_receiver() {
 
     receiver.reconnect(&mut output);
 
+    let before_post = metrics.snapshot();
     for packet in &reconnect.post_reconnect {
         let _ = receiver.enqueue(packet.sequence, &packet.payload);
     }
@@ -3046,7 +3047,14 @@ fn reconnect_after_combined_loss_duplicate_resumes_opus_receiver() {
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
     assert_eq!(snapshot.output_failures, 0);
-    let _ = snapshot.late_packets;
+    assert!(
+        snapshot.late_packets > before_post.late_packets,
+        "post-reconnect duplicate packets must be classified as late"
+    );
+    assert!(
+        snapshot.packets_received > before_post.packets_received,
+        "post-reconnect packets must be received"
+    );
 }
 
 #[test]
@@ -4219,6 +4227,16 @@ fn reconnect_after_combined_outage_loss_duplicate_resumes_opus_receiver() {
         .apply(&delivered);
     assert!(!reconnect.pre_disconnect.is_empty());
     assert!(!reconnect.post_reconnect.is_empty());
+    let post_unique: std::collections::HashSet<u64> = reconnect
+        .post_reconnect
+        .iter()
+        .map(|packet| packet.sequence)
+        .collect();
+    let post_duplicate_count = reconnect.post_reconnect.len() - post_unique.len();
+    assert!(
+        post_duplicate_count > 0,
+        "post-reconnect fixture must contain duplicate packets"
+    );
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -4237,6 +4255,7 @@ fn reconnect_after_combined_outage_loss_duplicate_resumes_opus_receiver() {
         receiver.playout(&mut output).unwrap();
     }
     let pre_reconnect_frames = output.frames.len();
+    let late_before_reconnect = metrics.snapshot().late_packets;
     receiver.reconnect(&mut output);
     let packets_before_reconnect = metrics.snapshot().packets_received;
     for packet in &reconnect.post_reconnect {
@@ -4257,6 +4276,6 @@ fn reconnect_after_combined_outage_loss_duplicate_resumes_opus_receiver() {
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
-    assert!(snapshot.late_packets > 0);
+    assert!(snapshot.late_packets > late_before_reconnect);
     assert_eq!(snapshot.output_failures, 0);
 }
