@@ -4750,6 +4750,12 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Gates locais: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS. Revisão independente PASS; sugestões não bloqueantes aplicadas.
 - Evidência `CODE`; negociação WebRTC completa, DTLS-SRTP, PipeWire/ALSA, runtime e Raspberry Pi 5 continuam pendentes.
 
+## 2026-09-21 — Phase 129 combined bandwidth/loss receiver path
+
+- Adicionado teste integrado que compõe `Stage::Bandwidth` e `Stage::Loss` antes do `OpusReceiver` headless.
+- Cobertura confirma quatro pacotes admitidos, dois frames PLC, quatro frames de saída, zero falhas e estado `Playing`.
+- Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## 2026-09-21 — Phase 128 variable-payload bandwidth boundary
 
 - Added unit coverage proving `BandwidthProfile` accounts for actual payload bytes, not packet count, across a mixed-size packet window. Delivery order and deterministic overflow behavior remain explicit.
