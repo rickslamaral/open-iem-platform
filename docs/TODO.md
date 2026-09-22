@@ -1,7 +1,7 @@
 ## Estado atual - 2026-09-22 (Phases 208-214 deterministic combined receiver coverage)
 
-- [x] Phases 208-214 — cobrir quatro combinações quad-fault, duas penta-fault e uma hexa-fault sem reconnect no `OpusReceiver`.
-- Evidência: 90 testes `headless_receiver` PASS localmente; classificação CODE local. Rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA físico e Raspberry Pi 5 permanecem não validados.
+- [x] Phases 208-214 — cobrir cinco combinações quad-fault, duas penta-fault e uma hexa-fault sem reconnect no `OpusReceiver`.
+- Evidência: 91 testes `headless_receiver` PASS localmente; classificação CODE local. Rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA físico e Raspberry Pi 5 permanecem não validados.
 
 ## Estado atual - 2026-09-22 (Phases 187-207 receiver reconnect fault coverage)
 

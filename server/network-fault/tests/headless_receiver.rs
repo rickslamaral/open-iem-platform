@@ -5545,7 +5545,7 @@ fn reconnect_after_combined_bandwidth_outage_loss_reorder_duplicate_resumes_opus
 }
 
 macro_rules! combined_fault_receiver_test {
-    ($name:ident, [$($stage:expr),+]) => {
+    ($name:ident, [$($stage:expr),+], $expected_delivered:expr, $expected_unique:expr, $expected_late:expr, $expected_plc:expr) => {
         #[test]
         fn $name() {
             let mut writer = MediaWriter::new().unwrap();
@@ -5575,7 +5575,11 @@ macro_rules! combined_fault_receiver_test {
             assert_eq!(output.frames.len(), 16);
             assert_eq!(receiver.state(), ReceiverState::Playing);
             assert_eq!(snapshot.output_failures, 0);
-            assert_eq!(snapshot.packets_received, unique_sequences.len() as u64);
+            assert_eq!(delivered.len(), $expected_delivered);
+            assert_eq!(unique_sequences.len(), $expected_unique);
+            assert_eq!(snapshot.packets_received, $expected_unique);
+            assert_eq!(snapshot.late_packets, $expected_late);
+            assert_eq!(snapshot.plc_frames_total, $expected_plc);
         }
     };
 }
@@ -5587,7 +5591,11 @@ combined_fault_receiver_test!(
         Stage::Loss(LossProfile::new(3).unwrap()),
         Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
         Stage::Reorder(ReorderProfile::new(3).unwrap())
-    ]
+    ],
+    11,
+    11,
+    0,
+    5
 );
 combined_fault_receiver_test!(
     combined_bandwidth_loss_jitter_duplicate_drives_opus_receiver,
@@ -5596,7 +5604,11 @@ combined_fault_receiver_test!(
         Stage::Loss(LossProfile::new(3).unwrap()),
         Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
         Stage::Duplicate(DuplicateProfile::new(3).unwrap())
-    ]
+    ],
+    14,
+    11,
+    3,
+    5
 );
 combined_fault_receiver_test!(
     combined_bandwidth_loss_reorder_duplicate_drives_opus_receiver,
@@ -5605,7 +5617,11 @@ combined_fault_receiver_test!(
         Stage::Loss(LossProfile::new(3).unwrap()),
         Stage::Reorder(ReorderProfile::new(3).unwrap()),
         Stage::Duplicate(DuplicateProfile::new(3).unwrap())
-    ]
+    ],
+    14,
+    11,
+    3,
+    5
 );
 combined_fault_receiver_test!(
     combined_bandwidth_jitter_reorder_duplicate_drives_opus_receiver,
@@ -5614,7 +5630,11 @@ combined_fault_receiver_test!(
         Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
         Stage::Reorder(ReorderProfile::new(3).unwrap()),
         Stage::Duplicate(DuplicateProfile::new(3).unwrap())
-    ]
+    ],
+    21,
+    16,
+    5,
+    0
 );
 combined_fault_receiver_test!(
     combined_loss_jitter_reorder_duplicate_drives_opus_receiver,
@@ -5623,7 +5643,11 @@ combined_fault_receiver_test!(
         Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
         Stage::Reorder(ReorderProfile::new(3).unwrap()),
         Stage::Duplicate(DuplicateProfile::new(3).unwrap())
-    ]
+    ],
+    14,
+    11,
+    3,
+    5
 );
 combined_fault_receiver_test!(
     combined_outage_bandwidth_loss_jitter_reorder_drives_opus_receiver,
@@ -5633,7 +5657,11 @@ combined_fault_receiver_test!(
         Stage::Loss(LossProfile::new(3).unwrap()),
         Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
         Stage::Reorder(ReorderProfile::new(3).unwrap())
-    ]
+    ],
+    9,
+    9,
+    0,
+    7
 );
 combined_fault_receiver_test!(
     combined_outage_bandwidth_loss_jitter_reorder_duplicate_drives_opus_receiver,
@@ -5644,15 +5672,23 @@ combined_fault_receiver_test!(
         Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
         Stage::Reorder(ReorderProfile::new(3).unwrap()),
         Stage::Duplicate(DuplicateProfile::new(3).unwrap())
-    ]
+    ],
+    12,
+    9,
+    3,
+    7
 );
 combined_fault_receiver_test!(
-    combined_bandwidth_loss_jitter_reorder_duplicate_drives_opus_receiver,
+    combined_bandwidth_loss_jitter_reorder_duplicate_five_stage_drives_opus_receiver,
     [
         Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 16).unwrap()),
         Stage::Loss(LossProfile::new(3).unwrap()),
         Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
         Stage::Reorder(ReorderProfile::new(3).unwrap()),
         Stage::Duplicate(DuplicateProfile::new(3).unwrap())
-    ]
+    ],
+    14,
+    11,
+    3,
+    5
 );
