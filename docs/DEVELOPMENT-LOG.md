@@ -1,3 +1,10 @@
+## 2026-09-22 — Phases 134-142 combined receiver fault coverage
+
+- Added bounded headless Opus receiver integration coverage for outage+jitter, outage+loss, outage+duplicate, outage+reorder, jitter+reorder, jitter+duplicate, loss+reorder, loss+duplicate and reconnect-after-outage paths.
+- Assertions cover admitted/late packets, PLC budget, frame output, reconnect state and fail-safe output counters.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p network-fault --test headless_receiver` passed 24/24.
+- Evidence is CODE local only; real network, WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-22 — Phase 130 bandwidth + duplicate receiver path
 
 - Adicionado teste integrado que compõe `Stage::Bandwidth` e `Stage::Duplicate` antes do `OpusReceiver` headless.

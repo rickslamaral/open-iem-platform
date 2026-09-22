@@ -12,6 +12,10 @@
 
 - Teste headless aplica `BandwidthProfile` a payloads Opus codificados e valida playout do receiver para pacotes admitidos, sem falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
+## Estado atual — 2026-09-22 (Phases 134-142 combined receiver fault coverage)
+- `headless_receiver.rs` now covers outage+jitter, outage+loss, outage+duplicate, outage+reorder, jitter+reorder, jitter+duplicate, loss+reorder, loss+duplicate and reconnect-after-outage pipelines through `OpusReceiver`.
+- Focused integration gate: 24 tests passed. Evidence is CODE local; real network, WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi hardware remain unvalidated.
+
 ## Estado atual - 2026-09-21 (Phase 126 combined bandwidth fault stage)
 - `Stage::Bandwidth` integra `BandwidthProfile` ao `CombinedFaultProfile`; teste unitário cobre encadeamento bandwidth→loss. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
