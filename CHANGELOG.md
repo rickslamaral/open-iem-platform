@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- Phase 167: cobertura headless determinística para composição bandwidth + loss + outage no receiver Opus; evidência permanece CODE local.
+
 ### Added
 - Phase 166 deterministic bandwidth + loss + jitter Opus receiver coverage (CODE evidence only).
 

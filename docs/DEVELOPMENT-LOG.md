@@ -1,3 +1,14 @@
+## 2026-09-22 — Phase 167 bandwidth + loss + outage receiver path
+
+- **Goal:** ampliar cobertura determinística de fault composition no receiver headless.
+- **Implemented:** teste integrado encadeia `Stage::Bandwidth`, `Stage::Loss` e `Stage::Outage` antes do `OpusReceiver`.
+- **Tests:** teste focal e suíte headless passaram; evidência CODE local. `cargo fmt` passou.
+- **Metrics:** cinco pacotes recebidos, quatro frames PLC, máximo de três PLC consecutivos, nove frames de saída e zero falhas.
+- **Problems:** runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware continuam pendentes.
+- **Decisions:** manter fault pipeline determinístico e sem claim de runtime físico.
+- **Documentation:** TODO, handoff e CHANGELOG atualizados.
+- **Next Step:** continuar cobertura independente de composição ou avançar para validação runtime quando ambiente permitir.
+
 ## 2026-09-22 — Phase 130 bandwidth + duplicate receiver path
 
 - Adicionado teste integrado que compõe `Stage::Bandwidth` e `Stage::Duplicate` antes do `OpusReceiver` headless.
