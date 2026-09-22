@@ -1057,3 +1057,64 @@ fn combined_bandwidth_loss_duplicate_drives_opus_receiver_late_packets() {
     assert_eq!(snapshot.plc_frames_total, 2);
     assert_eq!(snapshot.output_failures, 0);
 }
+
+#[test]
+fn combined_bandwidth_loss_jitter_drives_opus_receiver_plc() {
+    // Phase 166: bandwidth, loss and jitter receiver path.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=9u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let budget = encoded
+        .iter()
+        .take(9)
+        .map(|packet| packet.payload.len())
+        .sum();
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(budget, 9).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert_eq!(
+        delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 5, 4, 7, 8]
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 8);
+    assert_eq!(output.muted, 0);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 6);
+    assert_eq!(snapshot.plc_frames_total, 2);
+    assert_eq!(snapshot.plc_consecutive_max, 1);
+    assert_eq!(snapshot.output_failures, 0);
+}

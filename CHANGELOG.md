@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Phase 166 deterministic bandwidth + loss + jitter Opus receiver coverage (CODE evidence only).
+
+### Added
 - Added deterministic headless receiver coverage for bandwidth, loss and duplicate packet composition.
 
 

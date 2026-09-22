@@ -4788,3 +4788,9 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - `deterministic_duplicate_profile_classifies_duplicates_as_late` test in `headless_receiver.rs`: 6 encoded Opus packets, `DuplicateProfile(2)` yields 9, receiver counts 6 `packets_received`, 3 `late_packets`, 0 `packets_dropped`, 0 PLC, 0 output failures, state `Playing`.
 - Gates: `cargo fmt --check` PASS, `cargo clippy --all-targets -- -D warnings` PASS, `cargo test` PASS (all suites). Frontend typecheck/test/build PASS (musician 61 tests, engineer 50 tests).
 - Evidence: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and hardware remain unvalidated.
+
+
+## 2026-09-22 - Phase 166 bandwidth + loss + jitter receiver path
+
+- Adicionada cobertura headless bounded para composição de bandwidth, loss e jitter antes do OpusReceiver.
+- Evidência: CODE local בלבד; WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
