@@ -1,6 +1,9 @@
 ## Estado atual - 2026-09-22 (Phase 129 bandwidth + outage receiver path)
 - Teste headless compõe bandwidth e outage determinísticos, confirma sequência sobrevivente, dois frames PLC consecutivos, estado `Playing` e zero falhas de saída. Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem pendentes.
 
+## Estado atual - 2026-09-21 (Phase 129 combined bandwidth/loss receiver path)
+- Teste headless compõe `Stage::Bandwidth` e `Stage::Loss` sobre payloads Opus e valida PLC determinístico, playout, ausência de falhas e estado `Playing`. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
+
 ## Estado atual - 2026-09-21 (Phase 128 variable-payload bandwidth boundary)
 - Teste unitário confirma que `BandwidthProfile` consome orçamento por bytes para payloads de tamanhos distintos, preserva ordem e descarta overflow deterministicamente. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
