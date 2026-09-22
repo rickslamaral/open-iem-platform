@@ -949,3 +949,60 @@ fn combined_jitter_then_loss_drives_opus_receiver_plc() {
     );
     assert_eq!(snapshot.output_failures, 0, "no output failures");
 }
+
+#[test]
+fn combined_bandwidth_loss_reorder_drives_opus_receiver_plc() {
+    // Phase 164: bandwidth, loss and reorder receiver path.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+    let bandwidth = network_fault::BandwidthProfile::new(12_000, 8).unwrap();
+    let bandwidth_result = bandwidth.apply(&encoded);
+    assert_eq!(
+        bandwidth_result.delivered.len(),
+        encoded.len(),
+        "bandwidth admits all encoded packets"
+    );
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(bandwidth),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Reorder(ReorderProfile::new(2).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert_eq!(delivered.len(), 6);
+    assert_eq!(
+        delivered.iter().map(|p| p.sequence).collect::<Vec<_>>(),
+        vec![1, 4, 2, 7, 5, 8]
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 8);
+    assert_eq!(output.muted, 0);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 6);
+    assert_eq!(snapshot.plc_frames_total, 2);
+    assert_eq!(snapshot.output_failures, 0);
+}
