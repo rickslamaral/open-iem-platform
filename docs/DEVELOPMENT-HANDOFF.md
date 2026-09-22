@@ -1,3 +1,9 @@
+## Phase 130 status — bandwidth + duplicate receiver path
+
+- `network-fault/tests/headless_receiver.rs` composes `Stage::Bandwidth` and `Stage::Duplicate` before feeding encoded Opus packets to `OpusReceiver`.
+- Coverage confirms six unique packets, three duplicate packets classified as `late_packets`, six output frames, zero PLC and zero output failures; receiver remains `Playing`.
+- Evidence level is CODE local. Real network, WebRTC/DTLS-SRTP negotiation, PipeWire/ALSA runtime and hardware remain unvalidated.
+
 ## Phase 129 status — combined bandwidth/loss receiver path
 
 - `network-fault/tests/headless_receiver.rs` composes `Stage::Bandwidth` and `Stage::Loss` before feeding encoded Opus packets to `OpusReceiver`.
