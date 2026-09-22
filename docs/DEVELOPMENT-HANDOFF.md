@@ -1,3 +1,9 @@
+## Phase 170 status — bandwidth + jitter + duplicate receiver path
+
+- Teste headless determinístico compõe `Stage::Bandwidth`, `Stage::Jitter` e `Stage::Duplicate` sobre payloads Opus antes do `OpusReceiver`.
+- Cobertura confirma seis pacotes únicos, três duplicatas classificadas como `late_packets`, zero frames PLC, `ReceiverState::Playing`, seis frames de saída e zero `output_failures`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem pendentes.
+
 ## Phase 169 status — bandwidth + outage + duplicate receiver path
 
 - Teste headless determinístico compõe `Stage::Bandwidth`, `Stage::Outage` e `Stage::Duplicate` sobre payloads Opus antes do `OpusReceiver`.
