@@ -1,3 +1,6 @@
+## Estado atual - 2026-09-22 (Phases 208-214 deterministic combined receiver coverage)
+- `network-fault/tests/headless_receiver.rs` adiciona sete cenários sem reconnect: quatro quad-fault, duas penta-fault e uma hexa-fault, todos alimentando `OpusReceiver`. Gate focado: 90 testes `headless_receiver` PASS localmente. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-22 (Phase 154 reconnect after bandwidth + loss receiver path)
 - Teste headless compõe bandwidth e loss determinísticos antes do `OpusReceiver`, executa reconnect e confirma seis frames reproduzidos, um reconnect, estado `Playing`, três frames PLC e zero `output_failures`. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
 

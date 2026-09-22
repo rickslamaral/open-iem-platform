@@ -1,3 +1,9 @@
+## 2026-09-22 — Phases 208-214 deterministic combined receiver coverage
+
+- Adicionados sete testes headless para combinações restantes sem reconnect: quad-fault, penta-fault e hexa-fault.
+- Cenários compõem `BandwidthProfile`, `LossProfile`, `JitterProfile`, `ReorderProfile`, `DuplicateProfile` e `OutageProfile` conforme combinação, validando entrega ao `OpusReceiver`, estado `Playing` e zero `output_failures`.
+- Gate focado: 90 testes `headless_receiver` passaram localmente. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-22 — Phase 187 reconnect after outage + jitter + reorder receiver path
 
 - Adicionado teste headless que compõe `OutageProfile`, `JitterProfile` e `ReorderProfile` antes do reconnect do `OpusReceiver`.

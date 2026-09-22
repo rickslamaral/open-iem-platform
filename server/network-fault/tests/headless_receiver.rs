@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use network_fault::{
-    CombinedFaultProfile, DuplicateProfile, JitterProfile, LossProfile, Packet, ReconnectProfile,
-    ReorderProfile, Stage,
+    CombinedFaultProfile, DuplicateProfile, JitterProfile, LossProfile, OutageProfile, Packet,
+    ReconnectProfile, ReorderProfile, Stage,
 };
 use observability::ReceiverMetrics;
 use streaming::{
@@ -5543,3 +5543,116 @@ fn reconnect_after_combined_bandwidth_outage_loss_reorder_duplicate_resumes_opus
     assert_eq!(snapshot.reconnect_count, 1);
     assert_eq!(snapshot.output_failures, 0);
 }
+
+macro_rules! combined_fault_receiver_test {
+    ($name:ident, [$($stage:expr),+]) => {
+        #[test]
+        fn $name() {
+            let mut writer = MediaWriter::new().unwrap();
+            let mut encoded = Vec::new();
+            for sequence in 1..=16u64 {
+                let mut frame = test_frame(sequence);
+                frame.samples = (sequence as f32 / 16.0, -(sequence as f32) / 16.0);
+                let packet = writer.encode(&frame).unwrap();
+                encoded.push(Packet { sequence: packet.sequence, payload: packet.payload });
+            }
+            let combined = CombinedFaultProfile::new(vec![$($stage),+]).unwrap();
+            let delivered = combined.apply(&encoded);
+            assert!(delivered.len() >= 2);
+            assert!(delivered.iter().all(|packet| (1..=16).contains(&packet.sequence)));
+            let unique_sequences: std::collections::HashSet<u64> =
+                delivered.iter().map(|packet| packet.sequence).collect();
+            let metrics = Arc::new(ReceiverMetrics::default());
+            let mut receiver = OpusReceiver::new().unwrap().with_metrics(Arc::clone(&metrics));
+            for packet in &delivered {
+                receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+            }
+            let mut output = Capture { frames: Vec::new(), muted: 0 };
+            for _ in 0..16 {
+                receiver.playout(&mut output).unwrap();
+            }
+            let snapshot = metrics.snapshot();
+            assert_eq!(output.frames.len(), 16);
+            assert_eq!(receiver.state(), ReceiverState::Playing);
+            assert_eq!(snapshot.output_failures, 0);
+            assert_eq!(snapshot.packets_received, unique_sequences.len() as u64);
+        }
+    };
+}
+
+combined_fault_receiver_test!(
+    combined_bandwidth_loss_jitter_reorder_drives_opus_receiver,
+    [
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 16).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap())
+    ]
+);
+combined_fault_receiver_test!(
+    combined_bandwidth_loss_jitter_duplicate_drives_opus_receiver,
+    [
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 16).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap())
+    ]
+);
+combined_fault_receiver_test!(
+    combined_bandwidth_loss_reorder_duplicate_drives_opus_receiver,
+    [
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 16).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap())
+    ]
+);
+combined_fault_receiver_test!(
+    combined_bandwidth_jitter_reorder_duplicate_drives_opus_receiver,
+    [
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 16).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap())
+    ]
+);
+combined_fault_receiver_test!(
+    combined_loss_jitter_reorder_duplicate_drives_opus_receiver,
+    [
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap())
+    ]
+);
+combined_fault_receiver_test!(
+    combined_outage_bandwidth_loss_jitter_reorder_drives_opus_receiver,
+    [
+        Stage::Outage(OutageProfile::new(3, 3).unwrap()),
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 16).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap())
+    ]
+);
+combined_fault_receiver_test!(
+    combined_outage_bandwidth_loss_jitter_reorder_duplicate_drives_opus_receiver,
+    [
+        Stage::Outage(OutageProfile::new(3, 3).unwrap()),
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 16).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap())
+    ]
+);
+combined_fault_receiver_test!(
+    combined_bandwidth_loss_jitter_reorder_duplicate_drives_opus_receiver,
+    [
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 16).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap())
+    ]
+);
