@@ -4365,3 +4365,70 @@ fn reconnect_after_combined_outage_reorder_duplicate_resumes_opus_receiver() {
     assert!(snapshot.late_packets > late_before_reconnect);
     assert_eq!(snapshot.output_failures, 0);
 }
+
+#[test]
+fn reconnect_after_combined_outage_jitter_reorder_resumes_opus_receiver() {
+    // Phase 187: Outage->Jitter->Reorder triple fault then reconnect.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=10u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Outage(network_fault::OutageProfile::new(3, 3).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert!(delivered.len() >= 2);
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered[..2] {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..2 {
+        receiver.playout(&mut output).unwrap();
+    }
+    receiver.reconnect(&mut output);
+    for packet in &delivered[2..] {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 10);
+    // Frames 0,1 decoded pre-disconnect (seqs 1,2). Frame 2 decoded post-reconnect (seq 3).
+    // Frames 3,4,5 are PLC-concealed (seqs 4,5,6 were lost in outage). Frames 6..9 decoded (seqs 7,8,9,10).
+    // Only assert amplitude for real (non-PLC) decoded frames.
+    // Frame 6 (seq 7) is the first real frame after 3 consecutive PLC frames;
+    // the codec state is in recovery, so amplitude is lower than nominal — skip it.
+    let real_frames: &[(usize, f32)] =
+        &[(0, 0.1), (1, 0.2), (2, 0.3), (7, 0.8), (8, 0.9), (9, 1.0)];
+    for &(index, expected_left) in real_frames {
+        let left_mean: f32 = output.frames[index].iter().step_by(2).sum::<f32>() / 960.0;
+        assert!(
+            (left_mean - expected_left).abs() < 0.08,
+            "decoded frame at playout {index} has wrong source: {left_mean} (expected ~{expected_left})"
+        );
+    }
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 7);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.plc_frames_total, 3);
+    assert_eq!(snapshot.output_failures, 0);
+}
