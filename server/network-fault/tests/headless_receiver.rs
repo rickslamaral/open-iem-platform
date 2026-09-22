@@ -670,6 +670,68 @@ fn deterministic_bandwidth_then_duplicate_classifies_receiver_late_packets() {
     assert_eq!(snapshot.output_failures, 0);
 }
 
+#[test]
+fn deterministic_bandwidth_outage_duplicate_drives_receiver_metrics() {
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=10u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let bandwidth_budget = encoded
+        .iter()
+        .take(8)
+        .map(|packet| packet.payload.len())
+        .sum();
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(bandwidth_budget, 10).unwrap()),
+        Stage::Outage(network_fault::OutageProfile::new(2, 2).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(2).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert_eq!(
+        delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 2, 5, 6, 6, 7, 8, 8]
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 8);
+    assert_eq!(output.muted, 0);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 6);
+    assert_eq!(snapshot.late_packets, 3);
+    assert_eq!(snapshot.packets_dropped, 0);
+    assert_eq!(snapshot.plc_frames_total, 2);
+    assert_eq!(snapshot.plc_consecutive_max, 2);
+    assert_eq!(snapshot.output_failures, 0);
+}
+
 fn test_frame(sequence: u64) -> MediaFrame {
     MediaFrame {
         metadata: StreamMetadata {
