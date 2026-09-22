@@ -1,7 +1,7 @@
 ## 2026-09-22 — Status canonicalization after Phases 208-214
 
 - START.md agora identifica Phase 214 como último incremento mergeado; fases canônicas permanecem separadas da numeração incremental.
-- CHANGELOG.md registra cobertura determinística das combinações restantes sem alegação de runtime ou hardware.
+- CHANGELOG.md registra cobertura determinística das combinações restantes sem alegação de runtime ou hardware. Evidência: testes das Phases 208-214 adicionados em `a227d9906560fdcd2f15a06122d5698aaee20525`; CI executado no HEAD `42b08595` em `35781814563` (13 jobs PASS) e `35781814428` (3 jobs PASS).
 
 ## 2026-09-22 — Phases 208-214 deterministic combined receiver coverage
 
