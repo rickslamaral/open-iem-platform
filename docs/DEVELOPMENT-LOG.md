@@ -1,3 +1,9 @@
+## 2026-09-22 — Phase 129 bandwidth + outage receiver path
+
+- Adicionado teste integrado `network-fault` que encadeia `BandwidthProfile` e `OutageProfile` antes do `OpusReceiver` headless.
+- Cobertura confirma a sequência sobrevivente, dois frames PLC consecutivos, `ReceiverState::Playing` e zero `output_failures`.
+- Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem pendentes.
+
 ## 2026-09-21 — Phase 127 deterministic bandwidth receiver path
 
 - Adicionado teste integrado que aplica `BandwidthProfile` a payloads Opus codificados e entrega pacotes sobreviventes ao `OpusReceiver` headless.

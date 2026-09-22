@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
-- Phase 129: combined bandwidth/loss fault pipeline drives encoded Opus receiver coverage; evidence remains CODE/CI, with runtime and hardware unvalidated.
+- Teste headless para composição determinística de bandwidth e outage no receiver Opus.
 
 ### Fixed
 - Added variable-payload coverage for deterministic bandwidth byte-budget enforcement.

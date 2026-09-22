@@ -499,10 +499,10 @@ fn deterministic_bandwidth_profile_drives_opus_receiver_plc() {
 }
 
 #[test]
-fn combined_bandwidth_loss_drives_opus_receiver() {
+fn deterministic_bandwidth_then_outage_drives_opus_receiver_plc() {
     let mut writer = MediaWriter::new().unwrap();
     let mut encoded = Vec::new();
-    for sequence in 1..=10u64 {
+    for sequence in 1..=12u64 {
         let mut frame = test_frame(sequence);
         frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
         let packet = writer.encode(&frame).unwrap();
@@ -512,10 +512,14 @@ fn combined_bandwidth_loss_drives_opus_receiver() {
         });
     }
 
-    let budget = encoded[0].payload.len() + encoded[1].payload.len();
+    let bandwidth_budget = encoded
+        .iter()
+        .take(11)
+        .map(|packet| packet.payload.len())
+        .sum();
     let combined = CombinedFaultProfile::new(vec![
-        Stage::Bandwidth(network_fault::BandwidthProfile::new(budget, 4).unwrap()),
-        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(bandwidth_budget, 12).unwrap()),
+        Stage::Outage(network_fault::OutageProfile::new(3, 2).unwrap()),
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
@@ -524,8 +528,7 @@ fn combined_bandwidth_loss_drives_opus_receiver() {
             .iter()
             .map(|packet| packet.sequence)
             .collect::<Vec<_>>(),
-        vec![1, 2, 6, 9],
-        "bandwidth then loss must preserve deterministic stage composition"
+        vec![1, 2, 3, 6, 7, 8, 9, 10, 11]
     );
 
     let metrics = Arc::new(ReceiverMetrics::default());
@@ -535,24 +538,22 @@ fn combined_bandwidth_loss_drives_opus_receiver() {
     for packet in &delivered {
         receiver.enqueue(packet.sequence, &packet.payload).unwrap();
     }
-
     let mut output = Capture {
         frames: Vec::new(),
         muted: 0,
     };
-    for _ in 0..delivered.len() {
+    for _ in 0..11 {
         receiver.playout(&mut output).unwrap();
     }
 
     let snapshot = metrics.snapshot();
-    assert_eq!(delivered.len(), 4);
-    assert_eq!(snapshot.packets_received, 4);
+    assert_eq!(output.frames.len(), 11);
+    assert_eq!(output.muted, 0);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 9);
     assert_eq!(snapshot.plc_frames_total, 2);
     assert_eq!(snapshot.plc_consecutive_max, 2);
     assert_eq!(snapshot.output_failures, 0);
-    assert_eq!(output.muted, 0);
-    assert_eq!(output.frames.len(), delivered.len());
-    assert_eq!(receiver.state(), ReceiverState::Playing);
 }
 
 fn test_frame(sequence: u64) -> MediaFrame {
