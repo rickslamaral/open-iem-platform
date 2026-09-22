@@ -2610,3 +2610,207 @@ fn combined_reorder_then_duplicate_classifies_receiver_late_packets() {
     assert_eq!(output.muted, 0);
     assert_eq!(receiver.state(), ReceiverState::Playing);
 }
+
+#[test]
+fn reconnect_after_reorder_resumes_opus_receiver() {
+    // Phase 158: ReorderProfile(3) reorders packets, then reconnect splits pre/post.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    // ReorderProfile(3) on 8 packets -> [1,2,4,3,5,7,6,8]
+    let reordered = ReorderProfile::new(3).unwrap().apply(&encoded);
+    assert_eq!(reordered.dropped, 0);
+    assert!(reordered.reordered > 0);
+
+    let reconnect = ReconnectProfile::new(4, 1, "musician-reorder", 1)
+        .unwrap()
+        .apply(&reordered.delivered);
+    assert_eq!(reconnect.pre_disconnect.len(), 4);
+    assert_eq!(reconnect.lost_at_disconnect, 1);
+    assert!(!reconnect.post_reconnect.is_empty());
+    assert_eq!(reconnect.recovered_mix_id, Some(1));
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for packet in &reconnect.pre_disconnect {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in &reconnect.pre_disconnect {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    receiver.reconnect(&mut output);
+
+    for packet in &reconnect.post_reconnect {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+    for _ in &reconnect.post_reconnect {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.output_failures, 0);
+}
+
+#[test]
+fn reconnect_after_duplicate_resumes_opus_receiver() {
+    // Phase 159: ReconnectProfile splits original packets first, then DuplicateProfile
+    // applied to pre_disconnect only. Duplicates yield late_packets on enqueue.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    // Split pre/post on original encoded list
+    let reconnect = ReconnectProfile::new(4, 1, "musician-dup", 1)
+        .unwrap()
+        .apply(&encoded);
+    assert_eq!(reconnect.pre_disconnect.len(), 4);
+    assert_eq!(reconnect.lost_at_disconnect, 1);
+    assert!(!reconnect.post_reconnect.is_empty());
+
+    // Apply DuplicateProfile(4) to pre_disconnect only: duplicates seq4 (pos4)
+    let pre_with_dups = DuplicateProfile::new(4)
+        .unwrap()
+        .apply(&reconnect.pre_disconnect);
+    assert!(
+        pre_with_dups.len() > reconnect.pre_disconnect.len(),
+        "duplicates inserted"
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for packet in &pre_with_dups {
+        // Duplicates return DuplicateSequence error; counted as late_packets
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in &reconnect.pre_disconnect {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    receiver.reconnect(&mut output);
+
+    for packet in &reconnect.post_reconnect {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+    for _ in &reconnect.post_reconnect {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.output_failures, 0);
+    assert!(
+        snapshot.late_packets > 0,
+        "duplicates must be counted as late_packets"
+    );
+}
+
+#[test]
+fn reconnect_after_combined_jitter_loss_resumes_opus_receiver() {
+    // Phase 160: JitterProfile(3,1) + LossProfile(3) via CombinedFaultProfile, then reconnect.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+    assert!(
+        delivered.len() < encoded.len(),
+        "jitter+loss must drop some packets"
+    );
+
+    let reconnect = ReconnectProfile::new(3, 1, "musician-jitter-loss", 2)
+        .unwrap()
+        .apply(&delivered);
+    assert_eq!(reconnect.pre_disconnect.len(), 3);
+    assert_eq!(reconnect.lost_at_disconnect, 1);
+    assert!(!reconnect.post_reconnect.is_empty());
+    assert_eq!(reconnect.recovered_mix_id, Some(2));
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for packet in &reconnect.pre_disconnect {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in &reconnect.pre_disconnect {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    receiver.reconnect(&mut output);
+
+    for packet in &reconnect.post_reconnect {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+    for _ in &reconnect.post_reconnect {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.output_failures, 0);
+}
