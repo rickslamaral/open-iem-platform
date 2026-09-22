@@ -1,8 +1,8 @@
-## Phase 142 status — combined receiver fault continuation
+## Phase 145 status — reconnect after bandwidth receiver path
 
-- `headless_receiver.rs` composes deterministic outage, jitter, reorder, loss and duplicate stages before feeding encoded Opus payloads to `OpusReceiver`.
-- New coverage validates nine combined paths plus reconnect after outage: PLC gaps, duplicate late classification, ordered playout, bounded recovery, `Playing` state and zero output failures.
-- Focused gate: 25 tests passed locally. Evidence level is CODE local. Real network, WebRTC/DTLS-SRTP negotiation, PipeWire/ALSA runtime and hardware remain unvalidated.
+- `headless_receiver.rs` composes deterministic bandwidth, outage, jitter, reorder, loss and duplicate stages before feeding encoded Opus payloads to `OpusReceiver`.
+- New coverage validates combined fault paths plus reconnect after bandwidth, outage, jitter and loss: PLC gaps, duplicate late classification, ordered playout, bounded recovery, `Playing` state and zero output failures.
+- Focused gate: 27 tests passed locally. Evidence level is CODE local. Real network, WebRTC/DTLS-SRTP negotiation, PipeWire/ALSA runtime and hardware remain unvalidated.
 
 ## Phase 130 status — bandwidth + duplicate receiver path
 
