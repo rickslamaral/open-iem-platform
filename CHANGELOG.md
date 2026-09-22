@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Added variable-payload coverage for deterministic bandwidth byte-budget enforcement.
+
 ### Added
 - Phase 127: deterministic bandwidth fault profile now drives encoded Opus receiver coverage; evidence remains CODE/CI, with real network, WebRTC/DTLS-SRTP, PipeWire/ALSA and hardware unvalidated.
 

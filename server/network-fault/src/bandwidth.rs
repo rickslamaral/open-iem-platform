@@ -195,6 +195,42 @@ mod tests {
     }
 
     #[test]
+    fn variable_payload_sizes_consume_byte_budget_greedily() {
+        let profile = BandwidthProfile::new(7, 4).unwrap();
+        let packets = vec![
+            Packet {
+                sequence: 1,
+                payload: vec![0; 3],
+            },
+            Packet {
+                sequence: 2,
+                payload: vec![0; 4],
+            },
+            Packet {
+                sequence: 3,
+                payload: vec![0; 1],
+            },
+            Packet {
+                sequence: 4,
+                payload: vec![0; 2],
+            },
+        ];
+
+        let result = profile.apply(&packets);
+
+        assert_eq!(result.dropped, 2);
+        assert_eq!(
+            result
+                .delivered
+                .iter()
+                .map(|packet| packet.sequence)
+                .collect::<Vec<_>>(),
+            vec![1, 2],
+            "budget must account for payload bytes, not packet count"
+        );
+    }
+
+    #[test]
     fn no_reorder_or_jitter_from_bandwidth() {
         let profile = BandwidthProfile::new(50, 10).unwrap();
         let result = profile.apply(&burst(10));
