@@ -3046,3 +3046,431 @@ fn reconnect_after_combined_loss_duplicate_resumes_opus_receiver() {
     assert_eq!(snapshot.output_failures, 0);
     let _ = snapshot.late_packets;
 }
+
+#[test]
+fn combined_bandwidth_outage_loss_drives_opus_receiver() {
+    // Phase 164: bandwidth admission, outage window, then loss.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 12.0, -(sequence as f32) / 12.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 12).unwrap()),
+        Stage::Outage(network_fault::OutageProfile::new(3, 3).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..delivered.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.output_failures, 0);
+    assert!(snapshot.plc_frames_total > 0);
+}
+
+#[test]
+fn combined_bandwidth_outage_jitter_drives_opus_receiver() {
+    // Phase 165: bandwidth admission, outage window, then jitter.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 12.0, -(sequence as f32) / 12.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 12).unwrap()),
+        Stage::Outage(network_fault::OutageProfile::new(3, 3).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..delivered.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.output_failures, 0);
+    assert!(snapshot.plc_frames_total > 0);
+}
+
+#[test]
+fn combined_bandwidth_outage_reorder_drives_opus_receiver() {
+    // Phase 166: bandwidth admission, outage window, then reorder.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 12.0, -(sequence as f32) / 12.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 12).unwrap()),
+        Stage::Outage(network_fault::OutageProfile::new(3, 3).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..delivered.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.output_failures, 0);
+    assert!(snapshot.plc_frames_total > 0);
+}
+
+#[test]
+fn combined_bandwidth_outage_duplicate_drives_opus_receiver() {
+    // Phase 167: bandwidth admission, outage window, then duplicate.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 12.0, -(sequence as f32) / 12.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 12).unwrap()),
+        Stage::Outage(network_fault::OutageProfile::new(3, 3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+
+    let unique: std::collections::HashSet<u64> = delivered.iter().map(|p| p.sequence).collect();
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..unique.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.output_failures, 0);
+    assert!(snapshot.late_packets > 0);
+}
+
+#[test]
+fn combined_bandwidth_loss_jitter_drives_opus_receiver() {
+    // Phase 168: bandwidth admission, loss, then jitter.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 12.0, -(sequence as f32) / 12.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 12).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..delivered.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.output_failures, 0);
+    assert!(snapshot.plc_frames_total > 0);
+}
+
+#[test]
+fn combined_bandwidth_loss_reorder_drives_opus_receiver() {
+    // Phase 169: bandwidth admission, loss, then reorder.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 12.0, -(sequence as f32) / 12.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 12).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..delivered.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.output_failures, 0);
+    assert!(snapshot.plc_frames_total > 0);
+}
+
+#[test]
+fn combined_bandwidth_loss_duplicate_drives_opus_receiver() {
+    // Phase 170: bandwidth admission, loss, then duplicate.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 12.0, -(sequence as f32) / 12.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 12).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+
+    let unique: std::collections::HashSet<u64> = delivered.iter().map(|p| p.sequence).collect();
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..unique.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.output_failures, 0);
+    assert!(snapshot.late_packets > 0);
+}
+
+#[test]
+fn combined_bandwidth_jitter_reorder_drives_opus_receiver() {
+    // Phase 171: bandwidth admission, jitter, then reorder.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 12.0, -(sequence as f32) / 12.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 12).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..delivered.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.output_failures, 0);
+}
+
+#[test]
+fn combined_bandwidth_jitter_duplicate_drives_opus_receiver() {
+    // Phase 172: bandwidth admission, jitter, then duplicate.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=12u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 12.0, -(sequence as f32) / 12.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 12).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Duplicate(DuplicateProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert!(!delivered.is_empty());
+
+    let unique: std::collections::HashSet<u64> = delivered.iter().map(|p| p.sequence).collect();
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered {
+        let _ = receiver.enqueue(packet.sequence, &packet.payload);
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..unique.len() {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert!(!output.frames.is_empty());
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.output_failures, 0);
+    assert!(snapshot.late_packets > 0);
+}
