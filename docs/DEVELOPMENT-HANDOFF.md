@@ -1,3 +1,8 @@
+## Phase 152 status — reconnect after combined bandwidth + reorder
+
+- `network-fault/tests/headless_receiver.rs` compõe `BandwidthProfile` e `ReorderProfile`, executa reconnect e confirma dez frames reproduzidos, um reconnect, estado `Playing`, zero PLC e zero `output_failures`.
+- Evidência nível `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## Phase 151 status — reconnect after combined bandwidth + outage
 
 - `network-fault/tests/headless_receiver.rs` compõe `BandwidthProfile` e `OutageProfile`, executa reconnect após a janela de outage e confirma nove frames reproduzidos, um reconnect, estado `Playing`, zero PLC e zero `output_failures`.

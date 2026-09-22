@@ -1330,6 +1330,13 @@ fn reconnect_after_combined_outage_jitter_resumes_opus_receiver() {
     }
     let snapshot = metrics.snapshot();
     assert_eq!(output.frames.len(), 10);
+    for (index, expected_left) in (1..=10).map(|sequence| sequence as f32 / 10.0).enumerate() {
+        let left_mean: f32 = output.frames[index].iter().step_by(2).sum::<f32>() / 960.0;
+        assert!(
+            (left_mean - expected_left).abs() < 0.08,
+            "decoded frame at playout {index} has wrong source: {left_mean}"
+        );
+    }
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.packets_received, 7);
@@ -2184,6 +2191,77 @@ fn reconnect_after_combined_bandwidth_outage_resumes_opus_receiver() {
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.packets_received, 9);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.plc_frames_total, 0);
+    assert_eq!(snapshot.output_failures, 0);
+}
+
+#[test]
+fn reconnect_after_combined_bandwidth_reorder_resumes_opus_receiver() {
+    // Phase 152: bandwidth admission followed by deterministic reorder and reconnect.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=10u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(5_000, 10).unwrap()),
+        Stage::Reorder(network_fault::ReorderProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert_eq!(delivered.len(), 10);
+    assert_eq!(
+        delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 4, 3, 5, 7, 6, 8, 10, 9]
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered[..5] {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..5 {
+        receiver.playout(&mut output).unwrap();
+    }
+    receiver.reconnect(&mut output);
+    for packet in &delivered[5..] {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+    for _ in 0..5 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 10);
+    for (index, expected_left) in (1..=10).map(|sequence| sequence as f32 / 10.0).enumerate() {
+        let left_mean: f32 = output.frames[index].iter().step_by(2).sum::<f32>() / 960.0;
+        let right_mean: f32 = output.frames[index].iter().skip(1).step_by(2).sum::<f32>() / 960.0;
+        assert!(
+            (left_mean - expected_left).abs() < 0.08 && (right_mean + expected_left).abs() < 0.08,
+            "decoded frame at playout {index} has wrong stereo source: ({left_mean}, {right_mean})"
+        );
+    }
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 10);
     assert_eq!(snapshot.reconnect_count, 1);
     assert_eq!(snapshot.plc_frames_total, 0);
     assert_eq!(snapshot.output_failures, 0);

@@ -1,3 +1,9 @@
+## 2026-09-22 — Phase 152 reconnect after combined bandwidth + reorder
+
+- Adicionado teste headless que compõe admissão de bandwidth e reorder determinísticos antes do reconnect do `OpusReceiver`.
+- Cobertura confirma dez frames reproduzidos, uma reconexão, estado `Playing`, zero PLC e zero `output_failures`.
+- Gate focado: teste headless PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## 2026-09-22 — Phase 151 reconnect after combined bandwidth + outage
 
 - Adicionado teste headless que compõe admissão de bandwidth e outage determinísticos antes do reconnect do `OpusReceiver`.
