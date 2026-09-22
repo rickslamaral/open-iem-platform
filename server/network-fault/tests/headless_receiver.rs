@@ -1570,6 +1570,69 @@ fn combined_outage_then_reorder_drives_opus_receiver() {
 }
 
 #[test]
+fn reconnect_after_combined_outage_reorder_resumes_opus_receiver() {
+    // Phase 150: reconnect after composed outage and reorder.
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=10u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Outage(network_fault::OutageProfile::new(3, 2).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+    let delivered = combined.apply(&encoded);
+    assert_eq!(
+        delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 6, 3, 7, 9, 8, 10],
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &delivered[..2] {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..2 {
+        receiver.playout(&mut output).unwrap();
+    }
+    receiver.reconnect(&mut output);
+
+    for packet in &delivered[2..] {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 10);
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 8);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.plc_frames_total, 2);
+    assert_eq!(snapshot.output_failures, 0);
+}
+
+#[test]
 fn combined_jitter_then_reorder_drives_opus_receiver() {
     // Phase 138
     // 8 packets seq 1..=8

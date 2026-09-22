@@ -1,3 +1,9 @@
+## 2026-09-22 — Phase 150 reconnect after combined outage + reorder
+
+- Adicionado teste headless que compõe `OutageProfile` e `ReorderProfile` antes do reconnect do `OpusReceiver`.
+- Cobertura confirma dez frames reproduzidos, dois frames PLC, uma transição de mute no reconnect, estado `Playing` e zero `output_failures`.
+- Gate focado: teste headless PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## 2026-09-22 — Phase 149 reconnect after combined outage + jitter
 
 - Adicionado teste headless que compõe `OutageProfile` e `JitterProfile` antes do reconnect do `OpusReceiver`.
