@@ -907,4 +907,92 @@ mod tests {
     async fn remove_missing_is_false() {
         assert!(!SessionRegistry::new().remove("missing").await);
     }
+
+    #[tokio::test]
+    async fn drive_once_distributes_bridge_frames_to_two_sessions() {
+        let registry = SessionRegistry::new();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        plane.register_session("bob", 1).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.1, 0.2), (0.3, 0.4)],
+                },
+                1,
+                None,
+            )
+            .unwrap();
+
+        let report = registry.drive_once(&bridge, &plane, 2, 1).await;
+        assert_eq!(report.frames_drained, 1);
+        assert_eq!(report.outputs_polled, 0);
+
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+        assert_eq!(sessions["bob"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_skips_unnegotiated_session_output_but_routes_frames() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        plane.register_session("bob", 1).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.5, 0.5), (0.0, 0.0)],
+                },
+                5,
+                None,
+            )
+            .unwrap();
+
+        let report = registry.drive_once(&bridge, &plane, 2, 2).await;
+        assert_eq!(report.frames_drained, 1);
+        assert!(report.outputs_polled <= 2);
+
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+        assert_eq!(sessions["bob"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_output_budget_shared_across_sessions() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        registry
+            .negotiate_offer("bob", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        plane.register_session("bob", 1).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        for revision in [20, 21] {
+            bridge
+                .try_send(
+                    mix_engine::FrameOutput {
+                        mixes: [(0.1, 0.1), (0.2, 0.2)],
+                    },
+                    revision,
+                    None,
+                )
+                .unwrap();
+        }
+
+        let report = registry.drive_once(&bridge, &plane, 2, 1).await;
+        assert_eq!(report.frames_drained, 2);
+        assert!(report.outputs_polled <= 1);
+    }
 }
