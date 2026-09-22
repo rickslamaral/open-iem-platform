@@ -1,3 +1,9 @@
+## Phase 168 status — bandwidth + outage + jitter receiver path
+
+- Teste headless determinístico compõe `Stage::Bandwidth`, `Stage::Outage` e `Stage::Jitter` sobre payloads Opus antes do `OpusReceiver`.
+- Cobertura confirma sete pacotes recebidos, dois frames PLC consecutivos, `ReceiverState::Playing`, sete frames de saída e zero `output_failures`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem pendentes.
+
 ## Phase 167 status — bandwidth + loss + outage receiver path
 
 - `network-fault/tests/headless_receiver.rs` composes deterministic bandwidth, loss and outage stages before feeding encoded Opus packets to `OpusReceiver`.

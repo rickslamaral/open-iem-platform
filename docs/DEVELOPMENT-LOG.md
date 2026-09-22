@@ -1,3 +1,12 @@
+## 2026-09-22 — Phase 168 bandwidth + outage + jitter receiver path
+
+- **Goal:** ampliar cobertura determinística de composição de faults no receiver headless.
+- **Implemented:** teste integrado encadeia `Stage::Bandwidth`, `Stage::Outage` e `Stage::Jitter` antes do `OpusReceiver`.
+- **Tests:** teste focal passou; evidência CODE local.
+- **Metrics:** sete pacotes recebidos, dois frames PLC, máximo de dois PLC consecutivos, sete frames de saída e zero falhas.
+- **Problems:** runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware continuam pendentes.
+- **Decisions:** manter fault pipeline determinístico e sem claim de runtime físico.
+
 ## 2026-09-22 — Phase 167 bandwidth + loss + outage receiver path
 
 - **Goal:** ampliar cobertura determinística de fault composition no receiver headless.

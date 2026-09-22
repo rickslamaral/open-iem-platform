@@ -35,6 +35,9 @@
 
 # TODO
 
+## Estado atual - 2026-09-22 (Phase 168 bandwidth + outage + jitter receiver path)
+- Teste headless compõe bandwidth, outage e jitter determinísticos, confirma sete pacotes recebidos, dois frames PLC, estado `Playing` e zero falhas de saída. Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem pendentes.
+
 ## Linux-first release strategy — 2026-09-19
 - [x] Define Debian/Ubuntu/Raspberry Pi OS support for amd64/arm64; Raspberry Pi 3 is family baseline.
 - [x] Separate `SOFTWARE_RELEASE_GATE`, `PACKAGE_RELEASE_GATE`, `HARDWARE_CERTIFICATION`, `OPTIONAL`, `OBSOLETE`.
