@@ -411,6 +411,15 @@ fn reconnect_after_jitter_resumes_opus_receiver() {
     let jittered = JitterProfile::new(3, 1).unwrap().apply(&encoded);
     assert_eq!(jittered.delivered.len(), encoded.len());
     assert!(jittered.reordered > 0);
+    assert_eq!(
+        jittered
+            .delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 4, 3, 5, 7, 6, 8],
+        "reconnect input must retain jittered sequence order",
+    );
 
     let reconnect = ReconnectProfile::new(4, 1, "musician-jitter", 0)
         .unwrap()
@@ -419,6 +428,22 @@ fn reconnect_after_jitter_resumes_opus_receiver() {
     assert_eq!(reconnect.lost_at_disconnect, 1);
     assert_eq!(reconnect.post_reconnect.len(), 3);
     assert_eq!(reconnect.recovered_mix_id, Some(0));
+    assert_eq!(
+        reconnect
+            .pre_disconnect
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 4, 3],
+    );
+    assert_eq!(
+        reconnect
+            .post_reconnect
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![7, 6, 8],
+    );
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -1058,6 +1083,14 @@ fn combined_outage_then_jitter_drives_opus_receiver_plc() {
         7,
         "7 packets survive outage; jitter reorders but does not drop"
     );
+    assert_eq!(
+        delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 7, 3, 8, 10, 9],
+        "outage+jitter must preserve deterministic survivor order",
+    );
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -1281,6 +1314,14 @@ fn combined_outage_then_reorder_drives_opus_receiver() {
         8,
         "8 packets survive outage+reorder pipeline"
     );
+    assert_eq!(
+        delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 6, 3, 7, 9, 8, 10],
+        "outage+reorder must preserve deterministic survivor order",
+    );
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -1353,6 +1394,14 @@ fn combined_jitter_then_reorder_drives_opus_receiver() {
         delivered.len(),
         8,
         "8 packets after jitter+reorder (no drops)"
+    );
+    assert_eq!(
+        delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 3, 5, 4, 6, 7, 8],
+        "jitter+reorder must execute both deterministic reorder stages",
     );
 
     let metrics = Arc::new(ReceiverMetrics::default());
@@ -1428,6 +1477,14 @@ fn combined_jitter_then_duplicate_drives_opus_receiver() {
         delivered.len(),
         10,
         "10 packets after jitter+duplicate pipeline (8 originals + 2 duplicates)"
+    );
+    assert_eq!(
+        delivered
+            .iter()
+            .map(|packet| packet.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 3, 4, 4, 5, 6, 7, 8, 8],
+        "jitter+duplicate must preserve deterministic order and duplicate positions",
     );
 
     let metrics = Arc::new(ReceiverMetrics::default());
