@@ -755,3 +755,197 @@ fn combined_loss_reorder_duplicate_headless_receiver() {
     );
     assert_eq!(snapshot.output_failures, 0, "no output failures");
 }
+
+#[test]
+fn combined_bandwidth_then_jitter_drives_opus_receiver() {
+    // Phase 131
+    // Generate 10 Opus packets (seq 1..=10)
+    // BandwidthProfile budget = sum of first 7 payload lengths, window=10 → admits seqs 1-7, drops 8-10
+    // JitterProfile(3,1) reorders but does not drop → 7 packets, all seqs 1-7 present
+    // Receiver plays 7 frames with no gaps → no PLC
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=10u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let budget: usize = encoded[0..7].iter().map(|p| p.payload.len()).sum();
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(budget, 10).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    // Bandwidth admits 7, jitter reorders only → still 7
+    assert_eq!(
+        delivered.len(),
+        7,
+        "7 packets after bandwidth+jitter pipeline"
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        receiver.enqueue(pkt.sequence, &pkt.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..7 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 7, "seven frames played");
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(
+        snapshot.packets_received, 7,
+        "seven unique packets received"
+    );
+    assert_eq!(snapshot.plc_frames_total, 0, "no PLC: all seqs 1-7 present");
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
+}
+
+#[test]
+fn combined_bandwidth_then_reorder_drives_opus_receiver() {
+    // Phase 132
+    // Generate 9 Opus packets (seq 1..=9)
+    // BandwidthProfile budget = sum of first 6 payload lengths, window=9 → admits seqs 1-6, drops 7-9
+    // ReorderProfile(3) swaps pos3↔4 (seqs 3,4 swap) → result [1,2,4,3,5,6]
+    // Receiver plays 6 frames with no gaps → no PLC
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=9u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let budget: usize = encoded[0..6].iter().map(|p| p.payload.len()).sum();
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Bandwidth(network_fault::BandwidthProfile::new(budget, 9).unwrap()),
+        Stage::Reorder(ReorderProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    // Bandwidth admits 6, reorder swaps but no drop → still 6
+    assert_eq!(
+        delivered.len(),
+        6,
+        "6 packets after bandwidth+reorder pipeline"
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        receiver.enqueue(pkt.sequence, &pkt.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in 0..6 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 6, "six frames played");
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 6, "six unique packets received");
+    assert_eq!(snapshot.plc_frames_total, 0, "no PLC: all seqs 1-6 present");
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
+}
+
+#[test]
+fn combined_jitter_then_loss_drives_opus_receiver_plc() {
+    // Phase 133
+    // Generate 9 Opus packets (seq 1..=9)
+    // JitterProfile(3,1): delays pos3(seq3),pos6(seq6),pos9(seq9) by 1 slot each
+    //   Jitter output: [seq1,seq2,seq4,seq3,seq5,seq7,seq6,seq8,seq9]
+    // LossProfile(3): drops 1-indexed positions 3,6,9 → drops seq4, seq7, seq9
+    //   Surviving: [seq1,seq2,seq3,seq5,seq6,seq8] (6 packets)
+    // Gaps at seq4 and seq7 → 2 PLC frames
+    // Playout 8 times (span seq1..seq8)
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=9u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+        Stage::Loss(LossProfile::new(3).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    // Jitter keeps all 9, loss drops positions 3,6,9 → 6 survive
+    assert_eq!(delivered.len(), 6, "6 packets after jitter+loss pipeline");
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        receiver.enqueue(pkt.sequence, &pkt.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    // Span seq1..seq8 (seq9 dropped); 6 real + 2 PLC (seqs 4,7) = 8 playout calls
+    for _ in 0..8 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(
+        output.frames.len(),
+        8,
+        "eight frames played (6 real + 2 PLC)"
+    );
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 6, "six unique packets received");
+    assert_eq!(
+        snapshot.plc_frames_total, 2,
+        "PLC for seqs 4 and 7 (dropped by loss)"
+    );
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
+}
