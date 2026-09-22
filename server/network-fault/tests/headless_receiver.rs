@@ -949,3 +949,79 @@ fn combined_jitter_then_loss_drives_opus_receiver_plc() {
     );
     assert_eq!(snapshot.output_failures, 0, "no output failures");
 }
+
+#[test]
+fn combined_outage_then_jitter_drives_opus_receiver_plc() {
+    // Phase 134
+    // Generate 10 Opus packets (seq 1..=10, 0-indexed 0..9)
+    // OutageProfile(start=3, window=3): drops 0-indexed positions 3,4,5 → seqs 4,5,6 lost
+    //   Survivors (in order): [seq1, seq2, seq3, seq7, seq8, seq9, seq10] — 7 packets
+    // JitterProfile(interval=3, delay_slots=1): delays 1-indexed positions 3 and 6
+    //   1-indexed pos3 = seq3, pos6 = seq9 → each moved back 1 slot
+    //   Delivered order: [seq1, seq2, seq7, seq3, seq8, seq10, seq9]
+    // Receiver enqueues in that order; JitterBuffer reorders by sequence number.
+    // Span seq1..seq10 → playout calls = 10 (span of received seqs + 3 PLC for seqs 4,5,6)
+    // PLC = 3 (gaps at seqs 4, 5, 6)
+
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=10u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let combined = CombinedFaultProfile::new(vec![
+        Stage::Outage(network_fault::OutageProfile::new(3, 3).unwrap()),
+        Stage::Jitter(JitterProfile::new(3, 1).unwrap()),
+    ])
+    .unwrap();
+
+    let delivered = combined.apply(&encoded);
+    // Outage drops 3, jitter reorders but keeps all 7 survivors
+    assert_eq!(
+        delivered.len(),
+        7,
+        "7 packets survive outage; jitter reorders but does not drop"
+    );
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+
+    for pkt in &delivered {
+        receiver.enqueue(pkt.sequence, &pkt.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    // Span seq1..seq10: 7 real + 3 PLC (seqs 4,5,6) = 10 playout calls
+    for _ in 0..10 {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(
+        output.frames.len(),
+        10,
+        "ten frames played (7 real + 3 PLC)"
+    );
+    assert_eq!(output.muted, 0, "no muted frames");
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(
+        snapshot.packets_received, 7,
+        "seven unique packets received"
+    );
+    assert_eq!(
+        snapshot.plc_frames_total, 3,
+        "PLC for seqs 4, 5 and 6 (outage window)"
+    );
+    assert_eq!(snapshot.output_failures, 0, "no output failures");
+}
