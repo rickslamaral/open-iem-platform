@@ -1,3 +1,8 @@
+## 2026-09-22 — Phase 143 reconnect after jitter receiver path
+
+- Adicionado teste headless que compõe `JitterProfile` e `ReconnectProfile`, valida metadados de recuperação de mix, uma perda na fronteira de desconexão, playout de sete frames e estado `Playing` após reconexão.
+- Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## 2026-09-22 — Phases 134-142 combined receiver fault coverage
 
 - Added bounded headless Opus receiver integration coverage for outage+jitter, outage+loss, outage+duplicate, outage+reorder, jitter+reorder, jitter+duplicate, loss+reorder, loss+duplicate and reconnect-after-outage paths.

@@ -395,6 +395,76 @@ fn deterministic_reconnect_profile_resumes_opus_receiver() {
 }
 
 #[test]
+fn reconnect_after_jitter_resumes_opus_receiver() {
+    let mut writer = MediaWriter::new().unwrap();
+    let mut encoded = Vec::new();
+    for sequence in 1..=8u64 {
+        let mut frame = test_frame(sequence);
+        frame.samples = (sequence as f32 / 10.0, -(sequence as f32) / 10.0);
+        let packet = writer.encode(&frame).unwrap();
+        encoded.push(Packet {
+            sequence: packet.sequence,
+            payload: packet.payload,
+        });
+    }
+
+    let jittered = JitterProfile::new(3, 1).unwrap().apply(&encoded);
+    assert_eq!(jittered.delivered.len(), encoded.len());
+    assert!(jittered.reordered > 0);
+
+    let reconnect = ReconnectProfile::new(4, 1, "musician-jitter", 0)
+        .unwrap()
+        .apply(&jittered.delivered);
+    assert_eq!(reconnect.pre_disconnect.len(), 4);
+    assert_eq!(reconnect.lost_at_disconnect, 1);
+    assert_eq!(reconnect.post_reconnect.len(), 3);
+    assert_eq!(reconnect.recovered_mix_id, Some(0));
+
+    let metrics = Arc::new(ReceiverMetrics::default());
+    let mut receiver = OpusReceiver::new()
+        .unwrap()
+        .with_metrics(Arc::clone(&metrics));
+    for packet in &reconnect.pre_disconnect {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+
+    let mut output = Capture {
+        frames: Vec::new(),
+        muted: 0,
+    };
+    for _ in &reconnect.pre_disconnect {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    receiver.reconnect(&mut output);
+    for packet in &reconnect.post_reconnect {
+        receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+    }
+    for _ in &reconnect.post_reconnect {
+        receiver.playout(&mut output).unwrap();
+    }
+
+    let snapshot = metrics.snapshot();
+    assert_eq!(output.frames.len(), 7);
+    assert_eq!(output.muted, 1);
+    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(snapshot.packets_received, 7);
+    assert_eq!(snapshot.reconnect_count, 1);
+    assert_eq!(snapshot.output_failures, 0);
+    let means: Vec<f32> = output
+        .frames
+        .iter()
+        .map(|frame| frame.iter().step_by(2).sum::<f32>() / 960.0)
+        .collect();
+    for (mean, expected) in means.iter().zip([0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8]) {
+        assert!(
+            (mean - expected).abs() < 0.08,
+            "unexpected playout source: {mean}"
+        );
+    }
+}
+
+#[test]
 fn deterministic_duplicate_profile_classifies_duplicates_as_late() {
     // Encode 6 real Opus packets. DuplicateProfile(interval=2) replays every
     // 2nd packet. The receiver must:

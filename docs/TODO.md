@@ -1,3 +1,6 @@
+## Estado atual - 2026-09-22 (Phase 143 reconnect after jitter receiver path)
+- Teste headless compõe jitter e reconnect, confirma metadados de recuperação de mix, perda de fronteira, sete frames reproduzidos e estado `Playing`. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
 ## Estado atual - 2026-09-22 (Phase 130 bandwidth + duplicate receiver path)
 - Teste headless compõe bandwidth e duplicação determinísticos, confirma seis pacotes únicos, três duplicatas classificadas como `late_packets`, zero PLC, estado `Playing` e zero falhas de saída. Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem pendentes.
 
