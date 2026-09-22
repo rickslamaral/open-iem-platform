@@ -409,7 +409,7 @@ Each task: read START and this handoff → implement smallest unit → test → 
 - Phases 198-203 cover outage + quad-fault reconnect paths; Phases 204-207 cover four penta-fault reconnect paths.
 - Main is [`e5aa286`](https://github.com/rickslamaral/open-iem-platform/commit/e5aa286332bb49ad6b5a0f753d749e306123cd89) after [PR #255](https://github.com/rickslamaral/open-iem-platform/pull/255); CI evidence: 83 `headless_receiver` tests and 66 unit tests PASS.
 - Evidence remains CODE/CI. Real network, WebRTC/DTLS-SRTP runtime, PipeWire/ALSA hardware and Raspberry Pi 5 remain unvalidated.
-- Next backlog: Phases 208-214, seven deterministic fault combinations without reconnect.
+- Phases 208-214 sem reconnect estão concluídas: oito combinações determinísticas (cinco quad-fault, duas penta-fault e uma hexa-fault).
 
 ## Phase 183 status — reconnect after outage + loss + reorder receiver path
 
