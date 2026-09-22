@@ -1,3 +1,9 @@
+## 2026-09-22 — Phase 184 reconnect after outage + loss + duplicate receiver path
+
+- Adicionado teste headless que compõe `OutageProfile`, `LossProfile` e `DuplicateProfile` antes do reconnect do `OpusReceiver`.
+- Cobertura confirma playout pós-reconexão, duplicatas classificadas em `late_packets`, estado `Playing` e zero `output_failures`.
+- Gate focado: teste headless Phase 184. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-22 — Phase 183 reconnect after outage + loss + reorder receiver path
 
 - Adicionado teste headless que compõe `OutageProfile`, `LossProfile` e `ReorderProfile` antes de `ReconnectProfile`.
