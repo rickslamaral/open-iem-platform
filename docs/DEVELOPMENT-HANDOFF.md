@@ -399,6 +399,15 @@ Each task: read START and this handoff → implement smallest unit → test → 
 - v0.3.1 release not validated/published.
 - Architecture decisions can be reopened only on contradictory evidence: stop implementation, document evidence, assess impact, update ADR/GAP, then resume.
 
+## Phase 187-207 status — receiver reconnect fault coverage
+
+- Phases 187-192 complete remaining triple-fault reconnect combinations.
+- Phases 193-197 complete five quad-fault combinations without outage.
+- Phases 198-203 cover outage + quad-fault reconnect paths; Phases 204-207 cover four penta-fault reconnect paths.
+- Main is [`e5aa286`](https://github.com/rickslamaral/open-iem-platform/commit/e5aa286332bb49ad6b5a0f753d749e306123cd89) after [PR #255](https://github.com/rickslamaral/open-iem-platform/pull/255); CI evidence: 83 `headless_receiver` tests and 66 unit tests PASS.
+- Evidence remains CODE/CI. Real network, WebRTC/DTLS-SRTP runtime, PipeWire/ALSA hardware and Raspberry Pi 5 remain unvalidated.
+- Next backlog: Phases 208-214, seven deterministic fault combinations without reconnect.
+
 ## Phase 183 status — reconnect after outage + loss + reorder receiver path
 
 - `headless_receiver.rs` compõe `OutageProfile`, `LossProfile` e `ReorderProfile` antes de `ReconnectProfile`; teste confirma playout pós-reconexão, estado `Playing`, um reconnect e zero `output_failures`. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.

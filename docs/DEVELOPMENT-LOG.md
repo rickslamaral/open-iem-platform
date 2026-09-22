@@ -4809,6 +4809,15 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Gates: 66 testes streaming + 88 integração + frontends (61 Musician, 46 Engineer) PASS; clippy e fmt limpos. Revisão independente PASS (round 2).
 - Evidência CODE; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
 
+## 2026-09-22 — Phases 187-207 receiver reconnect fault coverage
+
+- Phases 187-192 completam combinações triple-fault restantes com reconnect.
+- Phases 193-197 cobrem todas as cinco combinações quad-fault sem outage.
+- Phases 198-203 cobrem combinações outage + quad-fault; Phases 204-207 cobrem quatro combinações penta-fault.
+- PRs [#251](https://github.com/rickslamaral/open-iem-platform/pull/251), [#252](https://github.com/rickslamaral/open-iem-platform/pull/252), [#253](https://github.com/rickslamaral/open-iem-platform/pull/253) e [#255](https://github.com/rickslamaral/open-iem-platform/pull/255) foram mergeadas com CI remoto verde; main em [`e5aa286`](https://github.com/rickslamaral/open-iem-platform/commit/e5aa286332bb49ad6b5a0f753d749e306123cd89).
+- Evidência: 83 testes `headless_receiver` e 66 testes unitários PASS em CI. Classificação CODE/CI; WebRTC/DTLS-SRTP runtime, rede real, PipeWire/ALSA físico e Raspberry Pi 5 permanecem não validados.
+- Próximo backlog: 7 combinações sem reconnect (Phases 208-214): quatro quad-fault, duas penta-fault e uma hexa-fault.
+
 ## 2026-09-21 — Phase 103 OpusReceiver metrics builder
 
 - `OpusReceiver` agora aceita métricas observabilidade opcionais via builder `with_metrics(Arc<ReceiverMetrics>)`.

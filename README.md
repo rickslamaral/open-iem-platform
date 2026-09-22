@@ -49,7 +49,7 @@ IEM              IEM
 
 ## Current Status
 
-**Fase atual: arquitetura P0 fechada; desenvolvimento retomado pela fila em `docs/DEVELOPMENT-HANDOFF.md`.** P0-001, P0-002, P0-003 e P0-004 têm implementação e cobertura CODE/CI nos limites documentados; runtime de áudio, WebRTC/Opus e hardware permanecem pendentes. Phase 92 backend WS EQ e Phase 93 frontend EQ estão mergeadas.
+**Fase atual: cobertura determinística de receiver em evolução. Phases 184-207 estão mergeadas em `main`, com evidência CODE/CI; runtime de áudio, WebRTC/DTLS-SRTP, rede real e hardware Raspberry Pi 5 permanecem pendentes. Próximo backlog: Phases 208-214, combinações fault sem reconnect. Fila canônica: `docs/DEVELOPMENT-HANDOFF.md`.**
 
 **Fases concluídas e mescladas em `main`:**
 
