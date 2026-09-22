@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Phases 208-214: cobertura headless determinística das combinações restantes de quad-fault, penta-fault e hexa-fault no receiver Opus; evidência CODE/CI, sem validação de rede real, WebRTC/DTLS-SRTP runtime, PipeWire/ALSA físico ou Raspberry Pi 5.
 - Phases 187-207: cobertura headless determinística de todas as combinações restantes de triple/quad/penta-fault com reconnect; evidência CODE/CI, sem validação de rede real, WebRTC/DTLS-SRTP runtime, PipeWire/ALSA físico ou Raspberry Pi 5.
 - Phase 186: reconnect após outage + jitter + duplicate no receiver Opus.
 - Phase 185: reconnect após outage + reorder + duplicate no receiver Opus.

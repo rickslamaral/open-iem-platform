@@ -1,3 +1,8 @@
+## 2026-09-22 — Status canonicalization after Phases 208-214
+
+- START.md agora identifica Phase 214 como último incremento mergeado; fases canônicas permanecem separadas da numeração incremental.
+- CHANGELOG.md registra cobertura determinística das combinações restantes sem alegação de runtime ou hardware.
+
 ## 2026-09-22 — Phases 208-214 deterministic combined receiver coverage
 
 - Adicionados oito testes headless para combinações restantes sem reconnect: cinco quad-fault, duas penta-fault e uma hexa-fault.
