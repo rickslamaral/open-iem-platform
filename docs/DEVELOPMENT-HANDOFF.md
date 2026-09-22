@@ -1,3 +1,51 @@
+## Estado atual - 2026-09-22 (Phase 154 reconnect after bandwidth + loss receiver path)
+- Teste headless compõe bandwidth e loss determinísticos antes do `OpusReceiver`, executa reconnect e confirma seis frames reproduzidos, um reconnect, estado `Playing`, três frames PLC e zero `output_failures`. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Estado atual - 2026-09-22 (Phase 153 reconnect after bandwidth + jitter receiver path)
+- Teste headless compõe bandwidth e jitter determinísticos antes do `OpusReceiver`, executa reconnect e confirma dez frames reproduzidos em ordem, um reconnect, estado `Playing`, zero PLC e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Phase 152 status — reconnect after combined bandwidth + reorder
+
+- `network-fault/tests/headless_receiver.rs` compõe `BandwidthProfile` e `ReorderProfile`, executa reconnect e confirma dez frames reproduzidos, um reconnect, estado `Playing`, zero PLC e zero `output_failures`.
+- Evidência nível `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## Phase 151 status — reconnect after combined bandwidth + outage
+
+- `network-fault/tests/headless_receiver.rs` compõe `BandwidthProfile` e `OutageProfile`, executa reconnect após a janela de outage e confirma nove frames reproduzidos, um reconnect, estado `Playing`, zero PLC e zero `output_failures`.
+- Evidência nível `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## Phase 150 status — reconnect after combined outage + reorder
+
+- `network-fault/tests/headless_receiver.rs` compõe `OutageProfile` e `ReorderProfile`, executa reconnect após dois frames e valida dez frames reproduzidos, dois frames PLC, uma reconexão, estado `Playing` e zero falhas de saída.
+- Evidência nível `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## Phase 149 status — reconnect after combined outage + jitter
+
+- `network-fault/tests/headless_receiver.rs` compõe `OutageProfile` e `JitterProfile`, executa reconnect e confirma 10 frames reproduzidos, três frames PLC, estado `Playing`, um reconnect e zero `output_failures`.
+- Gate focado: teste headless PASS. Evidência nível `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## Phase 148 status — reconnect after combined outage + duplicate
+
+- `network-fault/tests/headless_receiver.rs` compõe `OutageProfile` e `DuplicateProfile`, executa reconnect e confirma playout recuperado, duplicatas classificadas como `late_packets`, estado `Playing` e zero `output_failures`.
+- Gate focado: teste headless PASS. Evidência nível `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## Phase 147 status — reconnect after combined outage + loss
+
+- `network-fault/tests/headless_receiver.rs` compõe `OutageProfile` e `LossProfile` antes do `OpusReceiver`, executa reconnect após dois frames e confirma seis frames/pacotes reproduzidos, estado `Playing`, um reconnect e zero `output_failures`.
+- Gates locais: 66 testes unitários + 29 testes headless PASS; fmt PASS. Evidência nível `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## Phase 146 status — outage + loss + duplicate receiver path
+
+- `network-fault/tests/headless_receiver.rs` compõe `OutageProfile`, `LossProfile` e `DuplicateProfile` antes do `OpusReceiver`.
+- Cobertura confirma 11 frames reproduzidos, seis pacotes únicos, duas duplicatas em `late_packets`, cinco frames PLC, `plc_consecutive_max == 4`, estado `Playing` e zero `output_failures`.
+- Gate focado: 28 testes passaram localmente. Evidência nível `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## Phase 145 status — reconnect after bandwidth receiver path
+
+- `headless_receiver.rs` composes deterministic bandwidth, outage, jitter, reorder, loss and duplicate stages before feeding encoded Opus payloads to `OpusReceiver`.
+- New coverage validates combined fault paths plus reconnect after bandwidth, outage, jitter and loss: PLC gaps, duplicate late classification, ordered playout, bounded recovery, `Playing` state and zero output failures.
+- Focused gate: 27 tests passed locally. Evidence level is CODE local. Real network, WebRTC/DTLS-SRTP negotiation, PipeWire/ALSA runtime and hardware remain unvalidated.
+
 ## Phase 130 status — bandwidth + duplicate receiver path
 
 - `network-fault/tests/headless_receiver.rs` composes `Stage::Bandwidth` and `Stage::Duplicate` before feeding encoded Opus packets to `OpusReceiver`.
@@ -101,6 +149,11 @@
 - Testes unitários cobrem snapshot com contadores populated e serialização dos nomes estáveis (`schema_version`, `packets_received`, `packets_dropped`, `reconnect_count`, `plc_frames_total`, `plc_consecutive_max`). Evidência CODE local; integração com binário headless, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware continuam pendentes.
 
 # Open IEM Platform — Development Handoff
+## Phase 145 status — reconnect after bandwidth receiver path
+
+- `network-fault/tests/headless_receiver.rs` compõe `BandwidthProfile` e `ReconnectProfile` antes do `OpusReceiver`, validando oito frames reproduzidos, recuperação de mix, um reconnect, estado `Playing`, zero PLC e zero falhas de saída.
+- Evidência nível `CODE` local. Rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 
 **Date:** 2026-09-21
 **Canonical workspace:** `/workspace/open-iem-platform`
@@ -360,6 +413,14 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Current status (Phase 119):** P1-002 Device Manager, P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI and Phase 116 metrics reset and Phase 117 deterministic network-fault receiver coverage are complete at their recorded evidence levels. P1-002 evidence: CODE + CI; `GET /api/v1/devices` exposes protected snapshots, while backend hot-plug/runtime integration remains pending. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi hardware remain unvalidated. These are `PENDING` or `HARDWARE_CERTIFICATION`, not automatic software-release blockers. P1-006 software/package release proceeds when `SOFTWARE_RELEASE_GATE` and `PACKAGE_RELEASE_GATE` pass; publication still requires explicit confirmation.
+**Current status (Phase 144):** P1-002 Device Manager, P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI and Phase 116 metrics reset and Phases 117 and 134-144 deterministic network-fault receiver coverage are complete at their recorded evidence levels. P1-002 evidence: CODE + CI; `GET /api/v1/devices` exposes protected snapshots, while backend hot-plug/runtime integration remains pending. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi hardware remain unvalidated. These are `PENDING` or `HARDWARE_CERTIFICATION`, not automatic software-release blockers. P1-006 software/package release proceeds when `SOFTWARE_RELEASE_GATE` and `PACKAGE_RELEASE_GATE` pass; publication still requires explicit confirmation.
 
-**Current next step:** Continue receiver/media work only where a concrete CODE boundary exists; Phase 117 now covers deterministic loss/PLC receiver behavior in CODE/CI; otherwise select next independent P2 product slice. Phase 105 receiver packet metrics are CODE-only and require headless receiver integration before runtime claims; amd64 and arm64 `.deb` lifecycle are now CODE + PACKAGE_RELEASE_GATE PASS in CI run `35533396414`; local `iem config backup/restore` CLI is implemented with bounded input and symlink rejection; clean-environment restore and deployment validation remain pending. Built-in channel preset application is implemented for Engineer/Admin via `POST /api/v1/presets/{id}/apply`, with fail-closed channel bounds, payload validation and locked-channel protection before mutation; preset creation, editing, persistence and mix-preset application remain unimplemented. P0-002 Audio Lab L1/L2 is implemented in CI as deterministic CODE/SIMULATED coverage. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.
+**Current next step:** Continue receiver/media work only where a concrete CODE boundary exists; Phases 117 and 134-144 cover deterministic loss/PLC/reorder/duplicate/reconnect receiver behavior in CODE/local; otherwise select next independent P2 product slice. Phase 105 receiver packet metrics are CODE-only and require headless receiver integration before runtime claims; amd64 and arm64 `.deb` lifecycle are now CODE + PACKAGE_RELEASE_GATE PASS in CI run `35533396414`; local `iem config backup/restore` CLI is implemented with bounded input and symlink rejection; clean-environment restore and deployment validation remain pending. Built-in channel preset application is implemented for Engineer/Admin via `POST /api/v1/presets/{id}/apply`, with fail-closed channel bounds, payload validation and locked-channel protection before mutation; preset creation, editing, persistence and mix-preset application remain unimplemented. P0-002 Audio Lab L1/L2 is implemented in CI as deterministic CODE/SIMULATED coverage. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.
+
+## Phase 143 status — reconnect after jitter receiver path
+
+- `headless_receiver.rs` cobre composição determinística de jitter e reconnect, incluindo mix recovery, perda na fronteira, sete frames reproduzidos e estado `Playing` após reconexão. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## Phase 144 status — reconnect after loss receiver path
+
+- `headless_receiver.rs` compõe `LossProfile` e `ReconnectProfile` sobre frames Opus codificados, confirma três perdas da cadeia, perda de fronteira, três frames PLC totais, recuperação de mix, seis frames reproduzidos, estado `Playing` e zero falhas de saída. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.

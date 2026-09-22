@@ -1,3 +1,33 @@
+## Estado atual - 2026-09-22 (Phase 154 reconnect after bandwidth + loss receiver path)
+- Teste headless compõe bandwidth e loss determinísticos antes do `OpusReceiver`, executa reconnect e confirma seis frames reproduzidos, um reconnect, estado `Playing`, três frames PLC e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Estado atual - 2026-09-22 (Phase 153 reconnect after bandwidth + jitter receiver path)
+- Teste headless compõe bandwidth e jitter determinísticos antes do `OpusReceiver`, executa reconnect e confirma dez frames reproduzidos em ordem, um reconnect, estado `Playing`, zero PLC e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Estado atual - 2026-09-22 (Phase 152 reconnect after bandwidth + reorder)
+- Teste headless compõe bandwidth e reorder determinísticos, executa reconnect e confirma dez frames reproduzidos, um reconnect, estado `Playing`, zero PLC e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Estado atual - 2026-09-22 (Phase 151 reconnect after bandwidth + outage)
+- Teste headless compõe bandwidth e outage determinísticos, executa reconnect e confirma nove frames reproduzidos, um reconnect, estado `Playing`, zero PLC e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Estado atual - 2026-09-22 (Phase 150 reconnect after outage + reorder)
+- Teste headless compõe outage e reorder determinísticos, executa reconnect e confirma 10 frames reproduzidos, dois frames PLC, estado `Playing`, um reconnect e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Estado atual - 2026-09-22 (Phase 149 reconnect after outage + jitter)
+- Teste headless compõe outage e jitter determinísticos, executa reconnect e confirma 10 frames reproduzidos, três frames PLC, estado `Playing`, um reconnect e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Estado atual - 2026-09-22 (Phase 148 reconnect after outage + duplicate)
+- Teste headless compõe outage e duplicação determinísticos, executa reconnect e confirma playout pós-reconexão, classificação de duplicatas em `late_packets`, estado `Playing` e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Estado atual - 2026-09-22 (Phase 146 outage + loss + duplicate receiver path)
+- Teste headless compõe outage, loss e duplicate determinísticos antes do `OpusReceiver`, confirma 11 frames reproduzidos, cinco frames PLC, duas duplicatas em `late_packets`, estado `Playing` e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Estado atual - 2026-09-22 (Phase 144 reconnect after loss receiver path)
+- Teste headless compõe perda determinística e reconnect, confirma seis pacotes reproduzidos, três frames PLC totais, mix recuperado, um reconnect, estado `Playing` e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Estado atual - 2026-09-22 (Phase 143 reconnect after jitter receiver path)
+- Teste headless compõe jitter e reconnect, confirma metadados de recuperação de mix, perda de fronteira, sete frames reproduzidos e estado `Playing`. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
 ## Estado atual - 2026-09-22 (Phase 130 bandwidth + duplicate receiver path)
 - Teste headless compõe bandwidth e duplicação determinísticos, confirma seis pacotes únicos, três duplicatas classificadas como `late_packets`, zero PLC, estado `Playing` e zero falhas de saída. Evidência CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem pendentes.
 
@@ -12,6 +42,10 @@
 
 - Teste headless aplica `BandwidthProfile` a payloads Opus codificados e valida playout do receiver para pacotes admitidos, sem falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
+## Estado atual — 2026-09-22 (Phases 134-142 combined receiver fault coverage)
+- `headless_receiver.rs` now covers outage+jitter, outage+loss, outage+duplicate, outage+reorder, jitter+reorder, jitter+duplicate, loss+reorder, loss+duplicate and reconnect-after-outage pipelines through `OpusReceiver`.
+- Focused integration gate: 27 tests passed. Evidence is CODE local; real network, WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi hardware remain unvalidated.
+
 ## Estado atual - 2026-09-21 (Phase 126 combined bandwidth fault stage)
 - `Stage::Bandwidth` integra `BandwidthProfile` ao `CombinedFaultProfile`; teste unitário cobre encadeamento bandwidth→loss. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
@@ -25,6 +59,9 @@
 - `OpusReceiver` agora tem cobertura para limite de budget PLC com outage de cinco pacotes consecutivos: quatro frames PLC validos, quinto frame ausente falha fechado, `output_failures` conta uma unica transicao e chamadas posteriores nao duplicam contador. Evidencia CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
 # TODO
+## Estado atual - 2026-09-22 (Phase 145 reconnect after bandwidth receiver path)
+- Teste headless compõe admissão determinística de bandwidth e reconnect, confirma oito frames reproduzidos, um reconnect, estado `Playing`, zero PLC e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
 
 ## Linux-first release strategy — 2026-09-19
 - [x] Define Debian/Ubuntu/Raspberry Pi OS support for amd64/arm64; Raspberry Pi 3 is family baseline.

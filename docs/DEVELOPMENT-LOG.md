@@ -1,3 +1,66 @@
+## 2026-09-22 — Phase 154 reconnect after bandwidth + loss receiver path
+
+- Adicionado teste headless que compõe admissão de bandwidth e perda determinística antes do reconnect do `OpusReceiver`.
+- Cobertura confirma seis frames reproduzidos, três frames PLC, uma reconexão, estado `Playing` e zero `output_failures`.
+- Gate focado: teste headless PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## Estado atual - 2026-09-22 (Phase 153 reconnect after bandwidth + jitter receiver path)
+- Teste headless compõe bandwidth e jitter determinísticos antes do `OpusReceiver`, executa reconnect e confirma dez frames reproduzidos em ordem, um reconnect, estado `Playing`, zero PLC e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## 2026-09-22 — Phase 152 reconnect after combined bandwidth + reorder
+
+- Adicionado teste headless que compõe admissão de bandwidth e reorder determinísticos antes do reconnect do `OpusReceiver`.
+- Cobertura confirma dez frames reproduzidos, uma reconexão, estado `Playing`, zero PLC e zero `output_failures`.
+- Gate focado: teste headless PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## 2026-09-22 — Phase 151 reconnect after combined bandwidth + outage
+
+- Adicionado teste headless que compõe admissão de bandwidth e outage determinísticos antes do reconnect do `OpusReceiver`.
+- Cobertura confirma nove frames reproduzidos, uma reconexão, estado `Playing`, zero PLC e zero `output_failures`.
+- Gate focado: teste headless PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## 2026-09-22 — Phase 150 reconnect after combined outage + reorder
+
+- Adicionado teste headless que compõe `OutageProfile` e `ReorderProfile` antes do reconnect do `OpusReceiver`.
+- Cobertura confirma dez frames reproduzidos, dois frames PLC, uma transição de mute no reconnect, estado `Playing` e zero `output_failures`.
+- Gate focado: teste headless PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## 2026-09-22 — Phase 149 reconnect after combined outage + jitter
+
+- Adicionado teste headless que compõe `OutageProfile` e `JitterProfile` antes do reconnect do `OpusReceiver`.
+- Cobertura confirma dez frames reproduzidos, três frames PLC, uma transição de mute no reconnect, estado `Playing` e zero `output_failures`.
+- Gate focado: teste headless PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## 2026-09-22 — Phase 148 reconnect after combined outage + duplicate
+
+- Adicionado teste headless que compõe `OutageProfile` e `DuplicateProfile` antes do reconnect do `OpusReceiver`.
+- Cobertura confirma recuperação do playout, uma transição de mute no reconnect, duplicatas tardias e estado seguro do receiver.
+- Gate focado: `cargo test --manifest-path server/Cargo.toml -p network-fault --test headless_receiver reconnect_after_combined_outage_duplicate_resumes_opus_receiver` PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## 2026-09-22 — Phase 147 reconnect after combined outage + loss
+
+- Adicionado teste headless que compõe `OutageProfile` e `LossProfile` antes do `OpusReceiver`, executa reconnect após os dois primeiros frames e valida recuperação do fluxo.
+- Cobertura confirma seis pacotes reproduzidos, um reconnect, estado `Playing` e zero falhas de saída.
+- Gates focados: 66 testes unitários e 29 testes headless `network-fault` PASS; `cargo fmt --manifest-path server/Cargo.toml --all -- --check` PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## 2026-09-22 — Phase 146 outage + loss + duplicate receiver path
+
+- Adicionado teste headless que compõe `OutageProfile`, `LossProfile` e `DuplicateProfile` antes do `OpusReceiver`.
+- Cobertura confirma oito pacotes entregues, seis únicos, duas duplicatas tardias, cinco frames PLC, `plc_consecutive_max == 4`, estado `Playing` e zero falhas de saída.
+- Gate focado: 28 testes `headless_receiver` PASS. Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## 2026-09-22 — Phase 143 reconnect after jitter receiver path
+
+- Adicionado teste headless que compõe `JitterProfile` e `ReconnectProfile`, valida metadados de recuperação de mix, uma perda na fronteira de desconexão, playout de sete frames e estado `Playing` após reconexão.
+- Evidência `CODE` local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## 2026-09-22 — Phases 134-142 combined receiver fault coverage
+
+- Added bounded headless Opus receiver integration coverage for outage+jitter, outage+loss, outage+duplicate, outage+reorder, jitter+reorder, jitter+duplicate, loss+reorder, loss+duplicate and reconnect-after-outage paths.
+- Assertions cover admitted/late packets, PLC budget, frame output, reconnect state and fail-safe output counters.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p network-fault --test headless_receiver` passed 25/25.
+- Evidence is CODE local only; real network, WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-22 — Phase 130 bandwidth + duplicate receiver path
 
 - Adicionado teste integrado que compõe `Stage::Bandwidth` e `Stage::Duplicate` antes do `OpusReceiver` headless.
@@ -4529,7 +4592,7 @@ Próximos itens P2 disponíveis: SceneStore file-backed via env var, SceneStore 
 
 - `scene-manager::validate` agora rejeita `revision == 0` com `SceneError::InvalidNumber`; snapshots não podem introduzir revisão inválida no restore.
 - Adicionado teste unitário `zero_revision_rejected`.
-- Gates: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo test --manifest-path server/Cargo.toml -p scene-manager` (24 testes), `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
+- Gates: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo test --manifest-path server/Cargo.toml -p scene-manager` (25 testes), `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS.
 - Evidência: CODE; runtime implantado, PipeWire/ALSA, WebRTC/Opus e Raspberry Pi 5 continuam pendentes.
 
 
@@ -4782,3 +4845,16 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - `deterministic_duplicate_profile_classifies_duplicates_as_late` test in `headless_receiver.rs`: 6 encoded Opus packets, `DuplicateProfile(2)` yields 9, receiver counts 6 `packets_received`, 3 `late_packets`, 0 `packets_dropped`, 0 PLC, 0 output failures, state `Playing`.
 - Gates: `cargo fmt --check` PASS, `cargo clippy --all-targets -- -D warnings` PASS, `cargo test` PASS (all suites). Frontend typecheck/test/build PASS (musician 61 tests, engineer 50 tests).
 - Evidence: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and hardware remain unvalidated.
+
+## 2026-09-22 — Phase 145 reconnect after bandwidth receiver path
+
+- Adicionado teste headless que compõe `BandwidthProfile` e `ReconnectProfile` antes do `OpusReceiver`.
+- Cobertura confirma oito frames reproduzidos, um reconnect, estado `Playing`, zero PLC e zero `output_failures`.
+- Gate focado: 27 testes passaram; evidência `CODE` local. Rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+## 2026-09-22 — Phase 144 reconnect after loss receiver path
+
+- Adicionado teste headless que compõe `LossProfile` e `ReconnectProfile` antes do `OpusReceiver`, preservando sequência determinística de sobreviventes e recuperação de mix.
+- Cobertura confirma três frames PLC totais de perda, seis frames reproduzidos, um reconnect, estado `Playing` e zero `output_failures`.
+- Gates Rust passaram nos testes compiláveis. Doctest `mix-engine::db_to_linear` falhou por crash `rust-lld`/`Bus error`, falha de infraestrutura do linker sem erro de código reportado.
+- Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
