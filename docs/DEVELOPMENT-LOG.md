@@ -1,3 +1,8 @@
+## 2026-09-22 — Phase 215 reconnect após seis fault stages
+
+- Adicionado teste headless que compõe bandwidth, outage, loss, jitter, reorder e duplicate antes de ReconnectProfile; valida sequência determinística entregue, duplicatas, reconnect, mix 2, ingestão pré/pós-reconnect, retomada de frames, estado Playing e zero output_failures.
+- Gate focado: 92 testes headless_receiver PASS; cargo fmt PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
 ## 2026-09-22 — Status canonicalization after Phases 208-214
 
 - START.md agora identifica Phase 214 como último incremento mergeado; fases canônicas permanecem separadas da numeração incremental.

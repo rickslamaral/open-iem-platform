@@ -1,3 +1,8 @@
+## Estado atual - 2026-09-22 (Phase 215 deterministic six-fault reconnect coverage)
+
+- [x] Phase 215 — cobrir reconnect após bandwidth, outage, loss, jitter, reorder e duplicate determinísticos no OpusReceiver.
+- Evidência: 92 testes headless_receiver PASS localmente; classificação CODE local. Rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA físico e Raspberry Pi 5 permanecem não validados.
+
 ## Estado atual - 2026-09-22 (Phases 208-214 deterministic combined receiver coverage)
 
 - [x] Phases 208-214 — cobrir cinco combinações quad-fault, duas penta-fault e uma hexa-fault sem reconnect no `OpusReceiver`.
