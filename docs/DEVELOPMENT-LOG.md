@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 241 UTF-8 media-session user ID boundary
+
+- Added streaming regression coverage for multibyte user IDs at and above `MAX_MEDIA_USER_ID_BYTES`, confirming byte-based validation and no registry mutation on rejection.
+- Focused test passed locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-23 — Phase 239 malformed trickle ICE mutation guard
 
 - Added streaming regression coverage proving malformed trickle ICE is rejected without mutating an existing session registry. Focused Rust test passed locally; runtime and hardware evidence remain pending.

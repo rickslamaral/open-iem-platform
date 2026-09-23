@@ -1,3 +1,8 @@
+## Phase 241 status — UTF-8 media-session user ID boundary
+
+- Added regression coverage proving `MAX_MEDIA_USER_ID_BYTES` counts UTF-8 bytes: a multibyte ID exactly at the byte limit is accepted, the next character is rejected, and the existing registry remains unchanged.
+- Evidence: focused streaming test PASS locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 240 status — media-session user ID boundary
 
 - `MediaPlane::register_session` agora rejeita user IDs vazios ou acima de `MAX_MEDIA_USER_ID_BYTES` antes de mutar o registry; o limite exato permanece aceito.

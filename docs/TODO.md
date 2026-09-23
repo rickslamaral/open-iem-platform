@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 241 UTF-8 media-session user ID boundary
+- [x] Cobrir user ID multibyte exatamente no limite de bytes e rejeitar o próximo caractere sem alterar registry.
+- Evidência: teste `register_uses_utf8_byte_length_for_user_id_boundary` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-23 (Phase 240 media-session user ID boundary)
 - [x] Rejeitar user ID vazio ou acima de `MAX_MEDIA_USER_ID_BYTES` antes de criar sessão de mídia; aceitar exatamente no limite e preservar registry em rejeições.
 - Evidência: 15 testes `media_plane` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

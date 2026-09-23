@@ -350,6 +350,21 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn register_uses_utf8_byte_length_for_user_id_boundary() {
+        let mp = MediaPlane::new();
+        let maximum = "é".repeat(MAX_MEDIA_USER_ID_BYTES / "é".len());
+        let oversized = format!("{maximum}é");
+
+        assert_eq!(maximum.len(), MAX_MEDIA_USER_ID_BYTES);
+        assert_eq!(mp.register_session(&maximum, 0).await, Ok(()));
+        assert_eq!(
+            mp.register_session(&oversized, 1).await,
+            Err(MediaPlaneError::InvalidUserId)
+        );
+        assert_eq!(mp.sessions().await, vec![(maximum, 0)]);
+    }
+
+    #[tokio::test]
     async fn register_rejects_oversized_user_id_without_mutation() {
         let mp = MediaPlane::new();
         let user_id = "u".repeat(MAX_MEDIA_USER_ID_BYTES + 1);
