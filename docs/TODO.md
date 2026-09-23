@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 246 media-plane multi-session fan-out coverage
+- [x] Cobrir fan-out simultâneo para sessões em mix slots distintos, incluindo samples, revision e capture timestamp.
+- Evidência: teste `push_frame_output_fans_out_each_session_mix` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 245 selective media-session removal coverage
 - [x] Cobrir remoção de uma sessão sem apagar sessões vizinhas; segunda remoção retorna `false` e preserva registry.
 - Evidência: teste `remove_session_preserves_other_sessions` e suíte Rust completa PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

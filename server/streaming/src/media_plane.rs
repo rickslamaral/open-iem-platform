@@ -434,6 +434,29 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn push_frame_output_fans_out_each_session_mix() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        mp.register_session("bob", 1).await.unwrap();
+        let capture_timestamp = Some(SampleTimestamp::new(42, 123));
+        let frame = make_frame(0.1, 0.2, 0.8, 0.9);
+
+        mp.push_frame_output(&frame, 7, capture_timestamp).await;
+
+        let alice = mp
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap();
+        let bob = mp.drain_session_frames_with_budget("bob", 1).await.unwrap();
+        assert_eq!(alice[0].samples, (0.1, 0.2));
+        assert_eq!(bob[0].samples, (0.8, 0.9));
+        assert_eq!(alice[0].metadata.revision, 7);
+        assert_eq!(bob[0].metadata.revision, 7);
+        assert_eq!(alice[0].metadata.capture_timestamp, capture_timestamp);
+        assert_eq!(bob[0].metadata.capture_timestamp, capture_timestamp);
+    }
+
+    #[tokio::test]
     async fn push_frame_output_overflow_increments_drop_count() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
