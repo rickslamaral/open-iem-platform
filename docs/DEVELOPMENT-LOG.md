@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 237 oversized offer replacement guard
+
+- Added regression coverage proving an oversized SDP replacement offer is rejected before session mutation, preserving the existing session and mix binding.
+- Evidence: focused streaming test PASS locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-23 — Phase 236 DTLS fingerprint parser boundaries
 
 - Adicionada cobertura para canonicalização case-insensitive do algoritmo/digest e rejeição de digest malformado.

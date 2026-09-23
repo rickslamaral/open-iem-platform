@@ -858,6 +858,26 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn oversized_offer_rejected_without_replacing_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original".into()))
+            .await
+            .expect("initial offer must succeed");
+
+        let oversized_offer = "x".repeat(MAX_SDP_BYTES + 1);
+        let result = registry
+            .negotiate_offer("alice", &oversized_offer, Some("replacement".into()))
+            .await;
+
+        assert!(matches!(result, Err(StreamingError::InvalidOffer(_))));
+        let sessions = registry.list().await;
+        assert_eq!(sessions.len(), 1);
+        assert_eq!(sessions[0].user_id, "alice");
+        assert_eq!(sessions[0].mix_id.as_deref(), Some("original"));
+    }
+
+    #[tokio::test]
     async fn user_id_above_maximum_length_is_rejected() {
         let registry = SessionRegistry::new();
         let user_id = "u".repeat(MAX_USER_ID_BYTES + 1);
