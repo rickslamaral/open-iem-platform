@@ -1,3 +1,9 @@
+## 2026-09-23 — Phase 247 media-plane drain budget boundary coverage
+
+- Added bounded drain regression coverage for budgets above queue capacity.
+- The test confirms available-frame count and sequence order, with no synthetic frames after draining.
+- Evidence: focused Rust test PASS locally; physical/runtime media paths remain unvalidated.
+
 ## 2026-09-23 — Phase 246 media-plane multi-session fan-out coverage
 
 - Added streaming unit coverage for simultaneous fan-out to two sessions subscribed to different mix slots. The test validates per-session samples, engine revision and capture timestamp.

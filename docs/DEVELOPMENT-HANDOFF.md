@@ -1,3 +1,8 @@
+## Phase 247 status — media-plane drain budget boundary coverage
+
+- Added regression coverage proving an oversized drain budget returns only available frames, preserves sequence order and leaves queue empty.
+- Focused test passes locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 246 status — media-plane multi-session fan-out coverage
 
 - Added regression coverage proving one frame fans out to two sessions using distinct mix slots while preserving samples, revision and capture timestamp.

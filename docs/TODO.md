@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 247 media-plane drain budget boundary coverage
+- [x] Cobrir budget acima da capacidade: dreno retorna apenas frames disponíveis, preserva ordem e não inventa frames.
+- Evidência: teste `drain_session_frames_caps_oversized_budget_to_available_frames` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 246 media-plane multi-session fan-out coverage
 - [x] Cobrir fan-out simultâneo para sessões em mix slots distintos, incluindo samples, revision e capture timestamp.
 - Evidência: teste `push_frame_output_fans_out_each_session_mix` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
