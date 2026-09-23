@@ -258,6 +258,48 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn send_caps_oversized_budget() {
+        let receiver = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let destination = receiver.local_addr().unwrap();
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+        let outputs = (0..=TRANSPORT_SEND_BUDGET)
+            .map(|index| str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: adapter.local_addr().unwrap(),
+                destination,
+                contents: format!("packet-{index}").into_bytes().into(),
+            })
+            .collect::<Vec<_>>();
+        let consumed = Arc::new(AtomicUsize::new(0));
+        let outputs = outputs.into_iter().inspect({
+            let consumed = Arc::clone(&consumed);
+            move |_| {
+                consumed.fetch_add(1, Ordering::Relaxed);
+            }
+        });
+
+        let report = adapter.send(outputs, usize::MAX).await.unwrap();
+
+        assert_eq!(consumed.load(Ordering::Relaxed), TRANSPORT_SEND_BUDGET);
+        assert_eq!(report.attempted, TRANSPORT_SEND_BUDGET);
+        assert_eq!(report.sent, TRANSPORT_SEND_BUDGET);
+        assert_eq!(report.dropped, 0);
+        let mut payload = [0_u8; 32];
+        for index in 0..TRANSPORT_SEND_BUDGET {
+            let (length, _) = tokio::time::timeout(
+                std::time::Duration::from_secs(1),
+                receiver.recv_from(&mut payload),
+            )
+            .await
+            .unwrap()
+            .unwrap();
+            assert_eq!(&payload[..length], format!("packet-{index}").as_bytes());
+        }
+    }
+
+    #[tokio::test]
     async fn send_respects_budget() {
         let receiver = UdpSocket::bind("127.0.0.1:0").await.unwrap();
         let destination: SocketAddr = receiver.local_addr().unwrap();
