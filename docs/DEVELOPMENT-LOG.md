@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 253 multibyte user ID boundary
+- Added `register_accepts_multibyte_user_id_at_exact_byte_limit` to prevent confusing character count with UTF-8 byte limit.
+- Evidence: focused Rust test PASS; physical/runtime validation remains pending.
+
 ## 2026-09-23 — Phase 252 multi-session overflow accounting
 
 - Added streaming regression coverage proving queue overflow accounting is exact per session and in aggregate during fan-out.

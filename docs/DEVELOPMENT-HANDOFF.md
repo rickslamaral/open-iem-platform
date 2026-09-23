@@ -1,3 +1,7 @@
+## Phase 253 status — multibyte user ID byte boundary
+- Added regression coverage proving a UTF-8 multibyte media user ID exactly at `MAX_MEDIA_USER_ID_BYTES` is accepted, matching byte-based validation.
+- Focused streaming test passes locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 252 status — multi-session overflow accounting
 
 - Added coverage proving fan-out overflow increments each session drop counter and aggregate count exactly, while bounded queues retain capacity.
