@@ -494,6 +494,15 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn remove_missing_session_returns_false_without_mutation() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+
+        assert!(!mp.remove_session("missing").await);
+        assert_eq!(mp.sessions().await, vec![("alice".to_owned(), 0)]);
+    }
+
+    #[tokio::test]
     async fn drain_session_frames_respects_budget_and_preserves_order() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
