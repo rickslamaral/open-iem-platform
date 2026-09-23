@@ -715,6 +715,33 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn requeue_transport_outputs_drops_when_queue_is_full() {
+        let registry = SessionRegistry::new();
+        let transmit = |payload: &[u8]| str0m::net::Transmit {
+            proto: Protocol::Udp,
+            source: "127.0.0.1:0".parse().unwrap(),
+            destination: "127.0.0.1:9".parse().unwrap(),
+            contents: payload.to_vec().into(),
+        };
+
+        let mut outputs = registry.transport_outputs.lock().await;
+        for _ in 0..TRANSPORT_OUTPUT_CAPACITY {
+            outputs.push_back(transmit(b"queued"));
+        }
+        drop(outputs);
+
+        let dropped = registry
+            .requeue_transport_outputs(vec![transmit(b"retry")])
+            .await;
+
+        assert_eq!(dropped, 1);
+        assert_eq!(
+            registry.transport_outputs.lock().await.len(),
+            TRANSPORT_OUTPUT_CAPACITY
+        );
+    }
+
+    #[tokio::test]
     async fn registry_starts_empty() {
         assert_eq!(SessionRegistry::new().len().await, 0);
     }

@@ -1,3 +1,8 @@
+## Estado atual - 2026-09-23 (transport queue overflow coverage)
+
+- [x] Cobrir requeue de datagrama quando fila de transporte está cheia; descarte permanece bounded e fila mantém capacidade máxima.
+- Evidência: teste unitário `requeue_transport_outputs_drops_when_queue_is_full` PASS localmente; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## Estado atual - 2026-09-22 (Phases 219-221 drive_once budget edge coverage)
 
 - [x] Phases 219-221 — cobrir budget de frames zero, sessões sem mídia negociada e registry sem sessões em `SessionRegistry::drive_once`.

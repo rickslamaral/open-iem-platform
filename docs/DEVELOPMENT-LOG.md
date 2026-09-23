@@ -1,3 +1,8 @@
+## 2026-09-23 — transport queue overflow coverage
+
+- Adicionado teste unitário para `SessionRegistry::requeue_transport_outputs` com fila de transporte cheia. O teste confirma descarte do retry, capacidade máxima preservada e ausência de crescimento não limitado.
+- Gate focado: `cargo test --manifest-path server/Cargo.toml -p streaming requeue_transport_outputs_drops_when_queue_is_full` PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-22 — Phases 219-221 drive_once budget edge coverage
 
 - Adicionados testes para budget de frames zero, frames drenados sem mídia negociada e registry sem sessões, confirmando contadores e ausência de exaustão indevida do budget.
