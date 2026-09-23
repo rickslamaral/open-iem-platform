@@ -617,6 +617,34 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn transport_adapter_zero_budget_preserves_registry_output() {
+        let registry = SessionRegistry::new();
+        registry
+            .transport_outputs
+            .lock()
+            .await
+            .push_back(str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: "127.0.0.1:0".parse().unwrap(),
+                destination: "127.0.0.1:9".parse().unwrap(),
+                contents: b"must-remain-queued".to_vec().into(),
+            });
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+
+        let report = adapter.send_from_registry(&registry, 0).await.unwrap();
+
+        assert_eq!(report.attempted, 0);
+        assert_eq!(report.sent, 0);
+        assert_eq!(report.bytes, 0);
+        assert_eq!(report.dropped, 0);
+        let queued = registry.drain_transport_outputs(1).await;
+        assert_eq!(queued.len(), 1);
+        assert_eq!(&queued[0].contents[..], b"must-remain-queued");
+    }
+
+    #[tokio::test]
     async fn transport_adapter_sends_registry_output_and_reports_delivery() {
         let registry = SessionRegistry::new();
         let receiver = tokio::net::UdpSocket::bind("127.0.0.1:0").await.unwrap();
