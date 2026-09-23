@@ -469,11 +469,9 @@ mod tests {
         assert_eq!(mp.total_dropped(), 5);
         let frames = sessions["alice"].drain_frames();
         assert_eq!(frames.len(), MEDIA_QUEUE_CAPACITY);
-        assert_eq!(frames.first().unwrap().metadata.sequence, 0);
-        assert_eq!(
-            frames.last().unwrap().metadata.sequence,
-            (MEDIA_QUEUE_CAPACITY - 1) as u64
-        );
+        for (index, frame) in frames.iter().enumerate() {
+            assert_eq!(frame.metadata.sequence, index as u64);
+        }
     }
 
     #[tokio::test]
