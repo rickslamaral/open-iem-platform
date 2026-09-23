@@ -374,7 +374,10 @@ mod tests {
     #[tokio::test]
     async fn register_accepts_multibyte_user_id_at_exact_byte_limit() {
         let mp = MediaPlane::new();
-        let user_id = "é".repeat(MAX_MEDIA_USER_ID_BYTES / "é".len());
+        let mut user_id = "é".repeat(MAX_MEDIA_USER_ID_BYTES / "é".len());
+        if user_id.len() < MAX_MEDIA_USER_ID_BYTES {
+            user_id.push('a');
+        }
 
         assert_eq!(user_id.len(), MAX_MEDIA_USER_ID_BYTES);
         assert_eq!(mp.register_session(&user_id, 0).await, Ok(()));

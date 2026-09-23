@@ -2,6 +2,10 @@
 - [x] Cobrir user ID UTF-8 multibyte exatamente em `MAX_MEDIA_USER_ID_BYTES`; validação usa bytes e aceita limite exato.
 - Evidência: teste `register_accepts_multibyte_user_id_at_exact_byte_limit` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
+## 2026-09-23 — Phase 252 multi-session overflow accounting
+- [x] Cobrir contagem de descarte por sessão e agregada quando fan-out encontra filas cheias.
+- Evidência: teste `overflow_drop_accounting_matches_each_full_session`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 251 overflow sequence gap coverage
 - [x] Cobrir sequência após overflow: frames aceitos preservam sequência e próximo frame expõe salto esperado.
 - Evidência: teste `overflowed_frame_sequence_reports_gap_after_drain` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
