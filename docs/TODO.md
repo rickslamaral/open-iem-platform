@@ -1,3 +1,8 @@
+## Estado atual - 2026-09-23 (transport send budget boundary coverage)
+
+- [x] Cobrir `TransportAdapter::send_from_registry` com budget acima do limite: envia no máximo `TRANSPORT_SEND_BUDGET` e preserva sufixo na fila.
+- Evidência: teste unitário `transport_adapter_caps_oversized_registry_budget` PASS localmente; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## Estado atual - 2026-09-23 (transport queue overflow coverage)
 
 - [x] Cobrir requeue de datagrama quando fila de transporte está cheia; descarte permanece bounded e fila mantém capacidade máxima.

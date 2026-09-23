@@ -645,6 +645,51 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn transport_adapter_caps_oversized_registry_budget() {
+        let registry = SessionRegistry::new();
+        let receiver = tokio::net::UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let destination = receiver.local_addr().unwrap();
+        let transmit = |index: usize| str0m::net::Transmit {
+            proto: Protocol::Udp,
+            source: "127.0.0.1:0".parse().unwrap(),
+            destination,
+            contents: format!("packet-{index}").into_bytes().into(),
+        };
+        let mut outputs = registry.transport_outputs.lock().await;
+        for index in 0..=TRANSPORT_SEND_BUDGET {
+            outputs.push_back(transmit(index));
+        }
+        drop(outputs);
+
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+        let report = adapter
+            .send_from_registry(&registry, usize::MAX)
+            .await
+            .unwrap();
+
+        assert_eq!(report.attempted, TRANSPORT_SEND_BUDGET);
+        assert_eq!(report.sent, TRANSPORT_SEND_BUDGET);
+        assert_eq!(report.dropped, 0);
+        let queued = registry.drain_transport_outputs(usize::MAX).await;
+        assert_eq!(queued.len(), 1);
+        assert_eq!(&queued[0].contents[..], b"packet-32");
+
+        let mut payload = [0_u8; 32];
+        for index in 0..TRANSPORT_SEND_BUDGET {
+            let (length, _) = tokio::time::timeout(
+                std::time::Duration::from_secs(1),
+                receiver.recv_from(&mut payload),
+            )
+            .await
+            .unwrap()
+            .unwrap();
+            assert_eq!(&payload[..length], format!("packet-{index}").as_bytes());
+        }
+    }
+
+    #[tokio::test]
     async fn transport_adapter_sends_registry_output_and_reports_delivery() {
         let registry = SessionRegistry::new();
         let receiver = tokio::net::UdpSocket::bind("127.0.0.1:0").await.unwrap();
