@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- 2026-09-23: API integration coverage confirms known-device revocation removes sessions bound to the revoked device while preserving another active session. Evidence: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ### Changed
 - Documented Phase 223 bounded transport send-budget coverage.
 

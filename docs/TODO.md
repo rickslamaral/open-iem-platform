@@ -1,3 +1,7 @@
+## Estado atual - 2026-09-23 (API device revocation session binding coverage)
+- [x] Cobrir revogação de dispositivo conhecido: remove sessões vinculadas ao dispositivo revogado e preserva outra sessão ativa.
+- Evidência: teste de integração `revoke_device_removes_bound_session_preserves_unbound_session`; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-23 (Phase 225 unknown revocation preservation)
 - [x] Cobrir revogação de dispositivo inexistente: resposta `404` preserva sessões de streaming ativas.
 - Evidência: teste de integração `revoke_nonexistent_device_preserves_active_sessions`; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.

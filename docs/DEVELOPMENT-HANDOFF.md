@@ -1,3 +1,8 @@
+## 2026-09-23 — API device revocation session binding coverage
+
+- Added API integration coverage proving known-device revocation removes sessions bound to the revoked device while preserving another active session.
+- Evidence: CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 225 status — preserve sessions on unknown device revocation
 
 - Added API integration coverage proving unknown-device revocation returns `404` without removing active streaming sessions.
