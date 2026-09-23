@@ -882,6 +882,25 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn mix_id_at_maximum_length_is_accepted() {
+        let registry = SessionRegistry::new();
+        let mix_id = "m".repeat(MAX_MIX_ID_BYTES);
+
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some(mix_id.clone()))
+            .await
+            .expect("maximum-length mix ID must be accepted");
+
+        let session = registry
+            .list()
+            .await
+            .into_iter()
+            .next()
+            .expect("negotiated session must be listed");
+        assert_eq!(session.mix_id.as_deref(), Some(mix_id.as_str()));
+    }
+
+    #[tokio::test]
     async fn invalid_candidate_rejected() {
         assert!(SessionRegistry::new()
             .add_ice_candidate("u", "bad")
