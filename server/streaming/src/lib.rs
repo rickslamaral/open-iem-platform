@@ -1170,9 +1170,10 @@ mod tests {
     async fn bound_session_rejects_mismatched_fingerprint_without_mutating_registry() {
         let registry = SessionRegistry::new();
         registry
-            .negotiate_offer("alice", VALID_OFFER, None)
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
             .await
             .unwrap();
+        let before = registry.list().await;
         let identity = DeviceIdentity {
             device_id: "rx-1".into(),
             musician_id: "alice".into(),
@@ -1189,9 +1190,7 @@ mod tests {
             Err(StreamingError::InvalidOffer(message))
                 if message == "DTLS fingerprint does not match paired device"
         ));
-        let sessions = registry.list().await;
-        assert_eq!(sessions.len(), 1);
-        assert_eq!(sessions[0].user_id, "alice");
+        assert_eq!(registry.list().await, before);
     }
 
     #[tokio::test]
