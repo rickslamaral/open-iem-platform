@@ -1193,6 +1193,34 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn remove_by_device_id_removes_all_matching_sessions() {
+        let registry = SessionRegistry::new();
+        for (user_id, device_id) in [
+            ("alice", "shared-device"),
+            ("bob", "shared-device"),
+            ("carol", "other-device"),
+        ] {
+            let identity = DeviceIdentity {
+                device_id: device_id.into(),
+                musician_id: user_id.into(),
+                mix_index: 0,
+                revoked: false,
+                dtls_fingerprint: None,
+            };
+            registry
+                .negotiate_offer_bound(user_id, VALID_OFFER, Some("0".into()), Some(&identity))
+                .await
+                .expect("bound offer must succeed");
+        }
+
+        assert_eq!(registry.remove_by_device_id("shared-device").await, 2);
+        let sessions = registry.list().await;
+        assert_eq!(sessions.len(), 1);
+        assert_eq!(sessions[0].user_id, "carol");
+        assert_eq!(sessions[0].device_id.as_deref(), Some("other-device"));
+    }
+
+    #[tokio::test]
     async fn remove_by_device_id_zero_when_no_match() {
         let registry = SessionRegistry::new();
         registry

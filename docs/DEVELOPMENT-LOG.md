@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 224 remove sessions by shared device ID
+
+- Added unit coverage for `SessionRegistry::remove_by_device_id` with two matching sessions and one unrelated session.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming remove_by_device_id` PASS locally. Evidence remains CODE local; runtime and hardware remain unvalidated.
+
 ## 2026-09-23 — Phase 223 transport send budget cap
 
 - Reconciled handoff documentation with `TransportAdapter::send` oversized-budget coverage from commit `2ca4c25`.

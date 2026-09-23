@@ -1,3 +1,8 @@
+## Phase 224 status — remove sessions by shared device ID
+
+- Added streaming registry coverage proving `remove_by_device_id` removes every matching session while preserving non-matching sessions.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming remove_by_device_id` PASS locally. Evidence remains CODE local; WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## Phase 223 status — transport send budget cap
 
 - `TransportAdapter::send` now has bounded coverage for an oversized caller budget: it sends at most `TRANSPORT_SEND_BUDGET`, preserves datagram order and reports no drops for outputs admitted within the bounded send budget.
