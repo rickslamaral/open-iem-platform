@@ -444,6 +444,18 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn register_invalid_mix_index_preserves_existing_sessions() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+
+        assert_eq!(
+            mp.register_session("bob", MAX_MIXES).await,
+            Err(MediaPlaneError::InvalidMixIndex)
+        );
+        assert_eq!(mp.sessions().await, vec![("alice".to_owned(), 0)]);
+    }
+
+    #[tokio::test]
     async fn push_frame_output_increments_sequence() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
