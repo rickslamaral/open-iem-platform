@@ -1,3 +1,7 @@
+## Phase 242 status — whitespace-only media user ID boundary
+
+- `MediaPlane::register_session` rejects whitespace-only IDs before registry mutation. Focused streaming test passes. Evidence remains CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
+
 ## Phase 240 status — media-session user ID boundary
 
 - `MediaPlane::register_session` agora rejeita user IDs vazios ou acima de `MAX_MEDIA_USER_ID_BYTES` antes de mutar o registry; o limite exato permanece aceito.
