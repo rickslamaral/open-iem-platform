@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 251 overflow sequence gap coverage
+- [x] Cobrir sequência após overflow: frames aceitos preservam sequência e próximo frame expõe salto esperado.
+- Evidência: teste `overflowed_frame_sequence_reports_gap_after_drain` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 250 missing media-session removal boundary
 - [x] Cobrir remoção de sessão inexistente: retorna `false` e preserva sessão ativa no registry.
 - Evidência: teste `remove_missing_session_returns_false_without_mutation` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
