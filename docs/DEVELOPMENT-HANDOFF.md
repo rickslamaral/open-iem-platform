@@ -1,3 +1,8 @@
+## Phase 223 status — transport send budget cap
+
+- `TransportAdapter::send` now has bounded coverage for an oversized caller budget: it sends at most `TRANSPORT_SEND_BUDGET`, preserves datagram order and reports no drops for outputs admitted within the bounded send budget.
+- Evidence level is CODE local; WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## Estado atual - 2026-09-22 (Phases 208-214 deterministic combined receiver coverage)
 - `network-fault/tests/headless_receiver.rs` adiciona oito cenários sem reconnect: cinco quad-fault, duas penta-fault e uma hexa-fault, todos alimentando `OpusReceiver`. Gate focado: 91 testes `headless_receiver` PASS localmente. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem não validados.
 
