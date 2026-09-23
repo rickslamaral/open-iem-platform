@@ -1,3 +1,8 @@
+## Phase 250 status — missing media-session removal boundary
+
+- Added coverage proving `MediaPlane::remove_session` returns `false` for an unknown user and leaves registered sessions unchanged.
+- Focused Rust test passes locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 248 status — media-plane drop accounting coverage
 
 - Strengthened overflow regression coverage: exact per-session and aggregate drop counts, bounded queue length and accepted-frame sequence continuity.

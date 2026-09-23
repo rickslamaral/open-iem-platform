@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 250 missing media-session removal boundary
+- [x] Cobrir remoção de sessão inexistente: retorna `false` e preserva sessão ativa no registry.
+- Evidência: teste `remove_missing_session_returns_false_without_mutation` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 248 media-plane drop accounting coverage
 - [x] Cobrir contagem exata de frames descartados por overflow, fila preservada e sequência sem lacunas nos frames aceitos.
 - Phase 247 também concluída: budget acima da capacidade retorna apenas frames disponíveis, preserva ordem e não inventa frames.

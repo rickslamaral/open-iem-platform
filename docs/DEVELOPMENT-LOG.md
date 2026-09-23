@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 250 missing media-session removal boundary
+
+- Added streaming unit coverage for removal of an unknown media session. The test asserts `false` and preserves the active registry entry.
+- Focused Rust test passes locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-23 — Phase 248 media-plane drop accounting coverage
 
 - Strengthened media-plane overflow coverage to assert exact session/aggregate drop accounting and preserved accepted-frame sequence.
