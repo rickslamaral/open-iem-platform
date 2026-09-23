@@ -995,4 +995,71 @@ mod tests {
         assert_eq!(report.frames_drained, 2);
         assert!(report.outputs_polled <= 1);
     }
+
+    #[tokio::test]
+    async fn drive_once_zero_frame_budget_drains_nothing() {
+        let registry = SessionRegistry::new();
+        let plane = crate::media_plane::MediaPlane::new();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.1, 0.2), (0.3, 0.4)],
+                },
+                42,
+                None,
+            )
+            .unwrap();
+        let report = registry.drive_once(&bridge, &plane, 0, 1).await;
+        assert_eq!(report.frames_drained, 0);
+        assert_eq!(report.packets_encoded, 0);
+        assert_eq!(report.outputs_polled, 0);
+        assert!(!report.budget_exhausted);
+        let follow_up = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(follow_up.frames_drained, 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_packets_encoded_zero_without_negotiated_media() {
+        let registry = SessionRegistry::new();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("carol", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        for revision in [30, 31] {
+            bridge
+                .try_send(
+                    mix_engine::FrameOutput {
+                        mixes: [(0.5, 0.5), (0.0, 0.0)],
+                    },
+                    revision,
+                    None,
+                )
+                .unwrap();
+        }
+        let report = registry.drive_once(&bridge, &plane, 2, 2).await;
+        assert_eq!(report.frames_drained, 2);
+        assert_eq!(report.packets_encoded, 0);
+        assert!(!report.budget_exhausted);
+    }
+
+    #[tokio::test]
+    async fn drive_once_budget_not_exhausted_when_no_sessions() {
+        let registry = SessionRegistry::new();
+        let plane = crate::media_plane::MediaPlane::new();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.0, 0.0), (0.0, 0.0)],
+                },
+                99,
+                None,
+            )
+            .unwrap();
+        let report = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(report.frames_drained, 1);
+        assert_eq!(report.outputs_polled, 0);
+        assert_eq!(report.poll_errors, 0);
+        assert!(!report.budget_exhausted);
+    }
 }
