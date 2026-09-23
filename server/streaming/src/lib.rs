@@ -1166,4 +1166,40 @@ mod tests {
         assert_eq!(report.poll_errors, 0);
         assert!(!report.budget_exhausted);
     }
+
+    #[tokio::test]
+    async fn remove_returns_true_for_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("dave", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        assert!(registry.remove("dave").await);
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn list_returns_session_with_mix_id() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("eve", VALID_OFFER, Some("1".into()))
+            .await
+            .expect("offer must succeed");
+        let sessions = registry.list().await;
+        assert_eq!(sessions.len(), 1);
+        assert_eq!(sessions[0].user_id, "eve");
+        assert_eq!(sessions[0].mix_id.as_deref(), Some("1"));
+        assert!(sessions[0].device_id.is_none());
+    }
+
+    #[tokio::test]
+    async fn remove_by_device_id_zero_when_no_match() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("frank", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        assert_eq!(registry.remove_by_device_id("nonexistent-device").await, 0);
+        assert_eq!(registry.len().await, 1);
+    }
 }
