@@ -2470,6 +2470,24 @@ async fn revoke_nonexistent_device_returns_404() {
 }
 
 #[tokio::test]
+async fn revoke_nonexistent_device_preserves_active_sessions() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_revoke_preserve", "pw", Role::Engineer);
+    state
+        .streaming
+        .negotiate_offer("active-musician", VALID_AUDIO_OFFER, None)
+        .await
+        .expect("active session must be created");
+    let resp = server
+        .delete("/api/v1/audio/pairing/no-such-device")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::NOT_FOUND);
+    assert_eq!(state.streaming.len().await, 1);
+}
+
+#[tokio::test]
 async fn offer_without_pairing_fields_is_backward_compatible() {
     let (server, state) = build_test_app();
     let musician_token = seed_user_and_login(&state, "mus_compat", "pw", Role::Musician);

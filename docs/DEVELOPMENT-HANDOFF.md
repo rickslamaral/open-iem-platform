@@ -1,3 +1,8 @@
+## Phase 225 status — preserve sessions on unknown device revocation
+
+- Added API integration coverage proving unknown-device revocation returns `404` without removing active streaming sessions.
+- Evidence remains CODE local; WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## Phase 224 status — remove sessions by shared device ID
 
 - Added streaming registry coverage proving `remove_by_device_id` removes every matching session while preserving non-matching sessions.

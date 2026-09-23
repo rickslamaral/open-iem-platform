@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 225: unknown device revocation preservation
+
+- Added API integration regression coverage: unknown device returns `404` and leaves active streaming sessions intact.
+- Evidence: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## 2026-09-23 — Phase 224 session removal boundary coverage
 
 - Adicionado teste `remove_returns_false_for_missing_session` para confirmar que remoção de usuário inexistente retorna `false` e não altera registry.

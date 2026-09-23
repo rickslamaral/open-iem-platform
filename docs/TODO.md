@@ -1,3 +1,7 @@
+## Estado atual - 2026-09-23 (Phase 225 unknown revocation preservation)
+- [x] Cobrir revogação de dispositivo inexistente: resposta `404` preserva sessões de streaming ativas.
+- Evidência: teste de integração `revoke_nonexistent_device_preserves_active_sessions`; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## Estado atual - 2026-09-23 (Phase 224 session removal boundary coverage)
 - [x] Cobrir `SessionRegistry::remove` quando usuário não possui sessão; operação retorna `false` e preserva registry vazio.
 - Evidência: teste unitário `remove_returns_false_for_missing_session`; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
