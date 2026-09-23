@@ -4924,3 +4924,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Cobertura confirma três frames PLC totais de perda, seis frames reproduzidos, um reconnect, estado `Playing` e zero `output_failures`.
 - Gates Rust passaram nos testes compiláveis. Doctest `mix-engine::db_to_linear` falhou por crash `rust-lld`/`Bus error`, falha de infraestrutura do linker sem erro de código reportado.
 - Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+## 2026-09-23 — Phase 222 transport send budget boundary
+
+- Added bounded test for oversized `TransportAdapter::send_from_registry` budget.
+- Evidence: focused streaming test PASS locally; CODE only. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
