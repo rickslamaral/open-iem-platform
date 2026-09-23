@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added streaming coverage for malformed offer rejection without replacing an existing session.
 
 ### Fixed
+- Reject duplicate media-session user IDs without replacing the existing session.
 - Reject oversized SDP replacement offers without replacing active streaming sessions.
 
 ### Tests

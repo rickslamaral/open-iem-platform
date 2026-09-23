@@ -74,6 +74,8 @@ pub enum MediaSessionError {
 pub enum MediaPlaneError {
     /// `mix_index >= MAX_MIXES`; the engine only supports [`MAX_MIXES`] slots.
     InvalidMixIndex,
+    /// A session already exists for the requested user ID.
+    SessionAlreadyExists,
 }
 
 /// Per-user audio routing session with a bounded frame queue.
@@ -220,11 +222,12 @@ impl MediaPlane {
         if mix_index >= MAX_MIXES {
             return Err(MediaPlaneError::InvalidMixIndex);
         }
+        let mut sessions = self.sessions.lock().await;
+        if sessions.contains_key(user_id) {
+            return Err(MediaPlaneError::SessionAlreadyExists);
+        }
         let session = MediaSession::new(user_id.to_owned(), mix_index);
-        self.sessions
-            .lock()
-            .await
-            .insert(user_id.to_owned(), session);
+        sessions.insert(user_id.to_owned(), session);
         Ok(())
     }
 
@@ -316,6 +319,18 @@ mod tests {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
         assert_eq!(mp.sessions().await.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn register_duplicate_user_id_rejects_without_replacing_session() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+
+        assert_eq!(
+            mp.register_session("alice", 1).await,
+            Err(MediaPlaneError::SessionAlreadyExists)
+        );
+        assert_eq!(mp.sessions().await, vec![("alice".to_owned(), 0)]);
     }
 
     #[tokio::test]

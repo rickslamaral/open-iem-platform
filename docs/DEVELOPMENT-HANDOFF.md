@@ -1,3 +1,8 @@
+## Phase 241 status — duplicate media-session boundary
+
+- `MediaPlane::register_session` agora rejeita user IDs já registrados sem substituir sessão ou mix binding.
+- Evidência: teste `media_plane` focado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Phase 239 status — malformed trickle ICE mutation guard
 
 - Added streaming regression coverage proving malformed trickle ICE for an existing session is rejected without changing registry state. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
