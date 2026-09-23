@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 245 selective media-session removal coverage
+- [x] Cobrir remoção de uma sessão sem apagar sessões vizinhas; segunda remoção retorna `false` e preserva registry.
+- Evidência: teste `remove_session_preserves_other_sessions` e suíte Rust completa PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 242 whitespace-only media-session user ID boundary
 - [x] Rejeitar user ID composto apenas por whitespace antes de criar sessão de mídia e preservar registry.
 - Evidência: teste `register_rejects_whitespace_only_user_id_without_mutation` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

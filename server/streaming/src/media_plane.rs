@@ -384,6 +384,19 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn remove_session_preserves_other_sessions() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        mp.register_session("bob", 1).await.unwrap();
+
+        assert!(mp.remove_session("alice").await);
+        assert_eq!(mp.sessions().await, vec![("bob".to_owned(), 1)]);
+
+        assert!(!mp.remove_session("alice").await);
+        assert_eq!(mp.sessions().await, vec![("bob".to_owned(), 1)]);
+    }
+
+    #[tokio::test]
     async fn register_duplicate_user_id_rejects_without_replacing_session() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
