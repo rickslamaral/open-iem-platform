@@ -1,3 +1,7 @@
+## Phase 231 status - maximum SDP length boundary
+
+- Added streaming registry coverage proving an SDP offer exactly at MAX_SDP_BYTES is accepted. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## Phase 229 status - oversized trickle ICE user ID
 
 - Added streaming registry coverage proving `add_ice_candidate` rejects user_id above MAX_USER_ID_BYTES and preserves the existing registry session.

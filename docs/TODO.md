@@ -1,3 +1,7 @@
+## Estado atual - 2026-09-23 (Phase 231 maximum SDP length boundary)
+- [x] Cobrir SDP exatamente em MAX_SDP_BYTES: oferta válida aceita sem criar caminho alternativo de validação.
+- Evidência: teste unitário offer_at_maximum_sdp_length_is_accepted PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-23 (Phase 230 maximum trickle ICE user ID boundary)
 - [x] Cobrir user_id exatamente em MAX_USER_ID_BYTES em add_ice_candidate: candidato válido aceito e sessão preservada.
 - Evidência: teste unitário maximum_length_candidate_user_id_is_accepted PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

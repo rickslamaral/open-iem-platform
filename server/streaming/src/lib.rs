@@ -840,6 +840,24 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn offer_at_maximum_sdp_length_is_accepted() {
+        let padding_len = MAX_SDP_BYTES - VALID_OFFER.len();
+        let padding = "\r\n".repeat(padding_len / 2);
+        let padding = if padding_len.is_multiple_of(2) {
+            padding
+        } else {
+            format!("{padding} ")
+        };
+        let offer = format!("{VALID_OFFER}{padding}");
+        assert_eq!(offer.len(), MAX_SDP_BYTES);
+
+        assert!(SessionRegistry::new()
+            .negotiate_offer("u", &offer, None)
+            .await
+            .is_ok());
+    }
+
+    #[tokio::test]
     async fn user_id_above_maximum_length_is_rejected() {
         let registry = SessionRegistry::new();
         let user_id = "u".repeat(MAX_USER_ID_BYTES + 1);
