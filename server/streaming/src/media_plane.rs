@@ -24,6 +24,9 @@ use tokio::sync::Mutex;
 /// Bounded queue capacity for [`MediaSession`] frame queues (ADR-007).
 pub const MEDIA_QUEUE_CAPACITY: usize = 32;
 
+/// Maximum UTF-8 byte length for a media session user ID.
+pub const MAX_MEDIA_USER_ID_BYTES: usize = 128;
+
 /// Versioned stream descriptor attached to every [`MediaFrame`].
 ///
 /// Allows consumers to detect gaps (`sequence` jumps) and engine resets
@@ -74,6 +77,8 @@ pub enum MediaSessionError {
 pub enum MediaPlaneError {
     /// `mix_index >= MAX_MIXES`; the engine only supports [`MAX_MIXES`] slots.
     InvalidMixIndex,
+    /// The user ID is empty or exceeds the bounded media-session limit.
+    InvalidUserId,
 }
 
 /// Per-user audio routing session with a bounded frame queue.
@@ -220,6 +225,9 @@ impl MediaPlane {
         if mix_index >= MAX_MIXES {
             return Err(MediaPlaneError::InvalidMixIndex);
         }
+        if user_id.is_empty() || user_id.len() > MAX_MEDIA_USER_ID_BYTES {
+            return Err(MediaPlaneError::InvalidUserId);
+        }
         let session = MediaSession::new(user_id.to_owned(), mix_index);
         self.sessions
             .lock()
@@ -316,6 +324,38 @@ mod tests {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
         assert_eq!(mp.sessions().await.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn register_rejects_empty_user_id_without_mutation() {
+        let mp = MediaPlane::new();
+
+        assert_eq!(
+            mp.register_session("", 0).await,
+            Err(MediaPlaneError::InvalidUserId)
+        );
+        assert!(mp.sessions().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn register_accepts_maximum_user_id_length() {
+        let mp = MediaPlane::new();
+        let user_id = "u".repeat(MAX_MEDIA_USER_ID_BYTES);
+
+        assert_eq!(mp.register_session(&user_id, 0).await, Ok(()));
+        assert_eq!(mp.sessions().await, vec![(user_id, 0)]);
+    }
+
+    #[tokio::test]
+    async fn register_rejects_oversized_user_id_without_mutation() {
+        let mp = MediaPlane::new();
+        let user_id = "u".repeat(MAX_MEDIA_USER_ID_BYTES + 1);
+
+        assert_eq!(
+            mp.register_session(&user_id, 0).await,
+            Err(MediaPlaneError::InvalidUserId)
+        );
+        assert!(mp.sessions().await.is_empty());
     }
 
     #[tokio::test]
