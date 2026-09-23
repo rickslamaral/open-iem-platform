@@ -1,6 +1,6 @@
-## Estado atual - 2026-09-23 (Phase 241 duplicate media-session boundary)
-- [x] Rejeitar user ID duplicado sem substituir sessão de mídia existente; preservar mix binding.
-- Evidência: teste `media_plane` focado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+## Estado atual - 2026-09-23 (Phase 240 media-session user ID boundary)
+- [x] Rejeitar user ID vazio ou acima de `MAX_MEDIA_USER_ID_BYTES` antes de criar sessão de mídia; aceitar exatamente no limite e preservar registry em rejeições.
+- Evidência: 15 testes `media_plane` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
 ## 2026-09-23 — malformed trickle ICE mutation guard
 - [x] Cobrir rejeição de candidato ICE malformado após sessão existente sem alterar registry.

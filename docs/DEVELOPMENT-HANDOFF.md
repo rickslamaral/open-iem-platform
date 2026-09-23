@@ -1,7 +1,7 @@
-## Phase 241 status — duplicate media-session boundary
+## Phase 240 status — media-session user ID boundary
 
-- `MediaPlane::register_session` agora rejeita user IDs já registrados sem substituir sessão ou mix binding.
-- Evidência: teste `media_plane` focado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+- `MediaPlane::register_session` agora rejeita user IDs vazios ou acima de `MAX_MEDIA_USER_ID_BYTES` antes de mutar o registry; o limite exato permanece aceito.
+- Evidência: 15 testes `media_plane` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
 ## Phase 239 status — malformed trickle ICE mutation guard
 
