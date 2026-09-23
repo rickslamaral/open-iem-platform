@@ -1022,6 +1022,10 @@ mod tests {
     #[tokio::test]
     async fn drive_once_packets_encoded_zero_without_negotiated_media() {
         let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("carol", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
         let plane = crate::media_plane::MediaPlane::new();
         plane.register_session("carol", 0).await.unwrap();
         let bridge = crate::media_bridge::MediaBridge::new();
