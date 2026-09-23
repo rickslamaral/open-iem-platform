@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 257 deterministic media session snapshots
+- `MediaPlane::sessions` now returns active sessions sorted by user ID, removing HashMap iteration nondeterminism. Regression coverage verifies stable ordering.
+- Focused Rust test PASS locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-23 — Phase 256 session removal and re-registration boundary
 - Added regression coverage proving session removal stops delivery and re-registration starts with a clean queue and sequence.
 - Focused Rust test passes locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.

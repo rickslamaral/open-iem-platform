@@ -218,6 +218,9 @@
 
 # TODO
 
+## Estado atual — 2026-09-23 (Phase 257 deterministic media session snapshots)
+- [x] Ordenar snapshots de sessões por `user_id` para remover nondeterminismo de `HashMap`; teste de regressão PASS localmente. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual — 2026-09-23 (Phase 249 zero-budget media drain boundary)
 - [x] Cobrir budget zero em `drain_session_frames_with_budget`: nenhuma mídia é removida e frame enfileirado permanece disponível no próximo drain.
 - Evidência: teste focado PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

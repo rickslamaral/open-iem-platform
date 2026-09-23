@@ -291,12 +291,15 @@ impl MediaPlane {
 
     /// Snapshot of active sessions as `(user_id, mix_index)` pairs.
     pub async fn sessions(&self) -> Vec<(String, usize)> {
-        self.sessions
+        let mut sessions: Vec<_> = self
+            .sessions
             .lock()
             .await
             .values()
             .map(|s| (s.user_id.clone(), s.mix_index))
-            .collect()
+            .collect();
+        sessions.sort_unstable_by(|left, right| left.0.cmp(&right.0));
+        sessions
     }
 }
 
@@ -407,6 +410,23 @@ mod tests {
             Err(MediaPlaneError::InvalidUserId)
         );
         assert!(mp.sessions().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn sessions_are_returned_in_user_id_order() {
+        let mp = MediaPlane::new();
+        mp.register_session("charlie", 1).await.unwrap();
+        mp.register_session("alice", 0).await.unwrap();
+        mp.register_session("bob", 1).await.unwrap();
+
+        assert_eq!(
+            mp.sessions().await,
+            vec![
+                ("alice".to_owned(), 0),
+                ("bob".to_owned(), 1),
+                ("charlie".to_owned(), 1),
+            ]
+        );
     }
 
     #[tokio::test]
