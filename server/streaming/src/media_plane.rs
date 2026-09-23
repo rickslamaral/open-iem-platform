@@ -227,7 +227,7 @@ impl MediaPlane {
         if mix_index >= MAX_MIXES {
             return Err(MediaPlaneError::InvalidMixIndex);
         }
-        if user_id.is_empty() || user_id.len() > MAX_MEDIA_USER_ID_BYTES {
+        if user_id.trim().is_empty() || user_id.len() > MAX_MEDIA_USER_ID_BYTES {
             return Err(MediaPlaneError::InvalidUserId);
         }
         let mut sessions = self.sessions.lock().await;
@@ -335,6 +335,17 @@ mod tests {
 
         assert_eq!(
             mp.register_session("", 0).await,
+            Err(MediaPlaneError::InvalidUserId)
+        );
+        assert!(mp.sessions().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn register_rejects_whitespace_only_user_id_without_mutation() {
+        let mp = MediaPlane::new();
+
+        assert_eq!(
+            mp.register_session(" \t\n", 0).await,
             Err(MediaPlaneError::InvalidUserId)
         );
         assert!(mp.sessions().await.is_empty());

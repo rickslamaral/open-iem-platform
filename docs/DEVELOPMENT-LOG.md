@@ -1,3 +1,9 @@
+## 2026-09-23 — Phase 242 whitespace-only media-session user ID boundary
+
+- `MediaPlane::register_session` agora rejeita IDs compostos apenas por whitespace usando `trim()`, antes de tocar no registry.
+- Adicionado teste de regressão que cobre espaço, tab e newline e confirma ausência de mutação.
+- Evidência: teste focado `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 239 malformed trickle ICE mutation guard
 
 - Added streaming regression coverage proving malformed trickle ICE is rejected without mutating an existing session registry. Focused Rust test passed locally; runtime and hardware evidence remain pending.

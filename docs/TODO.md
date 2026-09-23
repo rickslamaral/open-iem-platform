@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 242 whitespace-only media-session user ID boundary
+- [x] Rejeitar user ID composto apenas por whitespace antes de criar sessão de mídia e preservar registry.
+- Evidência: teste `register_rejects_whitespace_only_user_id_without_mutation` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-23 (Phase 240 media-session user ID boundary)
 - [x] Rejeitar user ID vazio ou acima de `MAX_MEDIA_USER_ID_BYTES` antes de criar sessão de mídia; aceitar exatamente no limite e preservar registry em rejeições.
 - Evidência: 15 testes `media_plane` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
