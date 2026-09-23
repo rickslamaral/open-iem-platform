@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- Documented Phase 223 bounded transport send-budget coverage.
+
+
 ### Added
 - Phases 208-214: cobertura headless determinística das combinações restantes de quad-fault, penta-fault e hexa-fault no receiver Opus; evidência CODE/CI, sem validação de rede real, WebRTC/DTLS-SRTP runtime, PipeWire/ALSA físico ou Raspberry Pi 5. Evidência: testes adicionados em `a227d9906560fdcd2f15a06122d5698aaee20525`; CI executado no HEAD `42b08595` em `35781814563` (13 jobs PASS) e `35781814428` (3 jobs PASS).
 - Phases 187-207: cobertura headless determinística de todas as combinações restantes de triple/quad/penta-fault com reconnect; evidência CODE/CI, sem validação de rede real, WebRTC/DTLS-SRTP runtime, PipeWire/ALSA físico ou Raspberry Pi 5.

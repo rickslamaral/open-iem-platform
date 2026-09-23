@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 223 transport send budget cap
+
+- Reconciled handoff documentation with `TransportAdapter::send` oversized-budget coverage from commit `2ca4c25`.
+- Evidence remains CODE local; WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-23 — Phase 223 transport send budget coverage
 
 - Adicionado teste unitário para `TransportAdapter::send` com budget `usize::MAX`, confirmando limite `TRANSPORT_SEND_BUDGET`, consumo limitado do iterador, ordem dos datagramas e ausência de descarte reportado.
