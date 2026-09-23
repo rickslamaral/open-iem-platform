@@ -181,6 +181,11 @@
 
 # TODO
 
+## Estado atual - 2026-09-23 (Phase 243 Unicode whitespace media-session user ID boundary)
+- [x] Cobrir IDs compostos apenas por whitespace Unicode em `MediaPlane::register_session`, sem mutação do registry.
+- Evidência: teste focado `register_rejects_unicode_whitespace_only_user_id_without_mutation`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+
 ## Estado atual - 2026-09-23 (Phase 234 replacement credential boundaries)
 - [x] Cobrir replacement credential exatamente em `MAX_CREDENTIAL_BYTES` e rejeitar tamanho excedente sem alterar dispositivo revogado.
 - Evidência: testes unitários `replacement_credential_at_maximum_length_is_accepted` e `oversized_replacement_credential_is_rejected_without_mutation` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

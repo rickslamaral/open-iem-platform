@@ -352,6 +352,17 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn register_rejects_unicode_whitespace_only_user_id_without_mutation() {
+        let mp = MediaPlane::new();
+
+        assert_eq!(
+            mp.register_session("\u{00a0}\u{2003}\u{202f}", 0).await,
+            Err(MediaPlaneError::InvalidUserId)
+        );
+        assert!(mp.sessions().await.is_empty());
+    }
+
+    #[tokio::test]
     async fn register_accepts_maximum_user_id_length() {
         let mp = MediaPlane::new();
         let user_id = "u".repeat(MAX_MEDIA_USER_ID_BYTES);
