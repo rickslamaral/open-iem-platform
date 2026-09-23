@@ -372,6 +372,16 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn register_accepts_multibyte_user_id_at_exact_byte_limit() {
+        let mp = MediaPlane::new();
+        let user_id = "é".repeat(MAX_MEDIA_USER_ID_BYTES / "é".len());
+
+        assert_eq!(user_id.len(), MAX_MEDIA_USER_ID_BYTES);
+        assert_eq!(mp.register_session(&user_id, 0).await, Ok(()));
+        assert_eq!(mp.sessions().await, vec![(user_id, 0)]);
+    }
+
+    #[tokio::test]
     async fn register_rejects_oversized_user_id_without_mutation() {
         let mp = MediaPlane::new();
         let user_id = "u".repeat(MAX_MEDIA_USER_ID_BYTES + 1);

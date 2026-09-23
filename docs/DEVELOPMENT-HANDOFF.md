@@ -1,3 +1,7 @@
+## Phase 253 status — multibyte user ID byte boundary
+- Added regression coverage proving a UTF-8 multibyte media user ID exactly at `MAX_MEDIA_USER_ID_BYTES` is accepted, matching byte-based validation.
+- Focused streaming test passes locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 251 status — overflow sequence gap coverage
 
 - Added coverage proving overflowed media frames leave a detectable sequence gap while the next accepted frame carries the new engine revision.
