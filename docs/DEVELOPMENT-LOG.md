@@ -1,3 +1,68 @@
+## 2026-09-23 — Phase 239 malformed trickle ICE mutation guard
+
+- Added streaming regression coverage proving malformed trickle ICE is rejected without mutating an existing session registry. Focused Rust test passed locally; runtime and hardware evidence remain pending.
+
+## 2026-09-23 — Phase 237 oversized offer replacement guard
+
+- Added regression coverage proving an oversized SDP replacement offer is rejected before session mutation, preserving the existing session and mix binding.
+- Evidence: focused streaming test PASS locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## 2026-09-23 — Phase 236 DTLS fingerprint parser boundaries
+
+- Adicionada cobertura para canonicalização case-insensitive do algoritmo/digest e rejeição de digest malformado.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## 2026-09-23 — DTLS fingerprint binding rejection coverage
+
+Added streaming regression coverage proving a non-revoked device with mismatched DTLS fingerprint cannot create a session and does not mutate existing registry state. Focused test passed locally; runtime WebRTC/DTLS-SRTP, real network and hardware evidence remain pending.
+
+## 2026-09-23 - Phase 234 replacement credential length boundaries
+
+Added coverage for replacement credentials exactly at `MAX_CREDENTIAL_BYTES` and rejection above the limit without mutating a revoked device. Focused streaming tests passed locally; runtime and hardware evidence remain pending.
+
+## 2026-09-23 - PairingRegistry credential length boundaries
+
+Added regression coverage for the maximum accepted pairing credential and rejection of oversized credentials before registry mutation. Both focused streaming tests passed locally; runtime and hardware evidence remain pending.
+
+## 2026-09-23 - Phase 232 maximum trickle ICE candidate length
+
+Added boundary coverage proving a candidate exactly at `MAX_CANDIDATE_BYTES` is accepted and preserves its session. Focused Rust test passed locally; runtime and hardware evidence remain pending.
+
+## 2026-09-23 - Phase 230 maximum trickle ICE user ID
+
+Added boundary coverage proving a user ID exactly at `MAX_USER_ID_BYTES` remains accepted for trickle ICE and preserves the session. Focused Rust test evidence is CODE local; runtime and hardware evidence remain pending.
+
+## 2026-09-23 - Phase 229 oversized trickle ICE user ID
+
+Added regression coverage proving `add_ice_candidate` rejects oversized user IDs and preserves the existing registry session. Focused Rust test passed locally; runtime and hardware evidence remain pending.
+
+
+Added regression coverage for mix IDs above MAX_MIX_ID_BYTES. Negotiation rejects oversized input and leaves session registry empty. Focused Rust test passed locally; runtime and hardware evidence remain pending.
+
+## 2026-09-23 - Phase 227 oversized streaming user ID
+
+Added regression coverage for user IDs above MAX_USER_ID_BYTES. Negotiation rejects oversized input and leaves session registry empty. Focused Rust test passed locally; runtime and hardware evidence remain pending.
+
+## 2026-09-23 — API device revocation session binding coverage
+
+- Added integration test `revoke_device_removes_bound_session_preserves_unbound_session`: known-device revocation removes sessions bound to the revoked device while preserving another active session.
+- Evidence: CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## 2026-09-23 — Phase 225: unknown device revocation preservation
+
+- Added API integration regression coverage: unknown device returns `404` and leaves active streaming sessions intact.
+- Evidence: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
+## 2026-09-23 — Phase 224 session removal boundary coverage
+
+- Adicionado teste `remove_returns_false_for_missing_session` para confirmar que remoção de usuário inexistente retorna `false` e não altera registry.
+- Evidência prevista: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+## 2026-09-23 — Phase 224 remove sessions by shared device ID
+
+- Added unit coverage for `SessionRegistry::remove_by_device_id` with two matching sessions and one unrelated session.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming remove_by_device_id` PASS locally. Evidence remains CODE local; runtime and hardware remain unvalidated.
+
 ## 2026-09-23 — Phase 223 transport send budget cap
 
 - Reconciled handoff documentation with `TransportAdapter::send` oversized-budget coverage from commit `2ca4c25`.
@@ -4939,3 +5004,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - Added bounded test for oversized `TransportAdapter::send_from_registry` budget.
 - Evidence: focused streaming test PASS locally; CODE only. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
+
+## Phase 233 — PairingRegistry identity ID boundary
+
+- Adicionados testes para aceitação dos limites máximos de `device_id`/`musician_id` e rejeição de IDs oversized.
+- Evidência `CODE` local; sem claim de runtime ou hardware.

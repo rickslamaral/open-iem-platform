@@ -6,6 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- Added streaming coverage for malformed offer rejection without replacing an existing session.
+
+### Fixed
+- Reject oversized SDP replacement offers without replacing active streaming sessions.
+
+### Tests
+- Added DTLS fingerprint parser boundary coverage.
+
+
+### Security
+- Added regression coverage for rejecting mismatched DTLS fingerprints without partial streaming-session mutation.
+
+
+### Tests
+- Add PairingRegistry replacement credential boundary coverage.
+
+### Tests
+- Add streaming coverage for accepting SDP exactly at MAX_SDP_BYTES, guarding inclusive input bounds.
+
+### Tests
+- Add maximum-length and oversized trickle ICE user ID boundary coverage in streaming registry.
+
+### Tests
+- Add streaming boundary coverage for rejecting user IDs above the configured maximum.
+
+
+### Added
+- 2026-09-23: API integration coverage confirms known-device revocation removes sessions bound to the revoked device while preserving another active session. Evidence: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ### Changed
 - Documented Phase 223 bounded transport send-budget coverage.
 
@@ -879,3 +908,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Initial repository creation
 - Minimal README
+
+### Fixed
+- Added PairingRegistry boundary coverage for maximum and oversized identity IDs.

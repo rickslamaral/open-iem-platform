@@ -840,6 +840,106 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn offer_at_maximum_sdp_length_is_accepted() {
+        let padding_len = MAX_SDP_BYTES - VALID_OFFER.len();
+        let padding = "\r\n".repeat(padding_len / 2);
+        let padding = if padding_len.is_multiple_of(2) {
+            padding
+        } else {
+            format!("{padding} ")
+        };
+        let offer = format!("{VALID_OFFER}{padding}");
+        assert_eq!(offer.len(), MAX_SDP_BYTES);
+
+        assert!(SessionRegistry::new()
+            .negotiate_offer("u", &offer, None)
+            .await
+            .is_ok());
+    }
+
+    #[tokio::test]
+    async fn oversized_offer_rejected_without_replacing_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original".into()))
+            .await
+            .expect("initial offer must succeed");
+
+        let oversized_offer = "x".repeat(MAX_SDP_BYTES + 1);
+        let result = registry
+            .negotiate_offer("alice", &oversized_offer, Some("replacement".into()))
+            .await;
+
+        assert!(matches!(result, Err(StreamingError::InvalidOffer(_))));
+        let sessions = registry.list().await;
+        assert_eq!(sessions.len(), 1);
+        assert_eq!(sessions[0].user_id, "alice");
+        assert_eq!(sessions[0].mix_id.as_deref(), Some("original"));
+    }
+
+    #[tokio::test]
+    async fn invalid_offer_rejected_without_replacing_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original".into()))
+            .await
+            .expect("initial offer must succeed");
+
+        let result = registry
+            .negotiate_offer("alice", "bad", Some("replacement".into()))
+            .await;
+
+        assert!(matches!(result, Err(StreamingError::InvalidOffer(_))));
+        let sessions = registry.list().await;
+        assert_eq!(sessions.len(), 1);
+        assert_eq!(sessions[0].user_id, "alice");
+        assert_eq!(sessions[0].mix_id.as_deref(), Some("original"));
+    }
+
+    #[tokio::test]
+    async fn user_id_above_maximum_length_is_rejected() {
+        let registry = SessionRegistry::new();
+        let user_id = "u".repeat(MAX_USER_ID_BYTES + 1);
+
+        assert!(registry
+            .negotiate_offer(&user_id, VALID_OFFER, None)
+            .await
+            .is_err());
+        assert_eq!(registry.len().await, 0);
+    }
+
+    #[tokio::test]
+    async fn mix_id_above_maximum_length_is_rejected() {
+        let registry = SessionRegistry::new();
+        let mix_id = "m".repeat(MAX_MIX_ID_BYTES + 1);
+
+        assert!(registry
+            .negotiate_offer("alice", VALID_OFFER, Some(mix_id))
+            .await
+            .is_err());
+        assert_eq!(registry.len().await, 0);
+    }
+
+    #[tokio::test]
+    async fn mix_id_at_maximum_length_is_accepted() {
+        let registry = SessionRegistry::new();
+        let mix_id = "m".repeat(MAX_MIX_ID_BYTES);
+
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some(mix_id.clone()))
+            .await
+            .expect("maximum-length mix ID must be accepted");
+
+        let session = registry
+            .list()
+            .await
+            .into_iter()
+            .next()
+            .expect("negotiated session must be listed");
+        assert_eq!(session.mix_id.as_deref(), Some(mix_id.as_str()));
+    }
+
+    #[tokio::test]
     async fn invalid_candidate_rejected() {
         assert!(SessionRegistry::new()
             .add_ice_candidate("u", "bad")
@@ -866,11 +966,79 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn malformed_candidate_rejected_without_registry_change() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let before = registry.list().await;
+
+        let err = registry
+            .add_ice_candidate("alice", "candidate:not-a-valid-candidate")
+            .await;
+
+        assert!(matches!(err, Err(StreamingError::InvalidIceCandidate)));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
     async fn oversized_candidate_rejected() {
         let registry = SessionRegistry::new();
         let big = format!("candidate:{}", "x".repeat(2049));
         let err = registry.add_ice_candidate("u", &big).await;
         assert!(matches!(err, Err(StreamingError::InvalidIceCandidate)));
+    }
+
+    #[tokio::test]
+    async fn candidate_at_maximum_length_is_accepted() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let suffix = " 1 udp 2113937151 192.168.1.100 49152 typ host generation 0";
+        let foundation = "x".repeat(MAX_CANDIDATE_BYTES - "candidate:".len() - suffix.len());
+        let candidate = format!("candidate:{foundation}{suffix}");
+        assert_eq!(candidate.len(), MAX_CANDIDATE_BYTES);
+
+        registry
+            .add_ice_candidate("alice", &candidate)
+            .await
+            .expect("maximum-length candidate must be accepted");
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn oversized_candidate_user_id_rejected_without_registry_change() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let user_id = "u".repeat(MAX_USER_ID_BYTES + 1);
+
+        let err = registry.add_ice_candidate(&user_id, VALID_CANDIDATE).await;
+
+        assert!(matches!(err, Err(StreamingError::InvalidIceCandidate)));
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn maximum_length_candidate_user_id_is_accepted() {
+        let registry = SessionRegistry::new();
+        let user_id = "u".repeat(MAX_USER_ID_BYTES);
+
+        registry
+            .negotiate_offer(&user_id, VALID_OFFER, None)
+            .await
+            .expect("maximum-length user ID must be accepted");
+        registry
+            .add_ice_candidate(&user_id, VALID_CANDIDATE)
+            .await
+            .expect("maximum-length user ID must accept valid candidate");
+
+        assert_eq!(registry.len().await, 1);
     }
 
     #[tokio::test]
@@ -897,6 +1065,21 @@ mod tests {
             .add_ice_candidate("no-such-user", VALID_CANDIDATE)
             .await;
         assert!(matches!(err, Err(StreamingError::SessionNotFound(_))));
+    }
+
+    #[test]
+    fn dtls_fingerprint_is_canonicalized_case_insensitively() {
+        let uppercase = format!("SHA-256 {}", ["AA"; 32].join(":"));
+        let lowercase = format!("sha-256 {}", ["aa"; 32].join(":"));
+        assert_eq!(
+            canonicalize_dtls_fingerprint(&uppercase).unwrap(),
+            lowercase
+        );
+    }
+
+    #[test]
+    fn malformed_dtls_fingerprint_is_rejected() {
+        assert!(canonicalize_dtls_fingerprint("sha-256 00:11:22").is_err());
     }
 
     #[test]
@@ -981,6 +1164,33 @@ mod tests {
         let sessions = registry.list().await;
         assert_eq!(sessions.len(), 1);
         assert_eq!(sessions[0].user_id, "existing");
+    }
+
+    #[tokio::test]
+    async fn bound_session_rejects_mismatched_fingerprint_without_mutating_registry() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
+            .await
+            .unwrap();
+        let before = registry.list().await;
+        let identity = DeviceIdentity {
+            device_id: "rx-1".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(
+                "sha-256 FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF".into(),
+            ),
+        };
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+                .await,
+            Err(StreamingError::InvalidOffer(message))
+                if message == "DTLS fingerprint does not match paired device"
+        ));
+        assert_eq!(registry.list().await, before);
     }
 
     #[tokio::test]
@@ -1165,5 +1375,76 @@ mod tests {
         assert_eq!(report.outputs_polled, 0);
         assert_eq!(report.poll_errors, 0);
         assert!(!report.budget_exhausted);
+    }
+
+    #[tokio::test]
+    async fn remove_returns_true_for_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("dave", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        assert!(registry.remove("dave").await);
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn remove_returns_false_for_missing_session() {
+        let registry = SessionRegistry::new();
+        assert!(!registry.remove("missing").await);
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn list_returns_session_with_mix_id() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("eve", VALID_OFFER, Some("1".into()))
+            .await
+            .expect("offer must succeed");
+        let sessions = registry.list().await;
+        assert_eq!(sessions.len(), 1);
+        assert_eq!(sessions[0].user_id, "eve");
+        assert_eq!(sessions[0].mix_id.as_deref(), Some("1"));
+        assert!(sessions[0].device_id.is_none());
+    }
+
+    #[tokio::test]
+    async fn remove_by_device_id_removes_all_matching_sessions() {
+        let registry = SessionRegistry::new();
+        for (user_id, device_id) in [
+            ("alice", "shared-device"),
+            ("bob", "shared-device"),
+            ("carol", "other-device"),
+        ] {
+            let identity = DeviceIdentity {
+                device_id: device_id.into(),
+                musician_id: user_id.into(),
+                mix_index: 0,
+                revoked: false,
+                dtls_fingerprint: None,
+            };
+            registry
+                .negotiate_offer_bound(user_id, VALID_OFFER, Some("0".into()), Some(&identity))
+                .await
+                .expect("bound offer must succeed");
+        }
+
+        assert_eq!(registry.remove_by_device_id("shared-device").await, 2);
+        let sessions = registry.list().await;
+        assert_eq!(sessions.len(), 1);
+        assert_eq!(sessions[0].user_id, "carol");
+        assert_eq!(sessions[0].device_id.as_deref(), Some("other-device"));
+    }
+
+    #[tokio::test]
+    async fn remove_by_device_id_zero_when_no_match() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("frank", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        assert_eq!(registry.remove_by_device_id("nonexistent-device").await, 0);
+        assert_eq!(registry.len().await, 1);
     }
 }

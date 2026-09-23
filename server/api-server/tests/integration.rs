@@ -2470,6 +2470,119 @@ async fn revoke_nonexistent_device_returns_404() {
 }
 
 #[tokio::test]
+async fn revoke_nonexistent_device_preserves_active_sessions() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_revoke_preserve", "pw", Role::Engineer);
+    state
+        .streaming
+        .negotiate_offer("active-musician", VALID_AUDIO_OFFER, None)
+        .await
+        .expect("active session must be created");
+    let resp = server
+        .delete("/api/v1/audio/pairing/no-such-device")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::NOT_FOUND);
+    assert_eq!(state.streaming.len().await, 1);
+}
+
+#[tokio::test]
+async fn revoke_device_removes_bound_session_preserves_unbound_session() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_revoke_bound", "pw", Role::Engineer);
+    let bound_musician = seed_user_and_login(&state, "bound_musician", "pw", Role::Musician);
+    let preserved_musician =
+        seed_user_and_login(&state, "preserved_musician", "pw", Role::Musician);
+    let first_credential = make_credential("first-pairing-secret-1234");
+    let second_credential = make_credential("second-pairing-secret-1234");
+    let (bound_musician_id, _, _, _) = state.db.find_user("bound_musician").unwrap();
+    let (preserved_musician_id, _, _, _) = state.db.find_user("preserved_musician").unwrap();
+
+    for (device_id, musician_id, credential, mix_index) in [
+        ("rx-revoke-bound", "bound_musician", &first_credential, 0),
+        (
+            "rx-preserve-unbound",
+            "preserved_musician",
+            &second_credential,
+            1,
+        ),
+    ] {
+        server
+            .post("/api/v1/audio/pairing")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(&engineer_token)
+            .json(&json!({
+                "device_id": device_id,
+                "musician_id": musician_id,
+                "mix_index": mix_index,
+                "credential": credential
+            }))
+            .await
+            .assert_status_ok();
+    }
+
+    state.db.assign_mix(0, bound_musician_id).unwrap();
+    state.db.assign_mix(1, preserved_musician_id).unwrap();
+
+    for (token, device_id, credential) in [
+        (&bound_musician, "rx-revoke-bound", &first_credential),
+        (
+            &preserved_musician,
+            "rx-preserve-unbound",
+            &second_credential,
+        ),
+    ] {
+        let response = server
+            .post("/api/v1/audio/offer")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .json(&json!({
+                "sdp": VALID_AUDIO_OFFER,
+                "mix_id": null,
+                "device_id": device_id,
+                "credential": credential
+            }))
+            .await;
+        let body: Value = response.json();
+        assert_eq!(
+            response.status_code(),
+            axum::http::StatusCode::OK,
+            "offer body: {body}"
+        );
+    }
+
+    let sessions = state.streaming.list().await;
+    assert_eq!(sessions.len(), 2);
+    assert!(sessions.iter().any(|session| {
+        session.user_id == "bound_musician"
+            && session.device_id.as_deref() == Some("rx-revoke-bound")
+    }));
+    assert!(sessions.iter().any(|session| {
+        session.user_id == "preserved_musician"
+            && session.device_id.as_deref() == Some("rx-preserve-unbound")
+    }));
+
+    server
+        .delete("/api/v1/audio/pairing/rx-revoke-bound")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .await
+        .assert_status_ok();
+
+    let sessions = state.streaming.list().await;
+    assert_eq!(sessions.len(), 1);
+    assert_eq!(sessions[0].user_id, "preserved_musician");
+    assert_eq!(
+        sessions[0].device_id.as_deref(),
+        Some("rx-preserve-unbound")
+    );
+    assert!(!sessions
+        .iter()
+        .any(|session| { session.device_id.as_deref() == Some("rx-revoke-bound") }));
+}
+
+#[tokio::test]
 async fn offer_without_pairing_fields_is_backward_compatible() {
     let (server, state) = build_test_app();
     let musician_token = seed_user_and_login(&state, "mus_compat", "pw", Role::Musician);

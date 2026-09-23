@@ -1,3 +1,63 @@
+## 2026-09-23 — malformed trickle ICE mutation guard
+- [x] Cobrir rejeição de candidato ICE malformado após sessão existente sem alterar registry.
+- Evidência: teste `malformed_candidate_rejected_without_registry_change` PASS localmente; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi permanecem não validados.
+
+## 2026-09-23 — malformed offer replacement guard
+- [x] Cobrir rejeição de SDP malformado dentro do limite sem substituir sessão já negociada.
+- Evidência: teste `invalid_offer_rejected_without_replacing_existing_session` PASS localmente; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi permanecem não validados.
+
+## 2026-09-23 — oversized offer replacement guard
+- [x] Cobrir rejeição de SDP acima de `MAX_SDP_BYTES` sem substituir sessão já negociada.
+- Evidência: teste `oversized_offer_rejected_without_replacing_existing_session` PASS localmente; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi permanecem não validados.
+
+## 2026-09-23 — DTLS fingerprint parser boundary coverage
+- [x] Cobrir canonicalização case-insensitive e rejeição de fingerprint DTLS malformado.
+- Evidência: testes unitários `dtls_fingerprint_is_canonicalized_case_insensitively` e `malformed_dtls_fingerprint_is_rejected` PASS localmente; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi permanecem não validados.
+
+## 2026-09-23 — DTLS fingerprint binding rejection coverage
+- [x] Cobrir fingerprint DTLS incompatível: oferta rejeitada e registry preservado, sem criar sessão parcial.
+- Evidência: teste unitário `bound_session_rejects_mismatched_fingerprint_without_mutating_registry` PASS localmente; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi permanecem não validados.
+
+## Estado atual - 2026-09-23 (PairingRegistry credential boundary coverage)
+- [x] Cobrir credential exatamente em MAX_CREDENTIAL_BYTES e rejeitar credential acima do limite sem alterar registry.
+- Evidência: testes unitários `credential_at_maximum_length_is_accepted` e `oversized_credential_is_rejected_without_registry_change` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## Estado atual - 2026-09-23 (Phase 232 maximum trickle ICE candidate length boundary)
+- [x] Cobrir candidate exatamente em MAX_CANDIDATE_BYTES: candidato válido aceito e sessão preservada.
+- Evidência: teste unitário candidate_at_maximum_length_is_accepted PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## Estado atual - 2026-09-23 (Phase 231 maximum SDP length boundary)
+- [x] Cobrir SDP exatamente em MAX_SDP_BYTES: oferta válida aceita sem criar caminho alternativo de validação.
+- Evidência: teste unitário offer_at_maximum_sdp_length_is_accepted PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## Estado atual - 2026-09-23 (Phase 230 maximum trickle ICE user ID boundary)
+- [x] Cobrir user_id exatamente em MAX_USER_ID_BYTES em add_ice_candidate: candidato válido aceito e sessão preservada.
+- Evidência: teste unitário maximum_length_candidate_user_id_is_accepted PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## Estado atual - 2026-09-23 (Phase 229 oversized trickle ICE user ID boundary)
+- [x] Cobrir user_id acima de MAX_USER_ID_BYTES em add_ice_candidate: candidato rejeitado e sessão existente preservada.
+- Evidência: teste unitário oversized_candidate_user_id_rejected_without_registry_change PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## Estado atual - 2026-09-23 (Phase 228 oversized mix ID boundary)
+- [x] Cobrir mix_id acima de MAX_MIX_ID_BYTES: negociação rejeitada e registry permanece sem sessão.
+- Evidência: teste unitário mix_id_above_maximum_length_is_rejected PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## Estado atual - 2026-09-23 (Phase 227 oversized user ID boundary)
+- [x] Cobrir user_id acima de MAX_USER_ID_BYTES: negociação rejeitada e registry permanece sem sessão.
+- Evidência: teste unitário user_id_above_maximum_length_is_rejected PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## Estado atual - 2026-09-23 (API device revocation session binding coverage)
+- [x] Cobrir revogação de dispositivo conhecido: remove sessões vinculadas ao dispositivo revogado e preserva outra sessão ativa.
+- Evidência: teste de integração `revoke_device_removes_bound_session_preserves_unbound_session`; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## Estado atual - 2026-09-23 (Phase 225 unknown revocation preservation)
+- [x] Cobrir revogação de dispositivo inexistente: resposta `404` preserva sessões de streaming ativas.
+- Evidência: teste de integração `revoke_nonexistent_device_preserves_active_sessions`; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
+## Estado atual - 2026-09-23 (Phase 224 session removal boundary coverage)
+- [x] Cobrir `SessionRegistry::remove` quando usuário não possui sessão; operação retorna `false` e preserva registry vazio.
+- Evidência: teste unitário `remove_returns_false_for_missing_session`; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## Estado atual - 2026-09-23 (Phase 223 transport send budget coverage)
 - [x] Cobrir `TransportAdapter::send` com budget acima do limite: envia no máximo `TRANSPORT_SEND_BUDGET`; o iterador genérico não expõe o restante ao chamador.
 - Evidência: teste unitário `send_caps_oversized_budget` PASS localmente; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
@@ -112,6 +172,11 @@
 - `OpusReceiver` agora tem cobertura para limite de budget PLC com outage de cinco pacotes consecutivos: quatro frames PLC validos, quinto frame ausente falha fechado, `output_failures` conta uma unica transicao e chamadas posteriores nao duplicam contador. Evidencia CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
 # TODO
+
+## Estado atual - 2026-09-23 (Phase 234 replacement credential boundaries)
+- [x] Cobrir replacement credential exatamente em `MAX_CREDENTIAL_BYTES` e rejeitar tamanho excedente sem alterar dispositivo revogado.
+- Evidência: testes unitários `replacement_credential_at_maximum_length_is_accepted` e `oversized_replacement_credential_is_rejected_without_mutation` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-22 (Phase 145 reconnect after bandwidth receiver path)
 - Teste headless compõe admissão determinística de bandwidth e reconnect, confirma oito frames reproduzidos, um reconnect, estado `Playing`, zero PLC e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
 
@@ -897,3 +962,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] SBOM generation (cargo-sbom in release pipeline)
 - [x] Sincronizar versões com tag v0.3.0 após falha do gate de consistência
 - [ ] Reapontar tag v0.3.0 e verificar pipeline completo no GitHub Actions
+
+## Estado atual - 2026-09-23 (PairingRegistry identity ID boundary coverage)
+- [x] Cobrir `device_id` e `musician_id` exatamente em 128 bytes e rejeitar 129 bytes sem mutar registry.
+- Evidência: testes unitários `identity_ids_at_maximum_length_are_accepted` e `oversized_identity_ids_are_rejected_without_registry_change` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

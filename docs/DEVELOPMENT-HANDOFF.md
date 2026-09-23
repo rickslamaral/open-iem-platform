@@ -1,3 +1,74 @@
+## Phase 239 status — malformed trickle ICE mutation guard
+
+- Added streaming regression coverage proving malformed trickle ICE for an existing session is rejected without changing registry state. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## Phase 238 status — malformed offer replacement guard
+
+- Added streaming regression coverage proving malformed SDP within the size limit is rejected without replacing the existing session or mix binding.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming invalid_offer_rejected_without_replacing_existing_session` PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## Phase 237 status — oversized offer replacement guard
+
+- Added streaming regression coverage proving an oversized replacement offer is rejected without replacing the existing session or mix binding.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming oversized_offer_rejected_without_replacing_existing_session` PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## Phase 236 status — DTLS fingerprint parser boundaries
+
+- Added focused coverage for case-insensitive canonicalization and malformed fingerprint rejection. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## Phase 235 status — DTLS fingerprint binding rejection
+
+- Added coverage proving a non-revoked paired identity with mismatched DTLS fingerprint is rejected without mutating existing sessions.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming bound_session_rejects_mismatched_fingerprint_without_mutating_registry` PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## Phase 234 status - replacement credential length boundaries
+
+- `PairingRegistry::replace_revoked` agora tem cobertura para credential exatamente em `MAX_CREDENTIAL_BYTES` e rejeição acima do limite sem mutação do dispositivo revogado.
+- Evidência nível `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## Phase 233 status - PairingRegistry credential length boundaries
+
+- Added pairing coverage proving a credential exactly at `MAX_CREDENTIAL_BYTES` authenticates successfully and an oversized credential is rejected without registry mutation.
+- Focused gates: both streaming unit tests PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
+## Phase 232 status - maximum trickle ICE candidate length
+
+- Added streaming registry coverage proving an ICE candidate exactly at `MAX_CANDIDATE_BYTES` is accepted and preserves the negotiated session.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming candidate_at_maximum_length_is_accepted` PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
+## Phase 231 status - maximum SDP length boundary
+
+- Added streaming registry coverage proving an SDP offer exactly at MAX_SDP_BYTES is accepted. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
+## Phase 229 status - oversized trickle ICE user ID
+
+- Added streaming registry coverage proving `add_ice_candidate` rejects user_id above MAX_USER_ID_BYTES and preserves the existing registry session.
+- Focused gate: cargo test --manifest-path server/Cargo.toml -p streaming oversized_candidate_user_id_rejected_without_registry_change PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
+
+- Added streaming registry coverage proving mix_id above MAX_MIX_ID_BYTES is rejected and does not create a session.
+- Focused gate: cargo test --manifest-path server/Cargo.toml -p streaming mix_id_above_maximum_length_is_rejected PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
+## Phase 227 status - reject oversized streaming user IDs
+
+- Added streaming registry coverage proving user_id above MAX_USER_ID_BYTES is rejected and does not create a session.
+- Focused gate: cargo test --manifest-path server/Cargo.toml -p streaming user_id_above_maximum_length_is_rejected PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
+## 2026-09-23 — API device revocation session binding coverage
+
+- Added API integration coverage proving known-device revocation removes sessions bound to the revoked device while preserving another active session.
+- Evidence: CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## Phase 225 status — preserve sessions on unknown device revocation
+
+- Added API integration coverage proving unknown-device revocation returns `404` without removing active streaming sessions.
+- Evidence remains CODE local; WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
+## Phase 224 status — remove sessions by shared device ID
+
+- Added streaming registry coverage proving `remove_by_device_id` removes every matching session while preserving non-matching sessions.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming remove_by_device_id` PASS locally. Evidence remains CODE local; WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## Phase 223 status — transport send budget cap
 
 - `TransportAdapter::send` now has bounded coverage for an oversized caller budget: it sends at most `TRANSPORT_SEND_BUDGET`, preserves datagram order and reports no drops for outputs admitted within the bounded send budget.
@@ -434,9 +505,9 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Current status (Phase 144):** P1-002 Device Manager, P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI and Phase 116 metrics reset and Phases 117 and 134-144 deterministic network-fault receiver coverage are complete at their recorded evidence levels. P1-002 evidence: CODE + CI; `GET /api/v1/devices` exposes protected snapshots, while backend hot-plug/runtime integration remains pending. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi hardware remain unvalidated. These are `PENDING` or `HARDWARE_CERTIFICATION`, not automatic software-release blockers. P1-006 software/package release proceeds when `SOFTWARE_RELEASE_GATE` and `PACKAGE_RELEASE_GATE` pass; publication still requires explicit confirmation.
+**Current status (Phase 230):** P1-002 Device Manager, P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI, Phase 116 metrics reset, Phases 117 and 134-215 deterministic network-fault receiver coverage, and Phases 224-225 session-removal/revocation coverage are complete at their recorded evidence levels. P1-002 evidence: CODE + CI; `GET /api/v1/devices` exposes protected snapshots, while backend hot-plug/runtime integration remains pending. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi hardware remain unvalidated. These are `PENDING` or `HARDWARE_CERTIFICATION`, not automatic software-release blockers. P1-006 software/package release proceeds when `SOFTWARE_RELEASE_GATE` and `PACKAGE_RELEASE_GATE` pass; publication still requires explicit confirmation.
 
-**Current next step:** Continue receiver/media work only where a concrete CODE boundary exists; Phases 117 and 134-144 cover deterministic loss/PLC/reorder/duplicate/reconnect receiver behavior in CODE/local; otherwise select next independent P2 product slice. Phase 105 receiver packet metrics are CODE-only and require headless receiver integration before runtime claims; amd64 and arm64 `.deb` lifecycle are now CODE + PACKAGE_RELEASE_GATE PASS in CI run `35533396414`; local `iem config backup/restore` CLI is implemented with bounded input and symlink rejection; clean-environment restore and deployment validation remain pending. Built-in channel preset application is implemented for Engineer/Admin via `POST /api/v1/presets/{id}/apply`, with fail-closed channel bounds, payload validation and locked-channel protection before mutation; preset creation, editing, persistence and mix-preset application remain unimplemented. P0-002 Audio Lab L1/L2 is implemented in CI as deterministic CODE/SIMULATED coverage. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.
+**Current next step:** Continue receiver/media work only where a concrete CODE boundary exists; Phases 117 and 134-215 cover deterministic loss/PLC/reorder/duplicate/reconnect receiver behavior in CODE/local, and Phases 224-225 cover session-removal/revocation boundaries and Phase 230 covers the exact maximum trickle ICE user ID boundary; otherwise select next independent P2 product slice. Phase 105 receiver packet metrics are CODE-only and require headless receiver integration before runtime claims; amd64 and arm64 `.deb` lifecycle are now CODE + PACKAGE_RELEASE_GATE PASS in CI run `35533396414`; local `iem config backup/restore` CLI is implemented with bounded input and symlink rejection; clean-environment restore and deployment validation remain pending. Built-in channel preset application is implemented for Engineer/Admin via `POST /api/v1/presets/{id}/apply`, with fail-closed channel bounds, payload validation and locked-channel protection before mutation; preset creation, editing, persistence and mix-preset application remain unimplemented. P0-002 Audio Lab L1/L2 is implemented in CI as deterministic CODE/SIMULATED coverage. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.
 
 ## Phase 143 status — reconnect after jitter receiver path
 
@@ -453,3 +524,12 @@ test → review → docs/GAP update → PR/CI
   - Fases 204-207 (penta): bandwidth+outage+loss+jitter+reorder, bandwidth+outage+loss+jitter+duplicate, bandwidth+loss+jitter+reorder+duplicate, bandwidth+outage+loss+reorder+duplicate
 - Cada teste confirma playout pós-reconexão, estado `Playing`, um reconnect, frame muted e zero `output_failures`.
 - Gate completo: 83 testes headless + 66 unitários PASS, fmt PASS, clippy PASS. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Phase 224 status — session removal boundary coverage
+
+- `SessionRegistry::remove` agora tem cobertura explícita para usuário inexistente: retorna `false` e preserva registry vazio. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+## Phase 233 status — PairingRegistry identity ID boundary
+
+- `PairingRegistry` agora tem cobertura para IDs de device e musician no limite de 128 bytes e rejeição fail-closed acima do limite, sem mutação do registry.
+- Evidência nível `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
