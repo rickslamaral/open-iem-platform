@@ -445,6 +445,23 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn mix_index_boundary_is_enforced_without_registry_mutation() {
+        let registry = PairingRegistry::new();
+
+        registry
+            .pair("rx-boundary", "musician-1", 15, CREDENTIAL)
+            .await
+            .expect("maximum supported mix index must be accepted");
+        assert_eq!(
+            registry
+                .pair("rx-overflow", "musician-1", 16, CREDENTIAL)
+                .await,
+            Err(PairingError::InvalidIdentity)
+        );
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
     async fn duplicate_and_weak_pairing_rejected() {
         let registry = PairingRegistry::new();
         assert_eq!(
