@@ -1096,6 +1096,34 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn bound_session_rejects_mismatched_fingerprint_without_mutating_registry() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let identity = DeviceIdentity {
+            device_id: "rx-1".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(
+                "sha-256 FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF".into(),
+            ),
+        };
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+                .await,
+            Err(StreamingError::InvalidOffer(message))
+                if message == "DTLS fingerprint does not match paired device"
+        ));
+        let sessions = registry.list().await;
+        assert_eq!(sessions.len(), 1);
+        assert_eq!(sessions[0].user_id, "alice");
+    }
+
+    #[tokio::test]
     async fn bound_session_rejects_wrong_musician_or_mix() {
         let registry = SessionRegistry::new();
         let identity = DeviceIdentity {

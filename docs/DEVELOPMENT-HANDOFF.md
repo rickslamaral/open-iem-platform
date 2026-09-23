@@ -1,3 +1,8 @@
+## Phase 235 status — DTLS fingerprint binding rejection
+
+- Added coverage proving a non-revoked paired identity with mismatched DTLS fingerprint is rejected without mutating existing sessions.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming bound_session_rejects_mismatched_fingerprint_without_mutating_registry` PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 234 status - replacement credential length boundaries
 
 - `PairingRegistry::replace_revoked` agora tem cobertura para credential exatamente em `MAX_CREDENTIAL_BYTES` e rejeição acima do limite sem mutação do dispositivo revogado.

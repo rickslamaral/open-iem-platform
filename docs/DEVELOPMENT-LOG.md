@@ -1,3 +1,7 @@
+## 2026-09-23 — DTLS fingerprint binding rejection coverage
+
+Added streaming regression coverage proving a non-revoked device with mismatched DTLS fingerprint cannot create a session and does not mutate existing registry state. Focused test passed locally; runtime WebRTC/DTLS-SRTP, real network and hardware evidence remain pending.
+
 ## 2026-09-23 - Phase 234 replacement credential length boundaries
 
 Added coverage for replacement credentials exactly at `MAX_CREDENTIAL_BYTES` and rejection above the limit without mutating a revoked device. Focused streaming tests passed locally; runtime and hardware evidence remain pending.

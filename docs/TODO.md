@@ -1,3 +1,7 @@
+## 2026-09-23 — DTLS fingerprint binding rejection coverage
+- [x] Cobrir fingerprint DTLS incompatível: oferta rejeitada e registry preservado, sem criar sessão parcial.
+- Evidência: teste unitário `bound_session_rejects_mismatched_fingerprint_without_mutating_registry` PASS localmente; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-23 (PairingRegistry credential boundary coverage)
 - [x] Cobrir credential exatamente em MAX_CREDENTIAL_BYTES e rejeitar credential acima do limite sem alterar registry.
 - Evidência: testes unitários `credential_at_maximum_length_is_accepted` e `oversized_credential_is_rejected_without_registry_change` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
