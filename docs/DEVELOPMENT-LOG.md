@@ -1,5 +1,5 @@
-## 2026-09-23 — Phase 255 invalid mix boundary mutation guard
-- Added regression coverage proving `register_session` rejects `MAX_MIXES` without replacing or removing an existing session.
+## 2026-09-23 — Phase 256 session removal and re-registration boundary
+- Added regression coverage proving session removal stops delivery and re-registration starts with a clean queue and sequence.
 - Focused Rust test passes locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
 
 ## 2026-09-23 — Phase 254 multibyte user ID oversized byte boundary
