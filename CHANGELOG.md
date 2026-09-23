@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- Make media session snapshots deterministic by sorting user IDs.
+
 ### Fixed
 - Added media-session regression coverage for invalid mix indices preserving existing registry state.
 
