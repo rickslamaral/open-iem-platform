@@ -966,6 +966,23 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn malformed_candidate_rejected_without_registry_change() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let before = registry.list().await;
+
+        let err = registry
+            .add_ice_candidate("alice", "candidate:not-a-valid-candidate")
+            .await;
+
+        assert!(matches!(err, Err(StreamingError::InvalidIceCandidate)));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
     async fn oversized_candidate_rejected() {
         let registry = SessionRegistry::new();
         let big = format!("candidate:{}", "x".repeat(2049));

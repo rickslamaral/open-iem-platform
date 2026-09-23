@@ -1,3 +1,7 @@
+## 2026-09-23 — malformed trickle ICE mutation guard
+- [x] Cobrir rejeição de candidato ICE malformado após sessão existente sem alterar registry.
+- Evidência: teste `malformed_candidate_rejected_without_registry_change` PASS localmente; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — malformed offer replacement guard
 - [x] Cobrir rejeição de SDP malformado dentro do limite sem substituir sessão já negociada.
 - Evidência: teste `invalid_offer_rejected_without_replacing_existing_session` PASS localmente; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi permanecem não validados.

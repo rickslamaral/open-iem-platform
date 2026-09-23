@@ -1,3 +1,7 @@
+## Phase 239 status — malformed trickle ICE mutation guard
+
+- Added streaming regression coverage proving malformed trickle ICE for an existing session is rejected without changing registry state. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 238 status — malformed offer replacement guard
 
 - Added streaming regression coverage proving malformed SDP within the size limit is rejected without replacing the existing session or mix binding.
