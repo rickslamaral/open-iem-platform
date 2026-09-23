@@ -435,6 +435,33 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn remove_session_stops_delivery_and_reregister_starts_clean_session() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        mp.push_frame_output(&make_frame(0.1, 0.2, 0.3, 0.4), 1, None)
+            .await;
+
+        assert!(mp.remove_session("alice").await);
+        assert_eq!(
+            mp.drain_session_frames_with_budget("alice", 1).await,
+            Err(MediaSessionError::NoSession)
+        );
+
+        mp.register_session("alice", 0).await.unwrap();
+        mp.push_frame_output(&make_frame(0.5, 0.6, 0.7, 0.8), 2, None)
+            .await;
+
+        let frames = mp
+            .drain_session_frames_with_budget("alice", 2)
+            .await
+            .unwrap();
+        assert_eq!(frames.len(), 1);
+        assert_eq!(frames[0].samples, (0.5, 0.6));
+        assert_eq!(frames[0].metadata.sequence, 0);
+        assert_eq!(frames[0].metadata.revision, 2);
+    }
+
+    #[tokio::test]
     async fn register_invalid_mix_index_fails() {
         let mp = MediaPlane::new();
         assert_eq!(

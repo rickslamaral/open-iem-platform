@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 256 session removal and re-registration boundary
+- [x] Cobrir que remoção interrompe entrega e re-registro inicia fila e sequência limpas.
+- Evidência: teste `remove_session_stops_delivery_and_reregister_starts_clean_session` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 254 multibyte user ID oversized byte-boundary coverage
 - [x] Cobrir user ID UTF-8 multibyte acima de `MAX_MEDIA_USER_ID_BYTES`; rejeição preserva registry.
 - Evidência: teste `register_rejects_multibyte_user_id_above_byte_limit_without_mutation`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Reject oversized SDP replacement offers without replacing active streaming sessions.
 
 ### Tests
+- Added streaming coverage proving removed sessions stop delivery and re-registration starts with a clean queue and sequence.
 - Added DTLS fingerprint parser boundary coverage.
 
 
