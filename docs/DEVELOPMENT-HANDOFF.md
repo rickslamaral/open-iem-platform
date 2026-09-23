@@ -1,3 +1,8 @@
+## Phase 227 status - reject oversized streaming user IDs
+
+- Added streaming registry coverage proving user_id above MAX_USER_ID_BYTES is rejected and does not create a session.
+- Focused gate: cargo test --manifest-path server/Cargo.toml -p streaming user_id_above_maximum_length_is_rejected PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## 2026-09-23 — API device revocation session binding coverage
 
 - Added API integration coverage proving known-device revocation removes sessions bound to the revoked device while preserving another active session.

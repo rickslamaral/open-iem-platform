@@ -1,3 +1,7 @@
+## Estado atual - 2026-09-23 (Phase 227 oversized user ID boundary)
+- [x] Cobrir user_id acima de MAX_USER_ID_BYTES: negociação rejeitada e registry permanece sem sessão.
+- Evidência: teste unitário user_id_above_maximum_length_is_rejected PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-23 (API device revocation session binding coverage)
 - [x] Cobrir revogação de dispositivo conhecido: remove sessões vinculadas ao dispositivo revogado e preserva outra sessão ativa.
 - Evidência: teste de integração `revoke_device_removes_bound_session_preserves_unbound_session`; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

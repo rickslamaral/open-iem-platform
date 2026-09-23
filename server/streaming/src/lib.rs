@@ -840,6 +840,18 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn user_id_above_maximum_length_is_rejected() {
+        let registry = SessionRegistry::new();
+        let user_id = "u".repeat(MAX_USER_ID_BYTES + 1);
+
+        assert!(registry
+            .negotiate_offer(&user_id, VALID_OFFER, None)
+            .await
+            .is_err());
+        assert_eq!(registry.len().await, 0);
+    }
+
+    #[tokio::test]
     async fn invalid_candidate_rejected() {
         assert!(SessionRegistry::new()
             .add_ice_candidate("u", "bad")
