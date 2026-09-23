@@ -141,7 +141,7 @@ dependencies = [
  "argon2",
  "axum",
  "axum-test",
- "base64 0.22.1",
+ "base64 0.23.1",
  "bytes",
  "config-backup",
  "control-protocol",

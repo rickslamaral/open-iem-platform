@@ -52,7 +52,7 @@ time = { version = "0.3", features = ["serde", "serde-well-known"] }
 
 # Runtime error handling
 anyhow = "1"
-base64 = "0.22"
+base64 = "0.23"
 
 [dev-dependencies]
 topology = { path = "../topology" }
