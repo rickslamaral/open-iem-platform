@@ -1,3 +1,9 @@
+## 2026-09-23 — Phase 245 selective media-session removal coverage
+
+- Added streaming unit coverage proving `MediaPlane::remove_session` removes only requested user, preserves another active session, and returns `false` on repeated removal without registry mutation.
+- Gates: focused test, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` and full `cargo test --manifest-path server/Cargo.toml` PASS locally; independent review PASS; static scan clean.
+- Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-23 — Phase 243 Unicode whitespace-only media-session user ID boundary
 
 - Added regression coverage for non-breaking, em-space and narrow no-break Unicode whitespace IDs.

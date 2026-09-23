@@ -1,3 +1,8 @@
+## Phase 245 status — selective media-session removal coverage
+
+- Added `remove_session_preserves_other_sessions`, proving removal of `alice` preserves `bob` and a repeated removal is a no-op.
+- Evidence: focused test, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, and full `cargo test --manifest-path server/Cargo.toml` pass locally. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 242 status — whitespace-only media user ID boundary
 
 - `MediaPlane::register_session` rejects whitespace-only IDs before registry mutation. Focused streaming test passes. Evidence remains CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
