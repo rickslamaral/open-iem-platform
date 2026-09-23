@@ -458,3 +458,7 @@ test → review → docs/GAP update → PR/CI
   - Fases 204-207 (penta): bandwidth+outage+loss+jitter+reorder, bandwidth+outage+loss+jitter+duplicate, bandwidth+loss+jitter+reorder+duplicate, bandwidth+outage+loss+reorder+duplicate
 - Cada teste confirma playout pós-reconexão, estado `Playing`, um reconnect, frame muted e zero `output_failures`.
 - Gate completo: 83 testes headless + 66 unitários PASS, fmt PASS, clippy PASS. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
+
+## Phase 224 status — session removal boundary coverage
+
+- `SessionRegistry::remove` agora tem cobertura explícita para usuário inexistente: retorna `false` e preserva registry vazio. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.

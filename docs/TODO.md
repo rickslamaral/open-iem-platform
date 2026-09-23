@@ -1,3 +1,7 @@
+## Estado atual - 2026-09-23 (Phase 224 session removal boundary coverage)
+- [x] Cobrir `SessionRegistry::remove` quando usuário não possui sessão; operação retorna `false` e preserva registry vazio.
+- Evidência: teste unitário `remove_returns_false_for_missing_session`; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## Estado atual - 2026-09-23 (Phase 223 transport send budget coverage)
 - [x] Cobrir `TransportAdapter::send` com budget acima do limite: envia no máximo `TRANSPORT_SEND_BUDGET`; o iterador genérico não expõe o restante ao chamador.
 - Evidência: teste unitário `send_caps_oversized_budget` PASS localmente; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.

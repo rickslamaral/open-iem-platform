@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 224 session removal boundary coverage
+
+- Adicionado teste `remove_returns_false_for_missing_session` para confirmar que remoção de usuário inexistente retorna `false` e não altera registry.
+- Evidência prevista: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
 ## 2026-09-23 — Phase 224 remove sessions by shared device ID
 
 - Added unit coverage for `SessionRegistry::remove_by_device_id` with two matching sessions and one unrelated session.

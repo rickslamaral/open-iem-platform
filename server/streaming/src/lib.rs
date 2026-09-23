@@ -1179,6 +1179,13 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn remove_returns_false_for_missing_session() {
+        let registry = SessionRegistry::new();
+        assert!(!registry.remove("missing").await);
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
     async fn list_returns_session_with_mix_id() {
         let registry = SessionRegistry::new();
         registry
