@@ -1,3 +1,7 @@
+## 2026-09-23 - Phase 234 replacement credential length boundaries
+
+Added coverage for replacement credentials exactly at `MAX_CREDENTIAL_BYTES` and rejection above the limit without mutating a revoked device. Focused streaming tests passed locally; runtime and hardware evidence remain pending.
+
 ## 2026-09-23 - PairingRegistry credential length boundaries
 
 Added regression coverage for the maximum accepted pairing credential and rejection of oversized credentials before registry mutation. Both focused streaming tests passed locally; runtime and hardware evidence remain pending.

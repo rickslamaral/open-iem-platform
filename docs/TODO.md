@@ -152,6 +152,11 @@
 - `OpusReceiver` agora tem cobertura para limite de budget PLC com outage de cinco pacotes consecutivos: quatro frames PLC validos, quinto frame ausente falha fechado, `output_failures` conta uma unica transicao e chamadas posteriores nao duplicam contador. Evidencia CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware permanecem pendentes.
 
 # TODO
+
+## Estado atual - 2026-09-23 (Phase 234 replacement credential boundaries)
+- [x] Cobrir replacement credential exatamente em `MAX_CREDENTIAL_BYTES` e rejeitar tamanho excedente sem alterar dispositivo revogado.
+- Evidência: testes unitários `replacement_credential_at_maximum_length_is_accepted` e `oversized_replacement_credential_is_rejected_without_mutation` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-22 (Phase 145 reconnect after bandwidth receiver path)
 - Teste headless compõe admissão determinística de bandwidth e reconnect, confirma oito frames reproduzidos, um reconnect, estado `Playing`, zero PLC e zero falhas de saída. Evidência CODE local; rede real, WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi permanecem pendentes.
 

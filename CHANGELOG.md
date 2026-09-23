@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Tests
+- Add PairingRegistry replacement credential boundary coverage.
+
+### Tests
 - Add streaming coverage for accepting SDP exactly at MAX_SDP_BYTES, guarding inclusive input bounds.
 
 ### Tests

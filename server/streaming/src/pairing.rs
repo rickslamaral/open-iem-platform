@@ -401,6 +401,50 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn replacement_credential_at_maximum_length_is_accepted() {
+        let registry = PairingRegistry::new();
+        let replacement = vec![b'r'; MAX_CREDENTIAL_BYTES];
+
+        registry
+            .pair("rx-replacement", "musician-1", 0, CREDENTIAL)
+            .await
+            .unwrap();
+        registry.revoke("rx-replacement").await.unwrap();
+        registry
+            .replace_revoked("rx-replacement", CREDENTIAL, &replacement)
+            .await
+            .expect("maximum-length replacement credential must be accepted");
+
+        assert!(registry
+            .authenticate("rx-replacement", &replacement)
+            .await
+            .is_ok());
+    }
+
+    #[tokio::test]
+    async fn oversized_replacement_credential_is_rejected_without_mutation() {
+        let registry = PairingRegistry::new();
+        let oversized = vec![b'r'; MAX_CREDENTIAL_BYTES + 1];
+
+        registry
+            .pair("rx-replacement", "musician-1", 0, CREDENTIAL)
+            .await
+            .unwrap();
+        registry.revoke("rx-replacement").await.unwrap();
+
+        assert_eq!(
+            registry
+                .replace_revoked("rx-replacement", CREDENTIAL, &oversized)
+                .await,
+            Err(PairingError::InvalidCredential)
+        );
+        assert_eq!(
+            registry.authenticate("rx-replacement", CREDENTIAL).await,
+            Err(PairingError::Revoked)
+        );
+    }
+
+    #[tokio::test]
     async fn duplicate_and_weak_pairing_rejected() {
         let registry = PairingRegistry::new();
         assert_eq!(

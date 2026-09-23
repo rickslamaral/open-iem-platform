@@ -1,3 +1,8 @@
+## Phase 234 status - replacement credential length boundaries
+
+- `PairingRegistry::replace_revoked` agora tem cobertura para credential exatamente em `MAX_CREDENTIAL_BYTES` e rejeição acima do limite sem mutação do dispositivo revogado.
+- Evidência nível `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Phase 233 status - PairingRegistry credential length boundaries
 
 - Added pairing coverage proving a credential exactly at `MAX_CREDENTIAL_BYTES` authenticates successfully and an oversized credential is rejected without registry mutation.
