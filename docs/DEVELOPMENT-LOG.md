@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 236 DTLS fingerprint parser boundaries
+
+- Adicionada cobertura para canonicalização case-insensitive do algoritmo/digest e rejeição de digest malformado.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — DTLS fingerprint binding rejection coverage
 
 Added streaming regression coverage proving a non-revoked device with mismatched DTLS fingerprint cannot create a session and does not mutate existing registry state. Focused test passed locally; runtime WebRTC/DTLS-SRTP, real network and hardware evidence remain pending.

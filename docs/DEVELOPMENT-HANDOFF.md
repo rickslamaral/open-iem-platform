@@ -1,3 +1,7 @@
+## Phase 236 status — DTLS fingerprint parser boundaries
+
+- Added focused coverage for case-insensitive canonicalization and malformed fingerprint rejection. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 235 status — DTLS fingerprint binding rejection
 
 - Added coverage proving a non-revoked paired identity with mismatched DTLS fingerprint is rejected without mutating existing sessions.

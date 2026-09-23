@@ -1,3 +1,7 @@
+## 2026-09-23 — DTLS fingerprint parser boundary coverage
+- [x] Cobrir canonicalização case-insensitive e rejeição de fingerprint DTLS malformado.
+- Evidência: testes unitários `dtls_fingerprint_is_canonicalized_case_insensitively` e `malformed_dtls_fingerprint_is_rejected` PASS localmente; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — DTLS fingerprint binding rejection coverage
 - [x] Cobrir fingerprint DTLS incompatível: oferta rejeitada e registry preservado, sem criar sessão parcial.
 - Evidência: teste unitário `bound_session_rejects_mismatched_fingerprint_without_mutating_registry` PASS localmente; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi permanecem não validados.

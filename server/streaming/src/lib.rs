@@ -1012,6 +1012,21 @@ mod tests {
     }
 
     #[test]
+    fn dtls_fingerprint_is_canonicalized_case_insensitively() {
+        let uppercase = format!("SHA-256 {}", ["AA"; 32].join(":"));
+        let lowercase = format!("sha-256 {}", ["aa"; 32].join(":"));
+        assert_eq!(
+            canonicalize_dtls_fingerprint(&uppercase).unwrap(),
+            lowercase
+        );
+    }
+
+    #[test]
+    fn malformed_dtls_fingerprint_is_rejected() {
+        assert!(canonicalize_dtls_fingerprint("sha-256 00:11:22").is_err());
+    }
+
+    #[test]
     fn conflicting_dtls_fingerprints_are_rejected() {
         let first = extract_dtls_fingerprint(VALID_OFFER).unwrap();
         let second = format!("{VALID_OFFER}a=fingerprint:{first}\r\na=fingerprint:sha-256 FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00:FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00\r\n");
