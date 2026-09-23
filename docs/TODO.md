@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 248 media-plane drop accounting coverage
+- [x] Cobrir contagem exata de frames descartados por overflow, fila preservada e sequência sem lacunas nos frames aceitos.
+- Evidência: teste `push_frame_output_overflow_increments_drop_count` atualizado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 246 media-plane multi-session fan-out coverage
 - [x] Cobrir fan-out simultâneo para sessões em mix slots distintos, incluindo samples, revision e capture timestamp.
 - Evidência: teste `push_frame_output_fans_out_each_session_mix` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

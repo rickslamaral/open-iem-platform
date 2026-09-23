@@ -1,3 +1,8 @@
+## Phase 248 status — media-plane drop accounting coverage
+
+- Strengthened overflow regression coverage: exact per-session and aggregate drop counts, bounded queue length and accepted-frame sequence continuity.
+- Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 246 status — media-plane multi-session fan-out coverage
 
 - Added regression coverage proving one frame fans out to two sessions using distinct mix slots while preserving samples, revision and capture timestamp.

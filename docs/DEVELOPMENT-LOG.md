@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 248 media-plane drop accounting coverage
+
+- Strengthened media-plane overflow coverage to assert exact session/aggregate drop accounting and preserved accepted-frame sequence.
+- Evidence: focused Rust test PASS locally; physical/runtime media paths remain unvalidated.
+
 ## 2026-09-23 — Phase 246 media-plane multi-session fan-out coverage
 
 - Added streaming unit coverage for simultaneous fan-out to two sessions subscribed to different mix slots. The test validates per-session samples, engine revision and capture timestamp.
