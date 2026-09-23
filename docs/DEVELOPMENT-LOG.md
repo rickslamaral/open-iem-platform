@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 223 transport send budget coverage
+
+- Adicionado teste unitário para `TransportAdapter::send` com budget `usize::MAX`, confirmando limite `TRANSPORT_SEND_BUDGET`, consumo limitado do iterador, ordem dos datagramas e ausência de descarte reportado.
+- Gate focado: `cargo test --manifest-path server/Cargo.toml -p streaming send_caps_oversized_budget` PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-23 — transport queue overflow coverage
 
 - Adicionado teste unitário para `SessionRegistry::requeue_transport_outputs` com fila de transporte cheia. O teste confirma descarte do retry, capacidade máxima preservada e ausência de crescimento não limitado.
