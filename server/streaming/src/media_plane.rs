@@ -475,6 +475,35 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn overflowed_frame_sequence_reports_gap_after_drain() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        let frame = make_frame(0.1, 0.2, 0.3, 0.4);
+
+        for _ in 0..(MEDIA_QUEUE_CAPACITY + 5) {
+            mp.push_frame_output(&frame, 1, None).await;
+        }
+        assert_eq!(
+            mp.drain_session_frames_with_budget("alice", usize::MAX)
+                .await
+                .unwrap()
+                .last()
+                .unwrap()
+                .metadata
+                .sequence,
+            (MEDIA_QUEUE_CAPACITY - 1) as u64
+        );
+
+        mp.push_frame_output(&frame, 2, None).await;
+        let next = mp
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap();
+        assert_eq!(next[0].metadata.sequence, (MEDIA_QUEUE_CAPACITY + 5) as u64);
+        assert_eq!(next[0].metadata.revision, 2);
+    }
+
+    #[tokio::test]
     async fn push_frame_to_correct_mix_slot() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 1).await.unwrap();

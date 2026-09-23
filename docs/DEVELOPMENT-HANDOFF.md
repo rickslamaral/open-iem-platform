@@ -1,3 +1,8 @@
+## Phase 251 status — overflow sequence gap coverage
+
+- Added coverage proving overflowed media frames leave a detectable sequence gap while the next accepted frame carries the new engine revision.
+- Focused Rust test passes locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 250 status — missing media-session removal boundary
 
 - Added coverage proving `MediaPlane::remove_session` returns `false` for an unknown user and leaves registered sessions unchanged.

@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 251 overflow sequence gap coverage
+
+- Added streaming regression coverage proving queue overflow preserves accepted frame sequence and the next accepted frame exposes the expected gap after draining.
+- Focused Rust test passes locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-23 — Phase 250 missing media-session removal boundary
 
 - Added streaming unit coverage for removal of an unknown media session. The test asserts `false` and preserves the active registry entry.
