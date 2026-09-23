@@ -1,3 +1,7 @@
+## Estado atual - 2026-09-23 (PairingRegistry credential boundary coverage)
+- [x] Cobrir credential exatamente em MAX_CREDENTIAL_BYTES e rejeitar credential acima do limite sem alterar registry.
+- Evidência: testes unitários `credential_at_maximum_length_is_accepted` e `oversized_credential_is_rejected_without_registry_change` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-23 (Phase 232 maximum trickle ICE candidate length boundary)
 - [x] Cobrir candidate exatamente em MAX_CANDIDATE_BYTES: candidato válido aceito e sessão preservada.
 - Evidência: teste unitário candidate_at_maximum_length_is_accepted PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

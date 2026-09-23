@@ -1,3 +1,8 @@
+## Phase 233 status - PairingRegistry credential length boundaries
+
+- Added pairing coverage proving a credential exactly at `MAX_CREDENTIAL_BYTES` authenticates successfully and an oversized credential is rejected without registry mutation.
+- Focused gates: both streaming unit tests PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## Phase 232 status - maximum trickle ICE candidate length
 
 - Added streaming registry coverage proving an ICE candidate exactly at `MAX_CANDIDATE_BYTES` is accepted and preserves the negotiated session.

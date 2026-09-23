@@ -328,6 +328,44 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn credential_at_maximum_length_is_accepted() {
+        let registry = PairingRegistry::new();
+        let credential = vec![b'c'; MAX_CREDENTIAL_BYTES];
+
+        registry
+            .pair("rx-max-credential", "musician-1", 0, &credential)
+            .await
+            .expect("maximum-length credential must be accepted");
+        assert!(registry
+            .authenticate("rx-max-credential", &credential)
+            .await
+            .is_ok());
+    }
+
+    #[tokio::test]
+    async fn oversized_credential_is_rejected_without_registry_change() {
+        let registry = PairingRegistry::new();
+        let valid_credential = b"valid-pairing-secret";
+        let credential = vec![b'c'; MAX_CREDENTIAL_BYTES + 1];
+        registry
+            .pair("rx-existing", "musician-1", 0, valid_credential)
+            .await
+            .unwrap();
+
+        assert_eq!(
+            registry
+                .pair("rx-oversized-credential", "musician-1", 0, &credential)
+                .await,
+            Err(PairingError::InvalidIdentity)
+        );
+        assert_eq!(registry.len().await, 1);
+        assert!(registry
+            .authenticate("rx-existing", valid_credential)
+            .await
+            .is_ok());
+    }
+
+    #[tokio::test]
     async fn duplicate_and_weak_pairing_rejected() {
         let registry = PairingRegistry::new();
         assert_eq!(

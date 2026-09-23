@@ -1,3 +1,7 @@
+## 2026-09-23 - PairingRegistry credential length boundaries
+
+Added regression coverage for the maximum accepted pairing credential and rejection of oversized credentials before registry mutation. Both focused streaming tests passed locally; runtime and hardware evidence remain pending.
+
 ## 2026-09-23 - Phase 232 maximum trickle ICE candidate length
 
 Added boundary coverage proving a candidate exactly at `MAX_CANDIDATE_BYTES` is accepted and preserves its session. Focused Rust test passed locally; runtime and hardware evidence remain pending.
