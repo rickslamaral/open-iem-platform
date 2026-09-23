@@ -1,7 +1,8 @@
-## Phase 247 status — media-plane drain budget boundary coverage
+## Phase 248 status — media-plane drop accounting coverage
 
-- Added regression coverage proving an oversized drain budget returns only available frames, preserves sequence order and leaves queue empty.
-- Focused test passes locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+- Strengthened overflow regression coverage: exact per-session and aggregate drop counts, bounded queue length and accepted-frame sequence continuity.
+- Phase 247 coverage remains included: oversized drain budgets return only available frames, preserve sequence order and leave queue empty.
+- Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
 
 ## Phase 246 status — media-plane multi-session fan-out coverage
 

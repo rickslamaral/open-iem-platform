@@ -465,7 +465,13 @@ mod tests {
             mp.push_frame_output(&fo, 1, None).await;
         }
         let sessions = mp.sessions.lock().await;
-        assert!(sessions["alice"].drop_count() >= 5);
+        assert_eq!(sessions["alice"].drop_count(), 5);
+        assert_eq!(mp.total_dropped(), 5);
+        let frames = sessions["alice"].drain_frames();
+        assert_eq!(frames.len(), MEDIA_QUEUE_CAPACITY);
+        for (index, frame) in frames.iter().enumerate() {
+            assert_eq!(frame.metadata.sequence, index as u64);
+        }
     }
 
     #[tokio::test]

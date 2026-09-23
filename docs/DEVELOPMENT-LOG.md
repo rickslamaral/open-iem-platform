@@ -1,7 +1,7 @@
-## 2026-09-23 — Phase 247 media-plane drain budget boundary coverage
+## 2026-09-23 — Phase 248 media-plane drop accounting coverage
 
-- Added bounded drain regression coverage for budgets above queue capacity.
-- The test confirms available-frame count and sequence order, with no synthetic frames after draining.
+- Strengthened media-plane overflow coverage to assert exact session/aggregate drop accounting and preserved accepted-frame sequence.
+- Phase 247 coverage remains included: bounded drain regression confirms available-frame count and sequence order, with no synthetic frames after draining.
 - Evidence: focused Rust test PASS locally; physical/runtime media paths remain unvalidated.
 
 ## 2026-09-23 — Phase 246 media-plane multi-session fan-out coverage
