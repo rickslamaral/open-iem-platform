@@ -1,3 +1,8 @@
+## Phase 252 status — multi-session overflow accounting
+
+- Added coverage proving fan-out overflow increments each session drop counter and aggregate count exactly, while bounded queues retain capacity.
+- Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 251 status — overflow sequence gap coverage
 
 - Added coverage proving overflowed media frames leave a detectable sequence gap while the next accepted frame carries the new engine revision.

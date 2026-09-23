@@ -475,6 +475,25 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn overflow_drop_accounting_matches_each_full_session() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        mp.register_session("bob", 1).await.unwrap();
+        let frame = make_frame(0.1, 0.2, 0.3, 0.4);
+
+        for _ in 0..(MEDIA_QUEUE_CAPACITY + 3) {
+            mp.push_frame_output(&frame, 1, None).await;
+        }
+
+        let sessions = mp.sessions.lock().await;
+        assert_eq!(sessions["alice"].drop_count(), 3);
+        assert_eq!(sessions["bob"].drop_count(), 3);
+        assert_eq!(mp.total_dropped(), 6);
+        assert_eq!(sessions["alice"].drain_frames().len(), MEDIA_QUEUE_CAPACITY);
+        assert_eq!(sessions["bob"].drain_frames().len(), MEDIA_QUEUE_CAPACITY);
+    }
+
+    #[tokio::test]
     async fn overflowed_frame_sequence_reports_gap_after_drain() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
