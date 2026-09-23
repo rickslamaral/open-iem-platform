@@ -1,6 +1,6 @@
-## Phase 256 status — session removal and re-registration boundary
-- Added regression coverage proving removed sessions stop receiving frames and re-registration creates a clean queue with sequence reset.
-- Focused Rust test passes locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+## Phase 255 status — invalid mix boundary mutation guard
+- Added regression coverage proving an invalid mix index is rejected without mutating an existing media session.
+- Focused streaming test passes locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
 
 ## Phase 254 status — multibyte user ID oversized byte boundary
 - Added regression coverage proving an oversized UTF-8 user ID is rejected by byte length without mutating the media registry.

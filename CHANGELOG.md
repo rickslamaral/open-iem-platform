@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Fixed
+- Added media-session regression coverage for invalid mix indices preserving existing registry state.
+
+
+### Fixed
 - Bound media-session user IDs before registry mutation, rejecting empty and oversized IDs.
 - Added streaming coverage for malformed offer rejection without replacing an existing session.
 - Reject oversized SDP replacement offers without replacing active streaming sessions.
