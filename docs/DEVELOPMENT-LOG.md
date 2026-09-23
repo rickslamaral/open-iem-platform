@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 243 Unicode whitespace-only media-session user ID boundary
+
+- Added regression coverage for non-breaking, em-space and narrow no-break Unicode whitespace IDs.
+- Evidence: focused `streaming` test; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-23 — Phase 242 whitespace-only media-session user ID boundary
 
 - `MediaPlane::register_session` agora rejeita IDs compostos apenas por whitespace usando `trim()`, antes de tocar no registry.
