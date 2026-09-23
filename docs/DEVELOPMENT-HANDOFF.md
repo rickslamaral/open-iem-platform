@@ -1,3 +1,8 @@
+## Phase 238 status — malformed offer replacement guard
+
+- Added streaming regression coverage proving malformed SDP within the size limit is rejected without replacing the existing session or mix binding.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming invalid_offer_rejected_without_replacing_existing_session` PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 237 status — oversized offer replacement guard
 
 - Added streaming regression coverage proving an oversized replacement offer is rejected without replacing the existing session or mix binding.

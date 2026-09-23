@@ -1,3 +1,7 @@
+## 2026-09-23 — malformed offer replacement guard
+- [x] Cobrir rejeição de SDP malformado dentro do limite sem substituir sessão já negociada.
+- Evidência: teste `invalid_offer_rejected_without_replacing_existing_session` PASS localmente; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — oversized offer replacement guard
 - [x] Cobrir rejeição de SDP acima de `MAX_SDP_BYTES` sem substituir sessão já negociada.
 - Evidência: teste `oversized_offer_rejected_without_replacing_existing_session` PASS localmente; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi permanecem não validados.
