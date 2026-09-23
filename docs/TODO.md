@@ -1,3 +1,7 @@
+## Estado atual - 2026-09-23 (Phase 229 oversized trickle ICE user ID boundary)
+- [x] Cobrir user_id acima de MAX_USER_ID_BYTES em add_ice_candidate: candidato rejeitado e sessão existente preservada.
+- Evidência: teste unitário oversized_candidate_user_id_rejected_without_registry_change PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-23 (Phase 228 oversized mix ID boundary)
 - [x] Cobrir mix_id acima de MAX_MIX_ID_BYTES: negociação rejeitada e registry permanece sem sessão.
 - Evidência: teste unitário mix_id_above_maximum_length_is_rejected PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

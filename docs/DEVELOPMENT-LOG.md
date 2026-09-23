@@ -1,4 +1,7 @@
-## 2026-09-23 - Phase 228 oversized streaming mix ID
+## 2026-09-23 - Phase 229 oversized trickle ICE user ID
+
+Added regression coverage proving `add_ice_candidate` rejects oversized user IDs and preserves the existing registry session. Focused Rust test passed locally; runtime and hardware evidence remain pending.
+
 
 Added regression coverage for mix IDs above MAX_MIX_ID_BYTES. Negotiation rejects oversized input and leaves session registry empty. Focused Rust test passed locally; runtime and hardware evidence remain pending.
 

@@ -898,6 +898,21 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn oversized_candidate_user_id_rejected_without_registry_change() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let user_id = "u".repeat(MAX_USER_ID_BYTES + 1);
+
+        let err = registry.add_ice_candidate(&user_id, VALID_CANDIDATE).await;
+
+        assert!(matches!(err, Err(StreamingError::InvalidIceCandidate)));
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
     async fn valid_candidate_injected_after_offer() {
         let registry = SessionRegistry::new();
         // Establish a session first.

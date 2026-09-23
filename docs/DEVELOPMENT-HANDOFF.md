@@ -1,4 +1,8 @@
-## Phase 228 status - oversized streaming mix ID
+## Phase 229 status - oversized trickle ICE user ID
+
+- Added streaming registry coverage proving `add_ice_candidate` rejects user_id above MAX_USER_ID_BYTES and preserves the existing registry session.
+- Focused gate: cargo test --manifest-path server/Cargo.toml -p streaming oversized_candidate_user_id_rejected_without_registry_change PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 
 - Added streaming registry coverage proving mix_id above MAX_MIX_ID_BYTES is rejected and does not create a session.
 - Focused gate: cargo test --manifest-path server/Cargo.toml -p streaming mix_id_above_maximum_length_is_rejected PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
