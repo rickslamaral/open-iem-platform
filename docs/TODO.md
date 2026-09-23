@@ -937,3 +937,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] SBOM generation (cargo-sbom in release pipeline)
 - [x] Sincronizar versões com tag v0.3.0 após falha do gate de consistência
 - [ ] Reapontar tag v0.3.0 e verificar pipeline completo no GitHub Actions
+
+## Estado atual - 2026-09-23 (PairingRegistry identity ID boundary coverage)
+- [x] Cobrir `device_id` e `musician_id` exatamente em 128 bytes e rejeitar 129 bytes sem mutar registry.
+- Evidência: testes unitários `identity_ids_at_maximum_length_are_accepted` e `oversized_identity_ids_are_rejected_without_registry_change` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

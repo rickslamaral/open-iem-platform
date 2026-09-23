@@ -892,3 +892,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Initial repository creation
 - Minimal README
+
+### Fixed
+- Added PairingRegistry boundary coverage for maximum and oversized identity IDs.

@@ -500,3 +500,8 @@ test → review → docs/GAP update → PR/CI
 ## Phase 224 status — session removal boundary coverage
 
 - `SessionRegistry::remove` agora tem cobertura explícita para usuário inexistente: retorna `false` e preserva registry vazio. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem pendentes.
+
+## Phase 233 status — PairingRegistry identity ID boundary
+
+- `PairingRegistry` agora tem cobertura para IDs de device e musician no limite de 128 bytes e rejeição fail-closed acima do limite, sem mutação do registry.
+- Evidência nível `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

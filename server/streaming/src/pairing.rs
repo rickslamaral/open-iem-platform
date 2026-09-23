@@ -366,6 +366,41 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn identity_ids_at_maximum_length_are_accepted() {
+        let registry = PairingRegistry::new();
+        let device_id = "d".repeat(128);
+        let musician_id = "m".repeat(128);
+
+        registry
+            .pair(&device_id, &musician_id, 0, CREDENTIAL)
+            .await
+            .expect("maximum-length identity IDs must be accepted");
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn oversized_identity_ids_are_rejected_without_registry_change() {
+        let registry = PairingRegistry::new();
+        let valid_device = "d".repeat(128);
+        let oversized_device = "d".repeat(129);
+        let oversized_musician = "m".repeat(129);
+
+        assert_eq!(
+            registry
+                .pair(&oversized_device, "musician-1", 0, CREDENTIAL)
+                .await,
+            Err(PairingError::InvalidIdentity)
+        );
+        assert_eq!(
+            registry
+                .pair(&valid_device, &oversized_musician, 0, CREDENTIAL)
+                .await,
+            Err(PairingError::InvalidIdentity)
+        );
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
     async fn duplicate_and_weak_pairing_rejected() {
         let registry = PairingRegistry::new();
         assert_eq!(

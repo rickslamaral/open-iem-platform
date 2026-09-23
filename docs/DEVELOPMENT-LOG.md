@@ -4982,3 +4982,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - Added bounded test for oversized `TransportAdapter::send_from_registry` budget.
 - Evidence: focused streaming test PASS locally; CODE only. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
+
+## Phase 233 — PairingRegistry identity ID boundary
+
+- Adicionados testes para aceitação dos limites máximos de `device_id`/`musician_id` e rejeição de IDs oversized.
+- Evidência `CODE` local; sem claim de runtime ou hardware.
