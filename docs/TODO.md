@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 255 invalid mix boundary mutation guard
+- [x] Cobrir rejeição de `mix_index == MAX_MIXES` com sessão existente; registry permanece inalterado.
+- Evidência: teste `register_invalid_mix_index_preserves_existing_sessions` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 254 multibyte user ID oversized byte-boundary coverage
 - [x] Cobrir user ID UTF-8 multibyte acima de `MAX_MEDIA_USER_ID_BYTES`; rejeição preserva registry.
 - Evidência: teste `register_rejects_multibyte_user_id_above_byte_limit_without_mutation`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 255 invalid mix boundary mutation guard
+- Added regression coverage proving `register_session` rejects `MAX_MIXES` without replacing or removing an existing session.
+- Focused Rust test passes locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-23 — Phase 254 multibyte user ID oversized byte boundary
 - Added regression coverage proving an oversized UTF-8 user ID is rejected by byte length without mutating the media registry.
 - Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
