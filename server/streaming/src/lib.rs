@@ -935,6 +935,25 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn candidate_at_maximum_length_is_accepted() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let suffix = " 1 udp 2113937151 192.168.1.100 49152 typ host generation 0";
+        let foundation = "x".repeat(MAX_CANDIDATE_BYTES - "candidate:".len() - suffix.len());
+        let candidate = format!("candidate:{foundation}{suffix}");
+        assert_eq!(candidate.len(), MAX_CANDIDATE_BYTES);
+
+        registry
+            .add_ice_candidate("alice", &candidate)
+            .await
+            .expect("maximum-length candidate must be accepted");
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
     async fn oversized_candidate_user_id_rejected_without_registry_change() {
         let registry = SessionRegistry::new();
         registry

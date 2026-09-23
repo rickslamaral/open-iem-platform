@@ -1,3 +1,8 @@
+## Phase 232 status - maximum trickle ICE candidate length
+
+- Added streaming registry coverage proving an ICE candidate exactly at `MAX_CANDIDATE_BYTES` is accepted and preserves the negotiated session.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming candidate_at_maximum_length_is_accepted` PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## Phase 231 status - maximum SDP length boundary
 
 - Added streaming registry coverage proving an SDP offer exactly at MAX_SDP_BYTES is accepted. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.

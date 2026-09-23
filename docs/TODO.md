@@ -1,3 +1,7 @@
+## Estado atual - 2026-09-23 (Phase 232 maximum trickle ICE candidate length boundary)
+- [x] Cobrir candidate exatamente em MAX_CANDIDATE_BYTES: candidato válido aceito e sessão preservada.
+- Evidência: teste unitário candidate_at_maximum_length_is_accepted PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-23 (Phase 231 maximum SDP length boundary)
 - [x] Cobrir SDP exatamente em MAX_SDP_BYTES: oferta válida aceita sem criar caminho alternativo de validação.
 - Evidência: teste unitário offer_at_maximum_sdp_length_is_accepted PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
