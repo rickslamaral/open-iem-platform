@@ -79,6 +79,8 @@ pub enum MediaPlaneError {
     InvalidMixIndex,
     /// The user ID is empty or exceeds the bounded media-session limit.
     InvalidUserId,
+    /// A session already exists for the requested user ID.
+    SessionAlreadyExists,
 }
 
 /// Per-user audio routing session with a bounded frame queue.
@@ -228,11 +230,12 @@ impl MediaPlane {
         if user_id.is_empty() || user_id.len() > MAX_MEDIA_USER_ID_BYTES {
             return Err(MediaPlaneError::InvalidUserId);
         }
+        let mut sessions = self.sessions.lock().await;
+        if sessions.contains_key(user_id) {
+            return Err(MediaPlaneError::SessionAlreadyExists);
+        }
         let session = MediaSession::new(user_id.to_owned(), mix_index);
-        self.sessions
-            .lock()
-            .await
-            .insert(user_id.to_owned(), session);
+        sessions.insert(user_id.to_owned(), session);
         Ok(())
     }
 
@@ -356,6 +359,18 @@ mod tests {
             Err(MediaPlaneError::InvalidUserId)
         );
         assert!(mp.sessions().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn register_duplicate_user_id_rejects_without_replacing_session() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+
+        assert_eq!(
+            mp.register_session("alice", 1).await,
+            Err(MediaPlaneError::SessionAlreadyExists)
+        );
+        assert_eq!(mp.sessions().await, vec![("alice".to_owned(), 0)]);
     }
 
     #[tokio::test]
