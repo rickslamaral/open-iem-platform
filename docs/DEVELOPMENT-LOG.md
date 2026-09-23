@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 254 multibyte user ID oversized byte boundary
+- Added regression coverage proving an oversized UTF-8 user ID is rejected by byte length without mutating the media registry.
+- Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-23 — Phase 253 multibyte user ID boundary
 - Added `register_accepts_multibyte_user_id_at_exact_byte_limit` to prevent confusing character count with UTF-8 byte limit.
 - Evidence: focused Rust test PASS; physical/runtime validation remains pending.
