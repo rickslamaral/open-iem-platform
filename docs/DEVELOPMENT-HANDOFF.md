@@ -1,3 +1,8 @@
+## Phase 246 status — media-plane multi-session fan-out coverage
+
+- Added regression coverage proving one frame fans out to two sessions using distinct mix slots while preserving samples, revision and capture timestamp.
+- Focused test passes locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Phase 245 status — selective media-session removal coverage
 
 - Added `remove_session_preserves_other_sessions`, proving removal of `alice` preserves `bob` and a repeated removal is a no-op.
