@@ -1,4 +1,9 @@
 ## Phase 248 status — media-plane drop accounting coverage
+## Phase 249 status — zero-budget media drain boundary
+
+- Added regression coverage proving a zero drain budget returns no frames and preserves queued media for a later bounded drain.
+- Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 
 - Strengthened overflow regression coverage: exact per-session and aggregate drop counts, bounded queue length and accepted-frame sequence continuity.
 - Phase 247 coverage remains included: oversized drain budgets return only available frames, preserve sequence order and leave queue empty.
