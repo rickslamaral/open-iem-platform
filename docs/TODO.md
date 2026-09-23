@@ -1,3 +1,7 @@
+## Estado atual - 2026-09-23 (Phase 228 oversized mix ID boundary)
+- [x] Cobrir mix_id acima de MAX_MIX_ID_BYTES: negociação rejeitada e registry permanece sem sessão.
+- Evidência: teste unitário mix_id_above_maximum_length_is_rejected PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-23 (Phase 227 oversized user ID boundary)
 - [x] Cobrir user_id acima de MAX_USER_ID_BYTES: negociação rejeitada e registry permanece sem sessão.
 - Evidência: teste unitário user_id_above_maximum_length_is_rejected PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

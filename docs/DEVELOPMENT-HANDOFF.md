@@ -1,3 +1,8 @@
+## Phase 228 status - oversized streaming mix ID
+
+- Added streaming registry coverage proving mix_id above MAX_MIX_ID_BYTES is rejected and does not create a session.
+- Focused gate: cargo test --manifest-path server/Cargo.toml -p streaming mix_id_above_maximum_length_is_rejected PASS locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## Phase 227 status - reject oversized streaming user IDs
 
 - Added streaming registry coverage proving user_id above MAX_USER_ID_BYTES is rejected and does not create a session.

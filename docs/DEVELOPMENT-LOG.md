@@ -1,3 +1,7 @@
+## 2026-09-23 - Phase 228 oversized streaming mix ID
+
+Added regression coverage for mix IDs above MAX_MIX_ID_BYTES. Negotiation rejects oversized input and leaves session registry empty. Focused Rust test passed locally; runtime and hardware evidence remain pending.
+
 ## 2026-09-23 - Phase 227 oversized streaming user ID
 
 Added regression coverage for user IDs above MAX_USER_ID_BYTES. Negotiation rejects oversized input and leaves session registry empty. Focused Rust test passed locally; runtime and hardware evidence remain pending.

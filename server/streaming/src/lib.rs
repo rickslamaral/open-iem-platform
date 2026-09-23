@@ -852,6 +852,18 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn mix_id_above_maximum_length_is_rejected() {
+        let registry = SessionRegistry::new();
+        let mix_id = "m".repeat(MAX_MIX_ID_BYTES + 1);
+
+        assert!(registry
+            .negotiate_offer("alice", VALID_OFFER, Some(mix_id))
+            .await
+            .is_err());
+        assert_eq!(registry.len().await, 0);
+    }
+
+    #[tokio::test]
     async fn invalid_candidate_rejected() {
         assert!(SessionRegistry::new()
             .add_ice_candidate("u", "bad")
