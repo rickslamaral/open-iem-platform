@@ -913,6 +913,23 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn maximum_length_candidate_user_id_is_accepted() {
+        let registry = SessionRegistry::new();
+        let user_id = "u".repeat(MAX_USER_ID_BYTES);
+
+        registry
+            .negotiate_offer(&user_id, VALID_OFFER, None)
+            .await
+            .expect("maximum-length user ID must be accepted");
+        registry
+            .add_ice_candidate(&user_id, VALID_CANDIDATE)
+            .await
+            .expect("maximum-length user ID must accept valid candidate");
+
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
     async fn valid_candidate_injected_after_offer() {
         let registry = SessionRegistry::new();
         // Establish a session first.

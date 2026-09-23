@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Tests
-- Add oversized trickle ICE user ID boundary coverage in streaming registry.
+- Add maximum-length and oversized trickle ICE user ID boundary coverage in streaming registry.
 
 ### Tests
 - Add streaming boundary coverage for rejecting user IDs above the configured maximum.

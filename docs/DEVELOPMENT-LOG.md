@@ -1,3 +1,7 @@
+## 2026-09-23 - Phase 230 maximum trickle ICE user ID
+
+Added boundary coverage proving a user ID exactly at `MAX_USER_ID_BYTES` remains accepted for trickle ICE and preserves the session. Focused Rust test evidence is CODE local; runtime and hardware evidence remain pending.
+
 ## 2026-09-23 - Phase 229 oversized trickle ICE user ID
 
 Added regression coverage proving `add_ice_candidate` rejects oversized user IDs and preserves the existing registry session. Focused Rust test passed locally; runtime and hardware evidence remain pending.
