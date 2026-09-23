@@ -1,3 +1,8 @@
+## Estado atual - 2026-09-22 (Phases 219-221 drive_once budget edge coverage)
+
+- [x] Phases 219-221 — cobrir budget de frames zero, sessões sem mídia negociada e registry sem sessões em `SessionRegistry::drive_once`.
+- Evidência: suíte server completa PASS localmente; classificação CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico e Raspberry Pi 5 permanecem não validados.
+
 ## Estado atual - 2026-09-22 (Phase 215 deterministic six-fault reconnect coverage)
 
 - [x] Phase 215 — cobrir reconnect após bandwidth, outage, loss, jitter, reorder e duplicate determinísticos no OpusReceiver.
