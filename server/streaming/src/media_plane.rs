@@ -352,7 +352,11 @@ mod tests {
     #[tokio::test]
     async fn register_uses_utf8_byte_length_for_user_id_boundary() {
         let mp = MediaPlane::new();
-        let maximum = "é".repeat(MAX_MEDIA_USER_ID_BYTES / "é".len());
+        let maximum = format!(
+            "{}{}",
+            "é".repeat(MAX_MEDIA_USER_ID_BYTES / "é".len()),
+            "a".repeat(MAX_MEDIA_USER_ID_BYTES % "é".len())
+        );
         let oversized = format!("{maximum}é");
 
         assert_eq!(maximum.len(), MAX_MEDIA_USER_ID_BYTES);
