@@ -528,6 +528,28 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drain_session_frames_zero_budget_preserves_queued_frames() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        let frame = make_frame(0.1, 0.2, 0.3, 0.4);
+        mp.push_frame_output(&frame, 7, None).await;
+
+        let drained = mp
+            .drain_session_frames_with_budget("alice", 0)
+            .await
+            .unwrap();
+        assert!(drained.is_empty());
+
+        let remaining = mp
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap();
+        assert_eq!(remaining.len(), 1);
+        assert_eq!(remaining[0].metadata.sequence, 0);
+        assert_eq!(remaining[0].metadata.revision, 7);
+    }
+
+    #[tokio::test]
     async fn drain_session_frames_caps_oversized_budget_to_available_frames() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();

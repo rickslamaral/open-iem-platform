@@ -4,6 +4,11 @@
 - Focused Rust test passes locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
 
 ## 2026-09-23 — Phase 248 media-plane drop accounting coverage
+## 2026-09-23 — Phase 249 zero-budget media drain boundary
+
+- Added streaming regression coverage proving `drain_session_frames_with_budget` with budget zero does not consume queued media and preserves sequence/revision for the next drain.
+- Focused test passes locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 
 - Strengthened media-plane overflow coverage to assert exact session/aggregate drop accounting and preserved accepted-frame sequence.
 - Phase 247 coverage remains included: bounded drain regression confirms available-frame count and sequence order, with no synthetic frames after draining.

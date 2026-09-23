@@ -198,6 +198,10 @@
 
 # TODO
 
+## Estado atual — 2026-09-23 (Phase 249 zero-budget media drain boundary)
+- [x] Cobrir budget zero em `drain_session_frames_with_budget`: nenhuma mídia é removida e frame enfileirado permanece disponível no próximo drain.
+- Evidência: teste focado PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual - 2026-09-23 (Phase 243 Unicode whitespace media-session user ID boundary)
 - [x] Cobrir IDs compostos apenas por whitespace Unicode em `MediaPlane::register_session`, sem mutação do registry.
 - Evidência: teste focado `register_rejects_unicode_whitespace_only_user_id_without_mutation`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
