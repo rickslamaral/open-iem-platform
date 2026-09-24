@@ -280,8 +280,8 @@
 
 # TODO
 
-## Estado atual — 2026-09-24 (Phase 272 zero-budget multi-frame preservation)
-- [x] Cobrir preservação integral de múltiplos frames após drain com budget zero em `MediaBridge`. Evidência: teste focado PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+## Estado atual — 2026-09-24 (Phase 274 MediaBridge recovery drop accounting)
+- [x] Cobrir entrega após recuperação de fila: frame aceito depois de overflow não incrementa novamente contadores de descarte por sessão ou agregados. Evidência: teste focado PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
 ## Estado atual — 2026-09-23 (Phase 257 deterministic media session snapshots)
 - [x] Ordenar snapshots de sessões por `user_id` para remover nondeterminismo de `HashMap`; teste de regressão PASS localmente. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
