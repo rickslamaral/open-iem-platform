@@ -325,6 +325,74 @@ mod tests {
         assert!(MediaPlane::new().sessions().await.is_empty());
     }
 
+    #[test]
+    fn media_session_push_frame_populates_contract_metadata() {
+        let mut session = MediaSession::new("alice".to_owned(), 1);
+        let timestamp = Some(SampleTimestamp::new(7, 336_000));
+
+        session.push_frame((0.25, -0.5), 42, timestamp).unwrap();
+        let frame = session.drain_frames_with_budget(1).pop().unwrap();
+
+        assert_eq!(frame.samples, (0.25, -0.5));
+        assert_eq!(frame.metadata.stream_id, "mix_1");
+        assert_eq!(frame.metadata.mix_index, 1);
+        assert_eq!(frame.metadata.revision, 42);
+        assert_eq!(frame.metadata.sequence, 0);
+        assert_eq!(frame.metadata.sample_rate, 48_000);
+        assert_eq!(frame.metadata.channels, 2);
+        assert_eq!(frame.metadata.frame_duration_ms, 20);
+        assert_eq!(frame.metadata.capture_timestamp, timestamp);
+    }
+
+    #[test]
+    fn media_session_overflow_keeps_sequence_gap_and_drop_count() {
+        let mut session = MediaSession::new("alice".to_owned(), 0);
+        for sequence in 0..MEDIA_QUEUE_CAPACITY {
+            session.push_frame((sequence as f32, 0.0), 1, None).unwrap();
+        }
+        assert_eq!(
+            session.push_frame((99.0, 0.0), 1, None),
+            Err(MediaSessionError::QueueFull)
+        );
+        assert_eq!(session.drop_count(), 1);
+        let _ = session.drain_frames_with_budget(usize::MAX);
+        session.push_frame((100.0, 0.0), 1, None).unwrap();
+        let frames = session.drain_frames_with_budget(1);
+        assert_eq!(frames[0].metadata.sequence, MEDIA_QUEUE_CAPACITY as u64 + 1);
+    }
+
+    #[test]
+    fn media_session_zero_budget_preserves_frames() {
+        let mut session = MediaSession::new("alice".to_owned(), 0);
+        session.push_frame((0.1, 0.2), 1, None).unwrap();
+
+        assert!(session.drain_frames_with_budget(0).is_empty());
+        let frames = session.drain_frames_with_budget(1);
+        assert_eq!(frames.len(), 1);
+        assert_eq!(frames[0].metadata.revision, 1);
+    }
+
+    #[test]
+    fn media_session_oversized_budget_drains_available_frames_once() {
+        let mut session = MediaSession::new("alice".to_owned(), 0);
+        for revision in 1..=3 {
+            session
+                .push_frame((revision as f32, 0.0), revision, None)
+                .unwrap();
+        }
+
+        let frames = session.drain_frames_with_budget(usize::MAX);
+        assert_eq!(frames.len(), 3);
+        assert_eq!(
+            frames
+                .iter()
+                .map(|f| f.metadata.revision)
+                .collect::<Vec<_>>(),
+            vec![1, 2, 3]
+        );
+        assert!(session.drain_frames_with_budget(usize::MAX).is_empty());
+    }
+
     #[tokio::test]
     async fn register_session_ok() {
         let mp = MediaPlane::new();
@@ -443,6 +511,54 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn bounded_plane_drain_preserves_metadata_and_order() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        mp.push_frame_output(
+            &make_frame(0.1, 0.2, 0.0, 0.0),
+            10,
+            Some(SampleTimestamp::new(1, 48_000)),
+        )
+        .await;
+        mp.push_frame_output(
+            &make_frame(0.3, 0.4, 0.0, 0.0),
+            11,
+            Some(SampleTimestamp::new(2, 48_960)),
+        )
+        .await;
+
+        let first = mp
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap();
+        assert_eq!(first[0].metadata.revision, 10);
+        assert_eq!(
+            first[0].metadata.capture_timestamp,
+            Some(SampleTimestamp::new(1, 48_000))
+        );
+        let second = mp
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap();
+        assert_eq!(second[0].metadata.revision, 11);
+        assert_eq!(second[0].metadata.sequence, 1);
+    }
+
+    #[tokio::test]
+    async fn drain_missing_session_returns_error_for_any_budget() {
+        let mp = MediaPlane::new();
+        assert_eq!(
+            mp.drain_session_frames_with_budget("missing", 0).await,
+            Err(MediaSessionError::NoSession)
+        );
+        assert_eq!(
+            mp.drain_session_frames_with_budget("missing", 1).await,
+            Err(MediaSessionError::NoSession)
+        );
+        assert!(mp.sessions().await.is_empty());
+    }
+
+    #[tokio::test]
     async fn register_duplicate_user_id_rejects_without_replacing_session() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
@@ -450,6 +566,51 @@ mod tests {
         assert_eq!(
             mp.register_session("alice", 1).await,
             Err(MediaPlaneError::SessionAlreadyExists)
+        );
+        assert_eq!(mp.sessions().await, vec![("alice".to_owned(), 0)]);
+    }
+
+    #[tokio::test]
+    async fn duplicate_registration_preserves_queued_frames_and_sequence() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        mp.push_frame_output(&make_frame(0.1, 0.2, 0.0, 0.0), 7, None)
+            .await;
+
+        assert_eq!(
+            mp.register_session("alice", 1).await,
+            Err(MediaPlaneError::SessionAlreadyExists)
+        );
+        mp.push_frame_output(&make_frame(0.3, 0.4, 0.0, 0.0), 8, None)
+            .await;
+        let frames = mp
+            .drain_session_frames_with_budget("alice", 2)
+            .await
+            .unwrap();
+        assert_eq!(
+            frames
+                .iter()
+                .map(|f| f.metadata.revision)
+                .collect::<Vec<_>>(),
+            vec![7, 8]
+        );
+        assert_eq!(
+            frames
+                .iter()
+                .map(|f| f.metadata.sequence)
+                .collect::<Vec<_>>(),
+            vec![0, 1]
+        );
+        assert_eq!(mp.sessions().await, vec![("alice".to_owned(), 0)]);
+    }
+
+    #[tokio::test]
+    async fn duplicate_registration_invalid_mix_does_not_replace_existing_session() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        assert_eq!(
+            mp.register_session("alice", MAX_MIXES).await,
+            Err(MediaPlaneError::InvalidMixIndex)
         );
         assert_eq!(mp.sessions().await, vec![("alice".to_owned(), 0)]);
     }

@@ -173,7 +173,7 @@ impl SessionRegistry {
         mix_id: Option<String>,
         identity: Option<&DeviceIdentity>,
     ) -> Result<String, StreamingError> {
-        if user_id.is_empty()
+        if user_id.trim().is_empty()
             || user_id.len() > MAX_USER_ID_BYTES
             || sdp.len() > MAX_SDP_BYTES
             || mix_id
@@ -254,6 +254,7 @@ impl SessionRegistry {
             || user_id.len() > MAX_USER_ID_BYTES
             || candidate.is_empty()
             || candidate.len() > MAX_CANDIDATE_BYTES
+            || candidate.ends_with(['\n', '\r'])
             || !candidate.starts_with("candidate:")
         {
             return Err(StreamingError::InvalidIceCandidate);
@@ -1051,6 +1052,26 @@ mod tests {
             .add_ice_candidate("u", "candidate:1 1 udp 123 127.0.0.1 1234 typ host")
             .await;
         assert!(err.is_err());
+    }
+
+    #[tokio::test]
+    async fn whitespace_only_user_id_is_rejected_before_sdp_parsing() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry.negotiate_offer(" \t\n", VALID_OFFER, None).await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert!(registry.list().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn trailing_newline_candidate_is_rejected_without_session_mutation() {
+        let registry = SessionRegistry::new();
+        let result = registry
+            .add_ice_candidate("missing", &format!("{VALID_CANDIDATE}\n"))
+            .await;
+        assert!(matches!(result, Err(StreamingError::InvalidIceCandidate)));
+        assert!(registry.list().await.is_empty());
     }
 
     #[tokio::test]
