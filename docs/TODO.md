@@ -1,3 +1,8 @@
+## 2026-09-24 — Phase 277 negotiated MediaBridge shared output budget
+
+- [x] Limitar drenagem de frames de sessões negociadas ao `output_budget` compartilhado, preservando frames já roteados para chamadas posteriores quando há mais frames na fila que capacidade de codificação.
+- Evidência: teste `drive_once_limits_drain_to_shared_output_budget` e clippy do crate `streaming` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 276 negotiated MediaBridge frame preservation
 - [x] Cobrir retenção de frames em sessão negociada sem mídia de áudio: teste confirma que frames permanecem na fila quando `media_mid` ainda não existe. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
 

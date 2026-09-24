@@ -1,3 +1,6 @@
+### Tests
+- Phase 277: bounded negotiated-session drain by shared output budget, preserving queued frames for later CODE/SIMULATED delivery. Runtime and hardware remain unvalidated.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

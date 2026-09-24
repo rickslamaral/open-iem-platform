@@ -1,3 +1,8 @@
+## 2026-09-24 — Phase 277 negotiated MediaBridge shared output budget
+
+- Limitada drenagem por sessão negociada ao orçamento de saída compartilhado em `SessionRegistry::drive_once`, evitando consumir frames que não podem ser codificados na mesma passagem.
+- Adicionado teste `drive_once_limits_drain_to_shared_output_budget`; focused test e clippy local PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 276 negotiated MediaBridge frame preservation
 
 - Teste `drive_once_packets_encoded_zero_without_negotiated_media` agora verifica retenção dos dois frames na fila da sessão quando não existe mídia de áudio negociada; nenhuma perda silenciosa no filtro `media_mid`. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
