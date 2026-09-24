@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 259 MediaBridge zero-budget preservation
+- Cobrir budget zero em `MediaBridge::drain_to_with_budget`: não consome frames enfileirados e preserva entrega posterior.
+- Evidência: teste `zero_budget_preserves_queued_frames` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Phase 257 status — deterministic media session snapshots
 - `MediaPlane::sessions` now sorts `(user_id, mix_index)` snapshots by user ID, preventing nondeterministic API/UI ordering from HashMap iteration. Regression coverage passes locally. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
 

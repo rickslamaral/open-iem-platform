@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 259 MediaBridge zero-budget preservation
+Cobrir budget zero em `MediaBridge::drain_to_with_budget`: não consome frames enfileirados e preserva entrega posterior.
+- Evidência: teste `zero_budget_preserves_queued_frames` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 
 ## 2026-09-23 — Phase 258 MediaBridge budget preservation
 
