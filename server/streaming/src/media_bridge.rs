@@ -172,7 +172,7 @@ mod tests {
         assert!(!first_batch
             .iter()
             .chain(last_batch.iter())
-            .any(|item| item.metadata.revision == 999));
+            .any(|item| matches!(item.metadata.revision, 999 | 1000)));
     }
 
     #[tokio::test]
