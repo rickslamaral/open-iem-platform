@@ -280,6 +280,10 @@
 
 # TODO
 
+## 2026-09-24 — Phase 275 negotiated MediaBridge zero-output preservation
+- [x] Cobrir `SessionRegistry::drive_once` com sessão negociada e `output_budget == 0`: bridge não consome frame antes de orçamento disponível; evidência CODE local.
+- Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual — 2026-09-24 (Phase 274 MediaBridge recovery drop accounting)
 - [x] Cobrir entrega após recuperação de fila: frame aceito depois de overflow não incrementa novamente contadores de descarte por sessão ou agregados. Evidência: teste focado PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
