@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 311–320 streaming registry boundaries
+
+- Adicionadas 10 regressões CODE para listagem/remoção de sessões e fronteiras bounded do transporte interno (`drain_transport_outputs`/`requeue_transport_outputs`), incluindo ordem, budget zero, budget parcial e estado vazio.
+- Evidência CODE local: 190 testes `streaming` PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 301–310
 
 - Adicionadas 10 regressões de streaming para budgets zero/oversized, ausência de sessão, mix inválido, drenagem bounded sem subscribers e limite do adaptador UDP.

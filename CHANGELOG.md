@@ -1,4 +1,7 @@
 ### Tests
+- Batch Phase 311–320 adiciona 10 regressões de fronteiras do `SessionRegistry` e fila interna de transporte. Evidência CODE local; runtime e hardware permanecem não validados.
+
+### Tests
 - Batch Phase 301–310 adiciona 10 regressões de budgets, drenagem bounded, rejeições fail-closed e limite de transporte no crate `streaming`. Evidência CODE local; runtime e hardware permanecem não validados.
 
 ## [Unreleased]
