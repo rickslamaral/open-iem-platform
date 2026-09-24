@@ -250,6 +250,29 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn zero_budget_preserves_all_queued_frames() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 1).await.unwrap();
+        bridge.try_send(frame(), 7, None).unwrap();
+        bridge.try_send(frame(), 8, None).unwrap();
+
+        assert_eq!(bridge.drain_to_with_budget(&plane, 0).await, 0);
+        assert_eq!(bridge.drain_to_with_budget(&plane, 2).await, 2);
+        let frames = plane
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(
+            frames
+                .iter()
+                .map(|item| item.metadata.revision)
+                .collect::<Vec<_>>(),
+            vec![7, 8]
+        );
+    }
+
+    #[tokio::test]
     async fn empty_drain_returns_zero_without_touching_media_plane() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();
