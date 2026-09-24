@@ -1,3 +1,9 @@
+## 2026-09-24 — Phase 273 MediaBridge bounded order/timestamp preservation
+
+- Adicionada cobertura para drenagem bounded em chamadas sucessivas, confirmando que frames permanecem FIFO e preservam revisão e `capture_timestamp` através da ponte.
+- Gates locais: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS.
+- Revisão independente PASS; evidência CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-24 — Phase 272 MediaBridge zero-budget multi-frame preservation
 - Adicionado teste `zero_budget_preserves_all_queued_frames`, confirmando preservação integral e ordenada de múltiplos frames quando budget zero precede drenagem posterior. Evidência: teste focado PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 

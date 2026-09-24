@@ -273,6 +273,35 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn bounded_drain_preserves_order_and_timestamps_across_calls() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let first_timestamp = Some(SampleTimestamp::new(10, 480_000));
+        let second_timestamp = Some(SampleTimestamp::new(11, 528_000));
+        bridge.try_send(frame(), 7, first_timestamp).unwrap();
+        bridge.try_send(frame(), 8, second_timestamp).unwrap();
+
+        assert_eq!(bridge.drain_to_with_budget(&plane, 1).await, 1);
+        let first = plane
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(first.len(), 1);
+        assert_eq!(first[0].metadata.revision, 7);
+        assert_eq!(first[0].metadata.capture_timestamp, first_timestamp);
+
+        assert_eq!(bridge.drain_to_with_budget(&plane, 1).await, 1);
+        let second = plane
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(second.len(), 1);
+        assert_eq!(second[0].metadata.revision, 8);
+        assert_eq!(second[0].metadata.capture_timestamp, second_timestamp);
+    }
+
+    #[tokio::test]
     async fn empty_drain_returns_zero_without_touching_media_plane() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();
