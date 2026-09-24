@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 343–352 streaming transport and registry boundaries
+
+- Adicionadas 10 regressões para fronteiras de drain/requeue bounded, budgets zero/limitado/oversized, filas vazias, preservação de ordem, remoção bound e substituição determinística no streaming.
+- Evidência CODE local: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 210 testes PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 321–330 streaming registry boundaries
 
 - Adicionadas 10 regressões para `SessionRegistry`: contagem, vazio, remoção bound idempotente, metadados de dispositivo, remoção desconhecida, budgets zero, requeue vazio, drenagem exata, independência entre remoção e transporte e substituição por usuário.

@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 343–352 streaming transport and registry boundaries
+- [x] Cobrir drain/requeue bounded de transporte: budget zero, budget limitado, budget oversized, fila vazia e preservação de ordem.
+- [x] Cobrir remoção de dispositivo desconhecido, remoção seletiva, substituição bound, ordem determinística e independência entre remoção de sessão e fila de transporte.
+- Evidência CODE local: 210 testes `streaming` PASS (`cargo test --manifest-path server/Cargo.toml -p streaming --lib`); runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 321–330 streaming registry boundaries
 - [x] Cobrir contagem e transições de vazio da `SessionRegistry`.
 - [x] Cobrir remoção idempotente por `device_id` e preservação sem correspondência.
