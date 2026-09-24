@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 373–382 streaming input and identity boundaries
+
+- Cobertas 10 fronteiras de entrada da `SessionRegistry`: limites de user/mix/SDP, candidato vazio, sessão ausente, identidade revogada e bindings incompatíveis.
+- Evidência CODE local; sem claim de runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real ou Raspberry Pi 5.
+
 ## 2026-09-24 — Batch Phase 363–372 streaming registry boundaries
 
 - Adicionadas 10 regressões para cap por chamada do drain de transporte, FIFO/requeue, idempotência de remoção, replacement bounded e preservação da fila durante remoção de sessão.

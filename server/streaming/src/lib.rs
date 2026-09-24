@@ -2560,6 +2560,135 @@ mod tests {
         );
     }
 
+    #[tokio::test]
+    async fn phase373_empty_user_id_rejects_offer_without_session() {
+        let registry = SessionRegistry::new();
+        assert!(registry
+            .negotiate_offer("", VALID_OFFER, None)
+            .await
+            .is_err());
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase374_oversized_user_id_rejects_offer_without_session() {
+        let registry = SessionRegistry::new();
+        let user_id = "u".repeat(MAX_USER_ID_BYTES + 1);
+        assert!(registry
+            .negotiate_offer(&user_id, VALID_OFFER, None)
+            .await
+            .is_err());
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase375_oversized_mix_id_rejects_offer_without_replacement() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("stable".into()))
+            .await
+            .unwrap();
+        let mix_id = "m".repeat(MAX_MIX_ID_BYTES + 1);
+        assert!(registry
+            .negotiate_offer("alice", VALID_OFFER, Some(mix_id))
+            .await
+            .is_err());
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("stable"));
+    }
+
+    #[tokio::test]
+    async fn phase376_oversized_sdp_rejects_offer_without_session() {
+        let registry = SessionRegistry::new();
+        let offer = "x".repeat(MAX_SDP_BYTES + 1);
+        assert!(registry
+            .negotiate_offer("alice", &offer, None)
+            .await
+            .is_err());
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase377_empty_candidate_rejects_without_session_mutation() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(registry.add_ice_candidate("alice", "").await.is_err());
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn phase378_whitespace_user_id_rejects_candidate() {
+        let registry = SessionRegistry::new();
+        assert!(registry
+            .add_ice_candidate(" ", "candidate:1 1 UDP 1 127.0.0.1 9 typ host")
+            .await
+            .is_err());
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase379_missing_session_rejects_well_shaped_candidate() {
+        let registry = SessionRegistry::new();
+        assert!(registry
+            .add_ice_candidate("missing", "candidate:1 1 UDP 1 127.0.0.1 9 typ host")
+            .await
+            .is_err());
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase380_revoked_identity_rejects_offer_without_session() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "device".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: true,
+            dtls_fingerprint: None,
+        };
+        assert!(registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .is_err());
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase381_mismatched_identity_user_rejects_offer_without_session() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "device".into(),
+            musician_id: "bob".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+        assert!(registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .is_err());
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase382_mismatched_identity_mix_rejects_offer_without_session() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "device".into(),
+            musician_id: "alice".into(),
+            mix_index: 1,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+        assert!(registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .is_err());
+        assert!(registry.is_empty().await);
+    }
+
     fn test_transmit(contents: &[u8]) -> str0m::net::Transmit {
         str0m::net::Transmit {
             proto: Protocol::Udp,

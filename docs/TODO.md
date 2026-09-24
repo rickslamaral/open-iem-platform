@@ -1,3 +1,9 @@
+## 2026-09-24 — Batch Phase 373–382 streaming input and identity boundaries
+- [x] Cobrir rejeição sem mutação para user ID vazio/oversized, mix ID oversized e SDP oversized.
+- [x] Cobrir candidato vazio, user ID whitespace-only e sessão inexistente sem mutação.
+- [x] Cobrir identidade revogada e bindings de usuário/mix incompatíveis antes da criação de sessão.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 353–362 streaming registry boundaries
 - [x] Cobrir dez fronteiras adicionais de drain/requeue de transporte, remoção de device, ordenação determinística e ciclo de vida de sessões no crate `streaming`.
 - Evidência: 220 testes `streaming` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

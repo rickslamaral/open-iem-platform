@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 373–382 status — streaming input and identity boundaries
+
+- Adicionadas 10 regressões CODE para rejeição fail-closed de inputs oversized/vazios e identidades revogadas ou incompatíveis, sempre preservando o registry.
+- Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 
 ## 2026-09-24 — Batch Phase 363–372 status — streaming registry boundaries
 

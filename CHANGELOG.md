@@ -1,3 +1,7 @@
+### Tests — Phase 373–382
+- Added 10 streaming regression tests for fail-closed input bounds, missing sessions and revoked/mismatched device identity bindings.
+- Evidence remains CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ### Tests — Batch Phase 363–372
 - Adicionadas 10 regressões de fronteiras do registry e fila de transporte; 230 testes `streaming` PASS localmente. Evidência CODE local; runtime e hardware permanecem não validados.
 
