@@ -104,6 +104,31 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drain_with_budget_routes_only_requested_frames() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 1).await.unwrap();
+        bridge.try_send(frame(), 7, None).unwrap();
+        bridge.try_send(frame(), 8, None).unwrap();
+
+        assert_eq!(bridge.drain_to_with_budget(&plane, 1).await, 1);
+        let first = plane
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(first.len(), 1);
+        assert_eq!(first[0].metadata.revision, 7);
+
+        assert_eq!(bridge.drain_to_with_budget(&plane, 1).await, 1);
+        let second = plane
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(second.len(), 1);
+        assert_eq!(second[0].metadata.revision, 8);
+    }
+
+    #[tokio::test]
     async fn drain_routes_frames_to_subscribed_mix() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();
