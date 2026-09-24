@@ -1,3 +1,6 @@
+## 2026-09-23 — Phase 264 status — MediaBridge oversized budget boundary
+- Adicionado teste `oversized_budget_routes_all_available_frames`, confirmando que budget `usize::MAX` não inventa frames, preserva ordem e deixa bridge vazia após drenagem. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 263 status — MediaBridge overflow preservation assertions
 - Fortalecido o teste de overflow para verificar a sequência exata de revisões preservadas após descarte na fila de destino. Gate focado PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 

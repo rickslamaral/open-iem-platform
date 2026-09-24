@@ -131,6 +131,29 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn oversized_budget_routes_all_available_frames() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        bridge.try_send(frame(), 7, None).unwrap();
+        bridge.try_send(frame(), 8, None).unwrap();
+
+        assert_eq!(bridge.drain_to_with_budget(&plane, usize::MAX).await, 2);
+        let frames = plane
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(
+            frames
+                .iter()
+                .map(|item| item.metadata.revision)
+                .collect::<Vec<_>>(),
+            vec![7, 8]
+        );
+        assert_eq!(bridge.drain_to_with_budget(&plane, usize::MAX).await, 0);
+    }
+
+    #[tokio::test]
     async fn zero_budget_preserves_queued_frames() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();

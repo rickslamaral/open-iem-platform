@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 264 MediaBridge oversized budget boundary
+- [x] Cobrir budget acima dos frames disponíveis: `MediaBridge::drain_to_with_budget` roteia todos os frames disponíveis, preserva ordem e retorna zero na drenagem seguinte.
+- Evidência: teste `oversized_budget_routes_all_available_frames` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 263 MediaBridge overflow preservation assertions
 - [x] Fortalecer teste de overflow para verificar revisões exatas dos frames preservados, não apenas capacidade e contagem.
 - Evidência: teste `drain_consumes_frames_when_destination_queue_is_full` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
