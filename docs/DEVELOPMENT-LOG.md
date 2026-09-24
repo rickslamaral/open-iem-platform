@@ -1,3 +1,8 @@
+
+## 2026-09-23 — Phase 258 MediaBridge budget preservation
+
+- Adicionado teste `drain_with_budget_routes_only_requested_frames` para confirmar que `MediaBridge::drain_to_with_budget` roteia somente o budget solicitado e preserva o frame excedente para a próxima drenagem, mantendo ordem e revisões.
+- Gate focado: 3 testes `media_bridge` PASS; evidência CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 ## 2026-09-23 — Phase 257 deterministic media session snapshots
 - `MediaPlane::sessions` now returns active sessions sorted by user ID, removing HashMap iteration nondeterminism. Regression coverage verifies stable ordering.
 - Focused Rust test PASS locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.

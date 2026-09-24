@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Tests
+- Added bounded `MediaBridge` budget-preservation coverage for ordered partial drains.
+
+
 - Make media session snapshots deterministic by sorting user IDs.
 
 ### Fixed
