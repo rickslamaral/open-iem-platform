@@ -1,3 +1,6 @@
+## 2026-09-23 — Phase 263 status — MediaBridge overflow preservation assertions
+- Fortalecido o teste de overflow para verificar a sequência exata de revisões preservadas após descarte na fila de destino. Gate focado PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 260 MediaBridge capture timestamp preservation
 - Adicionado teste `drain_preserves_capture_timestamp`, confirmando propagação de timestamp de captura pelo `MediaBridge`. Gate focado PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 

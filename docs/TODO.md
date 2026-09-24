@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 263 MediaBridge overflow preservation assertions
+- [x] Fortalecer teste de overflow para verificar revisões exatas dos frames preservados, não apenas capacidade e contagem.
+- Evidência: teste `drain_consumes_frames_when_destination_queue_is_full` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 262 MediaBridge destination overflow accounting
 - [x] Cobrir consumo da bridge quando fila de sessão está cheia: frame é consumido, descarte contado e frames já enfileirados preservados.
 - Evidência: teste `drain_consumes_frames_when_destination_queue_is_full` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
