@@ -7,12 +7,6 @@
 - Batch Phase 281–290 adiciona cobertura de metadados, budgets, overflow, ordem, sessão ausente e registro duplicado em `MediaSession`/`MediaPlane`. Evidência CODE local; runtime e hardware permanecem não validados.
 
 
-### Fixed
-- Streaming agora rejeita user IDs compostos apenas por whitespace e candidatos ICE com newline terminal antes de alterar estado.
-
-### Tests
-
-### Tests
 - Phase 280: added bounded bridge backlog exhaustion coverage for repeated `output_budget == 1` calls. Runtime and hardware remain unvalidated.
 
 ### Tests
