@@ -250,7 +250,7 @@ impl SessionRegistry {
         candidate: &str,
     ) -> Result<(), StreamingError> {
         // Fast structural checks before acquiring the lock.
-        if user_id.is_empty()
+        if user_id.trim().is_empty()
             || user_id.len() > MAX_USER_ID_BYTES
             || candidate.is_empty()
             || candidate.len() > MAX_CANDIDATE_BYTES
