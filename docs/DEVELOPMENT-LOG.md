@@ -1,3 +1,6 @@
+## 2026-09-23 — Phase 264 MediaBridge oversized budget boundary
+- Teste cobre budget acima da fila disponível em `MediaBridge::drain_to_with_budget`, incluindo ordem das revisões e segunda drenagem vazia.
+
 ## 2026-09-23 — Phase 263 MediaBridge overflow preservation assertions
 
 - Fortalecido `drain_consumes_frames_when_destination_queue_is_full` para validar todas as revisões preservadas em ordem exata após overflow. Gate focado PASS; evidência permanece CODE local.
