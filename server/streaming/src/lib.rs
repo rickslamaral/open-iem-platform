@@ -1438,6 +1438,36 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drive_once_zero_frame_budget_preserves_negotiated_frames() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("erin", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("erin", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.5, 0.5), (0.0, 0.0)],
+                },
+                32,
+                None,
+            )
+            .unwrap();
+
+        let skipped = registry.drive_once(&bridge, &plane, 0, 1).await;
+        assert_eq!(skipped.frames_drained, 0);
+        assert_eq!(skipped.packets_encoded, 0);
+
+        let delivered = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(delivered.frames_drained, 1);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["erin"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
     async fn drive_once_packets_encoded_zero_without_negotiated_media() {
         let registry = SessionRegistry::new();
         registry

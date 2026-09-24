@@ -669,3 +669,8 @@ test → review → docs/GAP update → PR/CI
 
 - `PairingRegistry` agora tem cobertura para IDs de device e musician no limite de 128 bytes e rejeição fail-closed acima do limite, sem mutação do registry.
 - Evidência nível `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## 2026-09-24 — Phase 278 status — negotiated MediaBridge zero-frame-budget preservation
+
+- Adicionado teste `drive_once_zero_frame_budget_preserves_negotiated_frames`, confirmando que `frame_budget == 0` não consome frame de sessão negociada e chamada posterior entrega o frame preservado.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

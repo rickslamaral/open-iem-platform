@@ -939,3 +939,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Added PairingRegistry boundary coverage for maximum and oversized identity IDs.
+
+### Added — Phase 278
+- Teste de regressão cobre preservação de frame da `MediaBridge` quando sessão negociada recebe `frame_budget == 0`; entrega posterior permanece possível.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

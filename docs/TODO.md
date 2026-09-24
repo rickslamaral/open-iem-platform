@@ -1112,3 +1112,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## Estado atual - 2026-09-23 (PairingRegistry identity ID boundary coverage)
 - [x] Cobrir `device_id` e `musician_id` exatamente em 128 bytes e rejeitar 129 bytes sem mutar registry.
 - Evidência: testes unitários `identity_ids_at_maximum_length_are_accepted` e `oversized_identity_ids_are_rejected_without_registry_change` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## 2026-09-24 — Phase 278 negotiated MediaBridge zero-frame-budget preservation
+
+- [x] Cobrir `SessionRegistry::drive_once` com sessão negociada e `frame_budget == 0`: nenhum frame é drenado e chamada posterior entrega o frame preservado.
+- Evidência: teste `drive_once_zero_frame_budget_preserves_negotiated_frames` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

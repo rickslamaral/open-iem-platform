@@ -5177,3 +5177,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Added regression assertion that destination queue overflow increments the affected `MediaSession::drop_count` exactly once, matching aggregate accounting.
 - Rust format, clippy and full server test suite pass locally. Frontend typechecks pass; Vitest rejects legacy `--watchAll=false`, so frontend tests/build use native Vitest command separately.
 - Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## 2026-09-24 — Phase 278 negotiated MediaBridge zero-frame-budget preservation
+
+- Adicionado teste de regressão para sessão negociada com `frame_budget == 0`; o frame permanece disponível e é entregue em chamada posterior com budget positivo.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
