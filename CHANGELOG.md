@@ -1,6 +1,3 @@
-### Tests
-- Added `drive_once` coverage proving zero output budget preserves queued MediaBridge frames for a later bounded delivery; runtime and hardware remain unvalidated.
-
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -8,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+### Tests
+- Added `drive_once` coverage proving zero output budget preserves queued MediaBridge frames for a later bounded delivery; runtime and hardware remain unvalidated.
 
 ### Tests
 - Phase 274: added regression coverage proving recovery delivery after MediaBridge destination overflow does not increment per-session or aggregate drop counters again. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
