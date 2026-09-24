@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 266 MediaBridge per-session drop counter assertion
+- Fortalecido `drain_consumes_frames_when_destination_queue_is_full` para verificar `MediaSession::drop_count` após overflow, além do contador agregado.
+- Teste focado e gates Rust completos passam localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 265 status — MediaBridge no-subscriber drain
 - Adicionado teste `drain_consumes_frames_without_registered_sessions`, confirmando consumo dos frames sem sessões registradas e bridge vazia após drenagem. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
