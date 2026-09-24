@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 267 MediaBridge aggregate drop accessor assertion
+- [x] Cobrir `MediaPlane::total_dropped()` no caminho de overflow da `MediaBridge`, além do contador atômico interno e contador por sessão.
+- Evidência: teste `drain_consumes_frames_when_destination_queue_is_full` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 266 MediaBridge per-session drop counter assertion
 - [x] Cobrir que overflow de fila de destino incrementa `MediaSession::drop_count` além do contador agregado.
 - Evidência: teste `drain_consumes_frames_when_destination_queue_is_full` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
