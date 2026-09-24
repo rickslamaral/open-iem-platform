@@ -1,3 +1,8 @@
+
+## Phase 353–362 status — streaming registry boundaries
+
+- Dez fronteiras adicionais cobertas em `server/streaming`: zero-budget transport drain, FIFO após requeue, capacidade, remoção de device, ordenação determinística e limpeza de sessões.
+- Evidência CODE local: 220 testes `streaming` PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
 ## 2026-09-24 — Batch Phase 343–352 status — streaming transport and registry boundaries
 
 - Adicionadas 10 regressões CODE para drain/requeue bounded de transporte, preservação de ordem, remoção bound seletiva/desconhecida, substituição de metadados, ordenação determinística e independência da fila de transporte.
