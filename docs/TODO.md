@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 268 MediaBridge zero-drop success assertion
+- [x] Cobrir entrega normal sem overflow: `MediaPlane::total_dropped()` permanece zero após drenagem bem-sucedida.
+- Evidência: testes `media_bridge` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 267 MediaBridge aggregate drop accessor assertion
 - [x] Cobrir `MediaPlane::total_dropped()` no caminho de overflow da `MediaBridge`, além do contador atômico interno e contador por sessão.
 - Evidência: teste `drain_consumes_frames_when_destination_queue_is_full` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
