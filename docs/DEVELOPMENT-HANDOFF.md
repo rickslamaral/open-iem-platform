@@ -2,7 +2,6 @@
 
 - Adicionadas 10 coberturas CODE para metadados, budgets, overflow, duplicação, drains ausentes, IDs whitespace-only e candidatos ICE com newline; correção fail-closed rejeita ID whitespace-only e candidato terminado em LF/CR. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
-## 2026-09-24 — Batch Phase 281–290 status — streaming boundary hardening
 
 - Adicionadas 10 coberturas CODE para metadados, budgets, overflow, duplicação, drains ausentes, IDs whitespace-only e candidatos ICE com newline; correção fail-closed rejeita ID whitespace-only e candidato terminado em LF/CR. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 

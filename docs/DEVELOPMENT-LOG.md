@@ -2,7 +2,6 @@
 
 - Cobertas 10 fronteiras reais do streaming: contrato de metadados `MediaSession`, budgets zero/oversized, overflow e sequence gap, drain bounded da `MediaPlane`, sessão ausente, registro duplicado, user ID whitespace-only e candidato ICE com newline. Correções permanecem CODE-only; runtime/hardware não validados.
 
-## 2026-09-24 — Batch Phase 281–290 streaming boundary hardening
 
 - Cobertas 10 fronteiras reais do streaming: contrato de metadados `MediaSession`, budgets zero/oversized, overflow e sequence gap, drain bounded da `MediaPlane`, sessão ausente, registro duplicado, user ID whitespace-only e candidato ICE com newline. Correções permanecem CODE-only; runtime/hardware não validados.
 

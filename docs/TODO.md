@@ -4,7 +4,6 @@
 - [x] Rejeitar user ID whitespace-only e candidato ICE terminado em newline antes de mutação.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
-## 2026-09-24 — Batch Phase 281–290 streaming boundaries
 - [x] Cobrir contrato de metadados, budgets e overflow de `MediaSession`.
 - [x] Cobrir drain bounded, sessão ausente e registro duplicado de `MediaPlane`.
 - [x] Rejeitar user ID whitespace-only e candidato ICE terminado em newline antes de mutação.
