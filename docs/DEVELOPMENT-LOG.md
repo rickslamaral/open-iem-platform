@@ -1,3 +1,8 @@
+## 2026-09-24 — Phase 269 MediaBridge rejected-frame recovery
+
+- Adicionado teste de regressão para rejeição por overflow seguida de recuperação, garantindo ausência do frame rejeitado e preservação da ordem FIFO.
+- Evidência pendente até gates locais; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 268 MediaBridge zero-drop success
 - Adicionado teste para garantir que entrega normal mantém `MediaPlane::total_dropped()` em zero.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
