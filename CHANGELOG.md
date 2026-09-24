@@ -1,5 +1,3 @@
-## [Unreleased]
-
 ### Tests
 - Batch Phase 311–320 adiciona 10 regressões de fronteiras do `SessionRegistry` e fila interna de transporte. Evidência CODE local; runtime e hardware permanecem não validados.
 
