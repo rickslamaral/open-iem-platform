@@ -1,3 +1,6 @@
+## 2026-09-24 — Phase 280 bounded bridge backlog exhaustion
+- [x] Cobrir drenagem sucessiva com `output_budget == 1` e `frame_budget == usize::MAX`: frames excedentes da `MediaBridge` permanecem disponíveis até esgotamento. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 279 bridge drain budget boundary
 - [x] Cobrir que `SessionRegistry::drive_once` limita drenagem da `MediaBridge` ao orçamento compartilhado antes do fan-out; chamada seguinte entrega frame preservado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 

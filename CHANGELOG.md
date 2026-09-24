@@ -1,4 +1,7 @@
 ### Tests
+- Phase 280: added bounded bridge backlog exhaustion coverage for repeated `output_budget == 1` calls. Runtime and hardware remain unvalidated.
+
+### Tests
 - Phase 279: added bounded bridge-drain coverage proving shared output budget is applied before fan-out and queued frames survive the next drive. Runtime and hardware remain unvalidated.
 
 ### Tests

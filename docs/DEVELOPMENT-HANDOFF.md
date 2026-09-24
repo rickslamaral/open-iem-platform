@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 280 status — bounded bridge backlog exhaustion
+
+- Adicionado teste `drive_once_preserves_excess_bridge_frames_across_bounded_calls`, confirmando drenagem de um frame por chamada até esgotar backlog, mesmo com `frame_budget` maior. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 279 status — bridge drain budget boundary
 
 - Adicionado teste `drive_once_caps_bridge_drain_to_output_budget_before_fanout`, confirmando que orçamento de saída limita drenagem da `MediaBridge` antes do fan-out e preserva frame para chamada posterior. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
