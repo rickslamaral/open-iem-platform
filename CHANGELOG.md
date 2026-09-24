@@ -1,3 +1,6 @@
+
+### Added — Phase 353–362
+- Added ten streaming registry boundary tests for bounded transport drain/requeue, device removal, deterministic session ordering and cleanup. Evidence remains CODE local; hardware/runtime validation is pending.
 ### Tests — Batch Phase 343–352
 - Adicionadas 10 regressões de streaming para drain/requeue bounded de transporte e fronteiras de registry; 210 testes `streaming` PASS localmente.
 - Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

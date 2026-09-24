@@ -1,3 +1,7 @@
+## 2026-09-24 — Batch Phase 353–362 streaming registry boundaries
+- [x] Cobrir dez fronteiras adicionais de drain/requeue de transporte, remoção de device, ordenação determinística e ciclo de vida de sessões no crate `streaming`.
+- Evidência: 220 testes `streaming` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 343–352 streaming transport and registry boundaries
 - [x] Cobrir drain/requeue bounded de transporte: budget zero, budget limitado, budget oversized, fila vazia e preservação de ordem.
 - [x] Cobrir remoção de dispositivo desconhecido, remoção seletiva, substituição bound, ordem determinística e independência entre remoção de sessão e fila de transporte.
