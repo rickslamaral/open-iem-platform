@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 363–372 streaming registry boundaries
+
+- Adicionadas 10 regressões para cap por chamada do drain de transporte, FIFO/requeue, idempotência de remoção, replacement bounded e preservação da fila durante remoção de sessão.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 230 testes PASS localmente. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 353–362 streaming registry boundaries
 
 - Adicionados dez testes de fronteira para orçamento zero, FIFO/requeue e capacidade da fila de transporte, remoção de device, ordenação de sessões e limpeza do registry.

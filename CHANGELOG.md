@@ -1,3 +1,6 @@
+### Tests — Batch Phase 363–372
+- Adicionadas 10 regressões de fronteiras do registry e fila de transporte; 230 testes `streaming` PASS localmente. Evidência CODE local; runtime e hardware permanecem não validados.
+
 
 ### Added — Phase 353–362
 - Added ten streaming registry boundary tests for bounded transport drain/requeue, device removal, deterministic session ordering and cleanup. Evidence remains CODE local; hardware/runtime validation is pending.
