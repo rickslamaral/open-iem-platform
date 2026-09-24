@@ -1,7 +1,7 @@
 ## 2026-09-24 — Phase 275 status — negotiated MediaBridge zero-output preservation
 
 - Adicionado teste `drive_once_zero_output_budget_preserves_negotiated_bridge_frames`, confirmando que sessão negociada não consome bridge com `output_budget == 0` e entrega frame em chamada posterior com orçamento disponível.
-- Gates completos e revisão independente ainda pendentes neste checkpoint. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+- Gates locais completos: Rust fmt, clippy, suíte server e ambos frontends passaram; revisão independente PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
 
 ## 2026-09-24 — MediaBridge zero-output-budget preservation
 
