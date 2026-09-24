@@ -439,6 +439,38 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn zero_budget_drain_does_not_touch_bridge_queue() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        bridge.try_send(frame(), 7, None).unwrap();
+        assert_eq!(bridge.drain_to_with_budget(&plane, 0).await, 0);
+        assert_eq!(bridge.drain_to_with_budget(&plane, 1).await, 1);
+    }
+
+    #[tokio::test]
+    async fn oversized_budget_drains_only_available_bridge_frames() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        for revision in 1..=2 {
+            bridge.try_send(frame(), revision, None).unwrap();
+        }
+        assert_eq!(bridge.drain_to_with_budget(&plane, usize::MAX).await, 2);
+        assert_eq!(bridge.drain_to_with_budget(&plane, usize::MAX).await, 0);
+    }
+
+    #[tokio::test]
+    async fn bridge_drain_without_sessions_consumes_each_bounded_frame_once() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        for revision in 1..=3 {
+            bridge.try_send(frame(), revision, None).unwrap();
+        }
+        assert_eq!(bridge.drain_to_with_budget(&plane, 2).await, 2);
+        assert_eq!(bridge.drain_to_with_budget(&plane, 2).await, 1);
+        assert_eq!(bridge.drain_to_with_budget(&plane, 2).await, 0);
+    }
+
+    #[tokio::test]
     async fn drain_fans_out_one_frame_to_multiple_mix_sessions() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();

@@ -815,6 +815,63 @@ mod tests {
         assert_eq!(available[0].metadata.revision, 2);
     }
 
+    #[test]
+    fn media_session_zero_budget_does_not_advance_queue() {
+        let mut session = MediaSession::new("alice".to_owned(), 0);
+        session.push_frame((0.1, 0.2), 1, None).unwrap();
+        assert!(session.drain_frames_with_budget(0).is_empty());
+        assert_eq!(session.drain_frames_with_budget(1).len(), 1);
+    }
+
+    #[tokio::test]
+    async fn zero_budget_drain_preserves_queue_after_multiple_pushes() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        for revision in 1..=3 {
+            mp.push_frame_output(&make_frame(0.1, 0.2, 0.0, 0.0), revision, None)
+                .await;
+        }
+        assert!(mp
+            .drain_session_frames_with_budget("alice", 0)
+            .await
+            .unwrap()
+            .is_empty());
+        assert_eq!(
+            mp.drain_session_frames_with_budget("alice", usize::MAX)
+                .await
+                .unwrap()
+                .len(),
+            3
+        );
+    }
+
+    #[tokio::test]
+    async fn zero_budget_missing_session_stays_fail_closed() {
+        let mp = MediaPlane::new();
+        assert_eq!(
+            mp.drain_session_frames_with_budget("missing", 0).await,
+            Err(MediaSessionError::NoSession)
+        );
+    }
+
+    #[tokio::test]
+    async fn remove_unknown_session_does_not_change_drop_total() {
+        let mp = MediaPlane::new();
+        assert!(!mp.remove_session("missing").await);
+        assert_eq!(mp.total_dropped(), 0);
+    }
+
+    #[tokio::test]
+    async fn invalid_mix_is_rejected_before_duplicate_lookup() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        assert_eq!(
+            mp.register_session("alice", MAX_MIXES).await,
+            Err(MediaPlaneError::InvalidMixIndex)
+        );
+        assert_eq!(mp.sessions().await, vec![("alice".to_owned(), 0)]);
+    }
+
     #[tokio::test]
     async fn push_frame_to_correct_mix_slot() {
         let mp = MediaPlane::new();

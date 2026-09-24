@@ -1,3 +1,10 @@
+## 2026-09-24 — Batch Phase 301–310 streaming budget and transport boundaries
+- [x] Cobrir zero-budget e budget oversized em `MediaSession`/`MediaPlane` sem consumir frames indevidos.
+- [x] Cobrir rejeição fail-closed para sessão ausente e mix inválido sem mutação.
+- [x] Cobrir drenagem bounded da `MediaBridge` com fila vazia, sem subscribers e múltiplas chamadas.
+- [x] Cobrir `TransportAdapter::send` com budget zero e limite máximo de datagrams.
+- Evidência CODE local: 180 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 291–300
 - [x] Cobrir 10 fronteiras de autorização, fan-out, overflow e pairing no crate `streaming`; evidência CODE local.
 - Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

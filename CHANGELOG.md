@@ -1,3 +1,6 @@
+### Tests
+- Batch Phase 301–310 adiciona 10 regressões de budgets, drenagem bounded, rejeições fail-closed e limite de transporte no crate `streaming`. Evidência CODE local; runtime e hardware permanecem não validados.
+
 ## [Unreleased]
 
 ### Tests
