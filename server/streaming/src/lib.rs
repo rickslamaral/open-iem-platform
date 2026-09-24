@@ -289,7 +289,9 @@ impl SessionRegistry {
         if output_budget == 0 {
             return DriveReport::default();
         }
-        let frames_drained = bridge.drain_to_with_budget(media_plane, frame_budget).await;
+        let frames_drained = bridge
+            .drain_to_with_budget(media_plane, frame_budget.min(output_budget))
+            .await;
         let session_ids = self
             .sessions
             .lock()
@@ -299,11 +301,19 @@ impl SessionRegistry {
             .map(|peer| peer.user_id.clone())
             .collect::<Vec<_>>();
         let mut drained = HashMap::new();
+        let mut remaining_output_budget = output_budget.saturating_sub(frames_drained);
         for user_id in session_ids {
+            if remaining_output_budget == 0 {
+                break;
+            }
             if let Ok(frames) = media_plane
-                .drain_session_frames_with_budget(&user_id, frame_budget)
+                .drain_session_frames_with_budget(
+                    &user_id,
+                    frame_budget.min(remaining_output_budget),
+                )
                 .await
             {
+                remaining_output_budget = remaining_output_budget.saturating_sub(frames.len());
                 drained.insert(user_id, frames);
             }
         }
@@ -663,6 +673,38 @@ mod tests {
         assert!(first.outputs_polled <= 1);
         assert!(second.outputs_polled <= 1);
         assert!(registry.drain_transport_outputs(8).await.len() <= 8);
+    }
+
+    #[tokio::test]
+    async fn drive_once_limits_drain_to_shared_output_budget() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        registry.drive_once(&bridge, &plane, 0, 1).await;
+        for revision in [31, 32] {
+            bridge
+                .try_send(
+                    mix_engine::FrameOutput {
+                        mixes: [(0.5, -0.25), (0.0, 0.0)],
+                    },
+                    revision,
+                    None,
+                )
+                .unwrap();
+        }
+
+        let first = registry.drive_once(&bridge, &plane, 2, 1).await;
+        assert_eq!(first.frames_drained, 1);
+        assert_eq!(first.packets_encoded, 0);
+
+        let second = registry.drive_once(&bridge, &plane, 2, 1).await;
+        assert_eq!(second.frames_drained, 1);
+        assert_eq!(second.packets_encoded, 0);
     }
 
     #[tokio::test]
@@ -1357,8 +1399,19 @@ mod tests {
         }
 
         let report = registry.drive_once(&bridge, &plane, 2, 1).await;
-        assert_eq!(report.frames_drained, 2);
+        assert_eq!(report.frames_drained, 1);
         assert!(report.outputs_polled <= 1);
+
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+        assert_eq!(sessions["bob"].drain_frames().len(), 1);
+        drop(sessions);
+
+        let follow_up = registry.drive_once(&bridge, &plane, 2, 1).await;
+        assert_eq!(follow_up.frames_drained, 1);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+        assert_eq!(sessions["bob"].drain_frames().len(), 1);
     }
 
     #[tokio::test]
@@ -1382,6 +1435,36 @@ mod tests {
         assert!(!report.budget_exhausted);
         let follow_up = registry.drive_once(&bridge, &plane, 1, 1).await;
         assert_eq!(follow_up.frames_drained, 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_zero_frame_budget_preserves_negotiated_frames() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("erin", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("erin", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.5, 0.5), (0.0, 0.0)],
+                },
+                32,
+                None,
+            )
+            .unwrap();
+
+        let skipped = registry.drive_once(&bridge, &plane, 0, 1).await;
+        assert_eq!(skipped.frames_drained, 0);
+        assert_eq!(skipped.packets_encoded, 0);
+
+        let delivered = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(delivered.frames_drained, 1);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["erin"].drain_frames().len(), 1);
     }
 
     #[tokio::test]
@@ -1409,6 +1492,69 @@ mod tests {
         assert_eq!(report.frames_drained, 2);
         assert_eq!(report.packets_encoded, 0);
         assert!(!report.budget_exhausted);
+
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["carol"].drain_frames().len(), 2);
+    }
+
+    #[tokio::test]
+    async fn drive_once_caps_bridge_drain_to_output_budget_before_fanout() {
+        let registry = SessionRegistry::new();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        plane.register_session("bob", 1).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        for revision in [70, 71] {
+            bridge
+                .try_send(
+                    mix_engine::FrameOutput {
+                        mixes: [(0.1, 0.1), (0.2, 0.2)],
+                    },
+                    revision,
+                    None,
+                )
+                .unwrap();
+        }
+
+        let first = registry.drive_once(&bridge, &plane, 2, 1).await;
+        assert_eq!(first.frames_drained, 1);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+        assert_eq!(sessions["bob"].drain_frames().len(), 1);
+        drop(sessions);
+
+        let second = registry.drive_once(&bridge, &plane, 2, 1).await;
+        assert_eq!(second.frames_drained, 1);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+        assert_eq!(sessions["bob"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_preserves_excess_bridge_frames_across_bounded_calls() {
+        let registry = SessionRegistry::new();
+        let plane = crate::media_plane::MediaPlane::new();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        for revision in [80, 81, 82] {
+            bridge
+                .try_send(
+                    mix_engine::FrameOutput {
+                        mixes: [(0.3, 0.3), (0.4, 0.4)],
+                    },
+                    revision,
+                    None,
+                )
+                .unwrap();
+        }
+
+        let first = registry.drive_once(&bridge, &plane, usize::MAX, 1).await;
+        assert_eq!(first.frames_drained, 1);
+        let second = registry.drive_once(&bridge, &plane, usize::MAX, 1).await;
+        assert_eq!(second.frames_drained, 1);
+        let third = registry.drive_once(&bridge, &plane, usize::MAX, 1).await;
+        assert_eq!(third.frames_drained, 1);
+        let empty = registry.drive_once(&bridge, &plane, usize::MAX, 1).await;
+        assert_eq!(empty.frames_drained, 0);
     }
 
     #[tokio::test]

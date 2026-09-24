@@ -1,3 +1,29 @@
+## 2026-09-24 — Phase 280 bounded bridge backlog exhaustion
+
+- Adicionado teste de três frames para confirmar que `output_budget` continua limitando drenagem da bridge em chamadas sucessivas e não inventa frames após esgotamento. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## 2026-09-24 — Phase 279 bridge drain budget boundary
+
+- Adicionado teste `drive_once_caps_bridge_drain_to_output_budget_before_fanout`, cobrindo limite compartilhado antes do fan-out para duas sessões e preservação entre chamadas bounded. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## 2026-09-24 — Phase 278 shared budget per-session preservation
+
+- Fortalecido teste de duas sessões negociadas para verificar que cada chamada bounded entrega um frame por sessão e que frames permanecem preservados sob budget compartilhado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## 2026-09-24 — Phase 277 negotiated MediaBridge shared output budget
+
+- Limitada drenagem por sessão negociada ao orçamento de saída compartilhado em `SessionRegistry::drive_once`, evitando consumir frames que não podem ser codificados na mesma passagem.
+- Adicionado teste `drive_once_limits_drain_to_shared_output_budget`; focused test e clippy local PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## 2026-09-24 — Phase 276 negotiated MediaBridge frame preservation
+
+- Teste `drive_once_packets_encoded_zero_without_negotiated_media` agora verifica retenção dos dois frames na fila da sessão quando não existe mídia de áudio negociada; nenhuma perda silenciosa no filtro `media_mid`. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-24 — Phase 275 documentation reconciliation
+
+- Reconciliado o status canônico para Phase 275 após a cobertura de `SessionRegistry::drive_once` com sessão negociada e `output_budget == 0`; o frame permanece na `MediaBridge` até existir orçamento de saída.
+- Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
 ## 2026-09-24 — Phase 275 negotiated MediaBridge zero-output preservation
 
 - Added `drive_once_zero_output_budget_preserves_negotiated_bridge_frames`, covering a negotiated session and proving zero output budget leaves the bridge frame queued for a later bounded drive.
@@ -5159,3 +5185,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 - Added regression assertion that destination queue overflow increments the affected `MediaSession::drop_count` exactly once, matching aggregate accounting.
 - Rust format, clippy and full server test suite pass locally. Frontend typechecks pass; Vitest rejects legacy `--watchAll=false`, so frontend tests/build use native Vitest command separately.
 - Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## 2026-09-24 — Phase 278 negotiated MediaBridge zero-frame-budget preservation
+
+- Adicionado teste de regressão para sessão negociada com `frame_budget == 0`; o frame permanece disponível e é entregue em chamada posterior com budget positivo.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

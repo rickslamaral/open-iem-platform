@@ -1,3 +1,12 @@
+### Tests
+- Phase 280: added bounded bridge backlog exhaustion coverage for repeated `output_budget == 1` calls. Runtime and hardware remain unvalidated.
+
+### Tests
+- Phase 279: added bounded bridge-drain coverage proving shared output budget is applied before fan-out and queued frames survive the next drive. Runtime and hardware remain unvalidated.
+
+### Tests
+- Phase 277: bounded negotiated-session drain by shared output budget, preserving queued frames for later CODE/SIMULATED delivery. Runtime and hardware remain unvalidated.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -5,6 +14,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+- Testes streaming: coberta preservação de frames por sessão sob orçamento de saída compartilhado em chamadas sucessivas de `SessionRegistry::drive_once`.
+
+### Fixed
+- MediaBridge preserves frames drained for negotiated sessions without audio media, avoiding silent loss before `media_mid` exists.
+
+### Documentation
+- Reconciliado status de Phase 275 e handoff para registrar preservação de frames negociados quando `output_budget == 0`; evidência permanece CODE local.
+
 
 ### Tests
 - Added negotiated media-session coverage proving zero output budget preserves queued MediaBridge frames.
@@ -927,3 +945,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Added PairingRegistry boundary coverage for maximum and oversized identity IDs.
+
+### Added — Phase 278
+- Teste de regressão cobre preservação de frame da `MediaBridge` quando sessão negociada recebe `frame_budget == 0`; entrega posterior permanece possível.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
