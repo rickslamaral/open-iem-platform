@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 321–330 streaming registry boundaries
+
+- Adicionadas 10 regressões para `SessionRegistry`: contagem, vazio, remoção bound idempotente, metadados de dispositivo, remoção desconhecida, budgets zero, requeue vazio, drenagem exata, independência entre remoção e transporte e substituição por usuário.
+- Evidência CODE local: 200 testes `streaming` PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 311–320 streaming registry boundaries
 
 - Adicionadas 10 regressões CODE para listagem/remoção de sessões e fronteiras bounded do transporte interno (`drain_transport_outputs`/`requeue_transport_outputs`), incluindo ordem, budget zero, budget parcial e estado vazio.

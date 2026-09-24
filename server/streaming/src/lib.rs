@@ -1852,6 +1852,169 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn len_counts_each_distinct_session() {
+        let registry = SessionRegistry::new();
+        assert_eq!(registry.len().await, 0);
+        for user_id in ["alice", "bob"] {
+            registry
+                .negotiate_offer(user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        assert_eq!(registry.len().await, 2);
+    }
+
+    #[tokio::test]
+    async fn is_empty_changes_only_after_removal() {
+        let registry = SessionRegistry::new();
+        assert!(registry.is_empty().await);
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(!registry.is_empty().await);
+        assert!(registry.remove("alice").await);
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn remove_by_device_id_is_idempotent() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "device-1".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+        registry
+            .negotiate_offer_bound("alice", VALID_OFFER, None, Some(&identity))
+            .await
+            .unwrap();
+        assert_eq!(registry.remove_by_device_id("device-1").await, 1);
+        assert_eq!(registry.remove_by_device_id("device-1").await, 0);
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn list_reports_bound_device_metadata() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "device-1".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+        registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .unwrap();
+        let sessions = registry.list().await;
+        assert_eq!(sessions[0].device_id.as_deref(), Some("device-1"));
+        assert_eq!(sessions[0].mix_id.as_deref(), Some("0"));
+    }
+
+    #[tokio::test]
+    async fn unknown_device_removal_preserves_all_sessions() {
+        let registry = SessionRegistry::new();
+        for user_id in ["alice", "bob"] {
+            registry
+                .negotiate_offer(user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        assert_eq!(registry.remove_by_device_id("missing").await, 0);
+        assert_eq!(registry.len().await, 2);
+    }
+
+    #[tokio::test]
+    async fn zero_requeue_drain_does_not_drop_or_reorder_output() {
+        let registry = SessionRegistry::new();
+        let outputs = (0..2)
+            .map(|index| str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: "127.0.0.1:1000".parse().unwrap(),
+                destination: "127.0.0.1:2000".parse().unwrap(),
+                contents: vec![index].into(),
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(registry.requeue_transport_outputs(outputs).await, 0);
+        assert!(registry.drain_transport_outputs(0).await.is_empty());
+        let drained = registry.drain_transport_outputs(2).await;
+        assert_eq!(
+            drained
+                .iter()
+                .map(|item| item.contents[0])
+                .collect::<Vec<_>>(),
+            vec![0, 1]
+        );
+    }
+
+    #[tokio::test]
+    async fn empty_requeue_does_not_change_existing_queue() {
+        let registry = SessionRegistry::new();
+        let output = str0m::net::Transmit {
+            proto: Protocol::Udp,
+            source: "127.0.0.1:1000".parse().unwrap(),
+            destination: "127.0.0.1:2000".parse().unwrap(),
+            contents: b"payload".to_vec().into(),
+        };
+        registry.requeue_transport_outputs(vec![output]).await;
+        assert_eq!(registry.requeue_transport_outputs(Vec::new()).await, 0);
+        assert_eq!(registry.drain_transport_outputs(1).await.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn transport_drain_empty_after_exact_budget() {
+        let registry = SessionRegistry::new();
+        let outputs = (0..2)
+            .map(|index| str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: "127.0.0.1:1000".parse().unwrap(),
+                destination: "127.0.0.1:2000".parse().unwrap(),
+                contents: vec![index].into(),
+            })
+            .collect::<Vec<_>>();
+        registry.requeue_transport_outputs(outputs).await;
+        assert_eq!(registry.drain_transport_outputs(2).await.len(), 2);
+        assert!(registry.drain_transport_outputs(1).await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn removing_session_does_not_remove_transport_outputs() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let output = str0m::net::Transmit {
+            proto: Protocol::Udp,
+            source: "127.0.0.1:1000".parse().unwrap(),
+            destination: "127.0.0.1:2000".parse().unwrap(),
+            contents: b"payload".to_vec().into(),
+        };
+        registry.requeue_transport_outputs(vec![output]).await;
+        assert!(registry.remove("alice").await);
+        assert_eq!(registry.drain_transport_outputs(1).await.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn replacing_same_user_keeps_single_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("mix-1".into()))
+            .await
+            .unwrap();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("mix-2".into()))
+            .await
+            .unwrap();
+        assert_eq!(registry.len().await, 1);
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("mix-2"));
+    }
+
+    #[tokio::test]
     async fn requeue_empty_output_is_noop() {
         let registry = SessionRegistry::new();
         assert_eq!(registry.requeue_transport_outputs(Vec::new()).await, 0);
