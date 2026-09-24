@@ -224,6 +224,7 @@ mod tests {
         bridge.try_send(frame(), 99, None).unwrap();
         assert_eq!(bridge.drain_to(&plane).await, 1);
         assert_eq!(plane.dropped_total.load(Ordering::Relaxed), 1);
+        assert_eq!(plane.total_dropped(), 1);
         let sessions = plane.sessions.lock().await;
         assert_eq!(sessions["alice"].drop_count(), 1);
         drop(sessions);
