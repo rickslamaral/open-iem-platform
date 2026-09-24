@@ -2406,6 +2406,160 @@ mod tests {
         );
     }
 
+    #[tokio::test]
+    async fn phase363_transport_drain_caps_oversized_budget() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(
+                (0..TRANSPORT_OUTPUT_CAPACITY)
+                    .map(|_| test_transmit(b"queued"))
+                    .collect(),
+            )
+            .await;
+        assert_eq!(
+            registry.drain_transport_outputs(usize::MAX).await.len(),
+            TRANSPORT_SEND_BUDGET
+        );
+        assert_eq!(
+            registry.drain_transport_outputs(usize::MAX).await.len(),
+            TRANSPORT_SEND_BUDGET
+        );
+        assert_eq!(
+            registry.drain_transport_outputs(usize::MAX).await.len(),
+            TRANSPORT_SEND_BUDGET
+        );
+        assert_eq!(
+            registry.drain_transport_outputs(usize::MAX).await.len(),
+            TRANSPORT_SEND_BUDGET
+        );
+    }
+
+    #[tokio::test]
+    async fn phase364_empty_transport_drain_is_idempotent() {
+        let registry = SessionRegistry::new();
+        assert!(registry
+            .drain_transport_outputs(TRANSPORT_SEND_BUDGET)
+            .await
+            .is_empty());
+        assert!(registry
+            .drain_transport_outputs(TRANSPORT_SEND_BUDGET)
+            .await
+            .is_empty());
+    }
+
+    #[tokio::test]
+    async fn phase365_requeue_preserves_fifo_for_multiple_items() {
+        let registry = SessionRegistry::new();
+        let outputs = vec![
+            test_transmit(b"one"),
+            test_transmit(b"two"),
+            test_transmit(b"three"),
+        ];
+        assert_eq!(registry.requeue_transport_outputs(outputs).await, 0);
+        let restored = registry.drain_transport_outputs(3).await;
+        assert_eq!(
+            restored
+                .iter()
+                .map(|item| item.contents.as_ref())
+                .collect::<Vec<&[u8]>>(),
+            vec![b"one".as_ref(), b"two".as_ref(), b"three".as_ref()]
+        );
+    }
+
+    #[tokio::test]
+    async fn phase366_requeue_overflow_keeps_existing_prefix() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(
+                (0..TRANSPORT_OUTPUT_CAPACITY)
+                    .map(|_| test_transmit(b"existing"))
+                    .collect(),
+            )
+            .await;
+        assert_eq!(
+            registry
+                .requeue_transport_outputs(vec![test_transmit(b"new")])
+                .await,
+            1
+        );
+        assert_eq!(
+            &registry.drain_transport_outputs(1).await[0].contents[..],
+            b"existing"
+        );
+    }
+
+    #[tokio::test]
+    async fn phase367_removing_session_twice_is_idempotent() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(registry.remove("alice").await);
+        assert!(!registry.remove("alice").await);
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase368_empty_registry_list_is_stable() {
+        let registry = SessionRegistry::new();
+        assert!(registry.list().await.is_empty());
+        assert!(registry.list().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn phase369_device_removal_is_idempotent() {
+        let registry = SessionRegistry::new();
+        assert_eq!(registry.remove_by_device_id("missing").await, 0);
+        assert_eq!(registry.remove_by_device_id("missing").await, 0);
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase370_replacement_preserves_single_session_count() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("mix-2".into()))
+            .await
+            .unwrap();
+        assert_eq!(registry.len().await, 1);
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("mix-2"));
+    }
+
+    #[tokio::test]
+    async fn phase371_unknown_device_removal_preserves_all_bound_sessions() {
+        let registry = SessionRegistry::new();
+        for user_id in ["alice", "bob"] {
+            registry
+                .negotiate_offer(user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        assert_eq!(registry.remove_by_device_id("unknown").await, 0);
+        assert_eq!(registry.len().await, 2);
+    }
+
+    #[tokio::test]
+    async fn phase372_transport_queue_survives_session_removal() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"survive")])
+            .await;
+        assert!(registry.remove("alice").await);
+        assert_eq!(
+            &registry.drain_transport_outputs(1).await[0].contents[..],
+            b"survive"
+        );
+    }
+
     fn test_transmit(contents: &[u8]) -> str0m::net::Transmit {
         str0m::net::Transmit {
             proto: Protocol::Udp,

@@ -338,6 +338,10 @@
 
 # TODO
 
+## 2026-09-24 — Batch Phase 363–372 streaming registry boundaries
+- [x] Cobrir cap de drain oversized, FIFO/requeue, overflow, idempotência de remoção, replacement bounded e independência da fila de transporte; 230 testes `streaming` PASS localmente. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+
 ## 2026-09-24 — Phase 275 negotiated MediaBridge zero-output preservation
 - [x] Cobrir `SessionRegistry::drive_once` com sessão negociada e `output_budget == 0`: bridge não consome frame antes de orçamento disponível; evidência CODE local.
 - Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
