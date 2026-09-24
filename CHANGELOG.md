@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Tests
+- Phase 274: added regression coverage proving recovery delivery after MediaBridge destination overflow does not increment per-session or aggregate drop counters again. Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
 - Added bounded `MediaBridge` budget-preservation coverage for ordered partial drains.
 
 
