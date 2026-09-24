@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 279 status — bridge drain budget boundary
+
+- Adicionado teste `drive_once_caps_bridge_drain_to_output_budget_before_fanout`, confirmando que orçamento de saída limita drenagem da `MediaBridge` antes do fan-out e preserva frame para chamada posterior. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 278 status — shared budget preserves per-session frames
 
 - Fortalecido `drive_once_output_budget_shared_across_sessions` com duas chamadas sucessivas: cada sessão retém um frame após cada drenagem bounded, sem perda causada pelo orçamento compartilhado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

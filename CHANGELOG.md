@@ -1,4 +1,7 @@
 ### Tests
+- Phase 279: added bounded bridge-drain coverage proving shared output budget is applied before fan-out and queued frames survive the next drive. Runtime and hardware remain unvalidated.
+
+### Tests
 - Phase 277: bounded negotiated-session drain by shared output budget, preserving queued frames for later CODE/SIMULATED delivery. Runtime and hardware remain unvalidated.
 
 # Changelog

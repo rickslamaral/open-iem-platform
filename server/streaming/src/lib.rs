@@ -1498,6 +1498,39 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drive_once_caps_bridge_drain_to_output_budget_before_fanout() {
+        let registry = SessionRegistry::new();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        plane.register_session("bob", 1).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        for revision in [70, 71] {
+            bridge
+                .try_send(
+                    mix_engine::FrameOutput {
+                        mixes: [(0.1, 0.1), (0.2, 0.2)],
+                    },
+                    revision,
+                    None,
+                )
+                .unwrap();
+        }
+
+        let first = registry.drive_once(&bridge, &plane, 2, 1).await;
+        assert_eq!(first.frames_drained, 1);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+        assert_eq!(sessions["bob"].drain_frames().len(), 1);
+        drop(sessions);
+
+        let second = registry.drive_once(&bridge, &plane, 2, 1).await;
+        assert_eq!(second.frames_drained, 1);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+        assert_eq!(sessions["bob"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
     async fn drive_once_budget_not_exhausted_when_no_sessions() {
         let registry = SessionRegistry::new();
         let plane = crate::media_plane::MediaPlane::new();

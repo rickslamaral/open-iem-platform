@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 279 bridge drain budget boundary
+
+- Adicionado teste `drive_once_caps_bridge_drain_to_output_budget_before_fanout`, cobrindo limite compartilhado antes do fan-out para duas sessões e preservação entre chamadas bounded. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 278 shared budget per-session preservation
 
 - Fortalecido teste de duas sessões negociadas para verificar que cada chamada bounded entrega um frame por sessão e que frames permanecem preservados sob budget compartilhado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

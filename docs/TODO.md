@@ -1,3 +1,6 @@
+## 2026-09-24 — Phase 279 bridge drain budget boundary
+- [x] Cobrir que `SessionRegistry::drive_once` limita drenagem da `MediaBridge` ao orçamento compartilhado antes do fan-out; chamada seguinte entrega frame preservado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 277 negotiated MediaBridge shared output budget
 
 - [x] Limitar drenagem de frames de sessões negociadas ao `output_budget` compartilhado, preservando frames já roteados para chamadas posteriores quando há mais frames na fila que capacidade de codificação.
