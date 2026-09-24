@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 271 MediaBridge repeated overflow rejection
+- [x] Cobrir rejeições repetidas enquanto a fila está cheia; nenhum frame rejeitado reaparece após recuperação e a ordem dos frames aceitos permanece intacta.
+- Evidência: teste `rejected_frame_is_not_enqueued_after_queue_recovers` ampliado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 270 MediaBridge bounded drain without subscribers
 - [x] Cobrir drenagens sucessivas com budget unitário sem sessões: cada chamada consome somente um frame e a bridge termina vazia.
 - Evidência: teste `bounded_drain_without_sessions_preserves_remaining_frames`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

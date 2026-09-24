@@ -1,3 +1,6 @@
+## 2026-09-24 — Phase 271 MediaBridge repeated overflow rejection
+- Fortalecido teste de recuperação de overflow com duas rejeições consecutivas em fila cheia; frames rejeitados permanecem fora da fila e frames aceitos preservam ordem. Evidência pendente até gates locais; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 270 MediaBridge bounded drain without subscribers
 
 - Adicionado teste `bounded_drain_without_sessions_preserves_remaining_frames`, confirmando drenagem sucessiva com budget unitário sem sessões registradas.

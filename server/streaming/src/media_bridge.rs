@@ -118,6 +118,10 @@ mod tests {
             bridge.try_send(frame(), 999, None),
             Err(MediaBridgeError::Full)
         );
+        assert_eq!(
+            bridge.try_send(frame(), 1000, None),
+            Err(MediaBridgeError::Full)
+        );
 
         assert_eq!(bridge.drain_to_with_budget(&plane, 1).await, 1);
         assert_eq!(
@@ -168,7 +172,7 @@ mod tests {
         assert!(!first_batch
             .iter()
             .chain(last_batch.iter())
-            .any(|item| item.metadata.revision == 999));
+            .any(|item| matches!(item.metadata.revision, 999 | 1000)));
     }
 
     #[tokio::test]
