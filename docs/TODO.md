@@ -1,3 +1,6 @@
+## 2026-09-23 — Phase 261 MediaBridge empty drain boundary
+- [x] Cobrir `MediaBridge::drain_to` sem frames: retorna zero e não altera sessões.
+- Evidência: teste `empty_drain_returns_zero_without_touching_media_plane` e suíte Rust completa PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 ## 2026-09-23 — Phase 260 MediaBridge capture timestamp preservation
 - [x] Cobrir propagação de `capture_timestamp` através de `MediaBridge::drain_to`.
 - Evidência: teste `drain_preserves_capture_timestamp` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

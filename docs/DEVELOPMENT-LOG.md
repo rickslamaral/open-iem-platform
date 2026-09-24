@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 261 MediaBridge empty drain boundary
+
+- Adicionado teste `empty_drain_returns_zero_without_touching_media_plane`, confirmando que drenagem sem frames retorna zero e não gera saída no `MediaPlane`.
+- Gates: `cargo fmt`, `cargo clippy --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS localmente; revisão independente PASS; static scan sem achados.
+- Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi continuam não validados.
 ## 2026-09-23 — Phase 260 MediaBridge capture timestamp preservation
 
 - Adicionado teste `drain_preserves_capture_timestamp`, confirmando que timestamp de captura atravessa bridge e chega ao `MediaPlane` sem perda.
