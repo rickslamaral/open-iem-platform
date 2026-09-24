@@ -1,3 +1,10 @@
+## 2026-09-24 — Batch Phase 321–330 streaming registry boundaries
+- [x] Cobrir contagem e transições de vazio da `SessionRegistry`.
+- [x] Cobrir remoção idempotente por `device_id` e preservação sem correspondência.
+- [x] Cobrir metadados bound de dispositivo e substituição do mesmo usuário.
+- [x] Cobrir drenagem/requeue de transporte com budget zero, fila vazia, ordem e preservação após remoção.
+- Evidência CODE local: 200 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 311–320 streaming registry boundaries
 - [x] Cobrir listagem, remoção idempotente e metadados de sessões negociadas.
 - [x] Cobrir drain/requeue bounded de datagrams: budget zero, ordem FIFO, fila vazia e budget parcial.

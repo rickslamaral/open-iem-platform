@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 321–330 status — streaming registry boundaries
+
+- Adicionadas 10 regressões CODE para contagem/transição de estado da `SessionRegistry`, remoção bound idempotente, metadados de dispositivo, substituição de sessão e preservação bounded da fila de transporte.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 200 testes PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 311–320 status — streaming registry boundaries
 
 - Adicionadas 10 coberturas CODE para `SessionRegistry`: listagem de sessões e metadados, remoção idempotente, drain/requeue bounded de datagrams, budget zero, ordem FIFO e filas vazias.

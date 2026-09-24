@@ -1,3 +1,7 @@
+### Added — Batch Phase 321–330
+- Added streaming registry boundary coverage for session counts, bound-device removal, metadata, replacement, and bounded transport queue preservation.
+- Evidence remains CODE-only; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network, and Raspberry Pi remain unvalidated.
+
 ### Tests
 - Batch Phase 311–320 adiciona 10 regressões de fronteiras do `SessionRegistry` e fila interna de transporte. Evidência CODE local; runtime e hardware permanecem não validados.
 
