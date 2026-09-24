@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 258 MediaBridge budget preservation
+- [x] Cobrir drenagem parcial de `MediaBridge`: budget roteia somente frames solicitados e preserva ordem para chamada seguinte.
+- Evidência: teste `drain_with_budget_routes_only_requested_frames` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 256 session removal and re-registration boundary
 - [x] Cobrir que remoção interrompe entrega e re-registro inicia fila e sequência limpas.
 - Evidência: teste `remove_session_stops_delivery_and_reregister_starts_clean_session` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
