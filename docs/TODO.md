@@ -1,3 +1,8 @@
+## 2026-09-24 — Phase 275 negotiated MediaBridge zero-output preservation
+
+- [x] Cobrir `SessionRegistry::drive_once` com sessão negociada e `output_budget == 0`: nenhum frame é consumido; chamada posterior entrega o frame preservado.
+- Evidência: teste `drive_once_zero_output_budget_preserves_negotiated_bridge_frames` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 274 MediaBridge recovery drop accounting
 - [x] Cobrir entrega após recuperação de fila: frame aceito depois de um overflow não incrementa novamente contadores de descarte; evidência CODE local.
 
