@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 301–310
+
+- Adicionadas 10 regressões de streaming para budgets zero/oversized, ausência de sessão, mix inválido, drenagem bounded sem subscribers e limite do adaptador UDP.
+- Evidência CODE local: 180 testes `streaming` PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 291–300
 
 - Cobertura adicional de `SessionRegistry`, `MediaBridge`, `MediaPlane` e `PairingRegistry`: 10 testes de fronteira para rejeições sem mutação, binding de mix, ICE repetido, fan-out, slot máximo, isolamento de overflow e credenciais/fingerprints. Evidência CODE local; runtime e hardware permanecem não validados.

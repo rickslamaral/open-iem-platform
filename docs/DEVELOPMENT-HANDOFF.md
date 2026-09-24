@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 301–310 status — streaming budgets and transport boundaries
+
+- Adicionadas 10 coberturas CODE: zero-budget e oversized budget em `MediaSession`/`MediaPlane`, rejeições fail-closed sem mutação, drenagem bounded da `MediaBridge` com fila vazia/sem subscribers e limites do `TransportAdapter`.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 180 testes PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 291–300 status — streaming authorization and fan-out coverage
 
 - Adicionadas 10 coberturas CODE: rejeição bound preserva sessão, mix binding, múltiplos ICE, fan-out da bridge, slot máximo, overflow isolado, fingerprint canonicalizado, fingerprint inválido, replacement com credencial antiga inválida e revoke de dispositivo desconhecido. `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 170 testes PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

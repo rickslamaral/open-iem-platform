@@ -328,4 +328,45 @@ mod tests {
         assert_eq!(report.bytes, 2);
         assert_eq!(report.dropped, 0);
     }
+
+    #[tokio::test]
+    async fn send_zero_budget_does_not_consume_iterator() {
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+        let consumed = Arc::new(AtomicUsize::new(0));
+        let outputs = std::iter::once(str0m::net::Transmit {
+            proto: Protocol::Udp,
+            source: adapter.local_addr().unwrap(),
+            destination: adapter.local_addr().unwrap(),
+            contents: b"not-sent".to_vec().into(),
+        })
+        .inspect({
+            let consumed = Arc::clone(&consumed);
+            move |_| {
+                consumed.fetch_add(1, Ordering::Relaxed);
+            }
+        });
+        assert_eq!(
+            adapter.send(outputs, 0).await.unwrap(),
+            TransportSendReport::default()
+        );
+        assert_eq!(consumed.load(Ordering::Relaxed), 0);
+    }
+
+    #[tokio::test]
+    async fn send_budget_above_limit_remains_bounded() {
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+        let outputs = (0..=TRANSPORT_SEND_BUDGET).map(|_| str0m::net::Transmit {
+            proto: Protocol::Udp,
+            source: adapter.local_addr().unwrap(),
+            destination: adapter.local_addr().unwrap(),
+            contents: vec![1].into(),
+        });
+        let report = adapter.send(outputs, usize::MAX).await.unwrap();
+        assert_eq!(report.attempted, TRANSPORT_SEND_BUDGET);
+        assert_eq!(report.sent, TRANSPORT_SEND_BUDGET);
+    }
 }
