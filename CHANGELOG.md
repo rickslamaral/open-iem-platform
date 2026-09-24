@@ -1,3 +1,7 @@
+### Tests — Batch Phase 343–352
+- Adicionadas 10 regressões de streaming para drain/requeue bounded de transporte e fronteiras de registry; 210 testes `streaming` PASS localmente.
+- Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ### Added — Batch Phase 321–330
 - Added streaming registry boundary coverage for session counts, bound-device removal, metadata, replacement, and bounded transport queue preservation.
 - Evidence remains CODE-only; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network, and Raspberry Pi remain unvalidated.
