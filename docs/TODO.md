@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 269 MediaBridge rejected-frame recovery
+- [x] Cobrir que frame rejeitado por fila cheia não reaparece após recuperação; frames aceitos preservam ordem e novo frame entra no fim da fila.
+- Evidência: teste `rejected_frame_is_not_enqueued_after_queue_recovers`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 268 MediaBridge zero-drop success assertion
 - [x] Cobrir entrega normal sem overflow: `MediaPlane::total_dropped()` permanece zero após drenagem bem-sucedida.
 - Evidência: testes `media_bridge` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
