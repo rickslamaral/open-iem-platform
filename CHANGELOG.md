@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Tests
+- Batch Phase 291–300 adiciona 10 regressões de streaming para autorização bound, ICE, fan-out bounded, overflow isolado e pairing/fingerprint. Evidência CODE local; runtime e hardware permanecem não validados.
+
 ### Fixed
 - Streaming agora rejeita user IDs compostos apenas por whitespace e candidatos ICE com newline terminal antes de alterar estado.
 

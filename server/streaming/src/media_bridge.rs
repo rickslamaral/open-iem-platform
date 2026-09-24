@@ -439,6 +439,33 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drain_fans_out_one_frame_to_multiple_mix_sessions() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        plane.register_session("bob", 1).await.unwrap();
+        bridge.try_send(frame(), 42, None).unwrap();
+
+        assert_eq!(bridge.drain_to(&plane).await, 1);
+        assert_eq!(
+            plane
+                .drain_session_frames_with_budget("alice", 1)
+                .await
+                .unwrap()
+                .len(),
+            1
+        );
+        assert_eq!(
+            plane
+                .drain_session_frames_with_budget("bob", 1)
+                .await
+                .unwrap()
+                .len(),
+            1
+        );
+    }
+
+    #[tokio::test]
     async fn drain_routes_frames_to_subscribed_mix() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();

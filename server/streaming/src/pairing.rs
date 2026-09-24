@@ -291,6 +291,68 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn revoking_unknown_device_preserves_registry() {
+        let registry = PairingRegistry::new();
+        registry
+            .pair("rx-known", "musician-1", 0, CREDENTIAL)
+            .await
+            .unwrap();
+
+        assert_eq!(
+            registry.revoke("rx-missing").await,
+            Err(PairingError::NotFound)
+        );
+        assert_eq!(registry.len().await, 1);
+        assert!(registry.authenticate("rx-known", CREDENTIAL).await.is_ok());
+    }
+
+    #[tokio::test]
+    async fn invalid_fingerprint_does_not_create_device() {
+        let registry = PairingRegistry::new();
+        assert_eq!(
+            registry
+                .pair_with_fingerprint(
+                    "rx-invalid-fingerprint",
+                    "musician-1",
+                    0,
+                    CREDENTIAL,
+                    Some("sha-256 malformed".into()),
+                )
+                .await,
+            Err(PairingError::InvalidIdentity)
+        );
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn pair_with_fingerprint_canonicalizes_and_authenticates() {
+        let registry = PairingRegistry::new();
+        let fingerprint = format!("SHA-256 {}", ["AA"; 32].join(":"));
+        let identity = registry
+            .pair_with_fingerprint(
+                "rx-fingerprint",
+                "musician-1",
+                0,
+                CREDENTIAL,
+                Some(fingerprint),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(
+            identity.dtls_fingerprint.as_deref(),
+            Some(format!("sha-256 {}", ["aa"; 32].join(":"))).as_deref()
+        );
+        assert_eq!(
+            registry
+                .authenticate("rx-fingerprint", CREDENTIAL)
+                .await
+                .unwrap(),
+            identity
+        );
+    }
+
+    #[tokio::test]
     async fn pairing_binds_device_to_mix() {
         let registry = PairingRegistry::new();
         let identity = registry
@@ -398,6 +460,43 @@ mod tests {
             Err(PairingError::InvalidIdentity)
         );
         assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn replacement_wrong_old_credential_preserves_revoked_identity() {
+        let registry = PairingRegistry::new();
+        registry
+            .pair("rx-replacement", "musician-1", 3, CREDENTIAL)
+            .await
+            .unwrap();
+        registry.revoke("rx-replacement").await.unwrap();
+
+        assert_eq!(
+            registry
+                .replace_revoked(
+                    "rx-replacement",
+                    b"wrong-old-credential",
+                    b"new-secret-123456"
+                )
+                .await,
+            Err(PairingError::InvalidCredential)
+        );
+        assert_eq!(
+            registry.authenticate("rx-replacement", CREDENTIAL).await,
+            Err(PairingError::Revoked)
+        );
+        registry
+            .replace_revoked("rx-replacement", CREDENTIAL, b"new-secret-123456")
+            .await
+            .unwrap();
+        assert_eq!(
+            registry
+                .authenticate("rx-replacement", b"new-secret-123456")
+                .await
+                .unwrap()
+                .mix_index,
+            3
+        );
     }
 
     #[tokio::test]

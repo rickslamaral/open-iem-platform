@@ -1,3 +1,7 @@
+## 2026-09-24 — Batch Phase 291–300
+- [x] Cobrir 10 fronteiras de autorização, fan-out, overflow e pairing no crate `streaming`; evidência CODE local.
+- Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 281–290 streaming boundaries
 - [x] Cobrir contrato de metadados, budgets e overflow de `MediaSession`.
 - [x] Cobrir drain bounded, sessão ausente e registro duplicado de `MediaPlane`.

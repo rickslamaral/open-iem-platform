@@ -1,3 +1,7 @@
+## 2026-09-24 — Batch Phase 291–300
+
+- Cobertura adicional de `SessionRegistry`, `MediaBridge`, `MediaPlane` e `PairingRegistry`: 10 testes de fronteira para rejeições sem mutação, binding de mix, ICE repetido, fan-out, slot máximo, isolamento de overflow e credenciais/fingerprints. Evidência CODE local; runtime e hardware permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 281–290 streaming boundary hardening
 
 - Cobertas 10 fronteiras reais do streaming: contrato de metadados `MediaSession`, budgets zero/oversized, overflow e sequence gap, drain bounded da `MediaPlane`, sessão ausente, registro duplicado, user ID whitespace-only e candidato ICE com newline. Correções permanecem CODE-only; runtime/hardware não validados.

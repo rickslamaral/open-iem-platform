@@ -769,6 +769,53 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn push_frame_output_routes_highest_valid_mix_slot() {
+        let mp = MediaPlane::new();
+        mp.register_session("last", MAX_MIXES - 1).await.unwrap();
+        let frame = make_frame(0.1, 0.2, 0.8, 0.9);
+
+        mp.push_frame_output(&frame, 11, None).await;
+
+        let frames = mp
+            .drain_session_frames_with_budget("last", 1)
+            .await
+            .unwrap();
+        assert_eq!(frames[0].samples, (0.8, 0.9));
+        assert_eq!(frames[0].metadata.mix_index, MAX_MIXES - 1);
+    }
+
+    #[tokio::test]
+    async fn fanout_overflow_isolated_per_session() {
+        let mp = MediaPlane::new();
+        mp.register_session("full", 0).await.unwrap();
+        mp.register_session("available", 1).await.unwrap();
+        let frame = make_frame(0.1, 0.2, 0.8, 0.9);
+        for _ in 0..MEDIA_QUEUE_CAPACITY {
+            mp.push_frame_output(&frame, 1, None).await;
+        }
+        mp.drain_session_frames_with_budget("available", usize::MAX)
+            .await
+            .unwrap();
+
+        mp.push_frame_output(&frame, 2, None).await;
+
+        assert_eq!(mp.total_dropped(), 1);
+        assert_eq!(
+            mp.drain_session_frames_with_budget("full", 1)
+                .await
+                .unwrap()
+                .len(),
+            1
+        );
+        let available = mp
+            .drain_session_frames_with_budget("available", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(available.len(), 1);
+        assert_eq!(available[0].metadata.revision, 2);
+    }
+
+    #[tokio::test]
     async fn push_frame_to_correct_mix_slot() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 1).await.unwrap();
