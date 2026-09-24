@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Documentation
+- Reconciliado status de Phase 275 e handoff para registrar preservação de frames negociados quando `output_budget == 0`; evidência permanece CODE local.
+
+
 ### Tests
 - Added negotiated media-session coverage proving zero output budget preserves queued MediaBridge frames.
 - Added `drive_once` coverage proving zero output budget preserves queued MediaBridge frames for a later bounded delivery; runtime and hardware remain unvalidated.

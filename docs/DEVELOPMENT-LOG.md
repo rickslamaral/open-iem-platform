@@ -1,3 +1,8 @@
+## 2026-09-24 — Phase 275 documentation reconciliation
+
+- Reconciliado o status canônico para Phase 275 após a cobertura de `SessionRegistry::drive_once` com sessão negociada e `output_budget == 0`; o frame permanece na `MediaBridge` até existir orçamento de saída.
+- Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
 ## 2026-09-24 — Phase 275 negotiated MediaBridge zero-output preservation
 
 - Added `drive_once_zero_output_budget_preserves_negotiated_bridge_frames`, covering a negotiated session and proving zero output budget leaves the bridge frame queued for a later bounded drive.
