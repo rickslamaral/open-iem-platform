@@ -85,6 +85,8 @@ impl Default for MediaBridge {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::media_plane::MEDIA_QUEUE_CAPACITY;
+    use std::sync::atomic::Ordering;
     fn frame() -> FrameOutput {
         FrameOutput {
             mixes: [(0.25, 0.5), (0.75, 1.0)],
@@ -183,6 +185,29 @@ mod tests {
             .unwrap();
         assert_eq!(frames.len(), 1);
         assert_eq!(frames[0].metadata.capture_timestamp, timestamp);
+    }
+
+    #[tokio::test]
+    async fn drain_consumes_frames_when_destination_queue_is_full() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+
+        for revision in 0..MEDIA_QUEUE_CAPACITY as u64 {
+            plane.push_frame_output(&frame(), revision, None).await;
+        }
+        assert_eq!(plane.dropped_total.load(Ordering::Relaxed), 0);
+
+        bridge.try_send(frame(), 99, None).unwrap();
+        assert_eq!(bridge.drain_to(&plane).await, 1);
+        assert_eq!(plane.dropped_total.load(Ordering::Relaxed), 1);
+
+        let frames = plane
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(frames.len(), MEDIA_QUEUE_CAPACITY);
+        assert!(frames.iter().all(|item| item.metadata.revision < 99));
     }
 
     #[tokio::test]

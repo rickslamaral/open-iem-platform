@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 262 MediaBridge destination overflow accounting
+
+- Adicionado teste `drain_consumes_frames_when_destination_queue_is_full`, confirmando semântica de consumo da fila da bridge quando fila de sessão está cheia: frame é consumido, descarte é contado e frames existentes permanecem preservados.
+- Gate focado PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi continuam não validados.
+
 ## 2026-09-23 — Phase 261 MediaBridge empty drain boundary
 
 - Adicionado teste `empty_drain_returns_zero_without_touching_media_plane`, confirmando que drenagem sem frames retorna zero e não gera saída no `MediaPlane`.

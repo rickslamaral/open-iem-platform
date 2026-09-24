@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 262 MediaBridge destination overflow accounting
+- [x] Cobrir consumo da bridge quando fila de sessão está cheia: frame é consumido, descarte contado e frames já enfileirados preservados.
+- Evidência: teste `drain_consumes_frames_when_destination_queue_is_full` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 261 MediaBridge empty drain boundary
 - [x] Cobrir `MediaBridge::drain_to` sem frames: retorna zero e não altera sessões.
 - Evidência: teste `empty_drain_returns_zero_without_touching_media_plane` e suíte Rust completa PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
