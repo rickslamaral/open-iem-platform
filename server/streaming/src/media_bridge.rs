@@ -155,6 +155,20 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn empty_drain_returns_zero_without_touching_media_plane() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 1).await.unwrap();
+
+        assert_eq!(bridge.drain_to(&plane).await, 0);
+        assert!(plane
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap()
+            .is_empty());
+    }
+
+    #[tokio::test]
     async fn drain_routes_frames_to_subscribed_mix() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();

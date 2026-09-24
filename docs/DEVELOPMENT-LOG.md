@@ -1,3 +1,9 @@
+## 2026-09-23 — Phase 261 MediaBridge empty drain boundary
+
+- Adicionado teste `empty_drain_returns_zero_without_touching_media_plane`, confirmando que drenagem sem frames retorna zero e não gera saída no `MediaPlane`.
+- Gates: `cargo fmt`, `cargo clippy --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS localmente; revisão independente PASS; static scan sem achados.
+- Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi continuam não validados.
+
 ## 2026-09-23 — Phase 259 MediaBridge zero-budget preservation
 Cobrir budget zero em `MediaBridge::drain_to_with_budget`: não consome frames enfileirados e preserva entrega posterior.
 - Evidência: teste `zero_budget_preserves_queued_frames` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
