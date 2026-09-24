@@ -1,3 +1,12 @@
+## 2026-09-24 — Phase 275 status — negotiated MediaBridge zero-output preservation
+
+- Adicionado teste `drive_once_zero_output_budget_preserves_negotiated_bridge_frames`, confirmando que sessão negociada não consome bridge com `output_budget == 0` e entrega frame em chamada posterior com orçamento disponível.
+- Gates locais completos: Rust fmt, clippy, suíte server e ambos frontends passaram; revisão independente PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-24 — MediaBridge zero-output-budget preservation
+
+- Adicionado teste `drive_once_zero_output_budget_preserves_bridge_frames`, confirmando que `SessionRegistry::drive_once` não consome frames da `MediaBridge` quando `output_budget == 0`; chamada posterior entrega o frame preservado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 274 status — MediaBridge recovery drop accounting
 
 - Adicionado teste `recovery_delivery_does_not_add_drop_after_queue_overflow`, confirmando que entrega aceita após recuperação não incrementa novamente contadores de descarte por sessão ou agregados.

@@ -527,6 +527,31 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drive_once_zero_output_budget_preserves_bridge_frames() {
+        let registry = SessionRegistry::new();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.5, 0.25), (0.0, 0.0)],
+                },
+                7,
+                None,
+            )
+            .unwrap();
+
+        let skipped = registry.drive_once(&bridge, &plane, 1, 0).await;
+        assert_eq!(skipped.frames_drained, 0);
+
+        let delivered = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(delivered.frames_drained, 1);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
     async fn drive_once_routes_bounded_bridge_frames() {
         let registry = SessionRegistry::new();
         let plane = crate::media_plane::MediaPlane::new();
@@ -572,6 +597,36 @@ mod tests {
 
         registry.drive_once(&bridge, &plane, 1, 1).await;
 
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_zero_output_budget_preserves_negotiated_bridge_frames() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                13,
+                None,
+            )
+            .unwrap();
+
+        let skipped = registry.drive_once(&bridge, &plane, 1, 0).await;
+        assert_eq!(skipped.frames_drained, 0);
+        assert_eq!(skipped.outputs_polled, 0);
+
+        let delivered = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(delivered.frames_drained, 1);
         let sessions = plane.sessions.lock().await;
         assert_eq!(sessions["alice"].drain_frames().len(), 1);
     }
