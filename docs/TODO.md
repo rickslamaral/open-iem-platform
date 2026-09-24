@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 311–320 streaming registry boundaries
+- [x] Cobrir listagem, remoção idempotente e metadados de sessões negociadas.
+- [x] Cobrir drain/requeue bounded de datagrams: budget zero, ordem FIFO, fila vazia e budget parcial.
+- Evidência CODE local: 190 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 301–310 streaming budget and transport boundaries
 - [x] Cobrir zero-budget e budget oversized em `MediaSession`/`MediaPlane` sem consumir frames indevidos.
 - [x] Cobrir rejeição fail-closed para sessão ausente e mix inválido sem mutação.

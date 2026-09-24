@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 311–320 status — streaming registry boundaries
+
+- Adicionadas 10 coberturas CODE para `SessionRegistry`: listagem de sessões e metadados, remoção idempotente, drain/requeue bounded de datagrams, budget zero, ordem FIFO e filas vazias.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 190 testes PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 301–310 status — streaming budgets and transport boundaries
 
 - Adicionadas 10 coberturas CODE: zero-budget e oversized budget em `MediaSession`/`MediaPlane`, rejeições fail-closed sem mutação, drenagem bounded da `MediaBridge` com fila vazia/sem subscribers e limites do `TransportAdapter`.

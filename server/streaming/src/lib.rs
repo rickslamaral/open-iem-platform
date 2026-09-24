@@ -1731,4 +1731,130 @@ mod tests {
         assert_eq!(registry.remove_by_device_id("nonexistent-device").await, 0);
         assert_eq!(registry.len().await, 1);
     }
+
+    #[tokio::test]
+    async fn list_starts_empty() {
+        assert!(SessionRegistry::new().list().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn list_reports_negotiated_session_metadata() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("mix-1".to_owned()))
+            .await
+            .unwrap();
+        assert_eq!(
+            registry.list().await,
+            vec![SessionInfo {
+                user_id: "alice".to_owned(),
+                mix_id: Some("mix-1".to_owned()),
+                device_id: None,
+            }]
+        );
+    }
+
+    #[tokio::test]
+    async fn list_reports_all_negotiated_sessions() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        registry
+            .negotiate_offer("bob", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert_eq!(registry.len().await, 2);
+        assert_eq!(registry.list().await.len(), 2);
+    }
+
+    #[tokio::test]
+    async fn remove_unknown_session_is_false_and_non_mutating() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(!registry.remove("missing").await);
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn remove_existing_session_is_true_and_idempotent() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(registry.remove("alice").await);
+        assert!(!registry.remove("alice").await);
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn empty_transport_drain_is_noop() {
+        let registry = SessionRegistry::new();
+        assert!(registry.drain_transport_outputs(1).await.is_empty());
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn zero_transport_drain_preserves_queued_output() {
+        let registry = SessionRegistry::new();
+        let transmit = str0m::net::Transmit {
+            proto: Protocol::Udp,
+            source: "127.0.0.1:1000".parse().unwrap(),
+            destination: "127.0.0.1:2000".parse().unwrap(),
+            contents: b"payload".to_vec().into(),
+        };
+        registry.requeue_transport_outputs(vec![transmit]).await;
+        assert!(registry.drain_transport_outputs(0).await.is_empty());
+        assert_eq!(registry.drain_transport_outputs(1).await.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn transport_requeue_preserves_original_order() {
+        let registry = SessionRegistry::new();
+        let outputs = (0..3)
+            .map(|index| str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: "127.0.0.1:1000".parse().unwrap(),
+                destination: "127.0.0.1:2000".parse().unwrap(),
+                contents: vec![index].into(),
+            })
+            .collect::<Vec<_>>();
+        registry.requeue_transport_outputs(outputs).await;
+        let drained = registry.drain_transport_outputs(3).await;
+        assert_eq!(
+            drained
+                .iter()
+                .map(|item| item.contents[0])
+                .collect::<Vec<_>>(),
+            vec![0, 1, 2]
+        );
+    }
+
+    #[tokio::test]
+    async fn transport_drain_caps_to_requested_budget() {
+        let registry = SessionRegistry::new();
+        let outputs = (0..3)
+            .map(|index| str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: "127.0.0.1:1000".parse().unwrap(),
+                destination: "127.0.0.1:2000".parse().unwrap(),
+                contents: vec![index].into(),
+            })
+            .collect::<Vec<_>>();
+        registry.requeue_transport_outputs(outputs).await;
+        assert_eq!(registry.drain_transport_outputs(2).await.len(), 2);
+        assert_eq!(registry.drain_transport_outputs(2).await.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn requeue_empty_output_is_noop() {
+        let registry = SessionRegistry::new();
+        assert_eq!(registry.requeue_transport_outputs(Vec::new()).await, 0);
+        assert!(registry.drain_transport_outputs(1).await.is_empty());
+    }
 }
