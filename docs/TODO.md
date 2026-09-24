@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 273 MediaBridge bounded order/timestamp preservation
+
+- [x] Teste bounded drain em chamadas sucessivas preserva ordem FIFO, revisão e `capture_timestamp`; evidência CODE local.
+
 ## 2026-09-24 — Phase 271 MediaBridge repeated overflow rejection
 - [x] Cobrir rejeições repetidas enquanto a fila está cheia; nenhum frame rejeitado reaparece após recuperação e a ordem dos frames aceitos permanece intacta.
 - Evidência: teste `rejected_frame_is_not_enqueued_after_queue_recovers` ampliado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

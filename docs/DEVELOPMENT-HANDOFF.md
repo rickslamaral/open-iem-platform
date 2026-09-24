@@ -1,3 +1,10 @@
+## 2026-09-24 — Phase 273 status — MediaBridge bounded order/timestamp preservation
+
+- Adicionado teste `bounded_drain_preserves_order_and_timestamps_across_calls`, cobrindo orçamento de um frame por chamada, ordem FIFO, revisão e `capture_timestamp`.
+- Gates Rust completos passaram: fmt, clippy e `cargo test --manifest-path server/Cargo.toml`.
+- Revisão independente: PASS; sem security concerns ou logic errors.
+- Evidência: CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 continuam não validados.
+
 ## 2026-09-24 — Phase 272 status — MediaBridge zero-budget multi-frame preservation
 - Adicionado teste `zero_budget_preserves_all_queued_frames`, confirmando que budget zero não consome nenhum frame e preserva ordem de dois frames para drenagem posterior. Evidência: teste focado PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
