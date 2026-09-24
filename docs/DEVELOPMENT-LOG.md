@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 276 negotiated MediaBridge frame preservation
+
+- Teste `drive_once_packets_encoded_zero_without_negotiated_media` agora verifica retenção dos dois frames na fila da sessão quando não existe mídia de áudio negociada; nenhuma perda silenciosa no filtro `media_mid`. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-24 — Phase 275 documentation reconciliation
 
 - Reconciliado o status canônico para Phase 275 após a cobertura de `SessionRegistry::drive_once` com sessão negociada e `output_budget == 0`; o frame permanece na `MediaBridge` até existir orçamento de saída.

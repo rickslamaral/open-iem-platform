@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- MediaBridge preserves frames drained for negotiated sessions without audio media, avoiding silent loss before `media_mid` exists.
+
 ### Documentation
 - Reconciliado status de Phase 275 e handoff para registrar preservação de frames negociados quando `output_budget == 0`; evidência permanece CODE local.
 

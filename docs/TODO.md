@@ -1,3 +1,6 @@
+## 2026-09-24 — Phase 276 negotiated MediaBridge frame preservation
+- [x] Cobrir retenção de frames em sessão negociada sem mídia de áudio: teste confirma que frames permanecem na fila quando `media_mid` ainda não existe. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-24 — Phase 275 negotiated MediaBridge zero-output preservation
 
 - [x] Cobrir `SessionRegistry::drive_once` com sessão negociada e `output_budget == 0`: nenhum frame é consumido; chamada posterior entrega o frame preservado.

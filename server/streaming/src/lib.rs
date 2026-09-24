@@ -1409,6 +1409,9 @@ mod tests {
         assert_eq!(report.frames_drained, 2);
         assert_eq!(report.packets_encoded, 0);
         assert!(!report.budget_exhausted);
+
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["carol"].drain_frames().len(), 2);
     }
 
     #[tokio::test]
