@@ -385,6 +385,35 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn recovery_delivery_does_not_add_drop_after_queue_overflow() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+
+        for revision in 0..MEDIA_QUEUE_CAPACITY as u64 {
+            plane.push_frame_output(&frame(), revision, None).await;
+        }
+        bridge.try_send(frame(), 999, None).unwrap();
+        assert_eq!(bridge.drain_to(&plane).await, 1);
+        assert_eq!(plane.total_dropped(), 1);
+
+        assert_eq!(
+            plane
+                .drain_session_frames_with_budget("alice", 1)
+                .await
+                .unwrap()
+                .len(),
+            1
+        );
+        bridge.try_send(frame(), 1000, None).unwrap();
+        assert_eq!(bridge.drain_to(&plane).await, 1);
+
+        assert_eq!(plane.total_dropped(), 1);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drop_count(), 1);
+    }
+
+    #[tokio::test]
     async fn drain_consumes_frames_without_registered_sessions() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();

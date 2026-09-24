@@ -1,3 +1,6 @@
+## 2026-09-24 — Phase 274 MediaBridge recovery drop accounting
+- [x] Cobrir entrega após recuperação de fila: frame aceito depois de um overflow não incrementa novamente contadores de descarte; evidência CODE local.
+
 ## 2026-09-24 — Phase 273 MediaBridge bounded order/timestamp preservation
 
 - [x] Teste bounded drain em chamadas sucessivas preserva ordem FIFO, revisão e `capture_timestamp`; evidência CODE local.

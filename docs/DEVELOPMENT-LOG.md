@@ -1,3 +1,8 @@
+## 2026-09-24 — Phase 274 MediaBridge recovery drop accounting
+
+- Adicionado teste `recovery_delivery_does_not_add_drop_after_queue_overflow`, cobrindo que frame aceito após liberar espaço não altera contadores de descarte já registrados.
+- Gates pendentes neste checkpoint; evidência CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-24 — Phase 273 MediaBridge bounded order/timestamp preservation
 
 - Adicionada cobertura para drenagem bounded em chamadas sucessivas, confirmando que frames permanecem FIFO e preservam revisão e `capture_timestamp` através da ponte.
