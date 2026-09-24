@@ -106,6 +106,72 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn rejected_frame_is_not_enqueued_after_queue_recovers() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+
+        for revision in 0..MEDIA_BRIDGE_CAPACITY as u64 {
+            bridge.try_send(frame(), revision, None).unwrap();
+        }
+        assert_eq!(
+            bridge.try_send(frame(), 999, None),
+            Err(MediaBridgeError::Full)
+        );
+
+        assert_eq!(bridge.drain_to_with_budget(&plane, 1).await, 1);
+        assert_eq!(
+            plane
+                .drain_session_frames_with_budget("alice", usize::MAX)
+                .await
+                .unwrap()[0]
+                .metadata
+                .revision,
+            0
+        );
+        bridge.try_send(frame(), 100, None).unwrap();
+
+        assert_eq!(
+            bridge
+                .drain_to_with_budget(&plane, MEDIA_QUEUE_CAPACITY)
+                .await,
+            MEDIA_QUEUE_CAPACITY
+        );
+        let first_batch = plane
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(first_batch.len(), MEDIA_QUEUE_CAPACITY);
+        assert_eq!(first_batch[0].metadata.revision, 1);
+        assert_eq!(
+            first_batch[MEDIA_QUEUE_CAPACITY - 1].metadata.revision,
+            MEDIA_QUEUE_CAPACITY as u64
+        );
+
+        assert_eq!(
+            bridge.drain_to(&plane).await,
+            MEDIA_BRIDGE_CAPACITY - MEDIA_QUEUE_CAPACITY
+        );
+        let last_batch = plane
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(
+            last_batch.len(),
+            MEDIA_BRIDGE_CAPACITY - MEDIA_QUEUE_CAPACITY
+        );
+        assert_eq!(
+            last_batch[0].metadata.revision,
+            (MEDIA_QUEUE_CAPACITY + 1) as u64
+        );
+        assert_eq!(last_batch[last_batch.len() - 1].metadata.revision, 100);
+        assert!(!first_batch
+            .iter()
+            .chain(last_batch.iter())
+            .any(|item| item.metadata.revision == 999));
+    }
+
+    #[tokio::test]
     async fn drain_with_budget_routes_only_requested_frames() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();
@@ -221,7 +287,7 @@ mod tests {
         }
         assert_eq!(plane.dropped_total.load(Ordering::Relaxed), 0);
 
-        bridge.try_send(frame(), 99, None).unwrap();
+        bridge.try_send(frame(), 999, None).unwrap();
         assert_eq!(bridge.drain_to(&plane).await, 1);
         assert_eq!(plane.dropped_total.load(Ordering::Relaxed), 1);
         assert_eq!(plane.total_dropped(), 1);

@@ -2,6 +2,10 @@
 - Adicionado teste `bounded_drain_without_sessions_preserves_remaining_frames`, confirmando que budget unitário consome frames em chamadas sucessivas, sem criar sessões e sem perder frames na bridge.
 - Evidência pendente até gates locais; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
+## 2026-09-24 — Phase 269 status — MediaBridge rejected-frame recovery
+- Adicionado teste `rejected_frame_is_not_enqueued_after_queue_recovers`, confirmando que overflow rejeitado não muta fila; após drenagem, novo frame é aceito no fim e ordem dos frames preservada.
+- Evidência pendente até gates locais; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 268 status — MediaBridge zero-drop success
 - Adicionado teste `successful_delivery_keeps_aggregate_drop_count_zero`, cobrindo ausência de descarte no caminho de entrega normal.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
