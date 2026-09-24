@@ -301,7 +301,7 @@ impl SessionRegistry {
             .map(|peer| peer.user_id.clone())
             .collect::<Vec<_>>();
         let mut drained = HashMap::new();
-        let mut remaining_output_budget = output_budget.saturating_sub(frames_drained);
+        let mut remaining_output_budget = output_budget;
         for user_id in session_ids {
             if remaining_output_budget == 0 {
                 break;
