@@ -1,3 +1,7 @@
+## 2026-09-24 — Batch Phase 291–300 status — streaming authorization and fan-out coverage
+
+- Adicionadas 10 coberturas CODE: rejeição bound preserva sessão, mix binding, múltiplos ICE, fan-out da bridge, slot máximo, overflow isolado, fingerprint canonicalizado, fingerprint inválido, replacement com credencial antiga inválida e revoke de dispositivo desconhecido. `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 170 testes PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 281–290 status — streaming boundary hardening
 
 - Adicionadas 10 coberturas CODE para metadados, budgets, overflow, duplicação, drains ausentes, IDs whitespace-only e candidatos ICE com newline; correção fail-closed rejeita ID whitespace-only e candidato terminado em LF/CR. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

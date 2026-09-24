@@ -1312,6 +1312,68 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn bound_rejection_preserves_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original".into()))
+            .await
+            .unwrap();
+        let identity = DeviceIdentity {
+            device_id: "rx-1".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+
+        assert!(registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("1".into()), Some(&identity))
+            .await
+            .is_err());
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("original"));
+    }
+
+    #[tokio::test]
+    async fn bound_offer_requires_matching_mix_id() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "rx-1".into(),
+            musician_id: "alice".into(),
+            mix_index: 2,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+
+        assert!(registry
+            .negotiate_offer_bound("alice", VALID_OFFER, None, Some(&identity))
+            .await
+            .is_ok());
+        assert!(registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("1".into()), Some(&identity))
+            .await
+            .is_err());
+        assert_eq!(registry.list().await[0].mix_id, None);
+    }
+
+    #[tokio::test]
+    async fn multiple_valid_candidates_preserve_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        registry
+            .add_ice_candidate("alice", VALID_CANDIDATE)
+            .await
+            .unwrap();
+        registry
+            .add_ice_candidate("alice", VALID_CANDIDATE)
+            .await
+            .unwrap();
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
     async fn bound_session_rejects_wrong_musician_or_mix() {
         let registry = SessionRegistry::new();
         let identity = DeviceIdentity {
