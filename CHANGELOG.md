@@ -6,7 +6,6 @@
 ### Tests
 - Batch Phase 281–290 adiciona cobertura de metadados, budgets, overflow, ordem, sessão ausente e registro duplicado em `MediaSession`/`MediaPlane`. Evidência CODE local; runtime e hardware permanecem não validados.
 
-## [Unreleased]
 
 ### Fixed
 - Streaming agora rejeita user IDs compostos apenas por whitespace e candidatos ICE com newline terminal antes de alterar estado.
@@ -28,7 +27,6 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
 
 - Testes streaming: coberta preservação de frames por sessão sob orçamento de saída compartilhado em chamadas sucessivas de `SessionRegistry::drive_once`.
 
