@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 270 MediaBridge bounded drain without subscribers
+- [x] Cobrir drenagens sucessivas com budget unitário sem sessões: cada chamada consome somente um frame e a bridge termina vazia.
+- Evidência: teste `bounded_drain_without_sessions_preserves_remaining_frames`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 268 MediaBridge zero-drop success assertion
 - [x] Cobrir entrega normal sem overflow: `MediaPlane::total_dropped()` permanece zero após drenagem bem-sucedida.
 - Evidência: testes `media_bridge` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

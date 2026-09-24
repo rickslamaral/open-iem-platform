@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 270 status — MediaBridge bounded drain without subscribers
+- Adicionado teste `bounded_drain_without_sessions_preserves_remaining_frames`, confirmando que budget unitário consome frames em chamadas sucessivas, sem criar sessões e sem perder frames na bridge.
+- Evidência pendente até gates locais; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 268 status — MediaBridge zero-drop success
 - Adicionado teste `successful_delivery_keeps_aggregate_drop_count_zero`, cobrindo ausência de descarte no caminho de entrega normal.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

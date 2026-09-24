@@ -1,3 +1,8 @@
+## 2026-09-24 — Phase 270 MediaBridge bounded drain without subscribers
+
+- Adicionado teste de regressão para drenagem sucessiva com budget unitário sem sessões registradas, cobrindo consumo limitado e esvaziamento final da bridge.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 268 MediaBridge zero-drop success
 - Adicionado teste para garantir que entrega normal mantém `MediaPlane::total_dropped()` em zero.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

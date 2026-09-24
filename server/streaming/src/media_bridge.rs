@@ -275,6 +275,19 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn bounded_drain_without_sessions_preserves_remaining_frames() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        bridge.try_send(frame(), 7, None).unwrap();
+        bridge.try_send(frame(), 8, None).unwrap();
+
+        assert_eq!(bridge.drain_to_with_budget(&plane, 1).await, 1);
+        assert_eq!(bridge.drain_to_with_budget(&plane, 1).await, 1);
+        assert_eq!(bridge.drain_to_with_budget(&plane, 1).await, 0);
+        assert!(plane.sessions.lock().await.is_empty());
+    }
+
+    #[tokio::test]
     async fn drain_routes_frames_to_subscribed_mix() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();
