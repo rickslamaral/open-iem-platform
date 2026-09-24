@@ -1,3 +1,7 @@
+## 2026-09-24 — MediaBridge zero-output-budget preservation
+
+- Adicionada cobertura para preservar frames enfileirados quando `SessionRegistry::drive_once` recebe orçamento de saída zero; drenagem posterior confirma entrega única. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 274 MediaBridge recovery drop accounting
 
 - Adicionado teste `recovery_delivery_does_not_add_drop_after_queue_overflow`, cobrindo que frame aceito após liberar espaço não altera contadores de descarte já registrados.

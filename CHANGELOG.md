@@ -1,3 +1,6 @@
+### Tests
+- Added `drive_once` coverage proving zero output budget preserves queued MediaBridge frames for a later bounded delivery; runtime and hardware remain unvalidated.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
