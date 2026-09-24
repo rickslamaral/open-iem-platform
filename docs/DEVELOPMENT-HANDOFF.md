@@ -1,3 +1,6 @@
+## 2026-09-23 — Phase 265 status — MediaBridge no-subscriber drain
+- Adicionado teste `drain_consumes_frames_without_registered_sessions`, confirmando consumo dos frames sem sessões registradas e bridge vazia após drenagem. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 264 status — MediaBridge oversized budget boundary
 - Adicionado teste `oversized_budget_routes_all_available_frames`, confirmando que budget `usize::MAX` não inventa frames, preserva ordem e deixa bridge vazia após drenagem. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 

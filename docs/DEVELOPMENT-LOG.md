@@ -1,3 +1,8 @@
+## 2026-09-23 — Phase 265 MediaBridge no-subscriber drain boundary
+
+- Adicionado teste `drain_consumes_frames_without_registered_sessions`, confirmando que frames são consumidos quando não há sessões registradas, sem mutar ou criar sessões no `MediaPlane`.
+- Gate focado PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-23 — Phase 264 MediaBridge oversized budget boundary
 - Teste cobre budget acima da fila disponível em `MediaBridge::drain_to_with_budget`, incluindo ordem das revisões e segunda drenagem vazia.
 

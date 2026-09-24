@@ -240,6 +240,18 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drain_consumes_frames_without_registered_sessions() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        bridge.try_send(frame(), 7, None).unwrap();
+        bridge.try_send(frame(), 8, None).unwrap();
+
+        assert_eq!(bridge.drain_to(&plane).await, 2);
+        assert!(plane.sessions.lock().await.is_empty());
+        assert_eq!(bridge.drain_to(&plane).await, 0);
+    }
+
+    #[tokio::test]
     async fn drain_routes_frames_to_subscribed_mix() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();
