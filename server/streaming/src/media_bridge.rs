@@ -169,6 +169,23 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drain_preserves_capture_timestamp() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let timestamp = Some(SampleTimestamp::new(42, 2_016_000));
+        bridge.try_send(frame(), 7, timestamp).unwrap();
+
+        assert_eq!(bridge.drain_to(&plane).await, 1);
+        let frames = plane
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap();
+        assert_eq!(frames.len(), 1);
+        assert_eq!(frames[0].metadata.capture_timestamp, timestamp);
+    }
+
+    #[tokio::test]
     async fn drain_routes_frames_to_subscribed_mix() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();
