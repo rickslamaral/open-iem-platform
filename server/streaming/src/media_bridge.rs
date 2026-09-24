@@ -194,7 +194,7 @@ mod tests {
         plane.register_session("alice", 0).await.unwrap();
 
         for revision in 0..MEDIA_QUEUE_CAPACITY as u64 {
-            plane.push_frame_output(&frame(), revision, None).await;
+            assert_eq!(plane.push_frame_output(&frame(), revision, None).await, ());
         }
         assert_eq!(plane.dropped_total.load(Ordering::Relaxed), 0);
 
@@ -207,7 +207,13 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(frames.len(), MEDIA_QUEUE_CAPACITY);
-        assert!(frames.iter().all(|item| item.metadata.revision < 99));
+        assert_eq!(
+            frames
+                .iter()
+                .map(|item| item.metadata.revision)
+                .collect::<Vec<_>>(),
+            (0..MEDIA_QUEUE_CAPACITY as u64).collect::<Vec<_>>()
+        );
     }
 
     #[tokio::test]

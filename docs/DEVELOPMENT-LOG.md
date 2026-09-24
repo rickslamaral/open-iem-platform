@@ -1,3 +1,7 @@
+## 2026-09-23 — Phase 263 MediaBridge overflow preservation assertions
+
+- Fortalecido `drain_consumes_frames_when_destination_queue_is_full` para validar todas as revisões preservadas em ordem exata após overflow. Gate focado PASS; evidência permanece CODE local.
+
 ## 2026-09-23 — Phase 262 MediaBridge destination overflow accounting
 
 - Adicionado teste `drain_consumes_frames_when_destination_queue_is_full`, confirmando semântica de consumo da fila da bridge quando fila de sessão está cheia: frame é consumido, descarte é contado e frames existentes permanecem preservados.
