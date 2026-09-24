@@ -244,6 +244,25 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn successful_delivery_keeps_aggregate_drop_count_zero() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        bridge.try_send(frame(), 7, None).unwrap();
+
+        assert_eq!(bridge.drain_to(&plane).await, 1);
+        assert_eq!(plane.total_dropped(), 0);
+        assert_eq!(
+            plane
+                .drain_session_frames_with_budget("alice", usize::MAX)
+                .await
+                .unwrap()
+                .len(),
+            1
+        );
+    }
+
+    #[tokio::test]
     async fn drain_consumes_frames_without_registered_sessions() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();

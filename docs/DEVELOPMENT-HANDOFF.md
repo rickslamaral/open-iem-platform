@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 268 status — MediaBridge zero-drop success
+- Adicionado teste `successful_delivery_keeps_aggregate_drop_count_zero`, cobrindo ausência de descarte no caminho de entrega normal.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 267 status — MediaBridge aggregate drop accessor
 - Fortalecido `drain_consumes_frames_when_destination_queue_is_full` para validar também `MediaPlane::total_dropped()`, cobrindo contrato público do contador agregado após overflow.
 - Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

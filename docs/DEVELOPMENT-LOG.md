@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 268 MediaBridge zero-drop success
+- Adicionado teste para garantir que entrega normal mantém `MediaPlane::total_dropped()` em zero.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 267 MediaBridge aggregate drop accessor
 - Adicionada asserção do accessor público `MediaPlane::total_dropped()` no cenário de fila de destino cheia.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
