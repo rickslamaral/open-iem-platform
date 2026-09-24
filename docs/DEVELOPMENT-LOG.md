@@ -1,3 +1,6 @@
+## 2026-09-24 — Phase 272 MediaBridge zero-budget multi-frame preservation
+- Adicionado teste `zero_budget_preserves_all_queued_frames`, confirmando preservação integral e ordenada de múltiplos frames quando budget zero precede drenagem posterior. Evidência: teste focado PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 271 MediaBridge repeated overflow rejection
 - Fortalecido teste de recuperação de overflow com duas rejeições consecutivas em fila cheia; frames rejeitados permanecem fora da fila e frames aceitos preservam ordem. Evidência pendente até gates locais; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
