@@ -459,7 +459,8 @@ impl SessionRegistry {
     }
 
     pub async fn list(&self) -> Vec<SessionInfo> {
-        self.sessions
+        let mut sessions: Vec<_> = self
+            .sessions
             .lock()
             .await
             .values()
@@ -468,7 +469,9 @@ impl SessionRegistry {
                 mix_id: peer.mix_id.clone(),
                 device_id: peer.device_id.clone(),
             })
-            .collect()
+            .collect();
+        sessions.sort_by(|left, right| left.user_id.cmp(&right.user_id));
+        sessions
     }
 
     pub async fn remove(&self, user_id: &str) -> bool {
@@ -2201,14 +2204,18 @@ mod tests {
             .unwrap();
         let after = registry.list().await;
         assert_eq!(
+            before
+                .iter()
+                .map(|session| session.user_id.as_str())
+                .collect::<Vec<_>>(),
+            vec!["alpha", "zeta"]
+        );
+        assert_eq!(
             after
                 .iter()
                 .map(|session| session.user_id.as_str())
                 .collect::<Vec<_>>(),
-            before
-                .iter()
-                .map(|session| session.user_id.as_str())
-                .collect::<Vec<_>>()
+            vec!["alpha", "zeta"]
         );
         assert_eq!(
             after
