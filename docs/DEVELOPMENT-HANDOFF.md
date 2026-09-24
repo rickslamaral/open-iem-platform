@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 281–290 status — streaming boundary hardening
+
+- Adicionadas 10 coberturas CODE para metadados, budgets, overflow, duplicação, drains ausentes, IDs whitespace-only e candidatos ICE com newline; correção fail-closed rejeita ID whitespace-only e candidato terminado em LF/CR. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+
 ## 2026-09-24 — Phase 280 status — bounded bridge backlog exhaustion
 
 - Adicionado teste `drive_once_preserves_excess_bridge_frames_across_bounded_calls`, confirmando drenagem de um frame por chamada até esgotar backlog, mesmo com `frame_budget` maior. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
