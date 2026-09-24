@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 278 shared budget per-session preservation
+
+- Fortalecido teste de duas sessões negociadas para verificar que cada chamada bounded entrega um frame por sessão e que frames permanecem preservados sob budget compartilhado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Phase 277 negotiated MediaBridge shared output budget
 
 - Limitada drenagem por sessão negociada ao orçamento de saída compartilhado em `SessionRegistry::drive_once`, evitando consumir frames que não podem ser codificados na mesma passagem.

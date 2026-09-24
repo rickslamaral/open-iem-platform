@@ -1,3 +1,7 @@
+## 2026-09-24 — Phase 278 status — shared budget preserves per-session frames
+
+- Fortalecido `drive_once_output_budget_shared_across_sessions` com duas chamadas sucessivas: cada sessão retém um frame após cada drenagem bounded, sem perda causada pelo orçamento compartilhado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-24 — Phase 277 status — negotiated MediaBridge shared output budget
 
 - `SessionRegistry::drive_once` agora limita drenagem das filas de sessões negociadas ao orçamento de saída compartilhado. Frames além da capacidade de codificação permanecem enfileirados para a próxima chamada, sem claim de runtime.

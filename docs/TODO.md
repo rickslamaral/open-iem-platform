@@ -630,6 +630,13 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [ ] Desbloquear CI remoto antes de merge/release.
 - [ ] Validar archives e instalação em Raspberry Pi 5 real.
 
+## Phase 278 — preservação de frames sob budget compartilhado por sessão
+
+- [x] Cobrir duas sessões negociadas com budget de saída compartilhado em chamadas sucessivas.
+- [x] Confirmar que frames roteados para ambas as sessões permanecem disponíveis após cada drenagem bounded.
+- [ ] Desbloquear CI remoto antes de merge/release.
+- [ ] Validar mídia WebRTC/DTLS-SRTP, PipeWire/ALSA e Raspberry Pi 5 real.
+
 ## Phase 75 — fonte única de versão e gate reproduzível
 
 - [x] Criar `VERSION` canônico e validar manifests Rust/frontend e tags SemVer.

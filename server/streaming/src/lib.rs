@@ -1401,6 +1401,17 @@ mod tests {
         let report = registry.drive_once(&bridge, &plane, 2, 1).await;
         assert_eq!(report.frames_drained, 1);
         assert!(report.outputs_polled <= 1);
+
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+        assert_eq!(sessions["bob"].drain_frames().len(), 1);
+        drop(sessions);
+
+        let follow_up = registry.drive_once(&bridge, &plane, 2, 1).await;
+        assert_eq!(follow_up.frames_drained, 1);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+        assert_eq!(sessions["bob"].drain_frames().len(), 1);
     }
 
     #[tokio::test]

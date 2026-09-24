@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- Testes streaming: coberta preservação de frames por sessão sob orçamento de saída compartilhado em chamadas sucessivas de `SessionRegistry::drive_once`.
+
 ### Fixed
 - MediaBridge preserves frames drained for negotiated sessions without audio media, avoiding silent loss before `media_mid` exists.
 
