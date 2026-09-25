@@ -798,3 +798,9 @@ test → review → docs/GAP update → PR/CI
 - Dez regressões CODE cobrem preservação de fila com budget zero, requeue antes do prefixo existente, overflow bounded, remoções exatas/não mutantes, metadados bound/unbound e ordenação determinística após replacement.
 - `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 350 testes PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
 - Próximo: gates completos, revisão independente e PR consolidada somente após batch mínimo de 10 fases.
+
+## 2026-09-25 — Batch Phase 533–542 status
+
+- Ten streaming regressions cover candidate validation before lookup, multibyte user-ID byte boundary, unknown-session non-mutation, bounded oversized transport drain and FIFO preservation after zero-budget drain.
+- Focused gate: 380 streaming tests PASS locally. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+- Next: run full local gates, independent review, commit and push on `develop`; continue next concrete CODE boundary.

@@ -5303,3 +5303,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - Adicionadas 10 regressões no `streaming` para budget zero, requeue FIFO e capacidade, remoções idempotentes/exatas, preservação de metadados e ordenação após replacement.
 - Gate focado: 350 testes `streaming` PASS localmente. Evidência CODE local; sem claim de runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real ou Raspberry Pi 5.
+
+## 2026-09-25 — Phases 533–542 streaming boundary coverage
+
+- Added ten CODE regressions for multibyte user-ID byte limits, fail-closed ICE validation, unknown-session behavior and bounded transport drain/requeue ordering.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 380 tests PASS. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

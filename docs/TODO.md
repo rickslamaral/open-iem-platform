@@ -1239,3 +1239,5 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Cobrir budget de transporte zero, requeue FIFO/capacidade, remoções não mutantes e ordenação após replacement.
 - Evidência: 350 testes `streaming` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+- [x] Streaming boundary batch Phases 533–542: ICE input rejection/non-mutation, multibyte ID limit, unknown-session fail-closed behavior and bounded transport queue ordering. CODE evidence; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain pending.

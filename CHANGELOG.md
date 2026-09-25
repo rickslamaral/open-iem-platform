@@ -1032,3 +1032,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Local focused evidence: 330 `streaming` tests pass; hardware/runtime claims unchanged.
 
 - Streaming: expanded CODE boundary coverage for bounded transport queues and session lifecycle (Phases 493–502).
+
+- Added streaming boundary regressions for ICE validation, identifier byte limits and bounded transport queue behavior.

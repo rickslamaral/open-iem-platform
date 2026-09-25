@@ -4960,10 +4960,31 @@ mod tests {
     #[tokio::test]
     async fn phase540_transport_drain_budget_above_capacity_is_bounded() {
         let registry = SessionRegistry::new();
-        registry
-            .requeue_transport_outputs(vec![test_transmit(b"one"), test_transmit(b"two")])
-            .await;
-        assert_eq!(registry.drain_transport_outputs(usize::MAX).await.len(), 2);
+        let outputs: Vec<_> = (0..=TRANSPORT_OUTPUT_CAPACITY)
+            .map(|index| test_transmit(format!("packet-{index}").as_bytes()))
+            .collect();
+        assert_eq!(
+            registry.requeue_transport_outputs(outputs).await,
+            1,
+            "requeue must preserve bounded queue capacity"
+        );
+
+        let drained = registry.drain_transport_outputs(usize::MAX).await;
+        assert_eq!(drained.len(), TRANSPORT_SEND_BUDGET);
+        assert_eq!(drained.first().unwrap().contents.as_ref(), b"packet-1");
+        assert_eq!(
+            drained.last().unwrap().contents.as_ref(),
+            format!("packet-{TRANSPORT_SEND_BUDGET}").as_bytes()
+        );
+        let second = registry.drain_transport_outputs(usize::MAX).await;
+        let third = registry.drain_transport_outputs(usize::MAX).await;
+        let fourth = registry.drain_transport_outputs(usize::MAX).await;
+        assert_eq!(second.len(), TRANSPORT_SEND_BUDGET);
+        assert_eq!(third.len(), TRANSPORT_SEND_BUDGET);
+        assert_eq!(fourth.len(), TRANSPORT_SEND_BUDGET);
+        assert_eq!(second.first().unwrap().contents.as_ref(), b"packet-33");
+        assert_eq!(third.first().unwrap().contents.as_ref(), b"packet-65");
+        assert_eq!(fourth.first().unwrap().contents.as_ref(), b"packet-97");
         assert!(registry
             .drain_transport_outputs(usize::MAX)
             .await
