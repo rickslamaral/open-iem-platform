@@ -1,3 +1,9 @@
+## 2026-09-25 — Batch Phase 403–412 streaming registry boundaries
+- [x] Cobrir budget zero, exato e oversized na fila de transporte, preservando FIFO e saída existente após remoção de sessão.
+- [x] Cobrir requeue vazio, ordenação determinística para quatro sessões, replacement sem duplicação e remoção seletiva por device.
+- [x] Cobrir rejeição de registro duplicado inválido e mix ID oversized sem substituir sessão válida.
+- Evidência CODE local: 260 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 
 ## 2026-09-24 — Batch Phase 383–392 streaming state-preservation boundaries
 - [x] Cobrir whitespace user ID, candidate oversized/whitespace, user ID oversized em ICE e falhas de offer sem mutação.
