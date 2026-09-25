@@ -1,3 +1,9 @@
+## Phase 503–512 status — streaming input rejection boundaries
+
+- Dez regressões cobrem limites oversized/whitespace de user, SDP e mix, replacement malformado, candidatos vazios/CRLF/oversized, sessão desconhecida e preservação de metadados sem mutação indevida.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 360 testes PASS localmente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
 ## Phase 483–492 status — streaming queue and replacement boundaries
 
 - Dez regressões cobrem CRLF em ICE, drain parcial/idempotente, overflow bounded, replacement inválido, binding de device, remoção seletiva e independência entre fila e sessões.

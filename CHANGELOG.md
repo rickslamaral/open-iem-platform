@@ -1,3 +1,8 @@
+## [Unreleased]
+
+### Tests
+- Added ten streaming CODE regressions for bounded offer/candidate input rejection and non-mutating session lifecycle failures (Phases 503–512).
+
 ### Tests — Phase 483–492
 - Adicionada cobertura de fronteiras de fila de transporte, replacement de sessão e remoção seletiva no streaming; 340 testes `streaming` passam localmente.
 - Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
@@ -6,7 +11,7 @@
 - Added streaming boundary coverage for multibyte byte limits, bounded transport drain/requeue, exact session removal and failed replacement preservation.
 - Evidence remains CODE local; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
 
-## [Unreleased]
+
 
 ### Tests
 - Adicionada cobertura de fronteiras em bytes UTF-8, requeue FIFO, remoção seletiva e replacement no `SessionRegistry` para Phases 443–452; 310 testes `streaming` passam localmente.
