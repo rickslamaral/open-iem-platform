@@ -1,3 +1,8 @@
+## 2026-09-25 — Batch Phase 443–452 streaming byte and lifecycle boundaries
+- [x] Cobrir limites em bytes para IDs UTF-8 multibyte de usuário/mix/candidato, preservando sessão em rejeições.
+- [x] Cobrir overflow/requeue FIFO, remoção seletiva, falha de replacement e invariantes de contagem do registry.
+- Evidência CODE local: 310 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-25 — Batch Phase 433–442 streaming registry boundaries
 - [x] Cobrir rejeições de user/candidate whitespace, identidade bound inválida/revogada e preservação de sessão.
 - [x] Cobrir remoção seletiva/idempotente e invariantes FIFO da fila de transporte sob requeue/drain/removal.

@@ -1,3 +1,9 @@
+## Phase 443–452 status — streaming byte and lifecycle boundaries
+
+- Dez regressões cobrem limites em bytes para entradas UTF-8 multibyte, overflow/requeue FIFO, remoção seletiva, falhas de replacement e preservação de estado.
+- Verificação focused: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 310 testes PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
 ## Phase 433–442 status — streaming registry boundaries
 
 - Dez regressões cobrem rejeição de entradas whitespace, identidade bound inválida/revogada, remoção seletiva e invariantes FIFO da fila de transporte.

@@ -1,6 +1,10 @@
 ## [Unreleased]
 
 ### Tests
+- Adicionada cobertura de fronteiras em bytes UTF-8, requeue FIFO, remoção seletiva e replacement no `SessionRegistry` para Phases 443–452; 310 testes `streaming` passam localmente.
+- Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+### Tests
 - Adicionada cobertura de fronteiras do `SessionRegistry` e fila de transporte para Phases 433–442; 300 testes `streaming` passam localmente.
 - Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
