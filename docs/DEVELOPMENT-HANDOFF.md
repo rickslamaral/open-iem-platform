@@ -1,3 +1,8 @@
+## 2026-09-25 — Batch Phase 413–422 status — streaming registry boundaries
+- Adicionadas 10 regressões CODE para remoção exata por usuário/device, limpeza seletiva, replacement bound, FIFO/requeue, drain parcial, metadados e independência da fila de transporte.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 280 testes PASS localmente. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+- Próximo: gates locais completos, revisão independente e PR consolidada somente após batch mínimo de 10 fases.
+
 ## 2026-09-25 — Batch Phase 403–412 status — streaming registry boundaries
 - Adicionadas 10 regressões CODE para orçamento de transporte zero/exato/oversized, preservação FIFO, replacement sem duplicação, ordenação determinística, remoção seletiva por device e rejeição de mix inválido sem mutação e no-op bounded em registry vazio.
 - `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 270 testes PASS localmente. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
