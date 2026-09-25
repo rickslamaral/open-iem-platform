@@ -1,3 +1,7 @@
+### Added — Batch Phase 413–422
+- Added bounded streaming registry regression coverage for exact session/device removal, transport FIFO partial drains, metadata preservation, replacement and queue/session independence.
+- Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ### Tests — Batch Phase 403–412
 - Adicionadas 10 regressões de streaming para budgets bounded de transporte, preservação FIFO, replacement sem duplicação, ordenação determinística, remoção seletiva por device e rejeições fail-closed e no-op bounded em registry vazio. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
