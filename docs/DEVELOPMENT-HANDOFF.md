@@ -1,3 +1,9 @@
+## 2026-09-25 — Batch Phase 523–532 status
+
+- Dez regressões cobrem whitespace em user IDs de ICE, remoção literal de sessões/dispositivos, budgets zero/parciais, FIFO da fila e falhas sem mutação.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 380 testes PASS localmente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
 ## 2026-09-25 — Batch Phase 513–522 status
 
 - Dez regressões adicionais cobrem fronteiras de replacement, candidatos, fila de transporte e listagem no crate `streaming`.

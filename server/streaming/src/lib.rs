@@ -252,6 +252,7 @@ impl SessionRegistry {
     ) -> Result<(), StreamingError> {
         // Fast structural checks before acquiring the lock.
         if user_id.trim().is_empty()
+            || user_id.chars().any(char::is_whitespace)
             || user_id.len() > MAX_USER_ID_BYTES
             || candidate.is_empty()
             || candidate.chars().any(|ch| ch == '\r' || ch == '\n')
@@ -4863,6 +4864,148 @@ mod tests {
         let sessions = registry.list().await;
         assert_eq!(sessions.len(), 1);
         assert_eq!(sessions[0].mix_id.as_deref(), Some("second"));
+    }
+
+    #[tokio::test]
+    async fn phase523_candidate_user_id_with_newline_is_rejected_before_lookup() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(matches!(
+            registry.add_ice_candidate("alice\n", VALID_CANDIDATE).await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn phase524_candidate_user_id_with_internal_whitespace_is_rejected() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(matches!(
+            registry.add_ice_candidate("al ice", VALID_CANDIDATE).await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+    }
+
+    #[tokio::test]
+    async fn phase525_remove_with_whitespace_does_not_remove_exact_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(!registry.remove(" alice ").await);
+        assert_eq!(registry.list().await[0].user_id, "alice");
+    }
+
+    #[tokio::test]
+    async fn phase526_device_removal_matches_whitespace_as_literal_identity() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "device-a".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+        registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .unwrap();
+        assert_eq!(registry.remove_by_device_id(" device-a ").await, 0);
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn phase527_zero_transport_drain_preserves_fifo_queue() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"first"), test_transmit(b"second")])
+            .await;
+        assert!(registry.drain_transport_outputs(0).await.is_empty());
+        let outputs = registry.drain_transport_outputs(2).await;
+        assert_eq!(outputs[0].contents.as_ref(), b"first");
+        assert_eq!(outputs[1].contents.as_ref(), b"second");
+    }
+
+    #[tokio::test]
+    async fn phase528_partial_transport_drain_preserves_remaining_suffix() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![
+                test_transmit(b"first"),
+                test_transmit(b"second"),
+                test_transmit(b"third"),
+            ])
+            .await;
+        let outputs = registry.drain_transport_outputs(1).await;
+        assert_eq!(outputs[0].contents.as_ref(), b"first");
+        let remaining = registry.drain_transport_outputs(2).await;
+        assert_eq!(remaining[0].contents.as_ref(), b"second");
+        assert_eq!(remaining[1].contents.as_ref(), b"third");
+    }
+
+    #[tokio::test]
+    async fn phase529_empty_requeue_does_not_change_existing_queue() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"stable")])
+            .await;
+        assert_eq!(registry.requeue_transport_outputs(Vec::new()).await, 0);
+        assert_eq!(
+            registry.drain_transport_outputs(1).await[0]
+                .contents
+                .as_ref(),
+            b"stable"
+        );
+    }
+
+    #[tokio::test]
+    async fn phase530_whitespace_mix_id_rejection_preserves_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("stable".into()))
+            .await
+            .unwrap();
+        assert!(registry
+            .negotiate_offer("alice", VALID_OFFER, Some("stable\tnew".into()))
+            .await
+            .is_err());
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("stable"));
+    }
+
+    #[tokio::test]
+    async fn phase531_user_tab_rejection_does_not_create_session() {
+        let registry = SessionRegistry::new();
+        assert!(registry
+            .negotiate_offer("al\tice", VALID_OFFER, None)
+            .await
+            .is_err());
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase532_failed_candidate_keeps_transport_outputs_untouched() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"pending")])
+            .await;
+        assert!(registry
+            .add_ice_candidate("missing", VALID_CANDIDATE)
+            .await
+            .is_err());
+        assert_eq!(
+            registry.drain_transport_outputs(1).await[0]
+                .contents
+                .as_ref(),
+            b"pending"
+        );
     }
 
     fn test_transmit(contents: &[u8]) -> str0m::net::Transmit {
