@@ -11,7 +11,7 @@
 - Added streaming boundary coverage for multibyte byte limits, bounded transport drain/requeue, exact session removal and failed replacement preservation.
 - Evidence remains CODE local; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
 
-## [Unreleased]
+
 
 ### Tests
 - Adicionada cobertura de fronteiras em bytes UTF-8, requeue FIFO, remoção seletiva e replacement no `SessionRegistry` para Phases 443–452; 310 testes `streaming` passam localmente.
