@@ -5276,3 +5276,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - Adicionado teste de regressão para sessão negociada com `frame_budget == 0`; o frame permanece disponível e é entregue em chamada posterior com budget positivo.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-25 — Phase 463–472
+
+- Adicionadas 10 regressões CODE no `streaming` para limites UTF-8 em bytes, rejeições fail-closed sem mutação, remoções exatas e preservação de fila/metadados.
+- Evidência local: 330 testes `streaming` PASS; sem claim de runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real ou Raspberry Pi 5.

@@ -1013,3 +1013,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added — Phase 278
 - Teste de regressão cobre preservação de frame da `MediaBridge` quando sessão negociada recebe `frame_budget == 0`; entrega posterior permanece possível.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+### Tests — Phase 463–472 streaming boundary coverage
+- Added ten CODE regressions for UTF-8 byte limits, fail-closed replacement/removal behavior, FIFO transport preservation and bound-session metadata.
+- Local focused evidence: 330 `streaming` tests pass; hardware/runtime claims unchanged.
