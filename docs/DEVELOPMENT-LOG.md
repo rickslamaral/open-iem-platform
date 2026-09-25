@@ -1,3 +1,7 @@
+## 2026-09-25 — Batch Phase 393–402 — streaming registry and transport boundaries
+- Adicionadas dez regressões para replacement, preservação de estado, remoção de sessões e filas de transporte.
+- Verificação: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 260 testes PASS. Evidência CODE local; sem claim de runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real ou Raspberry Pi.
+
 ## 2026-09-24 — Batch Phase 383–392 — streaming state-preservation boundaries
 - Adicionadas dez regressões em `server/streaming/src/lib.rs` para rejeição de whitespace/oversized em offer e ICE, preservação de sessão em offer inválido, fingerprint incompatível, remoção de device inválida e falhas de identidade.
 - Verificação: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 250 testes PASS. Evidência CODE local; sem claim de runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real ou Raspberry Pi.

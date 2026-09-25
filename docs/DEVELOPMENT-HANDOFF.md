@@ -1,3 +1,7 @@
+## 2026-09-25 — Batch Phase 393–402 status — streaming registry and transport boundaries
+- Dez regressões cobrem replacement atômico, preservação de metadata, remoção bound/unbound, ordenação determinística e orçamento/requeue de transporte.
+- Evidência CODE local: 260 testes `streaming` PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 383–392 status
 - Adicionadas 10 regressões CODE para preservação de sessões e rejeição fail-closed de inputs inválidos no `SessionRegistry`, incluindo candidatos oversized/whitespace, fingerprint incompatível e remoções inválidas.
 - Evidência CODE local: 250 testes `streaming` PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

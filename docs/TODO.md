@@ -1,4 +1,8 @@
 
+## 2026-09-25 — Batch Phase 393–402 streaming registry and transport boundaries
+- [x] Cobrir dez fronteiras de replacement, remoção, ordenação determinística e fila de transporte no crate `streaming`.
+- Evidência CODE local: 260 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 383–392 streaming state-preservation boundaries
 - [x] Cobrir whitespace user ID, candidate oversized/whitespace, user ID oversized em ICE e falhas de offer sem mutação.
 - [x] Cobrir fingerprint incompatível, remoção de device inválida e preservação de metadados/estado existente.
