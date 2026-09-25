@@ -1214,3 +1214,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Cobrir `SessionRegistry::drive_once` com sessão negociada e `frame_budget == 0`: nenhum frame é drenado e chamada posterior entrega o frame preservado.
 - Evidência: teste `drive_once_zero_frame_budget_preserves_negotiated_frames` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+## 2026-09-25 — Phase 463–472 status
+
+- [x] Cobrir limites UTF-8 em bytes, rejeições sem mutação, remoção exata por device, FIFO de transporte e preservação de metadados no streaming.
+- Evidência: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 330 testes PASS; runtime permanece não validado.

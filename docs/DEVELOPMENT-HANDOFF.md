@@ -768,3 +768,9 @@ test → review → docs/GAP update → PR/CI
 
 - Adicionado teste `drive_once_zero_frame_budget_preserves_negotiated_frames`, confirmando que `frame_budget == 0` não consome frame de sessão negociada e chamada posterior entrega o frame preservado.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-25 — Batch Phase 463–472 status — streaming byte and lifecycle boundaries
+
+- Dez regressões cobrem IDs UTF-8 no limite em bytes, rejeição sem mutação, remoção exata por device, replacement bound inválido, fila FIFO e preservação de metadados.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 330 testes PASS localmente. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+- Próximo: gates locais completos e revisão independente; PR consolidada somente após batch mínimo de 10 fases.
