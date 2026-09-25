@@ -1,3 +1,9 @@
+## Phase 453–462 status — streaming byte and lifecycle boundaries
+
+- Dez regressões cobrem limites UTF-8 em bytes para mix/candidate, drain/requeue bounded, remoção exata e preservação de sessão após falhas.
+- Verificação focused: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 320 testes PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
 ## Phase 443–452 status — streaming byte and lifecycle boundaries
 
 - Dez regressões cobrem limites em bytes para entradas UTF-8 multibyte, overflow/requeue FIFO, remoção seletiva, falhas de replacement e preservação de estado.

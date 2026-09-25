@@ -1,3 +1,8 @@
+## 2026-09-25 — Batch Phase 453–462 streaming byte and lifecycle boundaries
+- [x] Cobrir mix/candidate UTF-8 multibyte dentro/no limite em bytes, sem mutação indevida.
+- [x] Cobrir drain oversized/zero, requeue após drain parcial, remoção exata e falhas sem substituição.
+- Evidência CODE local: 320 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-25 — Batch Phase 443–452 streaming byte and lifecycle boundaries
 - [x] Cobrir limites em bytes para IDs UTF-8 multibyte de usuário/mix/candidato, preservando sessão em rejeições.
 - [x] Cobrir overflow/requeue FIFO, remoção seletiva, falha de replacement e invariantes de contagem do registry.

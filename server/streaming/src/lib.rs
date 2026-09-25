@@ -3894,6 +3894,168 @@ mod tests {
         assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("stable"));
     }
 
+    #[tokio::test]
+    async fn phase453_multibyte_mix_id_at_byte_limit_is_accepted() {
+        let registry = SessionRegistry::new();
+        let mix_id = "é".repeat(MAX_MIX_ID_BYTES / "é".len());
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some(mix_id.clone()))
+            .await
+            .unwrap();
+        assert_eq!(
+            registry.list().await[0].mix_id.as_deref(),
+            Some(mix_id.as_str())
+        );
+    }
+
+    #[tokio::test]
+    async fn phase454_multibyte_candidate_at_exact_byte_limit_reaches_parser() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let base = VALID_CANDIDATE;
+        let remaining = MAX_CANDIDATE_BYTES - base.len();
+        let mut candidate = format!("{base}{}", "é".repeat(remaining / "é".len()));
+        if candidate.len() < MAX_CANDIDATE_BYTES {
+            candidate.push('x');
+        }
+        assert_eq!(candidate.len(), MAX_CANDIDATE_BYTES);
+        assert!(registry
+            .add_ice_candidate("alice", &candidate)
+            .await
+            .is_ok());
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn phase455_multibyte_candidate_over_byte_limit_is_rejected_without_session_mutation() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("stable".into()))
+            .await
+            .unwrap();
+        let base = VALID_CANDIDATE;
+        let remaining = MAX_CANDIDATE_BYTES + 1 - base.len();
+        let mut candidate = format!("{base}{}", "é".repeat(remaining / "é".len()));
+        while candidate.len() < MAX_CANDIDATE_BYTES + 1 {
+            candidate.push('x');
+        }
+        assert_eq!(candidate.len(), MAX_CANDIDATE_BYTES + 1);
+        assert!(matches!(
+            registry.add_ice_candidate("alice", &candidate).await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("stable"));
+    }
+
+    #[tokio::test]
+    async fn phase456_zero_budget_does_not_remove_transport_suffix() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"kept")])
+            .await;
+        assert!(registry.drain_transport_outputs(0).await.is_empty());
+        assert_eq!(
+            registry.drain_transport_outputs(1).await[0]
+                .contents
+                .as_ref(),
+            b"kept"
+        );
+    }
+
+    #[tokio::test]
+    async fn phase457_oversized_drain_budget_is_bounded() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"one"), test_transmit(b"two")])
+            .await;
+        assert_eq!(registry.drain_transport_outputs(usize::MAX).await.len(), 2);
+        assert!(registry
+            .drain_transport_outputs(usize::MAX)
+            .await
+            .is_empty());
+    }
+
+    #[tokio::test]
+    async fn phase458_requeue_preserves_fifo_after_partial_drain() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"one"), test_transmit(b"two")])
+            .await;
+        assert_eq!(
+            registry.drain_transport_outputs(1).await[0]
+                .contents
+                .as_ref(),
+            b"one"
+        );
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"three")])
+            .await;
+        let remaining = registry.drain_transport_outputs(2).await;
+        assert_eq!(
+            remaining
+                .iter()
+                .map(|x| x.contents.as_ref())
+                .collect::<Vec<_>>(),
+            vec![b"three".as_ref(), b"two".as_ref()]
+        );
+    }
+
+    #[tokio::test]
+    async fn phase459_unknown_device_removal_is_idempotent() {
+        let registry = SessionRegistry::new();
+        assert_eq!(registry.remove_by_device_id("unknown").await, 0);
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase460_user_removal_is_exact_and_does_not_remove_prefix() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        registry
+            .negotiate_offer("alice-extra", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(registry.remove("alice").await);
+        assert_eq!(registry.list().await[0].user_id, "alice-extra");
+    }
+
+    #[tokio::test]
+    async fn phase461_failed_candidate_preserves_session_count_and_metadata() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("mix".into()))
+            .await
+            .unwrap();
+        assert!(registry
+            .add_ice_candidate("alice", "candidate:invalid")
+            .await
+            .is_err());
+        let session = &registry.list().await[0];
+        assert_eq!(session.user_id, "alice");
+        assert_eq!(session.mix_id.as_deref(), Some("mix"));
+    }
+
+    #[tokio::test]
+    async fn phase462_failed_empty_offer_does_not_replace_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("stable".into()))
+            .await
+            .unwrap();
+        assert!(registry
+            .negotiate_offer("alice", "", Some("changed".into()))
+            .await
+            .is_err());
+        assert_eq!(registry.len().await, 1);
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("stable"));
+    }
+
     fn test_transmit(contents: &[u8]) -> str0m::net::Transmit {
         str0m::net::Transmit {
             proto: Protocol::Udp,
