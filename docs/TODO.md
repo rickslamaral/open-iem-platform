@@ -1,3 +1,8 @@
+## 2026-09-25 — Batch Phase 513–522 streaming rejection and queue boundaries
+- [x] Cobrir replacement com IDs/mix whitespace, user IDs com newline, candidatos com whitespace/CRLF e oferta inválida sem perda de estado.
+- [x] Cobrir fila de transporte após drain parcial, requeue bounded e replacement determinístico.
+- Evidência CODE local: 370 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-25 — Batch Phase 503–512 streaming input rejection boundaries
 - [x] Cobrir rejeições de user/SDP/mix oversized e whitespace sem mutação do registry.
 - [x] Cobrir replacement malformado, candidato vazio/CRLF/oversized e sessão desconhecida fail-closed.

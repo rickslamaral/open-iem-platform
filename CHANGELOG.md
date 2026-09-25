@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Added
+- Streaming CODE boundary coverage for phases 513–522: fail-closed input/replacement cases, bounded transport requeue after partial drain, and deterministic session listing.
+
+
 ### Tests
 - Added ten streaming CODE regressions for bounded offer/candidate input rejection and non-mutating session lifecycle failures (Phases 503–512).
 
