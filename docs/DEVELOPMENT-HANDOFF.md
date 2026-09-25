@@ -1,3 +1,9 @@
+## Phase 473–482 status — streaming input and lifecycle boundaries
+
+- Dez regressões cobrem user ID UTF-8 em ICE, entradas whitespace/newline, drain/requeue bounded, remoção exata e preservação de sessões.
+- Verificação focused: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 340 testes PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
 ## Phase 453–462 status — streaming byte and lifecycle boundaries
 
 - Dez regressões cobrem limites UTF-8 em bytes para mix/candidate, drain/requeue bounded, remoção exata e preservação de sessão após falhas.

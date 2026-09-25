@@ -1,3 +1,8 @@
+## 2026-09-25 — Batch Phase 473–482 streaming input and lifecycle boundaries
+- [x] Cobrir user ID UTF-8 em candidato ICE no limite e acima do limite, whitespace e newline sem mutação.
+- [x] Cobrir drain/requeue bounded, remoção exata e remoção de device desconhecido preservando FIFO e sessões.
+- Evidência CODE local: 340 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-25 — Batch Phase 453–462 streaming byte and lifecycle boundaries
 - [x] Cobrir mix/candidate UTF-8 multibyte dentro/no limite em bytes, sem mutação indevida.
 - [x] Cobrir drain oversized/zero, requeue após drain parcial, remoção exata e falhas sem substituição.
