@@ -1021,3 +1021,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Tests — Phase 463–472 streaming boundary coverage
 - Added ten CODE regressions for UTF-8 byte limits, fail-closed replacement/removal behavior, FIFO transport preservation and bound-session metadata.
 - Local focused evidence: 330 `streaming` tests pass; hardware/runtime claims unchanged.
+
+- Streaming: expanded CODE boundary coverage for bounded transport queues and session lifecycle (Phases 493–502).

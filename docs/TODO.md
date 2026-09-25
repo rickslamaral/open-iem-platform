@@ -1224,3 +1224,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Cobrir limites UTF-8 em bytes, rejeições sem mutação, remoção exata por device, FIFO de transporte e preservação de metadados no streaming.
 - Evidência: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 330 testes PASS; runtime permanece não validado.
+
+## 2026-09-25 — Phase 493–502 status
+
+- [x] Cobrir budget de transporte zero, requeue FIFO/capacidade, remoções não mutantes e ordenação após replacement.
+- Evidência: 350 testes `streaming` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

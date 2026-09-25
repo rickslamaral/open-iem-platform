@@ -5287,3 +5287,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - Adicionadas 10 regressões CODE no `streaming` para limites UTF-8 em bytes, rejeições fail-closed sem mutação, remoções exatas e preservação de fila/metadados.
 - Evidência local: 330 testes `streaming` PASS; sem claim de runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real ou Raspberry Pi 5.
+
+## 2026-09-25 — Phase 493–502
+
+- Adicionadas 10 regressões no `streaming` para budget zero, requeue FIFO e capacidade, remoções idempotentes/exatas, preservação de metadados e ordenação após replacement.
+- Gate focado: 350 testes `streaming` PASS localmente. Evidência CODE local; sem claim de runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real ou Raspberry Pi 5.
