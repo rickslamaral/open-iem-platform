@@ -2689,6 +2689,154 @@ mod tests {
         assert!(registry.is_empty().await);
     }
 
+    #[tokio::test]
+    async fn phase383_whitespace_user_id_rejects_offer_without_session() {
+        let registry = SessionRegistry::new();
+        assert!(registry
+            .negotiate_offer("   ", VALID_OFFER, None)
+            .await
+            .is_err());
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase384_oversized_candidate_rejects_without_session_mutation() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let candidate = format!("candidate:{}", "x".repeat(MAX_CANDIDATE_BYTES));
+        assert!(registry
+            .add_ice_candidate("alice", &candidate)
+            .await
+            .is_err());
+        assert_eq!(registry.len().await, 1);
+        assert_eq!(registry.list().await[0].user_id, "alice");
+    }
+
+    #[tokio::test]
+    async fn phase385_oversized_candidate_user_id_rejects_without_registry_change() {
+        let registry = SessionRegistry::new();
+        let user_id = "u".repeat(MAX_USER_ID_BYTES + 1);
+        assert!(registry
+            .add_ice_candidate(&user_id, "candidate:1 1 UDP 1 127.0.0.1 9 typ host")
+            .await
+            .is_err());
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase386_whitespace_candidate_rejects_without_session_mutation() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(registry.add_ice_candidate("alice", "   ").await.is_err());
+        assert_eq!(registry.list().await[0].user_id, "alice");
+    }
+
+    #[tokio::test]
+    async fn phase387_invalid_offer_does_not_replace_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("stable".into()))
+            .await
+            .unwrap();
+        assert!(registry
+            .negotiate_offer("alice", "not-sdp", Some("new".into()))
+            .await
+            .is_err());
+        assert_eq!(registry.len().await, 1);
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("stable"));
+    }
+
+    #[tokio::test]
+    async fn phase388_mismatched_fingerprint_rejects_offer_without_session() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "device".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some("sha-256 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00".into()),
+        };
+        assert!(registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .is_err());
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase389_empty_device_removal_does_not_touch_sessions() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert_eq!(registry.remove_by_device_id("").await, 0);
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn phase390_oversized_device_removal_does_not_touch_sessions() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let device_id = "d".repeat(4096);
+        assert_eq!(registry.remove_by_device_id(&device_id).await, 0);
+        assert_eq!(registry.list().await[0].user_id, "alice");
+    }
+
+    #[tokio::test]
+    async fn phase391_failed_candidate_preserves_bound_session_metadata() {
+        let registry = SessionRegistry::new();
+        let identity = DeviceIdentity {
+            device_id: "device-a".into(),
+            musician_id: "alice".into(),
+            mix_index: 1,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+        registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("1".into()), Some(&identity))
+            .await
+            .unwrap();
+        assert!(registry
+            .add_ice_candidate("alice", "bad-candidate")
+            .await
+            .is_err());
+        let session = &registry.list().await[0];
+        assert_eq!(session.device_id.as_deref(), Some("device-a"));
+        assert_eq!(session.mix_id.as_deref(), Some("1"));
+    }
+
+    #[tokio::test]
+    async fn phase392_failed_identity_offer_preserves_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("stable".into()))
+            .await
+            .unwrap();
+        let identity = DeviceIdentity {
+            device_id: "revoked-device".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: true,
+            dtls_fingerprint: None,
+        };
+        assert!(registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("new".into()), Some(&identity))
+            .await
+            .is_err());
+        assert_eq!(registry.len().await, 1);
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("stable"));
+    }
+
     fn test_transmit(contents: &[u8]) -> str0m::net::Transmit {
         str0m::net::Transmit {
             proto: Protocol::Udp,

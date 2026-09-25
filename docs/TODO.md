@@ -1,3 +1,9 @@
+
+## 2026-09-24 — Batch Phase 383–392 streaming state-preservation boundaries
+- [x] Cobrir whitespace user ID, candidate oversized/whitespace, user ID oversized em ICE e falhas de offer sem mutação.
+- [x] Cobrir fingerprint incompatível, remoção de device inválida e preservação de metadados/estado existente.
+- Evidência CODE local: 250 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-24 — Batch Phase 373–382 streaming input and identity boundaries
 - [x] Cobrir rejeição sem mutação para user ID vazio/oversized, mix ID oversized e SDP oversized.
 - [x] Cobrir candidato vazio, user ID whitespace-only e sessão inexistente sem mutação.

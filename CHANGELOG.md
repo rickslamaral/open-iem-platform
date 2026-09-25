@@ -1,3 +1,8 @@
+## [Unreleased]
+
+### Tests
+- Phase 383–392: adicionada cobertura CODE para rejeição fail-closed e preservação de estado no `SessionRegistry`; runtime e hardware permanecem não validados.
+
 ### Tests — Phase 373–382
 - Added 10 streaming regression tests for fail-closed input bounds, missing sessions and revoked/mismatched device identity bindings.
 - Evidence remains CODE local; WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
@@ -22,7 +27,7 @@
 ### Tests
 - Batch Phase 301–310 adiciona 10 regressões de budgets, drenagem bounded, rejeições fail-closed e limite de transporte no crate `streaming`. Evidência CODE local; runtime e hardware permanecem não validados.
 
-## [Unreleased]
+
 
 ### Tests
 - Batch Phase 291–300 adiciona 10 regressões de streaming para autorização bound, ICE, fan-out bounded, overflow isolado e pairing/fingerprint. Evidência CODE local; runtime e hardware permanecem não validados.

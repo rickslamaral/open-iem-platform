@@ -1,3 +1,8 @@
+## 2026-09-24 — Batch Phase 383–392 status
+- Adicionadas 10 regressões CODE para preservação de sessões e rejeição fail-closed de inputs inválidos no `SessionRegistry`, incluindo candidatos oversized/whitespace, fingerprint incompatível e remoções inválidas.
+- Evidência CODE local: 250 testes `streaming` PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+- Próximo: concluir gates locais, revisão independente e PR consolidada somente após batch mínimo de 10 fases.
+
 ## 2026-09-24 — Batch Phase 373–382 status — streaming input and identity boundaries
 
 - Adicionadas 10 regressões CODE para rejeição fail-closed de inputs oversized/vazios e identidades revogadas ou incompatíveis, sempre preservando o registry.
