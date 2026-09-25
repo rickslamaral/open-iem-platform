@@ -1,3 +1,9 @@
+## 2026-09-25 — Batch Phase 443–452 streaming byte and lifecycle boundaries
+
+- Adicionadas dez regressões para limites em bytes de IDs UTF-8 multibyte, candidato oversized, overflow/requeue FIFO, remoção seletiva e replacements inválidos sem mutação.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 310 testes PASS localmente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-25 — Batch Phase 433–442 streaming registry boundaries
 
 - Adicionadas dez regressões CODE para entradas whitespace, identidade inválida/revogada, remoção seletiva e preservação da fila de transporte.
