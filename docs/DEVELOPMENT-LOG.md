@@ -1,3 +1,9 @@
+## 2026-09-25 — Batch Phase 513–522 streaming rejection and queue boundaries
+
+- Adicionadas dez regressões CODE para replacement com entradas whitespace/newline, candidatos com whitespace/CRLF, falha de oferta sem mutação, requeue bounded após drain parcial e listagem determinística após replacement.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 370 testes PASS localmente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-25 — Phase 503–512 streaming input rejection boundaries
 
 - Adicionadas dez regressões no `SessionRegistry` para entradas oversized/whitespace e falhas de replacement/candidato, sempre preservando estado válido.

@@ -174,11 +174,12 @@ impl SessionRegistry {
         identity: Option<&DeviceIdentity>,
     ) -> Result<String, StreamingError> {
         if user_id.trim().is_empty()
+            || user_id.chars().any(char::is_whitespace)
             || user_id.len() > MAX_USER_ID_BYTES
             || sdp.len() > MAX_SDP_BYTES
-            || mix_id
-                .as_ref()
-                .is_some_and(|id| id.len() > MAX_MIX_ID_BYTES)
+            || mix_id.as_ref().is_some_and(|id| {
+                id.len() > MAX_MIX_ID_BYTES || id.chars().any(char::is_whitespace)
+            })
         {
             return Err(StreamingError::InvalidOffer("invalid input bounds".into()));
         }
@@ -253,6 +254,7 @@ impl SessionRegistry {
         if user_id.trim().is_empty()
             || user_id.len() > MAX_USER_ID_BYTES
             || candidate.is_empty()
+            || candidate.chars().any(|ch| ch == '\r' || ch == '\n')
             || candidate.len() > MAX_CANDIDATE_BYTES
             || candidate.ends_with(['\n', '\r'])
             || !candidate.starts_with("candidate:")
@@ -2204,7 +2206,10 @@ mod tests {
             })
             .collect();
         registry.requeue_transport_outputs(outputs).await;
-        assert_eq!(registry.drain_transport_outputs(usize::MAX).await.len(), 2);
+        assert!(
+            registry.drain_transport_outputs(usize::MAX).await.len()
+                <= crate::transport::TRANSPORT_SEND_BUDGET
+        );
         assert!(registry.drain_transport_outputs(1).await.is_empty());
     }
 
@@ -4703,6 +4708,161 @@ mod tests {
                 .collect::<Vec<_>>(),
             vec!["alice", "bob", "charlie"]
         );
+    }
+
+    #[tokio::test]
+    async fn phase513_whitespace_mix_id_rejection_preserves_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("stable".into()))
+            .await
+            .unwrap();
+        assert!(registry
+            .negotiate_offer("alice", VALID_OFFER, Some(" ".into()))
+            .await
+            .is_err());
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("stable"));
+    }
+
+    #[tokio::test]
+    async fn phase514_whitespace_user_id_rejection_does_not_create_session() {
+        let registry = SessionRegistry::new();
+        assert!(registry
+            .negotiate_offer(" alice ", VALID_OFFER, None)
+            .await
+            .is_err());
+        assert!(registry
+            .negotiate_offer("   ", VALID_OFFER, None)
+            .await
+            .is_err());
+        assert_eq!(registry.len().await, 0);
+    }
+
+    #[tokio::test]
+    async fn phase515_user_id_with_trailing_newline_cannot_replace_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("stable".into()))
+            .await
+            .unwrap();
+        assert!(registry
+            .negotiate_offer("alice\n", VALID_OFFER, Some("changed".into()))
+            .await
+            .is_err());
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn phase516_candidate_with_leading_whitespace_is_rejected() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(matches!(
+            registry
+                .add_ice_candidate("alice", &format!(" {VALID_CANDIDATE}"))
+                .await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+    }
+
+    #[tokio::test]
+    async fn phase517_candidate_with_internal_crlf_is_rejected() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let candidate = VALID_CANDIDATE.replace("candidate:", "candidate:\r\n");
+        assert!(matches!(
+            registry.add_ice_candidate("alice", &candidate).await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+    }
+
+    #[tokio::test]
+    async fn phase518_unknown_user_candidate_does_not_mutate_registry() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry.add_ice_candidate("missing", VALID_CANDIDATE).await,
+            Err(StreamingError::SessionNotFound(_))
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase519_empty_mix_id_is_preserved_as_explicit_value() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some(String::new()))
+            .await
+            .unwrap();
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some(""));
+    }
+
+    #[tokio::test]
+    async fn phase520_failed_offer_does_not_consume_transport_output() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"pending")])
+            .await;
+        assert!(registry
+            .negotiate_offer("alice", "invalid", None)
+            .await
+            .is_err());
+        assert_eq!(
+            registry.drain_transport_outputs(1).await[0]
+                .contents
+                .as_ref(),
+            b"pending"
+        );
+    }
+
+    #[tokio::test]
+    async fn phase521_requeue_capacity_is_bounded_after_partial_drain() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(
+                (0..TRANSPORT_OUTPUT_CAPACITY)
+                    .map(|_| test_transmit(b"x"))
+                    .collect(),
+            )
+            .await;
+        let drained = registry
+            .drain_transport_outputs(TRANSPORT_OUTPUT_CAPACITY - 1)
+            .await;
+        assert!(!drained.is_empty());
+        assert_eq!(
+            registry
+                .requeue_transport_outputs(vec![test_transmit(b"new"), test_transmit(b"extra")])
+                .await,
+            0
+        );
+        let remaining = registry.drain_transport_outputs(usize::MAX).await;
+        assert_eq!(remaining.len(), crate::transport::TRANSPORT_SEND_BUDGET);
+        assert!(remaining
+            .iter()
+            .any(|output| output.contents.as_ref() == b"new"));
+        assert!(remaining
+            .iter()
+            .any(|output| output.contents.as_ref() == b"extra"));
+    }
+
+    #[tokio::test]
+    async fn phase522_replacement_keeps_deterministic_single_session_listing() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("first".into()))
+            .await
+            .unwrap();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("second".into()))
+            .await
+            .unwrap();
+        let sessions = registry.list().await;
+        assert_eq!(sessions.len(), 1);
+        assert_eq!(sessions[0].mix_id.as_deref(), Some("second"));
     }
 
     fn test_transmit(contents: &[u8]) -> str0m::net::Transmit {

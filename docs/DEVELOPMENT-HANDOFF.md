@@ -1,3 +1,9 @@
+## 2026-09-25 — Batch Phase 513–522 status
+
+- Dez regressões adicionais cobrem fronteiras de replacement, candidatos, fila de transporte e listagem no crate `streaming`.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 370 testes PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
 ## Phase 503–512 status — streaming input rejection boundaries
 
 - Dez regressões cobrem limites oversized/whitespace de user, SDP e mix, replacement malformado, candidatos vazios/CRLF/oversized, sessão desconhecida e preservação de metadados sem mutação indevida.
