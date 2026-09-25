@@ -541,6 +541,133 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn phase503_whitespace_offer_user_is_rejected_without_mutation() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry.negotiate_offer(" \t", VALID_OFFER, None).await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase504_oversized_offer_user_is_rejected_without_mutation() {
+        let registry = SessionRegistry::new();
+        let user_id = "u".repeat(MAX_USER_ID_BYTES + 1);
+        assert!(matches!(
+            registry.negotiate_offer(&user_id, VALID_OFFER, None).await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase505_oversized_sdp_is_rejected_without_mutation() {
+        let registry = SessionRegistry::new();
+        let sdp = "x".repeat(MAX_SDP_BYTES + 1);
+        assert!(matches!(
+            registry.negotiate_offer("alice", &sdp, None).await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase506_oversized_mix_is_rejected_without_mutation() {
+        let registry = SessionRegistry::new();
+        let mix_id = "m".repeat(MAX_MIX_ID_BYTES + 1);
+        assert!(matches!(
+            registry
+                .negotiate_offer("alice", VALID_OFFER, Some(mix_id))
+                .await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase507_malformed_replacement_preserves_original_mix() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original".into()))
+            .await
+            .unwrap();
+        assert!(registry
+            .negotiate_offer("alice", "not-sdp", Some("new".into()))
+            .await
+            .is_err());
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("original"));
+    }
+
+    #[tokio::test]
+    async fn phase508_empty_candidate_is_rejected_after_valid_offer() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(matches!(
+            registry.add_ice_candidate("alice", "").await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn phase509_crlf_candidate_is_rejected_without_mutation() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let candidate = format!("{VALID_CANDIDATE}\r\n");
+        assert!(matches!(
+            registry.add_ice_candidate("alice", &candidate).await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn phase510_oversized_candidate_is_rejected_without_mutation() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let candidate = format!("candidate:{}", "x".repeat(MAX_CANDIDATE_BYTES));
+        assert!(matches!(
+            registry.add_ice_candidate("alice", &candidate).await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert_eq!(registry.len().await, 1);
+    }
+
+    #[tokio::test]
+    async fn phase511_unknown_candidate_session_fails_closed() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry.add_ice_candidate("missing", VALID_CANDIDATE).await,
+            Err(StreamingError::SessionNotFound(_))
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase512_malformed_candidate_preserves_session_metadata() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original".into()))
+            .await
+            .unwrap();
+        assert!(matches!(
+            registry.add_ice_candidate("alice", "candidate:bad").await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("original"));
+    }
+
+    #[tokio::test]
     async fn drive_once_zero_output_budget_preserves_bridge_frames() {
         let registry = SessionRegistry::new();
         let plane = crate::media_plane::MediaPlane::new();

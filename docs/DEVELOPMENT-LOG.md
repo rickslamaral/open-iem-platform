@@ -1,3 +1,8 @@
+## 2026-09-25 — Phase 503–512 streaming input rejection boundaries
+
+- Adicionadas dez regressões no `SessionRegistry` para entradas oversized/whitespace e falhas de replacement/candidato, sempre preservando estado válido.
+- Gate focado: 360 testes `streaming` PASS localmente. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
 ## 2026-09-25 — Batch Phase 483–492 streaming queue and replacement boundaries
 
 - Adicionadas dez regressões para CRLF em candidato ICE, drain/requeue bounded, replacement inválido, binding de device, remoção seletiva e independência de fila.

@@ -1,3 +1,8 @@
+## 2026-09-25 — Batch Phase 503–512 streaming input rejection boundaries
+- [x] Cobrir rejeições de user/SDP/mix oversized e whitespace sem mutação do registry.
+- [x] Cobrir replacement malformado, candidato vazio/CRLF/oversized e sessão desconhecida fail-closed.
+- Evidência CODE local: 360 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-25 — Batch Phase 483–492 streaming queue and replacement boundaries
 - [x] Cobrir rejeição CRLF, drain parcial/idempotente e overflow bounded da fila de transporte.
 - [x] Cobrir replacement inválido, binding de device, remoção seletiva e independência entre fila e sessões.
