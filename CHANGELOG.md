@@ -3,6 +3,8 @@
 
 ## [Unreleased]
 
+- Added ten streaming regression tests for session replacement, deterministic listing, device removal, and bounded transport queue behavior (Phases 393–402). Evidence remains CODE local; runtime and hardware validation are pending.
+
 ### Tests
 - Phase 383–392: adicionada cobertura CODE para rejeição fail-closed e preservação de estado no `SessionRegistry`; runtime e hardware permanecem não validados.
 
@@ -28,7 +30,7 @@
 - Batch Phase 311–320 adiciona 10 regressões de fronteiras do `SessionRegistry` e fila interna de transporte. Evidência CODE local; runtime e hardware permanecem não validados.
 
 ### Tests
-- Batch Phase 301–310 adiciona 10 regressões de budgets, drenagem bounded, rejeições fail-closed e no-op bounded em registry vazio e limite de transporte no crate `streaming`. Evidência CODE local; runtime e hardware permanecem não validados.
+- Batch Phase 301–310 adiciona 10 regressões de budgets, drenagem bounded, rejeições fail-closed e limite de transporte no crate `streaming`. Evidência CODE local; runtime e hardware permanecem não validados.
 
 
 

@@ -1,7 +1,11 @@
 ## 2026-09-25 — Batch Phase 403–412 status — streaming registry boundaries
 - Adicionadas 10 regressões CODE para orçamento de transporte zero/exato/oversized, preservação FIFO, replacement sem duplicação, ordenação determinística, remoção seletiva por device e rejeição de mix inválido sem mutação e no-op bounded em registry vazio.
-- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 260 testes PASS localmente. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 270 testes PASS localmente. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 - Próximo: gates locais completos, revisão independente e PR consolidada somente após batch mínimo de 10 fases.
+
+## 2026-09-25 — Batch Phase 393–402 status — streaming registry and transport boundaries
+- Dez regressões cobrem replacement atômico, preservação de metadata, remoção bound/unbound, ordenação determinística e orçamento/requeue de transporte.
+- Evidência CODE local: 260 testes `streaming` PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
 ## 2026-09-24 — Batch Phase 383–392 status
 - Adicionadas 10 regressões CODE para preservação de sessões e rejeição fail-closed de inputs inválidos no `SessionRegistry`, incluindo candidatos oversized/whitespace, fingerprint incompatível e remoções inválidas.
@@ -40,7 +44,7 @@
 
 ## 2026-09-24 — Batch Phase 301–310 status — streaming budgets and transport boundaries
 
-- Adicionadas 10 coberturas CODE: zero-budget e oversized budget em `MediaSession`/`MediaPlane`, rejeições fail-closed e no-op bounded em registry vazio sem mutação, drenagem bounded da `MediaBridge` com fila vazia/sem subscribers e limites do `TransportAdapter`.
+- Adicionadas 10 coberturas CODE: zero-budget e oversized budget em `MediaSession`/`MediaPlane`, rejeições fail-closed sem mutação, drenagem bounded da `MediaBridge` com fila vazia/sem subscribers e limites do `TransportAdapter`.
 - `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 180 testes PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
 ## 2026-09-24 — Batch Phase 291–300 status — streaming authorization and fan-out coverage
