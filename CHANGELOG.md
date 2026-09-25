@@ -1,5 +1,5 @@
-### Tests — Phase 473–482
-- Adicionada cobertura de fronteiras de entrada ICE, budgets bounded, FIFO e remoção de sessões no streaming; 340 testes `streaming` passam localmente.
+### Tests — Phase 483–492
+- Adicionada cobertura de fronteiras de fila de transporte, replacement de sessão e remoção seletiva no streaming; 340 testes `streaming` passam localmente.
 - Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
 ### Added — Phase 453–462
