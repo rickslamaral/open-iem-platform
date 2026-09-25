@@ -1,3 +1,9 @@
+## 2026-09-25 — Batch Phase 483–492 streaming queue and replacement boundaries
+
+- Adicionadas dez regressões para CRLF em candidato ICE, drain/requeue bounded, replacement inválido, binding de device, remoção seletiva e independência de fila.
+- Gate focused: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 340 testes PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-25 — Phase 453–462 streaming byte and lifecycle boundaries
 
 - Adicionadas dez regressões para mix/candidate UTF-8 multibyte, budgets de transporte, requeue após drain parcial, remoção exata e falhas de candidate/offer sem mutação de sessão.

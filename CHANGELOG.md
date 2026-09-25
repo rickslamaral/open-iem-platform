@@ -1,3 +1,7 @@
+### Tests — Phase 483–492
+- Adicionada cobertura de fronteiras de fila de transporte, replacement de sessão e remoção seletiva no streaming; 340 testes `streaming` passam localmente.
+- Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ### Added — Phase 453–462
 - Added streaming boundary coverage for multibyte byte limits, bounded transport drain/requeue, exact session removal and failed replacement preservation.
 - Evidence remains CODE local; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

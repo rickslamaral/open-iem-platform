@@ -1,3 +1,9 @@
+## Phase 483–492 status — streaming queue and replacement boundaries
+
+- Dez regressões cobrem CRLF em ICE, drain parcial/idempotente, overflow bounded, replacement inválido, binding de device, remoção seletiva e independência entre fila e sessões.
+- Verificação focused: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 340 testes PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
 ## Phase 453–462 status — streaming byte and lifecycle boundaries
 
 - Dez regressões cobrem limites UTF-8 em bytes para mix/candidate, drain/requeue bounded, remoção exata e preservação de sessão após falhas.
