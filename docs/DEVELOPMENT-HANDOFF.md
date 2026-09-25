@@ -1,3 +1,9 @@
+## Phase 433–442 status — streaming registry boundaries
+
+- Dez regressões cobrem rejeição de entradas whitespace, identidade bound inválida/revogada, remoção seletiva e invariantes FIFO da fila de transporte.
+- Verificação focused: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 300 testes PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
 ## 2026-09-25 — Batch Phase 423–432 status — streaming registry boundaries
 - Dez regressões cobrem replacement bound→unbound, candidatos inválidos, remoção vazia/desconhecida, requeue FIFO com suffix, budgets zero e preservação de estado.
 - `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 290 testes PASS localmente. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

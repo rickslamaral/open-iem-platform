@@ -1,3 +1,9 @@
+## 2026-09-25 — Batch Phase 433–442 streaming registry boundaries
+
+- Adicionadas dez regressões CODE para entradas whitespace, identidade inválida/revogada, remoção seletiva e preservação da fila de transporte.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 300 testes PASS localmente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-25 — Batch Phase 423–432 streaming registry boundaries
 
 - Adicionadas dez regressões CODE para replacement bound→unbound, falhas de ICE sem mutação, remoção desconhecida/vazia, requeue FIFO com suffix existente e preservação de sessões sob budget zero.

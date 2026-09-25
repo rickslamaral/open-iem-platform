@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Tests
+- Adicionada cobertura de fronteiras do `SessionRegistry` e fila de transporte para Phases 433–442; 300 testes `streaming` passam localmente.
+- Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ### Added
 - Batch Phase 423–432: streaming registry boundary regression coverage.
 
@@ -8,7 +14,6 @@
 ### Tests — Batch Phase 403–412
 - Adicionadas 10 regressões de streaming para budgets bounded de transporte, preservação FIFO, replacement sem duplicação, ordenação determinística, remoção seletiva por device e rejeições fail-closed e no-op bounded em registry vazio. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
-## [Unreleased]
 
 - Added ten streaming regression tests for session replacement, deterministic listing, device removal, and bounded transport queue behavior (Phases 393–402). Evidence remains CODE local; runtime and hardware validation are pending.
 

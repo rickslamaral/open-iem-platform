@@ -1,3 +1,8 @@
+## 2026-09-25 — Batch Phase 433–442 streaming registry boundaries
+- [x] Cobrir rejeições de user/candidate whitespace, identidade bound inválida/revogada e preservação de sessão.
+- [x] Cobrir remoção seletiva/idempotente e invariantes FIFO da fila de transporte sob requeue/drain/removal.
+- Evidência CODE local: 300 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-25 — Batch Phase 423–432 streaming registry boundaries
 - [x] Cobrir replacement bound→unbound, isolamento de candidatos inválidos, remoção vazia/desconhecida e preservação de sessões.
 - [x] Cobrir requeue FIFO com suffix existente, budgets zero e rejeições sem mutação de estado.
