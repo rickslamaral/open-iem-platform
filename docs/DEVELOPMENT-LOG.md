@@ -1,3 +1,9 @@
+## 2026-09-25 — Batch Phase 523–532 streaming identity and queue boundaries
+
+- Adicionadas dez regressões para rejeição fail-closed de whitespace em user IDs de ICE, remoção literal de identidades, budgets zero/parciais, FIFO e preservação de transporte sob falhas.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 380 testes PASS localmente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-25 — Batch Phase 513–522 streaming rejection and queue boundaries
 
 - Adicionadas dez regressões CODE para replacement com entradas whitespace/newline, candidatos com whitespace/CRLF, falha de oferta sem mutação, requeue bounded após drain parcial e listagem determinística após replacement.

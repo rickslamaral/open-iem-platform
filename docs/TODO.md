@@ -1,3 +1,9 @@
+## 2026-09-25 — Batch Phase 523–532 streaming identity and queue boundaries
+- [x] Rejeitar whitespace em user IDs de candidatos e preservar sessões existentes.
+- [x] Cobrir remoção literal de sessões/dispositivos, budgets zero/parciais e preservação FIFO da fila.
+- [x] Cobrir falhas de mix/candidato sem mutação de sessão ou consumo de transporte.
+- Evidência CODE local: 380 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-25 — Batch Phase 513–522 streaming rejection and queue boundaries
 - [x] Cobrir replacement com IDs/mix whitespace, user IDs com newline, candidatos com whitespace/CRLF e oferta inválida sem perda de estado.
 - [x] Cobrir fila de transporte após drain parcial, requeue bounded e replacement determinístico.
