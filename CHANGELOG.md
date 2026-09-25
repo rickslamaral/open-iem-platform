@@ -1,3 +1,6 @@
+### Added
+- Batch Phase 423–432: streaming registry boundary regression coverage.
+
 ### Added — Batch Phase 413–422
 - Added bounded streaming registry regression coverage for exact session/device removal, transport FIFO partial drains, metadata preservation, replacement and queue/session independence.
 - Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.

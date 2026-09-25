@@ -1,3 +1,8 @@
+## 2026-09-25 — Batch Phase 423–432 streaming registry boundaries
+
+- Adicionadas dez regressões CODE para replacement bound→unbound, falhas de ICE sem mutação, remoção desconhecida/vazia, requeue FIFO com suffix existente e preservação de sessões sob budget zero.
+- Evidência: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` com 290 testes PASS; gates Rust e frontends PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam pendentes.
+
 ## 2026-09-25 — Batch Phase 413–422 streaming registry boundaries
 
 - Adicionadas 10 regressões CODE para remoção desconhecida/exata por usuário e device, limpeza seletiva, requeue/drain parcial com FIFO, preservação de metadados, replacement bound sem duplicação e independência da fila de transporte.
