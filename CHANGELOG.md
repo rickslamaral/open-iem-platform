@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Added ten streaming regression tests for session replacement, deterministic listing, device removal, and bounded transport queue behavior (Phases 393–402). Evidence remains CODE local; runtime and hardware validation are pending.
+
 ### Tests
 - Phase 383–392: adicionada cobertura CODE para rejeição fail-closed e preservação de estado no `SessionRegistry`; runtime e hardware permanecem não validados.
 
