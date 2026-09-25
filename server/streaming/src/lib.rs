@@ -4974,7 +4974,7 @@ mod tests {
         assert_eq!(drained.first().unwrap().contents.as_ref(), b"packet-1");
         assert_eq!(
             drained.last().unwrap().contents.as_ref(),
-            format!("packet-{TRANSPORT_SEND_BUDGET}").as_bytes()
+            format!("packet-{}", TRANSPORT_SEND_BUDGET).as_bytes()
         );
         let second = registry.drain_transport_outputs(usize::MAX).await;
         let third = registry.drain_transport_outputs(usize::MAX).await;
