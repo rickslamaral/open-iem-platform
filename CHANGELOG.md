@@ -1,3 +1,7 @@
+### Added — Phase 453–462
+- Added streaming boundary coverage for multibyte byte limits, bounded transport drain/requeue, exact session removal and failed replacement preservation.
+- Evidence remains CODE local; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## [Unreleased]
 
 ### Tests
