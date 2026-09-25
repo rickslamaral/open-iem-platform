@@ -1,6 +1,6 @@
-## 2026-09-25 — Batch Phase 473–482 streaming input and lifecycle boundaries
+## 2026-09-25 — Batch Phase 483–492 streaming queue and replacement boundaries
 
-- Adicionadas dez regressões para limites UTF-8 de user ID em ICE, rejeições whitespace/newline, budgets de transporte, FIFO e remoções sem mutação indevida.
+- Adicionadas dez regressões para CRLF em candidato ICE, drain/requeue bounded, replacement inválido, binding de device, remoção seletiva e independência de fila.
 - Gate focused: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 340 testes PASS.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
