@@ -4865,6 +4865,138 @@ mod tests {
         assert_eq!(sessions[0].mix_id.as_deref(), Some("second"));
     }
 
+    #[tokio::test]
+    async fn phase533_candidate_at_multibyte_user_id_byte_limit_is_accepted() {
+        let registry = SessionRegistry::new();
+        let user_id = "é".repeat(MAX_USER_ID_BYTES / "é".len());
+        registry
+            .negotiate_offer(&user_id, VALID_OFFER, None)
+            .await
+            .unwrap();
+        registry
+            .add_ice_candidate(&user_id, VALID_CANDIDATE)
+            .await
+            .unwrap();
+        assert_eq!(registry.list().await[0].user_id, user_id);
+    }
+
+    #[tokio::test]
+    async fn phase534_oversized_candidate_user_id_does_not_match_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let oversized = "x".repeat(MAX_USER_ID_BYTES + 1);
+        assert!(matches!(
+            registry
+                .add_ice_candidate(&oversized, VALID_CANDIDATE)
+                .await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert_eq!(registry.list().await[0].user_id, "alice");
+    }
+
+    #[tokio::test]
+    async fn phase535_candidate_for_empty_user_id_is_rejected_before_lookup() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry.add_ice_candidate("", VALID_CANDIDATE).await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase536_candidate_with_carriage_return_is_rejected_before_lookup() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry
+                .add_ice_candidate("missing", &format!("{VALID_CANDIDATE}\r"))
+                .await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase537_candidate_with_line_feed_is_rejected_before_lookup() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry
+                .add_ice_candidate("missing", &format!("{VALID_CANDIDATE}\n"))
+                .await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase538_candidate_without_prefix_is_rejected_without_mutation() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(matches!(
+            registry.add_ice_candidate("alice", "1 2 3").await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert_eq!(registry.list().await.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn phase539_unknown_user_with_valid_candidate_does_not_create_session() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry
+                .add_ice_candidate("missing", VALID_CANDIDATE)
+                .await,
+            Err(StreamingError::SessionNotFound(user)) if user == "missing"
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase540_transport_drain_budget_above_capacity_is_bounded() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"one"), test_transmit(b"two")])
+            .await;
+        assert_eq!(registry.drain_transport_outputs(usize::MAX).await.len(), 2);
+        assert!(registry
+            .drain_transport_outputs(usize::MAX)
+            .await
+            .is_empty());
+    }
+
+    #[tokio::test]
+    async fn phase541_empty_transport_drain_does_not_change_queue() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"pending")])
+            .await;
+        assert!(registry.drain_transport_outputs(0).await.is_empty());
+        assert_eq!(
+            registry.drain_transport_outputs(1).await[0]
+                .contents
+                .as_ref(),
+            b"pending"
+        );
+    }
+
+    #[tokio::test]
+    async fn phase542_transport_requeue_preserves_order_after_empty_drain() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"one"), test_transmit(b"two")])
+            .await;
+        assert!(registry.drain_transport_outputs(0).await.is_empty());
+        let outputs = registry.drain_transport_outputs(2).await;
+        assert_eq!(outputs[0].contents.as_ref(), b"one");
+        assert_eq!(outputs[1].contents.as_ref(), b"two");
+    }
+
     fn test_transmit(contents: &[u8]) -> str0m::net::Transmit {
         str0m::net::Transmit {
             proto: Protocol::Udp,
