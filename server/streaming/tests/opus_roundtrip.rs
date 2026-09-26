@@ -1,10 +1,69 @@
 use std::sync::Arc;
 
+use mix_engine::FrameOutput;
+
 use observability::ReceiverMetrics;
 use streaming::{
-    AudioOutput, MediaFrame, MediaWriter, OpusReceiver, OutputError, ReceiverError, ReceiverState,
-    StreamMetadata, OPUS_MAX_PACKET_BYTES,
+    AudioOutput, MediaBridge, MediaFrame, MediaPlane, MediaWriter, OpusReceiver, OutputError,
+    ReceiverError, ReceiverState, StreamMetadata, OPUS_MAX_PACKET_BYTES,
 };
+
+#[tokio::test]
+async fn media_bridge_plane_writer_receiver_round_trip_preserves_frame() {
+    let bridge = MediaBridge::new();
+    let plane = MediaPlane::new();
+    plane.register_session("alice", 0).await.unwrap();
+    bridge
+        .try_send(
+            FrameOutput {
+                mixes: [(0.2, -0.1), (0.0, 0.0)],
+            },
+            7,
+            None,
+        )
+        .unwrap();
+    bridge.drain_to(&plane).await;
+
+    let frame = plane
+        .drain_session_frames_with_budget("alice", 1)
+        .await
+        .unwrap()
+        .pop()
+        .unwrap();
+    let packet = MediaWriter::new().unwrap().encode(&frame).unwrap();
+    let mut receiver = OpusReceiver::new().unwrap();
+    receiver.enqueue(packet.sequence, &packet.payload).unwrap();
+
+    let mut output = Capture {
+        samples: Vec::new(),
+        muted: 0,
+    };
+    receiver.playout(&mut output).unwrap();
+
+    assert_eq!(frame.metadata.sequence, 0);
+    assert_eq!(frame.metadata.revision, 7);
+    assert_eq!(output.samples.len(), 1_920);
+    assert_eq!(output.muted, 0);
+    assert!(
+        output
+            .samples
+            .iter()
+            .step_by(2)
+            .map(|sample| sample.abs())
+            .sum::<f32>()
+            > 1.0
+    );
+    assert!(
+        output
+            .samples
+            .iter()
+            .skip(1)
+            .step_by(2)
+            .map(|sample| sample.abs())
+            .sum::<f32>()
+            > 1.0
+    );
+}
 
 struct Capture {
     samples: Vec<f32>,

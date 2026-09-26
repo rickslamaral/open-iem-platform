@@ -1,6 +1,9 @@
 ## [Unreleased]
 
 ### Tests
+- Added deterministic CODE/SIMULATED media-plane Opus round-trip coverage from `MediaBridge` through `MediaPlane` and `MediaWriter` into `OpusReceiver`; WebRTC/DTLS-SRTP runtime remains unvalidated.
+
+### Tests
 - Added zero-capacity jitter regression proving invalid Opus payloads are rejected before `QueueFull` without state mutation.
 - Added streaming regression proving empty Opus payload rejection precedes duplicate and capacity classification without mutating jitter state.
 

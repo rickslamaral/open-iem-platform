@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 575 — media-plane Opus round-trip
+
+- [x] Adicionada regressão determinística `MediaBridge` → `MediaPlane` → `MediaWriter` → `OpusReceiver`, confirmando entrega de frame estéreo não silencioso com metadados de revisão preservados.
+- Evidência CODE/SIMULATED local; isso avança cobertura Sans-IO, mas não fecha T01: runtime WebRTC/DTLS-SRTP, rede real, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 574 — zero-capacity invalid Opus precedence
 
 - [x] Coberta rejeição de payload vazio antes de capacidade no `JitterBuffer` de capacidade zero; estado permanece vazio e payload válido continua retornando `QueueFull`.

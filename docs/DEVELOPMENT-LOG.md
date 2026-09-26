@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 575 — media-plane Opus round-trip
+
+- Adicionada regressão `media_bridge_plane_writer_receiver_round_trip_preserves_frame`, compondo APIs existentes `MediaBridge`, `MediaPlane`, `MediaWriter` e `OpusReceiver` em memória. O teste confirma revisão `7`, sequência `0`, 1.920 amostras estéreo e saída não silenciosa sem I/O.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --test opus_roundtrip` PASS. Evidência CODE/SIMULATED; runtime WebRTC/DTLS-SRTP, rede real, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 574 — zero-capacity invalid Opus precedence
 
 - Adicionada regressão `zero_capacity_jitter_rejects_invalid_packet_before_capacity`, confirmando `InvalidPacket` para payload vazio antes de `QueueFull`, sem mutação do `JitterBuffer`.
