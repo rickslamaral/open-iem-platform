@@ -5215,6 +5215,23 @@ mod tests {
         assert_eq!(outputs[1].contents.as_ref(), b"two");
     }
 
+    #[tokio::test]
+    async fn phase544_zero_output_budget_preserves_pending_transport_outputs() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"pending")])
+            .await;
+        let bridge = crate::media_bridge::MediaBridge::new();
+        let plane = crate::media_plane::MediaPlane::new();
+
+        let report = registry.drive_once(&bridge, &plane, 1, 0).await;
+
+        assert_eq!(report, DriveReport::default());
+        let outputs = registry.drain_transport_outputs(1).await;
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0].contents.as_ref(), b"pending");
+    }
+
     fn test_transmit(contents: &[u8]) -> str0m::net::Transmit {
         str0m::net::Transmit {
             proto: Protocol::Udp,

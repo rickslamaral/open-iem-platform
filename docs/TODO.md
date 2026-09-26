@@ -1,4 +1,8 @@
-## Estado atual do lote — 2026-09-26
+## 2026-09-26 — Phase 544 — zero-budget transport preservation
+
+- [x] Coberta `SessionRegistry::drive_once` com `output_budget == 0`, preservando saídas de transporte pendentes sem consumo.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 
 - PR #340 está aberta e sem merge; HEAD atual: `1365177507dc8243b00c2e611d7e97442a220012` (`develop`).
 - CI real da PR #340: 16/16 PASS no HEAD atual.

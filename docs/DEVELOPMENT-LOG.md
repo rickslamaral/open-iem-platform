@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 544 — zero-budget transport preservation
+
+- Added CODE regression proving `SessionRegistry::drive_once` with `output_budget == 0` preserves pending transport outputs.
+- Verification: focused streaming test PASS. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-26 — Phase 543 — streaming queue identity boundaries
 
 - Added CODE regressions for bounded transport requeue overflow and internal-whitespace media user IDs.

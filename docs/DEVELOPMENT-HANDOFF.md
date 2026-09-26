@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 544 status
+
+- Adicionada regressão para `drive_once` com orçamento de saída zero, confirmando preservação de saída de transporte pendente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 543 status
 
 - Added transport requeue overflow and internal-whitespace media identity regression coverage in `server/streaming`.
