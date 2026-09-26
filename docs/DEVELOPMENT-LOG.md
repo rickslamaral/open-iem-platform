@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 559 — duplicate Opus sequence across rollover
+
+- Adicionada regressão para duplicata `u64::MAX` após sequência `u64::MAX` → `0`; `late_packets` incrementa uma vez, `packets_dropped` permanece zero e o receiver mantém estado `Playing`.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --lib receiver_classifies_duplicate_across_sequence_wrap_as_late` — PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 558 — Opus receiver sequence wrap boundary
 
 - `OpusReceiver` passou a usar comparação serial wrap-aware para ordenar jitter e detectar atraso/gap; incrementos de sequência usam `wrapping_add`.

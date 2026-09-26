@@ -498,6 +498,26 @@ mod tests {
     }
 
     #[test]
+    fn receiver_classifies_duplicate_across_sequence_wrap_as_late() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new().unwrap().with_metrics(metrics.clone());
+        let pkt = make_opus_packet();
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        r.enqueue(0, &pkt).unwrap();
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+
+        r.playout(&mut s).unwrap();
+        r.playout(&mut s).unwrap();
+
+        let snapshot = metrics.snapshot();
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(snapshot.late_packets, 1);
+        assert_eq!(snapshot.packets_dropped, 0);
+        assert_eq!(r.state(), ReceiverState::Playing);
+    }
+
+    #[test]
     fn jitter_rejects_ambiguous_half_range_sequence() {
         let mut j = JitterBuffer::new(2);
         j.push(0, b"first").unwrap();

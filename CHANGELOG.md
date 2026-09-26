@@ -1,6 +1,8 @@
 ## [Unreleased]
 
 ### Tests
+- Added Phase 559 regression proving duplicate Opus sequence `u64::MAX` remains classified as late after rollover, without packet-drop accounting or state loss.
+
 - Added streaming regression coverage for exact `OPUS_MAX_PACKET_BYTES` acceptance and oversized jitter-packet rejection without queue mutation.
 
 

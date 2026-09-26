@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 559 status
+
+- Adicionada regressão para duplicata Opus em `u64::MAX` após rollover para `0`; o pacote é classificado como `late_packets`, não como descarte, e o receiver permanece `Playing`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 558 status
 
 - `OpusReceiver` agora ordena sequências com aritmética serial wrap-aware e avança `next_sequence` com `wrapping_add`; rollover `u64::MAX` → `0` coberto por regressões CODE.

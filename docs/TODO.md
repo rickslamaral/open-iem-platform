@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 559 — duplicate Opus sequence across rollover
+
+- [x] Coberta duplicata `u64::MAX` após rollover para `0`; classificação permanece `late_packets`, sem incremento de `packets_dropped` e sem mutação do estado `Playing`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 558 — Opus receiver sequence wrap boundary
 
 - [x] Corrigida ordenação serial e avanço wrapping de sequências estendidas no `OpusReceiver`; pacotes `u64::MAX` e `0` agora atravessam rollover sem serem classificados como atrasados.
