@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 573 — empty Opus packet precedence
+
+- [x] Coberta rejeição de payload vazio antes de duplicata e capacidade no `JitterBuffer`; fila existente permanece intacta.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 572 — ambiguous-only prefix mute
 
 - [x] Coberta a drenagem de prefixo contendo somente sequência ambígua após `next_sequence` estabelecido; pacote é descartado, saída silenciada e métricas preservadas.

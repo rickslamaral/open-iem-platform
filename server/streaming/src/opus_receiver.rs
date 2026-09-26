@@ -610,6 +610,17 @@ mod tests {
     }
 
     #[test]
+    fn jitter_empty_packet_precedes_duplicate_and_capacity() {
+        let mut j = JitterBuffer::new(1);
+        j.push(1, b"accepted").unwrap();
+
+        assert_eq!(j.push(1, &[]), Err(ReceiverError::InvalidPacket));
+        assert_eq!(j.len(), 1);
+        assert_eq!(j.pop().unwrap(), (1, b"accepted".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
     fn jitter_invalid_packet_precedes_duplicate() {
         let mut j = JitterBuffer::new(2);
         let oversized = vec![0_u8; OPUS_MAX_PACKET_BYTES + 1];

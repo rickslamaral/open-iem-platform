@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 573 — empty Opus packet precedence
+
+- Adicionada regressão `jitter_empty_packet_precedes_duplicate_and_capacity`, confirmando `InvalidPacket` para payload vazio mesmo com sequência duplicada e buffer cheio, sem mutação da fila.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 572 — ambiguous-only prefix mute
 
 - Adicionada regressão `playout_mutes_after_draining_ambiguous_only_prefix`, confirmando descarte métrico fail-closed e mute quando playout drena somente pacote de sequência ambígua.

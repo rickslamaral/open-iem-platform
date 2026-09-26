@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Tests
+- Added streaming regression proving empty Opus payload rejection precedes duplicate and capacity classification without mutating jitter state.
+
 ### Fixed
 - Added Opus receiver regression coverage for stale jitter draining across sequence rollover.
 
