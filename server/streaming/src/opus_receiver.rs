@@ -14,11 +14,11 @@ use std::{
 };
 use thiserror::Error;
 
+use crate::OPUS_MAX_PACKET_BYTES;
 use observability::ReceiverMetrics;
 
 /// Maximum encoded packets retained before newest packet is dropped.
 pub const RECEIVER_QUEUE_CAPACITY: usize = 32;
-const MAX_PACKET_BYTES: usize = 1500;
 const MAX_JITTER_CAPACITY: usize = 256;
 const MAX_DECODED_SAMPLES: usize = 5760;
 /// MVP Opus packetization is fixed at 20 ms, 48 kHz stereo.
@@ -92,7 +92,7 @@ impl JitterBuffer {
     /// Returns [`ReceiverError::InvalidPacket`] for invalid payloads or
     /// [`ReceiverError::QueueFull`] when capacity is exhausted.
     pub fn push(&mut self, sequence: u64, packet: &[u8]) -> Result<(), ReceiverError> {
-        if packet.is_empty() || packet.len() > MAX_PACKET_BYTES {
+        if packet.is_empty() || packet.len() > OPUS_MAX_PACKET_BYTES {
             return Err(ReceiverError::InvalidPacket);
         }
         if self.packets.iter().any(|(seq, _)| *seq == sequence) {
@@ -135,8 +135,8 @@ impl JitterBuffer {
 
 /// Native/headless receiver. `SIMULATED` means output sink is supplied by caller.
 pub struct OpusReceiver {
-    ingress: Sender<(u64, u64, [u8; MAX_PACKET_BYTES], usize)>,
-    ingress_rx: Receiver<(u64, u64, [u8; MAX_PACKET_BYTES], usize)>,
+    ingress: Sender<(u64, u64, [u8; OPUS_MAX_PACKET_BYTES], usize)>,
+    ingress_rx: Receiver<(u64, u64, [u8; OPUS_MAX_PACKET_BYTES], usize)>,
     jitter: JitterBuffer,
     decoder: OpusDecoder,
     state: ReceiverState,
@@ -192,14 +192,14 @@ impl OpusReceiver {
     ///
     /// Returns an error for invalid payloads, full queue, or disconnected receiver.
     pub fn enqueue(&self, sequence: u64, packet: &[u8]) -> Result<(), ReceiverError> {
-        if packet.is_empty() || packet.len() > MAX_PACKET_BYTES {
+        if packet.is_empty() || packet.len() > OPUS_MAX_PACKET_BYTES {
             if let Some(ref m) = self.metrics {
                 m.record_dropped();
             }
             return Err(ReceiverError::InvalidPacket);
         }
         let generation = self.generation.load(Ordering::Acquire);
-        let mut payload = [0_u8; MAX_PACKET_BYTES];
+        let mut payload = [0_u8; OPUS_MAX_PACKET_BYTES];
         payload[..packet.len()].copy_from_slice(packet);
         self.ingress
             .try_send((generation, sequence, payload, packet.len()))
@@ -667,7 +667,7 @@ mod tests {
         r.reconnect(&mut s);
         // Inject old-generation ingress after reconnect drain. This exercises
         // the stale-generation branch in playout deterministically.
-        let mut payload = [0_u8; MAX_PACKET_BYTES];
+        let mut payload = [0_u8; OPUS_MAX_PACKET_BYTES];
         payload[..pkt.len()].copy_from_slice(&pkt);
         r.ingress
             .try_send((0, 1, payload, pkt.len()))
@@ -683,7 +683,7 @@ mod tests {
         let r = OpusReceiver::new()
             .unwrap()
             .with_metrics(Arc::clone(&metrics));
-        let oversized = vec![0_u8; MAX_PACKET_BYTES + 1];
+        let oversized = vec![0_u8; OPUS_MAX_PACKET_BYTES + 1];
 
         assert_eq!(r.enqueue(1, &[]), Err(ReceiverError::InvalidPacket));
         assert_eq!(r.enqueue(2, &oversized), Err(ReceiverError::InvalidPacket));

@@ -1042,3 +1042,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Streaming: expanded CODE boundary coverage for bounded transport queues and session lifecycle (Phases 493–502).
 
 - Added streaming boundary regressions for ICE validation, identifier byte limits and bounded transport queue behavior.
+
+### Changed
+- Unified Opus writer and receiver packet-size boundary at 1500 bytes with regression coverage.

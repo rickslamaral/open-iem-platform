@@ -7,10 +7,11 @@
 
 use crate::clock::SampleTimestamp;
 use crate::media_plane::MediaFrame;
+
+/// Compatibility re-export for callers using the media-writer module path.
+pub use crate::OPUS_MAX_PACKET_BYTES;
 use opus_pure::{Application, OpusEncoder};
 use thiserror::Error;
-
-pub const OPUS_MAX_PACKET_BYTES: usize = 4_000;
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum MediaWriterError {

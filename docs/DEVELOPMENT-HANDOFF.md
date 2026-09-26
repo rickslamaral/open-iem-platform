@@ -856,3 +856,9 @@ test → review → docs/GAP update → PR/CI
 - Ten streaming regressions cover candidate validation before lookup, multibyte user-ID byte boundary, unknown-session non-mutation, bounded oversized transport drain and FIFO preservation after zero-budget drain.
 - Focused gate: 380 streaming tests PASS locally. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
 - Next: run full local gates, independent review, commit and push on `develop`; continue next concrete CODE boundary.
+
+## 2026-09-26 — Shared Opus packet-size boundary
+
+- `streaming::OPUS_MAX_PACKET_BYTES` is now the single 1500-byte limit for `MediaWriter` packet storage and `OpusReceiver` ingress/jitter buffers.
+- `opus_roundtrip` adds shared-limit coverage; focused streaming gate: 399 tests PASS including 4 integration tests.
+- Evidence remains CODE/CI/SIMULATED. WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

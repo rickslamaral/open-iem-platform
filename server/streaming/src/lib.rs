@@ -8,6 +8,9 @@
 //!   `Rtc::add_remote_candidate` in the Sans-IO session.
 //! - Oversized candidate rejection (>2048 bytes).
 
+/// Maximum encoded Opus payload accepted across writer and receiver ingress.
+pub const OPUS_MAX_PACKET_BYTES: usize = 1500;
+
 pub mod clock;
 pub mod media_bridge;
 pub mod media_plane;
@@ -20,7 +23,7 @@ pub use media_plane::{
     MediaFrame, MediaPlane, MediaPlaneError, MediaSession, MediaSessionError, StreamMetadata,
     MEDIA_QUEUE_CAPACITY,
 };
-pub use media_writer::{MediaPacket, MediaWriter, MediaWriterError, OPUS_MAX_PACKET_BYTES};
+pub use media_writer::{MediaPacket, MediaWriter, MediaWriterError};
 pub use opus_receiver::{
     AudioOutput, JitterBuffer, OpusReceiver, OutputError, ReceiverError, ReceiverState,
     RECEIVER_QUEUE_CAPACITY,

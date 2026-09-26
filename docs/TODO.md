@@ -1286,3 +1286,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - Evidência: 350 testes `streaming` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
 
 - [x] Streaming boundary batch Phases 533–542: ICE input rejection/non-mutation, multibyte ID limit, unknown-session fail-closed behavior and bounded transport queue ordering. CODE evidence; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain pending.
+
+## 2026-09-26 — Opus writer/receiver packet boundary
+
+- [x] Unify encoded Opus payload limit at `streaming::OPUS_MAX_PACKET_BYTES` for writer buffer and receiver ingress.
+- Evidence: CODE local; streaming tests 405 PASS including writer/receiver shared-limit regression. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, network and Raspberry Pi 5 remain unvalidated.

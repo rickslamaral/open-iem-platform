@@ -5339,3 +5339,7 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - Added ten CODE regressions for multibyte user-ID byte limits, fail-closed ICE validation, unknown-session behavior and bounded transport drain/requeue ordering.
 - Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 380 tests PASS. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — Shared Opus packet-size boundary
+
+Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` constant (1500 bytes). Added round-trip boundary regression: encoded payload stays within receiver ingress limit and oversized ingress fails closed. Evidence is CODE/local tests only; runtime and hardware remain unvalidated.
