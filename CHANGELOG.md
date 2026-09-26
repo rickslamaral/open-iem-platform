@@ -7,8 +7,6 @@
 - Batch Phase 523–532 adiciona dez regressões de identidade, fila de transporte e preservação de estado no streaming; 380 testes `streaming` passam localmente.
 - Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
-## [Unreleased]
-
 ### Fixed
 - Added regression coverage for conflicting DTLS fingerprints in bound SDP offers.
 - Rejeita fingerprint DTLS malformada em SDP bound sem substituir sessão existente.
