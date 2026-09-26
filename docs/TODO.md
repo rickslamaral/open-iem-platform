@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 560 — jitter capacity clamp boundary
+
+- [x] Coberta por `jitter_clamps_capacity_at_maximum_boundary` em `server/streaming/src/opus_receiver.rs`: capacidade acima de `MAX_JITTER_CAPACITY` é limitada; pacote seguinte é rejeitado sem mutação; fila completa permanece preservada.
+- Evidência registrada no commit `5f29926` e CI real da PR #340; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 559 — duplicate Opus sequence across rollover
 
 - [x] Coberta duplicata `u64::MAX` após rollover para `0`; classificação permanece `late_packets`, sem incremento de `packets_dropped` e sem mutação do estado `Playing`.
@@ -82,9 +87,9 @@
 
 ## Estado atual do lote — 2026-09-26
 
-- PR #340 está aberta e sem merge; HEAD de código avaliado: `336fd1e7d5a3e150202c996881827f2319d134d6`; documentação atualizada no commit `50a6368` (`develop`).
-- CI real da PR #340: CI real do HEAD de código avaliado concluído com sucesso nos workflows CI e Software Package Lifecycle Gates; CI deste commit documental ainda não verificado.
-- CODE/CI/SIMULATED concluído até Phase 558; isso não constitui validação física, runtime real, LAN real ou hardware.
+- PR #340 está aberta e sem merge; HEAD atual de código: `5f29926bfc0950bbbf4820385079a47903cdb46a` (`develop`).
+- CI real da PR #340 para o HEAD atual (`5f29926`) concluído com sucesso: 16/16 jobs, incluindo Rust, frontends, segurança, pacotes amd64/arm64 e gates SIMULATED; execução registrada em `https://github.com/rickslamaral/open-iem-platform/actions/runs/36263409628` e `https://github.com/rickslamaral/open-iem-platform/actions/runs/36263409614`.
+- CODE/CI/SIMULATED concluído até Phase 560; isso não constitui validação física, runtime real, LAN real ou hardware.
 
 ### Matriz compacta de evidência — 16 pendências
 
