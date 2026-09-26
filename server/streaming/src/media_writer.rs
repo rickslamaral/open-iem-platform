@@ -185,6 +185,21 @@ mod tests {
     }
 
     #[test]
+    fn rejects_wrong_channel_count() {
+        let mut invalid = frame();
+        invalid.metadata.channels = 1;
+        let mut writer = MediaWriter::new().unwrap();
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::InvalidFormat)
+        );
+
+        let valid = writer.encode(&frame()).unwrap();
+        assert_eq!(valid.rtp_timestamp, 0);
+    }
+
+    #[test]
     fn rejects_wrong_frame_duration() {
         let mut f = frame();
         f.metadata.frame_duration_ms = 10;
