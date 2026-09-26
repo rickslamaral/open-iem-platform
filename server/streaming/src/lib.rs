@@ -202,6 +202,7 @@ impl SessionRegistry {
             .map_err(|error| StreamingError::InvalidOffer(error.to_string()))?;
         if let Some(identity) = identity {
             if let Some(expected_fingerprint) = identity.dtls_fingerprint.as_deref() {
+                let expected_fingerprint = canonicalize_dtls_fingerprint(expected_fingerprint)?;
                 let offered_fingerprint = extract_dtls_fingerprint(sdp)?;
                 if expected_fingerprint != offered_fingerprint {
                     return Err(StreamingError::InvalidOffer(
@@ -1378,6 +1379,25 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn bound_session_accepts_uppercase_fingerprint_identity() {
+        let registry = SessionRegistry::new();
+        let fingerprint = extract_dtls_fingerprint(VALID_OFFER)
+            .unwrap()
+            .to_ascii_uppercase();
+        let identity = DeviceIdentity {
+            device_id: "rx-uppercase".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(fingerprint),
+        };
+        registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .expect("fingerprint comparison must be case-insensitive");
+    }
+
+    #[tokio::test]
     async fn bound_session_keeps_device_identity_and_revoke_removes_it() {
         let registry = SessionRegistry::new();
         let identity = DeviceIdentity {
@@ -1434,7 +1454,7 @@ mod tests {
             mix_index: 0,
             revoked: false,
             dtls_fingerprint: Some(
-                "sha-256 FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF".into(),
+                "sha-256 FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF".into(),
             ),
         };
         assert!(matches!(

@@ -5,6 +5,9 @@
 ## [Unreleased]
 
 ### Fixed
+- Canonicalização de fingerprints DTLS persistidas antes da validação de ofertas bound.
+
+### Fixed
 - Preserve pending transport output when `SessionRegistry::drive_once` receives `frame_budget == 0`.
 - Preserve queued streaming bridge frames when `drive_once` receives a zero frame budget.
 

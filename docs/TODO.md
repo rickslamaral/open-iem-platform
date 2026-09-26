@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 548 — case-insensitive bound DTLS fingerprint
+
+- [x] Normalizada a fingerprint DTLS persistida antes da comparação em `SessionRegistry::negotiate_offer_bound`; identidade válida em maiúsculas agora aceita SDP equivalente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 547 — zero frame-budget transport preservation
 
 - [x] Cobertura de `SessionRegistry::drive_once` com `frame_budget == 0`, preservando saída de transporte pendente para drenagem limitada posterior.

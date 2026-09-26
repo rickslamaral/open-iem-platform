@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 548 — bound DTLS fingerprint canonicalization
+
+- `SessionRegistry::negotiate_offer_bound` canonicaliza fingerprint persistida antes da comparação com SDP, mantendo rejeição fail-closed para formato inválido e aceitando equivalência de caixa.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 546 — zero frame-budget bridge preservation
 
 - Added CODE regression proving `SessionRegistry::drive_once` with `frame_budget == 0` does not consume queued `MediaBridge` frames; a later bounded call drains the preserved frame.
