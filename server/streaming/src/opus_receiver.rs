@@ -293,16 +293,24 @@ impl OpusReceiver {
             return Ok(());
         };
         if let Some(expected) = self.next_sequence {
-            if matches!(
-                sequence_order(sequence, expected),
-                SequenceOrder::Before | SequenceOrder::Ambiguous
-            ) {
-                let _ = self.jitter.pop();
-                self.dropped_packets = self.dropped_packets.saturating_add(1);
-                if let Some(ref m) = self.metrics {
-                    m.record_late();
+            match sequence_order(sequence, expected) {
+                SequenceOrder::Ambiguous => {
+                    let _ = self.jitter.pop();
+                    self.dropped_packets = self.dropped_packets.saturating_add(1);
+                    if let Some(ref m) = self.metrics {
+                        m.record_dropped();
+                    }
+                    return Ok(());
                 }
-                return Ok(());
+                SequenceOrder::Before => {
+                    let _ = self.jitter.pop();
+                    self.dropped_packets = self.dropped_packets.saturating_add(1);
+                    if let Some(ref m) = self.metrics {
+                        m.record_late();
+                    }
+                    return Ok(());
+                }
+                SequenceOrder::Equal | SequenceOrder::After => {}
             }
             if sequence_order(expected, sequence) == SequenceOrder::Before {
                 // Packet missing. Attempt PLC up to PLC_MAX_CONSECUTIVE frames.
@@ -943,6 +951,28 @@ mod tests {
 
         let snap = metrics.snapshot();
         assert_eq!(snap.packets_received, 1);
+        assert_eq!(snap.packets_dropped, 1);
+        assert_eq!(snap.late_packets, 0);
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(r.state(), ReceiverState::Playing);
+    }
+
+    #[test]
+    fn metrics_record_dropped_on_ambiguous_half_range_packet_after_expected_sequence() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(0, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue((1_u64 << 63) + 1, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+
+        let snap = metrics.snapshot();
+        assert_eq!(snap.packets_received, 2);
         assert_eq!(snap.packets_dropped, 1);
         assert_eq!(snap.late_packets, 0);
         assert_eq!(r.dropped_packets(), 1);

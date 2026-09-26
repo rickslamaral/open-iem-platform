@@ -1,3 +1,9 @@
+## 2026-09-26 — Phase 566 follow-up — ambiguous playout classification
+
+- Corrigida classificação de sequência exatamente a meia faixa quando o pacote chega após `next_sequence` já estabelecido: agora incrementa `packets_dropped`/`dropped_packets`, não `late_packets`.
+- Revisão independente encontrou a lacuna; regressão `metrics_record_dropped_on_ambiguous_half_range_packet_after_expected_sequence` adicionada.
+- Verificação focada PASS; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 566 — OpusReceiver ambiguous sequence metrics
 
 - Adicionada regressão de integração unitária entre `OpusReceiver::playout` e `JitterBuffer` para sequência exatamente a meia faixa, garantindo descarte métrico fail-closed sem classificar pacote como atrasado.

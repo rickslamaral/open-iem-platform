@@ -1,3 +1,9 @@
+## 2026-09-26 — Phase 566 follow-up status
+
+- Corrigida lacuna de `OpusReceiver::playout`: sequência ambígua após `next_sequence` estabelecido agora é descarte métrico fail-closed, não pacote atrasado.
+- Regressão cobre pacote `0`, playout para estabelecer expectativa, depois `2^63 + 1`; teste focado PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 566 status
 
 - Adicionada regressão no caminho `OpusReceiver::playout` para sequência ambígua exatamente a meia faixa (`0` → `1_u64 << 63`).
