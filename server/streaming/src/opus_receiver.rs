@@ -1082,6 +1082,33 @@ mod tests {
     }
 
     #[test]
+    fn metrics_record_reconnect_drops_stale_jitter_and_ingress_packets() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(1, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue(2, &pkt).unwrap();
+        r.enqueue(3, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue(4, &pkt).unwrap();
+        r.enqueue(5, &pkt).unwrap();
+        r.reconnect(&mut s);
+
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.packets_received, 3);
+        assert_eq!(snapshot.packets_dropped, 3);
+        assert_eq!(snapshot.late_packets, 0);
+        assert_eq!(snapshot.reconnect_count, 1);
+        assert_eq!(r.dropped_packets(), 3);
+        assert_eq!(r.state(), ReceiverState::Reconnecting);
+    }
+
+    #[test]
     fn metrics_record_reconnect_on_reconnect_call() {
         let metrics = Arc::new(observability::ReceiverMetrics::default());
         let mut r = OpusReceiver::new()

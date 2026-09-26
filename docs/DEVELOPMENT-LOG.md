@@ -1,3 +1,8 @@
+## 2026-09-26 — reconnect stale packet drop accounting
+
+- Adicionada regressão para `OpusReceiver::reconnect` com pacotes simultaneamente retidos no `JitterBuffer` e na fila de ingress; cobertura confirma descarte contado uma vez em `dropped_packets` e `ReceiverMetrics::packets_dropped`, sem confundir `packets_received`.
+- Verificação focada: teste `metrics_record_reconnect_drops_stale_jitter_and_ingress_packets` PASS e clippy do crate `streaming` PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-26 — Phase 567 — jitter serial-window transitivity
 
 - Corrigida aceitação de conjuntos de sequências que atravessam a metade do espaço serial e tornam a ordenação não transitiva.
