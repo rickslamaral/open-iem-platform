@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 562 status
+
+- `JitterBuffer` agora tem regressão explícita para payload inválido com fila cheia: retorna `InvalidPacket` antes de avaliar capacidade e preserva estado da fila.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 561 status
 
 - `JitterBuffer` agora tem cobertura explícita para duplicata na fronteira de capacidade: retorna `DuplicateSequence`, preserva dois pacotes e mantém FIFO. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.

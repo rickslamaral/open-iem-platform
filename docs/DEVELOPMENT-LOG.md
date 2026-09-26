@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 562 — invalid packet precedence at jitter capacity
+
+- Adicionada regressão `jitter_invalid_packet_at_capacity_preserves_queue`, confirmando que payload Opus excedente continua sendo rejeitado como `InvalidPacket` mesmo com a fila cheia e sem mutar pacote aceito.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 561 — duplicate precedence at jitter capacity
 
 - Adicionada regressão `jitter_duplicate_at_capacity_preserves_queue`, confirmando que duplicata é classificada antes de `QueueFull` e não muta fila cheia. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.

@@ -1375,3 +1375,4 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - Evidence: CODE local; streaming tests 405 PASS including writer/receiver shared-limit regression. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, network and Raspberry Pi 5 remain unvalidated.
 
 - [x] Phase 560 — JitterBuffer maximum-capacity clamp regression (CODE/local). Runtime and hardware validation remain pending.
+- [x] Phase 562 — JitterBuffer invalid-packet precedence at capacity (CODE/local). Runtime and hardware validation remain pending.
