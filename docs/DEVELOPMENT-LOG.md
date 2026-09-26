@@ -1,3 +1,9 @@
+## 2026-09-26 — Phase 566 — OpusReceiver ambiguous sequence metrics
+
+- Adicionada regressão de integração unitária entre `OpusReceiver::playout` e `JitterBuffer` para sequência exatamente a meia faixa, garantindo descarte métrico fail-closed sem classificar pacote como atrasado.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --lib metrics_record_dropped_on_ambiguous_half_range_packet` — 1 teste PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 565 — duplicate rollover queue preservation
 
 - Adicionada regressão `jitter_duplicate_across_sequence_wrap_preserves_queue`, confirmando que duplicata `u64::MAX` após enfileirar `u64::MAX` e `0` retorna `DuplicateSequence` sem mutar fila ou ordem FIFO.

@@ -1,3 +1,9 @@
+## 2026-09-26 — Phase 566 status
+
+- Adicionada regressão no caminho `OpusReceiver::playout` para sequência ambígua exatamente a meia faixa (`0` → `1_u64 << 63`).
+- O pacote ambíguo é contado como `packets_dropped`, não como `late_packets`; receiver permanece `Playing` e pacote válido anterior permanece recebido.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 565 status
 
 - Adicionada regressão para duplicata `u64::MAX` após rollover para `0` com ambos pacotes ainda na fila; `JitterBuffer` retorna `DuplicateSequence` e preserva FIFO.
