@@ -1,4 +1,8 @@
-## 2026-09-26 — Phase 569 status
+## 2026-09-26 — Phase 570 status
+
+- Adicionada regressão `playout_drains_stale_prefix_across_sequence_rollover`, combinando dreno de múltiplos pacotes stale com rollover `u64::MAX` → `0`; métricas e estado `Playing` permanecem corretos.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --lib playout_drains_stale_prefix_across_sequence_rollover` — 1 PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 
 - `OpusReceiver::playout` agora remove todo prefixo stale/ambiguous do `JitterBuffer` em uma chamada, preservando `late_packets` para stale e `packets_dropped` para sequência ambígua.
 - Regressões cobrem dois pacotes stale seguidos por pacote esperado e pacotes ambíguos preservando reprodução válida.

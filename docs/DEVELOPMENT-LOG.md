@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 570 — stale prefix rollover regression
+
+- Adicionada regressão para dreno de prefixo stale atravessando rollover `u64::MAX` → `0`, confirmando dois `late_packets`, reprodução do pacote esperado e estado `Playing`.
+- Verificação focada: teste unitário `playout_drains_stale_prefix_across_sequence_rollover` PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## 2026-09-26 — reconnect stale packet drop accounting
 
 - Adicionada regressão para `OpusReceiver::reconnect` com pacotes simultaneamente retidos no `JitterBuffer` e na fila de ingress; cobertura confirma descarte contado uma vez em `dropped_packets` e `ReceiverMetrics::packets_dropped`, sem confundir `packets_received`.

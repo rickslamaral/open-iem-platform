@@ -1062,6 +1062,30 @@ mod tests {
     }
 
     #[test]
+    fn playout_drains_stale_prefix_across_sequence_rollover() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        // Establish expected sequence zero through the u64 rollover.
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+
+        r.enqueue(u64::MAX - 1, &pkt).unwrap();
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        r.enqueue(0, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(metrics.snapshot().late_packets, 2);
+        assert_eq!(r.dropped_packets(), 2);
+        assert_eq!(r.state(), ReceiverState::Playing);
+    }
+
+    #[test]
     fn playout_drops_ambiguous_packets_and_keeps_expected_playable() {
         let metrics = Arc::new(ReceiverMetrics::default());
         let mut r = OpusReceiver::new()

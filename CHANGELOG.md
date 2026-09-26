@@ -1,6 +1,9 @@
 ## [Unreleased]
 
 ### Fixed
+- Added Opus receiver regression coverage for stale jitter draining across sequence rollover.
+
+### Fixed
 - Drain stale and ambiguous Opus jitter packets before playout, preventing avoidable output gaps.
 
 

@@ -1,4 +1,8 @@
-## 2026-09-26 — Phase 569 — stale jitter prefix drain
+## 2026-09-26 — Phase 570 — stale prefix rollover regression
+
+- [x] Coberta a combinação entre dreno de prefixo stale e rollover de sequência `u64::MAX` → `0`; dois pacotes antigos são contabilizados como `late_packets` e o pacote esperado é reproduzido.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 
 - [x] `OpusReceiver::playout` drena todos os pacotes stale/ambiguous à frente antes de executar PLC ou decodificar mídia válida; regressões cobrem métricas e recuperação no mesmo playout.
 - Evidência CODE local: 424 testes `streaming`, fmt e clippy PASS; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
