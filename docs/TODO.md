@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 551 — malformed offered DTLS fingerprint preservation
+
+- [x] Coberta rejeição fail-closed de fingerprint DTLS malformada no SDP recebido sem substituir sessão bound existente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 550 — unsupported DTLS fingerprint algorithm boundary
 
 - [x] Coberta rejeição explícita de algoritmo DTLS fingerprint diferente de `sha-256`; evidência CODE local, sem mutação de sessão.

@@ -1435,6 +1435,43 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn phase551_bound_offer_rejects_malformed_fingerprint_without_mutating_existing_session()
+    {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
+            .await
+            .unwrap();
+        let before = registry.list().await;
+        let valid_fingerprint = extract_dtls_fingerprint(VALID_OFFER).unwrap();
+        let malformed_offer = VALID_OFFER.replace(
+            &format!("a=fingerprint:{valid_fingerprint}\r\n"),
+            "a=fingerprint:sha-256 00:11:22\r\n",
+        );
+        assert_ne!(malformed_offer, VALID_OFFER);
+        let identity = DeviceIdentity {
+            device_id: "rx-malformed-offer".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(valid_fingerprint),
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound(
+                    "alice",
+                    &malformed_offer,
+                    Some("0".into()),
+                    Some(&identity),
+                )
+                .await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
     async fn bound_session_rejects_malformed_fingerprint_without_mutating_existing_session() {
         let registry = SessionRegistry::new();
         registry

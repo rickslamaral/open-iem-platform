@@ -5,6 +5,7 @@
 ## [Unreleased]
 
 ### Fixed
+- Rejeita fingerprint DTLS malformada em SDP bound sem substituir sessão existente.
 - Added bound-session regression coverage for fail-closed rejection of unsupported DTLS fingerprint algorithms without session mutation.
 - Canonicalização de fingerprints DTLS persistidas antes da validação de ofertas bound.
 

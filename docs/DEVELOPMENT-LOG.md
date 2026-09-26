@@ -5372,3 +5372,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Added regression coverage proving a bound session rejects unsupported `sha-1` DTLS fingerprints before replacement and preserves the existing session metadata.
 - Focused streaming test and full Rust gates pass locally. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-26 — Phase 551 — malformed offered DTLS fingerprint preservation
+
+- Adicionado teste de regressão para rejeitar fingerprint DTLS malformada no SDP oferecido durante negociação bound, preservando sessão existente sem mutação.
+- Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
