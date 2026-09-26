@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 564 — ambiguous sequence precedence at capacity
+
+- Ajustada a ordem de validação do `JitterBuffer`: sequência serial ambígua agora é rejeitada antes da capacidade, sem mutação da fila; regressão adicionada.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 563 — invalid packet precedence over duplicate
 
 - Adicionada regressão `jitter_invalid_packet_precedes_duplicate`, confirmando validação do payload antes da deduplicação: pacote oversized retorna `InvalidPacket` e não altera a fila.

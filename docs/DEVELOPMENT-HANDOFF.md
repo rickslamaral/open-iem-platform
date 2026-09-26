@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 564 status
+
+- `JitterBuffer::push` agora valida ordenação serial antes de aplicar capacidade; sequência ambígua em fila cheia retorna `InvalidPacket` e preserva FIFO.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 563 status
 
 - Adicionada regressão `jitter_invalid_packet_precedes_duplicate`, confirmando que payload Opus excedente com sequência já presente retorna `InvalidPacket` antes da deduplicação e preserva a fila.

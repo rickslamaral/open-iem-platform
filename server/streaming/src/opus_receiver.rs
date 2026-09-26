@@ -98,9 +98,6 @@ impl JitterBuffer {
         if self.packets.iter().any(|(seq, _)| *seq == sequence) {
             return Err(ReceiverError::DuplicateSequence);
         }
-        if self.packets.len() >= self.capacity {
-            return Err(ReceiverError::QueueFull);
-        }
         let mut pos = self.packets.len();
         for (index, (seq, _)) in self.packets.iter().enumerate() {
             match sequence_order(sequence, *seq) {
@@ -113,6 +110,9 @@ impl JitterBuffer {
                     return Err(ReceiverError::InvalidPacket);
                 }
             }
+        }
+        if self.packets.len() >= self.capacity {
+            return Err(ReceiverError::QueueFull);
         }
         self.packets.insert(pos, (sequence, packet.to_vec()));
         Ok(())
@@ -566,6 +566,20 @@ mod tests {
             Err(ReceiverError::InvalidPacket)
         );
         assert_eq!(j.len(), 1);
+    }
+
+    #[test]
+    fn jitter_ambiguous_sequence_precedes_capacity() {
+        let mut j = JitterBuffer::new(1);
+        j.push(0, b"accepted").unwrap();
+
+        assert_eq!(
+            j.push(1_u64 << 63, b"ambiguous"),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(j.len(), 1);
+        assert_eq!(j.pop().unwrap(), (0, b"accepted".to_vec()));
+        assert!(j.is_empty());
     }
 
     #[test]

@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 564 — ambiguous sequence precedence at capacity
+
+- [x] Coberta a precedência de sequência serial ambígua sobre fila cheia no `JitterBuffer`: retorna `InvalidPacket`, preserva a fila e não mascara entrada inválida como `QueueFull`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 561 — duplicate precedence at jitter capacity
 
 - [x] Coberta duplicata recebida com `JitterBuffer` cheio: retorna `DuplicateSequence`, preserva capacidade e ordem FIFO; evidência CODE local. Runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
