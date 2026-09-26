@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 565 status
+
+- Adicionada regressão para duplicata `u64::MAX` após rollover para `0` com ambos pacotes ainda na fila; `JitterBuffer` retorna `DuplicateSequence` e preserva FIFO.
+- Verificação focada PASS; evidência CODE local. Runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 564 status
 
 - `JitterBuffer::push` agora valida ordenação serial antes de aplicar capacidade; sequência ambígua em fila cheia retorna `InvalidPacket` e preserva FIFO.

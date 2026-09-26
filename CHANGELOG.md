@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Fixed
+- Coberta preservação da fila do `JitterBuffer` ao rejeitar duplicata durante rollover de sequência Opus.
+
+
 ### Tests
 - Added streaming regression proving duplicate jitter packets take precedence over `QueueFull` and preserve full FIFO queue.
 

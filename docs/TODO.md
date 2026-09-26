@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 565 — duplicate rollover queue preservation
+
+- [x] Coberta duplicata `u64::MAX` após rollover para `0` enquanto ambos pacotes permanecem no `JitterBuffer`; retorna `DuplicateSequence` e preserva FIFO.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 564 — ambiguous sequence precedence at capacity
 
 - [x] Coberta a precedência de sequência serial ambígua sobre fila cheia no `JitterBuffer`: retorna `InvalidPacket`, preserva a fila e não mascara entrada inválida como `QueueFull`.

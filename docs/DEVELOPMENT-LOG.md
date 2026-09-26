@@ -1,3 +1,9 @@
+## 2026-09-26 — Phase 565 — duplicate rollover queue preservation
+
+- Adicionada regressão `jitter_duplicate_across_sequence_wrap_preserves_queue`, confirmando que duplicata `u64::MAX` após enfileirar `u64::MAX` e `0` retorna `DuplicateSequence` sem mutar fila ou ordem FIFO.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --lib jitter_duplicate_across_sequence_wrap_preserves_queue` — 1 teste PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 564 — ambiguous sequence precedence at capacity
 
 - Ajustada a ordem de validação do `JitterBuffer`: sequência serial ambígua agora é rejeitada antes da capacidade, sem mutação da fila; regressão adicionada.

@@ -482,6 +482,22 @@ mod tests {
     }
 
     #[test]
+    fn jitter_duplicate_across_sequence_wrap_preserves_queue() {
+        let mut j = JitterBuffer::new(2);
+        j.push(u64::MAX, b"last").unwrap();
+        j.push(0, b"next").unwrap();
+
+        assert_eq!(
+            j.push(u64::MAX, b"duplicate"),
+            Err(ReceiverError::DuplicateSequence)
+        );
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (u64::MAX, b"last".to_vec()));
+        assert_eq!(j.pop().unwrap(), (0, b"next".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
     fn receiver_plays_packets_across_sequence_wrap() {
         let mut r = OpusReceiver::new().unwrap();
         let pkt = make_opus_packet();
