@@ -1,3 +1,9 @@
+## 2026-09-26 — Phase 555 — RTP timestamp wrap boundary
+
+- [x] Coberta a passagem do timestamp RTP de `u32::MAX` para `0` em dois frames Opus consecutivos, preservando incremento de 960 samples.
+- Teste: `server/streaming/src/media_writer.rs::media_writer::tests::rtp_timestamp_wraps_at_u32_boundary`.
+- Evidência CODE local: `cargo fmt --manifest-path server/Cargo.toml --all -- --check` e `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 406 testes PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 554 — shared Opus jitter packet boundary
 
 - [x] Coberta aceitação de payload exatamente em `OPUS_MAX_PACKET_BYTES` e rejeição de payload excedente no `JitterBuffer`, sem mutação da fila.
