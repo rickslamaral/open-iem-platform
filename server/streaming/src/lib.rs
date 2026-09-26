@@ -5150,6 +5150,60 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn phase543_partial_requeue_retains_latest_failed_datagrams() {
+        let registry = SessionRegistry::new();
+        let capacity = TRANSPORT_OUTPUT_CAPACITY;
+        let existing: Vec<_> = (0..capacity - 1)
+            .map(|index| test_transmit(format!("existing-{index}").as_bytes()))
+            .collect();
+        registry.requeue_transport_outputs(existing).await;
+
+        let dropped = registry
+            .requeue_transport_outputs(vec![
+                test_transmit(b"failed-first"),
+                test_transmit(b"failed-second"),
+            ])
+            .await;
+
+        assert_eq!(dropped, 1);
+        let mut outputs = Vec::new();
+        for _ in 0..4 {
+            outputs.extend(registry.drain_transport_outputs(usize::MAX).await);
+        }
+        assert_eq!(outputs.len(), capacity);
+        assert_eq!(outputs[0].contents.as_ref(), b"failed-second");
+        assert_eq!(outputs[1].contents.as_ref(), b"existing-0");
+    }
+
+    #[tokio::test]
+    async fn phase543_partial_requeue_retains_latest_fifo_before_existing_suffix() {
+        let registry = SessionRegistry::new();
+        let capacity = TRANSPORT_OUTPUT_CAPACITY;
+        let existing: Vec<_> = (0..capacity - 2)
+            .map(|index| test_transmit(format!("existing-{index}").as_bytes()))
+            .collect();
+        registry.requeue_transport_outputs(existing).await;
+
+        let dropped = registry
+            .requeue_transport_outputs(vec![
+                test_transmit(b"failed-first"),
+                test_transmit(b"failed-second"),
+                test_transmit(b"failed-third"),
+            ])
+            .await;
+
+        assert_eq!(dropped, 1);
+        let mut outputs = Vec::new();
+        for _ in 0..4 {
+            outputs.extend(registry.drain_transport_outputs(usize::MAX).await);
+        }
+        assert_eq!(outputs.len(), capacity);
+        assert_eq!(outputs[0].contents.as_ref(), b"failed-second");
+        assert_eq!(outputs[1].contents.as_ref(), b"failed-third");
+        assert_eq!(outputs[2].contents.as_ref(), b"existing-0");
+    }
+
+    #[tokio::test]
     async fn phase542_transport_requeue_preserves_order_after_empty_drain() {
         let registry = SessionRegistry::new();
         registry

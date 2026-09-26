@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 543 status
+
+- Added transport requeue overflow and internal-whitespace media identity regression coverage in `server/streaming`.
+- Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-25 — Batch Phase 523–532 status
 
 - Dez regressões cobrem whitespace em user IDs de ICE, remoção literal de sessões/dispositivos, budgets zero/parciais, FIFO da fila e falhas sem mutação.

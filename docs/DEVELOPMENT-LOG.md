@@ -1,3 +1,10 @@
+## 2026-09-26 — Phase 543 — streaming queue identity boundaries
+
+- Added CODE regressions for bounded transport requeue overflow and internal-whitespace media user IDs.
+- Existing transport overflow policy remains explicit: oldest failed datagrams are dropped when retry queue is full; retained retries preserve FIFO ahead of existing suffix.
+- Verification: `cargo fmt --manifest-path server/Cargo.toml --all`, `cargo clippy --manifest-path server/Cargo.toml -p streaming --all-targets -- -D warnings`, focused test PASS.
+- Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, network real and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-26 — T00 baseline and evidence matrix
 
 - PR #340 está aberta e sem merge; HEAD atual: `1365177507dc8243b00c2e611d7e97442a220012` (`develop`).
