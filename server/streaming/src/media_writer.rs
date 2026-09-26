@@ -167,6 +167,24 @@ mod tests {
     }
 
     #[test]
+    fn failed_encode_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.metadata.sample_rate = 44_100;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::InvalidFormat)
+        );
+
+        let first = writer.encode(&frame()).unwrap();
+        let second = writer.encode(&frame()).unwrap();
+
+        assert_eq!(first.rtp_timestamp, 0);
+        assert_eq!(second.rtp_timestamp, 960);
+    }
+
+    #[test]
     fn rejects_wrong_frame_duration() {
         let mut f = frame();
         f.metadata.frame_duration_ms = 10;

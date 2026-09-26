@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 556 status
+
+- Adicionada regressão para confirmar que rejeição de frame antes da codificação não consome `next_rtp_timestamp`; os dois frames válidos seguintes mantêm timestamps `0` e `960`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 553 status
 
 - Adicionada regressão para falha de envio UDP em `TransportAdapter::send_from_registry`; todos os datagrams não enviados retornam à fila em ordem FIFO quando há capacidade.

@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 556 — failed frame validation timestamp preservation
+
+- [x] Coberta rejeição de frame inválido sem consumir `next_rtp_timestamp`; frames válidos seguintes preservam timestamps RTP `0` e `960`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 555 — RTP timestamp wrap boundary
 
 - [x] Coberta a passagem do timestamp RTP de `u32::MAX` para `0` em dois frames Opus consecutivos, preservando incremento de 960 samples.
