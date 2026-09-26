@@ -15,7 +15,7 @@
 
 ### Documentation
 - ADR-015 classifica Windows WASAPI/ASIO como fora do MVP Linux-first; T16 passa a `NOT_APPLICABLE`, com backend nativo no backlog futuro. Windows + Docker Desktop continua smoke/control-plane, sem claim de áudio nativo.
-- T00 reconciliou status do lote em 2026-09-26: PR #340 aberta sem merge, HEAD `1365177507dc8243b00c2e611d7e97442a220012`, CI real 16/16 PASS e CODE/CI/SIMULATED até Phases 523–542.
+- T00 reconciliou status do lote em 2026-09-26: PR #340 aberta sem merge, HEAD `84233555e0dd879902c0d26dcd3b455560e5690d`, CI real 16/16 PASS e CODE/CI/SIMULATED até Phases 523–542.
 - Adicionada matriz compacta de 16 itens: 15 pendências de runtime, hardware e release permanecem `PENDING/BLOCKED`; T16 foi classificado `NOT_APPLICABLE` por ADR-015. As pendências incluem WebRTC E2E real, DTLS-SRTP real, PipeWire físico, ALSA/USB, LAN real, Raspberry Pi 5, hot-plug, XRUN físico, latência p99, soak real, reboot, térmica/energia, release, lifecycle host e assinatura. Nenhuma validação física foi alegada.
 
 ### Added

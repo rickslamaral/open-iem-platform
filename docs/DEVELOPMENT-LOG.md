@@ -41,7 +41,7 @@
 
 ## 2026-09-26 — T00 baseline and evidence matrix
 
-- PR #340 está aberta e sem merge; HEAD atual: `0e30001b9456f2a0a6c8884643450299011cd066` (`develop`).
+- PR #340 está aberta e sem merge; HEAD atual: `84233555e0dd879902c0d26dcd3b455560e5690d` (`develop`).
 - CI real da PR #340: 16/16 PASS no HEAD anterior; novo HEAD aguarda execução CI.
 - CODE/CI/SIMULATED concluído até Phases 523–542.
 - A matriz mantém 16 itens: 15 pendências de runtime, hardware e release permanecem `PENDING/BLOCKED`; T16 foi classificado `NOT_APPLICABLE` por ADR-015. As pendências incluem WebRTC E2E real, DTLS-SRTP real, PipeWire físico, ALSA/USB físico, LAN real, Raspberry Pi 5, hot-plug, XRUN físico, latência p99, soak real, reboot/recovery, térmica/energia, release, lifecycle host e checksums/SBOM/Ed25519.
