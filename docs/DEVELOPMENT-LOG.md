@@ -5509,3 +5509,10 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - `MediaWriter::encode` now rejects `NaN` and infinite stereo samples before PCM allocation/Opus encoding with `NonFiniteSample`.
 - Focused and full Rust gates passed; evidence remains CODE/CI/SIMULATED.
+
+
+## 2026-09-26 — PLC failure drop accounting
+
+- Fixed `OpusReceiver::playout` PLC decoder and invalid PLC sample-count failure branches: both now increment `dropped_packets` and `ReceiverMetrics::packets_dropped`, matching normal decoder-failure accounting.
+- No regression test added: existing public APIs cannot deterministically force PLC decoder failure or alter PLC sample count without inventing a test seam.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi hardware remain unvalidated.

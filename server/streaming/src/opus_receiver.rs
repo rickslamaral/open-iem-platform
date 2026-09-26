@@ -358,7 +358,9 @@ impl OpusReceiver {
                         self.output_failed = true;
                         if let Some(ref m) = self.metrics {
                             m.record_output_failure();
+                            m.record_dropped();
                         }
+                        self.dropped_packets = self.dropped_packets.saturating_add(1);
                         output.mute();
                         return Err(ReceiverError::InvalidPacket);
                     };
@@ -370,7 +372,9 @@ impl OpusReceiver {
                         self.output_failed = true;
                         if let Some(ref m) = self.metrics {
                             m.record_output_failure();
+                            m.record_dropped();
                         }
+                        self.dropped_packets = self.dropped_packets.saturating_add(1);
                         output.mute();
                         return Err(ReceiverError::InvalidPacket);
                     }

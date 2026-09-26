@@ -1003,3 +1003,10 @@ test → review → docs/GAP update → PR/CI
 
 - `MediaWriter` now has explicit regression coverage for `u32::MAX` RTP timestamp wrap, preserving the 960-sample increment across zero.
 - Focused streaming gate: 406 tests PASS; evidence remains CODE/CI/SIMULATED. Runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
+
+
+## 2026-09-26 — PLC failure drop accounting
+
+- `OpusReceiver::playout` now counts PLC decoder failure and invalid PLC sample-count failure in both local `dropped_packets` and `ReceiverMetrics::packets_dropped`, matching normal decoder-failure accounting.
+- No regression test added because existing APIs cannot deterministically reach those PLC failure variants without an invented test seam.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi hardware remain unvalidated.
