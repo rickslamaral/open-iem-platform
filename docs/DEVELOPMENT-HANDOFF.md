@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 546 status
+
+- Added regression for `SessionRegistry::drive_once` with `frame_budget == 0`, confirming queued `MediaBridge` frames remain available to a later bounded call.
+- Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-26 — Phase 545 status
 
 - Added regression for `TransportAdapter::send_from_registry` with zero budget, confirming no transport output is consumed.
