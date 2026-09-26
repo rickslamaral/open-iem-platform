@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Fixed
+- Reject non-finite samples before MediaWriter Opus encoding.
+
+
 ### Tests
 - Added deterministic CODE/SIMULATED media-plane Opus round-trip coverage from `MediaBridge` through `MediaPlane` and `MediaWriter` into `OpusReceiver`; WebRTC/DTLS-SRTP runtime remains unvalidated.
 

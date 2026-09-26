@@ -19,6 +19,8 @@ pub enum MediaWriterError {
     InvalidFormat,
     #[error("media frame sample count is not one 20 ms frame")]
     InvalidFrameLength,
+    #[error("media frame contains a non-finite sample")]
+    NonFiniteSample,
     #[error("Opus encoder failed")]
     Encode,
 }
@@ -57,6 +59,9 @@ impl MediaWriter {
         }
         if frame.metadata.frame_duration_ms != 20 {
             return Err(MediaWriterError::InvalidFrameLength);
+        }
+        if !frame.samples.0.is_finite() || !frame.samples.1.is_finite() {
+            return Err(MediaWriterError::NonFiniteSample);
         }
         let pcm = [frame.samples.0, frame.samples.1]
             .into_iter()
@@ -224,5 +229,35 @@ mod tests {
             MediaWriter::new().unwrap().encode(&f),
             Err(MediaWriterError::InvalidFrameLength)
         );
+    }
+
+    #[test]
+    fn rejects_nan_sample_and_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.samples.0 = f32::NAN;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::NonFiniteSample)
+        );
+
+        let valid = writer.encode(&frame()).unwrap();
+        assert_eq!(valid.rtp_timestamp, 0);
+    }
+
+    #[test]
+    fn rejects_infinite_sample_and_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.samples.1 = f32::INFINITY;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::NonFiniteSample)
+        );
+
+        let valid = writer.encode(&frame()).unwrap();
+        assert_eq!(valid.rtp_timestamp, 0);
     }
 }

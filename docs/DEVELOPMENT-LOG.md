@@ -5495,3 +5495,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Added CODE regression for `MediaWriter` RTP timestamp wrap at `u32::MAX`; two consecutive 20 ms packets preserve the 960-sample clock step across zero.
 - Focused gate: `cargo fmt --manifest-path server/Cargo.toml --all -- --check` and `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 406 tests PASS.
 - Evidence remains CODE/CI/SIMULATED; WebRTC/DTLS-SRTP runtime, real network, PipeWire/ALSA and Raspberry Pi hardware remain unvalidated.
+## 2026-09-26 — MediaWriter finite sample validation
+
+- `MediaWriter::encode` now rejects `NaN` and infinite stereo samples before PCM allocation/Opus encoding with `NonFiniteSample`.
+- Focused and full Rust gates passed; evidence remains CODE/CI/SIMULATED.

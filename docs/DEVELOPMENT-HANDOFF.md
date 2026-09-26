@@ -1,3 +1,8 @@
+## 2026-09-26 — Non-finite MediaWriter sample boundary
+
+- `MediaWriter::encode` rejeita amostras `NaN` e infinitas antes de alocar PCM ou chamar Opus, retornando `NonFiniteSample`; falha preserva `next_rtp_timestamp`.
+- Testes CODE locais cobrem `NaN` e infinito; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 576 status
 
 - Adicionada regressão multi-frame do caminho `MediaBridge` → `MediaPlane` → `MediaWriter` → `OpusReceiver`; dois frames preservam ordem, `sequence`, `revision`, timestamps RTP consecutivos e energia estéreo após decode.
