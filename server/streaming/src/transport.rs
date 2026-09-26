@@ -189,6 +189,47 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn send_from_registry_requeues_all_unsent_outputs_after_error() {
+        let registry = crate::SessionRegistry::new();
+        let sink = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let valid_destination = sink.local_addr().unwrap();
+        let invalid_destination = "127.0.0.1:0".parse().unwrap();
+        for (index, destination) in [valid_destination, invalid_destination, invalid_destination]
+            .into_iter()
+            .enumerate()
+        {
+            registry
+                .transport_outputs
+                .lock()
+                .await
+                .push_back(str0m::net::Transmit {
+                    proto: Protocol::Udp,
+                    source: valid_destination,
+                    destination,
+                    contents: format!("retry-{index}").into_bytes().into(),
+                });
+        }
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+
+        let _error = adapter.send_from_registry(&registry, 3).await.unwrap_err();
+
+        let mut payload = [0; 16];
+        let (length, _) = sink.recv_from(&mut payload).await.unwrap();
+        assert_eq!(&payload[..length], b"retry-0");
+        let queued = registry.drain_transport_outputs(3).await;
+        assert_eq!(queued.len(), 2);
+        assert_eq!(
+            queued
+                .iter()
+                .map(|output| String::from_utf8_lossy(&output.contents).into_owned())
+                .collect::<Vec<_>>(),
+            ["retry-1", "retry-2"]
+        );
+    }
+
+    #[tokio::test]
     async fn empty_send_is_bounded_and_noop() {
         let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
             .await

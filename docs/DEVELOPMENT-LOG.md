@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 553 — transport send failure requeue
+
+- Adicionada regressão para falha de envio UDP em `TransportAdapter::send_from_registry`, confirmando preservação FIFO de todos os datagrams não enviados.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --lib send_from_registry_requeues_all_unsent_outputs_after_error` — PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 552 — conflicting offered DTLS fingerprints
 
 - Coberta preservação fail-closed de sessão bound quando SDP recebido contém múltiplas fingerprints DTLS conflitantes.

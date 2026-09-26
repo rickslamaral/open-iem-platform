@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 553 status
+
+- Adicionada regressão para falha de envio UDP em `TransportAdapter::send_from_registry`; todos os datagrams não enviados retornam à fila em ordem FIFO quando há capacidade.
+- Verificação focada PASS; evidência CODE local. Runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 552 status
 
 - Adicionada regressão para oferta bound contendo fingerprints DTLS conflitantes; `negotiate_offer_bound` rejeita antes da substituição e preserva sessão existente.

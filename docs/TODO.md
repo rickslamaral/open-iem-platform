@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 553 — transport send failure requeue
+
+- [x] Coberta falha de envio UDP no `TransportAdapter::send_from_registry`, confirmando requeue FIFO de todos os datagrams não enviados sem descarte quando a fila tem capacidade.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 552 — conflicting offered DTLS fingerprints
 
 - [x] Coberta rejeição fail-closed de oferta bound com fingerprints DTLS conflitantes, preservando sessão existente.
