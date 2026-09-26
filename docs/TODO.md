@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 554 — shared Opus jitter packet boundary
+
+- [x] Coberta aceitação de payload exatamente em `OPUS_MAX_PACKET_BYTES` e rejeição de payload excedente no `JitterBuffer`, sem mutação da fila.
+- Evidência CODE local: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 405 testes PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 553 — transport send failure requeue
 
 - [x] Coberta falha de envio UDP no `TransportAdapter::send_from_registry`, confirmando requeue FIFO de todos os datagrams não enviados sem descarte quando a fila tem capacidade.

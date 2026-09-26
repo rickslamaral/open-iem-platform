@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Tests
+- Added streaming regression coverage for exact `OPUS_MAX_PACKET_BYTES` acceptance and oversized jitter-packet rejection without queue mutation.
+
+
 ### Fixed
 - Added streaming regression coverage proving failed UDP sends requeue all unsent datagrams in FIFO order.
 

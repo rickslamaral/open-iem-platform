@@ -896,3 +896,9 @@ test → review → docs/GAP update → PR/CI
 - `streaming::OPUS_MAX_PACKET_BYTES` is now the single 1500-byte limit for `MediaWriter` packet storage and `OpusReceiver` ingress/jitter buffers.
 - `opus_roundtrip` adds shared-limit coverage; focused streaming gate: 405 tests PASS (395 unit + 10 integration tests).
 - Evidence remains CODE/CI/SIMULATED. WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+
+## 2026-09-26 — Phase 554 status
+
+- `JitterBuffer` agora tem regressão explícita para o limite compartilhado `OPUS_MAX_PACKET_BYTES`: payload exato é aceito, payload excedente é rejeitado e a fila preserva estado sem mutação.
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check` e `cargo test --manifest-path server/Cargo.toml -p streaming --lib` passaram; 405 testes. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

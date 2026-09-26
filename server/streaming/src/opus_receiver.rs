@@ -445,6 +445,21 @@ mod tests {
     }
 
     #[test]
+    fn jitter_enforces_shared_opus_packet_limit_without_mutation() {
+        let mut j = JitterBuffer::new(2);
+        let accepted = vec![0_u8; OPUS_MAX_PACKET_BYTES];
+        let oversized = vec![0_u8; OPUS_MAX_PACKET_BYTES + 1];
+
+        j.push(1, &accepted).unwrap();
+        assert_eq!(j.push(2, &oversized), Err(ReceiverError::InvalidPacket));
+        assert_eq!(j.len(), 1);
+        let (sequence, packet) = j.pop().unwrap();
+        assert_eq!(sequence, 1);
+        assert_eq!(packet.len(), OPUS_MAX_PACKET_BYTES);
+        assert!(j.is_empty());
+    }
+
+    #[test]
     fn zero_capacity_jitter_rejects_packets() {
         let mut j = JitterBuffer::new(0);
         assert_eq!(j.push(1, b"a"), Err(ReceiverError::QueueFull));

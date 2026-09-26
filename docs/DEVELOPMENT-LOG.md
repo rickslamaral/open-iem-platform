@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 554 — shared Opus jitter packet boundary
+
+- Adicionada regressão `jitter_enforces_shared_opus_packet_limit_without_mutation`, confirmando que o `JitterBuffer` aceita payload no limite compartilhado `OPUS_MAX_PACKET_BYTES`, rejeita payload maior e preserva pacote já enfileirado.
+- Verificação focada: `cargo fmt --manifest-path server/Cargo.toml --all -- --check` e `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — PASS; 405 testes. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 553 — transport send failure requeue
 
 - Adicionada regressão para falha de envio UDP em `TransportAdapter::send_from_registry`, confirmando preservação FIFO de todos os datagrams não enviados.
