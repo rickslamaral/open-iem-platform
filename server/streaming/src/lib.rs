@@ -1472,6 +1472,43 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn phase552_bound_offer_rejects_conflicting_fingerprints_without_mutating_existing_session(
+    ) {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
+            .await
+            .unwrap();
+        let before = registry.list().await;
+        let valid_fingerprint = extract_dtls_fingerprint(VALID_OFFER).unwrap();
+        let conflicting_offer = format!(
+            "{VALID_OFFER}a=fingerprint:{valid_fingerprint}\r\n\
+a=fingerprint:sha-256 FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00:\
+FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00\r\n"
+        );
+        let identity = DeviceIdentity {
+            device_id: "rx-conflicting-offer".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(valid_fingerprint),
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound(
+                    "alice",
+                    &conflicting_offer,
+                    Some("0".into()),
+                    Some(&identity),
+                )
+                .await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
     async fn bound_session_rejects_malformed_fingerprint_without_mutating_existing_session() {
         let registry = SessionRegistry::new();
         registry

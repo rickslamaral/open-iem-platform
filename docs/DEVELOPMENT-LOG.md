@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 552 — conflicting offered DTLS fingerprints
+
+- Coberta preservação fail-closed de sessão bound quando SDP recebido contém múltiplas fingerprints DTLS conflitantes.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 550 — unsupported DTLS fingerprint algorithm boundary
 
 - [x] Coberta rejeição explícita de algoritmo DTLS fingerprint diferente de `sha-256`; evidência CODE local, sem mutação de sessão.
