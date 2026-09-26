@@ -1,3 +1,11 @@
+## 2026-09-26 — T00 baseline and evidence matrix
+
+- PR #340 está aberta e sem merge; HEAD atual: `1365177507dc8243b00c2e611d7e97442a220012` (`develop`).
+- CI real da PR #340: 16/16 PASS no HEAD atual.
+- CODE/CI/SIMULATED concluído até Phases 523–542.
+- As 16 pendências permanecem `PENDING/BLOCKED`: WebRTC E2E real, DTLS-SRTP real, PipeWire físico, ALSA/USB físico, LAN real, Raspberry Pi 5, hot-plug, XRUN físico, latência p99, soak real, reboot/recovery, térmica/energia, release, lifecycle host, checksums/SBOM/Ed25519 e decisão/validação Windows.
+- Matriz compacta adicionada em `docs/TODO.md` e `docs/DEVELOPMENT-HANDOFF.md`; nenhum claim de validação física novo.
+
 ## 2026-09-25 — Batch Phase 523–532 streaming identity and queue boundaries
 
 - Adicionadas dez regressões para rejeição fail-closed de whitespace em user IDs de ICE, remoção literal de identidades, budgets zero/parciais, FIFO e preservação de transporte sob falhas.

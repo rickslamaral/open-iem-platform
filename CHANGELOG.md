@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Documentation
+- T00 reconciliou status do lote em 2026-09-26: PR #340 aberta sem merge, HEAD `1365177507dc8243b00c2e611d7e97442a220012`, CI real 16/16 PASS e CODE/CI/SIMULATED até Phases 523–542.
+- Adicionada matriz compacta das 16 pendências; WebRTC E2E real, DTLS-SRTP real, PipeWire físico, ALSA/USB, LAN real, Raspberry Pi 5, hot-plug, XRUN físico, latência p99, soak real, reboot, térmica/energia, release, lifecycle host, assinatura e decisão de escopo Windows permanecem `PENDING/BLOCKED`. Nenhuma validação física foi alegada.
+
 ### Added
 - Streaming CODE boundary coverage for phases 513–522: fail-closed input/replacement cases, bounded transport requeue after partial drain, and deterministic session listing.
 

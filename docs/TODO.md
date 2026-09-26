@@ -1,3 +1,32 @@
+## Estado atual do lote — 2026-09-26
+
+- PR #340 está aberta e sem merge; HEAD atual: `1365177507dc8243b00c2e611d7e97442a220012` (`develop`).
+- CI real da PR #340: 16/16 PASS no HEAD atual.
+- CODE/CI/SIMULATED concluído até Phases 523–542; isso não constitui validação física, runtime real, LAN real ou hardware.
+
+### Matriz compacta de evidência — 16 pendências
+
+| ID | Pendência | Evidência disponível | Estado |
+|---|---|---|---|
+| T01 | WebRTC E2E real | CODE/CI/SIMULATED; sem dois peers/runtime real | PENDING/BLOCKED |
+| T02 | DTLS-SRTP real | CODE/CI/SIMULATED; handshake/captura real ausentes | PENDING/BLOCKED |
+| T03 | PipeWire físico | Smoke virtual/CODE/CI; host físico ausente | PENDING/BLOCKED |
+| T04 | ALSA/USB físico | CODE/CI/SIMULATED; USB físico ausente | PENDING/BLOCKED |
+| T05 | LAN real | Perfis determinísticos CODE/CI/SIMULATED; LAN real ausente | PENDING/BLOCKED |
+| T06 | Raspberry Pi 5 | Cross-build/smoke não equivalem a Pi físico | PENDING/BLOCKED |
+| T07 | Hot-plug | Máquina de estados CODE/CI; inserção/remoção física ausente | PENDING/BLOCKED |
+| T08 | XRUN físico/recovery | Cobertura CODE/SIMULATED; XRUN físico ausente | PENDING/BLOCKED |
+| T09 | Latência E2E p99 | Critério documentado; medição física p99 ausente | PENDING/BLOCKED |
+| T10 | Soak real 5/15/60 min | Gates determinísticos; soak físico ausente | PENDING/BLOCKED |
+| T11 | Reboot/recovery | Código/gates; reboot e recuperação em host alvo ausentes | PENDING/BLOCKED |
+| T12 | Térmica/energia | Sem medição física | PENDING/BLOCKED |
+| T13 | Release v0.3.1 | Preparação/artefatos em gates; release validada não disponível | PENDING/BLOCKED |
+| T14 | Lifecycle host install/upgrade/remove/rollback | Gates de pacote não substituem lifecycle em host alvo | PENDING/BLOCKED |
+| T15 | Checksums/SBOM/Ed25519 | Código/gates; assinatura verificável publicada independentemente ausente | PENDING/BLOCKED |
+| T16 | Backend Windows/decisão de escopo | Sem decisão/validação Windows registrada neste lote | PENDING/BLOCKED |
+
+Não fechar item por simulação, CI, cross-build, loopback ou ausência de erro.
+
 ## 2026-09-25 — Batch Phase 523–532 streaming identity and queue boundaries
 - [x] Rejeitar whitespace em user IDs de candidatos e preservar sessões existentes.
 - [x] Cobrir remoção literal de sessões/dispositivos, budgets zero/parciais e preservação FIFO da fila.
