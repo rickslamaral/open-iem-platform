@@ -247,6 +247,21 @@ mod tests {
     }
 
     #[test]
+    fn rejects_negative_infinite_sample_and_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.samples.0 = f32::NEG_INFINITY;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::NonFiniteSample)
+        );
+
+        let valid = writer.encode(&frame()).unwrap();
+        assert_eq!(valid.rtp_timestamp, 0);
+    }
+
+    #[test]
     fn rejects_infinite_sample_and_preserves_rtp_timestamp() {
         let mut writer = MediaWriter::new().unwrap();
         let mut invalid = frame();

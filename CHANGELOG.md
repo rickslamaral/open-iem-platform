@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Tests
+- Added negative-infinity `MediaWriter` regression proving non-finite samples are rejected without consuming RTP timestamp.
+
 ### Fixed
 - Reject non-finite samples before MediaWriter Opus encoding.
 

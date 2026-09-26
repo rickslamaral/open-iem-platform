@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 577 — negative-infinity media sample regression
+
+- [x] Adicionada regressão `rejects_negative_infinite_sample_and_preserves_rtp_timestamp`, confirmando rejeição fail-closed de `f32::NEG_INFINITY` sem consumir timestamp RTP.
+- Evidência CODE local: 434 testes `streaming` PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 
 ## 2026-09-26 — extended sequence rollover writer/receiver regression
 

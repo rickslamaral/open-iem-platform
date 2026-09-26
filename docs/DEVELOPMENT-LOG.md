@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 577 — negative-infinity media sample regression
+
+- Adicionada regressão `rejects_negative_infinite_sample_and_preserves_rtp_timestamp` em `MediaWriter`, cobrindo explicitamente `f32::NEG_INFINITY`; a validação `is_finite()` rejeita a amostra antes da codificação e preserva o timestamp RTP inicial.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 434 testes PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — extended sequence rollover writer/receiver regression
 
 - Adicionada regressão `writer_receiver_preserve_extended_sequence_across_rollover`, verificando que `MediaWriter` preserva `u64::MAX` e `0` e que `OpusReceiver` reordena o rollover serial sem mute, descarte ou perda de energia estéreo.
