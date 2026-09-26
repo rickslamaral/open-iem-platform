@@ -1,3 +1,7 @@
+## 2026-09-26 — Phase 550 — unsupported DTLS fingerprint algorithm boundary
+
+- Phase 550 adiciona regressão para rejeição explícita de algoritmo DTLS fingerprint diferente de `sha-256`, sem alterar estado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
 ## 2026-09-26 — Phase 549 status
 
 - Adicionada regressão para fingerprint DTLS persistida malformada: `negotiate_offer_bound` rejeita antes da substituição e preserva sessão existente.

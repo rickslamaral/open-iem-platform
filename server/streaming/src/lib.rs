@@ -1397,6 +1397,15 @@ mod tests {
             .expect("fingerprint comparison must be case-insensitive");
     }
 
+    #[test]
+    fn unsupported_dtls_fingerprint_algorithm_is_rejected() {
+        let sha1 = "sha-1 00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44";
+        assert!(matches!(
+            canonicalize_dtls_fingerprint(sha1),
+            Err(StreamingError::InvalidOffer(message)) if message == "invalid DTLS fingerprint"
+        ));
+    }
+
     #[tokio::test]
     async fn bound_session_rejects_malformed_fingerprint_without_mutating_existing_session() {
         let registry = SessionRegistry::new();
