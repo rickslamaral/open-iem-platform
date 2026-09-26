@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 549 status
+
+- Adicionada regressão para fingerprint DTLS persistida malformada: `negotiate_offer_bound` rejeita antes da substituição e preserva sessão existente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 548 status
 
 - Corrigida comparação de fingerprint DTLS em `negotiate_offer_bound`: valor persistido agora passa pela mesma canonicalização do SDP, rejeitando formato inválido e aceitando apenas igualdade semântica.

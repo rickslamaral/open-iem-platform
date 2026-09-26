@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 549 — malformed bound DTLS fingerprint
+
+- Adicionada regressão CODE para rejeição fail-closed de fingerprint DTLS persistida malformada, confirmando preservação da sessão existente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 548 — bound DTLS fingerprint canonicalization
 
 - `SessionRegistry::negotiate_offer_bound` canonicaliza fingerprint persistida antes da comparação com SDP, mantendo rejeição fail-closed para formato inválido e aceitando equivalência de caixa.
