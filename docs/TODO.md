@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 576 — multi-frame media-plane Opus round-trip
+
+- [x] Adicionada regressão determinística de dois frames `MediaBridge` → `MediaPlane` → `MediaWriter` → `OpusReceiver`, confirmando ordem, `sequence`, `revision`, avanço RTP de 960 samples e áudio estéreo não silencioso.
+- Evidência CODE/SIMULATED local; runtime WebRTC/DTLS-SRTP, rede real, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 575 — media-plane Opus round-trip
 
 - [x] Adicionada regressão determinística `MediaBridge` → `MediaPlane` → `MediaWriter` → `OpusReceiver`, confirmando entrega de frame estéreo não silencioso com metadados de revisão preservados.

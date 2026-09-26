@@ -82,6 +82,76 @@ impl AudioOutput for Capture {
     }
 }
 
+#[tokio::test]
+async fn media_bridge_plane_writer_receiver_preserves_multi_frame_order_and_metadata() {
+    let bridge = MediaBridge::new();
+    let plane = MediaPlane::new();
+    plane.register_session("alice", 0).await.unwrap();
+
+    for (revision, left, right) in [(17_u64, 0.1_f32, -0.1_f32), (18, 0.3, -0.3)] {
+        bridge
+            .try_send(
+                FrameOutput {
+                    mixes: [(left, right), (0.0, 0.0)],
+                },
+                revision,
+                None,
+            )
+            .unwrap();
+    }
+    bridge.drain_to(&plane).await;
+
+    let frames = plane
+        .drain_session_frames_with_budget("alice", 2)
+        .await
+        .unwrap();
+    assert_eq!(frames.len(), 2);
+    assert_eq!(
+        frames
+            .iter()
+            .map(|frame| (frame.metadata.sequence, frame.metadata.revision))
+            .collect::<Vec<_>>(),
+        vec![(0, 17), (1, 18)]
+    );
+
+    let mut writer = MediaWriter::new().unwrap();
+    let packets = frames
+        .iter()
+        .map(|frame| writer.encode(frame).unwrap())
+        .collect::<Vec<_>>();
+    assert_eq!(packets[0].sequence, 0);
+    assert_eq!(packets[1].sequence, 1);
+    assert_eq!(packets[0].revision, 17);
+    assert_eq!(packets[1].revision, 18);
+    assert_eq!(
+        packets[1]
+            .rtp_timestamp
+            .wrapping_sub(packets[0].rtp_timestamp),
+        960
+    );
+
+    let mut receiver = OpusReceiver::new().unwrap();
+    receiver
+        .enqueue(packets[1].sequence, &packets[1].payload)
+        .unwrap();
+    receiver
+        .enqueue(packets[0].sequence, &packets[0].payload)
+        .unwrap();
+    let mut output = Capture {
+        samples: Vec::new(),
+        muted: 0,
+    };
+    receiver.playout(&mut output).unwrap();
+    receiver.playout(&mut output).unwrap();
+
+    assert_eq!(output.samples.len(), 3_840);
+    assert_eq!(output.muted, 0);
+    let first_left_mean: f32 = output.samples[..1_920].iter().step_by(2).sum::<f32>() / 960.0;
+    let second_left_mean: f32 = output.samples[1_920..].iter().step_by(2).sum::<f32>() / 960.0;
+    assert!((first_left_mean - 0.1).abs() < 0.08);
+    assert!((second_left_mean - 0.3).abs() < 0.08);
+}
+
 #[test]
 fn deterministic_frame_survives_opus_writer_receiver_round_trip() {
     let frame = MediaFrame {

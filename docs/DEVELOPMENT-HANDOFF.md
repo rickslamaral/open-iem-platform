@@ -1,3 +1,9 @@
+## 2026-09-26 — Phase 576 status
+
+- Adicionada regressão multi-frame do caminho `MediaBridge` → `MediaPlane` → `MediaWriter` → `OpusReceiver`; dois frames preservam ordem, `sequence`, `revision`, timestamps RTP consecutivos e energia estéreo após decode.
+- Verificação: teste focado e suíte `opus_roundtrip` — 6 testes PASS; `cargo clippy --manifest-path server/Cargo.toml -p streaming --all-targets -- -D warnings` PASS.
+- Evidência CODE/SIMULATED local; runtime WebRTC/DTLS-SRTP, rede real, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 570 status
 
 - Adicionada regressão `playout_drains_stale_prefix_across_sequence_rollover`, combinando dreno de múltiplos pacotes stale com rollover `u64::MAX` → `0`; métricas e estado `Playing` permanecem corretos.
