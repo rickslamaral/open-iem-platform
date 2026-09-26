@@ -254,6 +254,54 @@ fn consecutive_opus_packets_preserve_order_and_frame_timestamps() {
 }
 
 #[test]
+fn writer_receiver_preserve_extended_sequence_across_rollover() {
+    let mut writer = MediaWriter::new().unwrap();
+    let mut first = test_frame();
+    first.metadata.sequence = u64::MAX;
+    first.samples = (0.1, -0.1);
+    let mut second = test_frame();
+    second.metadata.sequence = 0;
+    second.samples = (0.3, -0.3);
+
+    let last = writer.encode(&first).unwrap();
+    let next = writer.encode(&second).unwrap();
+    assert_eq!(last.sequence, u64::MAX);
+    assert_eq!(next.sequence, 0);
+
+    let mut receiver = OpusReceiver::new().unwrap();
+    receiver.enqueue(next.sequence, &next.payload).unwrap();
+    receiver.enqueue(last.sequence, &last.payload).unwrap();
+    let mut output = Capture {
+        samples: Vec::new(),
+        muted: 0,
+    };
+    receiver.playout(&mut output).unwrap();
+    receiver.playout(&mut output).unwrap();
+
+    assert_eq!(output.samples.len(), 3_840);
+    assert_eq!(output.muted, 0);
+    assert_eq!(receiver.dropped_packets(), 0);
+    let first_left_mean: f32 = output.samples[..1_920].iter().step_by(2).sum::<f32>() / 960.0;
+    let first_right_mean: f32 = output.samples[..1_920]
+        .iter()
+        .skip(1)
+        .step_by(2)
+        .sum::<f32>()
+        / 960.0;
+    let second_left_mean: f32 = output.samples[1_920..].iter().step_by(2).sum::<f32>() / 960.0;
+    let second_right_mean: f32 = output.samples[1_920..]
+        .iter()
+        .skip(1)
+        .step_by(2)
+        .sum::<f32>()
+        / 960.0;
+    assert!((first_left_mean - 0.1).abs() < 0.08);
+    assert!((first_right_mean + 0.1).abs() < 0.08);
+    assert!((second_left_mean - 0.3).abs() < 0.08);
+    assert!((second_right_mean + 0.3).abs() < 0.08);
+}
+
+#[test]
 fn receiver_metrics_follow_roundtrip_drop_and_reconnect() {
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()

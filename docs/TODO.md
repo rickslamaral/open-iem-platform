@@ -1,3 +1,7 @@
+
+## 2026-09-26 — extended sequence rollover writer/receiver regression
+
+- [x] Cobrir preservação de sequências estendidas `u64::MAX` → `0` entre `MediaWriter` e `OpusReceiver`, incluindo ordenação serial e ausência de descarte/mute. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
 ## 2026-09-26 — Phase 576 — multi-frame media-plane Opus round-trip
 
 - [x] Adicionada regressão determinística de dois frames `MediaBridge` → `MediaPlane` → `MediaWriter` → `OpusReceiver`, confirmando ordem, `sequence`, `revision`, avanço RTP de 960 samples e áudio estéreo não silencioso.

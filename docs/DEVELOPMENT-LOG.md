@@ -1,3 +1,8 @@
+## 2026-09-26 — extended sequence rollover writer/receiver regression
+
+- Adicionada regressão `writer_receiver_preserve_extended_sequence_across_rollover`, verificando que `MediaWriter` preserva `u64::MAX` e `0` e que `OpusReceiver` reordena o rollover serial sem mute, descarte ou perda de energia estéreo.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 575 — media-plane Opus round-trip
 
 - Adicionada regressão `media_bridge_plane_writer_receiver_round_trip_preserves_frame`, compondo APIs existentes `MediaBridge`, `MediaPlane`, `MediaWriter` e `OpusReceiver` em memória. O teste confirma revisão `7`, sequência `0`, 1.920 amostras estéreo e saída não silenciosa sem I/O.
