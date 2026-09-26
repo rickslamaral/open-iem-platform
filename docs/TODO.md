@@ -77,8 +77,8 @@
 
 ## Estado atual do lote — 2026-09-26
 
-- PR #340 está aberta e sem merge; HEAD atual: `336fd1e7d5a3e150202c996881827f2319d134d6` (`develop`).
-- CI real da PR #340: CI real do HEAD atual concluído com sucesso nos workflows CI e Software Package Lifecycle Gates.
+- PR #340 está aberta e sem merge; HEAD de código avaliado: `336fd1e7d5a3e150202c996881827f2319d134d6`; documentação atualizada no commit `50a6368` (`develop`).
+- CI real da PR #340: CI real do HEAD de código avaliado concluído com sucesso nos workflows CI e Software Package Lifecycle Gates; CI deste commit documental ainda não verificado.
 - CODE/CI/SIMULATED concluído até Phase 558; isso não constitui validação física, runtime real, LAN real ou hardware.
 
 ### Matriz compacta de evidência — 16 pendências
