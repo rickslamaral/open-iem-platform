@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 557 — media sequence wrap boundary
+
+- [x] Coberta a passagem de `MediaSession::frame_sequence` de `u64::MAX` para `0` sem panic, preservando a ordem dos frames.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 556 — failed frame validation timestamp preservation
 
 - [x] Coberta rejeição de frame inválido sem consumir `next_rtp_timestamp`; frames válidos seguintes preservam timestamps RTP `0` e `960`.

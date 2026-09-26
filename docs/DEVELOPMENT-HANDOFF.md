@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 557 status
+
+- `MediaSession::push_frame` agora usa incremento wrapping para `frame_sequence`; regressão cobre `u64::MAX` seguido de `0` sem panic e com ordem preservada.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 556 status
 
 - Adicionada regressão para confirmar que rejeição de frame antes da codificação não consome `next_rtp_timestamp`; os dois frames válidos seguintes mantêm timestamps `0` e `960`.

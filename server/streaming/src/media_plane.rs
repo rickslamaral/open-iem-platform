@@ -147,7 +147,7 @@ impl MediaSession {
             frame_duration_ms: 20,
             capture_timestamp,
         };
-        self.frame_sequence += 1;
+        self.frame_sequence = self.frame_sequence.wrapping_add(1);
         let frame = MediaFrame { metadata, samples };
         match self.tx.try_send(frame) {
             Ok(()) => Ok(()),
@@ -362,6 +362,24 @@ mod tests {
         session.push_frame((100.0, 0.0), 1, None).unwrap();
         let frames = session.drain_frames_with_budget(1);
         assert_eq!(frames[0].metadata.sequence, MEDIA_QUEUE_CAPACITY as u64 + 1);
+    }
+
+    #[test]
+    fn media_session_sequence_wraps_without_panicking() {
+        let mut session = MediaSession::new("alice".to_owned(), 0);
+        session.frame_sequence = u64::MAX;
+
+        session.push_frame((0.1, 0.0), 1, None).unwrap();
+        session.push_frame((0.2, 0.0), 1, None).unwrap();
+
+        let frames = session.drain_frames_with_budget(2);
+        assert_eq!(
+            frames
+                .iter()
+                .map(|frame| frame.metadata.sequence)
+                .collect::<Vec<_>>(),
+            vec![u64::MAX, 0]
+        );
     }
 
     #[test]
