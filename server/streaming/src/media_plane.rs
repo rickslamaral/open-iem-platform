@@ -147,7 +147,7 @@ impl MediaSession {
             frame_duration_ms: 20,
             capture_timestamp,
         };
-        self.frame_sequence += 1;
+        self.frame_sequence = self.frame_sequence.wrapping_add(1);
         let frame = MediaFrame { metadata, samples };
         match self.tx.try_send(frame) {
             Ok(()) => Ok(()),
@@ -227,7 +227,10 @@ impl MediaPlane {
         if mix_index >= MAX_MIXES {
             return Err(MediaPlaneError::InvalidMixIndex);
         }
-        if user_id.trim().is_empty() || user_id.len() > MAX_MEDIA_USER_ID_BYTES {
+        if user_id.is_empty()
+            || user_id.chars().any(char::is_whitespace)
+            || user_id.len() > MAX_MEDIA_USER_ID_BYTES
+        {
             return Err(MediaPlaneError::InvalidUserId);
         }
         let mut sessions = self.sessions.lock().await;
@@ -362,6 +365,24 @@ mod tests {
     }
 
     #[test]
+    fn media_session_sequence_wraps_without_panicking() {
+        let mut session = MediaSession::new("alice".to_owned(), 0);
+        session.frame_sequence = u64::MAX;
+
+        session.push_frame((0.1, 0.0), 1, None).unwrap();
+        session.push_frame((0.2, 0.0), 1, None).unwrap();
+
+        let frames = session.drain_frames_with_budget(2);
+        assert_eq!(
+            frames
+                .iter()
+                .map(|frame| frame.metadata.sequence)
+                .collect::<Vec<_>>(),
+            vec![u64::MAX, 0]
+        );
+    }
+
+    #[test]
     fn media_session_zero_budget_preserves_frames() {
         let mut session = MediaSession::new("alice".to_owned(), 0);
         session.push_frame((0.1, 0.2), 1, None).unwrap();
@@ -420,6 +441,18 @@ mod tests {
             Err(MediaPlaneError::InvalidUserId)
         );
         assert!(mp.sessions().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn register_rejects_internal_whitespace_user_id_without_mutation() {
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+
+        assert_eq!(
+            plane.register_session("al ice", 1).await,
+            Err(MediaPlaneError::InvalidUserId)
+        );
+        assert_eq!(plane.sessions().await, vec![("alice".to_owned(), 0)]);
     }
 
     #[tokio::test]

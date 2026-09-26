@@ -1,8 +1,32 @@
+## [Unreleased]
+
+### Tests
+- Added Phase 559 regression proving duplicate Opus sequence `u64::MAX` remains classified as late after rollover, without packet-drop accounting or state loss.
+
+- Added streaming regression coverage for exact `OPUS_MAX_PACKET_BYTES` acceptance and oversized jitter-packet rejection without queue mutation.
+
+
+### Fixed
+- Added streaming regression coverage proving failed UDP sends requeue all unsent datagrams in FIFO order.
+
 ### Tests
 - Batch Phase 523–532 adiciona dez regressões de identidade, fila de transporte e preservação de estado no streaming; 380 testes `streaming` passam localmente.
 - Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
-## [Unreleased]
+### Fixed
+- Added regression coverage for conflicting DTLS fingerprints in bound SDP offers.
+- Rejeita fingerprint DTLS malformada em SDP bound sem substituir sessão existente.
+- Added bound-session regression coverage for fail-closed rejection of unsupported DTLS fingerprint algorithms without session mutation.
+- Canonicalização de fingerprints DTLS persistidas antes da validação de ofertas bound.
+
+### Fixed
+- Preserve pending transport output when `SessionRegistry::drive_once` receives `frame_budget == 0`.
+- Preserve queued streaming bridge frames when `drive_once` receives a zero frame budget.
+
+### Documentation
+- ADR-015 classifica Windows WASAPI/ASIO como fora do MVP Linux-first; T16 passa a `NOT_APPLICABLE`, com backend nativo no backlog futuro. Windows + Docker Desktop continua smoke/control-plane, sem claim de áudio nativo.
+- T00 reconciliou status do lote em 2026-09-26: PR #340 aberta sem merge, HEAD de código avaliado `336fd1e7d5a3e150202c996881827f2319d134d6`, documentação no commit `50a6368`, CI do código avaliado concluído com sucesso nos workflows CI e Software Package Lifecycle Gates e CODE/CI/SIMULATED até Phase 558.
+- Adicionada matriz compacta de 16 itens: 15 pendências de runtime, hardware e release permanecem `PENDING/BLOCKED`; T16 foi classificado `NOT_APPLICABLE` por ADR-015. As pendências incluem WebRTC E2E real, DTLS-SRTP real, PipeWire físico, ALSA/USB, LAN real, Raspberry Pi 5, hot-plug, XRUN físico, latência p99, soak real, reboot, térmica/energia, release, lifecycle host e assinatura. Nenhuma validação física foi alegada.
 
 ### Added
 - Streaming CODE boundary coverage for phases 513–522: fail-closed input/replacement cases, bounded transport requeue after partial drain, and deterministic session listing.
@@ -1036,3 +1060,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Local focused evidence: 330 `streaming` tests pass; hardware/runtime claims unchanged.
 
 - Streaming: expanded CODE boundary coverage for bounded transport queues and session lifecycle (Phases 493–502).
+
+- Added streaming boundary regressions for ICE validation, identifier byte limits and bounded transport queue behavior.
+
+### Changed
+- Unified Opus writer and receiver packet-size boundary at 1500 bytes with regression coverage.
+
+### Fixed
+
+- Added regression coverage for RTP timestamp wraparound at the 32-bit boundary in the streaming Opus writer.

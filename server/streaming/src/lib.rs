@@ -8,6 +8,9 @@
 //!   `Rtc::add_remote_candidate` in the Sans-IO session.
 //! - Oversized candidate rejection (>2048 bytes).
 
+/// Maximum encoded Opus payload accepted across writer and receiver ingress.
+pub const OPUS_MAX_PACKET_BYTES: usize = 1500;
+
 pub mod clock;
 pub mod media_bridge;
 pub mod media_plane;
@@ -20,7 +23,7 @@ pub use media_plane::{
     MediaFrame, MediaPlane, MediaPlaneError, MediaSession, MediaSessionError, StreamMetadata,
     MEDIA_QUEUE_CAPACITY,
 };
-pub use media_writer::{MediaPacket, MediaWriter, MediaWriterError, OPUS_MAX_PACKET_BYTES};
+pub use media_writer::{MediaPacket, MediaWriter, MediaWriterError};
 pub use opus_receiver::{
     AudioOutput, JitterBuffer, OpusReceiver, OutputError, ReceiverError, ReceiverState,
     RECEIVER_QUEUE_CAPACITY,
@@ -199,6 +202,7 @@ impl SessionRegistry {
             .map_err(|error| StreamingError::InvalidOffer(error.to_string()))?;
         if let Some(identity) = identity {
             if let Some(expected_fingerprint) = identity.dtls_fingerprint.as_deref() {
+                let expected_fingerprint = canonicalize_dtls_fingerprint(expected_fingerprint)?;
                 let offered_fingerprint = extract_dtls_fingerprint(sdp)?;
                 if expected_fingerprint != offered_fingerprint {
                     return Err(StreamingError::InvalidOffer(
@@ -1375,6 +1379,161 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn bound_session_accepts_uppercase_fingerprint_identity() {
+        let registry = SessionRegistry::new();
+        let fingerprint = extract_dtls_fingerprint(VALID_OFFER)
+            .unwrap()
+            .to_ascii_uppercase();
+        let identity = DeviceIdentity {
+            device_id: "rx-uppercase".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(fingerprint),
+        };
+        registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .expect("fingerprint comparison must be case-insensitive");
+    }
+
+    #[test]
+    fn unsupported_dtls_fingerprint_algorithm_is_rejected() {
+        let sha1 = "sha-1 00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44";
+        assert!(matches!(
+            canonicalize_dtls_fingerprint(sha1),
+            Err(StreamingError::InvalidOffer(message)) if message == "invalid DTLS fingerprint"
+        ));
+    }
+
+    #[tokio::test]
+    async fn bound_session_rejects_unsupported_fingerprint_algorithm_without_mutating_existing_session(
+    ) {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
+            .await
+            .unwrap();
+        let before = registry.list().await;
+        let identity = DeviceIdentity {
+            device_id: "rx-sha1".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(
+                "sha-1 00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33".into(),
+            ),
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+                .await,
+            Err(StreamingError::InvalidOffer(message)) if message == "invalid DTLS fingerprint"
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
+    async fn phase551_bound_offer_rejects_malformed_fingerprint_without_mutating_existing_session()
+    {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
+            .await
+            .unwrap();
+        let before = registry.list().await;
+        let valid_fingerprint = extract_dtls_fingerprint(VALID_OFFER).unwrap();
+        let malformed_offer = VALID_OFFER.replace(
+            &format!("a=fingerprint:{valid_fingerprint}\r\n"),
+            "a=fingerprint:sha-256 00:11:22\r\n",
+        );
+        assert_ne!(malformed_offer, VALID_OFFER);
+        let identity = DeviceIdentity {
+            device_id: "rx-malformed-offer".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(valid_fingerprint),
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound(
+                    "alice",
+                    &malformed_offer,
+                    Some("0".into()),
+                    Some(&identity),
+                )
+                .await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
+    async fn phase552_bound_offer_rejects_conflicting_fingerprints_without_mutating_existing_session(
+    ) {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
+            .await
+            .unwrap();
+        let before = registry.list().await;
+        let valid_fingerprint = extract_dtls_fingerprint(VALID_OFFER).unwrap();
+        let conflicting_offer = format!(
+            "{VALID_OFFER}a=fingerprint:{valid_fingerprint}\r\n\
+a=fingerprint:sha-256 FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00:\
+FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00\r\n"
+        );
+        let identity = DeviceIdentity {
+            device_id: "rx-conflicting-offer".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(valid_fingerprint),
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound(
+                    "alice",
+                    &conflicting_offer,
+                    Some("0".into()),
+                    Some(&identity),
+                )
+                .await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
+    async fn bound_session_rejects_malformed_fingerprint_without_mutating_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
+            .await
+            .unwrap();
+        let before = registry.list().await;
+        let identity = DeviceIdentity {
+            device_id: "rx-malformed".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some("sha-256 00:11:22".into()),
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+                .await,
+            Err(StreamingError::InvalidOffer(message)) if message == "invalid DTLS fingerprint"
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
     async fn bound_session_keeps_device_identity_and_revoke_removes_it() {
         let registry = SessionRegistry::new();
         let identity = DeviceIdentity {
@@ -1431,7 +1590,7 @@ mod tests {
             mix_index: 0,
             revoked: false,
             dtls_fingerprint: Some(
-                "sha-256 FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF".into(),
+                "sha-256 FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF".into(),
             ),
         };
         assert!(matches!(
@@ -1744,6 +1903,30 @@ mod tests {
         let sessions = plane.sessions.lock().await;
         assert_eq!(sessions["alice"].drain_frames().len(), 1);
         assert_eq!(sessions["bob"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_zero_frame_budget_preserves_bridge_frames() {
+        let registry = SessionRegistry::new();
+        let plane = crate::media_plane::MediaPlane::new();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.3, 0.3), (0.4, 0.4)],
+                },
+                79,
+                None,
+            )
+            .unwrap();
+
+        let first = registry.drive_once(&bridge, &plane, 0, 1).await;
+        assert_eq!(first.frames_drained, 0);
+        let second = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(second.frames_drained, 1);
+
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions.is_empty());
     }
 
     #[tokio::test]
@@ -5006,6 +5189,247 @@ mod tests {
                 .as_ref(),
             b"pending"
         );
+    }
+
+    #[tokio::test]
+    async fn phase533_candidate_at_multibyte_user_id_byte_limit_is_accepted() {
+        let registry = SessionRegistry::new();
+        let user_id = "é".repeat(MAX_USER_ID_BYTES / "é".len());
+        registry
+            .negotiate_offer(&user_id, VALID_OFFER, None)
+            .await
+            .unwrap();
+        registry
+            .add_ice_candidate(&user_id, VALID_CANDIDATE)
+            .await
+            .unwrap();
+        assert_eq!(registry.list().await[0].user_id, user_id);
+    }
+
+    #[tokio::test]
+    async fn phase534_oversized_candidate_user_id_does_not_match_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let oversized = "x".repeat(MAX_USER_ID_BYTES + 1);
+        assert!(matches!(
+            registry
+                .add_ice_candidate(&oversized, VALID_CANDIDATE)
+                .await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert_eq!(registry.list().await[0].user_id, "alice");
+    }
+
+    #[tokio::test]
+    async fn phase535_candidate_for_empty_user_id_is_rejected_before_lookup() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry.add_ice_candidate("", VALID_CANDIDATE).await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase536_candidate_with_carriage_return_is_rejected_before_lookup() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry
+                .add_ice_candidate("missing", &format!("{VALID_CANDIDATE}\r"))
+                .await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase537_candidate_with_line_feed_is_rejected_before_lookup() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry
+                .add_ice_candidate("missing", &format!("{VALID_CANDIDATE}\n"))
+                .await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase538_candidate_without_prefix_is_rejected_without_mutation() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(matches!(
+            registry.add_ice_candidate("alice", "1 2 3").await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert_eq!(registry.list().await.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn phase539_unknown_user_with_valid_candidate_does_not_create_session() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry
+                .add_ice_candidate("missing", VALID_CANDIDATE)
+                .await,
+            Err(StreamingError::SessionNotFound(user)) if user == "missing"
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase540_transport_drain_budget_above_capacity_is_bounded() {
+        let registry = SessionRegistry::new();
+        let outputs: Vec<_> = (0..=TRANSPORT_OUTPUT_CAPACITY)
+            .map(|index| test_transmit(format!("packet-{index}").as_bytes()))
+            .collect();
+        assert_eq!(
+            registry.requeue_transport_outputs(outputs).await,
+            1,
+            "requeue must preserve bounded queue capacity"
+        );
+
+        let drained = registry.drain_transport_outputs(usize::MAX).await;
+        assert_eq!(drained.len(), TRANSPORT_SEND_BUDGET);
+        assert_eq!(drained.first().unwrap().contents.as_ref(), b"packet-1");
+        assert_eq!(
+            drained.last().unwrap().contents.as_ref(),
+            format!("packet-{TRANSPORT_SEND_BUDGET}").as_bytes()
+        );
+        let second = registry.drain_transport_outputs(usize::MAX).await;
+        let third = registry.drain_transport_outputs(usize::MAX).await;
+        let fourth = registry.drain_transport_outputs(usize::MAX).await;
+        assert_eq!(second.len(), TRANSPORT_SEND_BUDGET);
+        assert_eq!(third.len(), TRANSPORT_SEND_BUDGET);
+        assert_eq!(fourth.len(), TRANSPORT_SEND_BUDGET);
+        assert_eq!(second.first().unwrap().contents.as_ref(), b"packet-33");
+        assert_eq!(third.first().unwrap().contents.as_ref(), b"packet-65");
+        assert_eq!(fourth.first().unwrap().contents.as_ref(), b"packet-97");
+        assert!(registry
+            .drain_transport_outputs(usize::MAX)
+            .await
+            .is_empty());
+    }
+
+    #[tokio::test]
+    async fn phase541_empty_transport_drain_does_not_change_queue() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"pending")])
+            .await;
+        assert!(registry.drain_transport_outputs(0).await.is_empty());
+        assert_eq!(
+            registry.drain_transport_outputs(1).await[0]
+                .contents
+                .as_ref(),
+            b"pending"
+        );
+    }
+
+    #[tokio::test]
+    async fn phase543_partial_requeue_retains_latest_failed_datagrams() {
+        let registry = SessionRegistry::new();
+        let capacity = TRANSPORT_OUTPUT_CAPACITY;
+        let existing: Vec<_> = (0..capacity - 1)
+            .map(|index| test_transmit(format!("existing-{index}").as_bytes()))
+            .collect();
+        registry.requeue_transport_outputs(existing).await;
+
+        let dropped = registry
+            .requeue_transport_outputs(vec![
+                test_transmit(b"failed-first"),
+                test_transmit(b"failed-second"),
+            ])
+            .await;
+
+        assert_eq!(dropped, 1);
+        let mut outputs = Vec::new();
+        for _ in 0..4 {
+            outputs.extend(registry.drain_transport_outputs(usize::MAX).await);
+        }
+        assert_eq!(outputs.len(), capacity);
+        assert_eq!(outputs[0].contents.as_ref(), b"failed-second");
+        assert_eq!(outputs[1].contents.as_ref(), b"existing-0");
+    }
+
+    #[tokio::test]
+    async fn phase543_partial_requeue_retains_latest_fifo_before_existing_suffix() {
+        let registry = SessionRegistry::new();
+        let capacity = TRANSPORT_OUTPUT_CAPACITY;
+        let existing: Vec<_> = (0..capacity - 2)
+            .map(|index| test_transmit(format!("existing-{index}").as_bytes()))
+            .collect();
+        registry.requeue_transport_outputs(existing).await;
+
+        let dropped = registry
+            .requeue_transport_outputs(vec![
+                test_transmit(b"failed-first"),
+                test_transmit(b"failed-second"),
+                test_transmit(b"failed-third"),
+            ])
+            .await;
+
+        assert_eq!(dropped, 1);
+        let mut outputs = Vec::new();
+        for _ in 0..4 {
+            outputs.extend(registry.drain_transport_outputs(usize::MAX).await);
+        }
+        assert_eq!(outputs.len(), capacity);
+        assert_eq!(outputs[0].contents.as_ref(), b"failed-second");
+        assert_eq!(outputs[1].contents.as_ref(), b"failed-third");
+        assert_eq!(outputs[2].contents.as_ref(), b"existing-0");
+    }
+
+    #[tokio::test]
+    async fn phase542_transport_requeue_preserves_order_after_empty_drain() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"one"), test_transmit(b"two")])
+            .await;
+        assert!(registry.drain_transport_outputs(0).await.is_empty());
+        let outputs = registry.drain_transport_outputs(2).await;
+        assert_eq!(outputs[0].contents.as_ref(), b"one");
+        assert_eq!(outputs[1].contents.as_ref(), b"two");
+    }
+
+    #[tokio::test]
+    async fn phase547_zero_frame_budget_preserves_pending_transport_outputs() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"pending")])
+            .await;
+        let bridge = crate::media_bridge::MediaBridge::new();
+        let plane = crate::media_plane::MediaPlane::new();
+
+        let report = registry.drive_once(&bridge, &plane, 0, 1).await;
+
+        assert_eq!(report, DriveReport::default());
+        let outputs = registry.drain_transport_outputs(1).await;
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0].contents.as_ref(), b"pending");
+    }
+
+    #[tokio::test]
+    async fn phase544_zero_output_budget_preserves_pending_transport_outputs() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"pending")])
+            .await;
+        let bridge = crate::media_bridge::MediaBridge::new();
+        let plane = crate::media_plane::MediaPlane::new();
+
+        let report = registry.drive_once(&bridge, &plane, 1, 0).await;
+
+        assert_eq!(report, DriveReport::default());
+        let outputs = registry.drain_transport_outputs(1).await;
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0].contents.as_ref(), b"pending");
     }
 
     fn test_transmit(contents: &[u8]) -> str0m::net::Transmit {

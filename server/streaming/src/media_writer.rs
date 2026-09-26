@@ -7,10 +7,11 @@
 
 use crate::clock::SampleTimestamp;
 use crate::media_plane::MediaFrame;
+
+/// Compatibility re-export for callers using the media-writer module path.
+pub use crate::OPUS_MAX_PACKET_BYTES;
 use opus_pure::{Application, OpusEncoder};
 use thiserror::Error;
-
-pub const OPUS_MAX_PACKET_BYTES: usize = 4_000;
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum MediaWriterError {
@@ -151,6 +152,36 @@ mod tests {
         let first = writer.encode(&frame()).unwrap();
         let second = writer.encode(&frame()).unwrap();
         assert_eq!(second.rtp_timestamp.wrapping_sub(first.rtp_timestamp), 960);
+    }
+
+    #[test]
+    fn rtp_timestamp_wraps_at_u32_boundary() {
+        let mut writer = MediaWriter::new().unwrap();
+        writer.next_rtp_timestamp = u32::MAX - 959;
+
+        let before_wrap = writer.encode(&frame()).unwrap();
+        let after_wrap = writer.encode(&frame()).unwrap();
+
+        assert_eq!(before_wrap.rtp_timestamp, u32::MAX - 959);
+        assert_eq!(after_wrap.rtp_timestamp, 0);
+    }
+
+    #[test]
+    fn failed_encode_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.metadata.sample_rate = 44_100;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::InvalidFormat)
+        );
+
+        let first = writer.encode(&frame()).unwrap();
+        let second = writer.encode(&frame()).unwrap();
+
+        assert_eq!(first.rtp_timestamp, 0);
+        assert_eq!(second.rtp_timestamp, 960);
     }
 
     #[test]

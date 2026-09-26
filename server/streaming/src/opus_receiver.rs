@@ -14,11 +14,11 @@ use std::{
 };
 use thiserror::Error;
 
+use crate::OPUS_MAX_PACKET_BYTES;
 use observability::ReceiverMetrics;
 
 /// Maximum encoded packets retained before newest packet is dropped.
 pub const RECEIVER_QUEUE_CAPACITY: usize = 32;
-const MAX_PACKET_BYTES: usize = 1500;
 const MAX_JITTER_CAPACITY: usize = 256;
 const MAX_DECODED_SAMPLES: usize = 5760;
 /// MVP Opus packetization is fixed at 20 ms, 48 kHz stereo.
@@ -92,7 +92,7 @@ impl JitterBuffer {
     /// Returns [`ReceiverError::InvalidPacket`] for invalid payloads or
     /// [`ReceiverError::QueueFull`] when capacity is exhausted.
     pub fn push(&mut self, sequence: u64, packet: &[u8]) -> Result<(), ReceiverError> {
-        if packet.is_empty() || packet.len() > MAX_PACKET_BYTES {
+        if packet.is_empty() || packet.len() > OPUS_MAX_PACKET_BYTES {
             return Err(ReceiverError::InvalidPacket);
         }
         if self.packets.iter().any(|(seq, _)| *seq == sequence) {
@@ -101,11 +101,19 @@ impl JitterBuffer {
         if self.packets.len() >= self.capacity {
             return Err(ReceiverError::QueueFull);
         }
-        let pos = self
-            .packets
-            .iter()
-            .position(|(seq, _)| *seq > sequence)
-            .unwrap_or(self.packets.len());
+        let mut pos = self.packets.len();
+        for (index, (seq, _)) in self.packets.iter().enumerate() {
+            match sequence_order(sequence, *seq) {
+                SequenceOrder::Before => {
+                    pos = index;
+                    break;
+                }
+                SequenceOrder::After => {}
+                SequenceOrder::Equal | SequenceOrder::Ambiguous => {
+                    return Err(ReceiverError::InvalidPacket);
+                }
+            }
+        }
         self.packets.insert(pos, (sequence, packet.to_vec()));
         Ok(())
     }
@@ -133,10 +141,33 @@ impl JitterBuffer {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum SequenceOrder {
+    Before,
+    Equal,
+    After,
+    Ambiguous,
+}
+
+/// Compare extended RTP sequence numbers using serial-number arithmetic.
+/// Values exactly half the u64 space apart are ambiguous and rejected.
+fn sequence_order(left: u64, right: u64) -> SequenceOrder {
+    let distance = right.wrapping_sub(left);
+    if distance == 0 {
+        SequenceOrder::Equal
+    } else if distance == (1_u64 << 63) {
+        SequenceOrder::Ambiguous
+    } else if distance < (1_u64 << 63) {
+        SequenceOrder::Before
+    } else {
+        SequenceOrder::After
+    }
+}
+
 /// Native/headless receiver. `SIMULATED` means output sink is supplied by caller.
 pub struct OpusReceiver {
-    ingress: Sender<(u64, u64, [u8; MAX_PACKET_BYTES], usize)>,
-    ingress_rx: Receiver<(u64, u64, [u8; MAX_PACKET_BYTES], usize)>,
+    ingress: Sender<(u64, u64, [u8; OPUS_MAX_PACKET_BYTES], usize)>,
+    ingress_rx: Receiver<(u64, u64, [u8; OPUS_MAX_PACKET_BYTES], usize)>,
     jitter: JitterBuffer,
     decoder: OpusDecoder,
     state: ReceiverState,
@@ -192,14 +223,14 @@ impl OpusReceiver {
     ///
     /// Returns an error for invalid payloads, full queue, or disconnected receiver.
     pub fn enqueue(&self, sequence: u64, packet: &[u8]) -> Result<(), ReceiverError> {
-        if packet.is_empty() || packet.len() > MAX_PACKET_BYTES {
+        if packet.is_empty() || packet.len() > OPUS_MAX_PACKET_BYTES {
             if let Some(ref m) = self.metrics {
                 m.record_dropped();
             }
             return Err(ReceiverError::InvalidPacket);
         }
         let generation = self.generation.load(Ordering::Acquire);
-        let mut payload = [0_u8; MAX_PACKET_BYTES];
+        let mut payload = [0_u8; OPUS_MAX_PACKET_BYTES];
         payload[..packet.len()].copy_from_slice(packet);
         self.ingress
             .try_send((generation, sequence, payload, packet.len()))
@@ -262,7 +293,10 @@ impl OpusReceiver {
             return Ok(());
         };
         if let Some(expected) = self.next_sequence {
-            if sequence < expected {
+            if matches!(
+                sequence_order(sequence, expected),
+                SequenceOrder::Before | SequenceOrder::Ambiguous
+            ) {
                 let _ = self.jitter.pop();
                 self.dropped_packets = self.dropped_packets.saturating_add(1);
                 if let Some(ref m) = self.metrics {
@@ -270,12 +304,12 @@ impl OpusReceiver {
                 }
                 return Ok(());
             }
-            if sequence > expected {
+            if sequence_order(expected, sequence) == SequenceOrder::Before {
                 // Packet missing. Attempt PLC up to PLC_MAX_CONSECUTIVE frames.
                 if self.plc_consecutive < PLC_MAX_CONSECUTIVE {
                     // Consume budget before decoding; decoder failure must not reopen PLC.
                     self.plc_consecutive += 1;
-                    self.next_sequence = Some(expected.saturating_add(1));
+                    self.next_sequence = Some(expected.wrapping_add(1));
                     let Ok(samples) = self.decoder.decode(&[], PLC_FRAME_SAMPLES, &mut self.pcm)
                     else {
                         self.state = ReceiverState::Muted;
@@ -341,7 +375,7 @@ impl OpusReceiver {
                 if let Some(ref m) = self.metrics {
                     m.record_output_failure();
                 }
-                self.next_sequence = Some(sequence.saturating_add(1));
+                self.next_sequence = Some(sequence.wrapping_add(1));
                 output.mute();
                 ReceiverError::InvalidPacket
             })?;
@@ -355,7 +389,7 @@ impl OpusReceiver {
             if let Some(ref m) = self.metrics {
                 m.record_output_failure();
             }
-            self.next_sequence = Some(sequence.saturating_add(1));
+            self.next_sequence = Some(sequence.wrapping_add(1));
             output.mute();
             return Err(ReceiverError::InvalidPacket);
         }
@@ -365,11 +399,11 @@ impl OpusReceiver {
             if let Some(ref m) = self.metrics {
                 m.record_output_failure();
             }
-            self.next_sequence = Some(sequence.saturating_add(1));
+            self.next_sequence = Some(sequence.wrapping_add(1));
             output.mute();
             ReceiverError::OutputFailed
         })?;
-        self.next_sequence = Some(sequence.saturating_add(1));
+        self.next_sequence = Some(sequence.wrapping_add(1));
         self.plc_consecutive = 0;
         self.state = ReceiverState::Playing;
         Ok(())
@@ -438,10 +472,82 @@ mod tests {
         assert_eq!(j.pop().unwrap().0, 1);
     }
     #[test]
+    fn jitter_orders_packets_across_sequence_wrap() {
+        let mut j = JitterBuffer::new(2);
+        j.push(0, b"next").unwrap();
+        j.push(u64::MAX, b"last").unwrap();
+
+        assert_eq!(j.pop().unwrap().0, u64::MAX);
+        assert_eq!(j.pop().unwrap().0, 0);
+    }
+
+    #[test]
+    fn receiver_plays_packets_across_sequence_wrap() {
+        let mut r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        r.enqueue(0, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+
+        r.playout(&mut s).unwrap();
+        r.playout(&mut s).unwrap();
+
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(r.state(), ReceiverState::Playing);
+        assert_eq!(r.dropped_packets(), 0);
+    }
+
+    #[test]
+    fn receiver_classifies_duplicate_across_sequence_wrap_as_late() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new().unwrap().with_metrics(metrics.clone());
+        let pkt = make_opus_packet();
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        r.enqueue(0, &pkt).unwrap();
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+
+        r.playout(&mut s).unwrap();
+        r.playout(&mut s).unwrap();
+
+        let snapshot = metrics.snapshot();
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(snapshot.late_packets, 1);
+        assert_eq!(snapshot.packets_dropped, 0);
+        assert_eq!(r.state(), ReceiverState::Playing);
+    }
+
+    #[test]
+    fn jitter_rejects_ambiguous_half_range_sequence() {
+        let mut j = JitterBuffer::new(2);
+        j.push(0, b"first").unwrap();
+        assert_eq!(
+            j.push(1_u64 << 63, b"ambiguous"),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(j.len(), 1);
+    }
+
+    #[test]
     fn jitter_is_bounded() {
         let mut j = JitterBuffer::new(1);
         j.push(1, b"a").unwrap();
         assert_eq!(j.push(2, b"b"), Err(ReceiverError::QueueFull));
+    }
+
+    #[test]
+    fn jitter_enforces_shared_opus_packet_limit_without_mutation() {
+        let mut j = JitterBuffer::new(2);
+        let accepted = vec![0_u8; OPUS_MAX_PACKET_BYTES];
+        let oversized = vec![0_u8; OPUS_MAX_PACKET_BYTES + 1];
+
+        j.push(1, &accepted).unwrap();
+        assert_eq!(j.push(2, &oversized), Err(ReceiverError::InvalidPacket));
+        assert_eq!(j.len(), 1);
+        let (sequence, packet) = j.pop().unwrap();
+        assert_eq!(sequence, 1);
+        assert_eq!(packet.len(), OPUS_MAX_PACKET_BYTES);
+        assert!(j.is_empty());
     }
 
     #[test]
@@ -667,7 +773,7 @@ mod tests {
         r.reconnect(&mut s);
         // Inject old-generation ingress after reconnect drain. This exercises
         // the stale-generation branch in playout deterministically.
-        let mut payload = [0_u8; MAX_PACKET_BYTES];
+        let mut payload = [0_u8; OPUS_MAX_PACKET_BYTES];
         payload[..pkt.len()].copy_from_slice(&pkt);
         r.ingress
             .try_send((0, 1, payload, pkt.len()))
@@ -683,7 +789,7 @@ mod tests {
         let r = OpusReceiver::new()
             .unwrap()
             .with_metrics(Arc::clone(&metrics));
-        let oversized = vec![0_u8; MAX_PACKET_BYTES + 1];
+        let oversized = vec![0_u8; OPUS_MAX_PACKET_BYTES + 1];
 
         assert_eq!(r.enqueue(1, &[]), Err(ReceiverError::InvalidPacket));
         assert_eq!(r.enqueue(2, &oversized), Err(ReceiverError::InvalidPacket));

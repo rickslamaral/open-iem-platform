@@ -1,3 +1,78 @@
+## 2026-09-26 — Phase 559 — duplicate Opus sequence across rollover
+
+- Adicionada regressão para duplicata `u64::MAX` após sequência `u64::MAX` → `0`; `late_packets` incrementa uma vez, `packets_dropped` permanece zero e o receiver mantém estado `Playing`.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --lib receiver_classifies_duplicate_across_sequence_wrap_as_late` — PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 558 — Opus receiver sequence wrap boundary
+
+- `OpusReceiver` passou a usar comparação serial wrap-aware para ordenar jitter e detectar atraso/gap; incrementos de sequência usam `wrapping_add`.
+- Adicionadas regressões para ordenação `u64::MAX` → `0` e reprodução de dois frames sem descarte.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 554 — shared Opus jitter packet boundary
+
+- Adicionada regressão `jitter_enforces_shared_opus_packet_limit_without_mutation`, confirmando que o `JitterBuffer` aceita payload no limite compartilhado `OPUS_MAX_PACKET_BYTES`, rejeita payload maior e preserva pacote já enfileirado.
+- Verificação focada: `cargo fmt --manifest-path server/Cargo.toml --all -- --check` e `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — PASS; 405 testes. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 553 — transport send failure requeue
+
+- Adicionada regressão para falha de envio UDP em `TransportAdapter::send_from_registry`, confirmando preservação FIFO de todos os datagrams não enviados.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --lib send_from_registry_requeues_all_unsent_outputs_after_error` — PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 552 — conflicting offered DTLS fingerprints
+
+- Coberta preservação fail-closed de sessão bound quando SDP recebido contém múltiplas fingerprints DTLS conflitantes.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 550 — unsupported DTLS fingerprint algorithm boundary
+
+- [x] Coberta rejeição explícita de algoritmo DTLS fingerprint diferente de `sha-256`; evidência CODE local, sem mutação de sessão.
+- Evidência permanece CODE/CI/SIMULATED; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
+## 2026-09-26 — Phase 549 — malformed bound DTLS fingerprint
+
+- Adicionada regressão CODE para rejeição fail-closed de fingerprint DTLS persistida malformada, confirmando preservação da sessão existente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 548 — bound DTLS fingerprint canonicalization
+
+- `SessionRegistry::negotiate_offer_bound` canonicaliza fingerprint persistida antes da comparação com SDP, mantendo rejeição fail-closed para formato inválido e aceitando equivalência de caixa.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 546 — zero frame-budget bridge preservation
+
+- Added CODE regression proving `SessionRegistry::drive_once` with `frame_budget == 0` does not consume queued `MediaBridge` frames; a later bounded call drains the preserved frame.
+- Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — T16 — decisão de escopo Windows
+
+- ADR-015 classifica Windows WASAPI/ASIO como fora do MVP Linux-first e move backend nativo para backlog futuro. T16 passa a `NOT_APPLICABLE`; nenhuma validação física foi alegada.
+
+## 2026-09-26 — Phase 545 — adapter zero-budget preservation
+
+- Added CODE regression proving `TransportAdapter::send_from_registry` with `budget == 0` returns an empty report and preserves pending registry output.
+- Verification: focused test and full `streaming` test suite PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — Phase 544 — zero-budget transport preservation
+
+- Added CODE regression proving `SessionRegistry::drive_once` with `output_budget == 0` preserves pending transport outputs.
+- Verification: focused streaming test PASS. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — Phase 543 — streaming queue identity boundaries
+
+- Added CODE regressions for bounded transport requeue overflow and internal-whitespace media user IDs.
+- Existing transport overflow policy remains explicit: oldest failed datagrams are dropped when retry queue is full; retained retries preserve FIFO ahead of existing suffix.
+- Verification: `cargo fmt --manifest-path server/Cargo.toml --all`, `cargo clippy --manifest-path server/Cargo.toml -p streaming --all-targets -- -D warnings`, focused test PASS.
+- Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, network real and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — T00 baseline and evidence matrix
+
+- PR #340 está aberta e sem merge; HEAD de código avaliado: `336fd1e7d5a3e150202c996881827f2319d134d6`; documentação atualizada no commit `50a6368` (`develop`).
+- CI real da PR #340: CI real do HEAD de código avaliado concluído com sucesso nos workflows CI e Software Package Lifecycle Gates; CI deste commit documental ainda não verificado.
+- CODE/CI/SIMULATED concluído até Phase 558.
+- A matriz mantém 16 itens: 15 pendências de runtime, hardware e release permanecem `PENDING/BLOCKED`; T16 foi classificado `NOT_APPLICABLE` por ADR-015. As pendências incluem WebRTC E2E real, DTLS-SRTP real, PipeWire físico, ALSA/USB físico, LAN real, Raspberry Pi 5, hot-plug, XRUN físico, latência p99, soak real, reboot/recovery, térmica/energia, release, lifecycle host e checksums/SBOM/Ed25519.
+- Matriz compacta adicionada em `docs/TODO.md` e `docs/DEVELOPMENT-HANDOFF.md`; nenhum claim de validação física novo.
+
 ## 2026-09-25 — Batch Phase 523–532 streaming identity and queue boundaries
 
 - Adicionadas dez regressões para rejeição fail-closed de whitespace em user IDs de ICE, remoção literal de identidades, budgets zero/parciais, FIFO e preservação de transporte sob falhas.
@@ -5309,3 +5384,27 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 
 - Adicionadas 10 regressões no `streaming` para budget zero, requeue FIFO e capacidade, remoções idempotentes/exatas, preservação de metadados e ordenação após replacement.
 - Gate focado: 350 testes `streaming` PASS localmente. Evidência CODE local; sem claim de runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real ou Raspberry Pi 5.
+
+## 2026-09-25 — Phases 533–542 streaming boundary coverage
+
+- Added ten CODE regressions for multibyte user-ID byte limits, fail-closed ICE validation, unknown-session behavior and bounded transport drain/requeue ordering.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 380 tests PASS. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — Shared Opus packet-size boundary
+
+Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` constant (1500 bytes). Added round-trip boundary regression: encoded payload stays within receiver ingress limit and oversized ingress fails closed. Evidence is CODE/local tests only; runtime and hardware remain unvalidated.
+
+## 2026-09-26 — Bound DTLS fingerprint algorithm rejection
+
+- Added regression coverage proving a bound session rejects unsupported `sha-1` DTLS fingerprints before replacement and preserves the existing session metadata.
+- Focused streaming test and full Rust gates pass locally. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-26 — Phase 551 — malformed offered DTLS fingerprint preservation
+
+- Adicionado teste de regressão para rejeitar fingerprint DTLS malformada no SDP oferecido durante negociação bound, preservando sessão existente sem mutação.
+- Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — RTP timestamp wrap boundary
+
+- Added CODE regression for `MediaWriter` RTP timestamp wrap at `u32::MAX`; two consecutive 20 ms packets preserve the 960-sample clock step across zero.
+- Focused gate: `cargo fmt --manifest-path server/Cargo.toml --all -- --check` and `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 406 tests PASS.
+- Evidence remains CODE/CI/SIMULATED; WebRTC/DTLS-SRTP runtime, real network, PipeWire/ALSA and Raspberry Pi hardware remain unvalidated.

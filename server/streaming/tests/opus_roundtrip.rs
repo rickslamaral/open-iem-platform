@@ -2,7 +2,8 @@ use std::sync::Arc;
 
 use observability::ReceiverMetrics;
 use streaming::{
-    AudioOutput, MediaFrame, MediaWriter, OpusReceiver, OutputError, ReceiverState, StreamMetadata,
+    AudioOutput, MediaFrame, MediaWriter, OpusReceiver, OutputError, ReceiverError, ReceiverState,
+    StreamMetadata, OPUS_MAX_PACKET_BYTES,
 };
 
 struct Capture {
@@ -160,4 +161,19 @@ fn test_frame() -> MediaFrame {
         },
         samples: (0.2, -0.1),
     }
+}
+
+#[test]
+fn writer_and_receiver_share_opus_packet_limit() {
+    let packet = MediaWriter::new().unwrap().encode(&test_frame()).unwrap();
+    assert!(packet.payload.len() <= OPUS_MAX_PACKET_BYTES);
+
+    let receiver = OpusReceiver::new().unwrap();
+    let at_limit = vec![0_u8; OPUS_MAX_PACKET_BYTES];
+    assert_eq!(receiver.enqueue(1, &at_limit), Ok(()));
+    let oversized = vec![0_u8; OPUS_MAX_PACKET_BYTES + 1];
+    assert_eq!(
+        receiver.enqueue(2, &oversized),
+        Err(ReceiverError::InvalidPacket)
+    );
 }

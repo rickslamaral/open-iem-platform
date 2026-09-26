@@ -1,3 +1,114 @@
+## 2026-09-26 — Phase 559 — duplicate Opus sequence across rollover
+
+- [x] Coberta duplicata `u64::MAX` após rollover para `0`; classificação permanece `late_packets`, sem incremento de `packets_dropped` e sem mutação do estado `Playing`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 558 — Opus receiver sequence wrap boundary
+
+- [x] Corrigida ordenação serial e avanço wrapping de sequências estendidas no `OpusReceiver`; pacotes `u64::MAX` e `0` agora atravessam rollover sem serem classificados como atrasados.
+- Testes: `jitter_orders_packets_across_sequence_wrap` e `receiver_plays_packets_across_sequence_wrap`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 557 — media sequence wrap boundary
+
+- [x] Coberta a passagem de `MediaSession::frame_sequence` de `u64::MAX` para `0` sem panic, preservando a ordem dos frames.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 556 — failed frame validation timestamp preservation
+
+- [x] Coberta rejeição de frame inválido sem consumir `next_rtp_timestamp`; frames válidos seguintes preservam timestamps RTP `0` e `960`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 555 — RTP timestamp wrap boundary
+
+- [x] Coberta a passagem do timestamp RTP de `u32::MAX` para `0` em dois frames Opus consecutivos, preservando incremento de 960 samples.
+- Teste: `server/streaming/src/media_writer.rs::media_writer::tests::rtp_timestamp_wraps_at_u32_boundary`.
+- Evidência CODE local: `cargo fmt --manifest-path server/Cargo.toml --all -- --check` e `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 406 testes PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 554 — shared Opus jitter packet boundary
+
+- [x] Coberta aceitação de payload exatamente em `OPUS_MAX_PACKET_BYTES` e rejeição de payload excedente no `JitterBuffer`, sem mutação da fila.
+- Evidência CODE local: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 405 testes PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 553 — transport send failure requeue
+
+- [x] Coberta falha de envio UDP no `TransportAdapter::send_from_registry`, confirmando requeue FIFO de todos os datagrams não enviados sem descarte quando a fila tem capacidade.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 552 — conflicting offered DTLS fingerprints
+
+- [x] Coberta rejeição fail-closed de oferta bound com fingerprints DTLS conflitantes, preservando sessão existente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 551 — malformed offered DTLS fingerprint preservation
+
+- [x] Coberta rejeição fail-closed de fingerprint DTLS malformada no SDP recebido sem substituir sessão bound existente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 550 — unsupported DTLS fingerprint algorithm boundary
+
+- [x] Coberta rejeição explícita de algoritmo DTLS fingerprint diferente de `sha-256`; evidência CODE local, sem mutação de sessão.
+- Evidência permanece CODE/CI/SIMULATED; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
+## 2026-09-26 — Phase 549 — malformed bound DTLS fingerprint preservation
+
+- [x] Coberta rejeição fail-closed de fingerprint DTLS persistida malformada sem substituir sessão bound existente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 548 — case-insensitive bound DTLS fingerprint
+
+- [x] Normalizada a fingerprint DTLS persistida antes da comparação em `SessionRegistry::negotiate_offer_bound`; identidade válida em maiúsculas agora aceita SDP equivalente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 547 — zero frame-budget transport preservation
+
+- [x] Cobertura de `SessionRegistry::drive_once` com `frame_budget == 0`, preservando saída de transporte pendente para drenagem limitada posterior.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 546 — zero frame-budget bridge preservation
+
+- [x] Cobertura de `SessionRegistry::drive_once` com `frame_budget == 0`, preservando frames pendentes da `MediaBridge` para uma chamada posterior limitada.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 545 — adapter zero-budget preservation
+
+- [x] Coberta `TransportAdapter::send_from_registry` com `budget == 0`, confirmando relatório vazio e preservação da saída pendente na fila do `SessionRegistry`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 544 — zero-budget transport preservation
+
+- [x] Coberta `SessionRegistry::drive_once` com `output_budget == 0`, preservando saídas de transporte pendentes sem consumo.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## Estado atual do lote — 2026-09-26
+
+- PR #340 está aberta e sem merge; HEAD de código avaliado: `336fd1e7d5a3e150202c996881827f2319d134d6`; documentação atualizada no commit `50a6368` (`develop`).
+- CI real da PR #340: CI real do HEAD de código avaliado concluído com sucesso nos workflows CI e Software Package Lifecycle Gates; CI deste commit documental ainda não verificado.
+- CODE/CI/SIMULATED concluído até Phase 558; isso não constitui validação física, runtime real, LAN real ou hardware.
+
+### Matriz compacta de evidência — 16 pendências
+
+| ID | Pendência | Evidência disponível | Estado |
+|---|---|---|---|
+| T01 | WebRTC E2E real | CODE/CI/SIMULATED; sem dois peers/runtime real | PENDING/BLOCKED |
+| T02 | DTLS-SRTP real | CODE/CI/SIMULATED; handshake/captura real ausentes | PENDING/BLOCKED |
+| T03 | PipeWire físico | Smoke virtual/CODE/CI; host físico ausente | PENDING/BLOCKED |
+| T04 | ALSA/USB físico | CODE/CI/SIMULATED; USB físico ausente | PENDING/BLOCKED |
+| T05 | LAN real | Perfis determinísticos CODE/CI/SIMULATED; LAN real ausente | PENDING/BLOCKED |
+| T06 | Raspberry Pi 5 | Cross-build/smoke não equivalem a Pi físico | PENDING/BLOCKED |
+| T07 | Hot-plug | Máquina de estados CODE/CI; inserção/remoção física ausente | PENDING/BLOCKED |
+| T08 | XRUN físico/recovery | Cobertura CODE/SIMULATED; XRUN físico ausente | PENDING/BLOCKED |
+| T09 | Latência E2E p99 | Critério documentado; medição física p99 ausente | PENDING/BLOCKED |
+| T10 | Soak real 5/15/60 min | Gates determinísticos; soak físico ausente | PENDING/BLOCKED |
+| T11 | Reboot/recovery | Código/gates; reboot e recuperação em host alvo ausentes | PENDING/BLOCKED |
+| T12 | Térmica/energia | Sem medição física | PENDING/BLOCKED |
+| T13 | Release v0.3.1 | Preparação/artefatos em gates; release validada não disponível | PENDING/BLOCKED |
+| T14 | Lifecycle host install/upgrade/remove/rollback | Gates de pacote não substituem lifecycle em host alvo | PENDING/BLOCKED |
+| T15 | Checksums/SBOM/Ed25519 | Código/gates; assinatura verificável publicada independentemente ausente | PENDING/BLOCKED |
+| T16 | Backend Windows/decisão de escopo | ADR-015 exclui WASAPI/ASIO do MVP; backend nativo permanece backlog futuro | NOT_APPLICABLE |
+
+Não fechar item por simulação, CI, cross-build, loopback ou ausência de erro.
+
 ## 2026-09-25 — Batch Phase 523–532 streaming identity and queue boundaries
 - [x] Rejeitar whitespace em user IDs de candidatos e preservar sessões existentes.
 - [x] Cobrir remoção literal de sessões/dispositivos, budgets zero/parciais e preservação FIFO da fila.
@@ -1245,3 +1356,10 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Cobrir budget de transporte zero, requeue FIFO/capacidade, remoções não mutantes e ordenação após replacement.
 - Evidência: 350 testes `streaming` PASS localmente; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+- [x] Streaming boundary batch Phases 533–542: ICE input rejection/non-mutation, multibyte ID limit, unknown-session fail-closed behavior and bounded transport queue ordering. CODE evidence; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain pending.
+
+## 2026-09-26 — Opus writer/receiver packet boundary
+
+- [x] Unify encoded Opus payload limit at `streaming::OPUS_MAX_PACKET_BYTES` for writer buffer and receiver ingress.
+- Evidence: CODE local; streaming tests 405 PASS including writer/receiver shared-limit regression. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, network and Raspberry Pi 5 remain unvalidated.

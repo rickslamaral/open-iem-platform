@@ -1,3 +1,72 @@
+## 2026-09-26 — Phase 559 status
+
+- Adicionada regressão para duplicata Opus em `u64::MAX` após rollover para `0`; o pacote é classificado como `late_packets`, não como descarte, e o receiver permanece `Playing`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 558 status
+
+- `OpusReceiver` agora ordena sequências com aritmética serial wrap-aware e avança `next_sequence` com `wrapping_add`; rollover `u64::MAX` → `0` coberto por regressões CODE.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 557 status
+
+- `MediaSession::push_frame` agora usa incremento wrapping para `frame_sequence`; regressão cobre `u64::MAX` seguido de `0` sem panic e com ordem preservada.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 556 status
+
+- Adicionada regressão para confirmar que rejeição de frame antes da codificação não consome `next_rtp_timestamp`; os dois frames válidos seguintes mantêm timestamps `0` e `960`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 553 status
+
+- Adicionada regressão para falha de envio UDP em `TransportAdapter::send_from_registry`; todos os datagrams não enviados retornam à fila em ordem FIFO quando há capacidade.
+- Verificação focada PASS; evidência CODE local. Runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 552 status
+
+- Adicionada regressão para oferta bound contendo fingerprints DTLS conflitantes; `negotiate_offer_bound` rejeita antes da substituição e preserva sessão existente.
+- Verificação: 403 testes `streaming` PASS localmente; evidência CODE local. Runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 550 — unsupported DTLS fingerprint algorithm boundary
+
+- Phase 550 adiciona regressão para rejeição explícita de algoritmo DTLS fingerprint diferente de `sha-256`, sem alterar estado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
+## 2026-09-26 — Phase 549 status
+
+- Adicionada regressão para fingerprint DTLS persistida malformada: `negotiate_offer_bound` rejeita antes da substituição e preserva sessão existente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 548 status
+
+- Corrigida comparação de fingerprint DTLS em `negotiate_offer_bound`: valor persistido agora passa pela mesma canonicalização do SDP, rejeitando formato inválido e aceitando apenas igualdade semântica.
+- Teste de identidade com fingerprint em maiúsculas adicionado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 547 status
+
+- Added regression for `SessionRegistry::drive_once` with `frame_budget == 0`, confirming pre-existing transport output remains available for later bounded drain.
+- Focused verification: `cargo test --manifest-path server/Cargo.toml -p streaming --lib phase547_zero_frame_budget_preserves_pending_transport_outputs` — 1 test PASS. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — Phase 546 status
+
+- Added regression for `SessionRegistry::drive_once` with `frame_budget == 0`, confirming queued `MediaBridge` frames remain available to a later bounded call.
+- Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — Phase 545 status
+
+- Added regression for `TransportAdapter::send_from_registry` with zero budget, confirming no transport output is consumed.
+- Verification: focused test and 395 `streaming` tests PASS locally; evidence CODE local only. Runtime WebRTC/DTLS-SRTP, real network and hardware remain unvalidated.
+
+## 2026-09-26 — Phase 544 status
+
+- Adicionada regressão para `drive_once` com orçamento de saída zero, confirmando preservação de saída de transporte pendente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 543 status
+
+- Added transport requeue overflow and internal-whitespace media identity regression coverage in `server/streaming`.
+- Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-25 — Batch Phase 523–532 status
 
 - Dez regressões cobrem whitespace em user IDs de ICE, remoção literal de sessões/dispositivos, budgets zero/parciais, FIFO da fila e falhas sem mutação.
@@ -482,6 +551,37 @@
 - Testes unitários cobrem snapshot com contadores populated e serialização dos nomes estáveis (`schema_version`, `packets_received`, `packets_dropped`, `reconnect_count`, `plc_frames_total`, `plc_consecutive_max`). Evidência CODE local; integração com binário headless, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware continuam pendentes.
 
 # Open IEM Platform — Development Handoff
+
+## Estado atual do lote — 2026-09-26
+
+- PR #340 está aberta e sem merge.
+- HEAD de código avaliado: `336fd1e7d5a3e150202c996881827f2319d134d6`; documentação atualizada no commit `50a6368` (`develop`).
+- CI real da PR #340: CI real do HEAD de código avaliado concluído com sucesso nos workflows CI e Software Package Lifecycle Gates; CI deste commit documental ainda não verificado.
+- CODE/CI/SIMULATED concluído até Phase 558. Isso não constitui validação física, runtime real, LAN real ou hardware.
+
+### Matriz compacta de evidência das 16 pendências
+
+| ID | Pendência | Evidência disponível | Estado |
+|---|---|---|---|
+| T01 | WebRTC E2E real | CODE/CI/SIMULATED; sem dois peers/runtime real | PENDING/BLOCKED |
+| T02 | DTLS-SRTP real | CODE/CI/SIMULATED; handshake/captura real ausentes | PENDING/BLOCKED |
+| T03 | PipeWire físico | Smoke virtual/CODE/CI; host físico ausente | PENDING/BLOCKED |
+| T04 | ALSA/USB físico | CODE/CI/SIMULATED; USB físico ausente | PENDING/BLOCKED |
+| T05 | LAN real | Perfis determinísticos CODE/CI/SIMULATED; LAN real ausente | PENDING/BLOCKED |
+| T06 | Raspberry Pi 5 | Cross-build/smoke não equivalem a Pi físico | PENDING/BLOCKED |
+| T07 | Hot-plug | Máquina de estados CODE/CI; inserção/remoção física ausente | PENDING/BLOCKED |
+| T08 | XRUN físico/recovery | Cobertura CODE/SIMULATED; XRUN físico ausente | PENDING/BLOCKED |
+| T09 | Latência E2E p99 | Critério documentado; medição física p99 ausente | PENDING/BLOCKED |
+| T10 | Soak real 5/15/60 min | Gates determinísticos; soak físico ausente | PENDING/BLOCKED |
+| T11 | Reboot/recovery | Código/gates; reboot e recuperação em host alvo ausentes | PENDING/BLOCKED |
+| T12 | Térmica/energia | Sem medição física | PENDING/BLOCKED |
+| T13 | Release v0.3.1 | Preparação/artefatos em gates; release validada não disponível | PENDING/BLOCKED |
+| T14 | Lifecycle host install/upgrade/remove/rollback | Gates de pacote não substituem lifecycle em host alvo | PENDING/BLOCKED |
+| T15 | Checksums/SBOM/Ed25519 | Código/gates; assinatura verificável publicada independentemente ausente | PENDING/BLOCKED |
+| T16 | Backend Windows/decisão de escopo | ADR-015 exclui WASAPI/ASIO do MVP; backend nativo permanece backlog futuro | NOT_APPLICABLE |
+
+Nenhum item acima é fechado por simulação, CI, cross-build, loopback ou ausência de erro. Não há claim novo de validação física.
+
 ## Phase 145 status — reconnect after bandwidth receiver path
 
 - `network-fault/tests/headless_receiver.rs` compõe `BandwidthProfile` e `ReconnectProfile` antes do `OpusReceiver`, validando oito frames reproduzidos, recuperação de mix, um reconnect, estado `Playing`, zero PLC e zero falhas de saída.
@@ -804,3 +904,26 @@ test → review → docs/GAP update → PR/CI
 - Dez regressões CODE cobrem preservação de fila com budget zero, requeue antes do prefixo existente, overflow bounded, remoções exatas/não mutantes, metadados bound/unbound e ordenação determinística após replacement.
 - `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 350 testes PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
 - Próximo: gates completos, revisão independente e PR consolidada somente após batch mínimo de 10 fases.
+
+## 2026-09-25 — Batch Phase 533–542 status
+
+- Ten streaming regressions cover candidate validation before lookup, multibyte user-ID byte boundary, unknown-session non-mutation, bounded oversized transport drain and FIFO preservation after zero-budget drain.
+- Focused gate: 380 streaming tests PASS locally. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+- Next: run full local gates, independent review, commit and push on `develop`; continue next concrete CODE boundary.
+
+## 2026-09-26 — Shared Opus packet-size boundary
+
+- `streaming::OPUS_MAX_PACKET_BYTES` is now the single 1500-byte limit for `MediaWriter` packet storage and `OpusReceiver` ingress/jitter buffers.
+- `opus_roundtrip` adds shared-limit coverage; focused streaming gate: 405 tests PASS (395 unit + 10 integration tests).
+- Evidence remains CODE/CI/SIMULATED. WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+
+## 2026-09-26 — Phase 554 status
+
+- `JitterBuffer` agora tem regressão explícita para o limite compartilhado `OPUS_MAX_PACKET_BYTES`: payload exato é aceito, payload excedente é rejeitado e a fila preserva estado sem mutação.
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check` e `cargo test --manifest-path server/Cargo.toml -p streaming --lib` passaram; 405 testes. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — RTP timestamp wrap boundary
+
+- `MediaWriter` now has explicit regression coverage for `u32::MAX` RTP timestamp wrap, preserving the 960-sample increment across zero.
+- Focused streaming gate: 406 tests PASS; evidence remains CODE/CI/SIMULATED. Runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
