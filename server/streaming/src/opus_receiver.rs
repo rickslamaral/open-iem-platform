@@ -536,6 +536,28 @@ mod tests {
     }
 
     #[test]
+    fn jitter_clamps_capacity_at_maximum_boundary() {
+        let mut j = JitterBuffer::new(MAX_JITTER_CAPACITY + 1);
+
+        for sequence in 0..MAX_JITTER_CAPACITY as u64 {
+            j.push(sequence, b"a").unwrap();
+        }
+
+        assert_eq!(j.len(), MAX_JITTER_CAPACITY);
+        assert_eq!(
+            j.push(MAX_JITTER_CAPACITY as u64, b"a"),
+            Err(ReceiverError::QueueFull)
+        );
+        assert_eq!(j.len(), MAX_JITTER_CAPACITY);
+        for sequence in 0..MAX_JITTER_CAPACITY as u64 {
+            let (actual_sequence, packet) = j.pop().unwrap();
+            assert_eq!(actual_sequence, sequence);
+            assert_eq!(packet, b"a");
+        }
+        assert!(j.is_empty());
+    }
+
+    #[test]
     fn jitter_enforces_shared_opus_packet_limit_without_mutation() {
         let mut j = JitterBuffer::new(2);
         let accepted = vec![0_u8; OPUS_MAX_PACKET_BYTES];

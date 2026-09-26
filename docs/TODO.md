@@ -105,6 +105,7 @@
 | T13 | Release v0.3.1 | Preparação/artefatos em gates; release validada não disponível | PENDING/BLOCKED |
 | T14 | Lifecycle host install/upgrade/remove/rollback | Gates de pacote não substituem lifecycle em host alvo | PENDING/BLOCKED |
 | T15 | Checksums/SBOM/Ed25519 | Código/gates; assinatura verificável publicada independentemente ausente | PENDING/BLOCKED |
+
 | T16 | Backend Windows/decisão de escopo | ADR-015 exclui WASAPI/ASIO do MVP; backend nativo permanece backlog futuro | NOT_APPLICABLE |
 
 Não fechar item por simulação, CI, cross-build, loopback ou ausência de erro.
@@ -1363,3 +1364,5 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Unify encoded Opus payload limit at `streaming::OPUS_MAX_PACKET_BYTES` for writer buffer and receiver ingress.
 - Evidence: CODE local; streaming tests 405 PASS including writer/receiver shared-limit regression. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, network and Raspberry Pi 5 remain unvalidated.
+
+- [x] Phase 560 — JitterBuffer maximum-capacity clamp regression (CODE/local). Runtime and hardware validation remain pending.

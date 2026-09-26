@@ -7,6 +7,7 @@
 
 
 ### Fixed
+- Add CODE regression for JitterBuffer capacity clamping at its maximum bound.
 - Added streaming regression coverage proving failed UDP sends requeue all unsent datagrams in FIFO order.
 
 ### Tests

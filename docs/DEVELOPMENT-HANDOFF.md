@@ -1,3 +1,7 @@
+## 2026-09-26 — Phase 560 status
+
+- Added regression proving `JitterBuffer` clamps requested capacity above `MAX_JITTER_CAPACITY` and rejects the next packet without mutation. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-26 — Phase 559 status
 
 - Adicionada regressão para duplicata Opus em `u64::MAX` após rollover para `0`; o pacote é classificado como `late_packets`, não como descarte, e o receiver permanece `Playing`.
