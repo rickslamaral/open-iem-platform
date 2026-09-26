@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 563 — invalid packet precedence over duplicate
+
+- Adicionada regressão `jitter_invalid_packet_precedes_duplicate`, confirmando validação do payload antes da deduplicação: pacote oversized retorna `InvalidPacket` e não altera a fila.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 562 — invalid packet precedence at jitter capacity
 
 - Adicionada regressão `jitter_invalid_packet_at_capacity_preserves_queue`, confirmando que payload Opus excedente continua sendo rejeitado como `InvalidPacket` mesmo com a fila cheia e sem mutar pacote aceito.

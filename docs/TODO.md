@@ -1375,4 +1375,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - Evidence: CODE local; streaming tests 405 PASS including writer/receiver shared-limit regression. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, network and Raspberry Pi 5 remain unvalidated.
 
 - [x] Phase 560 — JitterBuffer maximum-capacity clamp regression (CODE/local). Runtime and hardware validation remain pending.
+## 2026-09-26 — Phase 563 — invalid packet precedence over duplicate
+
+- [x] Coberta a precedência de validação de payload inválido sobre sequência duplicada no `JitterBuffer`: retorna `InvalidPacket`, preserva a fila e não expõe `DuplicateSequence` para pacote malformado.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
 - [x] Phase 562 — JitterBuffer invalid-packet precedence at capacity (CODE/local). Runtime and hardware validation remain pending.
