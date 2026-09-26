@@ -1,3 +1,7 @@
+## 2026-09-26 — Phase 561 — duplicate precedence at jitter capacity
+
+- Adicionada regressão `jitter_duplicate_at_capacity_preserves_queue`, confirmando que duplicata é classificada antes de `QueueFull` e não muta fila cheia. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 560 status
 
 - Added regression proving `JitterBuffer` clamps requested capacity above `MAX_JITTER_CAPACITY` and rejects the next packet without mutation. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

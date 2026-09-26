@@ -1,3 +1,7 @@
+## 2026-09-26 — Phase 561 — duplicate precedence at jitter capacity
+
+- [x] Coberta duplicata recebida com `JitterBuffer` cheio: retorna `DuplicateSequence`, preserva capacidade e ordem FIFO; evidência CODE local. Runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 560 — jitter capacity clamp boundary
 
 - [x] Coberta por `jitter_clamps_capacity_at_maximum_boundary` em `server/streaming/src/opus_receiver.rs`: capacidade acima de `MAX_JITTER_CAPACITY` é limitada; pacote seguinte é rejeitado sem mutação; fila completa permanece preservada.

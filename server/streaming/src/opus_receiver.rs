@@ -518,6 +518,22 @@ mod tests {
     }
 
     #[test]
+    fn jitter_duplicate_at_capacity_preserves_queue() {
+        let mut j = JitterBuffer::new(2);
+        j.push(1, b"first").unwrap();
+        j.push(2, b"second").unwrap();
+
+        assert_eq!(
+            j.push(1, b"duplicate"),
+            Err(ReceiverError::DuplicateSequence)
+        );
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (1, b"first".to_vec()));
+        assert_eq!(j.pop().unwrap(), (2, b"second".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
     fn jitter_rejects_ambiguous_half_range_sequence() {
         let mut j = JitterBuffer::new(2);
         j.push(0, b"first").unwrap();
