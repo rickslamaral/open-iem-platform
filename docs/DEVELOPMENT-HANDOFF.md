@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 558 status
+
+- `OpusReceiver` agora ordena sequências com aritmética serial wrap-aware e avança `next_sequence` com `wrapping_add`; rollover `u64::MAX` → `0` coberto por regressões CODE.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 557 status
 
 - `MediaSession::push_frame` agora usa incremento wrapping para `frame_sequence`; regressão cobre `u64::MAX` seguido de `0` sem panic e com ordem preservada.

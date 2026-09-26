@@ -1,3 +1,9 @@
+## 2026-09-26 — Phase 558 — Opus receiver sequence wrap boundary
+
+- `OpusReceiver` passou a usar comparação serial wrap-aware para ordenar jitter e detectar atraso/gap; incrementos de sequência usam `wrapping_add`.
+- Adicionadas regressões para ordenação `u64::MAX` → `0` e reprodução de dois frames sem descarte.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 554 — shared Opus jitter packet boundary
 
 - Adicionada regressão `jitter_enforces_shared_opus_packet_limit_without_mutation`, confirmando que o `JitterBuffer` aceita payload no limite compartilhado `OPUS_MAX_PACKET_BYTES`, rejeita payload maior e preserva pacote já enfileirado.

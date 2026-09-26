@@ -101,11 +101,19 @@ impl JitterBuffer {
         if self.packets.len() >= self.capacity {
             return Err(ReceiverError::QueueFull);
         }
-        let pos = self
-            .packets
-            .iter()
-            .position(|(seq, _)| *seq > sequence)
-            .unwrap_or(self.packets.len());
+        let mut pos = self.packets.len();
+        for (index, (seq, _)) in self.packets.iter().enumerate() {
+            match sequence_order(sequence, *seq) {
+                SequenceOrder::Before => {
+                    pos = index;
+                    break;
+                }
+                SequenceOrder::After => {}
+                SequenceOrder::Equal | SequenceOrder::Ambiguous => {
+                    return Err(ReceiverError::InvalidPacket);
+                }
+            }
+        }
         self.packets.insert(pos, (sequence, packet.to_vec()));
         Ok(())
     }
@@ -130,6 +138,29 @@ impl JitterBuffer {
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.packets.is_empty()
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum SequenceOrder {
+    Before,
+    Equal,
+    After,
+    Ambiguous,
+}
+
+/// Compare extended RTP sequence numbers using serial-number arithmetic.
+/// Values exactly half the u64 space apart are ambiguous and rejected.
+fn sequence_order(left: u64, right: u64) -> SequenceOrder {
+    let distance = right.wrapping_sub(left);
+    if distance == 0 {
+        SequenceOrder::Equal
+    } else if distance == (1_u64 << 63) {
+        SequenceOrder::Ambiguous
+    } else if distance < (1_u64 << 63) {
+        SequenceOrder::Before
+    } else {
+        SequenceOrder::After
     }
 }
 
@@ -262,7 +293,10 @@ impl OpusReceiver {
             return Ok(());
         };
         if let Some(expected) = self.next_sequence {
-            if sequence < expected {
+            if matches!(
+                sequence_order(sequence, expected),
+                SequenceOrder::Before | SequenceOrder::Ambiguous
+            ) {
                 let _ = self.jitter.pop();
                 self.dropped_packets = self.dropped_packets.saturating_add(1);
                 if let Some(ref m) = self.metrics {
@@ -270,12 +304,12 @@ impl OpusReceiver {
                 }
                 return Ok(());
             }
-            if sequence > expected {
+            if sequence_order(expected, sequence) == SequenceOrder::Before {
                 // Packet missing. Attempt PLC up to PLC_MAX_CONSECUTIVE frames.
                 if self.plc_consecutive < PLC_MAX_CONSECUTIVE {
                     // Consume budget before decoding; decoder failure must not reopen PLC.
                     self.plc_consecutive += 1;
-                    self.next_sequence = Some(expected.saturating_add(1));
+                    self.next_sequence = Some(expected.wrapping_add(1));
                     let Ok(samples) = self.decoder.decode(&[], PLC_FRAME_SAMPLES, &mut self.pcm)
                     else {
                         self.state = ReceiverState::Muted;
@@ -341,7 +375,7 @@ impl OpusReceiver {
                 if let Some(ref m) = self.metrics {
                     m.record_output_failure();
                 }
-                self.next_sequence = Some(sequence.saturating_add(1));
+                self.next_sequence = Some(sequence.wrapping_add(1));
                 output.mute();
                 ReceiverError::InvalidPacket
             })?;
@@ -355,7 +389,7 @@ impl OpusReceiver {
             if let Some(ref m) = self.metrics {
                 m.record_output_failure();
             }
-            self.next_sequence = Some(sequence.saturating_add(1));
+            self.next_sequence = Some(sequence.wrapping_add(1));
             output.mute();
             return Err(ReceiverError::InvalidPacket);
         }
@@ -365,11 +399,11 @@ impl OpusReceiver {
             if let Some(ref m) = self.metrics {
                 m.record_output_failure();
             }
-            self.next_sequence = Some(sequence.saturating_add(1));
+            self.next_sequence = Some(sequence.wrapping_add(1));
             output.mute();
             ReceiverError::OutputFailed
         })?;
-        self.next_sequence = Some(sequence.saturating_add(1));
+        self.next_sequence = Some(sequence.wrapping_add(1));
         self.plc_consecutive = 0;
         self.state = ReceiverState::Playing;
         Ok(())
@@ -437,6 +471,43 @@ mod tests {
         j.push(1, b"a").unwrap();
         assert_eq!(j.pop().unwrap().0, 1);
     }
+    #[test]
+    fn jitter_orders_packets_across_sequence_wrap() {
+        let mut j = JitterBuffer::new(2);
+        j.push(0, b"next").unwrap();
+        j.push(u64::MAX, b"last").unwrap();
+
+        assert_eq!(j.pop().unwrap().0, u64::MAX);
+        assert_eq!(j.pop().unwrap().0, 0);
+    }
+
+    #[test]
+    fn receiver_plays_packets_across_sequence_wrap() {
+        let mut r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        r.enqueue(0, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+
+        r.playout(&mut s).unwrap();
+        r.playout(&mut s).unwrap();
+
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(r.state(), ReceiverState::Playing);
+        assert_eq!(r.dropped_packets(), 0);
+    }
+
+    #[test]
+    fn jitter_rejects_ambiguous_half_range_sequence() {
+        let mut j = JitterBuffer::new(2);
+        j.push(0, b"first").unwrap();
+        assert_eq!(
+            j.push(1_u64 << 63, b"ambiguous"),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(j.len(), 1);
+    }
+
     #[test]
     fn jitter_is_bounded() {
         let mut j = JitterBuffer::new(1);

@@ -1,3 +1,9 @@
+## 2026-09-26 — Phase 558 — Opus receiver sequence wrap boundary
+
+- [x] Corrigida ordenação serial e avanço wrapping de sequências estendidas no `OpusReceiver`; pacotes `u64::MAX` e `0` agora atravessam rollover sem serem classificados como atrasados.
+- Testes: `jitter_orders_packets_across_sequence_wrap` e `receiver_plays_packets_across_sequence_wrap`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 557 — media sequence wrap boundary
 
 - [x] Coberta a passagem de `MediaSession::frame_sequence` de `u64::MAX` para `0` sem panic, preservando a ordem dos frames.
