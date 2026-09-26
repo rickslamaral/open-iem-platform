@@ -142,6 +142,13 @@ impl JitterBuffer {
     pub fn pop(&mut self) -> Option<(u64, Vec<u8>)> {
         self.packets.pop_front()
     }
+    /// Discard all buffered packets and return number discarded.
+    pub fn clear(&mut self) -> usize {
+        let discarded = self.packets.len();
+        self.packets.clear();
+        discarded
+    }
+
     /// Number packets buffered.
     #[must_use]
     pub fn len(&self) -> usize {
@@ -270,6 +277,7 @@ impl OpusReceiver {
             if packet.0 != generation {
                 // Reconnect can race with an ingress sender after the drain above.
                 // Count late packets here instead of silently losing telemetry.
+                self.dropped_packets = self.dropped_packets.saturating_add(1);
                 if let Some(ref m) = self.metrics {
                     m.record_dropped();
                 }
@@ -437,17 +445,23 @@ impl OpusReceiver {
         self.next_sequence = None;
         self.output_failed = false;
         self.plc_consecutive = 0;
+        let stale_jitter = self.jitter.clear() as u64;
+        self.dropped_packets = self.dropped_packets.saturating_add(stale_jitter);
         if let Some(ref m) = self.metrics {
             m.record_reconnect();
+            for _ in 0..stale_jitter {
+                m.record_dropped();
+            }
         }
         // Discard stale ingress packets and account for each rejected packet.
         while self.ingress_rx.try_recv().is_ok() {
+            self.dropped_packets = self.dropped_packets.saturating_add(1);
             if let Some(ref m) = self.metrics {
                 m.record_dropped();
             }
         }
     }
-    /// Number packets rejected by jitter admission (overflow or duplicate).
+    /// Number packets discarded by receiver admission or reconnect isolation.
     #[must_use]
     pub fn dropped_packets(&self) -> u64 {
         self.dropped_packets
@@ -700,7 +714,7 @@ mod tests {
     }
 
     #[test]
-    fn reconnect_preserves_queued_packet_for_resynchronization() {
+    fn reconnect_discards_queued_packet_before_resynchronization() {
         let mut r = OpusReceiver::new().unwrap();
         let pkt = make_opus_packet();
         r.enqueue(1, &pkt).unwrap();
@@ -712,6 +726,9 @@ mod tests {
         }
         assert_eq!(r.playout(&mut s), Err(ReceiverError::OutputFailed));
         r.reconnect(&mut s);
+        assert_eq!(r.playout(&mut s), Ok(()));
+        assert_eq!(r.state(), ReceiverState::Muted);
+        r.enqueue(100, &pkt).unwrap();
         assert_eq!(r.playout(&mut s), Ok(()));
         assert_eq!(r.state(), ReceiverState::Playing);
     }

@@ -1,3 +1,9 @@
+## 2026-09-26 — Phase 568 — reconnect jitter isolation
+
+- [x] Limpar pacotes pré-reconnect já admitidos no `JitterBuffer`; mídia antiga não atravessa gerações e novo pacote recupera reprodução.
+- Regressão `reconnect_discards_queued_packet_before_resynchronization` cobre descarte da fila antiga e recuperação pós-reconnect.
+- Evidência CODE local: 421 testes `streaming` PASS e clippy PASS; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 567 — jitter serial-window transitivity
 
 - [x] Rejeitada inserção que faria o `JitterBuffer` atravessar a janela serial de 64 bits e perder ordenação transitiva; fila existente permanece intacta com `InvalidPacket`.

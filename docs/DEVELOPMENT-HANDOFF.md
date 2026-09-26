@@ -1,3 +1,10 @@
+## 2026-09-26 — Phase 568 status
+
+- Corrigido isolamento de sessão em `OpusReceiver::reconnect`: pacotes já admitidos no `JitterBuffer` agora são descartados e contabilizados antes de aceitar mídia da nova geração.
+- Regressão renomeada e ampliada para provar que pacote pré-reconnect não toca a saída; novo pacote pós-reconnect recupera reprodução.
+- Verificação: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 421 testes PASS; `cargo clippy --manifest-path server/Cargo.toml -p streaming --all-targets -- -D warnings` PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 567 status
 
 - `JitterBuffer::push` agora rejeita uma inserção que faria o intervalo entre primeiro e último pacote deixar de ser uma relação serial ordenável; regressão cobre a janela não transitiva em torno de `2^63`.

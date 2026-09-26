@@ -1,6 +1,9 @@
 ## [Unreleased]
 
 ### Fixed
+- Isolamento de geração no receiver Opus: `reconnect` descarta pacotes pendentes do jitter buffer para impedir áudio obsoleto após reconexão.
+
+### Fixed
 - Coberta preservação da fila do `JitterBuffer` ao rejeitar duplicata durante rollover de sequência Opus.
 
 
