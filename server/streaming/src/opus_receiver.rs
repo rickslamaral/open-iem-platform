@@ -317,12 +317,11 @@ impl OpusReceiver {
             // Drain every stale prefix before deciding whether to conceal a gap
             // or decode the next packet. A single playout must not leave jitter
             // behind packets already older than the expected sequence.
-            let mut drained_stale = false;
+            let mut drained_late = false;
             while let Some((sequence, _)) = self.jitter.peek() {
                 match sequence_order(sequence, expected) {
                     SequenceOrder::Ambiguous => {
                         let _ = self.jitter.pop();
-                        drained_stale = true;
                         self.dropped_packets = self.dropped_packets.saturating_add(1);
                         if let Some(ref m) = self.metrics {
                             m.record_dropped();
@@ -330,7 +329,7 @@ impl OpusReceiver {
                     }
                     SequenceOrder::Before => {
                         let _ = self.jitter.pop();
-                        drained_stale = true;
+                        drained_late = true;
                         self.dropped_packets = self.dropped_packets.saturating_add(1);
                         if let Some(ref m) = self.metrics {
                             m.record_late();
@@ -340,7 +339,7 @@ impl OpusReceiver {
                 }
             }
             let Some((sequence, _)) = self.jitter.peek() else {
-                if !drained_stale {
+                if drained_late {
                     self.state = ReceiverState::Muted;
                     output.mute();
                 }
@@ -1059,6 +1058,23 @@ mod tests {
         assert_eq!(metrics.snapshot().late_packets, 2);
         assert_eq!(r.dropped_packets(), 2);
         assert_eq!(r.state(), ReceiverState::Playing);
+    }
+
+    #[test]
+    fn playout_mutes_after_draining_stale_only_prefix() {
+        let mut r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(10, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue(8, &pkt).unwrap();
+        r.enqueue(9, &pkt).unwrap();
+
+        r.playout(&mut s).unwrap();
+
+        assert_eq!(r.state(), ReceiverState::Muted);
+        assert_eq!(s.frames, 960 * 2);
     }
 
     #[test]

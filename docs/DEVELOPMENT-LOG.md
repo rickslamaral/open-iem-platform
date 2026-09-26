@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 571 — receiver stale-only mute
+
+- Revisão independente encontrou dois riscos no `OpusReceiver`: dreno exclusivo de prefixo stale mantinha estado de reprodução sem silenciar. O playout agora silencia quando o dreno deixa fila vazia.
+- Regressão `playout_mutes_after_draining_stale_only_prefix` adicionada. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 570 — stale prefix rollover regression
 
 - Adicionada regressão para dreno de prefixo stale atravessando rollover `u64::MAX` → `0`, confirmando dois `late_packets`, reprodução do pacote esperado e estado `Playing`.

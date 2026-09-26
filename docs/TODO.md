@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 571 — receiver stale-only mute
+
+- [x] Corrigido o caminho de playout que drenava somente pacotes stale sem silenciar saída.
+- Regressão `playout_mutes_after_draining_stale_only_prefix`; evidência CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 570 — stale prefix rollover regression
 
 - [x] Coberta a combinação entre dreno de prefixo stale e rollover de sequência `u64::MAX` → `0`; dois pacotes antigos são contabilizados como `late_packets` e o pacote esperado é reproduzido.
