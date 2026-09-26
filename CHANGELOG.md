@@ -4,6 +4,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- Preserve queued streaming bridge frames when `drive_once` receives a zero frame budget.
+
 ### Documentation
 - ADR-015 classifica Windows WASAPI/ASIO como fora do MVP Linux-first; T16 passa a `NOT_APPLICABLE`, com backend nativo no backlog futuro. Windows + Docker Desktop continua smoke/control-plane, sem claim de áudio nativo.
 - T00 reconciliou status do lote em 2026-09-26: PR #340 aberta sem merge, HEAD `1365177507dc8243b00c2e611d7e97442a220012`, CI real 16/16 PASS e CODE/CI/SIMULATED até Phases 523–542.

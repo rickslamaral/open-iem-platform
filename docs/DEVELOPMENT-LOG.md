@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 546 — zero frame-budget bridge preservation
+
+- Added CODE regression proving `SessionRegistry::drive_once` with `frame_budget == 0` does not consume queued `MediaBridge` frames; a later bounded call drains the preserved frame.
+- Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-26 — T16 — decisão de escopo Windows
 
 - ADR-015 classifica Windows WASAPI/ASIO como fora do MVP Linux-first e move backend nativo para backlog futuro. T16 passa a `NOT_APPLICABLE`; nenhuma validação física foi alegada.

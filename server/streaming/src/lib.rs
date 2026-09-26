@@ -1750,6 +1750,30 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drive_once_zero_frame_budget_preserves_bridge_frames() {
+        let registry = SessionRegistry::new();
+        let plane = crate::media_plane::MediaPlane::new();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.3, 0.3), (0.4, 0.4)],
+                },
+                79,
+                None,
+            )
+            .unwrap();
+
+        let first = registry.drive_once(&bridge, &plane, 0, 1).await;
+        assert_eq!(first.frames_drained, 0);
+        let second = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(second.frames_drained, 1);
+
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions.is_empty());
+    }
+
+    #[tokio::test]
     async fn drive_once_preserves_excess_bridge_frames_across_bounded_calls() {
         let registry = SessionRegistry::new();
         let plane = crate::media_plane::MediaPlane::new();
