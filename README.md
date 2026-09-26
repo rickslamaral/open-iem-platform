@@ -45,7 +45,7 @@ IEM              IEM
 - WebSocket control
 - PWA mobile interface
 - Local LAN only
-- Targets atuais: Windows x64, Linux x64 e Raspberry Pi 5 ARM64; suporte validado e runtime de áudio continuam condicionados a evidência. macOS, Android e iPadOS permanecem backlog
+- Alvo atual de servidor: Linux x64 e Raspberry Pi OS ARM64; Windows x64 fica fora do MVP nativo (ADR-015), limitado a smoke/control-plane via Docker Desktop. Suporte validado e runtime de áudio continuam condicionados a evidência. macOS, Android e iPadOS permanecem backlog
 
 ## Current Status
 

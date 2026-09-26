@@ -1,3 +1,7 @@
+## 2026-09-26 — T16 — decisão de escopo Windows
+
+- ADR-015 classifica Windows WASAPI/ASIO como fora do MVP Linux-first e move backend nativo para backlog futuro. T16 passa a `NOT_APPLICABLE`; nenhuma validação física foi alegada.
+
 ## 2026-09-26 — Phase 545 — adapter zero-budget preservation
 
 - Added CODE regression proving `TransportAdapter::send_from_registry` with `budget == 0` returns an empty report and preserves pending registry output.
@@ -20,7 +24,7 @@
 - PR #340 está aberta e sem merge; HEAD atual: `0e30001b9456f2a0a6c8884643450299011cd066` (`develop`).
 - CI real da PR #340: 16/16 PASS no HEAD anterior; novo HEAD aguarda execução CI.
 - CODE/CI/SIMULATED concluído até Phases 523–542.
-- As 16 pendências permanecem `PENDING/BLOCKED`: WebRTC E2E real, DTLS-SRTP real, PipeWire físico, ALSA/USB físico, LAN real, Raspberry Pi 5, hot-plug, XRUN físico, latência p99, soak real, reboot/recovery, térmica/energia, release, lifecycle host, checksums/SBOM/Ed25519 e decisão/validação Windows.
+- A matriz mantém 16 itens: 15 pendências de runtime, hardware e release permanecem `PENDING/BLOCKED`; T16 foi classificado `NOT_APPLICABLE` por ADR-015. As pendências incluem WebRTC E2E real, DTLS-SRTP real, PipeWire físico, ALSA/USB físico, LAN real, Raspberry Pi 5, hot-plug, XRUN físico, latência p99, soak real, reboot/recovery, térmica/energia, release, lifecycle host e checksums/SBOM/Ed25519.
 - Matriz compacta adicionada em `docs/TODO.md` e `docs/DEVELOPMENT-HANDOFF.md`; nenhum claim de validação física novo.
 
 ## 2026-09-25 — Batch Phase 523–532 streaming identity and queue boundaries

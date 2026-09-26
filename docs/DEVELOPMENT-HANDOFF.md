@@ -524,7 +524,7 @@
 | T13 | Release v0.3.1 | Preparação/artefatos em gates; release validada não disponível | PENDING/BLOCKED |
 | T14 | Lifecycle host install/upgrade/remove/rollback | Gates de pacote não substituem lifecycle em host alvo | PENDING/BLOCKED |
 | T15 | Checksums/SBOM/Ed25519 | Código/gates; assinatura verificável publicada independentemente ausente | PENDING/BLOCKED |
-| T16 | Backend Windows/decisão de escopo | Sem decisão/validação Windows registrada neste lote | PENDING/BLOCKED |
+| T16 | Backend Windows/decisão de escopo | ADR-015 exclui WASAPI/ASIO do MVP; backend nativo permanece backlog futuro | NOT_APPLICABLE |
 
 Nenhum item acima é fechado por simulação, CI, cross-build, loopback ou ausência de erro. Não há claim novo de validação física.
 
