@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 569 — stale jitter prefix drain
+
+- [x] `OpusReceiver::playout` drena todos os pacotes stale/ambiguous à frente antes de executar PLC ou decodificar mídia válida; regressões cobrem métricas e recuperação no mesmo playout.
+- Evidência CODE local: 424 testes `streaming`, fmt e clippy PASS; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 568 — reconnect jitter isolation
 
 - [x] Limpar pacotes pré-reconnect já admitidos no `JitterBuffer`; mídia antiga não atravessa gerações e novo pacote recupera reprodução.

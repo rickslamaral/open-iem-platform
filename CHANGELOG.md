@@ -1,6 +1,10 @@
 ## [Unreleased]
 
 ### Fixed
+- Drain stale and ambiguous Opus jitter packets before playout, preventing avoidable output gaps.
+
+
+### Fixed
 - Isolamento de geração no receiver Opus: `reconnect` descarta pacotes pendentes do jitter buffer para impedir áudio obsoleto após reconexão.
 
 ### Fixed

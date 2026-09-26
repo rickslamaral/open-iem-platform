@@ -308,31 +308,44 @@ impl OpusReceiver {
             output.mute();
             return Err(ReceiverError::OutputFailed);
         }
-        let Some((sequence, _)) = self.jitter.peek() else {
+        let Some((_, _)) = self.jitter.peek() else {
             self.state = ReceiverState::Muted;
             output.mute();
             return Ok(());
         };
         if let Some(expected) = self.next_sequence {
-            match sequence_order(sequence, expected) {
-                SequenceOrder::Ambiguous => {
-                    let _ = self.jitter.pop();
-                    self.dropped_packets = self.dropped_packets.saturating_add(1);
-                    if let Some(ref m) = self.metrics {
-                        m.record_dropped();
+            // Drain every stale prefix before deciding whether to conceal a gap
+            // or decode the next packet. A single playout must not leave jitter
+            // behind packets already older than the expected sequence.
+            let mut drained_stale = false;
+            while let Some((sequence, _)) = self.jitter.peek() {
+                match sequence_order(sequence, expected) {
+                    SequenceOrder::Ambiguous => {
+                        let _ = self.jitter.pop();
+                        drained_stale = true;
+                        self.dropped_packets = self.dropped_packets.saturating_add(1);
+                        if let Some(ref m) = self.metrics {
+                            m.record_dropped();
+                        }
                     }
-                    return Ok(());
-                }
-                SequenceOrder::Before => {
-                    let _ = self.jitter.pop();
-                    self.dropped_packets = self.dropped_packets.saturating_add(1);
-                    if let Some(ref m) = self.metrics {
-                        m.record_late();
+                    SequenceOrder::Before => {
+                        let _ = self.jitter.pop();
+                        drained_stale = true;
+                        self.dropped_packets = self.dropped_packets.saturating_add(1);
+                        if let Some(ref m) = self.metrics {
+                            m.record_late();
+                        }
                     }
-                    return Ok(());
+                    SequenceOrder::Equal | SequenceOrder::After => break,
                 }
-                SequenceOrder::Equal | SequenceOrder::After => {}
             }
+            let Some((sequence, _)) = self.jitter.peek() else {
+                if !drained_stale {
+                    self.state = ReceiverState::Muted;
+                    output.mute();
+                }
+                return Ok(());
+            };
             if sequence_order(expected, sequence) == SequenceOrder::Before {
                 // Packet missing. Attempt PLC up to PLC_MAX_CONSECUTIVE frames.
                 if self.plc_consecutive < PLC_MAX_CONSECUTIVE {
@@ -1022,6 +1035,55 @@ mod tests {
         assert_eq!(snap.packets_dropped, 1);
         assert_eq!(snap.late_packets, 0);
         assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(r.state(), ReceiverState::Playing);
+    }
+
+    #[test]
+    fn playout_drains_multiple_stale_packets_before_decoding_expected() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(10, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue(8, &pkt).unwrap();
+        r.enqueue(9, &pkt).unwrap();
+        r.enqueue(11, &pkt).unwrap();
+
+        r.playout(&mut s).unwrap();
+
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(metrics.snapshot().late_packets, 2);
+        assert_eq!(r.dropped_packets(), 2);
+        assert_eq!(r.state(), ReceiverState::Playing);
+    }
+
+    #[test]
+    fn playout_drops_ambiguous_packets_and_keeps_expected_playable() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(0, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue((1_u64 << 63) + 1, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue(1, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue((1_u64 << 63) + 2, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+
+        let snapshot = metrics.snapshot();
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(snapshot.packets_dropped, 2);
+        assert_eq!(snapshot.late_packets, 0);
+        assert_eq!(r.dropped_packets(), 2);
         assert_eq!(r.state(), ReceiverState::Playing);
     }
 

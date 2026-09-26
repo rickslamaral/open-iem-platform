@@ -1,3 +1,11 @@
+## 2026-09-26 — Phase 569 status
+
+- `OpusReceiver::playout` agora remove todo prefixo stale/ambiguous do `JitterBuffer` em uma chamada, preservando `late_packets` para stale e `packets_dropped` para sequência ambígua.
+- Regressões cobrem dois pacotes stale seguidos por pacote esperado e pacotes ambíguos preservando reprodução válida.
+- Verificação: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml -p streaming --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 424 testes PASS.
+- Revisão independente: PASS; sugestões não bloqueantes sobre cobertura de limite já garantido pela capacidade bounded do `JitterBuffer`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 568 status
 
 - Corrigido isolamento de sessão em `OpusReceiver::reconnect`: pacotes já admitidos no `JitterBuffer` agora são descartados e contabilizados antes de aceitar mídia da nova geração.
