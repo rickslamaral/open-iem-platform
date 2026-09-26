@@ -317,11 +317,12 @@ impl OpusReceiver {
             // Drain every stale prefix before deciding whether to conceal a gap
             // or decode the next packet. A single playout must not leave jitter
             // behind packets already older than the expected sequence.
-            let mut drained_late = false;
+            let mut drained_prefix = false;
             while let Some((sequence, _)) = self.jitter.peek() {
                 match sequence_order(sequence, expected) {
                     SequenceOrder::Ambiguous => {
                         let _ = self.jitter.pop();
+                        drained_prefix = true;
                         self.dropped_packets = self.dropped_packets.saturating_add(1);
                         if let Some(ref m) = self.metrics {
                             m.record_dropped();
@@ -329,7 +330,7 @@ impl OpusReceiver {
                     }
                     SequenceOrder::Before => {
                         let _ = self.jitter.pop();
-                        drained_late = true;
+                        drained_prefix = true;
                         self.dropped_packets = self.dropped_packets.saturating_add(1);
                         if let Some(ref m) = self.metrics {
                             m.record_late();
@@ -339,7 +340,7 @@ impl OpusReceiver {
                 }
             }
             let Some((sequence, _)) = self.jitter.peek() else {
-                if drained_late {
+                if drained_prefix {
                     self.state = ReceiverState::Muted;
                     output.mute();
                 }
@@ -1034,7 +1035,7 @@ mod tests {
         assert_eq!(snap.packets_dropped, 1);
         assert_eq!(snap.late_packets, 0);
         assert_eq!(r.dropped_packets(), 1);
-        assert_eq!(r.state(), ReceiverState::Playing);
+        assert_eq!(r.state(), ReceiverState::Muted);
     }
 
     #[test]
@@ -1073,6 +1074,29 @@ mod tests {
 
         r.playout(&mut s).unwrap();
 
+        assert_eq!(r.state(), ReceiverState::Muted);
+        assert_eq!(s.frames, 960 * 2);
+    }
+
+    #[test]
+    fn playout_mutes_after_draining_ambiguous_only_prefix() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(0, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue((1_u64 << 63) + 1, &pkt).unwrap();
+
+        r.playout(&mut s).unwrap();
+
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.packets_dropped, 1);
+        assert_eq!(snapshot.late_packets, 0);
+        assert_eq!(r.dropped_packets(), 1);
         assert_eq!(r.state(), ReceiverState::Muted);
         assert_eq!(s.frames, 960 * 2);
     }
@@ -1124,7 +1148,7 @@ mod tests {
         assert_eq!(snapshot.packets_dropped, 2);
         assert_eq!(snapshot.late_packets, 0);
         assert_eq!(r.dropped_packets(), 2);
-        assert_eq!(r.state(), ReceiverState::Playing);
+        assert_eq!(r.state(), ReceiverState::Muted);
     }
 
     #[test]

@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 572 — ambiguous-only prefix mute
+
+- Adicionada regressão `playout_mutes_after_draining_ambiguous_only_prefix`, confirmando descarte métrico fail-closed e mute quando playout drena somente pacote de sequência ambígua.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 571 — receiver stale-only mute
 
 - Revisão independente encontrou dois riscos no `OpusReceiver`: dreno exclusivo de prefixo stale mantinha estado de reprodução sem silenciar. O playout agora silencia quando o dreno deixa fila vazia.

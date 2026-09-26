@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 572 — ambiguous-only prefix mute
+
+- [x] Coberta a drenagem de prefixo contendo somente sequência ambígua após `next_sequence` estabelecido; pacote é descartado, saída silenciada e métricas preservadas.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 571 — receiver stale-only mute
 
 - [x] Corrigido o caminho de playout que drenava somente pacotes stale sem silenciar saída.
