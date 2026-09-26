@@ -5367,3 +5367,8 @@ Added authenticated Musician UI scene catalog using existing read-only REST rout
 ## 2026-09-26 — Shared Opus packet-size boundary
 
 Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` constant (1500 bytes). Added round-trip boundary regression: encoded payload stays within receiver ingress limit and oversized ingress fails closed. Evidence is CODE/local tests only; runtime and hardware remain unvalidated.
+
+## 2026-09-26 — Bound DTLS fingerprint algorithm rejection
+
+- Added regression coverage proving a bound session rejects unsupported `sha-1` DTLS fingerprints before replacement and preserves the existing session metadata.
+- Focused streaming test and full Rust gates pass locally. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

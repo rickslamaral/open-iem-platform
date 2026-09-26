@@ -1407,6 +1407,34 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn bound_session_rejects_unsupported_fingerprint_algorithm_without_mutating_existing_session(
+    ) {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
+            .await
+            .unwrap();
+        let before = registry.list().await;
+        let identity = DeviceIdentity {
+            device_id: "rx-sha1".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(
+                "sha-1 00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33".into(),
+            ),
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+                .await,
+            Err(StreamingError::InvalidOffer(message)) if message == "invalid DTLS fingerprint"
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
     async fn bound_session_rejects_malformed_fingerprint_without_mutating_existing_session() {
         let registry = SessionRegistry::new();
         registry
