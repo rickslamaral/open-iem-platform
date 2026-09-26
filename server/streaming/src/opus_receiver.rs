@@ -416,7 +416,9 @@ impl OpusReceiver {
                 self.output_failed = true;
                 if let Some(ref m) = self.metrics {
                     m.record_output_failure();
+                    m.record_dropped();
                 }
+                self.dropped_packets = self.dropped_packets.saturating_add(1);
                 self.next_sequence = Some(sequence.wrapping_add(1));
                 output.mute();
                 ReceiverError::InvalidPacket
@@ -430,7 +432,9 @@ impl OpusReceiver {
             self.output_failed = true;
             if let Some(ref m) = self.metrics {
                 m.record_output_failure();
+                m.record_dropped();
             }
+            self.dropped_packets = self.dropped_packets.saturating_add(1);
             self.next_sequence = Some(sequence.wrapping_add(1));
             output.mute();
             return Err(ReceiverError::InvalidPacket);
@@ -896,7 +900,10 @@ mod tests {
         r.enqueue(1, &[0xff]).unwrap();
 
         assert_eq!(r.playout(&mut s), Err(ReceiverError::InvalidPacket));
-        assert_eq!(metrics.snapshot().output_failures, 1);
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.output_failures, 1);
+        assert_eq!(snapshot.packets_dropped, 1);
+        assert_eq!(r.dropped_packets(), 1);
     }
 
     #[test]

@@ -1,3 +1,8 @@
+## 2026-09-26 — Opus decoder failure drop accounting
+
+- `OpusReceiver::playout` now records invalid decoded Opus packets in `packets_dropped` and local `dropped_packets`, while preserving output-failure telemetry and fail-safe mute.
+- Evidence CODE local: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 434 tests PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-26 — Phase 577 — negative-infinity media sample regression
 
 - Adicionada regressão `rejects_negative_infinite_sample_and_preserves_rtp_timestamp` em `MediaWriter`, cobrindo explicitamente `f32::NEG_INFINITY`; a validação `is_finite()` rejeita a amostra antes da codificação e preserva o timestamp RTP inicial.

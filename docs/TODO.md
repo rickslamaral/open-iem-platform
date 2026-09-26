@@ -1441,6 +1441,11 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Streaming boundary batch Phases 533–542: ICE input rejection/non-mutation, multibyte ID limit, unknown-session fail-closed behavior and bounded transport queue ordering. CODE evidence; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA and Raspberry Pi 5 remain pending.
 
+## 2026-09-26 — Opus decoder failure drop accounting
+
+- [x] Contabilizar falhas de decodificação Opus como pacotes descartados nos contadores do receiver, mantendo mute fail-safe e telemetria de falha de saída.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Opus writer/receiver packet boundary
 
 - [x] Unify encoded Opus payload limit at `streaming::OPUS_MAX_PACKET_BYTES` for writer buffer and receiver ingress.

@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Fixed
+- Count invalid Opus decoder/payload failures in receiver drop metrics and local drop accounting.
+
 ### Tests
 - Added negative-infinity `MediaWriter` regression proving non-finite samples are rejected without consuming RTP timestamp.
 
