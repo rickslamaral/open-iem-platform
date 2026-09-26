@@ -1063,3 +1063,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Unified Opus writer and receiver packet-size boundary at 1500 bytes with regression coverage.
+
+### Fixed
+
+- Added regression coverage for RTP timestamp wraparound at the 32-bit boundary in the streaming Opus writer.

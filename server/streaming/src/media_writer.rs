@@ -155,6 +155,18 @@ mod tests {
     }
 
     #[test]
+    fn rtp_timestamp_wraps_at_u32_boundary() {
+        let mut writer = MediaWriter::new().unwrap();
+        writer.next_rtp_timestamp = u32::MAX - 959;
+
+        let before_wrap = writer.encode(&frame()).unwrap();
+        let after_wrap = writer.encode(&frame()).unwrap();
+
+        assert_eq!(before_wrap.rtp_timestamp, u32::MAX - 959);
+        assert_eq!(after_wrap.rtp_timestamp, 0);
+    }
+
+    #[test]
     fn rejects_wrong_frame_duration() {
         let mut f = frame();
         f.metadata.frame_duration_ms = 10;
