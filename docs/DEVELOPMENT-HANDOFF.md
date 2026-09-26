@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 545 status
+
+- Added regression for `TransportAdapter::send_from_registry` with zero budget, confirming no transport output is consumed.
+- Verification: focused test and 395 `streaming` tests PASS locally; evidence CODE local only. Runtime WebRTC/DTLS-SRTP, real network and hardware remain unvalidated.
+
 ## 2026-09-26 — Phase 544 status
 
 - Adicionada regressão para `drive_once` com orçamento de saída zero, confirmando preservação de saída de transporte pendente.

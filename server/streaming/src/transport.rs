@@ -164,6 +164,31 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn send_from_registry_zero_budget_preserves_pending_output() {
+        let registry = crate::SessionRegistry::new();
+        registry
+            .transport_outputs
+            .lock()
+            .await
+            .push_back(str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: "127.0.0.1:0".parse().unwrap(),
+                destination: "127.0.0.1:9".parse().unwrap(),
+                contents: b"must-remain-queued".to_vec().into(),
+            });
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+
+        let report = adapter.send_from_registry(&registry, 0).await.unwrap();
+
+        assert_eq!(report, TransportSendReport::default());
+        let queued = registry.drain_transport_outputs(1).await;
+        assert_eq!(queued.len(), 1);
+        assert_eq!(&queued[0].contents[..], b"must-remain-queued");
+    }
+
+    #[tokio::test]
     async fn empty_send_is_bounded_and_noop() {
         let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
             .await

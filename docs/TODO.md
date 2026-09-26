@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 545 — adapter zero-budget preservation
+
+- [x] Coberta `TransportAdapter::send_from_registry` com `budget == 0`, confirmando relatório vazio e preservação da saída pendente na fila do `SessionRegistry`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 544 — zero-budget transport preservation
 
 - [x] Coberta `SessionRegistry::drive_once` com `output_budget == 0`, preservando saídas de transporte pendentes sem consumo.

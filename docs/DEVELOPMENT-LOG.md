@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 545 — adapter zero-budget preservation
+
+- Added CODE regression proving `TransportAdapter::send_from_registry` with `budget == 0` returns an empty report and preserves pending registry output.
+- Verification: focused test and full `streaming` test suite PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-26 — Phase 544 — zero-budget transport preservation
 
 - Added CODE regression proving `SessionRegistry::drive_once` with `output_budget == 0` preserves pending transport outputs.
