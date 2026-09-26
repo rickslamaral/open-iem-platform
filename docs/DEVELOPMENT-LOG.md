@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 574 — zero-capacity invalid Opus precedence
+
+- Adicionada regressão `zero_capacity_jitter_rejects_invalid_packet_before_capacity`, confirmando `InvalidPacket` para payload vazio antes de `QueueFull`, sem mutação do `JitterBuffer`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 573 — empty Opus packet precedence
 
 - Adicionada regressão `jitter_empty_packet_precedes_duplicate_and_capacity`, confirmando `InvalidPacket` para payload vazio mesmo com sequência duplicada e buffer cheio, sem mutação da fila.

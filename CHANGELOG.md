@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 ### Tests
+- Added zero-capacity jitter regression proving invalid Opus payloads are rejected before `QueueFull` without state mutation.
 - Added streaming regression proving empty Opus payload rejection precedes duplicate and capacity classification without mutating jitter state.
 
 ### Fixed

@@ -723,6 +723,15 @@ mod tests {
         assert_eq!(j.push(1, b"a"), Err(ReceiverError::QueueFull));
         assert!(j.is_empty());
     }
+
+    #[test]
+    fn zero_capacity_jitter_rejects_invalid_packet_before_capacity() {
+        let mut j = JitterBuffer::new(0);
+        assert_eq!(j.push(1, &[]), Err(ReceiverError::InvalidPacket));
+        assert!(j.is_empty());
+        assert_eq!(j.push(1, b"valid"), Err(ReceiverError::QueueFull));
+        assert!(j.is_empty());
+    }
     #[test]
     fn empty_playout_mutes() {
         let mut r = OpusReceiver::new().unwrap();

@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 574 — zero-capacity invalid Opus precedence
+
+- [x] Coberta rejeição de payload vazio antes de capacidade no `JitterBuffer` de capacidade zero; estado permanece vazio e payload válido continua retornando `QueueFull`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 573 — empty Opus packet precedence
 
 - [x] Coberta rejeição de payload vazio antes de duplicata e capacidade no `JitterBuffer`; fila existente permanece intacta.
