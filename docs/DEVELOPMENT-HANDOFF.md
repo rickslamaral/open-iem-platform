@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 547 status
+
+- Added regression for `SessionRegistry::drive_once` with `frame_budget == 0`, confirming pre-existing transport output remains available for later bounded drain.
+- Focused verification: `cargo test --manifest-path server/Cargo.toml -p streaming --lib phase547_zero_frame_budget_preserves_pending_transport_outputs` — 1 test PASS. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-26 — Phase 546 status
 
 - Added regression for `SessionRegistry::drive_once` with `frame_budget == 0`, confirming queued `MediaBridge` frames remain available to a later bounded call.

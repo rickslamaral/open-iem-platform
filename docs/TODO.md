@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 547 — zero frame-budget transport preservation
+
+- [x] Cobertura de `SessionRegistry::drive_once` com `frame_budget == 0`, preservando saída de transporte pendente para drenagem limitada posterior.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 546 — zero frame-budget bridge preservation
 
 - [x] Cobertura de `SessionRegistry::drive_once` com `frame_budget == 0`, preservando frames pendentes da `MediaBridge` para uma chamada posterior limitada.
