@@ -1,3 +1,8 @@
+## 2026-09-26 — Phase 567 — jitter serial-window transitivity
+
+- [x] Rejeitada inserção que faria o `JitterBuffer` atravessar a janela serial de 64 bits e perder ordenação transitiva; fila existente permanece intacta com `InvalidPacket`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 565 — duplicate rollover queue preservation
 
 - [x] Coberta duplicata `u64::MAX` após rollover para `0` enquanto ambos pacotes permanecem no `JitterBuffer`; retorna `DuplicateSequence` e preserva FIFO.

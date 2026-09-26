@@ -1,3 +1,9 @@
+## 2026-09-26 — Phase 567 — jitter serial-window transitivity
+
+- Corrigida aceitação de conjuntos de sequências que atravessam a metade do espaço serial e tornam a ordenação não transitiva.
+- Regressão `jitter_rejects_non_transitive_serial_window` confirma `InvalidPacket` sem mutação da fila.
+- Verificação: crate `streaming` com 421 testes PASS e clippy sem warnings. Evidência CODE local; runtime e hardware permanecem não validados.
+
 ## 2026-09-26 — Phase 566 follow-up — ambiguous playout classification
 
 - Corrigida classificação de sequência exatamente a meia faixa quando o pacote chega após `next_sequence` já estabelecido: agora incrementa `packets_dropped`/`dropped_packets`, não `late_packets`.

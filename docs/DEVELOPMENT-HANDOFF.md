@@ -1,3 +1,9 @@
+## 2026-09-26 — Phase 567 status
+
+- `JitterBuffer::push` agora rejeita uma inserção que faria o intervalo entre primeiro e último pacote deixar de ser uma relação serial ordenável; regressão cobre a janela não transitiva em torno de `2^63`.
+- Verificação: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 421 testes PASS; `cargo clippy --manifest-path server/Cargo.toml -p streaming --all-targets -- -D warnings` PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-26 — Phase 566 follow-up status
 
 - Corrigida lacuna de `OpusReceiver::playout`: sequência ambígua após `next_sequence` estabelecido agora é descarte métrico fail-closed, não pacote atrasado.

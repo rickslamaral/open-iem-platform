@@ -111,6 +111,19 @@ impl JitterBuffer {
                 }
             }
         }
+        let first = self.packets.front().map_or(sequence, |(seq, _)| *seq);
+        let last = self.packets.back().map_or(sequence, |(seq, _)| *seq);
+        let prospective_first = if pos == 0 { sequence } else { first };
+        let prospective_last = if pos == self.packets.len() {
+            sequence
+        } else {
+            last
+        };
+        if prospective_first != prospective_last
+            && sequence_order(prospective_first, prospective_last) != SequenceOrder::Before
+        {
+            return Err(ReceiverError::InvalidPacket);
+        }
         if self.packets.len() >= self.capacity {
             return Err(ReceiverError::QueueFull);
         }
@@ -603,6 +616,22 @@ mod tests {
         );
         assert_eq!(j.len(), 1);
         assert_eq!(j.pop().unwrap(), (0, b"accepted".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn jitter_rejects_non_transitive_serial_window() {
+        let mut j = JitterBuffer::new(3);
+        j.push(0, b"first").unwrap();
+        j.push((1_u64 << 63) - 1, b"second").unwrap();
+
+        assert_eq!(
+            j.push((1_u64 << 63) + 1, b"non-transitive"),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (0, b"first".to_vec()));
+        assert_eq!(j.pop().unwrap(), ((1_u64 << 63) - 1, b"second".to_vec()));
         assert!(j.is_empty());
     }
 
