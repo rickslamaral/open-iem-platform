@@ -1,3 +1,8 @@
+## 2026-09-26 — PLC failure drop-accounting regressions
+
+- Added cfg(test)-only PLC decode override and regressions for decoder error and invalid sample-count branches. Both assert fail-safe mute, one local dropped packet, one `packets_dropped` metric and one output failure.
+- Verification: focused tests and streaming clippy PASS. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-26 — Opus decoder failure drop accounting
 
 - `OpusReceiver::playout` now records invalid decoded Opus packets in `packets_dropped` and local `dropped_packets`, while preserving output-failure telemetry and fail-safe mute.

@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 ### Fixed
+- Added deterministic CODE regressions for PLC decoder and invalid sample-count failures, including dropped-packet accounting.
 - Count invalid Opus decoder/payload and PLC failures in receiver drop metrics and local drop accounting.
 
 ### Tests

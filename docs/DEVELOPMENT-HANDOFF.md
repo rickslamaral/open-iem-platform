@@ -1,3 +1,8 @@
+## 2026-09-26 — PLC failure drop-accounting regressions
+
+- Deterministic cfg(test)-only coverage now exercises PLC decoder failure and invalid PLC sample-count failure. Both branches preserve fail-safe mute and count drops in local and observability metrics.
+- Verification: focused tests and streaming clippy PASS. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-26 — Non-finite MediaWriter sample boundary
 
 - `MediaWriter::encode` rejeita amostras `NaN` e infinitas antes de alocar PCM ou chamar Opus, retornando `NonFiniteSample`; falha preserva `next_rtp_timestamp`.

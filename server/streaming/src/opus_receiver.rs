@@ -201,6 +201,8 @@ pub struct OpusReceiver {
     generation: Arc<AtomicU64>,
     output_failed: bool,
     metrics: Option<Arc<ReceiverMetrics>>,
+    #[cfg(test)]
+    plc_decode_override: Option<Result<usize, ()>>,
 }
 
 impl OpusReceiver {
@@ -226,6 +228,8 @@ impl OpusReceiver {
             generation: Arc::new(AtomicU64::new(0)),
             output_failed: false,
             metrics: None,
+            #[cfg(test)]
+            plc_decode_override: None,
         })
     }
     /// Attach observability metrics to this receiver.
@@ -233,6 +237,21 @@ impl OpusReceiver {
     pub fn with_metrics(mut self, metrics: Arc<ReceiverMetrics>) -> Self {
         self.metrics = Some(metrics);
         self
+    }
+
+    #[cfg(test)]
+    fn set_plc_decode_override(&mut self, result: Result<usize, ()>) {
+        self.plc_decode_override = Some(result);
+    }
+
+    fn decode_plc(&mut self) -> Result<usize, ()> {
+        #[cfg(test)]
+        if let Some(result) = self.plc_decode_override.take() {
+            return result;
+        }
+        self.decoder
+            .decode(&[], PLC_FRAME_SAMPLES, &mut self.pcm)
+            .map_err(|_| ())
     }
 
     /// Enqueue encoded payload without waiting. `sequence` must be a monotonic
@@ -352,8 +371,7 @@ impl OpusReceiver {
                     // Consume budget before decoding; decoder failure must not reopen PLC.
                     self.plc_consecutive += 1;
                     self.next_sequence = Some(expected.wrapping_add(1));
-                    let Ok(samples) = self.decoder.decode(&[], PLC_FRAME_SAMPLES, &mut self.pcm)
-                    else {
+                    let Ok(samples) = self.decode_plc() else {
                         self.state = ReceiverState::Muted;
                         self.output_failed = true;
                         if let Some(ref m) = self.metrics {
@@ -908,6 +926,46 @@ mod tests {
         assert_eq!(snapshot.output_failures, 1);
         assert_eq!(snapshot.packets_dropped, 1);
         assert_eq!(r.dropped_packets(), 1);
+    }
+
+    #[test]
+    fn plc_decoder_failure_counts_as_dropped_packet() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(3, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap();
+        r.set_plc_decode_override(Err(()));
+
+        assert_eq!(r.playout(&mut s), Err(ReceiverError::InvalidPacket));
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
+        assert_eq!(metrics.snapshot().output_failures, 1);
+        assert_eq!(r.state(), ReceiverState::Muted);
+    }
+
+    #[test]
+    fn plc_invalid_sample_count_counts_as_dropped_packet() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(3, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap();
+        r.set_plc_decode_override(Ok(PLC_FRAME_SAMPLES - 1));
+
+        assert_eq!(r.playout(&mut s), Err(ReceiverError::InvalidPacket));
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
+        assert_eq!(metrics.snapshot().output_failures, 1);
+        assert_eq!(r.state(), ReceiverState::Muted);
     }
 
     #[test]
