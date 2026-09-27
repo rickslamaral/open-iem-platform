@@ -82,6 +82,7 @@ pub struct DriveReport {
     pub transmitted_bytes: usize,
     pub budget_exhausted: bool,
     pub packets_encoded: usize,
+    pub frames_encode_failed: usize,
     pub transport_outputs_dropped: usize,
     pub poll_errors: usize,
 }
@@ -330,6 +331,7 @@ impl SessionRegistry {
         let mut outputs_polled = 0;
         let mut transmitted_bytes = 0;
         let mut packets_encoded = 0;
+        let mut frames_encode_failed = 0;
         let mut budget_exhausted = false;
         let mut transport_outputs_dropped = 0;
         let mut poll_errors = 0;
@@ -370,6 +372,7 @@ impl SessionRegistry {
                             break;
                         }
                         let Ok(packet) = peer.writer.encode(&frame) else {
+                            frames_encode_failed += 1;
                             continue;
                         };
                         let Some(media_writer) = peer.rtc.writer(mid) else {
@@ -437,6 +440,7 @@ impl SessionRegistry {
             transmitted_bytes,
             budget_exhausted,
             packets_encoded,
+            frames_encode_failed,
             transport_outputs_dropped,
             poll_errors,
         }
