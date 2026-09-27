@@ -660,8 +660,8 @@
 ## Estado atual do lote — 2026-09-26
 
 - PR #340 está aberta e sem merge.
-- HEAD atual de código: `e671de7e6e1a774c9d9f0bc92c783f4df81422b2` (`develop`).
-- CI real do HEAD atual concluído com sucesso: CI e Software Package Lifecycle Gates, 16/16 jobs; runs `36280925865` e `36280925855`.
+- HEAD atual de código: `a424086` (`develop`).
+- CI real do HEAD anterior concluído com sucesso; nova execução para `a424086` está em andamento nos workflows CI e Software Package Lifecycle Gates.
 - CODE/CI/SIMULATED concluído até Phase 577. Isso não constitui validação física, runtime real, LAN real ou hardware.
 
 ### Matriz compacta de evidência das 16 pendências

@@ -186,8 +186,8 @@
 
 ## Estado atual do lote — 2026-09-26
 
-- PR #340 está aberta e sem merge; HEAD atual de código: `a9e2562` (`develop`).
-- CI real da PR #340 para o HEAD atual (`a9e2562`) concluído com sucesso: 16/16 jobs, incluindo Rust, frontends, segurança, pacotes amd64/arm64 e gates SIMULATED; execução registrada em `https://github.com/rickslamaral/open-iem-platform/actions/runs/36280925865` e `https://github.com/rickslamaral/open-iem-platform/actions/runs/36280925855`.
+- PR #340 está aberta e sem merge; HEAD atual de código: `a424086` (`develop`).
+- CI real do HEAD anterior concluído com sucesso; execução do HEAD `a424086` está em andamento nos workflows CI e Software Package Lifecycle Gates. Não declarar 16/16 até conclusão dos jobs.
 - CODE/CI/SIMULATED concluído até Phase 577; isso não constitui validação física, runtime real, LAN real ou hardware.
 
 ### Matriz compacta de evidência — 16 pendências

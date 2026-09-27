@@ -1,3 +1,9 @@
+## 2026-09-27 — development HEAD/CI status reconciliation
+
+- Atualizado o handoff e TODO para refletir `develop` em `a424086`, evitando referências obsoletas a commits anteriores.
+- A execução real de CI e Software Package Lifecycle Gates para `a424086` está em andamento; nenhum resultado final é declarado antes da conclusão.
+- Evidência física permanece: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — software WebRTC/Opus evidence scope reconciliation
 
 - Reconciliado escopo: teste two-peer Sans-IO fornece evidência de protocolo WebRTC/DTLS-SRTP/Opus em software. Mantido item de E2E runtime pendente; evidência `SOFTWARE/SIMULATED`, sem claim de hardware, rede física ou PipeWire/ALSA.
