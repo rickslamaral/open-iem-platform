@@ -5768,3 +5768,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Added bounded `DriveReport::encode_errors` accounting for `MediaWriter::encode` failures; regression proves invalid queued frame is counted and later valid frame still encodes.
 - Focused CODE evidence only; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 hardware remain unvalidated.
+
+## 2026-09-27 — SessionRegistry encode failure discard accounting
+
+- `SessionRegistry::drive_once` records failed-frame discards through `DriveReport::encode_errors`; `DriveReport::encode_discards()` exposes the accounting. Frames are not requeued because stateful `MediaWriter` state may advance before returning an error; bounded discard is explicit rather than silent.
+- Regression asserts one failed frame is accounted and the following valid frame encodes. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi hardware remain unvalidated.

@@ -1186,6 +1186,11 @@ test → review → docs/GAP update → PR/CI
 ## 2026-09-27 — invalid Opus ingress local drop accounting
 
 - HEAD de desenvolvimento recebeu correção de contagem local para ingress Opus inválido; `cargo fmt`, clippy streaming e 508 testes `streaming` passaram localmente. CI da PR #340 continua em execução; política do ciclo mantém sem merge/PR. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-27 — SessionRegistry encode-failure discard accounting
+
+- `SessionRegistry::drive_once` does not requeue frames after `MediaWriter::encode` failure because writer state may have advanced; `DriveReport::encode_errors` explicitly counts each bounded encode discard; `DriveReport::encode_discards()` exposes that accounting without changing public struct literals.
+- Regression confirms one invalid frame is counted as discarded and following valid frame still encodes. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-27 — DriftEstimator local baseline preservation
 
 - Added CODE regression proving local-counter regression does not replace accepted `DriftEstimator` baseline. Focused test passes; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

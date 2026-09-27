@@ -143,6 +143,17 @@ fn extract_dtls_fingerprint(sdp: &str) -> Result<String, StreamingError> {
     Ok(fingerprint.clone())
 }
 
+impl DriveReport {
+    #[must_use]
+    /// Number of frames discarded after encode failure.
+    ///
+    /// Encode failures are counted explicitly by `encode_errors`; requeue is
+    /// unsafe because `MediaWriter::encode` may advance state before failure.
+    pub const fn encode_discards(&self) -> usize {
+        self.encode_errors
+    }
+}
+
 impl SessionRegistry {
     #[must_use]
     pub fn new() -> Self {
@@ -384,6 +395,8 @@ impl SessionRegistry {
                         }
                         let Ok(packet) = peer.writer.encode(&frame) else {
                             encode_errors = encode_errors.saturating_add(1);
+                            // Encode failure counts bounded discard explicitly;
+                            // do not requeue stateful writer input.
                             continue;
                         };
                         let Some(media_writer) = peer.rtc.writer(mid) else {
@@ -747,6 +760,7 @@ mod tests {
 
         let report = registry.drive_once(&bridge, &plane, 2, 2).await;
         assert_eq!(report.encode_errors, 1);
+        assert_eq!(report.encode_discards(), 1);
         assert_eq!(report.media_write_errors, 0);
         assert_eq!(report.packets_encoded, 1);
     }
