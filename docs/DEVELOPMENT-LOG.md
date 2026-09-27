@@ -1,4 +1,8 @@
 
+## 2026-09-27 — SessionRegistry output budget preservation
+
+- Corrigido `SessionRegistry::drive_once` para consumir orçamento compartilhado entre saídas RTC pendentes e pacotes de mídia codificados antes de drenar frames. Regressão cobre duas chamadas e preservação de frame quando RTC consome orçamento. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-27 — negotiated Opus writer readiness guard
 
 - `SessionRegistry::drive_once` now checks negotiated writer availability and Opus payload support before draining session queues. Frames remain queued while media negotiation is not usable. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.

@@ -1,4 +1,8 @@
 
+## 2026-09-27 — SessionRegistry output budget preservation
+
+- `SessionRegistry::drive_once` polls pending RTC output before draining media, so one bounded `output_budget` covers transport output and encoded media together. Media frames remain queued when pending RTC output consumes budget. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-27 — negotiated Opus writer readiness guard
 
 - `SessionRegistry::drive_once` drains per-session media frames only when the negotiated media writer exists and advertises Opus. Sessions lacking a usable writer stay queued for a later drive pass instead of losing frames. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.

@@ -310,45 +310,10 @@ impl SessionRegistry {
         if output_budget == 0 {
             return DriveReport::default();
         }
-        let frames_drained = bridge
-            .drain_to_with_budget(media_plane, frame_budget.min(output_budget))
-            .await;
-        // Drain only sessions with a currently usable negotiated Opus writer.
+        // Poll pending RTC output before consuming media frames. This makes
+        // `output_budget` cover both RTC outputs and encoded media packets.
         // Keeping ineligible sessions out of `drained` preserves their queued
         // frames for a later drive pass after negotiation becomes usable.
-        let session_ids = self
-            .sessions
-            .lock()
-            .await
-            .values_mut()
-            .filter_map(|peer| {
-                let mid = peer.media_mid?;
-                let media_writer = peer.rtc.writer(mid)?;
-                let has_opus = media_writer
-                    .payload_params()
-                    .any(|params| params.spec().codec == str0m::format::Codec::Opus);
-                has_opus.then(|| peer.user_id.clone())
-            })
-            .collect::<Vec<_>>();
-        let mut drained = HashMap::new();
-        let mut remaining_output_budget = output_budget.saturating_sub(frames_drained);
-        for user_id in session_ids {
-            if remaining_output_budget == 0 {
-                break;
-            }
-            if let Ok(frames) = media_plane
-                .drain_session_frames_with_budget(
-                    &user_id,
-                    frame_budget.min(remaining_output_budget),
-                )
-                .await
-            {
-                remaining_output_budget = remaining_output_budget.saturating_sub(frames.len());
-                drained.insert(user_id, frames);
-            }
-        }
-
-        let mut sessions = self.sessions.lock().await;
         let mut outputs_polled = 0;
         let mut transmitted_bytes = 0;
         let mut packets_encoded = 0;
@@ -358,6 +323,7 @@ impl SessionRegistry {
         let mut encode_errors: usize = 0;
         let mut media_write_errors: usize = 0;
 
+        let mut sessions = self.sessions.lock().await;
         for peer in sessions.values_mut() {
             while outputs_polled < output_budget {
                 match peer.rtc.poll_output() {
@@ -386,10 +352,60 @@ impl SessionRegistry {
                     }
                 }
             }
+            if outputs_polled >= output_budget {
+                break;
+            }
+        }
+        drop(sessions);
+
+        // Drain only sessions with a currently usable negotiated Opus writer.
+        let session_ids = self
+            .sessions
+            .lock()
+            .await
+            .values_mut()
+            .filter_map(|peer| {
+                let mid = peer.media_mid?;
+                let media_writer = peer.rtc.writer(mid)?;
+                let has_opus = media_writer
+                    .payload_params()
+                    .any(|params| params.spec().codec == str0m::format::Codec::Opus);
+                has_opus.then(|| peer.user_id.clone())
+            })
+            .collect::<Vec<_>>();
+        let frames_drained = bridge
+            .drain_to_with_budget(
+                media_plane,
+                frame_budget.min(output_budget.saturating_sub(outputs_polled)),
+            )
+            .await;
+        let mut drained = HashMap::new();
+        let mut remaining_output_budget = output_budget
+            .saturating_sub(outputs_polled)
+            .saturating_sub(frames_drained);
+        for user_id in session_ids {
+            if remaining_output_budget == 0 {
+                break;
+            }
+            if let Ok(frames) = media_plane
+                .drain_session_frames_with_budget(
+                    &user_id,
+                    frame_budget.min(remaining_output_budget),
+                )
+                .await
+            {
+                remaining_output_budget = remaining_output_budget.saturating_sub(frames.len());
+                drained.insert(user_id, frames);
+            }
+        }
+
+        let mut sessions = self.sessions.lock().await;
+
+        for peer in sessions.values_mut() {
             if let Some(mid) = peer.media_mid {
                 if let Some(frames) = drained.remove(&peer.user_id) {
                     for frame in frames {
-                        if packets_encoded >= output_budget {
+                        if outputs_polled.saturating_add(packets_encoded) >= output_budget {
                             budget_exhausted = true;
                             break;
                         }
@@ -425,36 +441,40 @@ impl SessionRegistry {
                         } else {
                             media_write_errors = media_write_errors.saturating_add(1);
                         }
-                        if outputs_polled < output_budget {
-                            match peer.rtc.poll_output() {
-                                Ok(Output::Transmit(transmit)) => {
-                                    let mut outputs = self.transport_outputs.lock().await;
-                                    if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
-                                        transmitted_bytes += transmit.contents.len();
-                                        outputs.push_back(transmit);
-                                    } else {
-                                        transport_outputs_dropped += 1;
-                                    }
-                                    outputs_polled += 1;
-                                }
-                                Ok(Output::Event(event)) => {
-                                    if let Event::MediaAdded(media) = event {
-                                        if media.kind.is_audio() {
-                                            peer.media_mid = Some(media.mid);
-                                        }
-                                    }
-                                    outputs_polled += 1;
-                                }
-                                Ok(Output::Timeout(_)) => {}
-                                Err(_) => {
-                                    poll_errors += 1;
-                                }
-                            }
-                        }
                     }
                 }
             }
-            if output_budget > 0 && outputs_polled >= output_budget {
+            // Poll only after consuming all drained frames. Polling between
+            // frames can exhaust shared budget and discard later drained frames.
+            while outputs_polled.saturating_add(packets_encoded) < output_budget {
+                match peer.rtc.poll_output() {
+                    Ok(Output::Transmit(transmit)) => {
+                        let mut outputs = self.transport_outputs.lock().await;
+                        if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
+                            transmitted_bytes += transmit.contents.len();
+                            outputs.push_back(transmit);
+                        } else {
+                            transport_outputs_dropped += 1;
+                        }
+                        outputs_polled += 1;
+                    }
+                    Ok(Output::Event(event)) => {
+                        if let Event::MediaAdded(media) = event {
+                            if media.kind.is_audio() {
+                                peer.media_mid = Some(media.mid);
+                            }
+                        }
+                        outputs_polled += 1;
+                    }
+                    Ok(Output::Timeout(_)) => break,
+                    Err(_) => {
+                        poll_errors += 1;
+                        break;
+                    }
+                }
+            }
+            if output_budget > 0 && outputs_polled.saturating_add(packets_encoded) >= output_budget
+            {
                 budget_exhausted = true;
                 break;
             }
@@ -904,9 +924,41 @@ mod tests {
 
         assert_eq!(first.frames_drained, 1);
         assert_eq!(second.frames_drained, 1);
-        assert!(first.outputs_polled <= 1);
-        assert!(second.outputs_polled <= 1);
+        assert!(first.outputs_polled + first.packets_encoded <= 1);
+        assert!(second.outputs_polled + second.packets_encoded <= 1);
         assert!(registry.drain_transport_outputs(8).await.len() <= 8);
+    }
+
+    #[tokio::test]
+    async fn drive_once_preserves_media_when_rtc_output_consumes_budget() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                31,
+                None,
+            )
+            .unwrap();
+
+        let first = registry.drive_once(&bridge, &plane, 1, 1).await;
+        let second = registry.drive_once(&bridge, &plane, 1, 1).await;
+
+        for report in [first, second] {
+            assert!(report.outputs_polled + report.packets_encoded <= 1);
+        }
+        assert_eq!(first.frames_drained, 1);
+        assert_eq!(second.frames_drained, 0);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
     }
 
     #[tokio::test]
