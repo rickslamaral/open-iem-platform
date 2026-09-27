@@ -439,7 +439,7 @@ mod tests {
             report.bytes,
             (0..TRANSPORT_SEND_BUDGET)
                 .map(|index| format!("generic-budget-{index}").len())
-                .sum()
+                .sum::<usize>()
         );
         let mut payload = [0; 64];
         for index in 0..TRANSPORT_SEND_BUDGET {

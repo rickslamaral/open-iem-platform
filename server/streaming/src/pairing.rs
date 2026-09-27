@@ -573,4 +573,63 @@ mod tests {
             Err(PairingError::AlreadyPaired)
         );
     }
+
+    #[tokio::test]
+    async fn replace_revoked_on_unknown_device_returns_not_found() {
+        let registry = PairingRegistry::new();
+        // valid credentials so rejection is from missing device, not invalid input
+        let err = registry
+            .replace_revoked("rx-missing", CREDENTIAL, b"new-pairing-secret-ok")
+            .await;
+        assert_eq!(err, Err(PairingError::NotFound));
+    }
+
+    #[tokio::test]
+    async fn replace_revoked_on_active_device_returns_already_paired() {
+        let registry = PairingRegistry::new();
+        registry
+            .pair("rx-active", "musician-1", 0, CREDENTIAL)
+            .await
+            .unwrap();
+        // device is active (not revoked)
+        let err = registry
+            .replace_revoked("rx-active", CREDENTIAL, b"new-pairing-secret-ok")
+            .await;
+        assert_eq!(err, Err(PairingError::AlreadyPaired));
+        // original credential still works
+        assert!(registry.authenticate("rx-active", CREDENTIAL).await.is_ok());
+    }
+
+    #[tokio::test]
+    async fn authenticate_short_credential_fails_without_device_lookup() {
+        let registry = PairingRegistry::new();
+        registry
+            .pair("rx-short", "musician-1", 0, CREDENTIAL)
+            .await
+            .unwrap();
+        // credential under 16 bytes must be rejected before device lookup
+        let err = registry.authenticate("rx-short", b"tooshort").await;
+        assert_eq!(err, Err(PairingError::InvalidCredential));
+    }
+
+    #[tokio::test]
+    async fn pair_rejects_device_id_with_special_chars() {
+        let registry = PairingRegistry::new();
+        // slash is not in the allowed set (alphanumeric, '-', '_')
+        let err = registry
+            .pair("rx/invalid", "musician-1", 0, CREDENTIAL)
+            .await;
+        assert_eq!(err, Err(PairingError::InvalidIdentity));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn pair_rejects_musician_id_with_special_chars() {
+        let registry = PairingRegistry::new();
+        let err = registry
+            .pair("rx-valid", "musician@id", 0, CREDENTIAL)
+            .await;
+        assert_eq!(err, Err(PairingError::InvalidIdentity));
+        assert!(registry.is_empty().await);
+    }
 }
