@@ -1018,3 +1018,7 @@ test → review → docs/GAP update → PR/CI
 ## 2026-09-27 — JitterBuffer half-range rejection after ordered prefix
 
 - Added CODE regression proving an ambiguous `2^63` sequence is rejected after an ordered prefix without mutating FIFO contents. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — JitterBuffer half-range rejection before ordered prefix
+
+- Added CODE regression proving an ambiguous `2^63 + 1` sequence inserted before an ordered prefix is rejected without mutating FIFO contents.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming jitter_rejects_half_range -- --nocapture` — 2 tests PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

@@ -700,6 +700,22 @@ mod tests {
     }
 
     #[test]
+    fn jitter_rejects_half_range_before_ordered_prefix_without_mutation() {
+        let mut j = JitterBuffer::new(3);
+        j.push(1, b"first").unwrap();
+        j.push(2, b"second").unwrap();
+
+        assert_eq!(
+            j.push((1_u64 << 63) + 1, b"ambiguous"),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (1, b"first".to_vec()));
+        assert_eq!(j.pop().unwrap(), (2, b"second".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
     fn jitter_rejects_non_transitive_serial_window() {
         let mut j = JitterBuffer::new(3);
         j.push(0, b"first").unwrap();
