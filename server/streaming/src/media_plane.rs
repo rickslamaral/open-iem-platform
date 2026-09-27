@@ -1180,6 +1180,33 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn remove_session_resets_queue_state_without_rewriting_aggregate_drops() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        let frame = make_frame(0.1, 0.2, 0.0, 0.0);
+
+        for _ in 0..=MEDIA_QUEUE_CAPACITY {
+            mp.push_frame_output(&frame, 1, None).await;
+        }
+        assert_eq!(mp.total_dropped(), 1);
+
+        assert!(mp.remove_session("alice").await);
+        assert_eq!(mp.total_dropped(), 1);
+        mp.register_session("alice", 0).await.unwrap();
+
+        mp.push_frame_output(&make_frame(0.3, 0.4, 0.0, 0.0), 2, None)
+            .await;
+        let recovered = mp
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap();
+        assert_eq!(recovered.len(), 1);
+        assert_eq!(recovered[0].samples, (0.3, 0.4));
+        assert_eq!(recovered[0].metadata.sequence, 0);
+        assert_eq!(mp.total_dropped(), 1);
+    }
+
+    #[tokio::test]
     async fn remove_session_works() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();

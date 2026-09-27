@@ -1,3 +1,7 @@
+## 2026-09-27 — MediaPlane removal and re-registration state boundary
+
+- [x] Added CODE regression proving session removal discards queued frames and per-session sequence/drop state, while aggregate drop history remains monotonic and a re-registered session starts clean. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — MediaPlane validation precedence at capacity
 
 - [x] Added CODE regression proving invalid mix indexes are rejected before session-capacity evaluation, preserving all 64 existing sessions.

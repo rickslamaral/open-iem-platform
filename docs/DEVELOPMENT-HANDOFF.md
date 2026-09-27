@@ -1,3 +1,7 @@
+## 2026-09-27 — MediaPlane removal and re-registration state boundary
+
+- Added regression proving removal followed by re-registration creates clean queue/sequence/drop state without rewriting aggregate `MediaPlane` drop history. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-27 — MediaPlane validation precedence at capacity
 
 - Added `invalid_mix_index_precedes_capacity_rejection_without_mutation`: full capacity does not mask invalid mix selection; registry remains unchanged.
