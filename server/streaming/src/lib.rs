@@ -56,6 +56,8 @@ const MAX_CANDIDATE_BYTES: usize = 2048;
 const MAX_USER_ID_BYTES: usize = 128;
 /// Maximum persisted mix identifier length.
 const MAX_MIX_ID_BYTES: usize = 128;
+/// Maximum number of concurrent WebRTC peer sessions in `SessionRegistry`.
+pub const MAX_PEER_SESSIONS: usize = 64;
 
 #[derive(Debug, Error)]
 pub enum StreamingError {
@@ -65,6 +67,8 @@ pub enum StreamingError {
     SessionNotFound(String),
     #[error("ICE candidate is invalid")]
     InvalidIceCandidate,
+    #[error("session registry is at capacity (64 sessions)")]
+    TooManySessions,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -227,6 +231,10 @@ impl SessionRegistry {
         // Serialize offers. This prevents returning an answer for a peer that a
         // concurrent offer would immediately replace.
         let mut sessions = self.sessions.lock().await;
+        // Replacement offers for an existing user_id do not consume new capacity.
+        if !sessions.contains_key(user_id) && sessions.len() >= MAX_PEER_SESSIONS {
+            return Err(StreamingError::TooManySessions);
+        }
         let mut peer = PeerSession {
             user_id: user_id.to_owned(),
             mix_id,
@@ -5689,5 +5697,67 @@ FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00\r\n"
             destination: "127.0.0.1:2000".parse().unwrap(),
             contents: contents.to_vec().into(),
         }
+    }
+
+    #[tokio::test]
+    async fn session_registry_rejects_new_session_at_capacity() {
+        let registry = SessionRegistry::new();
+        for i in 0..64 {
+            let user_id = format!("u{i}");
+            registry
+                .negotiate_offer(&user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        let result = registry
+            .negotiate_offer("overflow_user", VALID_OFFER, None)
+            .await;
+        assert!(
+            matches!(result, Err(StreamingError::TooManySessions)),
+            "expected TooManySessions at capacity; got {result:?}"
+        );
+        assert_eq!(registry.len().await, 64, "count must be stable");
+    }
+
+    #[tokio::test]
+    async fn session_registry_allows_replacement_at_capacity() {
+        let registry = SessionRegistry::new();
+        for i in 0..64 {
+            let user_id = format!("u{i}");
+            registry
+                .negotiate_offer(&user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        let result = registry.negotiate_offer("u0", VALID_OFFER, None).await;
+        assert!(
+            result.is_ok(),
+            "replacement offer at capacity must succeed; got {result:?}"
+        );
+        assert_eq!(
+            registry.len().await,
+            64,
+            "count must be stable after replacement"
+        );
+    }
+
+    #[tokio::test]
+    async fn session_registry_last_slot_below_capacity_accepts_new_user() {
+        let registry = SessionRegistry::new();
+        for i in 0..63 {
+            let user_id = format!("u{i}");
+            registry
+                .negotiate_offer(&user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        let result = registry
+            .negotiate_offer("last_user", VALID_OFFER, None)
+            .await;
+        assert!(
+            result.is_ok(),
+            "one slot below capacity must accept new user; got {result:?}"
+        );
+        assert_eq!(registry.len().await, 64);
     }
 }
