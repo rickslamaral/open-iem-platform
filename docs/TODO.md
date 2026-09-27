@@ -1,3 +1,7 @@
+
+## 2026-09-27 — Opus ingress queue overflow local accounting
+
+- `OpusReceiver::enqueue` agora mantém contador local bounded para overflow da fila de ingress; `dropped_packets()` inclui esse contador com saturação. Métrica agregada já contava o descarte. Regressão cobre saturação do contador. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
 ## 2026-09-27 — latched output failure ingress isolation
 
 - `[x]` `OpusReceiver::playout` descarta ingress após falha latched de saída antes de alimentar jitter; regressão `playout_discards_ingress_after_latched_output_failure` cobre drops, mute e erro persistente. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

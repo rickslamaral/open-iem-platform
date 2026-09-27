@@ -276,6 +276,7 @@ pub struct OpusReceiver {
     pcm: Vec<f32>,
     dropped_packets: u64,
     invalid_ingress_dropped_packets: AtomicU64,
+    ingress_queue_dropped_packets: AtomicU64,
     /// Count of PLC-concealed frames since last good decode.
     plc_consecutive: u32,
     /// Total PLC frames generated (cumulative, never resets).
@@ -310,6 +311,7 @@ impl OpusReceiver {
             pcm: vec![0.0; MAX_DECODED_SAMPLES * 2],
             dropped_packets: 0,
             invalid_ingress_dropped_packets: AtomicU64::new(0),
+            ingress_queue_dropped_packets: AtomicU64::new(0),
             plc_consecutive: 0,
             plc_frames_total: 0,
             generation: Arc::new(AtomicU64::new(0)),
@@ -408,6 +410,11 @@ impl OpusReceiver {
             .try_send((generation, sequence, payload, packet.len()))
             .map_err(|e| match e {
                 TrySendError::Full(_) => {
+                    let _ = self.ingress_queue_dropped_packets.fetch_update(
+                        Ordering::Relaxed,
+                        Ordering::Relaxed,
+                        |value| Some(value.saturating_add(1)),
+                    );
                     if let Some(ref m) = self.metrics {
                         m.record_dropped();
                     }
@@ -638,6 +645,7 @@ impl OpusReceiver {
     pub fn dropped_packets(&self) -> u64 {
         self.dropped_packets
             .saturating_add(self.invalid_ingress_dropped_packets.load(Ordering::Relaxed))
+            .saturating_add(self.ingress_queue_dropped_packets.load(Ordering::Relaxed))
     }
 
     /// Current fail-safe lifecycle state.
@@ -1802,6 +1810,16 @@ mod tests {
         }
         assert_eq!(r.enqueue(33, &pkt), Err(ReceiverError::QueueFull));
         assert_eq!(metrics.snapshot().packets_dropped, 1);
+        assert_eq!(r.dropped_packets(), 1);
+    }
+
+    #[test]
+    fn ingress_queue_drop_counter_saturates() {
+        let r = OpusReceiver::new().unwrap();
+        r.ingress_queue_dropped_packets
+            .store(u64::MAX, Ordering::Relaxed);
+
+        assert_eq!(r.dropped_packets(), u64::MAX);
     }
 
     #[test]

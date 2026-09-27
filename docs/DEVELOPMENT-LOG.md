@@ -5746,3 +5746,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-09-27 — DriftEstimator stale baseline boundary
 
 - Adicionada regressão CODE confirmando que replay remoto stale não substitui baseline aceito; atualização válida posterior calcula drift sem incorporar o valor local do replay. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — Opus ingress queue overflow local accounting
+
+- `OpusReceiver::enqueue` agora contabiliza overflow da fila de ingress em contador atômico local saturante; `dropped_packets()` não perde esse descarte enquanto `ReceiverMetrics` preserva telemetria agregada. Regressão cobre o limite `u64::MAX`. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
