@@ -582,6 +582,19 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn invalid_mix_precedes_invalid_user_without_mutation() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        let before = mp.sessions().await;
+
+        assert_eq!(
+            mp.register_session("bad user", MAX_MIXES).await,
+            Err(MediaPlaneError::InvalidMixIndex)
+        );
+        assert_eq!(mp.sessions().await, before);
+    }
+
+    #[tokio::test]
     async fn duplicate_session_precedes_capacity_rejection_without_mutation() {
         let mp = MediaPlane::new();
         for index in 0..MAX_MEDIA_SESSIONS {

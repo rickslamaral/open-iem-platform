@@ -1,3 +1,7 @@
+## 2026-09-27 — MediaPlane validation precedence
+
+- Added `invalid_mix_precedes_invalid_user_without_mutation`, proving mix validation remains first and registry state stays unchanged. Focused test PASS. Evidence `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — MediaPlane oversized identity precedence
 
 - Added `oversized_user_id_precedes_capacity_rejection_without_mutation`, proving byte-over-limit user IDs fail before capacity checks and preserve the full registry. Focused test PASS. Evidence `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.

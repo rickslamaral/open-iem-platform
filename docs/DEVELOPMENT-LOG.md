@@ -1,3 +1,7 @@
+## 2026-09-27 — MediaPlane validation precedence
+
+- Added regression for simultaneous invalid mix and user ID inputs. `InvalidMixIndex` remains deterministic and no session mutation occurs. Evidence `CODE` local; runtime and physical hardware remain unvalidated.
+
 ## 2026-09-27 — MediaPlane oversized identity precedence
 
 - Added regression for oversized media user IDs at a full registry. Validation returns `InvalidUserId` before `SessionCapacityReached` and does not mutate sessions. Focused streaming test PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

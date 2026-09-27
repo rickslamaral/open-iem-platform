@@ -1,3 +1,7 @@
+## 2026-09-27 — MediaPlane validation precedence
+
+- [x] Added CODE regression proving invalid mix indexes are rejected before invalid user IDs, with existing sessions preserved. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — MediaPlane oversized identity precedence
 
 - [x] Added CODE regression proving an oversized user ID is rejected before session-capacity evaluation, preserving all 64 existing sessions. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
