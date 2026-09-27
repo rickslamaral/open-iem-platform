@@ -5599,3 +5599,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-09-27 — MediaPlane capacity precedence
 
 - Added regression for duplicate registration at full capacity. Existing session identity wins over capacity error, with no state mutation. Evidence: CODE local.
+
+## 2026-09-27 — MediaPlane removal drain boundary
+
+- Added CODE regression proving session removal discards queued frames and subsequent drain fails closed with `NoSession`; repeated removal is non-mutating. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

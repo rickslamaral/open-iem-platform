@@ -660,6 +660,22 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn remove_session_discards_queued_frames_and_makes_drain_fail_closed() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        mp.push_frame_output(&make_frame(0.1, 0.2, 0.0, 0.0), 7, None)
+            .await;
+
+        assert!(mp.remove_session("alice").await);
+        assert_eq!(
+            mp.drain_session_frames_with_budget("alice", 1).await,
+            Err(MediaSessionError::NoSession)
+        );
+        assert!(!mp.remove_session("alice").await);
+        assert!(mp.sessions().await.is_empty());
+    }
+
+    #[tokio::test]
     async fn drain_missing_session_returns_error_for_any_budget() {
         let mp = MediaPlane::new();
         assert_eq!(
