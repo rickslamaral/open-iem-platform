@@ -4,8 +4,8 @@
 
 ## 2026-09-27 — MediaPlane fan-out verification status
 
-- Current `develop` HEAD: `a0446e2`; `cargo fmt`, `cargo clippy --all-targets -- -D warnings` e 458 testes `streaming` PASS localmente.
-- CI real do HEAD: 16 check runs e 3 jobs de package lifecycle executados com sucesso. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+- Current `develop` HEAD: `c3d8cc9`; `cargo fmt`, `cargo clippy --all-targets -- -D warnings` e 459 testes `streaming` PASS localmente.
+- CI real do HEAD está em execução; não declarar verde até todos os jobs terminarem com evidência real. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-27 — MediaPlane validation precedence
 
@@ -28,8 +28,8 @@
 
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
-- HEAD atual: `a0446e2` (`develop`). CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.
-- Gates locais atuais: fmt, clippy e 458 testes `streaming` PASS.
+- HEAD atual: `c3d8cc9` (`develop`). CI real do HEAD está em execução; não declarar verde até todos os jobs terminarem com evidência real.
+- Gates locais atuais: fmt, clippy e 459 testes `streaming` PASS.
 - PR #340 permanece aberta, sem merge automático por política deste ciclo.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
@@ -221,8 +221,8 @@
 
 ## Estado atual do lote — 2026-09-26
 
-- PR #340 está aberta e sem merge; HEAD atual de código: `73535fa` (`develop`).
-- CI real do HEAD `73535fa` concluído com sucesso: workflow CI teve 16 check runs executados; Software Package Lifecycle Gates teve 3 jobs executados. Não confundir PR aberta com merge autorizado.
+- PR #340 está aberta e sem merge; HEAD atual de código: `c3d8cc9` (`develop`).
+- CI real do HEAD `c3d8cc9` está em execução; não declarar verde até todos os jobs terminarem com evidência real. Não confundir PR aberta com merge autorizado.
 - CODE/CI/SIMULATED concluído até Phase 577; isso não constitui validação física, runtime real, LAN real ou hardware.
 
 ### Matriz compacta de evidência — 16 pendências

@@ -4,8 +4,8 @@
 
 ## 2026-09-27 — MediaPlane fan-out verification status
 
-- Current `develop` HEAD: `a0446e2`; streaming crate local suite: 458 tests PASS.
-- PR #340 CI for the current HEAD is green with 16 executed CI checks and 3 executed package-lifecycle jobs.
+- Current `develop` HEAD: `c3d8cc9`; streaming crate local suite: 459 tests PASS.
+- PR #340 CI for the current HEAD is in progress; do not declare green until all jobs finish with real evidence.
 - Evidence remains `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-27 — MediaPlane validation precedence
@@ -29,8 +29,8 @@
 
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
-- HEAD atual: `a0446e2` (`develop`). Gates locais do streaming: 458 testes PASS, fmt e clippy PASS.
-- CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.
+- HEAD atual: `c3d8cc9` (`develop`). Gates locais do streaming: 459 testes PASS, fmt e clippy PASS.
+- CI real do HEAD está em execução; não declarar verde até todos os jobs terminarem com evidência real.
 - PR #340 permanece aberta e sem merge por política do ciclo.
 - Próximo trabalho: selecionar próxima fronteira CODE concreta de streaming/mídia; não reivindicar runtime físico.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -702,8 +702,8 @@
 ## Estado atual do lote — 2026-09-26
 
 - PR #340 está aberta e sem merge.
-- HEAD atual de código: `73535fa` (`develop`).
-- CI real do HEAD concluído com sucesso: CI teve 16 check runs executados; Software Package Lifecycle Gates teve 3 jobs executados.
+- HEAD atual de código: `c3d8cc9` (`develop`).
+- CI real do HEAD está em execução; não declarar verde até todos os jobs terminarem com evidência real.
 - CODE/CI/SIMULATED concluído até Phase 577. Isso não constitui validação física, runtime real, LAN real ou hardware.
 
 ### Matriz compacta de evidência das 16 pendências
