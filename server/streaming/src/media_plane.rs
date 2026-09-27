@@ -474,7 +474,10 @@ mod tests {
             .unwrap()
             .is_empty());
         assert_eq!(mp.total_dropped(), 0);
-        assert_eq!(mp.sessions.lock().await.get("alice").unwrap().drop_count(), 0);
+        assert_eq!(
+            mp.sessions.lock().await.get("alice").unwrap().drop_count(),
+            0
+        );
 
         let valid = make_frame(0.1, 0.2, 0.3, 0.4);
         mp.push_frame_output(&valid, 8, None).await;
