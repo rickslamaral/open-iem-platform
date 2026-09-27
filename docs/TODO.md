@@ -1,3 +1,7 @@
+## 2026-09-27 — TransportAdapter generic send budget boundary
+
+- Added CODE regression `send_caps_budget_without_consuming_beyond_limit`, proving generic `TransportAdapter::send` caps one pass at `TRANSPORT_SEND_BUDGET` and emits only bounded FIFO prefix. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — TransportAdapter send budget boundary
 
 - Added CODE regression proving oversized adapter budget sends only `TRANSPORT_SEND_BUDGET` datagrams and preserves pending FIFO suffix. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.

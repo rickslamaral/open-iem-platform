@@ -230,6 +230,48 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn send_caps_budget_without_consuming_beyond_limit() {
+        let sink = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let destination = sink.local_addr().unwrap();
+        let next_calls = Arc::new(AtomicUsize::new(0));
+        let outputs = (0..=TRANSPORT_SEND_BUDGET).map({
+            let next_calls = Arc::clone(&next_calls);
+            move |index| {
+                next_calls.fetch_add(1, Ordering::Relaxed);
+                str0m::net::Transmit {
+                    proto: Protocol::Udp,
+                    source: destination,
+                    destination,
+                    contents: format!("generic-budget-{index}").into_bytes().into(),
+                }
+            }
+        });
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+
+        let report = adapter.send(outputs, usize::MAX).await.unwrap();
+
+        assert_eq!(report.attempted, TRANSPORT_SEND_BUDGET);
+        assert_eq!(report.sent, TRANSPORT_SEND_BUDGET);
+        assert_eq!(next_calls.load(Ordering::Relaxed), TRANSPORT_SEND_BUDGET);
+        assert_eq!(
+            report.bytes,
+            (0..TRANSPORT_SEND_BUDGET)
+                .map(|index| format!("generic-budget-{index}").len())
+                .sum()
+        );
+        let mut payload = [0; 64];
+        for index in 0..TRANSPORT_SEND_BUDGET {
+            let (length, _) = sink.recv_from(&mut payload).await.unwrap();
+            assert_eq!(
+                &payload[..length],
+                format!("generic-budget-{index}").as_bytes()
+            );
+        }
+    }
+
+    #[tokio::test]
     async fn send_from_registry_caps_budget_and_preserves_pending_suffix() {
         let registry = crate::SessionRegistry::new();
         let sink = UdpSocket::bind("127.0.0.1:0").await.unwrap();
