@@ -1,3 +1,7 @@
+## 2026-09-27 — software WebRTC/Opus evidence scope reconciliation
+
+- Reconciliado escopo: teste two-peer Sans-IO fornece evidência de protocolo WebRTC/DTLS-SRTP/Opus em software. Mantido item de E2E runtime pendente; evidência `SOFTWARE/SIMULATED`, sem claim de hardware, rede física ou PipeWire/ALSA.
+
 ## 2026-09-27 — software two-peer WebRTC/DTLS-SRTP/Opus evidence
 
 - Teste de integração Sans-IO conecta dois `str0m::Rtc` com ICE host virtual, negocia uma sessão de áudio SendRecv, roteia datagrams UDP em memória, aguarda estado conectado ICE/DTLS/SRTP e entrega payload Opus ao `OpusReceiver`.

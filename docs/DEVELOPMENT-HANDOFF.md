@@ -1,3 +1,7 @@
+## 2026-09-27 — software WebRTC/Opus evidence scope reconciliation
+
+- Escopo reconciliado: `two_peer_webrtc_opus_media_round_trip` cobre protocolo WebRTC/DTLS-SRTP/Opus em transporte UDP Sans-IO. Evidência `SOFTWARE/SIMULATED`; item de E2E runtime continua pendente conforme política que não fecha item por simulação.
+
 ## 2026-09-27 — software two-peer WebRTC/DTLS-SRTP/Opus evidence
 
 - Adicionado teste `two_peer_webrtc_opus_media_round_trip` com dois peers `str0m`, ICE host virtual, handshake DTLS/SRTP, transporte UDP Sans-IO e decode Opus não silencioso no receiver.
