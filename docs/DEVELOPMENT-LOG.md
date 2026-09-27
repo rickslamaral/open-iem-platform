@@ -1,3 +1,8 @@
+## 2026-09-27 — MediaPlane fan-out verification status
+
+- Reconciliado estado do `develop` em `a0446e2`; `cargo fmt`, clippy e 458 testes `streaming` passaram localmente.
+- CI real mantém 16 check runs e 3 package-lifecycle jobs executados com sucesso; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — MediaPlane validation precedence
 
 - Added regression for simultaneous invalid mix and user ID inputs. `InvalidMixIndex` remains deterministic and no session mutation occurs. Evidence `CODE` local; runtime and physical hardware remain unvalidated.
@@ -12,7 +17,7 @@
 
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
-- Atualizado o estado documental para `develop` em `73535fa`.
+- Atualizado o estado documental para `develop` em `a0446e2`.
 - CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.
 - PR #340 permanece aberta e sem merge por política do ciclo.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -24,7 +29,7 @@
 
 ## 2026-09-27 — development HEAD/CI status reconciliation
 
-- Atualizado o handoff e TODO para refletir `develop` em `73535fa`.
+- Atualizado o handoff e TODO para refletir `develop` em `a0446e2`.
 - CI real para `73535fa` passou: workflow CI teve 16 check runs executados; Software Package Lifecycle Gates teve 3 jobs executados.
 - Evidência física permanece: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 

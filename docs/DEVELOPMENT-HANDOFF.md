@@ -1,3 +1,9 @@
+## 2026-09-27 — MediaPlane fan-out verification status
+
+- Current `develop` HEAD: `a0446e2`; streaming crate local suite: 458 tests PASS.
+- PR #340 CI for the current HEAD is green with 16 executed CI checks and 3 executed package-lifecycle jobs.
+- Evidence remains `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — MediaPlane validation precedence
 
 - Added `invalid_mix_precedes_invalid_user_without_mutation`, proving mix validation remains first and registry state stays unchanged. Focused test PASS. Evidence `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -19,7 +25,8 @@
 
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
-- HEAD atual: `73535fa` (`develop`). CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.
+- HEAD atual: `a0446e2` (`develop`). Gates locais do streaming: 458 testes PASS, fmt e clippy PASS.
+- CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.
 - PR #340 permanece aberta e sem merge por política do ciclo.
 - Próximo trabalho: selecionar próxima fronteira CODE concreta de streaming/mídia; não reivindicar runtime físico.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.

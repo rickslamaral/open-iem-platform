@@ -1,3 +1,8 @@
+## 2026-09-27 — MediaPlane fan-out verification status
+
+- Current `develop` HEAD: `a0446e2`; `cargo fmt`, `cargo clippy --all-targets -- -D warnings` e 458 testes `streaming` PASS localmente.
+- CI real do HEAD: 16 check runs e 3 jobs de package lifecycle executados com sucesso. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — MediaPlane validation precedence
 
 - [x] Added CODE regression proving invalid mix indexes are rejected before invalid user IDs, with existing sessions preserved. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
@@ -19,7 +24,8 @@
 
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
-- HEAD atual: `73535fa` (`develop`). CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.
+- HEAD atual: `a0446e2` (`develop`). CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.
+- Gates locais atuais: fmt, clippy e 458 testes `streaming` PASS.
 - PR #340 permanece aberta, sem merge automático por política deste ciclo.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
