@@ -5642,3 +5642,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `MediaSession::drop_count` and `MediaPlane::dropped_total` now saturate instead of wrapping on counter overflow.
 - Added deterministic regressions for both counters at `u64::MAX`.
 - Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane non-finite frame rejection
+
+- Added deterministic regression for `MediaPlane::push_frame_output` with `NaN`: invalid output is dropped before queue delivery and does not mutate per-session drop count, aggregate drops or next valid frame sequence.
+- Gates: Rust format check, 462 streaming unit tests and streaming clippy PASS. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

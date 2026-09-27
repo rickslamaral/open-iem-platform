@@ -461,6 +461,32 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn non_finite_frame_output_is_dropped_without_mutating_sessions() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        let frame = make_frame(f32::NAN, 0.0, 0.25, -0.25);
+
+        mp.push_frame_output(&frame, 7, None).await;
+
+        assert!(mp
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap()
+            .is_empty());
+        assert_eq!(mp.total_dropped(), 0);
+        assert_eq!(mp.sessions.lock().await.get("alice").unwrap().drop_count(), 0);
+
+        let valid = make_frame(0.1, 0.2, 0.3, 0.4);
+        mp.push_frame_output(&valid, 8, None).await;
+        let frames = mp
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap();
+        assert_eq!(frames.len(), 1);
+        assert_eq!(frames[0].metadata.sequence, 0);
+    }
+
+    #[tokio::test]
     async fn register_session_ok() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();

@@ -1554,3 +1554,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## 2026-09-27 — MediaPlane saturating drop counters
 
 - [x] Harden per-session and aggregate MediaPlane drop counters against `u64` overflow; regression tests confirm saturation at `u64::MAX`. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane non-finite frame rejection
+
+- [x] Added CODE regression proving a `NaN` sample in `FrameOutput` is rejected before session queue, per-session drop counter, aggregate drop counter or frame sequence mutation.
+- Evidence: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo test --manifest-path server/Cargo.toml -p streaming --lib` (462 tests), and streaming clippy PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
