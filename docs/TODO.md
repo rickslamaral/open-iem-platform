@@ -1478,3 +1478,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - Added CODE regression proving an ambiguous `2^63 + 1` sequence inserted before an ordered prefix is rejected without mutating FIFO contents.
 - Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming jitter_rejects_half_range -- --nocapture` — 2 tests PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — JitterBuffer maximum unambiguous insertion distance
+
+- [x] Added CODE regression proving the maximum unambiguous serial distance (`2^63 - 1`) is accepted when inserting before an ordered prefix, preserving FIFO order.
+- Evidence: focused streaming test PASS locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

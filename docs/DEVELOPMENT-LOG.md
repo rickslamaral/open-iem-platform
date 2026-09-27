@@ -5551,3 +5551,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `OpusReceiver::playout` agora conta falhas de escrita do frame PLC em `dropped_packets` e `ReceiverMetrics::packets_dropped`, alinhando essa branch ao caminho de saída de frames decodificados.
 - Adicionada regressão determinística com sink de áudio falho: estado `Muted`, `output_failures == 1` e pacote descartado contado uma vez.
 - Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+## 2026-09-27 — JitterBuffer maximum unambiguous insertion distance
+
+- Added CODE regression proving sequence `0` can precede sequence `2^63 - 1` at the maximum valid unambiguous serial distance boundary, preserving FIFO order.
+- Focused gate: `cargo fmt --manifest-path server/Cargo.toml --all -- --check` and `cargo test --manifest-path server/Cargo.toml -p streaming jitter_accepts_maximum_unambiguous_distance_before_ordered_prefix -- --nocapture` — PASS.
+- Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
