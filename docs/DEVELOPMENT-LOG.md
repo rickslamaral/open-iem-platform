@@ -5754,3 +5754,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-09-27 — Opus ingress queue overflow local accounting
 
 - `OpusReceiver::enqueue` agora contabiliza overflow da fila de ingress em contador atômico local saturante; `dropped_packets()` não perde esse descarte enquanto `ReceiverMetrics` preserva telemetria agregada. Regressão cobre o limite `u64::MAX`. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — SessionRegistry encode failure accounting
+
+- Added bounded `DriveReport::encode_errors` accounting for `MediaWriter::encode` failures; regression proves invalid queued frame is counted and later valid frame still encodes.
+- Focused CODE evidence only; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 hardware remain unvalidated.

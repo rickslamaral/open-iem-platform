@@ -1648,3 +1648,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## 2026-09-27 — DriftEstimator local baseline preservation
 
 - [x] Cobrir regressão do contador local sem substituir baseline aceito no `DriftEstimator`; próxima amostra válida permanece calculada contra baseline anterior. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — SessionRegistry encode failure accounting
+
+- Added bounded `DriveReport::encode_errors` accounting for `MediaWriter::encode` failures; regression proves invalid queued frame is counted and later valid frame still encodes.
+- Focused CODE evidence only; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 hardware remain unvalidated.

@@ -84,6 +84,7 @@ pub struct DriveReport {
     pub packets_encoded: usize,
     pub transport_outputs_dropped: usize,
     pub poll_errors: usize,
+    pub encode_errors: usize,
 }
 
 struct PeerSession {
@@ -333,6 +334,7 @@ impl SessionRegistry {
         let mut budget_exhausted = false;
         let mut transport_outputs_dropped = 0;
         let mut poll_errors = 0;
+        let mut encode_errors: usize = 0;
 
         for peer in sessions.values_mut() {
             while outputs_polled < output_budget {
@@ -370,6 +372,7 @@ impl SessionRegistry {
                             break;
                         }
                         let Ok(packet) = peer.writer.encode(&frame) else {
+                            encode_errors = encode_errors.saturating_add(1);
                             continue;
                         };
                         let Some(media_writer) = peer.rtc.writer(mid) else {
@@ -439,6 +442,7 @@ impl SessionRegistry {
             packets_encoded,
             transport_outputs_dropped,
             poll_errors,
+            encode_errors,
         }
     }
 
@@ -672,6 +676,64 @@ mod tests {
             Err(StreamingError::InvalidIceCandidate)
         ));
         assert_eq!(registry.list().await[0].mix_id.as_deref(), Some("original"));
+    }
+
+    #[tokio::test]
+    async fn drive_once_counts_encode_error_and_continues_to_valid_frame() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+
+        let mid = {
+            let mut sessions = registry.sessions.lock().await;
+            let peer = sessions.get_mut("alice").unwrap();
+            peer.rtc.media(str0m::media::Mid::from("0")).unwrap().mid()
+        };
+        registry
+            .sessions
+            .lock()
+            .await
+            .get_mut("alice")
+            .unwrap()
+            .media_mid = Some(mid);
+
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                1,
+                None,
+            )
+            .await;
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.25, -0.125), (0.0, 0.0)],
+                },
+                2,
+                None,
+            )
+            .await;
+
+        {
+            let sessions = plane.sessions.lock().await;
+            let session = sessions.get("alice").unwrap();
+            let mut frames = session.drain_frames();
+            frames[0].metadata.sample_rate = 44_100;
+            for frame in frames {
+                session.tx.try_send(frame).unwrap();
+            }
+        }
+
+        let report = registry.drive_once(&bridge, &plane, 2, 2).await;
+        assert_eq!(report.encode_errors, 1);
+        assert_eq!(report.packets_encoded, 1);
     }
 
     #[tokio::test]
