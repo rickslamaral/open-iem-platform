@@ -1,9 +1,9 @@
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
-- HEAD atual: `feff5b9` (`develop`), com documentação reconciliada e branch sincronizada com `origin/develop`.
-- CI real do HEAD `feff5b9` está em execução; jobs anteriores do HEAD `c3d8cc9` concluíram com sucesso. Não declarar CI atual verde até todos os jobs terminarem com evidência real.
-- Gates locais: `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (459 testes streaming; suíte total PASS). `cargo fmt --all -- --check` não é comando válido na raiz, pois não há `Cargo.toml`; gate equivalente deve apontar para `server/Cargo.toml`.
-- PR #340 permanece aberta, sem merge automático por política deste ciclo.
+- HEAD atual: `b1f6e39` (`develop`), com correção de contadores saturantes e branch sincronizada com `origin/develop`.
+- CI real do HEAD `b1f6e39` concluiu com sucesso: workflows `CI` e `Software Package Lifecycle Gates`, jobs executados de verdade.
+- Gates locais: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, clippy e `cargo test --manifest-path server/Cargo.toml` PASS (461 testes streaming; suíte total PASS).
+- PR #340 permanece aberta; política deste ciclo proíbe merge e abertura de novas PRs.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-27 — MediaPlane exact removal isolation
