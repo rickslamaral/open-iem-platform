@@ -785,6 +785,69 @@ mod tests {
         assert_eq!(report.packets_encoded, 1);
     }
 
+    #[tokio::test]
+    async fn drive_once_encode_error_with_single_output_budget_preserves_following_frame() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+
+        let mid = {
+            let mut sessions = registry.sessions.lock().await;
+            let peer = sessions.get_mut("alice").unwrap();
+            peer.rtc.media(str0m::media::Mid::from("0")).unwrap().mid()
+        };
+        registry
+            .sessions
+            .lock()
+            .await
+            .get_mut("alice")
+            .unwrap()
+            .media_mid = Some(mid);
+
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                1,
+                None,
+            )
+            .await;
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.25, -0.125), (0.0, 0.0)],
+                },
+                2,
+                None,
+            )
+            .await;
+
+        {
+            let sessions = plane.sessions.lock().await;
+            let session = sessions.get("alice").unwrap();
+            let mut frames = session.drain_frames();
+            frames[0].metadata.sample_rate = 44_100;
+            for frame in frames {
+                session.tx.try_send(frame).unwrap();
+            }
+        }
+
+        let first = registry.drive_once(&bridge, &plane, 2, 1).await;
+        assert_eq!(first.encode_errors, 1);
+        assert_eq!(first.packets_encoded, 0);
+        assert_eq!(first.encode_discards(), 1);
+
+        let second = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(second.encode_errors, 0);
+        assert_eq!(second.packets_encoded, 1);
+    }
+
     #[test]
     fn drive_report_default_starts_media_write_errors_at_zero() {
         assert_eq!(DriveReport::default().media_write_errors, 0);

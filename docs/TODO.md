@@ -1665,3 +1665,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - Added bounded `DriveReport::encode_errors` accounting for `MediaWriter::encode` failures; regression proves invalid queued frame is counted and later valid frame still encodes.
 - Focused CODE evidence only; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 hardware remain unvalidated.
+
+## 2026-09-27 — SessionRegistry output-budget regression
+
+- [x] Cover encode failure with `output_budget == 1`, preserving following valid media frame for the next bounded drive. CODE/local evidence only; runtime and hardware validation remain pending.

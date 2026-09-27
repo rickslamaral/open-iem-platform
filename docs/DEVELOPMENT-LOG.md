@@ -5781,3 +5781,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-09-27 — MediaWriter frame-duration rejection preserves RTP clock
 
 - Added CODE regression proving invalid `frame_duration_ms` is rejected before state mutation; subsequent valid packets retain RTP timestamps `0` and `960`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — Single-output-budget encode-failure boundary
+
+- Added CODE regression proving `SessionRegistry::drive_once` counts an invalid encoded frame without consuming the single successful-output budget; the following valid frame remains queued and encodes on the next bounded drive.
+- Focused test PASS locally. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
