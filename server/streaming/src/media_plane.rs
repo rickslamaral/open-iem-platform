@@ -19,6 +19,8 @@ use std::{
         Arc,
     },
 };
+#[cfg(test)]
+use tokio::sync::Barrier;
 use tokio::sync::Mutex;
 
 /// Bounded queue capacity for [`MediaSession`] frame queues (ADR-007).
@@ -462,6 +464,41 @@ mod tests {
             .await
             .iter()
             .any(|(user_id, _)| user_id == "user-63"));
+    }
+
+    #[tokio::test]
+    async fn concurrent_register_session_calls_respect_session_capacity() {
+        let mp = MediaPlane::new();
+        let barrier = Arc::new(Barrier::new(MAX_MEDIA_SESSIONS + 1));
+        let mut tasks = Vec::with_capacity(MAX_MEDIA_SESSIONS + 1);
+
+        for index in 0..=MAX_MEDIA_SESSIONS {
+            let plane = mp.clone();
+            let barrier = barrier.clone();
+            let user_id = format!("concurrent-user-{index}");
+            tasks.push(tokio::spawn(async move {
+                barrier.wait().await;
+                plane.register_session(&user_id, 0).await
+            }));
+        }
+
+        let mut results = Vec::with_capacity(tasks.len());
+        for task in tasks {
+            results.push(task.await.unwrap());
+        }
+
+        assert_eq!(
+            results.iter().filter(|result| result.is_ok()).count(),
+            MAX_MEDIA_SESSIONS
+        );
+        assert_eq!(
+            results
+                .iter()
+                .filter(|result| matches!(result, Err(MediaPlaneError::SessionCapacityReached)))
+                .count(),
+            1
+        );
+        assert_eq!(mp.sessions().await.len(), MAX_MEDIA_SESSIONS);
     }
 
     #[tokio::test]
