@@ -53,6 +53,19 @@ impl TransportAdapter {
     /// A failed send stops the pass and returns the successful prefix. This
     /// generic method consumes only the bounded prefix; use
     /// `send_from_registry` when failed registry datagrams must be requeued.
+    fn validate_transmit(transmit: &str0m::net::Transmit) -> io::Result<()> {
+        if transmit.proto != str0m::net::Protocol::Udp {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "TransportAdapter only supports UDP datagrams",
+            ));
+        }
+        Ok(())
+    }
+
+    /// # Errors
+    ///
+    /// Returns an input error for unsupported protocols or an OS send error.
     pub async fn send(
         &self,
         outputs: impl IntoIterator<Item = str0m::net::Transmit>,
@@ -65,6 +78,7 @@ impl TransportAdapter {
             let Some(transmit) = outputs.next() else {
                 break;
             };
+            Self::validate_transmit(&transmit)?;
             report.attempted += 1;
             let expected = transmit.contents.len();
             let sent = self
@@ -103,6 +117,17 @@ impl TransportAdapter {
             let Some(transmit) = pending.next() else {
                 break;
             };
+            if let Err(error) = Self::validate_transmit(&transmit) {
+                let mut unsent = vec![transmit];
+                unsent.extend(pending);
+                let dropped = registry.requeue_transport_outputs(unsent).await;
+                if dropped > 0 {
+                    return Err(io::Error::other(format!(
+                        "transport retry queue full; dropped {dropped} datagrams"
+                    )));
+                }
+                return Err(error);
+            }
             report.attempted += 1;
             let expected = transmit.contents.len();
             let result = self
@@ -161,6 +186,57 @@ mod tests {
             .await
             .unwrap();
         assert_ne!(adapter.local_addr().unwrap().port(), 0);
+    }
+
+    #[tokio::test]
+    async fn send_rejects_non_udp_transmit_before_socket_io() {
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+        let report = adapter
+            .send(
+                [str0m::net::Transmit {
+                    proto: Protocol::Tcp,
+                    source: adapter.local_addr().unwrap(),
+                    destination: adapter.local_addr().unwrap(),
+                    contents: b"must-not-send".to_vec().into(),
+                }],
+                1,
+            )
+            .await
+            .unwrap_err();
+
+        assert_eq!(report.kind(), io::ErrorKind::InvalidInput);
+    }
+
+    #[tokio::test]
+    async fn send_from_registry_rejects_non_udp_transmit_without_consuming_suffix() {
+        let registry = crate::SessionRegistry::new();
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+        registry.transport_outputs.lock().await.extend([
+            str0m::net::Transmit {
+                proto: Protocol::Tcp,
+                source: adapter.local_addr().unwrap(),
+                destination: adapter.local_addr().unwrap(),
+                contents: b"unsupported".to_vec().into(),
+            },
+            str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: adapter.local_addr().unwrap(),
+                destination: adapter.local_addr().unwrap(),
+                contents: b"suffix".to_vec().into(),
+            },
+        ]);
+
+        let error = adapter.send_from_registry(&registry, 2).await.unwrap_err();
+
+        assert_eq!(error.kind(), io::ErrorKind::InvalidInput);
+        let queued = registry.drain_transport_outputs(2).await;
+        assert_eq!(queued.len(), 2);
+        assert_eq!(&queued[0].contents[..], b"unsupported");
+        assert_eq!(&queued[1].contents[..], b"suffix");
     }
 
     #[tokio::test]

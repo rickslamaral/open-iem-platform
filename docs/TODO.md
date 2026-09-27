@@ -1,3 +1,7 @@
+## 2026-09-27 — TransportAdapter protocol validation
+
+- `TransportAdapter::send` e `send_from_registry` agora rejeitam `Protocol::Tcp` e `Protocol::SslTcp` antes de I/O; adapter suporta somente `Protocol::Udp`. Regressões cobrem rejeição e preservação da fila. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
 ## 2026-09-27 — TransportAdapter generic send budget boundary
 
 - Added CODE regression `send_caps_budget_without_consuming_beyond_limit`, proving generic `TransportAdapter::send` caps one pass at `TRANSPORT_SEND_BUDGET` and emits only bounded FIFO prefix. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
