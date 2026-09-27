@@ -1,3 +1,8 @@
+## 2026-09-27 — MediaPlane validation precedence at capacity
+
+- Added `invalid_user_id_precedes_capacity_rejection_without_mutation`: full capacity does not mask malformed user identity; registry remains unchanged.
+- Focused test PASS. Evidence `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
 - HEAD atual: `73535fa` (`develop`). CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.

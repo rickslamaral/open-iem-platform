@@ -1,3 +1,8 @@
+## 2026-09-27 — MediaPlane validation precedence at capacity
+
+- [x] Added CODE regression proving invalid user IDs are rejected before session-capacity evaluation, preserving all 64 existing sessions.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming invalid_user_id_precedes_capacity_rejection_without_mutation -- --nocapture` — PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
 - HEAD atual: `73535fa` (`develop`). CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.

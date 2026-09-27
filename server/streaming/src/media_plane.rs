@@ -502,6 +502,25 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn invalid_user_id_precedes_capacity_rejection_without_mutation() {
+        let mp = MediaPlane::new();
+        for index in 0..MAX_MEDIA_SESSIONS {
+            mp.register_session(&format!("user-{index}"), 0)
+                .await
+                .unwrap();
+        }
+
+        let before = mp.sessions().await;
+        assert_eq!(before.len(), MAX_MEDIA_SESSIONS);
+
+        assert_eq!(
+            mp.register_session(" \t", 1).await,
+            Err(MediaPlaneError::InvalidUserId)
+        );
+        assert_eq!(mp.sessions().await, before);
+    }
+
+    #[tokio::test]
     async fn duplicate_session_precedes_capacity_rejection_without_mutation() {
         let mp = MediaPlane::new();
         for index in 0..MAX_MEDIA_SESSIONS {
