@@ -2380,6 +2380,36 @@ FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00\r\n"
     }
 
     #[tokio::test]
+    async fn replacement_offer_waits_for_existing_session_lock() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original".into()))
+            .await
+            .expect("initial offer must succeed");
+
+        let guard = registry.sessions.lock().await;
+        let replacement = {
+            let registry = registry.clone();
+            tokio::spawn(async move {
+                registry
+                    .negotiate_offer("alice", VALID_OFFER, Some("replacement".into()))
+                    .await
+                    .expect("replacement offer must succeed")
+            })
+        };
+
+        tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+        assert!(!replacement.is_finished());
+        drop(guard);
+
+        replacement.await.expect("replacement task must not panic");
+        assert_eq!(
+            registry.list().await[0].mix_id.as_deref(),
+            Some("replacement")
+        );
+    }
+
+    #[tokio::test]
     async fn remove_by_device_id_removes_all_matching_sessions() {
         let registry = SessionRegistry::new();
         for (user_id, device_id) in [

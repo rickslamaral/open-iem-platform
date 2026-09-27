@@ -748,6 +748,9 @@ Não fechar item por simulação, CI, cross-build, loopback ou ausência de erro
 
 # TODO
 
+## Estado atual — 2026-09-27 (negotiate replacement lock regression)
+- [x] Regressão `replacement_offer_waits_for_existing_session_lock` confirma que uma oferta de replacement aguarda o lock de sessões existente e só altera metadados após esse lock ser liberado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual — 2026-09-27 (SessionRegistry replacement isolation)
 - [x] `SessionRegistry::drive_once` mantém o lock de sessões durante elegibilidade, drain e encode; replacement concorrente não pode drenar frame para peer antigo e descartá-lo silenciosamente. `cargo test --manifest-path server/Cargo.toml` (529 testes streaming) PASS local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 

@@ -1,3 +1,7 @@
+## 2026-09-27 — negotiate replacement lock regression
+
+- Adicionada regressão `replacement_offer_waits_for_existing_session_lock`: uma oferta de replacement não conclui enquanto o lock de sessões está retido, confirmando serialização do replacement com operações que usam esse lock. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-27 — SessionRegistry replacement isolation
 
 - `SessionRegistry::drive_once` mantém o `sessions` lock durante snapshot de peers elegíveis, drain do `MediaPlane` e encode/write. Isso impede replacement concorrente de trocar o peer entre drain e entrega, evitando descarte silencioso de frames.
