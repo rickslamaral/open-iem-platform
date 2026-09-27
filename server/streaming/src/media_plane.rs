@@ -75,6 +75,8 @@ pub enum MediaSessionError {
     QueueFull,
     /// No session exists for the requested user.
     NoSession,
+    /// The stereo sample pair contains NaN or an infinite value.
+    NonFiniteSamples,
 }
 
 /// Errors returned by [`MediaPlane`] operations.
@@ -138,12 +140,21 @@ impl MediaSession {
     ///
     /// Returns [`MediaSessionError::QueueFull`] when the internal bounded queue
     /// is at capacity. The frame is discarded and `drop_count` is incremented.
+    /// Returns [`MediaSessionError::NonFiniteSamples`] when either sample is
+    /// NaN or infinite; invalid input does not mutate session state.
     pub fn push_frame(
         &mut self,
         samples: (f32, f32),
         engine_revision: u64,
         capture_timestamp: Option<SampleTimestamp>,
     ) -> Result<(), MediaSessionError> {
+        if samples.0.is_nan()
+            || samples.0.is_infinite()
+            || samples.1.is_nan()
+            || samples.1.is_infinite()
+        {
+            return Err(MediaSessionError::NonFiniteSamples);
+        }
         let metadata = StreamMetadata {
             stream_id: format!("mix_{}", self.mix_index),
             mix_index: self.mix_index,
@@ -348,6 +359,37 @@ mod tests {
     #[tokio::test]
     async fn media_plane_new_has_no_sessions() {
         assert!(MediaPlane::new().sessions().await.is_empty());
+    }
+
+    #[test]
+    fn media_session_rejects_non_finite_samples_without_mutation() {
+        let mut session = MediaSession::new("alice".to_owned(), 0);
+
+        assert_eq!(
+            session.push_frame((f32::NAN, 0.0), 7, None),
+            Err(MediaSessionError::NonFiniteSamples)
+        );
+        assert_eq!(
+            session.push_frame((0.0, f32::INFINITY), 7, None),
+            Err(MediaSessionError::NonFiniteSamples)
+        );
+        assert_eq!(
+            session.push_frame((f32::NEG_INFINITY, 0.0), 7, None),
+            Err(MediaSessionError::NonFiniteSamples)
+        );
+        assert_eq!(
+            session.push_frame((0.0, f32::NEG_INFINITY), 7, None),
+            Err(MediaSessionError::NonFiniteSamples)
+        );
+        assert_eq!(session.frame_sequence, 0);
+        assert_eq!(session.drop_count(), 0);
+        assert!(session.drain_frames().is_empty());
+
+        session.push_frame((0.25, -0.5), 7, None).unwrap();
+        let frames = session.drain_frames();
+        assert_eq!(frames.len(), 1);
+        assert_eq!(frames[0].metadata.sequence, 0);
+        assert_eq!(frames[0].samples, (0.25, -0.5));
     }
 
     #[test]

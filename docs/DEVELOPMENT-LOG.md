@@ -5694,3 +5694,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Added CODE regression proving reconnect discards queued pre-reconnect media and accepts a new sequence without PLC or stale playout.
 - Gate: full Rust workspace, 497 streaming tests, frontend typecheck/tests/build and streaming clippy PASS locally. Evidence remains CODE/CI/SIMULATED; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+
+### 2026-09-27 — MediaSession direct input finiteness boundary
+
+`MediaSession::push_frame` agora rejeita pares estéreo não finitos antes de construir metadata, incrementar `frame_sequence` ou enfileirar. Regressão confirma ausência de mutação e recuperação com frame finito posterior. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

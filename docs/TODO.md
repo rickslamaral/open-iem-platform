@@ -1605,3 +1605,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## 2026-09-27 — Reconnect resynchronization boundary
 
 - [x] Cobrir aceitação de nova sequência após reconnect sem PLC, descartando mídia enfileirada da geração anterior. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+
+## 2026-09-27 — MediaSession direct input finiteness boundary
+
+- [x] `MediaSession::push_frame` rejeita NaN e infinito antes de mutar sequência, fila ou contador de descarte; frame finito posterior mantém sequência inicial.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
