@@ -1492,3 +1492,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Added CODE regression proving the maximum unambiguous serial distance (`2^63 - 1`) is accepted when inserting before an ordered prefix, preserving FIFO order.
 - Evidence: focused streaming test PASS locally; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — JitterBuffer serial-order helper boundary
+
+- [x] Added regression covering maximum unambiguous serial distance in both directions, including wrap-adjacent values.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming sequence_order_accepts_maximum_unambiguous_distance_in_both_directions -- --nocapture` — PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

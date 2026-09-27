@@ -161,7 +161,7 @@ impl JitterBuffer {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum SequenceOrder {
     Before,
     Equal,
@@ -660,6 +660,16 @@ mod tests {
         assert_eq!(j.len(), 1);
         assert_eq!(j.pop().unwrap(), (1, b"accepted".to_vec()));
         assert!(j.is_empty());
+    }
+
+    #[test]
+    fn sequence_order_accepts_maximum_unambiguous_distance_in_both_directions() {
+        let maximum = (1_u64 << 63) - 1;
+
+        assert_eq!(sequence_order(0, maximum), SequenceOrder::Before);
+        assert_eq!(sequence_order(maximum, 0), SequenceOrder::After);
+        assert_eq!(sequence_order(1_u64 << 63, u64::MAX), SequenceOrder::Before);
+        assert_eq!(sequence_order(u64::MAX, 1_u64 << 63), SequenceOrder::After);
     }
 
     #[test]

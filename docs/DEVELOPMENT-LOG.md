@@ -5574,3 +5574,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Added CODE regression proving the maximum valid serial distance remains ordered when the serial-number comparison crosses the wrap boundary at the maximum unambiguous distance.
 - Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — JitterBuffer serial-order helper boundary
+
+- [x] Added regression covering maximum unambiguous serial distance in both directions, including wrap-adjacent values.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming sequence_order_accepts_maximum_unambiguous_distance_in_both_directions -- --nocapture` — PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
