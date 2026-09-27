@@ -1,3 +1,8 @@
+
+## 2026-09-27 — MediaBridge non-finite frame ordering
+
+- Added CODE regression proving `MediaBridge::drain_to` consumes a non-finite frame without delivering it, then preserves delivery of the following valid frame and its revision/sequence metadata.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming --lib drain_rejects_non_finite_frame_before_following_valid_frame` — PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
 ## 2026-09-27 — MediaBridge partial fan-out overflow
 
 - Added CODE regression `drain_partial_destination_overflow_preserves_available_fanout`. Full destination queue drops one delivery; available destination receives frame; bridge queue consumes source once. Focused test and streaming clippy PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.

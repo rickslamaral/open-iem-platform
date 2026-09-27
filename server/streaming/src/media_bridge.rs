@@ -333,6 +333,34 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drain_rejects_non_finite_frame_before_following_valid_frame() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+
+        bridge
+            .try_send(
+                FrameOutput {
+                    mixes: [(f32::NAN, 0.5), (0.75, 1.0)],
+                },
+                7,
+                None,
+            )
+            .unwrap();
+        bridge.try_send(frame(), 8, None).unwrap();
+
+        assert_eq!(bridge.drain_to(&plane).await, 2);
+        let frames = plane
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(frames.len(), 1);
+        assert_eq!(frames[0].metadata.revision, 8);
+        assert_eq!(frames[0].metadata.sequence, 0);
+        assert_eq!(plane.total_dropped(), 0);
+    }
+
+    #[tokio::test]
     async fn drain_consumes_frames_when_destination_queue_is_full() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();
