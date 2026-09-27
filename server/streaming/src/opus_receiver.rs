@@ -657,6 +657,17 @@ mod tests {
     }
 
     #[test]
+    fn bounded_pcm_output_accepts_exact_maximum_frame_size() {
+        let mut output = BoundedPcmOutput::new(1);
+        let samples = vec![0.25; MAX_OUTPUT_SAMPLES];
+
+        output.write(&samples, 2).unwrap();
+
+        assert_eq!(output.len(), 1);
+        assert_eq!(output.pop_frame(), Some(samples));
+    }
+
+    #[test]
     fn bounded_pcm_output_rejects_oversized_frame_without_mutation() {
         let mut output = BoundedPcmOutput::new(1);
         let samples = vec![0.0; MAX_OUTPUT_SAMPLES + 2];

@@ -1,3 +1,8 @@
+## 2026-09-27 — Bounded PCM exact maximum frame boundary
+
+- Added regression for exact `MAX_OUTPUT_SAMPLES` acceptance in `BoundedPcmOutput`; frame is queued and preserved without overflow rejection.
+- Evidence CODE local; PipeWire/ALSA, runtime WebRTC/DTLS-SRTP, real network and Raspberry Pi 5 remain unvalidated.
+
 
 ## 2026-09-27 — Bounded PCM receiver output boundary
 

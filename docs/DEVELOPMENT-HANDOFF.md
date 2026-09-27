@@ -1,3 +1,8 @@
+## 2026-09-27 — Bounded PCM exact maximum frame boundary
+
+- Added CODE regression `bounded_pcm_output_accepts_exact_maximum_frame_size`, proving `BoundedPcmOutput` accepts and preserves exactly `MAX_OUTPUT_SAMPLES` stereo samples at the upper valid boundary.
+- Focused verification pending; PipeWire/ALSA, runtime WebRTC/DTLS-SRTP, real network and Raspberry Pi 5 remain unvalidated.
+
 
 ## 2026-09-27 — Bounded PCM finite-sample boundary
 
