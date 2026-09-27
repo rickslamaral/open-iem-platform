@@ -173,3 +173,109 @@ mod tests {
         }
     }
 }
+
+// --- additional boundary regressions ---
+#[cfg(test)]
+mod clock_boundary_tests {
+    use super::*;
+
+    #[test]
+    fn drift_estimator_clamps_zero_nominal_rate_to_one() {
+        let e = DriftEstimator::new(0, 0.5);
+        let nr = e.nominal_rate();
+        assert!(
+            (nr - 1.0).abs() < f64::EPSILON,
+            "nominal_rate 0 must be clamped to 1.0; got {nr}"
+        );
+    }
+
+    #[test]
+    fn drift_estimator_clamps_negative_smoothing_to_zero() {
+        // smoothing clamped to 0.0: low-pass never moves, so estimate stays 0.0
+        let mut e = DriftEstimator::new(NOMINAL_SAMPLE_RATE, -1.0);
+        let _ = e.update(0, 0);
+        let _ = e.update(48_000, 48_500);
+        let ppm = e.estimate_ppm();
+        assert!(
+            ppm.abs() < f64::EPSILON,
+            "smoothing 0.0 must freeze estimate at 0.0; got {ppm}"
+        );
+    }
+
+    #[test]
+    fn drift_estimator_clamps_over_one_smoothing_to_one() {
+        // smoothing clamped to 1.0: estimate equals last bounded raw value exactly
+        let mut e = DriftEstimator::new(NOMINAL_SAMPLE_RATE, 5.0);
+        let _ = e.update(0, 0);
+        let result = e.update(48_000, 48_500);
+        // raw = (48500/48000 - 1) * 1e6 ≈ 10416.7 -> clamped to 500.0
+        assert!(
+            (result - MAX_CORRECTION_PPM).abs() < 1.0,
+            "smoothing 1.0 must produce bounded raw value; got {result}"
+        );
+    }
+
+    #[test]
+    fn drift_estimator_first_update_always_returns_zero() {
+        let mut e = DriftEstimator::new(NOMINAL_SAMPLE_RATE, 0.5);
+        // First call only sets baseline, never produces a drift measurement.
+        let first = e.update(0, 0);
+        let second = e.update(48_000, 48_048);
+        assert!(
+            first.abs() < f64::EPSILON,
+            "first update must return 0.0; got {first}"
+        );
+        assert!(
+            (second - e.estimate_ppm()).abs() < f64::EPSILON,
+            "second update must return current estimate; got {second}"
+        );
+    }
+
+    #[test]
+    fn drift_estimator_stale_remote_returns_current_estimate() {
+        let mut e = DriftEstimator::new(NOMINAL_SAMPLE_RATE, 0.5);
+        let _ = e.update(0, 0);
+        let after_first = e.update(48_000, 48_024);
+        // Replay same remote counter -> stale branch, estimate unchanged.
+        let after_stale = e.update(48_000, 48_100);
+        assert!(
+            (after_stale - after_first).abs() < f64::EPSILON,
+            "stale remote must not change estimate; first={after_first} stale={after_stale}"
+        );
+    }
+
+    #[test]
+    fn drift_estimator_local_regression_returns_current_estimate() {
+        let mut e = DriftEstimator::new(NOMINAL_SAMPLE_RATE, 0.5);
+        let _ = e.update(0, 0);
+        let after_first = e.update(48_000, 48_024);
+        // local goes backwards -> ignored, estimate unchanged.
+        let after_regression = e.update(96_000, 47_000);
+        assert!(
+            (after_regression - after_first).abs() < f64::EPSILON,
+            "local regression must not change estimate; first={after_first} regression={after_regression}"
+        );
+    }
+
+    #[test]
+    fn adaptive_resampler_zero_target_clamped_to_one() {
+        let r = AdaptiveResampler::new(0);
+        assert_eq!(r.target_frames(), 1, "target_frames 0 must be clamped to 1");
+    }
+
+    #[test]
+    fn adaptive_resampler_initial_ratio_is_one() {
+        let r = AdaptiveResampler::new(256);
+        let ratio = r.ratio();
+        assert!(
+            (ratio - 1.0).abs() < f64::EPSILON,
+            "initial ratio must be 1.0 before any update; got {ratio}"
+        );
+    }
+
+    #[test]
+    fn sample_timestamp_sequence_field_preserved() {
+        let ts = SampleTimestamp::new(42, 0);
+        assert_eq!(ts.sequence, 42);
+    }
+}
