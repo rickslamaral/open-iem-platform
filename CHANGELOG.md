@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Documentation
+- Reconciliado status dos documentos canônicos no HEAD `b885aae`: `develop` sincronizado com `origin/develop`, PR #340 aberta sem merge e CI exato 16/16 SUCCESS.
+- Registrada cobertura CODE/CI/SIMULATED de capacidade bounded do `SessionRegistry`, replacement serializado, contagem de falhas de mídia e justiça de budget. Runtime/hardware e release `v0.3.1` permanecem pendentes.
+
 ### Fixed
 - `SessionRegistry::drive_once` no longer consumes encoded-media budget while draining bridge frames; bounded `output_budget` now counts RTC outputs and encoded packets only.
 
@@ -90,7 +94,7 @@
 
 ### Documentation
 - ADR-015 classifica Windows WASAPI/ASIO como fora do MVP Linux-first; T16 passa a `NOT_APPLICABLE`, com backend nativo no backlog futuro. Windows + Docker Desktop continua smoke/control-plane, sem claim de áudio nativo.
-- T00 reconciliou status do lote em 2026-09-26: PR #340 aberta sem merge, HEAD atual `e671de7e6e1a774c9d9f0bc92c783f4df81422b2` (`develop`), CI real concluído com sucesso nos runs `36280925865` e `36280925855` (16/16 jobs), e CODE/CI/SIMULATED até Phase 577.
+- T00 reconciliou status do lote em 2026-09-26. Registro histórico preservado; estado corrente está no handoff e aponta para `develop` HEAD `b885aaefe156d452261034be620b88fc17d4a391`, com CI exato 16/16 SUCCESS e PR #340 aberta sem merge.
 - Adicionada matriz compacta de 16 itens: 15 pendências de runtime, hardware e release permanecem `PENDING/BLOCKED`; T16 foi classificado `NOT_APPLICABLE` por ADR-015. As pendências incluem WebRTC E2E real, DTLS-SRTP real, PipeWire físico, ALSA/USB, LAN real, Raspberry Pi 5, hot-plug, XRUN físico, latência p99, soak real, reboot, térmica/energia, release, lifecycle host e assinatura. Nenhuma validação física foi alegada.
 
 ### Added

@@ -1,14 +1,23 @@
+## Estado atual — 2026-09-27 — documentação reconciliada no HEAD `b885aae`
+
+- `develop` e `origin/develop` estão sincronizados em `b885aaefe156d452261034be620b88fc17d4a391`; working tree limpa.
+- `streaming`: 531 testes PASS no último gate local completo; cobertura CODE inclui MediaWriter/MediaPlane/MediaBridge/OpusReceiver/clock/transport/pairing/SessionRegistry.
+- CI exato da PR #340: **16/16 SUCCESS**; PR aberta contra `main`, sem merge.
+- Commits recentes fecharam cobertura de capacidade bounded do `SessionRegistry`, serialização de replacement, falhas de `MediaWriter::write`/`encode` e justiça de `output_budget`.
+- Evidência: `CODE/CI/SIMULATED`. WebRTC/DTLS-SRTP runtime real, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`.
+- Próxima ação válida: validação física/release autorizada ou novo backlog explicitamente definido; não fabricar tarefa CODE.
+
 ## 2026-09-27 — failed bound replacement preserves capacity state
 
 - Added CODE regression `phase553_failed_bound_replacement_at_capacity_preserves_session`: malformed SDP during replacement at full capacity leaves all existing session metadata unchanged. Focused test and streaming clippy PASS. Evidence `CODE` local; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
-## 2026-09-27 — local verification and dependency audit
+## Histórico — 2026-09-27 — local verification and dependency audit
 
 - Gates locais do HEAD `89ffd33`: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, `npm run typecheck` em ambos frontends, `npm run test -- --run` (musician: 61; engineer: 50) e `npm run build` em ambos — PASS.
 - O comando legado `npm test -- --watchAll=false` falha nos dois frontends com `Unknown option --watchAll`; Vitest passou com `npm run test -- --run`.
 - `cargo audit` em `server/`: BLOQUEIO baseline `RUSTSEC-2023-0071` em `rsa 0.9.10`, sem upgrade fix disponível; não introduzido neste ciclo. `scan_patterns.py` indisponível neste host; tentativa de scanner inline falhou por quoting e não produziu resultado.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
-## 2026-09-27 — develop HEAD/CI status reconciliation
+## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
 
 - HEAD atual: `f3deabd` (`develop`), sincronizado com `origin/develop`.
 - CI real do HEAD exato `f3deabd` concluiu com sucesso: workflows `CI` e `Software Package Lifecycle Gates`, 16 jobs executados de verdade.
@@ -80,7 +89,7 @@
 
 - Added CODE regression proving a full destination queue drops only that session while same source frame still reaches available subscribed session; bridge consumes frame exactly once. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
 
-## 2026-09-27 — develop HEAD/CI status reconciliation
+## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
 
 - HEAD atual: `0e5fa48` (`develop`), sincronizado com `origin/develop`.
 - CI real do HEAD exato `0e5fa48` concluiu com sucesso: workflows `CI` e `Software Package Lifecycle Gates`, 16 jobs executados de verdade.
@@ -116,9 +125,9 @@
 - [x] Added CODE regression proving invalid user IDs are rejected before session-capacity evaluation, preserving all 64 existing sessions.
 - Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming invalid_user_id_precedes_capacity_rejection_without_mutation -- --nocapture` — PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
 
-## 2026-09-27 — develop HEAD/CI status reconciliation
+## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
 
-- HEAD atual: `c3d8cc9` (`develop`). CI real do HEAD está em execução; não declarar verde até todos os jobs terminarem com evidência real.
+- Registro histórico: HEAD era `c3d8cc9` (`develop`); não representa estado corrente. Estado corrente: `b885aaefe156d452261034be620b88fc17d4a391`, CI exact HEAD 16/16 SUCCESS.
 - Gates locais atuais: fmt, clippy e 459 testes `streaming` PASS.
 - PR #340 permanece aberta, sem merge automático por política deste ciclo.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -309,9 +318,9 @@
 - [x] Coberta `SessionRegistry::drive_once` com `output_budget == 0`, preservando saídas de transporte pendentes sem consumo.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
 
-## Estado atual do lote — 2026-09-27
+## Estado histórico do lote — 2026-09-27
 
-- PR #340 está aberta e sem merge; HEAD atual de código: `0f2fe44` (`develop`).
+- PR #340 estava aberta e sem merge; HEAD histórico de código: `0f2fe44` (`develop`).
 - CI real do commit-base `3c7f0ef` concluiu com sucesso; jobs executados de verdade. Não confundir PR aberta com merge autorizado.
 - CODE/CI/SIMULATED concluído até Phase 577; isso não constitui validação física, runtime real, LAN real ou hardware.
 

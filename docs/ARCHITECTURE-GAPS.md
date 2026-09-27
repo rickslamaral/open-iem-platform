@@ -1,6 +1,8 @@
 # Architecture GAP Registry
 
 **Baseline:** 2026-09-16
+**Last reconciled:** 2026-09-27 — `develop` HEAD `b885aaefe156d452261034be620b88fc17d4a391`
+**Evidence:** CODE/CI/SIMULATED; PR #340 open, no merge; physical/runtime validation pending
 **Source:** architecture audit, reconciliation, final P0 ADR closure
 **Rule:** code/tests/CI/hardware evidence remain separate. Documentation or compilation alone never resolves runtime/hardware GAPs.
 
@@ -16,7 +18,7 @@
 
 | ID | Priority | Category | Description | Evidence | Status | Decision/ADR | Dependencies | Implementation Action | Validation | Blocking |
 |---|---|---|---|---|---|---|---|---|---|---|
-| GAP-001 | P0 | Media | Production media path MixEngine→network lacks runtime evidence | Bounded `MediaBridge`, Opus encoder, negotiated `str0m::media::Writer` handoff and explicit bounded `TransportAdapter` socket owner route frames to Sans-IO/session socket boundary; runtime not exercised | VALIDATION REQUIRED | ADR-001/002/003 | 006,007 | Exercise adapter against real WebRTC media drive and frame bridge | Real media integration/L1–L4 | Yes |
+| GAP-001 | P0 | Media | Production media path MixEngine→network lacks runtime evidence | Bounded `MediaBridge`, Opus encoder, negotiated `str0m::media::Writer` handoff and explicit bounded `TransportAdapter` socket owner route frames to Sans-IO/session socket boundary; deterministic two-peer Sans-IO WebRTC/Opus coverage exists, production runtime not exercised | VALIDATION REQUIRED | ADR-001/002/003 | 006,007 | Exercise adapter against real WebRTC media drive and frame bridge | Real media integration/L1–L4 | Yes |
 | GAP-002 | P0 | Transport | Media transport was previously undecided | ADR-001 now selects WebRTC media/RTP/Opus/DTLS-SRTP | RESOLVED | ADR-001 | 002,003,006 | Implement selected transport | Interop + impairment tests | No |
 | GAP-003 | P0 | Receiver | Native/headless decoder core exists; OS output and runtime reconnect evidence remain absent | Bounded ingress/jitter, Opus decode, fail-safe mute and reconnect core with CODE/SIMULATED coverage; no OS output/runtime evidence | VALIDATION REQUIRED | ADR-003 | 001,002,008 | Validate OS output and runtime reconnect | Decode/output/reconnect | Yes |
 | GAP-004 | P0 | Clock | Timestamp, drift estimator and adaptive resampling code exists; physical clock evidence absent | Sample timestamps, bounded drift estimator and adaptive resampling with CODE/SIMULATED coverage; no long-run hardware evidence | VALIDATION REQUIRED | ADR-004 | 001,003,005 | Validate long-run drift and physical clock behavior | Long-run drift/physical test | Yes |
@@ -26,7 +28,7 @@
 | GAP-008 | P0 | Auth | Bootstrap password safety and first-access enforcement | `Db::bootstrap_soundtech` is idempotent, Argon2id-only and M001-backed; startup now fails closed when `OPENIEM_SOUNDTECH_PASSWORD` is absent/empty; first-access password-change enforcement is implemented by login response and bootstrap-only password endpoint | RESOLVED (CODE) | ADR-009 | migrations, auth | Preserve first-access enforcement and add runtime evidence | Fresh/repeat/changed password/RBAC | Yes for runtime/support claims |
 | GAP-009 | P0 | Hardware | No Pi 5 physical validation | Cross-build only | HARDWARE VALIDATION REQUIRED | ADR-008/010 | 005,007,010 | Execute L3 Pi+USB gate | Physical report | Yes |
 | GAP-010 | P0 | Backend | No real PipeWire/ALSA runtime evidence | Simulated/JACK feature path | VALIDATION REQUIRED | ADR-008/010 | 007,009 | Implement/execute PipeWire path | L1–L3 runtime | Yes |
-| GAP-011 | P0 | CI | Current software CI evidence exists | Run 34836841835 recorded 11/11 green | RESOLVED | ADR-010 | none | Keep per-HEAD evidence | Jobs/steps green | No |
+| GAP-011 | P0 | CI | Current software CI evidence exists | Exact `develop` HEAD `b885aae` recorded with 16/16 jobs green; preserve per-HEAD evidence | RESOLVED | ADR-010 | none | Keep per-HEAD evidence | Jobs/steps green | No |
 | GAP-012 | P1 | Topology | AUX/pairs/playback/hybrid absent | Logical Channel only | DEFERRED | Future ADR | 010, backend | MVP Channel Mode; design later modes | Topology profiles | No |
 | GAP-013 | P1 | Devices | Capability/hot-plug runtime integration absent | Bounded `DeviceManager` capability validation, discovery snapshot and recovery state machine exist; API snapshot is Engineer/Admin protected; backend hot-plug/runtime integration remains absent | VALIDATION REQUIRED | ADR-008 | 012,010 | Integrate backend discovery and validate device loss/reconnect | Device loss/recovery | Yes for full topology |
 | GAP-014 | P1 | Lab | Audio Lab L1/L2 SIMULATED | 8 testes em audio_lab_l1_l2.rs, CI job audio-lab | RESOLVED (CI/SIMULATED) | ADR-010 | 001,012 | L3/L4 hardware pendentes | CI virtual audio | No (CI level done) |
@@ -43,10 +45,10 @@
 | GAP-025 | P1 | Release | v0.3.1 release/assets not validated | Tag exists; release absent | BLOCKED | ADR-005/008/010 | 005,009,010 | Clear validation/release gates | Artifact/install/release evidence | Yes |
 | GAP-026 | P1 | DSP | Runtime safe-default validation absent | DSP/unit tests simulated | VALIDATION REQUIRED | ADR-007/008 | 005,007 | Validate chain/overload/limiter | Runtime loopback | Yes for support |
 | GAP-027 | P2 | State | Scenes/state-store durable path and lifecycle | SceneStore SQLite + REST implemented | PARTIAL (CODE+CI) | Future ADR | 015,016 | File-backed path via `SCENE_STORE_PATH`; `GET/PUT /api/v1/scenes/backup` provides atomic durable restore; runtime validation remains | Reopen persistence, recall/rollback tests | No |
-| GAP-028 | P2 | UI | EQ/full matrix/device/audio status incomplete | Current UI subset | DEFERRED | Future ADR | 001,003,016 | Phase 93 UI after contracts | Browser integration | No |
+| GAP-028 | P2 | UI | EQ/full matrix/device/audio status incomplete | Current UI subset implemented; browser/runtime integration and full matrix remain incomplete | DEFERRED | Future ADR | 001,003,016 | Extend UI only after contracts | Browser integration | No |
 | GAP-029 | P2 | Platform | Windows/native support out of MVP scope | WASAPI/ASIO absent | FUTURE BACKLOG | ADR-015 | backend | Reopen only with product decision, native CI and hardware evidence | Future target runtime | No MVP |
 | GAP-030 | P2 | Network testing | Fault injection suite implemented; physical network validation absent | `network-fault` crate integrated with recovery/observability; [PR #72](https://github.com/rickslamaral/open-iem-platform/pull/72); CODE+CI/SIMULATED | VALIDATION REQUIRED | ADR-010 | 001,005,017 | Validate profiles against real LAN and receiver runtime | Automated profiles plus physical loss/jitter/reconnect evidence | Yes for release |
-| GAP-031 | P2 | Docs | Phase reviews/guides incomplete | Canonical reviews now cover Phases 92–100; historical reviews Phase 16 and earlier remain partial; guides pending runtime validation | PARTIAL (CODE) | Future docs task | registry | Reconcile remaining claims | Docs validator | No |
+| GAP-031 | P2 | Docs | Phase reviews/guides incomplete | Historical phase reviews remain partial in places; current status is canonical in README, TODO and DEVELOPMENT-HANDOFF; guides still require runtime validation | PARTIAL (CODE) | Future docs task | registry | Reconcile remaining claims without rewriting historical evidence | Docs validator | No |
 | GAP-032 | P2 | Scale | 8 channels/2 mixes hardcoded | MVP constants | ACCEPTED RISK | Future ADR | topology | Keep explicit MVP boundary | MVP tests | No |
 | GAP-033 | P3 | Privacy | Telemetry policy absent | Local-first/no remote telemetry contract | DEFERRED | Future ADR | security | Decide before remote telemetry | Privacy review | No |
 

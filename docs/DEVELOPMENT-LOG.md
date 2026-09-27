@@ -12,14 +12,14 @@
 
 - Regressão ampliada para dois frames drenados com `MediaWriter::write` falhando: ambos incrementam `media_write_errors`, nenhum incrementa `packets_encoded`, e nenhuma tentativa de reenvio ocorre na chamada seguinte. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
 
-## 2026-09-27 — local verification and dependency audit
+## Histórico — 2026-09-27 — local verification and dependency audit
 
 - Gates locais do HEAD `89ffd33`: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, `npm run typecheck` em ambos frontends, `npm run test -- --run` (musician: 61; engineer: 50) e `npm run build` em ambos — PASS.
 - O comando legado `npm test -- --watchAll=false` falha nos dois frontends com `Unknown option --watchAll`; Vitest passou com `npm run test -- --run`.
 - `cargo audit` em `server/`: BLOQUEIO baseline `RUSTSEC-2023-0071` em `rsa 0.9.10`, sem upgrade fix disponível; não introduzido neste ciclo. `scan_patterns.py` indisponível neste host; tentativa de scanner inline falhou por quoting e não produziu resultado.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
-## 2026-09-27 — develop HEAD/CI status reconciliation
+## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
 
 - Reconciliado estado documental para `develop` em `f3deabd`, sincronizado com `origin/develop`.
 - CI real do HEAD exato `f3deabd` concluiu com sucesso nos workflows `CI` e `Software Package Lifecycle Gates`, com 16 jobs executados de verdade.
@@ -107,7 +107,7 @@
 
 - Added `drain_partial_destination_overflow_preserves_available_fanout`: a full session queue increments one drop, while available subscribed session receives same bridge frame with revision preserved; subsequent drain confirms no duplicate. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
 
-## 2026-09-27 — develop HEAD/CI status reconciliation
+## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
 
 - Reconciliado estado documental para `develop` em `0e5fa48`, sincronizado com `origin/develop`.
 - CI real do HEAD exato `0e5fa48` concluiu com sucesso nos workflows `CI` e `Software Package Lifecycle Gates`, com 16 jobs executados de verdade.
@@ -131,10 +131,10 @@
 
 - Added CODE regression proving invalid mix indexes are rejected before capacity evaluation without mutating the full registry.
 
-## 2026-09-27 — develop HEAD/CI status reconciliation
+## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
 
 - Atualizado o estado documental para `develop` em `c3d8cc9`.
-- CI real do HEAD está em execução; não declarar verde até todos os jobs terminarem com evidência real.
+- Registro histórico: CI do HEAD daquele lote estava em execução. Estado corrente está no handoff canônico: `b885aaefe156d452261034be620b88fc17d4a391`, exact HEAD CI 16/16 SUCCESS.
 - PR #340 permanece aberta e sem merge por política do ciclo.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
@@ -143,7 +143,7 @@
 - Expanded two-peer Sans-IO WebRTC/DTLS-SRTP/Opus regression to send and decode two frames, preserving ordered media count and non-silent output.
 - Verification: focused `opus_roundtrip` test PASS; evidence remains CODE/SOFTWARE/SIMULATED. Physical WebRTC/DTLS-SRTP, network, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
 
-## 2026-09-27 — development HEAD/CI status reconciliation
+## Histórico — 2026-09-27 — development HEAD/CI status reconciliation
 
 - Atualizado o handoff e TODO para refletir `develop` em `c3d8cc9`.
 - CI real para `73535fa` era histórico; o HEAD atual `c3d8cc9` está com CI em execução.
@@ -5821,6 +5821,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-09-27 — MediaWriter write-failure drain accounting
 
 - Added CODE regression `drive_once_accounts_media_write_failure_after_frame_drain`, forcing bounded writer exhaustion after frame drain. The test confirms one `media_write_errors`, zero encoded packets, and no resend on the next drive. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — documentação reconciliada no HEAD `b885aae`
+
+- Estado canônico atualizado: `develop`/`origin/develop` em `b885aaefe156d452261034be620b88fc17d4a391`, working tree limpa.
+- Último gate local completo registrado: 531 testes `streaming` PASS; CI exato da PR #340: 16/16 SUCCESS. PR permanece aberta, sem merge.
+- Documentação atualizada para separar histórico de estado atual. Cobertura recente inclui capacidade bounded do `SessionRegistry`, replacement serializado, contagem de falhas de escrita/encode e justiça de `output_budget`.
+- Evidência permanece `CODE/CI/SIMULATED`; nenhum claim físico/runtime foi adicionado. WebRTC/DTLS-SRTP, PipeWire/ALSA, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem pendentes.
 
 ## 2026-09-27 — SessionRegistry encode-failure fairness
 

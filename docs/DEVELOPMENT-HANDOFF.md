@@ -1,14 +1,14 @@
 ## 2026-09-27 — failed bound replacement preserves capacity state
 
 - Added CODE regression `phase553_failed_bound_replacement_at_capacity_preserves_session`: malformed SDP during replacement at full capacity leaves all existing session metadata unchanged. Focused test and streaming clippy PASS. Evidence `CODE` local; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
-## 2026-09-27 — local verification and dependency audit
+## Histórico — 2026-09-27 — local verification and dependency audit
 
 - Gates locais do HEAD `89ffd33`: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, `npm run typecheck` em ambos frontends, `npm run test -- --run` (musician: 61; engineer: 50) e `npm run build` em ambos — PASS.
 - O comando legado `npm test -- --watchAll=false` falha nos dois frontends com `Unknown option --watchAll`; Vitest passou com `npm run test -- --run`.
 - `cargo audit` em `server/`: BLOQUEIO baseline `RUSTSEC-2023-0071` em `rsa 0.9.10`, sem upgrade fix disponível; não introduzido neste ciclo. `scan_patterns.py` indisponível neste host; tentativa de scanner inline falhou por quoting e não produziu resultado.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
-## 2026-09-27 — develop HEAD/CI status reconciliation
+## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
 
 - HEAD atual: `f3deabd` (`develop`), sincronizado com `origin/develop`.
 - CI real do HEAD exato `f3deabd` concluiu com sucesso nos workflows `CI` e `Software Package Lifecycle Gates`, com 16 jobs executados de verdade.
@@ -70,7 +70,7 @@
 
 - Added CODE regression `drain_partial_destination_overflow_preserves_available_fanout`. Full destination queue drops one delivery; available destination receives frame; bridge queue consumes source once. Focused test and streaming clippy PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
 
-## 2026-09-27 — develop HEAD/CI status reconciliation
+## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
 
 - HEAD atual: `0e5fa48` (`develop`), sincronizado com `origin/develop`.
 - CI real do HEAD exato `0e5fa48` concluiu com sucesso nos workflows `CI` e `Software Package Lifecycle Gates`, com 16 jobs executados de verdade.
@@ -107,10 +107,10 @@
 - Added `invalid_user_id_precedes_capacity_rejection_without_mutation`: full capacity does not mask malformed user identity; registry remains unchanged.
 - Focused test PASS. Evidence `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
-## 2026-09-27 — develop HEAD/CI status reconciliation
+## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
 
 - HEAD atual: `c3d8cc9` (`develop`). Gates locais do streaming: 459 testes PASS, fmt e clippy PASS.
-- CI real do HEAD está em execução; não declarar verde até todos os jobs terminarem com evidência real.
+- Registro histórico: CI do HEAD daquele lote estava em execução. Estado corrente: `b885aaefe156d452261034be620b88fc17d4a391`, exact HEAD CI 16/16 SUCCESS.
 - PR #340 permanece aberta e sem merge por política do ciclo.
 - Próximo trabalho: selecionar próxima fronteira CODE concreta de streaming/mídia; não reivindicar runtime físico.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -779,11 +779,19 @@
 
 # Open IEM Platform — Development Handoff
 
-## Estado atual do lote — 2026-09-26
+## Estado atual canônico — 2026-09-27
 
-- PR #340 está aberta e sem merge.
-- HEAD atual de código: `c3d8cc9` (`develop`).
-- CI real do HEAD está em execução; não declarar verde até todos os jobs terminarem com evidência real.
+- Branch: `develop`; HEAD local/remoto: `b885aaefe156d452261034be620b88fc17d4a391`; working tree limpa.
+- PR #340: aberta contra `main`, sem merge conforme política ativa.
+- CI exato do HEAD: **16/16 jobs SUCCESS**, incluindo Rust, frontends, segurança, packages amd64/arm64, ARM64 userspace smoke, Audio Lab/ALSA simulados, skills e documentação.
+- Suíte local registrada: **531 testes `streaming` PASS**; workspace Rust, frontends e gates documentais PASS nos ciclos recentes.
+- CODE/CI/SIMULATED cobre media plane, receiver, pairing, bounded SessionRegistry, replacement serialization, failure accounting e output-budget fairness.
+- Nenhum resultado acima prova runtime WebRTC/DTLS-SRTP real, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, térmica/energia ou Raspberry Pi 5.
+- Release `v0.3.1` permanece bloqueada por gates de release, autorização explícita e validação física requerida.
+
+## Estado histórico do lote — 2026-09-26
+
+- HEAD histórico `c3d8cc9` e CI pendente permanecem registrados somente como histórico; não representam estado atual.
 - CODE/CI/SIMULATED concluído até Phase 577. Isso não constitui validação física, runtime real, LAN real ou hardware.
 
 ### Matriz compacta de evidência das 16 pendências
@@ -916,10 +924,10 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 |---|---|---|---|---|---|---|---|---|---|
 | P0-001 | P0 | RT boundary | Replace blocking JACK/audio callback path with bounded SPSC/ring boundary and separate control queue | RT safety precedes hardware/media | ADR-007 | No mutex/I/O/filesystem/unbounded allocation in callback; overflow policy documented | Rust unit/stress/lock scan | CODE + CI + L1 | Complete in HEAD; runtime/hardware pending |
 | P0-002 | P0 | Audio Lab | Create L1 Docker/PipeWire and L2 ALSA virtual harness | Reproducible audio validation | ADR-010 | Profiles run deterministically and emit metrics | CI lab tests | CI + HEADLESS/EMULATED | Complete in HEAD; target runtime/hardware pending |
-| P0-003 | P0 | Media Plane | Connect MixEngine frames to WebRTC media session and drive output | Current signaling has no media | ADR-001/002/007 | Real frames leave MixEngine; versioned stream metadata; bounded path | Integration/media tests | L1 first | Yes |
-| P0-004 | P0 | Receiver | Implemented receiver core: bounded ingress/jitter, Opus decode, fail-safe mute and reconnect (SIMULATED); OS output/hardware pending with output, jitter and reconnect | No receiver exists | ADR-002/003/004/006 | Decode, playout, mute-on-failure, pairing and reconnect | Receiver integration/fault tests | L1 then L3 | Yes |
-| P0-005 | P0 | Clock | Implement sample timestamps, sequence, drift estimator and adaptive resampling | 48 kHz is not sync | ADR-004 | Long-run bounded drift and no unbounded buffer | Simulation/soak tests | L1/L2 | Yes |
-| P0-006 | P0 | Security | Implement pairing, receiver identity, revocation and DTLS-SRTP session binding | Unknown receivers must be blocked | ADR-006 | Rogue/revoked receiver cannot receive/control audio | Negative/replay/revoke tests | L1 then runtime | Yes |
+| P0-003 | P0 | Media Plane | Connect MixEngine frames to WebRTC media session and drive output | Bounded media path and deterministic two-peer Sans-IO coverage exist | ADR-001/002/007 | Real frames leave MixEngine; versioned stream metadata; bounded path | Integration/media tests | CODE/CI/SIMULATED; runtime pending | Runtime validation required |
+| P0-004 | P0 | Receiver | Receiver core implemented: bounded ingress/jitter, Opus decode, fail-safe mute, metrics and reconnect | OS output/runtime target evidence absent | ADR-002/003/004/006 | Decode, playout, mute-on-failure, pairing and reconnect | Receiver integration/fault tests | CODE/CI/SIMULATED | Runtime/hardware validation required |
+| P0-005 | P0 | Clock | Sample timestamps, sequence, drift estimator and adaptive resampling implemented | Physical clock/long-run evidence absent | ADR-004 | Long-run bounded drift and no unbounded buffer | Simulation/soak tests | CODE/CI/SIMULATED | Runtime validation required |
+| P0-006 | P0 | Security | Pairing, receiver identity, revocation and DTLS-SRTP fingerprint binding implemented in CODE | Runtime media-key/session evidence absent | ADR-006 | Rogue/revoked receiver cannot receive/control audio | Negative/replay/revoke tests | CODE/CI/SIMULATED | Runtime validation required |
 | P0-007 | P0 | Auth/DB | Add idempotent `soundtech` bootstrap and versioned migration boundary | Explicit product contract absent | ADR-009 | Fresh/repeat/changed password/concurrent startup pass | DB/auth integration tests | CODE + CI | Yes |
 | P0-008 | P0 | Backend | ALSA explicit fallback backend (CODE+CI, PR #63); PipeWire native backend and device discovery remain pending | Explicit ALSA path needed before PipeWire | ADR-008 | Device discovery, callback safety, fail-safe mute | Backend tests | CODE+CI; HARDWARE pending | P1-001 |
 | P0-009 | P0 | Latency | Instrument capture→IEM and publish p50/p95/p99 report | No E2E evidence | ADR-005 | p95≤50ms/p99≤75ms under MVP test conditions, or reopen ADR | Loopback/latency tests | L3 required | Yes |
@@ -1053,8 +1061,8 @@ Each task: read START and this handoff → implement smallest unit → test → 
 
 - No physical Pi/audio/interface evidence in this handoff.
 - No measured E2E latency.
-- No production media or receiver.
-- Headless audio evidence: deterministic DSP, Docker ALSA userspace and host ALSA Loopback passed; classified `HEADLESS/EMULATED`. CI run `35176577755` passed its Audio Lab job; target PipeWire/ALSA and physical validation remain pending.
+- No production hardware/runtime media or receiver deployment evidence.
+- Media plane and receiver cores are implemented and covered at CODE/CI/SIMULATED level; headless audio evidence is deterministic DSP, Docker ALSA userspace and host ALSA Loopback, classified `HEADLESS/EMULATED`. Target PipeWire/ALSA and physical validation remain pending.
 - Windows native backend absent.
 - v0.3.1 release not validated/published.
 - Architecture decisions can be reopened only on contradictory evidence: stop implementation, document evidence, assess impact, update ADR/GAP, then resume.
@@ -1086,9 +1094,9 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Current status (Phase 275):** P1-002 Device Manager, P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI, Phase 116 metrics reset, Phases 117 and 134-215 deterministic network-fault receiver coverage, and Phases 224-225 session-removal/revocation coverage are complete at their recorded evidence levels. P1-002 evidence: CODE + CI; `GET /api/v1/devices` exposes protected snapshots, while backend hot-plug/runtime integration remains pending. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi hardware remain unvalidated. These are `PENDING` or `HARDWARE_CERTIFICATION`, not automatic software-release blockers. P1-006 software/package release proceeds when `SOFTWARE_RELEASE_GATE` and `PACKAGE_RELEASE_GATE` pass; publication still requires explicit confirmation.
+**Historical status (Phase 275):** P1-002 Device Manager, P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI, Phase 116 metrics reset, Phases 117 and 134-215 deterministic network-fault receiver coverage, and Phases 224-225 session-removal/revocation coverage were complete at their recorded evidence levels. P1-002 evidence: CODE + CI; `GET /api/v1/devices` exposes protected snapshots, while backend hot-plug/runtime integration remains pending. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi hardware remain unvalidated. These are `PENDING` or `HARDWARE_CERTIFICATION`, not automatic software-release blockers. P1-006 software/package release proceeds when `SOFTWARE_RELEASE_GATE` and `PACKAGE_RELEASE_GATE` pass; publication still requires explicit confirmation.
 
-**Current next step:** Continue receiver/media work only where a concrete CODE boundary exists; Phases 117 and 134-215 cover deterministic loss/PLC/reorder/duplicate/reconnect receiver behavior in CODE/local, and Phases 224-225 cover session-removal/revocation boundaries, Phase 230 covers the exact maximum trickle ICE user ID boundary, and Phase 275 is complete for negotiated MediaBridge zero-output preservation; select the next independent streaming/media CODE boundary or P2 product slice. Phase 105 receiver packet metrics are CODE-only and require headless receiver integration before runtime claims; amd64 and arm64 `.deb` lifecycle are now CODE + PACKAGE_RELEASE_GATE PASS in CI run `35533396414`; local `iem config backup/restore` CLI is implemented with bounded input and symlink rejection; clean-environment restore and deployment validation remain pending. Built-in channel preset application is implemented for Engineer/Admin via `POST /api/v1/presets/{id}/apply`, with fail-closed channel bounds, payload validation and locked-channel protection before mutation; preset creation, editing, persistence and mix-preset application remain unimplemented. P0-002 Audio Lab L1/L2 is implemented in CI as deterministic CODE/SIMULATED coverage. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.
+**Historical next step:** Continue receiver/media work only where a concrete CODE boundary exists; Phases 117 and 134-215 cover deterministic loss/PLC/reorder/duplicate/reconnect receiver behavior in CODE/local, and Phases 224-225 cover session-removal/revocation boundaries, Phase 230 covers the exact maximum trickle ICE user ID boundary, and Phase 275 is complete for negotiated MediaBridge zero-output preservation; select the next independent streaming/media CODE boundary or P2 product slice. Phase 105 receiver packet metrics are CODE-only and require headless receiver integration before runtime claims; amd64 and arm64 `.deb` lifecycle are now CODE + PACKAGE_RELEASE_GATE PASS in CI run `35533396414`; local `iem config backup/restore` CLI is implemented with bounded input and symlink rejection; clean-environment restore and deployment validation remain pending. Built-in channel preset application is implemented for Engineer/Admin via `POST /api/v1/presets/{id}/apply`, with fail-closed channel bounds, payload validation and locked-channel protection before mutation; preset creation, editing, persistence and mix-preset application remain unimplemented. P0-002 Audio Lab L1/L2 is implemented in CI as deterministic CODE/SIMULATED coverage. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.
 
 ## Phase 143 status — reconnect after jitter receiver path
 

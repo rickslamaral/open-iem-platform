@@ -49,7 +49,7 @@ IEM              IEM
 
 ## Current Status
 
-**Fase atual: cobertura determinística de receiver em evolução. Phases 184-207 estão mergeadas em `main`, com evidência CODE/CI; runtime de áudio, WebRTC/DTLS-SRTP, rede real e hardware Raspberry Pi 5 permanecem pendentes. Próximo backlog: Phases 208-214, combinações fault sem reconnect. Fila canônica: `docs/DEVELOPMENT-HANDOFF.md`.**
+**Estado atual: `develop` em `b885aae`, com 531 testes `streaming` PASS e CI da PR #340 verde em 16/16 jobs. A cobertura CODE/CI/SIMULATED inclui media plane, receiver, métricas de falha, limites de sessão, serialização de replacement e justiça de budget. PR #340 permanece aberta, sem merge. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, rede real, Raspberry Pi 5, latência e release `v0.3.1` continuam pendentes. Fila canônica: `docs/DEVELOPMENT-HANDOFF.md`.**
 
 **Fases concluídas e mescladas em `main`:**
 
@@ -92,6 +92,8 @@ Interface prevista para engenheiro: status do backend, revisão, sessões ativas
 
 ## Development Phases
 
+Phase table below is historical/canonical phase tracking, not current branch status. Current branch snapshot: `develop` HEAD `b885aae`; PR #340 open/no merge; current streaming work is CODE/CI/SIMULATED and physical/runtime gates remain pending.
+
 | Phase | Name | Status |
 |-------|------|--------|
 | 0 | Bootstrap & Specification Audit | ✅ Complete |
@@ -99,7 +101,7 @@ Interface prevista para engenheiro: status do backend, revisão, sessões ativas
 | 2 | Mix Engine | ✅ Complete |
 | 3 | Backend (Rust/REST/WS) | ✅ Complete |
 | 4 | Musician Client | ✅ Complete |
-| 5 | Audio Transport | 🔄 Signaling scaffold complete; media SIMULATED |
+| 5 | Audio Transport | 🔄 CODE/CI/SIMULATED media path covered; runtime WebRTC/DTLS-SRTP pending |
 | 6 | Engineer UI | ✅ Operational control dashboard; media SIMULATED |
 | 7 | Advanced DSP | 🔄 EQ/compressor delivered; scenes and hardware audio pending |
 | 8 | Raspberry Pi Deployment | ⏳ Pending |
