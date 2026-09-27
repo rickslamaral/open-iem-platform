@@ -5724,3 +5724,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-09-27 — MediaPlane invalid mutable mix index boundary
 
 - `MediaPlane::push_frame_output` now ignores externally mutated session mix indexes outside `FrameOutput::mixes` instead of panicking. Regression confirms queue, sequence and drop counters remain unchanged. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane invalid mix fan-out isolation
+
+- Added CODE regression proving session with externally invalid `mix_index` preserves queued frame, sequence and drop counter while valid session still receives same `FrameOutput`.
+- Gates: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, focused streaming test PASS. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

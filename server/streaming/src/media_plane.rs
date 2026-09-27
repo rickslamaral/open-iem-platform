@@ -1029,6 +1029,68 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn push_frame_output_skips_invalid_mix_without_blocking_valid_sessions() {
+        let mp = MediaPlane::new();
+        mp.register_session("invalid", 0).await.unwrap();
+        mp.register_session("valid", 1).await.unwrap();
+
+        {
+            let mut sessions = mp.sessions.lock().await;
+            let invalid = sessions.get_mut("invalid").unwrap();
+            invalid.mix_index = MAX_MIXES;
+            invalid.push_frame((9.0, 9.5), 3, None).unwrap();
+            invalid.drop_count = 7;
+        }
+        let frame_output = make_frame(0.1, 0.2, 0.8, 0.9);
+
+        mp.push_frame_output(&frame_output, 11, None).await;
+
+        {
+            let mut sessions = mp.sessions.lock().await;
+            let invalid = sessions.get_mut("invalid").unwrap();
+            assert_eq!(invalid.frame_sequence, 1);
+            assert_eq!(invalid.drop_count(), 7);
+            assert_eq!(
+                invalid.drain_frames(),
+                vec![MediaFrame {
+                    metadata: StreamMetadata {
+                        stream_id: format!("mix_{MAX_MIXES}"),
+                        mix_index: MAX_MIXES,
+                        revision: 3,
+                        sequence: 0,
+                        sample_rate: 48_000,
+                        channels: 2,
+                        frame_duration_ms: 20,
+                        capture_timestamp: None,
+                    },
+                    samples: (9.0, 9.5),
+                }]
+            );
+
+            let valid = sessions.get_mut("valid").unwrap();
+            assert_eq!(valid.frame_sequence, 1);
+            assert_eq!(valid.drop_count(), 0);
+            assert_eq!(
+                valid.drain_frames(),
+                vec![MediaFrame {
+                    metadata: StreamMetadata {
+                        stream_id: "mix_1".to_owned(),
+                        mix_index: 1,
+                        revision: 11,
+                        sequence: 0,
+                        sample_rate: 48_000,
+                        channels: 2,
+                        frame_duration_ms: 20,
+                        capture_timestamp: None,
+                    },
+                    samples: (0.8, 0.9),
+                }]
+            );
+        }
+        assert_eq!(mp.total_dropped(), 0);
+    }
+
+    #[tokio::test]
     async fn push_frame_output_increments_sequence() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
