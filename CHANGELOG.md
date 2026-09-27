@@ -6,12 +6,6 @@
 
 ### Tests
 - Added software/SIMULATED two-peer WebRTC/DTLS-SRTP/Opus Sans-IO integration coverage with virtual UDP routing and decoded stereo output. Physical hardware and real-network validation remain separate.
-## [Unreleased]
-
-### Fixed
-- Receiver now rejects non-finite decoded PCM before any `AudioOutput` sink call, preserving fail-safe mute and drop accounting.
-
-
 ## 2026-09-27 — Bounded PCM receiver output boundary
 
 - `streaming::BoundedPcmOutput` fornece fila de frames PCM estéreo limitada a 256 frames, rejeita overflow e entradas inválidas sem mutação e limpa frames pendentes em `mute`.
