@@ -1015,3 +1015,6 @@ test → review → docs/GAP update → PR/CI
 - `OpusReceiver::playout` now counts PLC decoder failure and invalid PLC sample-count failure in both local `dropped_packets` and `ReceiverMetrics::packets_dropped`, matching normal decoder-failure accounting.
 - No regression test added because existing APIs cannot deterministically reach those PLC failure variants without an invented test seam.
 - Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi hardware remain unvalidated.
+## 2026-09-27 — JitterBuffer half-range rejection after ordered prefix
+
+- Added CODE regression proving an ambiguous `2^63` sequence is rejected after an ordered prefix without mutating FIFO contents. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
