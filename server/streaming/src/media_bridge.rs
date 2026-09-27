@@ -386,6 +386,10 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(full_frames.len(), MEDIA_QUEUE_CAPACITY);
+        assert!(full_frames
+            .iter()
+            .enumerate()
+            .all(|(index, output)| output.metadata.revision == index as u64));
 
         let available_frames = plane
             .drain_session_frames_with_budget("available", usize::MAX)
