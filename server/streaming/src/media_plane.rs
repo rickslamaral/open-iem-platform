@@ -465,6 +465,26 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn duplicate_session_precedes_capacity_rejection_without_mutation() {
+        let mp = MediaPlane::new();
+        for index in 0..MAX_MEDIA_SESSIONS {
+            mp.register_session(&format!("user-{index}"), 0)
+                .await
+                .unwrap();
+        }
+
+        assert_eq!(
+            mp.register_session("user-0", 1).await,
+            Err(MediaPlaneError::SessionAlreadyExists)
+        );
+        let sessions = mp.sessions().await;
+        assert_eq!(sessions.len(), MAX_MEDIA_SESSIONS);
+        assert!(sessions
+            .iter()
+            .any(|(user_id, mix_index)| user_id == "user-0" && *mix_index == 0));
+    }
+
+    #[tokio::test]
     async fn register_capacity_recovers_after_remove() {
         let mp = MediaPlane::new();
         for index in 0..MAX_MEDIA_SESSIONS {

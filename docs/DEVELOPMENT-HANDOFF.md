@@ -1049,3 +1049,7 @@ test → review → docs/GAP update → PR/CI
 ## 2026-09-27 — Bounded MediaPlane session capacity
 
 - Added `MAX_MEDIA_SESSIONS` (64), capacity rejection, boundary/recovery async regressions. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane capacity precedence
+
+- Added CODE regression proving duplicate session registration returns `SessionAlreadyExists` before bounded capacity rejection and preserves the existing mix binding.
+- Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
