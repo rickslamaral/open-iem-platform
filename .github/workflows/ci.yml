@@ -268,6 +268,9 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Install musician frontend dependencies
+        run: npm ci --ignore-scripts --no-audit --prefix web/musician
+
       - name: Audit musician frontend
         run: |
           if [ -f web/musician/package-lock.json ]; then
@@ -275,6 +278,9 @@ jobs:
           else
             echo "No package-lock.json yet — skipping musician audit"
           fi
+
+      - name: Install engineer frontend dependencies
+        run: npm ci --ignore-scripts --no-audit --prefix web/engineer
 
       - name: Audit engineer frontend
         run: |
