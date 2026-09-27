@@ -5721,3 +5721,6 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-09-27 — MediaSession sequence rollover boundary
 
 - Added regression proving `MediaSession::frame_sequence` wraps from `u64::MAX` to zero without reordering queued frames or losing metadata. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane invalid mutable mix index boundary
+
+- `MediaPlane::push_frame_output` now ignores externally mutated session mix indexes outside `FrameOutput::mixes` instead of panicking. Regression confirms queue, sequence and drop counters remain unchanged. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

@@ -1624,3 +1624,6 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## 2026-09-27 — MediaSession sequence rollover boundary
 
 - [x] Cobrir `frame_sequence` em `u64::MAX`: frame no limite preserva sequência, próximo frame reinicia em zero e a fila mantém ordem. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+## 2026-09-27 — MediaPlane invalid mutable mix index boundary
+
+- [x] Ignorar índice de mix mutado externamente quando estiver fora de `FrameOutput::mixes`, evitando panic no fan-out e preservando fila, sequência e contadores. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

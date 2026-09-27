@@ -280,7 +280,9 @@ impl MediaPlane {
     ) {
         let mut sessions = self.sessions.lock().await;
         for session in sessions.values_mut() {
-            let samples = frame_output.mixes[session.mix_index];
+            let Some(samples) = frame_output.mixes.get(session.mix_index).copied() else {
+                continue;
+            };
             if !samples.0.is_finite() || !samples.1.is_finite() {
                 continue;
             }
@@ -1007,6 +1009,23 @@ mod tests {
             Err(MediaPlaneError::InvalidMixIndex)
         );
         assert_eq!(mp.sessions().await, vec![("alice".to_owned(), 0)]);
+    }
+
+    #[tokio::test]
+    async fn push_frame_output_ignores_invalid_mutated_mix_index_without_mutation() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        mp.sessions.lock().await.get_mut("alice").unwrap().mix_index = MAX_MIXES;
+
+        mp.push_frame_output(&make_frame(0.1, 0.2, 0.3, 0.4), 1, None)
+            .await;
+
+        let sessions = mp.sessions.lock().await;
+        let session = &sessions["alice"];
+        assert_eq!(session.frame_sequence, 0);
+        assert_eq!(session.drop_count(), 0);
+        assert!(session.drain_frames().is_empty());
+        assert_eq!(mp.total_dropped(), 0);
     }
 
     #[tokio::test]
