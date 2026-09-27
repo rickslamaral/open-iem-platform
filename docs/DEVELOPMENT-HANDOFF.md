@@ -1157,3 +1157,7 @@ test → review → docs/GAP update → PR/CI
 
 - Regressões CODE confirmam que frame válido posterior a frame não-finito preserva sequência inicial e que fan-out parcial entrega a sessão disponível enquanto sessão cheia registra descarte sem mutar sua fila.
 - Gate local: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 464 testes PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — MediaPlane per-mix finiteness isolation
+
+- `push_frame_output` valida samples não finitos por mix inscrito. Mix inválido sem sessão não bloqueia fan-out válido. Regressão CODE local PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

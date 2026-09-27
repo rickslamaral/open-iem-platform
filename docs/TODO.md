@@ -1611,3 +1611,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] `MediaSession::push_frame` rejeita NaN e infinito antes de mutar sequência, fila ou contador de descarte; frame finito posterior mantém sequência inicial.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — MediaPlane per-mix finiteness isolation
+
+- [x] Rejeitar samples não finitos somente no mix inscrito; mix não inscrito inválido não bloqueia fan-out válido.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

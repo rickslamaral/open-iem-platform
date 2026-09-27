@@ -278,17 +278,12 @@ impl MediaPlane {
         engine_revision: u64,
         capture_timestamp: Option<SampleTimestamp>,
     ) {
-        if frame_output
-            .mixes
-            .iter()
-            .flat_map(|(left, right)| [left, right])
-            .any(|sample| !sample.is_finite())
-        {
-            return;
-        }
         let mut sessions = self.sessions.lock().await;
         for session in sessions.values_mut() {
             let samples = frame_output.mixes[session.mix_index];
+            if !samples.0.is_finite() || !samples.1.is_finite() {
+                continue;
+            }
             if let Err(MediaSessionError::QueueFull) =
                 session.push_frame(samples, engine_revision, capture_timestamp)
             {
@@ -1022,10 +1017,10 @@ mod tests {
         mp.register_session("bob", 1).await.unwrap();
 
         for frame in [
-            make_frame(f32::NAN, 0.2, 0.3, 0.4),
-            make_frame(0.1, f32::INFINITY, 0.3, 0.4),
-            make_frame(0.1, 0.2, f32::NEG_INFINITY, 0.4),
-            make_frame(0.1, 0.2, 0.3, f32::INFINITY),
+            make_frame(f32::NAN, 0.2, f32::NAN, 0.4),
+            make_frame(0.1, f32::INFINITY, 0.3, f32::INFINITY),
+            make_frame(f32::NEG_INFINITY, 0.2, f32::NEG_INFINITY, 0.4),
+            make_frame(0.1, f32::INFINITY, 0.3, f32::INFINITY),
         ] {
             mp.push_frame_output(&frame, 1, None).await;
         }
@@ -1044,6 +1039,29 @@ mod tests {
         let sessions = mp.sessions.lock().await;
         assert_eq!(sessions["alice"].drain_frames()[0].metadata.sequence, 0);
         assert_eq!(sessions["bob"].drain_frames()[0].metadata.sequence, 0);
+    }
+
+    #[tokio::test]
+    async fn push_frame_output_isolates_non_finite_unsubscribed_mix() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        let invalid_unsubscribed_mix = make_frame(0.1, 0.2, f32::NAN, f32::INFINITY);
+
+        mp.push_frame_output(&invalid_unsubscribed_mix, 7, None)
+            .await;
+
+        let frames = mp
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap();
+        assert_eq!(frames.len(), 1);
+        assert_eq!(frames[0].samples, (0.1, 0.2));
+        assert_eq!(frames[0].metadata.sequence, 0);
+        assert_eq!(mp.total_dropped(), 0);
+
+        let session = mp.sessions.lock().await;
+        assert_eq!(session["alice"].frame_sequence, 1);
+        assert_eq!(session["alice"].drop_count(), 0);
     }
 
     #[tokio::test]
