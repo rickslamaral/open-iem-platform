@@ -1601,3 +1601,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Confirmar que frame válido posterior a frame não-finito é entregue com sequência inicial preservada, sem alterar contadores de descarte.
 - [x] Confirmar fan-out parcial quando uma sessão está cheia: sessão disponível recebe frame, sessão cheia conserva fila e registra exatamente um descarte.
 - Evidência: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 464 testes PASS localmente. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — Reconnect resynchronization boundary
+
+- [x] Cobrir aceitação de nova sequência após reconnect sem PLC, descartando mídia enfileirada da geração anterior. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

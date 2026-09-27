@@ -1026,6 +1026,28 @@ mod tests {
     }
 
     #[test]
+    fn reconnect_accepts_new_sequence_without_plc_or_stale_playout() {
+        let mut r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap();
+        assert_eq!(r.state(), ReceiverState::Playing);
+
+        r.enqueue(7, &pkt).unwrap();
+        r.reconnect(&mut s);
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(r.plc_consecutive(), 0);
+
+        r.enqueue(100, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        assert_eq!(r.state(), ReceiverState::Playing);
+        assert_eq!(r.plc_consecutive(), 0);
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(r.dropped_packets(), 1);
+    }
+
+    #[test]
     fn reconnect_discards_queued_packet_before_resynchronization() {
         let mut r = OpusReceiver::new().unwrap();
         let pkt = make_opus_packet();
