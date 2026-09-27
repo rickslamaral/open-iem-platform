@@ -160,9 +160,9 @@
 
 ## Estado atual do lote — 2026-09-26
 
-- PR #340 está aberta e sem merge; HEAD atual de código: `5f29926bfc0950bbbf4820385079a47903cdb46a` (`develop`).
-- CI real da PR #340 para o HEAD atual (`5f29926`) concluído com sucesso: 16/16 jobs, incluindo Rust, frontends, segurança, pacotes amd64/arm64 e gates SIMULATED; execução registrada em `https://github.com/rickslamaral/open-iem-platform/actions/runs/36263409628` e `https://github.com/rickslamaral/open-iem-platform/actions/runs/36263409614`.
-- CODE/CI/SIMULATED concluído até Phase 560; isso não constitui validação física, runtime real, LAN real ou hardware.
+- PR #340 está aberta e sem merge; HEAD atual de código: `e671de7e6e1a774c9d9f0bc92c783f4df81422b2` (`develop`).
+- CI real da PR #340 para o HEAD atual (`e671de7`) concluído com sucesso: 16/16 jobs, incluindo Rust, frontends, segurança, pacotes amd64/arm64 e gates SIMULATED; execução registrada em `https://github.com/rickslamaral/open-iem-platform/actions/runs/36280925865` e `https://github.com/rickslamaral/open-iem-platform/actions/runs/36280925855`.
+- CODE/CI/SIMULATED concluído até Phase 577; isso não constitui validação física, runtime real, LAN real ou hardware.
 
 ### Matriz compacta de evidência — 16 pendências
 
