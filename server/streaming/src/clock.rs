@@ -279,3 +279,56 @@ mod clock_boundary_tests {
         assert_eq!(ts.sequence, 42);
     }
 }
+
+// --- stagnant-local and extreme-buffered regressions ---
+#[cfg(test)]
+mod clock_extra_boundary_tests {
+    use super::*;
+
+    /// When local counter stays frozen while remote advances, `local_delta` is
+    /// zero. `raw = (0/remote_delta - 1) * 1e6 = -1_000_000`, clamped to
+    /// `-MAX_CORRECTION_PPM`. The low-pass filter must move the estimate toward
+    /// that bound and the final value must remain finite and bounded.
+    #[test]
+    fn drift_estimator_stagnant_local_clamps_to_negative_max() {
+        let mut e = DriftEstimator::new(NOMINAL_SAMPLE_RATE, 1.0); // smoothing=1: instant adoption
+                                                                   // Establish baseline.
+        let _ = e.update(0, 0);
+        // Remote advances by 1000 samples; local stays at 0 — output stall scenario.
+        let result = e.update(1_000, 0);
+        // smoothing=1 → estimate = bounded raw = -MAX_CORRECTION_PPM
+        assert!(
+            (result - (-MAX_CORRECTION_PPM)).abs() < 1.0,
+            "stagnant local must produce estimate near -MAX_CORRECTION_PPM; got {result}"
+        );
+        assert!(result.is_finite(), "estimate must remain finite");
+        assert!(result >= -MAX_CORRECTION_PPM, "must not exceed lower bound");
+    }
+
+    /// `AdaptiveResampler::update` with `buffered_frames` far above `target`
+    /// produces a very negative error; the correction is clamped before being
+    /// added to 1.0, so the ratio must reach `MIN_RESAMPLE_RATIO` but not fall
+    /// below it.
+    #[test]
+    fn adaptive_resampler_extreme_overshoot_stays_at_minimum_ratio() {
+        let mut r = AdaptiveResampler::new(256);
+        // Drive with 10_000 buffered frames (40x overshoot) at zero drift ppm.
+        let ratio = r.update(0.0, 10_000);
+        assert!(
+            (ratio - MIN_RESAMPLE_RATIO).abs() < f64::EPSILON,
+            "extreme overshoot must clamp to MIN_RESAMPLE_RATIO; got {ratio}"
+        );
+    }
+
+    /// `AdaptiveResampler::update` with zero buffered frames (buffer drained
+    /// completely) must reach `MAX_RESAMPLE_RATIO` regardless of drift ppm.
+    #[test]
+    fn adaptive_resampler_extreme_undershoot_stays_at_maximum_ratio() {
+        let mut r = AdaptiveResampler::new(256);
+        let ratio = r.update(0.0, 0);
+        assert!(
+            (ratio - MAX_RESAMPLE_RATIO).abs() < f64::EPSILON,
+            "empty buffer must clamp to MAX_RESAMPLE_RATIO; got {ratio}"
+        );
+    }
+}
