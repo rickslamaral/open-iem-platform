@@ -1,3 +1,7 @@
+## 2026-09-27 — media write failure drain accounting
+
+- Regressão ampliada para dois frames drenados com `MediaWriter::write` falhando: ambos incrementam `media_write_errors`, nenhum incrementa `packets_encoded`, e nenhuma tentativa de reenvio ocorre na chamada seguinte. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-27 — local verification and dependency audit
 
 - Gates locais do HEAD `89ffd33`: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, `npm run typecheck` em ambos frontends, `npm run test -- --run` (musician: 61; engineer: 50) e `npm run build` em ambos — PASS.

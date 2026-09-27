@@ -853,9 +853,18 @@ mod tests {
                 None,
             )
             .await;
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.25, -0.125), (0.0, 0.0)],
+                },
+                2,
+                None,
+            )
+            .await;
 
-        let first = registry.drive_once(&bridge, &plane, 1, 1_000).await;
-        assert_eq!(first.media_write_errors, 1);
+        let first = registry.drive_once(&bridge, &plane, 2, 1_000).await;
+        assert_eq!(first.media_write_errors, 2);
         assert_eq!(first.packets_encoded, 0);
         let sessions = plane.sessions.lock().await;
         assert!(sessions["alice"].drain_frames().is_empty());

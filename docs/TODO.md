@@ -748,6 +748,9 @@ Não fechar item por simulação, CI, cross-build, loopback ou ausência de erro
 
 # TODO
 
+## Estado atual — 2026-09-27 (media write failure drain accounting)
+- [x] Cobrir dois frames drenados quando `MediaWriter::write` falha: ambos são contabilizados como `media_write_errors`, nenhum é contado como codificado e a fila não tenta reenviar os frames descartados. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## Estado atual — 2026-09-27 (serial-order helper boundary)
 - [x] Cobrir igualdade e distância ambígua de `2^63` em `sequence_order`; 446 testes `streaming` PASS localmente. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
