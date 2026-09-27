@@ -1,3 +1,10 @@
+## 2026-09-27 — develop HEAD/CI status reconciliation
+
+- Atualizado o estado documental para `develop` em `580c01b`.
+- CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.
+- PR #340 permanece aberta e sem merge por política do ciclo.
+- Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — Phase 577 — software WebRTC/Opus multi-frame evidence
 
 - Expanded two-peer Sans-IO WebRTC/DTLS-SRTP/Opus regression to send and decode two frames, preserving ordered media count and non-silent output.
@@ -5,8 +12,8 @@
 
 ## 2026-09-27 — development HEAD/CI status reconciliation
 
-- Atualizado o handoff e TODO para refletir `develop` em `a424086`, evitando referências obsoletas a commits anteriores.
-- A execução real de CI e Software Package Lifecycle Gates para `a424086` está em andamento; nenhum resultado final é declarado antes da conclusão.
+- Atualizado o handoff e TODO para refletir `develop` em `580c01b`.
+- CI real para `580c01b` passou: workflow CI teve 16 check runs executados; Software Package Lifecycle Gates teve 3 jobs executados.
 - Evidência física permanece: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-27 — software WebRTC/Opus evidence scope reconciliation

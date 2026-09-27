@@ -1,3 +1,9 @@
+## 2026-09-27 — develop HEAD/CI status reconciliation
+
+- HEAD atual: `580c01b` (`develop`). CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.
+- PR #340 permanece aberta, sem merge automático por política deste ciclo.
+- Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — software two-peer WebRTC/DTLS-SRTP/Opus evidence
 
 - `[x]` Teste `two_peer_webrtc_opus_media_round_trip` executa dois peers `str0m` Sans-IO com ICE host, handshake DTLS/SRTP, transporte UDP virtual e frame Opus decodificado no receiver. Foco: `cargo test --manifest-path server/Cargo.toml -p streaming --test opus_roundtrip two_peer_webrtc_opus_media_round_trip -- --nocapture` — PASS. Label `SOFTWARE/SIMULATED`; não é rede física, PipeWire/ALSA ou Raspberry Pi.
@@ -186,8 +192,8 @@
 
 ## Estado atual do lote — 2026-09-26
 
-- PR #340 está aberta e sem merge; HEAD atual de código: `a424086` (`develop`).
-- CI real do HEAD anterior concluído com sucesso; execução do HEAD `a424086` está em andamento nos workflows CI e Software Package Lifecycle Gates. Não declarar 16/16 até conclusão dos jobs.
+- PR #340 está aberta e sem merge; HEAD atual de código: `580c01b` (`develop`).
+- CI real do HEAD `580c01b` concluído com sucesso: workflow CI teve 16 check runs executados; Software Package Lifecycle Gates teve 3 jobs executados. Não confundir PR aberta com merge autorizado.
 - CODE/CI/SIMULATED concluído até Phase 577; isso não constitui validação física, runtime real, LAN real ou hardware.
 
 ### Matriz compacta de evidência — 16 pendências
