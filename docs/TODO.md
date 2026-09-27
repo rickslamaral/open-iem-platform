@@ -1551,3 +1551,6 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - Added CODE regression proving repeated `MediaPlane::push_frame_output` overflow increments aggregate drops once per rejected frame, drains existing bounded queue, and delivers a later frame with preserved sequence/revision metadata.
 - Gate: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, focused regression, full `streaming` suite (455 tests) and streaming clippy PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane saturating drop counters
+
+- [x] Harden per-session and aggregate MediaPlane drop counters against `u64` overflow; regression tests confirm saturation at `u64::MAX`. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

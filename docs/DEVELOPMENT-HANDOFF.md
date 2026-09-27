@@ -1106,3 +1106,6 @@ test → review → docs/GAP update → PR/CI
 ## 2026-09-27 — MediaPlane repeated overflow recovery boundary
 
 - Added regression for repeated bounded queue overflow through `MediaPlane`, aggregate drop accounting, queue drain and post-recovery frame metadata. Evidence CODE local: cargo fmt, focused test, full streaming tests and streaming clippy PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane saturating drop counters
+
+- Per-session and aggregate drop counters now use saturating arithmetic, preventing telemetry wraparound under sustained overflow. Regression coverage passes locally. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

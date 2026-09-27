@@ -159,12 +159,12 @@ impl MediaSession {
         match self.tx.try_send(frame) {
             Ok(()) => Ok(()),
             Err(TrySendError::Full(_)) => {
-                self.drop_count += 1;
+                self.drop_count = self.drop_count.saturating_add(1);
                 Err(MediaSessionError::QueueFull)
             }
             Err(TrySendError::Disconnected(_)) => {
                 // rx still held by self — cannot happen in normal use
-                self.drop_count += 1;
+                self.drop_count = self.drop_count.saturating_add(1);
                 Err(MediaSessionError::QueueFull)
             }
         }
@@ -281,7 +281,11 @@ impl MediaPlane {
             if let Err(MediaSessionError::QueueFull) =
                 session.push_frame(samples, engine_revision, capture_timestamp)
             {
-                self.dropped_total.fetch_add(1, Ordering::Relaxed);
+                let _ = self.dropped_total.fetch_update(
+                    Ordering::Relaxed,
+                    Ordering::Relaxed,
+                    |current| Some(current.saturating_add(1)),
+                );
             }
         }
     }
@@ -1028,6 +1032,30 @@ mod tests {
             (MEDIA_QUEUE_CAPACITY + 3) as u64
         );
         assert_eq!(mp.total_dropped(), 3);
+    }
+
+    #[test]
+    fn media_session_drop_count_saturates_at_maximum() {
+        let mut session = MediaSession::new("alice".to_owned(), 0);
+        session.drop_count = u64::MAX;
+        for _ in 0..=MEDIA_QUEUE_CAPACITY {
+            let _ = session.push_frame((0.1, 0.2), 1, None);
+        }
+        assert_eq!(session.drop_count(), u64::MAX);
+    }
+
+    #[tokio::test]
+    async fn aggregate_drop_count_saturates_at_maximum() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        mp.dropped_total.store(u64::MAX, Ordering::Relaxed);
+
+        for _ in 0..=MEDIA_QUEUE_CAPACITY {
+            mp.push_frame_output(&make_frame(0.1, 0.2, 0.0, 0.0), 1, None)
+                .await;
+        }
+
+        assert_eq!(mp.total_dropped(), u64::MAX);
     }
 
     #[tokio::test]

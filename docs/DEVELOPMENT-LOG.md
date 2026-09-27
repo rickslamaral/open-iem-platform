@@ -5637,3 +5637,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-09-27 — MediaPlane repeated overflow recovery boundary
 
 - Added regression for repeated bounded queue overflow through `MediaPlane`, aggregate drop accounting, queue drain and post-recovery frame metadata. Evidence CODE local: cargo fmt, focused test, full streaming tests and streaming clippy PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane saturating drop counters
+
+- `MediaSession::drop_count` and `MediaPlane::dropped_total` now saturate instead of wrapping on counter overflow.
+- Added deterministic regressions for both counters at `u64::MAX`.
+- Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
