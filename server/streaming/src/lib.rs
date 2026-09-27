@@ -2268,6 +2268,39 @@ FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00\r\n"
     }
 
     #[tokio::test]
+    async fn phase553_failed_bound_replacement_at_capacity_preserves_session() {
+        let registry = SessionRegistry::new();
+        for index in 0..MAX_PEER_SESSIONS {
+            let user_id = format!("user-{index}");
+            registry
+                .negotiate_offer(&user_id, VALID_OFFER, Some("original-mix".into()))
+                .await
+                .expect("initial offer must succeed");
+        }
+        let before = registry.list().await;
+        let identity = DeviceIdentity {
+            device_id: "replacement-device".into(),
+            musician_id: "user-0".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound(
+                    "user-0",
+                    "not-an-sdp-offer",
+                    Some("0".into()),
+                    Some(&identity),
+                )
+                .await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
     async fn remove_by_device_id_removes_all_matching_sessions() {
         let registry = SessionRegistry::new();
         for (user_id, device_id) in [

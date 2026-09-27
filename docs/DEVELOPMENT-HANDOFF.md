@@ -1,3 +1,6 @@
+## 2026-09-27 — failed bound replacement preserves capacity state
+
+- Added CODE regression `phase553_failed_bound_replacement_at_capacity_preserves_session`: malformed SDP during replacement at full capacity leaves all existing session metadata unchanged. Focused test and streaming clippy PASS. Evidence `CODE` local; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
 ## 2026-09-27 — local verification and dependency audit
 
 - Gates locais do HEAD `89ffd33`: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, `npm run typecheck` em ambos frontends, `npm run test -- --run` (musician: 61; engineer: 50) e `npm run build` em ambos — PASS.
