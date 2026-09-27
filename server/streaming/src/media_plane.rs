@@ -545,6 +545,25 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn oversized_user_id_precedes_capacity_rejection_without_mutation() {
+        let mp = MediaPlane::new();
+        for index in 0..MAX_MEDIA_SESSIONS {
+            mp.register_session(&format!("user-{index}"), 0)
+                .await
+                .unwrap();
+        }
+
+        let before = mp.sessions().await;
+        let oversized_user_id = "x".repeat(MAX_MEDIA_USER_ID_BYTES + 1);
+
+        assert_eq!(
+            mp.register_session(&oversized_user_id, 0).await,
+            Err(MediaPlaneError::InvalidUserId)
+        );
+        assert_eq!(mp.sessions().await, before);
+    }
+
+    #[tokio::test]
     async fn invalid_mix_index_precedes_capacity_rejection_without_mutation() {
         let mp = MediaPlane::new();
         for index in 0..MAX_MEDIA_SESSIONS {

@@ -1,3 +1,7 @@
+## 2026-09-27 — MediaPlane oversized identity precedence
+
+- Added `oversized_user_id_precedes_capacity_rejection_without_mutation`, proving byte-over-limit user IDs fail before capacity checks and preserve the full registry. Focused test PASS. Evidence `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — MediaPlane removal and re-registration state boundary
 
 - Added regression proving removal followed by re-registration creates clean queue/sequence/drop state without rewriting aggregate `MediaPlane` drop history. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
