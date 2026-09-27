@@ -732,6 +732,20 @@ mod tests {
     }
 
     #[test]
+    fn jitter_accepts_maximum_unambiguous_distance_across_wrap() {
+        let mut j = JitterBuffer::new(3);
+        let first = 0;
+        let preceding = (1_u64 << 63) + 1;
+        j.push(first, b"first").unwrap();
+
+        assert_eq!(j.push(preceding, b"preceding"), Ok(()));
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (preceding, b"preceding".to_vec()));
+        assert_eq!(j.pop().unwrap(), (first, b"first".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
     fn jitter_rejects_half_range_before_ordered_prefix_without_mutation() {
         let mut j = JitterBuffer::new(3);
         j.push(1, b"first").unwrap();
