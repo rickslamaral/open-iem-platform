@@ -383,6 +383,30 @@ mod tests {
     }
 
     #[test]
+    fn media_session_multiple_overflows_preserve_full_gap_after_recovery() {
+        let mut session = MediaSession::new("alice".to_owned(), 0);
+        for sequence in 0..MEDIA_QUEUE_CAPACITY {
+            session.push_frame((sequence as f32, 0.0), 1, None).unwrap();
+        }
+        for _ in 0..3 {
+            assert_eq!(
+                session.push_frame((99.0, 0.0), 1, None),
+                Err(MediaSessionError::QueueFull)
+            );
+        }
+        assert_eq!(session.drop_count(), 3);
+        assert_eq!(session.drain_frames().len(), MEDIA_QUEUE_CAPACITY);
+        session.push_frame((100.0, 0.0), 2, None).unwrap();
+        let recovered = session.drain_frames_with_budget(1);
+        assert_eq!(recovered[0].samples, (100.0, 0.0));
+        assert_eq!(
+            recovered[0].metadata.sequence,
+            (MEDIA_QUEUE_CAPACITY + 3) as u64
+        );
+        assert_eq!(recovered[0].metadata.revision, 2);
+    }
+
+    #[test]
     fn media_session_sequence_wraps_without_panicking() {
         let mut session = MediaSession::new("alice".to_owned(), 0);
         session.frame_sequence = u64::MAX;
