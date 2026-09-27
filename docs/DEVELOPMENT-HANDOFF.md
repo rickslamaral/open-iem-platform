@@ -1,3 +1,8 @@
+## 2026-09-27 — JitterBuffer half-range rejection before ordered suffix
+
+- Added regression proving an ambiguous `2^63 + 1` sequence inserted before an ordered suffix is rejected without mutating FIFO contents.
+- Focused gate: `cargo fmt --manifest-path server/Cargo.toml --all -- --check` and `cargo test --manifest-path server/Cargo.toml -p streaming jitter_rejects_half_range -- --nocapture` — 3 tests PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-26 — PLC failure drop-accounting regressions
 
 - Deterministic cfg(test)-only coverage now exercises PLC decoder failure and invalid PLC sample-count failure. Both branches preserve fail-safe mute and count drops in local and observability metrics.
