@@ -1,3 +1,6 @@
+
+### Tests
+- Added software/SIMULATED two-peer WebRTC/DTLS-SRTP/Opus Sans-IO integration coverage with virtual UDP routing and decoded stereo output. Physical hardware and real-network validation remain separate.
 ## [Unreleased]
 
 ### Fixed

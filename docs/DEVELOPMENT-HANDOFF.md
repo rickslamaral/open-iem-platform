@@ -1,3 +1,9 @@
+## 2026-09-27 — software two-peer WebRTC/DTLS-SRTP/Opus evidence
+
+- Adicionado teste `two_peer_webrtc_opus_media_round_trip` com dois peers `str0m`, ICE host virtual, handshake DTLS/SRTP, transporte UDP Sans-IO e decode Opus não silencioso no receiver.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --test opus_roundtrip two_peer_webrtc_opus_media_round_trip -- --nocapture` — PASS.
+- Evidência `SOFTWARE/SIMULATED`; não declarar rede física, PipeWire/ALSA ou Raspberry Pi. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — Software Opus output proxy evidence
 
 - `scripts/ci/run-pipewire-software-e2e.sh` PASS: virtual sink/source enumeration; evidence label `SOFTWARE/SIMULATED`, not hardware or WebRTC.

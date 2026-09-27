@@ -1,3 +1,8 @@
+## 2026-09-27 — software two-peer WebRTC/DTLS-SRTP/Opus evidence
+
+- Teste de integração Sans-IO conecta dois `str0m::Rtc` com ICE host virtual, negocia uma sessão de áudio SendRecv, roteia datagrams UDP em memória, aguarda estado conectado ICE/DTLS/SRTP e entrega payload Opus ao `OpusReceiver`.
+- O teste confirma frame estéreo decodificado e não silencioso. Evidência `SOFTWARE/SIMULATED`; hardware físico, PipeWire/ALSA e rede real continuam não executados.
+
 ## 2026-09-27 — JitterBuffer maximum unambiguous distance after ordered suffix
 
 - Added CODE regression proving sequence `2^63 - 1` is accepted after ordered suffix `0`, preserving FIFO at maximum unambiguous serial distance.

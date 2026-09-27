@@ -1,6 +1,17 @@
-use std::sync::Arc;
+use std::{
+    collections::VecDeque,
+    net::{Ipv4Addr, SocketAddr},
+    sync::Arc,
+    time::{Duration, Instant},
+};
 
 use mix_engine::FrameOutput;
+use str0m::{
+    format::Codec,
+    media::{Direction, MediaKind},
+    net::{Protocol, Receive},
+    Event, Input, Output, Rtc,
+};
 
 use observability::ReceiverMetrics;
 use streaming::{
@@ -353,4 +364,177 @@ fn writer_and_receiver_share_opus_packet_limit() {
         receiver.enqueue(2, &oversized),
         Err(ReceiverError::InvalidPacket)
     );
+}
+
+#[test]
+fn two_peer_webrtc_opus_media_round_trip() -> Result<(), Box<dyn std::error::Error>> {
+    str0m::crypto::from_feature_flags().install_process_default();
+    let start = Instant::now();
+    let mut sender = Peer::new(start, (Ipv4Addr::new(1, 1, 1, 1), 1000).into());
+    let mut receiver = Peer::new(start, (Ipv4Addr::new(2, 2, 2, 2), 2000).into());
+    sender.add_host_candidate()?;
+    receiver.add_host_candidate()?;
+
+    let mut change = sender.rtc.sdp_api();
+    let mid = change.add_media(MediaKind::Audio, Direction::SendRecv, None, None, None);
+    let (offer, pending) = change.apply().ok_or("offer was not generated")?;
+    let answer = receiver.rtc.sdp_api().accept_offer(offer)?;
+    sender.rtc.sdp_api().accept_answer(pending, answer)?;
+
+    let mut writer = MediaWriter::new()?;
+    let frame = test_frame();
+    let packet = writer.encode(&frame)?;
+    let mut sent = false;
+    let mut media_frames = 0;
+    let mut output = Capture {
+        samples: Vec::new(),
+        muted: 0,
+    };
+    let mut receiver_codec = OpusReceiver::new()?;
+
+    for tick in 0..20_000_u64 {
+        let now = start + Duration::from_millis(tick);
+        sender.drive(now, &mut receiver.incoming)?;
+        receiver.drive(now, &mut sender.incoming)?;
+        sender.events.clear();
+        sender.deliver(now, &mut receiver.incoming)?;
+        receiver.deliver(now, &mut sender.incoming)?;
+
+        if sender.rtc.is_connected() && receiver.rtc.is_connected() && !sent {
+            let opus_pt = sender
+                .rtc
+                .codec_config()
+                .find(|params| params.spec().codec == Codec::Opus)
+                .ok_or("negotiated Opus codec missing")?
+                .pt();
+            sender
+                .rtc
+                .writer(mid)
+                .ok_or("sender audio writer missing")?
+                .write(
+                    opus_pt,
+                    now,
+                    Duration::from_millis(tick).into(),
+                    packet.payload.clone(),
+                )?;
+            sent = true;
+        }
+
+        for event in receiver.events.drain(..) {
+            if let Event::MediaData(data) = event {
+                media_frames += 1;
+                assert_eq!(data.mid, mid);
+                assert_eq!(data.params.spec().codec, Codec::Opus);
+                assert!(!data.data.is_empty());
+                receiver_codec.enqueue(0, &data.data)?;
+            }
+        }
+        if media_frames > 0 {
+            receiver_codec.playout(&mut output)?;
+            break;
+        }
+    }
+
+    assert!(
+        sender.rtc.is_connected(),
+        "sender never reached ICE/DTLS/SRTP connected state"
+    );
+    assert!(
+        receiver.rtc.is_connected(),
+        "receiver never reached ICE/DTLS/SRTP connected state"
+    );
+    assert!(sent, "test media was never written");
+    assert_eq!(media_frames, 1);
+    assert_eq!(output.samples.len(), 1_920);
+    assert!(output.samples.iter().any(|sample| sample.abs() > 0.001));
+    Ok(())
+}
+
+struct Peer {
+    rtc: Rtc,
+    address: SocketAddr,
+    incoming: VecDeque<(Instant, Vec<u8>, SocketAddr, SocketAddr)>,
+    events: Vec<Event>,
+    last_timeout: Instant,
+}
+
+impl Peer {
+    fn new(start: Instant, address: SocketAddr) -> Self {
+        Self {
+            rtc: Rtc::new(start),
+            address,
+            incoming: VecDeque::new(),
+            events: Vec::new(),
+            last_timeout: start,
+        }
+    }
+
+    fn add_host_candidate(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        let candidate = str0m::Candidate::host(self.address, "udp")?;
+        self.rtc
+            .add_local_candidate(candidate)
+            .ok_or("local candidate rejected")?;
+        Ok(())
+    }
+
+    fn drive(
+        &mut self,
+        now: Instant,
+        target: &mut VecDeque<(Instant, Vec<u8>, SocketAddr, SocketAddr)>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        if now >= self.last_timeout {
+            self.rtc.handle_input(Input::Timeout(now))?;
+        }
+        loop {
+            match self.rtc.poll_output()? {
+                Output::Timeout(timeout) => {
+                    self.last_timeout = timeout;
+                    break;
+                }
+                Output::Event(event) => self.events.push(event),
+                Output::Transmit(transmit) => target.push_back((
+                    now,
+                    transmit.contents.to_vec(),
+                    transmit.source,
+                    transmit.destination,
+                )),
+            }
+        }
+        Ok(())
+    }
+
+    fn deliver(
+        &mut self,
+        now: Instant,
+        target: &mut VecDeque<(Instant, Vec<u8>, SocketAddr, SocketAddr)>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        while let Some((received_at, contents, source, destination)) = self.incoming.pop_front() {
+            let contents = contents.as_slice().try_into()?;
+            self.rtc.handle_input(Input::Receive(
+                received_at.min(now),
+                Receive {
+                    proto: Protocol::Udp,
+                    source,
+                    destination,
+                    contents,
+                },
+            ))?;
+            loop {
+                match self.rtc.poll_output()? {
+                    Output::Timeout(timeout) => {
+                        self.last_timeout = timeout;
+                        break;
+                    }
+                    Output::Event(event) => self.events.push(event),
+                    Output::Transmit(transmit) => target.push_back((
+                        now,
+                        transmit.contents.to_vec(),
+                        transmit.source,
+                        transmit.destination,
+                    )),
+                }
+            }
+        }
+        Ok(())
+    }
 }
