@@ -1122,3 +1122,8 @@ test → review → docs/GAP update → PR/CI
 
 - Added regression proving non-finite `FrameOutput` samples fail closed without mutating queue, drop counters or sequence state.
 - Local evidence: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 462 PASS — and streaming clippy PASS. Runtime and hardware remain unvalidated.
+
+## 2026-09-27 — MediaPlane non-finite recovery and partial fan-out
+
+- Regressões CODE confirmam que frame válido posterior a frame não-finito preserva sequência inicial e que fan-out parcial entrega a sessão disponível enquanto sessão cheia registra descarte sem mutar sua fila.
+- Gate local: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 464 testes PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

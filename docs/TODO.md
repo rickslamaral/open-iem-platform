@@ -1562,3 +1562,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Added CODE regression proving non-finite samples in all four stereo sample positions of `FrameOutput` are rejected before session queue, per-session drop counter, aggregate drop counter or frame sequence mutation.
 - Evidence: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo test --manifest-path server/Cargo.toml -p streaming --lib` (462 tests), and streaming clippy PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — MediaPlane non-finite recovery and fan-out boundaries
+
+- [x] Confirmar que frame válido posterior a frame não-finito é entregue com sequência inicial preservada, sem alterar contadores de descarte.
+- [x] Confirmar fan-out parcial quando uma sessão está cheia: sessão disponível recebe frame, sessão cheia conserva fila e registra exatamente um descarte.
+- Evidência: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 464 testes PASS localmente. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
