@@ -1,3 +1,11 @@
+## 2026-09-27 — develop HEAD/CI status reconciliation
+
+- HEAD atual: `feff5b9` (`develop`), com documentação reconciliada e branch sincronizada com `origin/develop`.
+- CI real do HEAD `feff5b9` está em execução; jobs anteriores do HEAD `c3d8cc9` concluíram com sucesso. Não declarar CI atual verde até todos os jobs terminarem com evidência real.
+- Gates locais: `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (459 testes streaming; suíte total PASS). `cargo fmt --all -- --check` não é comando válido na raiz, pois não há `Cargo.toml`; gate equivalente deve apontar para `server/Cargo.toml`.
+- PR #340 permanece aberta, sem merge automático por política deste ciclo.
+- Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — MediaPlane exact removal isolation
 
 - Added CODE regression proving removing one user ID deletes only that exact session and its queued frames while preserving another session and its frame. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.

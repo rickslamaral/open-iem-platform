@@ -1,3 +1,10 @@
+## 2026-09-27 — develop HEAD/CI status reconciliation
+
+- Reconciliado estado documental para `develop` em `feff5b9`, sincronizado com `origin/develop`.
+- CI real do HEAD atual permanece em execução; `c3d8cc9` anterior concluiu com sucesso. Sem claim de CI verde antes de jobs atuais terminarem.
+- Gates locais: clippy e suíte Rust do servidor PASS; fmt raiz falha por ausência de `Cargo.toml`, com gate correto em `server/Cargo.toml`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — MediaPlane fan-out verification status
 
 - Reconciliado estado do `develop` em `a0446e2`; `cargo fmt`, clippy e 458 testes `streaming` passaram localmente.
