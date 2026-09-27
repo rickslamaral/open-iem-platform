@@ -5760,4 +5760,35 @@ FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00\r\n"
         );
         assert_eq!(registry.len().await, 64);
     }
+    #[tokio::test]
+    async fn session_registry_remove_at_capacity_frees_slot() {
+        let registry = SessionRegistry::new();
+        for i in 0..64 {
+            let user_id = format!("u{i}");
+            registry
+                .negotiate_offer(&user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        // Registry is at capacity; new user must fail.
+        let overflow = registry
+            .negotiate_offer("overflow_user", VALID_OFFER, None)
+            .await;
+        assert!(
+            matches!(overflow, Err(StreamingError::TooManySessions)),
+            "expected TooManySessions before remove; got {overflow:?}"
+        );
+        // Remove one session to free the slot.
+        assert!(registry.remove("u0").await, "remove must return true");
+        assert_eq!(registry.len().await, 63, "len must drop to 63 after remove");
+        // Now a new session must succeed.
+        let result = registry
+            .negotiate_offer("new_user", VALID_OFFER, None)
+            .await;
+        assert!(
+            result.is_ok(),
+            "new session must succeed after remove; got {result:?}"
+        );
+        assert_eq!(registry.len().await, 64, "len must return to 64");
+    }
 }
