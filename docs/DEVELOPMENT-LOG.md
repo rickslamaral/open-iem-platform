@@ -1,3 +1,7 @@
+## 2026-09-27 — Decoded PCM validation helper
+
+- Centralizada validação bounded de PCM decodificado no receiver para evitar divergência entre decode normal e PLC. Cobertura inclui shape estéreo e finitude. Evidência CODE local; sem claim de runtime ou hardware.
+
 ## 2026-09-27 — Decoded PCM finiteness boundary
 
 - `OpusReceiver::playout` agora rejeita PCM decodificado contendo `NaN` ou infinito antes de chamar qualquer `AudioOutput`, preservando mute fail-safe, contagem de drops e avanço de sequência.

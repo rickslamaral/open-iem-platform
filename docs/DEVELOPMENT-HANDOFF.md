@@ -1,3 +1,7 @@
+## 2026-09-27 — Decoded PCM validation helper
+
+- `OpusReceiver::playout` agora usa `decoded_pcm_is_valid` em caminhos de decode normal e PLC, mantendo validação fail-closed sem duplicação de regra. Testes locais focados e clippy do crate `streaming` PASS. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-27 — reconnect recovery after output failure
 
 - Added CODE regression proving `OpusReceiver` recovers from an output failure after explicit reconnect: stale failure state clears, new-generation Opus frame plays, and receiver returns to `Playing`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

@@ -1,3 +1,7 @@
+## 2026-09-27 — Decoded PCM validation helper
+
+- [x] Centralizada validação de shape estéreo, limite de samples e finitude em `decoded_pcm_is_valid`, reutilizada por decode normal e PLC. Regressão cobre frame válido, shape inválido e `NaN`/`±∞`. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 
 ## 2026-09-27 — Bounded PCM finite-sample boundary
 

@@ -29,6 +29,17 @@ const PLC_FRAME_SAMPLES: usize = 960;
 const PLC_MAX_CONSECUTIVE: u32 = 4;
 
 #[inline]
+fn decoded_pcm_is_valid(samples: &[f32], decoded_samples: usize, expected_samples: usize) -> bool {
+    decoded_samples == expected_samples
+        && decoded_samples <= MAX_DECODED_SAMPLES
+        && decoded_samples
+            .checked_mul(2)
+            .is_some_and(|stereo_samples| {
+                stereo_samples <= samples.len() && pcm_is_finite(&samples[..stereo_samples])
+            })
+}
+
+#[inline]
 fn pcm_is_finite(samples: &[f32]) -> bool {
     samples.iter().all(|sample| sample.is_finite())
 }
@@ -490,11 +501,7 @@ impl OpusReceiver {
                         output.mute();
                         return Err(ReceiverError::InvalidPacket);
                     };
-                    if samples != PLC_FRAME_SAMPLES
-                        || samples.checked_mul(2).is_none()
-                        || samples * 2 > self.pcm.len()
-                        || !pcm_is_finite(&self.pcm[..samples * 2])
-                    {
+                    if !decoded_pcm_is_valid(&self.pcm, samples, PLC_FRAME_SAMPLES) {
                         self.state = ReceiverState::Muted;
                         self.output_failed = true;
                         if let Some(ref m) = self.metrics {
@@ -553,23 +560,7 @@ impl OpusReceiver {
             output.mute();
             ReceiverError::InvalidPacket
         })?;
-        if samples != PLC_FRAME_SAMPLES
-            || samples > MAX_DECODED_SAMPLES
-            || samples.checked_mul(2).is_none()
-            || samples * 2 > self.pcm.len()
-        {
-            self.state = ReceiverState::Muted;
-            self.output_failed = true;
-            if let Some(ref m) = self.metrics {
-                m.record_output_failure();
-                m.record_dropped();
-            }
-            self.dropped_packets = self.dropped_packets.saturating_add(1);
-            self.next_sequence = Some(sequence.wrapping_add(1));
-            output.mute();
-            return Err(ReceiverError::InvalidPacket);
-        }
-        if !pcm_is_finite(&self.pcm[..samples * 2]) {
+        if !decoded_pcm_is_valid(&self.pcm, samples, PLC_FRAME_SAMPLES) {
             self.state = ReceiverState::Muted;
             self.output_failed = true;
             if let Some(ref m) = self.metrics {
@@ -721,11 +712,38 @@ mod tests {
     }
 
     #[test]
-    fn decoded_pcm_finiteness_boundary_rejects_non_finite_samples() {
-        assert!(pcm_is_finite(&[0.0_f32, -1.0, 1.0]));
-        assert!(!pcm_is_finite(&[f32::NAN]));
-        assert!(!pcm_is_finite(&[f32::INFINITY]));
-        assert!(!pcm_is_finite(&[f32::NEG_INFINITY]));
+    fn decoded_pcm_validation_rejects_invalid_shape_or_samples() {
+        let valid = vec![0.0_f32; PLC_FRAME_SAMPLES * 2];
+        assert!(decoded_pcm_is_valid(
+            &valid,
+            PLC_FRAME_SAMPLES,
+            PLC_FRAME_SAMPLES
+        ));
+        assert!(!decoded_pcm_is_valid(
+            &valid,
+            PLC_FRAME_SAMPLES - 1,
+            PLC_FRAME_SAMPLES
+        ));
+        assert!(!decoded_pcm_is_valid(
+            &valid[..valid.len() - 1],
+            PLC_FRAME_SAMPLES,
+            PLC_FRAME_SAMPLES
+        ));
+        assert!(!decoded_pcm_is_valid(
+            &valid,
+            MAX_DECODED_SAMPLES + 1,
+            MAX_DECODED_SAMPLES + 1
+        ));
+
+        for invalid in [f32::NAN, f32::INFINITY, f32::NEG_INFINITY] {
+            let mut samples = valid.clone();
+            samples[0] = invalid;
+            assert!(!decoded_pcm_is_valid(
+                &samples,
+                PLC_FRAME_SAMPLES,
+                PLC_FRAME_SAMPLES
+            ));
+        }
     }
 
     #[test]
