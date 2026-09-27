@@ -240,6 +240,47 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn send_from_registry_requeues_suffix_after_late_protocol_rejection() {
+        let registry = crate::SessionRegistry::new();
+        let sink = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let destination = sink.local_addr().unwrap();
+        registry.transport_outputs.lock().await.extend([
+            str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: destination,
+                destination,
+                contents: b"prefix".to_vec().into(),
+            },
+            str0m::net::Transmit {
+                proto: Protocol::Tcp,
+                source: destination,
+                destination,
+                contents: b"unsupported".to_vec().into(),
+            },
+            str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: destination,
+                destination,
+                contents: b"suffix".to_vec().into(),
+            },
+        ]);
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+
+        let error = adapter.send_from_registry(&registry, 3).await.unwrap_err();
+
+        assert_eq!(error.kind(), io::ErrorKind::InvalidInput);
+        let mut payload = [0; 16];
+        let (length, _) = sink.recv_from(&mut payload).await.unwrap();
+        assert_eq!(&payload[..length], b"prefix");
+        let queued = registry.drain_transport_outputs(2).await;
+        assert_eq!(queued.len(), 2);
+        assert_eq!(&queued[0].contents[..], b"unsupported");
+        assert_eq!(&queued[1].contents[..], b"suffix");
+    }
+
+    #[tokio::test]
     async fn send_from_registry_zero_budget_preserves_pending_output() {
         let registry = crate::SessionRegistry::new();
         registry

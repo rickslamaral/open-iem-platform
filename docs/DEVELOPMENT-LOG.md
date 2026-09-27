@@ -1,3 +1,7 @@
+## 2026-09-27 — TransportAdapter late protocol rejection
+
+- Added CODE regression proving a valid UDP prefix is sent, then an unsupported protocol fails closed and unsupported plus later FIFO suffix are requeued unchanged. Runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — TransportAdapter protocol validation
 
 - `TransportAdapter::send` e `send_from_registry` agora rejeitam `Protocol::Tcp` e `Protocol::SslTcp` antes de I/O; adapter suporta somente `Protocol::Udp`. Regressões cobrem rejeição e preservação da fila. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real, PipeWire/ALSA e Raspberry Pi permanecem não validados.
