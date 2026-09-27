@@ -666,7 +666,7 @@ Não fechar item por simulação, CI, cross-build, loopback ou ausência de erro
 - [x] Separate `SOFTWARE_RELEASE_GATE`, `PACKAGE_RELEASE_GATE`, `HARDWARE_CERTIFICATION`, `OPTIONAL`, `OBSOLETE`.
 - [x] Add initial `.deb` builder, systemd unit, lifecycle scripts, validator and Make targets.
 - [x] Complete real amd64/arm64 `.deb` artifact matrix and package install/upgrade/uninstall/purge in clean containers. amd64 lifecycle evidence: PASS on 2026-09-19; arm64 artifact and lifecycle evidence: PASS in CI run 35533396414 (CODE + PACKAGE_RELEASE_GATE).
-- [ ] Complete software WebRTC/Opus E2E evidence. Two-peer Sans-IO str0m ICE/DTLS-SRTP/Opus round-trip is covered in CODE as SOFTWARE/SIMULATED; full runtime E2E remains pending.
+- [x] Complete software WebRTC/Opus multi-frame evidence: two-peer Sans-IO str0m ICE/DTLS-SRTP/Opus round-trip now sends and decodes two ordered frames; full runtime E2E remains pending.
 - [x] Run configurable software stability profile with bounded test commands over deterministic CODE/SIMULATED audio and media paths; `run-software-release-gates.sh` now repeats headless audio plus streaming tests for `OPENIEM_SOAK_SECONDS`. This does not validate realtime, PipeWire, WebRTC runtime or hardware.
 - [ ] Hardware certification remains separate: physical Pi 3/4/5, USB, hot-plug, latency, XRUN, thermal and power.
 

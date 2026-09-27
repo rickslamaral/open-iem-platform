@@ -1,3 +1,8 @@
+## 2026-09-27 — software WebRTC/Opus multi-frame round trip
+
+- Expanded `two_peer_webrtc_opus_media_round_trip` to send and decode two Opus frames through two str0m peers, asserting frame count and 3,840 decoded samples.
+- Verification: focused `opus_roundtrip` test PASS; physical WebRTC/DTLS-SRTP, network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — software WebRTC/Opus evidence scope reconciliation
 
 - Escopo reconciliado: `two_peer_webrtc_opus_media_round_trip` cobre protocolo WebRTC/DTLS-SRTP/Opus em transporte UDP Sans-IO. Evidência `SOFTWARE/SIMULATED`; item de E2E runtime continua pendente conforme política que não fecha item por simulação.

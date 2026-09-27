@@ -382,15 +382,20 @@ fn two_peer_webrtc_opus_media_round_trip() -> Result<(), Box<dyn std::error::Err
     sender.rtc.sdp_api().accept_answer(pending, answer)?;
 
     let mut writer = MediaWriter::new()?;
-    let frame = test_frame();
-    let packet = writer.encode(&frame)?;
-    let mut sent = false;
+    let mut first_frame = test_frame();
+    first_frame.samples = (0.1, -0.1);
+    let mut second_frame = test_frame();
+    second_frame.samples = (0.3, -0.3);
+    let packets = [writer.encode(&first_frame)?, writer.encode(&second_frame)?];
+    let mut sent = 0_usize;
     let mut media_frames = 0;
     let mut output = Capture {
         samples: Vec::new(),
         muted: 0,
     };
     let mut receiver_codec = OpusReceiver::new()?;
+    let mut received_sequences = Vec::new();
+    let mut received_timestamps = Vec::new();
 
     for tick in 0..20_000_u64 {
         let now = start + Duration::from_millis(tick);
@@ -400,7 +405,7 @@ fn two_peer_webrtc_opus_media_round_trip() -> Result<(), Box<dyn std::error::Err
         sender.deliver(now, &mut receiver.incoming)?;
         receiver.deliver(now, &mut sender.incoming)?;
 
-        if sender.rtc.is_connected() && receiver.rtc.is_connected() && !sent {
+        if sender.rtc.is_connected() && receiver.rtc.is_connected() && sent < packets.len() {
             let opus_pt = sender
                 .rtc
                 .codec_config()
@@ -415,9 +420,9 @@ fn two_peer_webrtc_opus_media_round_trip() -> Result<(), Box<dyn std::error::Err
                     opus_pt,
                     now,
                     Duration::from_millis(tick).into(),
-                    packet.payload.clone(),
+                    packets[sent].payload.clone(),
                 )?;
-            sent = true;
+            sent += 1;
         }
 
         for event in receiver.events.drain(..) {
@@ -426,10 +431,13 @@ fn two_peer_webrtc_opus_media_round_trip() -> Result<(), Box<dyn std::error::Err
                 assert_eq!(data.mid, mid);
                 assert_eq!(data.params.spec().codec, Codec::Opus);
                 assert!(!data.data.is_empty());
-                receiver_codec.enqueue(0, &data.data)?;
+                received_sequences.push(**data.seq_range.start());
+                received_timestamps.push(data.time.numer());
+                receiver_codec.enqueue(**data.seq_range.start(), &data.data)?;
             }
         }
-        if media_frames > 0 {
+        if media_frames == packets.len() as u64 {
+            receiver_codec.playout(&mut output)?;
             receiver_codec.playout(&mut output)?;
             break;
         }
@@ -443,10 +451,21 @@ fn two_peer_webrtc_opus_media_round_trip() -> Result<(), Box<dyn std::error::Err
         receiver.rtc.is_connected(),
         "receiver never reached ICE/DTLS/SRTP connected state"
     );
-    assert!(sent, "test media was never written");
-    assert_eq!(media_frames, 1);
-    assert_eq!(output.samples.len(), 1_920);
-    assert!(output.samples.iter().any(|sample| sample.abs() > 0.001));
+    assert_eq!(sent, packets.len(), "not all test media was written");
+    assert_eq!(media_frames, packets.len() as u64);
+    assert_eq!(received_sequences.len(), 2);
+    assert_eq!(received_sequences[1], received_sequences[0].wrapping_add(1));
+    assert_eq!(received_timestamps.len(), 2);
+    assert_eq!(
+        received_timestamps[1].wrapping_sub(received_timestamps[0]),
+        48
+    );
+    assert_eq!(output.samples.len(), 3_840);
+    assert_eq!(output.muted, 0);
+    let first_left_mean: f32 = output.samples[..1_920].iter().step_by(2).sum::<f32>() / 960.0;
+    let second_left_mean: f32 = output.samples[1_920..].iter().step_by(2).sum::<f32>() / 960.0;
+    assert!((first_left_mean - 0.1).abs() < 0.08);
+    assert!((second_left_mean - 0.3).abs() < 0.08);
     Ok(())
 }
 

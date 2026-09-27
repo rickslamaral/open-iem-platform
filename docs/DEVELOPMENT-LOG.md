@@ -1,3 +1,8 @@
+## 2026-09-27 — Phase 577 — software WebRTC/Opus multi-frame evidence
+
+- Expanded two-peer Sans-IO WebRTC/DTLS-SRTP/Opus regression to send and decode two frames, preserving ordered media count and non-silent output.
+- Verification: focused `opus_roundtrip` test PASS; evidence remains CODE/SOFTWARE/SIMULATED. Physical WebRTC/DTLS-SRTP, network, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-27 — development HEAD/CI status reconciliation
 
 - Atualizado o handoff e TODO para refletir `develop` em `a424086`, evitando referências obsoletas a commits anteriores.
