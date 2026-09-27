@@ -116,6 +116,7 @@ impl AudioOutput for BoundedPcmOutput {
         if channels != 2
             || samples.is_empty()
             || samples.len() > MAX_OUTPUT_SAMPLES
+            || samples.iter().any(|sample| !sample.is_finite())
             || !samples.len().is_multiple_of(usize::from(channels))
         {
             return Err(OutputError);
@@ -630,6 +631,23 @@ mod tests {
         assert_eq!(output.write(&[0.1], 1), Err(OutputError));
         assert_eq!(output.write(&[], 2), Err(OutputError));
         assert!(output.is_empty());
+    }
+
+    #[test]
+    fn bounded_pcm_output_rejects_non_finite_samples_without_mutation() {
+        let mut output = BoundedPcmOutput::new(2);
+        output.write(&[0.1, 0.2], 2).unwrap();
+
+        for samples in [
+            [f32::NAN, 0.0],
+            [f32::INFINITY, 0.0],
+            [f32::NEG_INFINITY, 0.0],
+        ] {
+            assert_eq!(output.write(&samples, 2), Err(OutputError));
+            assert_eq!(output.len(), 1);
+        }
+
+        assert_eq!(output.pop_frame(), Some(vec![0.1, 0.2]));
     }
 
     #[test]

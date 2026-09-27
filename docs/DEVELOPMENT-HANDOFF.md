@@ -1,4 +1,8 @@
 
+## 2026-09-27 — Bounded PCM finite-sample boundary
+
+- `BoundedPcmOutput::write` rejeita `NaN`, `+∞` e `-∞` antes de mutar a fila; regressão cobre preservação de frame válido. Evidência CODE local; PipeWire/ALSA, runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-27 — Bounded PCM receiver output boundary
 
 - `streaming::BoundedPcmOutput` fornece fila de frames PCM estéreo limitada a 256 frames, rejeita overflow e entradas inválidas sem mutação e limpa frames pendentes em `mute`.
