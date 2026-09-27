@@ -3,6 +3,10 @@
 - Added software/SIMULATED two-peer WebRTC/DTLS-SRTP/Opus Sans-IO integration coverage with virtual UDP routing and decoded stereo output. Physical hardware and real-network validation remain separate.
 ## [Unreleased]
 
+### Tests
+- Added streaming pairing credential boundary regressions for minimum accepted length, oversized authentication, and revoked replacement state preservation.
+
+
 ### Fixed
 - Streaming: PLC audio-output failures now increment dropped-packet counters consistently with decoded-frame output failures.
 - Added deterministic CODE regressions for PLC decoder and invalid sample-count failures, including dropped-packet accounting.

@@ -1,3 +1,8 @@
+## 2026-09-27 — Pairing credential boundary regressions
+
+- Added CODE regressions for minimum-length authentication, oversized authentication rejection without state mutation, and oversized revoked-replacement credential rejection with subsequent valid replacement.
+- Verification: Rust fmt, clippy, full server test suite, musician frontend typecheck/tests/build and engineer frontend typecheck/tests/build PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — TransportAdapter generic late protocol rejection
 
 - Added CODE regression proving generic `TransportAdapter::send` emits valid UDP prefix, rejects unsupported protocol, and does not consume iterator suffix. Focused test PASS. Runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.

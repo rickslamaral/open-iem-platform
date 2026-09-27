@@ -633,3 +633,79 @@ mod tests {
         assert!(registry.is_empty().await);
     }
 }
+
+#[cfg(test)]
+mod pairing_boundary_tests {
+    use super::*;
+
+    const CREDENTIAL: &[u8] = b"pairing-secret-1234";
+
+    #[tokio::test]
+    async fn authenticate_at_minimum_credential_length_is_accepted() {
+        // Credential of exactly 16 bytes satisfies the lower bound.
+        let registry = PairingRegistry::new();
+        let min_cred: Vec<u8> = vec![b'x'; 16];
+        registry
+            .pair("rx-min-auth", "musician-1", 0, &min_cred)
+            .await
+            .expect("pairing with 16-byte credential must succeed");
+        let identity = registry
+            .authenticate("rx-min-auth", &min_cred)
+            .await
+            .expect("authenticate with 16-byte credential must succeed");
+        assert_eq!(identity.device_id, "rx-min-auth");
+        assert_eq!(identity.mix_index, 0);
+    }
+
+    #[tokio::test]
+    async fn authenticate_oversized_credential_is_rejected_without_mutation() {
+        // Credential over MAX_CREDENTIAL_BYTES must fail without changing device state.
+        let registry = PairingRegistry::new();
+        let oversized: Vec<u8> = vec![b'o'; MAX_CREDENTIAL_BYTES + 1];
+        registry
+            .pair("rx-exists", "musician-2", 1, CREDENTIAL)
+            .await
+            .unwrap();
+        assert_eq!(
+            registry.authenticate("rx-exists", &oversized).await,
+            Err(PairingError::InvalidCredential),
+            "oversized authenticate credential must fail closed"
+        );
+        // Device must remain accessible with valid credential.
+        assert!(registry.authenticate("rx-exists", CREDENTIAL).await.is_ok());
+    }
+
+    #[tokio::test]
+    async fn replace_revoked_oversized_old_credential_is_rejected_without_mutation() {
+        // Oversized old_credential must fail without changing revoked state.
+        let registry = PairingRegistry::new();
+        let oversized_old: Vec<u8> = vec![b'o'; MAX_CREDENTIAL_BYTES + 1];
+        let new_cred = b"new-pairing-secret-ok";
+        registry
+            .pair("rx-revoked", "musician-3", 2, CREDENTIAL)
+            .await
+            .unwrap();
+        registry.revoke("rx-revoked").await.unwrap();
+        assert_eq!(
+            registry
+                .replace_revoked("rx-revoked", &oversized_old, new_cred)
+                .await,
+            Err(PairingError::InvalidCredential),
+        );
+        // Failed replacement leaves device revoked and original credential valid
+        // for a subsequent authorized replacement.
+        assert_eq!(
+            registry.authenticate("rx-revoked", CREDENTIAL).await,
+            Err(PairingError::Revoked),
+        );
+        registry
+            .replace_revoked("rx-revoked", CREDENTIAL, new_cred)
+            .await
+            .expect("unchanged original credential must authorize replacement");
+        assert!(registry.authenticate("rx-revoked", new_cred).await.is_ok());
+        assert_eq!(
+            registry.authenticate("rx-revoked", CREDENTIAL).await,
+            Err(PairingError::InvalidCredential),
+        );
+    }
+}
