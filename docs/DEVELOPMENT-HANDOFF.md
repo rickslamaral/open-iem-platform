@@ -1,7 +1,7 @@
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
-- HEAD atual: `b1f6e39` (`develop`), sincronizado com `origin/develop`.
-- CI real do HEAD `b1f6e39` concluiu com sucesso nos workflows `CI` e `Software Package Lifecycle Gates`, com jobs executados de verdade.
+- HEAD atual: `3c7f0ef` (`develop`), sincronizado com `origin/develop`.
+- CI real do HEAD `3c7f0ef` concluiu com sucesso nos workflows `CI` e `Software Package Lifecycle Gates`, com jobs executados de verdade.
 - Gates locais executados: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, clippy e `cargo test --manifest-path server/Cargo.toml` PASS (461 testes streaming; suíte total PASS).
 - PR #340 permanece aberta; política deste ciclo proíbe merge e abertura de novas PRs.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
