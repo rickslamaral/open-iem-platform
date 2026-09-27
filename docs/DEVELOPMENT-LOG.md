@@ -1,3 +1,10 @@
+## 2026-09-27 — develop HEAD/CI status reconciliation
+
+- Reconciliado estado documental para `develop` em `f3deabd`, sincronizado com `origin/develop`.
+- CI real do HEAD exato `f3deabd` concluiu com sucesso nos workflows `CI` e `Software Package Lifecycle Gates`, com 16 jobs executados de verdade.
+- Gates locais deste ciclo ainda pendentes; PR #340 permanece aberta contra `main` e não será alterada por esta política.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 
 ## 2026-09-27 — output budget excludes bridge drain
 
