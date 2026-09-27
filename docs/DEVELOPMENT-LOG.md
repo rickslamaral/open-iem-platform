@@ -1,3 +1,8 @@
+## 2026-09-27 — Decoded PCM finiteness boundary
+
+- `OpusReceiver::playout` agora rejeita PCM decodificado contendo `NaN` ou infinito antes de chamar qualquer `AudioOutput`, preservando mute fail-safe, contagem de drops e avanço de sequência.
+- Regressão CODE cobre a função de validação para amostras finitas e não finitas. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-27 — reconnect recovery after output failure
 
 - Added CODE regression proving `OpusReceiver` recovers from an output failure after explicit reconnect: stale failure state clears, new-generation Opus frame plays, and receiver returns to `Playing`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

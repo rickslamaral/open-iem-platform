@@ -28,6 +28,11 @@ const PLC_FRAME_SAMPLES: usize = 960;
 /// Maximum consecutive PLC-concealed frames before fail-safe mute.
 const PLC_MAX_CONSECUTIVE: u32 = 4;
 
+#[inline]
+fn pcm_is_finite(samples: &[f32]) -> bool {
+    samples.iter().all(|sample| sample.is_finite())
+}
+
 /// Receiver lifecycle. `Muted` is fail-safe: no stale audio reaches output.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ReceiverState {
@@ -268,6 +273,10 @@ pub struct OpusReceiver {
     metrics: Option<Arc<ReceiverMetrics>>,
     #[cfg(test)]
     plc_decode_override: Option<Result<usize, ()>>,
+    #[cfg(test)]
+    decode_non_finite_override: bool,
+    #[cfg(test)]
+    plc_non_finite_override: bool,
 }
 
 impl OpusReceiver {
@@ -295,6 +304,10 @@ impl OpusReceiver {
             metrics: None,
             #[cfg(test)]
             plc_decode_override: None,
+            #[cfg(test)]
+            decode_non_finite_override: false,
+            #[cfg(test)]
+            plc_non_finite_override: false,
         })
     }
     /// Attach observability metrics to this receiver.
@@ -309,14 +322,44 @@ impl OpusReceiver {
         self.plc_decode_override = Some(result);
     }
 
+    #[cfg(test)]
+    fn set_decode_non_finite_override(&mut self) {
+        self.decode_non_finite_override = true;
+    }
+
+    #[cfg(test)]
+    fn set_plc_non_finite_override(&mut self) {
+        self.plc_non_finite_override = true;
+    }
+
+    fn decode_packet(&mut self, packet: &[u8]) -> Result<usize, ()> {
+        let samples = self
+            .decoder
+            .decode(packet, MAX_DECODED_SAMPLES, &mut self.pcm)
+            .map_err(|_| ())?;
+        #[cfg(test)]
+        if self.decode_non_finite_override {
+            self.decode_non_finite_override = false;
+            self.pcm[0] = f32::NAN;
+        }
+        Ok(samples)
+    }
+
     fn decode_plc(&mut self) -> Result<usize, ()> {
         #[cfg(test)]
         if let Some(result) = self.plc_decode_override.take() {
             return result;
         }
-        self.decoder
+        let samples = self
+            .decoder
             .decode(&[], PLC_FRAME_SAMPLES, &mut self.pcm)
-            .map_err(|_| ())
+            .map_err(|_| ())?;
+        #[cfg(test)]
+        if self.plc_non_finite_override {
+            self.plc_non_finite_override = false;
+            self.pcm[0] = f32::NAN;
+        }
+        Ok(samples)
     }
 
     /// Enqueue encoded payload without waiting. `sequence` must be a monotonic
@@ -450,6 +493,7 @@ impl OpusReceiver {
                     if samples != PLC_FRAME_SAMPLES
                         || samples.checked_mul(2).is_none()
                         || samples * 2 > self.pcm.len()
+                        || !pcm_is_finite(&self.pcm[..samples * 2])
                     {
                         self.state = ReceiverState::Muted;
                         self.output_failed = true;
@@ -497,26 +541,35 @@ impl OpusReceiver {
             output.mute();
             return Ok(());
         };
-        let samples = self
-            .decoder
-            .decode(&packet, MAX_DECODED_SAMPLES, &mut self.pcm)
-            .map_err(|_| {
-                self.state = ReceiverState::Muted;
-                self.output_failed = true;
-                if let Some(ref m) = self.metrics {
-                    m.record_output_failure();
-                    m.record_dropped();
-                }
-                self.dropped_packets = self.dropped_packets.saturating_add(1);
-                self.next_sequence = Some(sequence.wrapping_add(1));
-                output.mute();
-                ReceiverError::InvalidPacket
-            })?;
+        let samples = self.decode_packet(&packet).map_err(|()| {
+            self.state = ReceiverState::Muted;
+            self.output_failed = true;
+            if let Some(ref m) = self.metrics {
+                m.record_output_failure();
+                m.record_dropped();
+            }
+            self.dropped_packets = self.dropped_packets.saturating_add(1);
+            self.next_sequence = Some(sequence.wrapping_add(1));
+            output.mute();
+            ReceiverError::InvalidPacket
+        })?;
         if samples != PLC_FRAME_SAMPLES
             || samples > MAX_DECODED_SAMPLES
             || samples.checked_mul(2).is_none()
             || samples * 2 > self.pcm.len()
         {
+            self.state = ReceiverState::Muted;
+            self.output_failed = true;
+            if let Some(ref m) = self.metrics {
+                m.record_output_failure();
+                m.record_dropped();
+            }
+            self.dropped_packets = self.dropped_packets.saturating_add(1);
+            self.next_sequence = Some(sequence.wrapping_add(1));
+            output.mute();
+            return Err(ReceiverError::InvalidPacket);
+        }
+        if !pcm_is_finite(&self.pcm[..samples * 2]) {
             self.state = ReceiverState::Muted;
             self.output_failed = true;
             if let Some(ref m) = self.metrics {
@@ -623,6 +676,56 @@ mod tests {
         output.write(&[0.3, 0.4], 2).unwrap();
         output.mute();
         assert!(output.is_empty());
+    }
+
+    #[test]
+    fn playout_rejects_non_finite_plc_pcm_before_output() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut receiver = OpusReceiver::new().unwrap().with_metrics(metrics.clone());
+        let packet = make_opus_packet();
+        receiver.enqueue(1, &packet).unwrap();
+        receiver.enqueue(3, &packet).unwrap();
+        let mut output = Sink { frames: 0 };
+        receiver.playout(&mut output).unwrap();
+        receiver.set_plc_non_finite_override();
+
+        assert_eq!(
+            receiver.playout(&mut output),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(output.frames, 960 * 2);
+        assert_eq!(receiver.state(), ReceiverState::Muted);
+        assert_eq!(receiver.dropped_packets(), 1);
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
+        assert_eq!(metrics.snapshot().output_failures, 1);
+    }
+
+    #[test]
+    fn playout_rejects_non_finite_decoded_pcm_before_output() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut receiver = OpusReceiver::new().unwrap().with_metrics(metrics.clone());
+        let packet = make_opus_packet();
+        receiver.enqueue(1, &packet).unwrap();
+        receiver.set_decode_non_finite_override();
+        let mut output = Sink { frames: 0 };
+
+        assert_eq!(
+            receiver.playout(&mut output),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(output.frames, 0);
+        assert_eq!(receiver.state(), ReceiverState::Muted);
+        assert_eq!(receiver.dropped_packets(), 1);
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
+        assert_eq!(metrics.snapshot().output_failures, 1);
+    }
+
+    #[test]
+    fn decoded_pcm_finiteness_boundary_rejects_non_finite_samples() {
+        assert!(pcm_is_finite(&[0.0_f32, -1.0, 1.0]));
+        assert!(!pcm_is_finite(&[f32::NAN]));
+        assert!(!pcm_is_finite(&[f32::INFINITY]));
+        assert!(!pcm_is_finite(&[f32::NEG_INFINITY]));
     }
 
     #[test]

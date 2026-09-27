@@ -4,7 +4,7 @@
 ## [Unreleased]
 
 ### Fixed
-- Reject non-finite samples at bounded PCM output boundary without mutating queued audio.
+- Receiver now rejects non-finite decoded PCM before any `AudioOutput` sink call, preserving fail-safe mute and drop accounting.
 
 
 ## 2026-09-27 — Bounded PCM receiver output boundary
