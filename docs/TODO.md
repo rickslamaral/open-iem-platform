@@ -1645,3 +1645,6 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Cobrir que amostra remota stale não substitui baseline aceito; atualização válida seguinte ignora o valor local do replay.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+## 2026-09-27 — DriftEstimator local baseline preservation
+
+- [x] Cobrir regressão do contador local sem substituir baseline aceito no `DriftEstimator`; próxima amostra válida permanece calculada contra baseline anterior. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

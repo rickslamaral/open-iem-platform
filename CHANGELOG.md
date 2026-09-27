@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Tests
+- Added CODE regression proving `DriftEstimator` ignores local-counter regression without replacing accepted baseline. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ### Fixed
 - Align local `OpusReceiver` invalid-ingress drop accounting with aggregate metrics, including saturating overflow behavior.
 

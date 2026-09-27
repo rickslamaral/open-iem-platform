@@ -1186,3 +1186,6 @@ test → review → docs/GAP update → PR/CI
 ## 2026-09-27 — invalid Opus ingress local drop accounting
 
 - HEAD de desenvolvimento recebeu correção de contagem local para ingress Opus inválido; `cargo fmt`, clippy streaming e 508 testes `streaming` passaram localmente. CI da PR #340 continua em execução; política do ciclo mantém sem merge/PR. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-27 — DriftEstimator local baseline preservation
+
+- Added CODE regression proving local-counter regression does not replace accepted `DriftEstimator` baseline. Focused test passes; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

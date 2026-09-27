@@ -275,6 +275,24 @@ mod clock_boundary_tests {
     }
 
     #[test]
+    fn drift_estimator_local_regression_preserves_accepted_baseline() {
+        let mut e = DriftEstimator::new(NOMINAL_SAMPLE_RATE, 1.0);
+        let _ = e.update(0, 0);
+        let _ = e.update(48_000, 48_024);
+
+        // `update(remote, local)`: remote advances, but local regresses.
+        // The rejected sample must not become the baseline for the next valid
+        // measurement.
+        let _ = e.update(96_000, 47_000);
+        let next = e.update(144_000, 144_024);
+
+        assert!(
+            next.abs() < f64::EPSILON,
+            "accepted baseline must survive local regression; got {next}"
+        );
+    }
+
+    #[test]
     fn adaptive_resampler_zero_target_clamped_to_one() {
         let r = AdaptiveResampler::new(0);
         assert_eq!(r.target_frames(), 1, "target_frames 0 must be clamped to 1");
