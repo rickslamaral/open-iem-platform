@@ -1517,3 +1517,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## 2026-09-27 — Bounded MediaPlane session capacity
 
 - Added `MAX_MEDIA_SESSIONS` (64), capacity rejection, boundary/recovery async regressions. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane repeated overflow recovery boundary
+
+- Added CODE regression proving repeated `MediaPlane::push_frame_output` overflow increments aggregate drops once per rejected frame, drains existing bounded queue, and delivers a later frame with preserved sequence/revision metadata.
+- Gate: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, focused regression, full `streaming` suite (455 tests) and streaming clippy PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

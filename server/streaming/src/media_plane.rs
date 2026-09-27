@@ -962,6 +962,43 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn push_frame_output_repeated_overflow_recovers_without_losing_new_frame() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        let frame = make_frame(0.1, 0.2, 0.0, 0.0);
+
+        for revision in 0..MEDIA_QUEUE_CAPACITY as u64 {
+            mp.push_frame_output(&frame, revision, None).await;
+        }
+        for revision in 0..3 {
+            mp.push_frame_output(&frame, MEDIA_QUEUE_CAPACITY as u64 + revision, None)
+                .await;
+        }
+        assert_eq!(mp.total_dropped(), 3);
+
+        let drained = mp
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(drained.len(), MEDIA_QUEUE_CAPACITY);
+
+        mp.push_frame_output(&make_frame(0.3, 0.4, 0.0, 0.0), 99, None)
+            .await;
+        let recovered = mp
+            .drain_session_frames_with_budget("alice", 1)
+            .await
+            .unwrap();
+        assert_eq!(recovered.len(), 1);
+        assert_eq!(recovered[0].samples, (0.3, 0.4));
+        assert_eq!(recovered[0].metadata.revision, 99);
+        assert_eq!(
+            recovered[0].metadata.sequence,
+            (MEDIA_QUEUE_CAPACITY + 3) as u64
+        );
+        assert_eq!(mp.total_dropped(), 3);
+    }
+
+    #[tokio::test]
     async fn push_frame_output_overflow_increments_drop_count() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();

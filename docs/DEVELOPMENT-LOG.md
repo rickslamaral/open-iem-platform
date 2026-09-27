@@ -5614,3 +5614,6 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-09-27 — MediaPlane removal drain boundary
 
 - Added CODE regression proving session removal discards queued frames and subsequent drain fails closed with `NoSession`; repeated removal is non-mutating. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane repeated overflow recovery boundary
+
+- Added regression for repeated bounded queue overflow through `MediaPlane`, aggregate drop accounting, queue drain and post-recovery frame metadata. Evidence CODE local: cargo fmt, focused test, full streaming tests and streaming clippy PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
