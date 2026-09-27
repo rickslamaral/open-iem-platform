@@ -3,6 +3,11 @@
 - Added software/SIMULATED two-peer WebRTC/DTLS-SRTP/Opus Sans-IO integration coverage with virtual UDP routing and decoded stereo output. Physical hardware and real-network validation remain separate.
 ## [Unreleased]
 
+## 2026-09-27 — Bounded PCM receiver output boundary
+
+- `streaming::BoundedPcmOutput` fornece fila de frames PCM estéreo limitada a 256 frames, rejeita overflow e entradas inválidas sem mutação e limpa frames pendentes em `mute`.
+- Evidência CODE local; saída PipeWire/ALSA, runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
 ### Tests
 - Added streaming pairing credential boundary regressions for minimum accepted length, oversized authentication, and revoked replacement state preservation.
 

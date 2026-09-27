@@ -20,6 +20,8 @@ use observability::ReceiverMetrics;
 /// Maximum encoded packets retained before newest packet is dropped.
 pub const RECEIVER_QUEUE_CAPACITY: usize = 32;
 const MAX_JITTER_CAPACITY: usize = 256;
+const MAX_OUTPUT_CAPACITY: usize = 256;
+const MAX_OUTPUT_SAMPLES: usize = MAX_DECODED_SAMPLES * 2;
 const MAX_DECODED_SAMPLES: usize = 5760;
 /// MVP Opus packetization is fixed at 20 ms, 48 kHz stereo.
 const PLC_FRAME_SAMPLES: usize = 960;
@@ -67,6 +69,68 @@ pub trait AudioOutput {
 /// Audio sink failure marker.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct OutputError;
+
+/// Bounded in-memory PCM sink for headless and deterministic receiver paths.
+///
+/// This is a CODE/SIMULATED output boundary, not `PipeWire`, ALSA, or hardware
+/// integration. The queue holds at most 256 frames, each with at most
+/// `MAX_OUTPUT_SAMPLES` stereo samples. Once either bound is exhausted, writes
+/// fail without mutating queued frames.
+#[derive(Debug)]
+pub struct BoundedPcmOutput {
+    frames: VecDeque<Vec<f32>>,
+    capacity: usize,
+}
+
+impl BoundedPcmOutput {
+    /// Create a sink with bounded frame capacity. Zero capacity rejects writes.
+    #[must_use]
+    pub fn new(capacity: usize) -> Self {
+        let capacity = capacity.min(MAX_OUTPUT_CAPACITY);
+        Self {
+            frames: VecDeque::with_capacity(capacity),
+            capacity,
+        }
+    }
+
+    /// Number of PCM frames waiting for consumption.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.frames.len()
+    }
+
+    /// Whether no PCM frames are waiting.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.frames.is_empty()
+    }
+
+    /// Remove oldest queued frame for a deterministic consumer.
+    pub fn pop_frame(&mut self) -> Option<Vec<f32>> {
+        self.frames.pop_front()
+    }
+}
+
+impl AudioOutput for BoundedPcmOutput {
+    fn write(&mut self, samples: &[f32], channels: u8) -> Result<(), OutputError> {
+        if channels != 2
+            || samples.is_empty()
+            || samples.len() > MAX_OUTPUT_SAMPLES
+            || !samples.len().is_multiple_of(usize::from(channels))
+        {
+            return Err(OutputError);
+        }
+        if self.frames.len() >= self.capacity {
+            return Err(OutputError);
+        }
+        self.frames.push_back(samples.to_vec());
+        Ok(())
+    }
+
+    fn mute(&mut self) {
+        self.frames.clear();
+    }
+}
 
 /// Bounded packet jitter buffer. Sequence gaps are tolerated and reported by
 /// `pop`; missing packets produce mute rather than fabricated audio.
@@ -542,6 +606,53 @@ mod tests {
         }
         fn mute(&mut self) {}
     }
+    #[test]
+    fn bounded_pcm_output_rejects_overflow_without_mutation() {
+        let mut output = BoundedPcmOutput::new(1);
+        output.write(&[0.1, 0.2], 2).unwrap();
+        assert_eq!(output.write(&[0.3, 0.4], 2), Err(OutputError));
+        assert_eq!(output.len(), 1);
+        assert_eq!(output.pop_frame(), Some(vec![0.1, 0.2]));
+    }
+
+    #[test]
+    fn bounded_pcm_output_mute_discards_pending_frames() {
+        let mut output = BoundedPcmOutput::new(2);
+        output.write(&[0.1, 0.2], 2).unwrap();
+        output.write(&[0.3, 0.4], 2).unwrap();
+        output.mute();
+        assert!(output.is_empty());
+    }
+
+    #[test]
+    fn bounded_pcm_output_rejects_non_stereo_or_empty_frames() {
+        let mut output = BoundedPcmOutput::new(1);
+        assert_eq!(output.write(&[0.1], 1), Err(OutputError));
+        assert_eq!(output.write(&[], 2), Err(OutputError));
+        assert!(output.is_empty());
+    }
+
+    #[test]
+    fn bounded_pcm_output_clamps_requested_capacity() {
+        let output = BoundedPcmOutput::new(usize::MAX);
+        assert_eq!(output.capacity, MAX_OUTPUT_CAPACITY);
+    }
+
+    #[test]
+    fn bounded_pcm_output_rejects_oversized_frame_without_mutation() {
+        let mut output = BoundedPcmOutput::new(1);
+        let samples = vec![0.0; MAX_OUTPUT_SAMPLES + 2];
+        assert_eq!(output.write(&samples, 2), Err(OutputError));
+        assert!(output.is_empty());
+    }
+
+    #[test]
+    fn bounded_pcm_output_zero_capacity_rejects_write() {
+        let mut output = BoundedPcmOutput::new(0);
+        assert_eq!(output.write(&[0.1, 0.2], 2), Err(OutputError));
+        assert!(output.is_empty());
+    }
+
     #[test]
     fn jitter_orders_packets() {
         let mut j = JitterBuffer::new(2);

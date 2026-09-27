@@ -1,3 +1,8 @@
+
+## 2026-09-27 — Bounded PCM receiver output boundary
+
+- `streaming::BoundedPcmOutput` fornece fila de frames PCM estéreo limitada a 256 frames, rejeita overflow e entradas inválidas sem mutação e limpa frames pendentes em `mute`.
+- Evidência CODE local; saída PipeWire/ALSA, runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
 ## 2026-09-27 — TransportAdapter generic late protocol rejection
 
 - Added CODE regression proving generic `TransportAdapter::send` emits valid UDP prefix, rejects unsupported protocol, and does not consume iterator suffix. Focused test PASS. Runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.

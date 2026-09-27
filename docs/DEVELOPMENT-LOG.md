@@ -1,3 +1,8 @@
+
+## 2026-09-27 — Bounded PCM receiver output boundary
+
+- `streaming::BoundedPcmOutput` fornece fila de frames PCM estéreo limitada a 256 frames, rejeita overflow e entradas inválidas sem mutação e limpa frames pendentes em `mute`.
+- Evidência CODE local; saída PipeWire/ALSA, runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
 ## 2026-09-27 — Pairing credential boundary regressions
 
 - Added CODE regressions for minimum-length authentication, oversized authentication rejection without state mutation, and oversized revoked-replacement credential rejection with subsequent valid replacement.
