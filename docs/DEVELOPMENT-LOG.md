@@ -1,3 +1,9 @@
+## 2026-09-27 — SessionRegistry replacement isolation
+
+- `SessionRegistry::drive_once` mantém o `sessions` lock durante snapshot de peers elegíveis, drain do `MediaPlane` e encode/write. Isso impede replacement concorrente de trocar o peer entre drain e entrega, evitando descarte silencioso de frames.
+- Gates locais: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, typecheck/test/build dos dois frontends — PASS. `scan_patterns.py` indisponível neste host.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — media write failure drain accounting
 
 - Regressão ampliada para dois frames drenados com `MediaWriter::write` falhando: ambos incrementam `media_write_errors`, nenhum incrementa `packets_encoded`, e nenhuma tentativa de reenvio ocorre na chamada seguinte. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

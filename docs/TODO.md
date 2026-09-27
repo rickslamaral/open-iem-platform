@@ -748,6 +748,10 @@ Não fechar item por simulação, CI, cross-build, loopback ou ausência de erro
 
 # TODO
 
+## Estado atual — 2026-09-27 (SessionRegistry replacement isolation)
+- [x] `SessionRegistry::drive_once` mantém o lock de sessões durante elegibilidade, drain e encode; replacement concorrente não pode drenar frame para peer antigo e descartá-lo silenciosamente. `cargo test --manifest-path server/Cargo.toml` (529 testes streaming) PASS local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+
 ## Estado atual — 2026-09-27 (media write failure drain accounting)
 - [x] Cobrir dois frames drenados quando `MediaWriter::write` falha: ambos são contabilizados como `media_write_errors`, nenhum é contado como codificado e a fila não tenta reenviar os frames descartados. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 

@@ -364,13 +364,10 @@ impl SessionRegistry {
                 break;
             }
         }
-        drop(sessions);
-
         // Drain only sessions with a currently usable negotiated Opus writer.
-        let session_ids = self
-            .sessions
-            .lock()
-            .await
+        // Keep the session guard held through draining and encoding so a
+        // replacement cannot occur between eligibility, drain, and encode.
+        let session_ids = sessions
             .values_mut()
             .filter_map(|peer| {
                 let mid = peer.media_mid?;
@@ -404,8 +401,6 @@ impl SessionRegistry {
                 drained.insert(user_id, frames);
             }
         }
-
-        let mut sessions = self.sessions.lock().await;
 
         for peer in sessions.values_mut() {
             if let Some(mid) = peer.media_mid {
