@@ -1,3 +1,7 @@
+## 2026-09-27 — MediaPlane validation precedence at capacity
+
+- Added CODE regression proving invalid mix indexes are rejected before capacity evaluation without mutating the full registry.
+
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
 - Atualizado o estado documental para `develop` em `73535fa`.

@@ -1,5 +1,7 @@
 ## 2026-09-27 — MediaPlane validation precedence at capacity
 
+- Added `invalid_mix_index_precedes_capacity_rejection_without_mutation`: full capacity does not mask invalid mix selection; registry remains unchanged.
+
 - Added `invalid_user_id_precedes_capacity_rejection_without_mutation`: full capacity does not mask malformed user identity; registry remains unchanged.
 - Focused test PASS. Evidence `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
