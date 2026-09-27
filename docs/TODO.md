@@ -1,4 +1,8 @@
 
+## Estado atual — 2026-09-27 (negotiated media write accounting)
+- [x] `SessionRegistry::drive_once` contabiliza falhas de `MediaWriter::write` em `DriveReport::media_write_errors`, sem contar o pacote como codificado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+
 ## 2026-09-27 — Opus ingress queue overflow local accounting
 
 - `OpusReceiver::enqueue` agora mantém contador local bounded para overflow da fila de ingress; `dropped_packets()` inclui esse contador com saturação. Métrica agregada já contava o descarte. Regressão cobre saturação do contador. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

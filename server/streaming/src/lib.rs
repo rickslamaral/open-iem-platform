@@ -85,6 +85,7 @@ pub struct DriveReport {
     pub transport_outputs_dropped: usize,
     pub poll_errors: usize,
     pub encode_errors: usize,
+    pub media_write_errors: usize,
 }
 
 struct PeerSession {
@@ -335,6 +336,7 @@ impl SessionRegistry {
         let mut transport_outputs_dropped = 0;
         let mut poll_errors = 0;
         let mut encode_errors: usize = 0;
+        let mut media_write_errors: usize = 0;
 
         for peer in sessions.values_mut() {
             while outputs_polled < output_budget {
@@ -398,6 +400,8 @@ impl SessionRegistry {
                             .is_ok()
                         {
                             packets_encoded += 1;
+                        } else {
+                            media_write_errors = media_write_errors.saturating_add(1);
                         }
                         if outputs_polled < output_budget {
                             match peer.rtc.poll_output() {
@@ -443,6 +447,7 @@ impl SessionRegistry {
             transport_outputs_dropped,
             poll_errors,
             encode_errors,
+            media_write_errors,
         }
     }
 
@@ -733,7 +738,13 @@ mod tests {
 
         let report = registry.drive_once(&bridge, &plane, 2, 2).await;
         assert_eq!(report.encode_errors, 1);
+        assert_eq!(report.media_write_errors, 0);
         assert_eq!(report.packets_encoded, 1);
+    }
+
+    #[test]
+    fn drive_report_default_starts_media_write_errors_at_zero() {
+        assert_eq!(DriveReport::default().media_write_errors, 0);
     }
 
     #[tokio::test]

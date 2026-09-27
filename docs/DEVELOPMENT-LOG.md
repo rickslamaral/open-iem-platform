@@ -1,3 +1,8 @@
+
+## 2026-09-27 — negotiated media write accounting
+
+- `SessionRegistry::drive_once` agora expõe `media_write_errors` em `DriveReport` quando `MediaWriter::write` falha; pacotes rejeitados não incrementam `packets_encoded`. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
 ## 2026-09-27 — DriftEstimator local baseline preservation
 
 - Added CODE regression proving a local sample-counter regression does not replace the last accepted clock baseline; the next valid sample remains classified against the accepted pair. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
