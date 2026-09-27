@@ -1,3 +1,7 @@
+## 2026-09-27 — TransportAdapter send budget boundary
+
+- Added CODE regression `send_from_registry_caps_budget_and_preserves_pending_suffix`, proving `TRANSPORT_SEND_BUDGET` caps one adapter pass and leaves FIFO suffix queued for later delivery. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 
 ## 2026-09-27 — MediaBridge non-finite frame ordering
 

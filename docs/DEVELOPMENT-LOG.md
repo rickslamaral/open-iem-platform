@@ -1,3 +1,7 @@
+## 2026-09-27 — TransportAdapter send budget boundary
+
+- Added CODE regression `send_from_registry_caps_budget_and_preserves_pending_suffix`, proving `TRANSPORT_SEND_BUDGET` caps one adapter pass and leaves FIFO suffix queued for later delivery. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — MediaBridge partial fan-out overflow
 
 - Added `drain_partial_destination_overflow_preserves_available_fanout`: a full session queue increments one drop, while available subscribed session receives same bridge frame with revision preserved; subsequent drain confirms no duplicate. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.

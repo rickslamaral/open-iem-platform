@@ -230,6 +230,36 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn send_from_registry_caps_budget_and_preserves_pending_suffix() {
+        let registry = crate::SessionRegistry::new();
+        let sink = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let destination = sink.local_addr().unwrap();
+        let outputs = (0..=TRANSPORT_SEND_BUDGET)
+            .map(|index| str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: destination,
+                destination,
+                contents: format!("budget-{index}").into_bytes().into(),
+            })
+            .collect::<Vec<_>>();
+        registry.requeue_transport_outputs(outputs).await;
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+
+        let report = adapter
+            .send_from_registry(&registry, usize::MAX)
+            .await
+            .unwrap();
+
+        assert_eq!(report.attempted, TRANSPORT_SEND_BUDGET);
+        assert_eq!(report.sent, TRANSPORT_SEND_BUDGET);
+        let pending = registry.drain_transport_outputs(usize::MAX).await;
+        assert_eq!(pending.len(), 1);
+        assert_eq!(&pending[0].contents[..], b"budget-32");
+    }
+
+    #[tokio::test]
     async fn empty_send_is_bounded_and_noop() {
         let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
             .await
