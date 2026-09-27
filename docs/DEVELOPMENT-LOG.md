@@ -1,3 +1,7 @@
+## 2026-09-27 — TransportAdapter SslTcp rejection
+
+- Added CODE regression proving `Protocol::SslTcp` fails closed before UDP I/O and preserves the full registry FIFO queue. Runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — TransportAdapter late protocol rejection
 
 - Added CODE regression proving a valid UDP prefix is sent, then an unsupported protocol fails closed and unsupported plus later FIFO suffix are requeued unchanged. Runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.

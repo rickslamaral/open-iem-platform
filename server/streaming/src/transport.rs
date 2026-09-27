@@ -240,6 +240,36 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn send_from_registry_rejects_ssl_tcp_without_consuming_queue() {
+        let registry = crate::SessionRegistry::new();
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+        registry.transport_outputs.lock().await.extend([
+            str0m::net::Transmit {
+                proto: Protocol::SslTcp,
+                source: adapter.local_addr().unwrap(),
+                destination: adapter.local_addr().unwrap(),
+                contents: b"unsupported-ssl-tcp".to_vec().into(),
+            },
+            str0m::net::Transmit {
+                proto: Protocol::Udp,
+                source: adapter.local_addr().unwrap(),
+                destination: adapter.local_addr().unwrap(),
+                contents: b"suffix".to_vec().into(),
+            },
+        ]);
+
+        let error = adapter.send_from_registry(&registry, 2).await.unwrap_err();
+
+        assert_eq!(error.kind(), io::ErrorKind::InvalidInput);
+        let queued = registry.drain_transport_outputs(2).await;
+        assert_eq!(queued.len(), 2);
+        assert_eq!(&queued[0].contents[..], b"unsupported-ssl-tcp");
+        assert_eq!(&queued[1].contents[..], b"suffix");
+    }
+
+    #[tokio::test]
     async fn send_from_registry_requeues_suffix_after_late_protocol_rejection() {
         let registry = crate::SessionRegistry::new();
         let sink = UdpSocket::bind("127.0.0.1:0").await.unwrap();
