@@ -275,6 +275,7 @@ pub struct OpusReceiver {
     next_sequence: Option<u64>,
     pcm: Vec<f32>,
     dropped_packets: u64,
+    invalid_ingress_dropped_packets: AtomicU64,
     /// Count of PLC-concealed frames since last good decode.
     plc_consecutive: u32,
     /// Total PLC frames generated (cumulative, never resets).
@@ -308,6 +309,7 @@ impl OpusReceiver {
             next_sequence: None,
             pcm: vec![0.0; MAX_DECODED_SAMPLES * 2],
             dropped_packets: 0,
+            invalid_ingress_dropped_packets: AtomicU64::new(0),
             plc_consecutive: 0,
             plc_frames_total: 0,
             generation: Arc::new(AtomicU64::new(0)),
@@ -382,6 +384,18 @@ impl OpusReceiver {
     /// Returns an error for invalid payloads, full queue, or disconnected receiver.
     pub fn enqueue(&self, sequence: u64, packet: &[u8]) -> Result<(), ReceiverError> {
         if packet.is_empty() || packet.len() > OPUS_MAX_PACKET_BYTES {
+            let mut observed = self.invalid_ingress_dropped_packets.load(Ordering::Relaxed);
+            while observed < u64::MAX {
+                match self.invalid_ingress_dropped_packets.compare_exchange_weak(
+                    observed,
+                    observed + 1,
+                    Ordering::Relaxed,
+                    Ordering::Relaxed,
+                ) {
+                    Ok(_) => break,
+                    Err(current) => observed = current,
+                }
+            }
             if let Some(ref m) = self.metrics {
                 m.record_dropped();
             }
@@ -623,6 +637,7 @@ impl OpusReceiver {
     #[must_use]
     pub fn dropped_packets(&self) -> u64 {
         self.dropped_packets
+            .saturating_add(self.invalid_ingress_dropped_packets.load(Ordering::Relaxed))
     }
 
     /// Current fail-safe lifecycle state.
@@ -1542,6 +1557,18 @@ mod tests {
         let snap = metrics.snapshot();
         assert_eq!(snap.packets_received, 0);
         assert_eq!(snap.packets_dropped, 2);
+        assert_eq!(r.dropped_packets(), 2);
+        assert!(r.ingress_rx.is_empty());
+    }
+
+    #[test]
+    fn invalid_ingress_drop_counter_saturates() {
+        let r = OpusReceiver::new().unwrap();
+        r.invalid_ingress_dropped_packets
+            .store(u64::MAX, Ordering::Relaxed);
+
+        assert_eq!(r.enqueue(1, &[]), Err(ReceiverError::InvalidPacket));
+        assert_eq!(r.dropped_packets(), u64::MAX);
     }
 
     #[test]

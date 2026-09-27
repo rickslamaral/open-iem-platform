@@ -1,6 +1,9 @@
 ## [Unreleased]
 
 ### Fixed
+- Align local `OpusReceiver` invalid-ingress drop accounting with aggregate metrics, including saturating overflow behavior.
+
+### Fixed
 - Centralizada validação fail-closed de PCM decodificado nos caminhos Opus normal e PLC.
 
 

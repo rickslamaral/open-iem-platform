@@ -1182,3 +1182,7 @@ test → review → docs/GAP update → PR/CI
 
 - Added CODE regression `push_frame_output_invalid_mix_preserves_full_queue_and_drop_accounting`, proving an externally invalid mix index neither consumes a full queue nor increments sequence/drop counters; restoring valid routing preserves normal overflow accounting.
 - Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — invalid Opus ingress local drop accounting
+
+- HEAD de desenvolvimento recebeu correção de contagem local para ingress Opus inválido; `cargo fmt`, clippy streaming e 508 testes `streaming` passaram localmente. CI da PR #340 continua em execução; política do ciclo mantém sem merge/PR. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
