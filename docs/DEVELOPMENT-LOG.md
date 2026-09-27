@@ -1,7 +1,7 @@
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
-- Reconciliado estado documental para `develop` em `3c7f0ef`, sincronizado com `origin/develop`.
-- CI real do HEAD `3c7f0ef` concluiu com sucesso nos workflows `CI` e `Software Package Lifecycle Gates`, com jobs executados de verdade.
+- Reconciliado estado documental para `develop` em `0f2fe44`; CI anterior validado em `3c7f0ef`, sincronizado com `origin/develop`.
+- CI real do commit-base `3c7f0ef` concluiu com sucesso nos workflows `CI` e `Software Package Lifecycle Gates`, com jobs executados de verdade.
 - Gates locais: fmt, clippy e suíte Rust do servidor PASS; 461 testes `streaming` passaram.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 

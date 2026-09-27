@@ -1,7 +1,7 @@
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
-- HEAD atual: `3c7f0ef` (`develop`), com reconciliação documental concluída; branch sincronizada com `origin/develop`.
-- CI real do HEAD `3c7f0ef` concluiu com sucesso: workflows `CI` e `Software Package Lifecycle Gates`, jobs executados de verdade.
+- HEAD atual: `0f2fe44` (`develop`), com reconciliação documental concluída; CI anterior validado em `3c7f0ef`; branch sincronizada com `origin/develop`.
+- CI real do commit-base `3c7f0ef` concluiu com sucesso: workflows `CI` e `Software Package Lifecycle Gates`, jobs executados de verdade.
 - Gates locais: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, clippy e `cargo test --manifest-path server/Cargo.toml` PASS (461 testes streaming; suíte total PASS).
 - PR #340 permanece aberta; política deste ciclo proíbe merge e abertura de novas PRs.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -229,8 +229,8 @@
 
 ## Estado atual do lote — 2026-09-27
 
-- PR #340 está aberta e sem merge; HEAD atual de código: `3c7f0ef` (`develop`).
-- CI real do HEAD `3c7f0ef` concluiu com sucesso; jobs executados de verdade. Não confundir PR aberta com merge autorizado.
+- PR #340 está aberta e sem merge; HEAD atual de código: `0f2fe44` (`develop`).
+- CI real do commit-base `3c7f0ef` concluiu com sucesso; jobs executados de verdade. Não confundir PR aberta com merge autorizado.
 - CODE/CI/SIMULATED concluído até Phase 577; isso não constitui validação física, runtime real, LAN real ou hardware.
 
 ### Matriz compacta de evidência — 16 pendências
