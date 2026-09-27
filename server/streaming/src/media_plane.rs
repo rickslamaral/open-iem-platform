@@ -27,6 +27,9 @@ pub const MEDIA_QUEUE_CAPACITY: usize = 32;
 /// Maximum UTF-8 byte length for a media session user ID.
 pub const MAX_MEDIA_USER_ID_BYTES: usize = 128;
 
+/// Maximum number of concurrently registered media sessions.
+pub const MAX_MEDIA_SESSIONS: usize = 64;
+
 /// Versioned stream descriptor attached to every [`MediaFrame`].
 ///
 /// Allows consumers to detect gaps (`sequence` jumps) and engine resets
@@ -81,6 +84,8 @@ pub enum MediaPlaneError {
     InvalidUserId,
     /// A session already exists for the requested user ID.
     SessionAlreadyExists,
+    /// The media plane has reached its bounded session capacity.
+    SessionCapacityReached,
 }
 
 /// Per-user audio routing session with a bounded frame queue.
@@ -236,6 +241,9 @@ impl MediaPlane {
         let mut sessions = self.sessions.lock().await;
         if sessions.contains_key(user_id) {
             return Err(MediaPlaneError::SessionAlreadyExists);
+        }
+        if sessions.len() >= MAX_MEDIA_SESSIONS {
+            return Err(MediaPlaneError::SessionCapacityReached);
         }
         let session = MediaSession::new(user_id.to_owned(), mix_index);
         sessions.insert(user_id.to_owned(), session);
@@ -427,6 +435,52 @@ mod tests {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
         assert_eq!(mp.sessions().await.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn register_accepts_exact_session_capacity_and_rejects_next_without_mutation() {
+        let mp = MediaPlane::new();
+        for index in 0..MAX_MEDIA_SESSIONS {
+            mp.register_session(&format!("user-{index}"), 0)
+                .await
+                .unwrap();
+        }
+
+        assert_eq!(mp.sessions().await.len(), MAX_MEDIA_SESSIONS);
+        assert_eq!(
+            mp.register_session("next", 0).await,
+            Err(MediaPlaneError::SessionCapacityReached)
+        );
+        assert_eq!(mp.sessions().await.len(), MAX_MEDIA_SESSIONS);
+        assert!(mp
+            .sessions()
+            .await
+            .iter()
+            .any(|(user_id, _)| user_id == "user-0"));
+        assert!(mp
+            .sessions()
+            .await
+            .iter()
+            .any(|(user_id, _)| user_id == "user-63"));
+    }
+
+    #[tokio::test]
+    async fn register_capacity_recovers_after_remove() {
+        let mp = MediaPlane::new();
+        for index in 0..MAX_MEDIA_SESSIONS {
+            mp.register_session(&format!("user-{index}"), 0)
+                .await
+                .unwrap();
+        }
+
+        assert!(mp.remove_session("user-0").await);
+        mp.register_session("replacement", 0).await.unwrap();
+        assert_eq!(mp.sessions().await.len(), MAX_MEDIA_SESSIONS);
+        assert!(mp
+            .sessions()
+            .await
+            .iter()
+            .any(|(user_id, _)| user_id == "replacement"));
     }
 
     #[tokio::test]

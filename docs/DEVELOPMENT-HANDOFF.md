@@ -1046,3 +1046,6 @@ test → review → docs/GAP update → PR/CI
 
 - Added CODE regression proving an ambiguous `2^63 + 1` sequence inserted before an ordered prefix is rejected without mutating FIFO contents.
 - Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming jitter_rejects_half_range -- --nocapture` — 2 tests PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — Bounded MediaPlane session capacity
+
+- Added `MAX_MEDIA_SESSIONS` (64), capacity rejection, boundary/recovery async regressions. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

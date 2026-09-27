@@ -1501,3 +1501,6 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Added regression covering maximum unambiguous serial distance in both directions, including wrap-adjacent values.
 - Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming sequence_order_accepts_maximum_unambiguous_distance_in_both_directions -- --nocapture` — PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — Bounded MediaPlane session capacity
+
+- Added `MAX_MEDIA_SESSIONS` (64), capacity rejection, boundary/recovery async regressions. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
