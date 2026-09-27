@@ -411,6 +411,17 @@ impl OpusReceiver {
     #[allow(clippy::too_many_lines)]
     pub fn playout<O: AudioOutput>(&mut self, output: &mut O) -> Result<(), ReceiverError> {
         let generation = self.generation.load(Ordering::Acquire);
+        if self.output_failed {
+            while self.ingress_rx.try_recv().is_ok() {
+                self.dropped_packets = self.dropped_packets.saturating_add(1);
+                if let Some(ref m) = self.metrics {
+                    m.record_dropped();
+                }
+            }
+            self.state = ReceiverState::Muted;
+            output.mute();
+            return Err(ReceiverError::OutputFailed);
+        }
         while let Ok(packet) = self.ingress_rx.try_recv() {
             if packet.0 != generation {
                 // Reconnect can race with an ingress sender after the drain above.
@@ -440,11 +451,6 @@ impl OpusReceiver {
                     }
                 }
             }
-        }
-        if self.output_failed {
-            self.state = ReceiverState::Muted;
-            output.mute();
-            return Err(ReceiverError::OutputFailed);
         }
         let Some((_, _)) = self.jitter.peek() else {
             self.state = ReceiverState::Muted;
@@ -1388,6 +1394,39 @@ mod tests {
         assert_eq!(snapshot.packets_dropped, 1);
         assert_eq!(r.dropped_packets(), 1);
         assert_eq!(r.state(), ReceiverState::Muted);
+    }
+
+    #[test]
+    fn playout_discards_ingress_after_latched_output_failure() {
+        struct FailingSink;
+        impl AudioOutput for FailingSink {
+            fn write(&mut self, _: &[f32], _: u8) -> Result<(), OutputError> {
+                Err(OutputError)
+            }
+            fn mute(&mut self) {}
+        }
+
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut receiver = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let packet = make_opus_packet();
+        receiver.enqueue(1, &packet).unwrap();
+        assert_eq!(
+            receiver.playout(&mut FailingSink),
+            Err(ReceiverError::OutputFailed)
+        );
+
+        receiver.enqueue(2, &packet).unwrap();
+        assert_eq!(
+            receiver.playout(&mut FailingSink),
+            Err(ReceiverError::OutputFailed)
+        );
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.packets_received, 1);
+        assert_eq!(snapshot.packets_dropped, 2);
+        assert_eq!(receiver.dropped_packets(), 2);
+        assert_eq!(receiver.state(), ReceiverState::Muted);
     }
 
     #[test]

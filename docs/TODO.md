@@ -1,3 +1,7 @@
+## 2026-09-27 — latched output failure ingress isolation
+
+- `[x]` `OpusReceiver::playout` descarta ingress após falha latched de saída antes de alimentar jitter; regressão `playout_discards_ingress_after_latched_output_failure` cobre drops, mute e erro persistente. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-27 — Decoded PCM validation helper
 
 - [x] Centralizada validação de shape estéreo, limite de samples e finitude em `decoded_pcm_is_valid`, reutilizada por decode normal e PLC. Regressão cobre frame válido, shape inválido e `NaN`/`±∞`. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
