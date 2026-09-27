@@ -1635,3 +1635,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## 2026-09-27 — invalid Opus ingress local drop accounting
 
 - [x] `OpusReceiver::enqueue` agora contabiliza payload vazio ou acima de `OPUS_MAX_PACKET_BYTES` em `dropped_packets()` e `ReceiverMetrics::packets_dropped`, sem enfileirar ingress inválido. Teste de regressão cobre dois rejeitos e fila vazia. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+
+## 2026-09-27 — DriftEstimator stale baseline boundary
+
+- [x] Cobrir que amostra remota stale não substitui baseline aceito; atualização válida seguinte ignora o valor local do replay.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

@@ -5741,3 +5741,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-09-27 — invalid Opus ingress local drop accounting
 
 - Corrigida divergência entre telemetria local e agregada: `OpusReceiver::enqueue` agora incrementa contador atômico para payload vazio ou oversized; `dropped_packets()` soma esse contador com saturação. Regressão confirma dois drops, `packets_received == 0` e fila de ingress vazia. Evidência CODE local; sem claim de runtime ou hardware.
+
+
+## 2026-09-27 — DriftEstimator stale baseline boundary
+
+- Adicionada regressão CODE confirmando que replay remoto stale não substitui baseline aceito; atualização válida posterior calcula drift sem incorporar o valor local do replay. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

@@ -245,6 +245,23 @@ mod clock_boundary_tests {
     }
 
     #[test]
+    fn drift_estimator_stale_remote_does_not_replace_accepted_baseline() {
+        let mut e = DriftEstimator::new(NOMINAL_SAMPLE_RATE, 1.0);
+        let _ = e.update(0, 0);
+        let _ = e.update(48_000, 48_024);
+
+        // Replay a remote counter with a different local value. This sample
+        // must not become the baseline for the next drift calculation.
+        let _ = e.update(48_000, 48_100);
+        let next = e.update(96_000, 96_024);
+
+        assert!(
+            next.abs() < f64::EPSILON,
+            "accepted baseline must survive stale remote input; got {next}"
+        );
+    }
+
+    #[test]
     fn drift_estimator_local_regression_returns_current_estimate() {
         let mut e = DriftEstimator::new(NOMINAL_SAMPLE_RATE, 0.5);
         let _ = e.update(0, 0);
