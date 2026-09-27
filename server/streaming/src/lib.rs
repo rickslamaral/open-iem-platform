@@ -792,6 +792,81 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drive_once_accounts_media_write_failure_after_frame_drain() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+
+        let mid = {
+            let mut sessions = registry.sessions.lock().await;
+            let peer = sessions.get_mut("alice").unwrap();
+            peer.rtc.media(str0m::media::Mid::from("0")).unwrap().mid()
+        };
+        registry
+            .sessions
+            .lock()
+            .await
+            .get_mut("alice")
+            .unwrap()
+            .media_mid = Some(mid);
+
+        {
+            // str0m's writer queue holds 100 entries; one more makes next drive fail.
+            const STR0M_WRITER_QUEUE_CAPACITY_PLUS_ONE: usize = 100 + 1;
+            let mut sessions = registry.sessions.lock().await;
+            let peer = sessions.get_mut("alice").unwrap();
+            let writer = peer.rtc.writer(mid).unwrap();
+            let pt = writer
+                .payload_params()
+                .find(|params| params.spec().codec == str0m::format::Codec::Opus)
+                .unwrap()
+                .pt();
+            let wallclock = Instant::now();
+            for index in 0..STR0M_WRITER_QUEUE_CAPACITY_PLUS_ONE {
+                peer.rtc
+                    .writer(mid)
+                    .unwrap()
+                    .write(
+                        pt,
+                        wallclock,
+                        str0m::media::MediaTime::new(
+                            index as u64 * 960,
+                            str0m::media::Frequency::FORTY_EIGHT_KHZ,
+                        ),
+                        [0u8],
+                    )
+                    .unwrap();
+            }
+        }
+
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                1,
+                None,
+            )
+            .await;
+
+        let first = registry.drive_once(&bridge, &plane, 1, 1_000).await;
+        assert_eq!(first.media_write_errors, 1);
+        assert_eq!(first.packets_encoded, 0);
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions["alice"].drain_frames().is_empty());
+        drop(sessions);
+
+        let second = registry.drive_once(&bridge, &plane, 1, 1_000).await;
+        assert_eq!(second.media_write_errors, 0);
+        assert_eq!(second.packets_encoded, 0);
+    }
+
+    #[tokio::test]
     async fn drive_once_encode_error_with_single_output_budget_preserves_following_frame() {
         let registry = SessionRegistry::new();
         registry

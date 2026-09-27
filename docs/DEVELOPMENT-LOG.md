@@ -5804,3 +5804,6 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Added CODE regression proving `SessionRegistry::drive_once` counts an invalid encoded frame without consuming the single successful-output budget; the following valid frame remains queued and encodes on the next bounded drive.
 - Focused test PASS locally. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaWriter write-failure drain accounting
+
+- Added CODE regression `drive_once_accounts_media_write_failure_after_frame_drain`, forcing bounded writer exhaustion after frame drain. The test confirms one `media_write_errors`, zero encoded packets, and no resend on the next drive. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
