@@ -1,3 +1,7 @@
+## 2026-09-27 — MediaBridge partial fan-out overflow
+
+- Added CODE regression `drain_partial_destination_overflow_preserves_available_fanout`. Full destination queue drops one delivery; available destination receives frame; bridge queue consumes source once. Focused test and streaming clippy PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
 - HEAD atual: `0e5fa48` (`develop`), sincronizado com `origin/develop`.

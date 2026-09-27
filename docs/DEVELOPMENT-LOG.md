@@ -1,3 +1,7 @@
+## 2026-09-27 — MediaBridge partial fan-out overflow
+
+- Added `drain_partial_destination_overflow_preserves_available_fanout`: a full session queue increments one drop, while available subscribed session receives same bridge frame with revision preserved; subsequent drain confirms no duplicate. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
 - Reconciliado estado documental para `develop` em `0e5fa48`, sincronizado com `origin/develop`.
