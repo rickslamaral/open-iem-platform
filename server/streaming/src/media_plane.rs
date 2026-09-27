@@ -357,6 +357,21 @@ mod tests {
     }
 
     #[test]
+    fn media_session_frame_sequence_wraps_without_mutating_frame_order() {
+        let mut session = MediaSession::new("alice".to_owned(), 0);
+        session.frame_sequence = u64::MAX;
+
+        session.push_frame((0.25, -0.5), 7, None).unwrap();
+        session.push_frame((0.5, -0.25), 7, None).unwrap();
+
+        let frames = session.drain_frames();
+        assert_eq!(frames.len(), 2);
+        assert_eq!(frames[0].metadata.sequence, u64::MAX);
+        assert_eq!(frames[1].metadata.sequence, 0);
+        assert_eq!(session.frame_sequence, 1);
+    }
+
+    #[test]
     fn media_session_rejects_non_finite_samples_without_mutation() {
         let mut session = MediaSession::new("alice".to_owned(), 0);
 

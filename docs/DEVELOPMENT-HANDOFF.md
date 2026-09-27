@@ -1161,3 +1161,7 @@ test → review → docs/GAP update → PR/CI
 ## 2026-09-27 — MediaPlane per-mix finiteness isolation
 
 - `push_frame_output` valida samples não finitos por mix inscrito. Mix inválido sem sessão não bloqueia fan-out válido. Regressão CODE local PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — MediaSession sequence rollover boundary
+
+- Adicionada regressão CODE para `MediaSession::frame_sequence` em `u64::MAX`; sequência do frame limite, rollover para zero e ordem FIFO permanecem corretos. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

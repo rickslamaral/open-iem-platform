@@ -1616,3 +1616,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Rejeitar samples não finitos somente no mix inscrito; mix não inscrito inválido não bloqueia fan-out válido.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — MediaSession sequence rollover boundary
+
+- [x] Cobrir `frame_sequence` em `u64::MAX`: frame no limite preserva sequência, próximo frame reinicia em zero e a fila mantém ordem. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

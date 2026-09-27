@@ -5704,3 +5704,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - `MediaPlane::push_frame_output` agora valida finitude no mix de cada sessão, evitando que dados inválidos em mix não inscrito bloqueiem sessões válidas.
 - Regressão confirma entrega válida, sequência inicial e contadores inalterados; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — MediaSession sequence rollover boundary
+
+- Added regression proving `MediaSession::frame_sequence` wraps from `u64::MAX` to zero without reordering queued frames or losing metadata. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
