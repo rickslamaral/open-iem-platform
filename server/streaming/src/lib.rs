@@ -364,47 +364,41 @@ impl SessionRegistry {
                 break;
             }
         }
-        // Drain only sessions with a currently usable negotiated Opus writer.
-        // Keep the session guard held through draining and encoding so a
-        // replacement cannot occur between eligibility, drain, and encode.
-        let session_ids = sessions
-            .values_mut()
-            .filter_map(|peer| {
-                let mid = peer.media_mid?;
-                let media_writer = peer.rtc.writer(mid)?;
-                let has_opus = media_writer
-                    .payload_params()
-                    .any(|params| params.spec().codec == str0m::format::Codec::Opus);
-                has_opus.then(|| peer.user_id.clone())
-            })
-            .collect::<Vec<_>>();
         let frames_drained = bridge
             .drain_to_with_budget(
                 media_plane,
                 frame_budget.min(output_budget.saturating_sub(outputs_polled)),
             )
             .await;
-        let mut drained = HashMap::new();
-        let mut remaining_output_budget = output_budget.saturating_sub(outputs_polled);
-        for user_id in session_ids {
-            if remaining_output_budget == 0 {
-                break;
-            }
-            if let Ok(frames) = media_plane
-                .drain_session_frames_with_budget(
-                    &user_id,
-                    frame_budget.min(remaining_output_budget),
-                )
-                .await
-            {
-                remaining_output_budget = remaining_output_budget.saturating_sub(frames.len());
-                drained.insert(user_id, frames);
-            }
-        }
 
-        for peer in sessions.values_mut() {
+        // Drain and encode each session together. Failed encodes discard stateful
+        // writer input without consuming shared encoded-output budget, allowing
+        // a following session to use remaining budget in this drive.
+        let mut session_ids = sessions.keys().cloned().collect::<Vec<_>>();
+        session_ids.sort();
+        for user_id in session_ids {
+            let Some(peer) = sessions.get_mut(&user_id) else {
+                continue;
+            };
             if let Some(mid) = peer.media_mid {
-                if let Some(frames) = drained.remove(&peer.user_id) {
+                let has_opus_writer = peer.rtc.writer(mid).is_some_and(|writer| {
+                    writer
+                        .payload_params()
+                        .any(|params| params.spec().codec == str0m::format::Codec::Opus)
+                });
+                if has_opus_writer {
+                    let Ok(frames) = media_plane
+                        .drain_session_frames_with_budget(
+                            &peer.user_id,
+                            frame_budget
+                                .min(output_budget.saturating_sub(
+                                    outputs_polled.saturating_add(packets_encoded),
+                                )),
+                        )
+                        .await
+                    else {
+                        continue;
+                    };
                     for frame in frames {
                         if outputs_polled.saturating_add(packets_encoded) >= output_budget {
                             budget_exhausted = true;
@@ -784,6 +778,67 @@ mod tests {
         assert_eq!(report.encode_discards(), 1);
         assert_eq!(report.media_write_errors, 0);
         assert_eq!(report.packets_encoded, 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_encode_failure_does_not_starve_following_session() {
+        let registry = SessionRegistry::new();
+        for user_id in ["alice", "bob"] {
+            registry
+                .negotiate_offer(user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        let plane = crate::media_plane::MediaPlane::new();
+        for (user_id, stream_id) in [("alice", 0), ("bob", 1)] {
+            plane.register_session(user_id, stream_id).await.unwrap();
+        }
+        let bridge = crate::media_bridge::MediaBridge::new();
+
+        for user_id in ["alice", "bob"] {
+            let mid = {
+                let mut sessions = registry.sessions.lock().await;
+                let peer = sessions.get_mut(user_id).unwrap();
+                peer.rtc.media(str0m::media::Mid::from("0")).unwrap().mid()
+            };
+            registry
+                .sessions
+                .lock()
+                .await
+                .get_mut(user_id)
+                .unwrap()
+                .media_mid = Some(mid);
+        }
+
+        for revision in [1] {
+            plane
+                .push_frame_output(
+                    &mix_engine::FrameOutput {
+                        mixes: [(0.5, -0.25), (0.0, 0.0)],
+                    },
+                    revision,
+                    None,
+                )
+                .await;
+        }
+        {
+            let sessions = plane.sessions.lock().await;
+            let session = sessions.get("alice").unwrap();
+            let mut frames = session.drain_frames();
+            frames[0].metadata.sample_rate = 44_100;
+            for frame in frames {
+                session.tx.try_send(frame).unwrap();
+            }
+        }
+
+        let report = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(report.encode_errors, 1);
+        assert_eq!(report.packets_encoded, 1);
+        assert_eq!(report.media_write_errors, 0);
+
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions["alice"].drain_frames().is_empty());
+        assert!(sessions["bob"].drain_frames().is_empty());
     }
 
     #[tokio::test]
