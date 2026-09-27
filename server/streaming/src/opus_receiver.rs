@@ -663,6 +663,15 @@ mod tests {
     }
 
     #[test]
+    fn sequence_order_classifies_equal_and_half_range_as_distinct() {
+        assert_eq!(sequence_order(42, 42), SequenceOrder::Equal);
+        assert_eq!(
+            sequence_order(42, 42_u64.wrapping_add(1_u64 << 63)),
+            SequenceOrder::Ambiguous
+        );
+    }
+
+    #[test]
     fn sequence_order_accepts_maximum_unambiguous_distance_in_both_directions() {
         let maximum = (1_u64 << 63) - 1;
 

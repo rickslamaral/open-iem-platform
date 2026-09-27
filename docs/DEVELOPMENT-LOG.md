@@ -1392,6 +1392,12 @@ Added regression coverage for user IDs above MAX_USER_ID_BYTES. Negotiation reje
 
 # Development Log
 
+## 2026-09-27 — serial-order helper boundary coverage
+
+- Adicionada regressão unitária para `sequence_order`, cobrindo explicitamente igualdade e distância ambígua de `2^63`, além da distância máxima não ambígua já coberta.
+- Verificação: `cargo clippy --manifest-path server/Cargo.toml -p streaming --all-targets -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 446 testes PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+
 ## 2026-09-17 — P2 scene duplication
 
 **Status:** CODE; runtime e hardware permanecem pendentes.

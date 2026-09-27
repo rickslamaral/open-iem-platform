@@ -623,6 +623,10 @@ Não fechar item por simulação, CI, cross-build, loopback ou ausência de erro
 
 # TODO
 
+## Estado atual — 2026-09-27 (serial-order helper boundary)
+- [x] Cobrir igualdade e distância ambígua de `2^63` em `sequence_order`; 446 testes `streaming` PASS localmente. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
+
+
 ## 2026-09-24 — Batch Phase 363–372 streaming registry boundaries
 - [x] Cobrir cap de drain oversized, FIFO/requeue, overflow, idempotência de remoção, replacement bounded e independência da fila de transporte; 230 testes `streaming` PASS localmente. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
