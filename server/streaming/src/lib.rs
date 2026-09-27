@@ -5791,4 +5791,49 @@ FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00\r\n"
         );
         assert_eq!(registry.len().await, 64, "len must return to 64");
     }
+
+    #[tokio::test]
+    async fn negotiate_offer_bound_too_many_sessions_at_capacity() {
+        let registry = SessionRegistry::new();
+        for i in 0..64 {
+            let user_id = format!("u{i}");
+            let device_id = format!("d{i}");
+            let identity = DeviceIdentity {
+                device_id: device_id.clone(),
+                musician_id: user_id.clone(),
+                mix_index: 0,
+                revoked: false,
+                dtls_fingerprint: None,
+            };
+            registry
+                .negotiate_offer_bound(&user_id, VALID_OFFER, Some("0".into()), Some(&identity))
+                .await
+                .unwrap();
+        }
+        assert_eq!(registry.len().await, 64);
+        let identity_overflow = DeviceIdentity {
+            device_id: "d_overflow".into(),
+            musician_id: "overflow_user".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+        let overflow = registry
+            .negotiate_offer_bound(
+                "overflow_user",
+                VALID_OFFER,
+                Some("0".into()),
+                Some(&identity_overflow),
+            )
+            .await;
+        assert!(
+            matches!(overflow, Err(StreamingError::TooManySessions)),
+            "expected TooManySessions from bound path at capacity; got {overflow:?}"
+        );
+        assert_eq!(
+            registry.len().await,
+            64,
+            "capacity must remain unchanged after rejection"
+        );
+    }
 }
