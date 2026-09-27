@@ -1,3 +1,7 @@
+## 2026-09-27 — reconnect recovery after output failure
+
+- Added CODE regression proving `OpusReceiver` recovers from an output failure after explicit reconnect: stale failure state clears, new-generation Opus frame plays, and receiver returns to `Playing`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-27 — Bounded PCM exact maximum frame boundary
 
 - Added CODE regression `bounded_pcm_output_accepts_exact_maximum_frame_size`, proving `BoundedPcmOutput` accepts and preserves exactly `MAX_OUTPUT_SAMPLES` stereo samples at the upper valid boundary.

@@ -1270,6 +1270,33 @@ mod tests {
     }
 
     #[test]
+    fn reconnect_recovers_after_output_failure() {
+        struct FailingSink;
+        impl AudioOutput for FailingSink {
+            fn write(&mut self, _: &[f32], _: u8) -> Result<(), OutputError> {
+                Err(OutputError)
+            }
+            fn mute(&mut self) {}
+        }
+
+        let mut r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        assert_eq!(
+            r.playout(&mut FailingSink),
+            Err(ReceiverError::OutputFailed)
+        );
+        assert_eq!(r.state(), ReceiverState::Muted);
+
+        let mut sink = Sink { frames: 0 };
+        r.reconnect(&mut sink);
+        r.enqueue(100, &pkt).unwrap();
+        assert_eq!(r.playout(&mut sink), Ok(()));
+        assert_eq!(r.state(), ReceiverState::Playing);
+        assert_eq!(sink.frames, 960 * 2);
+    }
+
+    #[test]
     fn plc_output_failure_counts_as_dropped_packet() {
         struct FailingSink;
         impl AudioOutput for FailingSink {
