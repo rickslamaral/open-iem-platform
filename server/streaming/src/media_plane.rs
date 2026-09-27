@@ -1239,6 +1239,29 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn remove_session_is_exact_and_preserves_other_sessions() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        mp.register_session("alice-backup", 1).await.unwrap();
+        let frame = make_frame(0.1, 0.2, 0.8, 0.9);
+        mp.push_frame_output(&frame, 7, None).await;
+
+        assert!(mp.remove_session("alice").await);
+        assert_eq!(mp.sessions().await, vec![("alice-backup".to_owned(), 1)]);
+        assert_eq!(
+            mp.drain_session_frames_with_budget("alice-backup", 1)
+                .await
+                .unwrap()[0]
+                .samples,
+            (0.8, 0.9)
+        );
+        assert_eq!(
+            mp.drain_session_frames_with_budget("alice", 1).await,
+            Err(MediaSessionError::NoSession)
+        );
+    }
+
+    #[tokio::test]
     async fn remove_session_works() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
