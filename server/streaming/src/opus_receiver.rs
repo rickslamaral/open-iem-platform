@@ -405,7 +405,9 @@ impl OpusReceiver {
                         self.output_failed = true;
                         if let Some(ref m) = self.metrics {
                             m.record_output_failure();
+                            m.record_dropped();
                         }
+                        self.dropped_packets = self.dropped_packets.saturating_add(1);
                         output.mute();
                         return Err(ReceiverError::OutputFailed);
                     }
@@ -1033,6 +1035,37 @@ mod tests {
             .with_metrics(Arc::clone(&metrics));
         let pkt = make_opus_packet();
         r.enqueue(1, &pkt).unwrap();
+        assert_eq!(
+            r.playout(&mut FailingSink),
+            Err(ReceiverError::OutputFailed)
+        );
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.output_failures, 1);
+        assert_eq!(snapshot.packets_dropped, 1);
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(r.state(), ReceiverState::Muted);
+    }
+
+    #[test]
+    fn plc_output_failure_counts_as_dropped_packet() {
+        struct FailingSink;
+        impl AudioOutput for FailingSink {
+            fn write(&mut self, _: &[f32], _: u8) -> Result<(), OutputError> {
+                Err(OutputError)
+            }
+            fn mute(&mut self) {}
+        }
+
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(3, &pkt).unwrap();
+        let mut sink = Sink { frames: 0 };
+        r.playout(&mut sink).unwrap();
+
         assert_eq!(
             r.playout(&mut FailingSink),
             Err(ReceiverError::OutputFailed)
