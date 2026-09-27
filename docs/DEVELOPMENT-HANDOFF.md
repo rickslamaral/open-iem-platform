@@ -1,3 +1,8 @@
+## 2026-09-27 — Software Opus output proxy evidence
+
+- `scripts/ci/run-pipewire-software-e2e.sh` PASS: virtual sink/source enumeration; evidence label `SOFTWARE/SIMULATED`, not hardware or WebRTC.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --test opus_roundtrip -- --nocapture` PASS: 7 tests. Full two-peer WebRTC/DTLS-SRTP remains pending.
+
 ## 2026-09-27 — JitterBuffer maximum unambiguous distance after ordered suffix
 
 - Added CODE regression proving sequence `2^63 - 1` is accepted after ordered suffix `0`, preserving FIFO at maximum unambiguous serial distance.

@@ -1,3 +1,8 @@
+## 2026-09-27 — Software Opus output proxy evidence
+
+- `scripts/ci/run-pipewire-software-e2e.sh` PASS: virtual sink/source enumeration; this is `SOFTWARE/SIMULATED`, not hardware or WebRTC evidence.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --test opus_roundtrip -- --nocapture` PASS: 7 tests, including writer/receiver round-trip and sequence rollover. Full two-peer WebRTC/DTLS-SRTP remains pending.
+
 ## 2026-09-27 — Opus output failure drop accounting
 
 - `OpusReceiver::playout` agora contabiliza frame decodificado que falha na saída como descartado em `dropped_packets` e `ReceiverMetrics::packets_dropped`, mantendo mute fail-safe.
@@ -176,8 +181,8 @@
 
 ## Estado atual do lote — 2026-09-26
 
-- PR #340 está aberta e sem merge; HEAD atual de código: `e671de7e6e1a774c9d9f0bc92c783f4df81422b2` (`develop`).
-- CI real da PR #340 para o HEAD atual (`e671de7`) concluído com sucesso: 16/16 jobs, incluindo Rust, frontends, segurança, pacotes amd64/arm64 e gates SIMULATED; execução registrada em `https://github.com/rickslamaral/open-iem-platform/actions/runs/36280925865` e `https://github.com/rickslamaral/open-iem-platform/actions/runs/36280925855`.
+- PR #340 está aberta e sem merge; HEAD atual de código: `a9e2562` (`develop`).
+- CI real da PR #340 para o HEAD atual (`a9e2562`) concluído com sucesso: 16/16 jobs, incluindo Rust, frontends, segurança, pacotes amd64/arm64 e gates SIMULATED; execução registrada em `https://github.com/rickslamaral/open-iem-platform/actions/runs/36280925865` e `https://github.com/rickslamaral/open-iem-platform/actions/runs/36280925855`.
 - CODE/CI/SIMULATED concluído até Phase 577; isso não constitui validação física, runtime real, LAN real ou hardware.
 
 ### Matriz compacta de evidência — 16 pendências
