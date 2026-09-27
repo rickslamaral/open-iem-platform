@@ -1,3 +1,7 @@
+## 2026-09-27 — JitterBuffer maximum unambiguous distance after ordered suffix
+
+- Added CODE regression proving sequence `2^63 - 1` is accepted after ordered suffix `0`, preserving FIFO at maximum unambiguous serial distance.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming jitter_accepts_maximum_unambiguous_distance -- --nocapture` — 2 tests PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
 ## 2026-09-27 — JitterBuffer half-range rejection before ordered suffix
 
 - Added regression proving an ambiguous `2^63 + 1` sequence inserted before an ordered suffix is rejected without mutating FIFO contents.
