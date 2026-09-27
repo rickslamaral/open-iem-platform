@@ -5836,4 +5836,51 @@ FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00\r\n"
             "capacity must remain unchanged after rejection"
         );
     }
+
+    #[tokio::test]
+    async fn negotiate_offer_bound_replacement_succeeds_at_capacity() {
+        let registry = SessionRegistry::new();
+        // Fill to capacity using the bound path.
+        for i in 0..64 {
+            let user_id = format!("u{i}");
+            let device_id = format!("d{i}");
+            let identity = DeviceIdentity {
+                device_id: device_id.clone(),
+                musician_id: user_id.clone(),
+                mix_index: 0,
+                revoked: false,
+                dtls_fingerprint: None,
+            };
+            registry
+                .negotiate_offer_bound(&user_id, VALID_OFFER, Some("0".into()), Some(&identity))
+                .await
+                .unwrap();
+        }
+        assert_eq!(registry.len().await, 64);
+        // Re-offer from an existing user must succeed — replacement does not consume a new slot.
+        let existing_identity = DeviceIdentity {
+            device_id: "d0".into(),
+            musician_id: "u0".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+        let result = registry
+            .negotiate_offer_bound(
+                "u0",
+                VALID_OFFER,
+                Some("0".into()),
+                Some(&existing_identity),
+            )
+            .await;
+        assert!(
+            result.is_ok(),
+            "bound replacement offer at capacity must succeed; got {result:?}"
+        );
+        assert_eq!(
+            registry.len().await,
+            64,
+            "capacity must stay at 64 after bound replacement"
+        );
+    }
 }
