@@ -1,3 +1,8 @@
+## 2026-09-27 — Opus output failure drop accounting
+
+- Falha de escrita após decode Opus agora incrementa `dropped_packets` e `ReceiverMetrics::packets_dropped`, alinhando telemetria ao caminho de decode/PLC inválido.
+- Teste existente ampliado para verificar `OutputFailed`, ambos contadores e estado `Muted`. Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-27 — MediaPlane non-finite sample boundary
 
 - `MediaPlane::push_frame_output` rejeita `NaN` e infinitos antes de adquirir o lock ou mutar sessões, filas, sequências e contadores de drop.

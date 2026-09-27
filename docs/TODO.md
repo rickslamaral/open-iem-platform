@@ -1,3 +1,8 @@
+## 2026-09-27 — Opus output failure drop accounting
+
+- `OpusReceiver::playout` agora contabiliza frame decodificado que falha na saída como descartado em `dropped_packets` e `ReceiverMetrics::packets_dropped`, mantendo mute fail-safe.
+- Regressão `metrics_record_output_failure_on_output_error` cobre `OutputFailed`, contadores e estado `Muted`. Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-27 — MediaPlane non-finite sample boundary
 
 - `MediaPlane::push_frame_output` falha fechado para `NaN`, `+∞` e `-∞` antes de qualquer mutação de sessão, preservando sequência, filas e contadores.

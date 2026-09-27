@@ -466,7 +466,9 @@ impl OpusReceiver {
             self.output_failed = true;
             if let Some(ref m) = self.metrics {
                 m.record_output_failure();
+                m.record_dropped();
             }
+            self.dropped_packets = self.dropped_packets.saturating_add(1);
             self.next_sequence = Some(sequence.wrapping_add(1));
             output.mute();
             ReceiverError::OutputFailed
@@ -1035,7 +1037,11 @@ mod tests {
             r.playout(&mut FailingSink),
             Err(ReceiverError::OutputFailed)
         );
-        assert_eq!(metrics.snapshot().output_failures, 1);
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.output_failures, 1);
+        assert_eq!(snapshot.packets_dropped, 1);
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(r.state(), ReceiverState::Muted);
     }
 
     #[test]
