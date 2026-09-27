@@ -1194,3 +1194,7 @@ test → review → docs/GAP update → PR/CI
 ## 2026-09-27 — DriftEstimator local baseline preservation
 
 - Added CODE regression proving local-counter regression does not replace accepted `DriftEstimator` baseline. Focused test passes; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — MediaWriter frame-duration rejection preserves RTP clock
+
+- Added CODE regression proving invalid `frame_duration_ms` is rejected before state mutation; subsequent valid packets retain RTP timestamps `0` and `960`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

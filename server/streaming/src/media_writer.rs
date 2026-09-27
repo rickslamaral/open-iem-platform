@@ -232,6 +232,24 @@ mod tests {
     }
 
     #[test]
+    fn failed_frame_duration_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.metadata.frame_duration_ms = 10;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::InvalidFrameLength)
+        );
+
+        let first = writer.encode(&frame()).unwrap();
+        let second = writer.encode(&frame()).unwrap();
+
+        assert_eq!(first.rtp_timestamp, 0);
+        assert_eq!(second.rtp_timestamp, 960);
+    }
+
+    #[test]
     fn rejects_nan_sample_and_preserves_rtp_timestamp() {
         let mut writer = MediaWriter::new().unwrap();
         let mut invalid = frame();

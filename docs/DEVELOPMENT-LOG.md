@@ -5773,3 +5773,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - `SessionRegistry::drive_once` records failed-frame discards through `DriveReport::encode_errors`; `DriveReport::encode_discards()` exposes the accounting. Frames are not requeued because stateful `MediaWriter` state may advance before returning an error; bounded discard is explicit rather than silent.
 - Regression asserts one failed frame is accounted and the following valid frame encodes. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi hardware remain unvalidated.
+
+## 2026-09-27 — MediaWriter frame-duration rejection preserves RTP clock
+
+- Added CODE regression proving invalid `frame_duration_ms` is rejected before state mutation; subsequent valid packets retain RTP timestamps `0` and `960`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
