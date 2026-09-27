@@ -1,7 +1,7 @@
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
-- HEAD atual: `b1f6e39` (`develop`), com correção de contadores saturantes e branch sincronizada com `origin/develop`.
-- CI real do HEAD `b1f6e39` concluiu com sucesso: workflows `CI` e `Software Package Lifecycle Gates`, jobs executados de verdade.
+- HEAD atual: `7898416` (`develop`), com rustfmt aplicado ao teste de `MediaPlane`; branch sincronizada com `origin/develop`.
+- CI real do HEAD `7898416` concluiu com sucesso: workflows `CI` e `Software Package Lifecycle Gates`, jobs executados de verdade.
 - Gates locais: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, clippy e `cargo test --manifest-path server/Cargo.toml` PASS (461 testes streaming; suíte total PASS).
 - PR #340 permanece aberta; política deste ciclo proíbe merge e abertura de novas PRs.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -227,10 +227,10 @@
 - [x] Coberta `SessionRegistry::drive_once` com `output_budget == 0`, preservando saídas de transporte pendentes sem consumo.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
 
-## Estado atual do lote — 2026-09-26
+## Estado atual do lote — 2026-09-27
 
-- PR #340 está aberta e sem merge; HEAD atual de código: `c3d8cc9` (`develop`).
-- CI real do HEAD `c3d8cc9` está em execução; não declarar verde até todos os jobs terminarem com evidência real. Não confundir PR aberta com merge autorizado.
+- PR #340 está aberta e sem merge; HEAD atual de código: `7898416` (`develop`).
+- CI real do HEAD `7898416` concluiu com sucesso; jobs executados de verdade. Não confundir PR aberta com merge autorizado.
 - CODE/CI/SIMULATED concluído até Phase 577; isso não constitui validação física, runtime real, LAN real ou hardware.
 
 ### Matriz compacta de evidência — 16 pendências
