@@ -1,3 +1,10 @@
+## 2026-09-27 — local verification and dependency audit
+
+- Gates locais do HEAD `89ffd33`: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, `npm run typecheck` em ambos frontends, `npm run test -- --run` (musician: 61; engineer: 50) e `npm run build` em ambos — PASS.
+- O comando legado `npm test -- --watchAll=false` falha nos dois frontends com `Unknown option --watchAll`; Vitest passou com `npm run test -- --run`.
+- `cargo audit` em `server/`: BLOQUEIO baseline `RUSTSEC-2023-0071` em `rsa 0.9.10`, sem upgrade fix disponível; não introduzido neste ciclo. `scan_patterns.py` indisponível neste host; tentativa de scanner inline falhou por quoting e não produziu resultado.
+- Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
 - Reconciliado estado documental para `develop` em `f3deabd`, sincronizado com `origin/develop`.
