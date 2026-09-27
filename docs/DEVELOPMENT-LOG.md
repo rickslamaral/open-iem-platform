@@ -1,3 +1,7 @@
+## 2026-09-27 — TransportAdapter generic late protocol rejection
+
+- Added CODE regression proving generic `TransportAdapter::send` emits valid UDP prefix, rejects unsupported protocol, and does not consume iterator suffix. Focused test PASS. Runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — TransportAdapter SslTcp rejection
 
 - Added CODE regression proving `Protocol::SslTcp` fails closed before UDP I/O and preserves the full registry FIFO queue. Runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.

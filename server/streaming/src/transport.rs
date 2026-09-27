@@ -210,6 +210,39 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn send_rejects_late_protocol_without_consuming_suffix() {
+        let sink = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let destination = sink.local_addr().unwrap();
+        let consumed = Arc::new(AtomicUsize::new(0));
+        let outputs = [Protocol::Udp, Protocol::Tcp, Protocol::Udp]
+            .into_iter()
+            .enumerate()
+            .map({
+                let consumed = Arc::clone(&consumed);
+                move |(index, proto)| {
+                    consumed.fetch_add(1, Ordering::Relaxed);
+                    str0m::net::Transmit {
+                        proto,
+                        source: destination,
+                        destination,
+                        contents: format!("generic-late-{index}").into_bytes().into(),
+                    }
+                }
+            });
+        let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
+            .await
+            .unwrap();
+
+        let error = adapter.send(outputs, 3).await.unwrap_err();
+
+        assert_eq!(error.kind(), io::ErrorKind::InvalidInput);
+        assert_eq!(consumed.load(Ordering::Relaxed), 2);
+        let mut payload = [0; 32];
+        let (length, _) = sink.recv_from(&mut payload).await.unwrap();
+        assert_eq!(&payload[..length], b"generic-late-0");
+    }
+
+    #[tokio::test]
     async fn send_from_registry_rejects_non_udp_transmit_without_consuming_suffix() {
         let registry = crate::SessionRegistry::new();
         let adapter = TransportAdapter::bind("127.0.0.1:0".parse().unwrap())
