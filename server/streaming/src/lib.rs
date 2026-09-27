@@ -302,13 +302,22 @@ impl SessionRegistry {
         let frames_drained = bridge
             .drain_to_with_budget(media_plane, frame_budget.min(output_budget))
             .await;
+        // Drain only sessions with a currently usable negotiated Opus writer.
+        // Keeping ineligible sessions out of `drained` preserves their queued
+        // frames for a later drive pass after negotiation becomes usable.
         let session_ids = self
             .sessions
             .lock()
             .await
-            .values()
-            .filter(|peer| peer.media_mid.is_some())
-            .map(|peer| peer.user_id.clone())
+            .values_mut()
+            .filter_map(|peer| {
+                let mid = peer.media_mid?;
+                let media_writer = peer.rtc.writer(mid)?;
+                let has_opus = media_writer
+                    .payload_params()
+                    .any(|params| params.spec().codec == str0m::format::Codec::Opus);
+                has_opus.then(|| peer.user_id.clone())
+            })
             .collect::<Vec<_>>();
         let mut drained = HashMap::new();
         let mut remaining_output_budget = output_budget.saturating_sub(frames_drained);

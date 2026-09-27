@@ -1,4 +1,8 @@
 
+## 2026-09-27 — negotiated Opus writer readiness guard
+
+- `SessionRegistry::drive_once` now checks negotiated writer availability and Opus payload support before draining session queues. Frames remain queued while media negotiation is not usable. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## 2026-09-27 — negotiated media write accounting
 
 - `SessionRegistry::drive_once` agora expõe `media_write_errors` em `DriveReport` quando `MediaWriter::write` falha; pacotes rejeitados não incrementam `packets_encoded`. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

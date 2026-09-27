@@ -1,4 +1,8 @@
 
+## 2026-09-27 — negotiated Opus writer readiness guard
+
+- `SessionRegistry::drive_once` drains per-session media frames only when the negotiated media writer exists and advertises Opus. Sessions lacking a usable writer stay queued for a later drive pass instead of losing frames. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ## Estado atual — 2026-09-27 (negotiated media write accounting)
 - [x] `SessionRegistry::drive_once` contabiliza falhas de `MediaWriter::write` em `DriveReport::media_write_errors`, sem contar o pacote como codificado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
