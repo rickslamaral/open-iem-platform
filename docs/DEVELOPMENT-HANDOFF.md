@@ -1,6 +1,6 @@
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
-- HEAD atual: `580c01b` (`develop`). CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.
+- HEAD atual: `73535fa` (`develop`). CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.
 - PR #340 permanece aberta e sem merge por política do ciclo.
 - Próximo trabalho: selecionar próxima fronteira CODE concreta de streaming/mídia; não reivindicar runtime físico.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -672,7 +672,7 @@
 ## Estado atual do lote — 2026-09-26
 
 - PR #340 está aberta e sem merge.
-- HEAD atual de código: `580c01b` (`develop`).
+- HEAD atual de código: `73535fa` (`develop`).
 - CI real do HEAD concluído com sucesso: CI teve 16 check runs executados; Software Package Lifecycle Gates teve 3 jobs executados.
 - CODE/CI/SIMULATED concluído até Phase 577. Isso não constitui validação física, runtime real, LAN real ou hardware.
 

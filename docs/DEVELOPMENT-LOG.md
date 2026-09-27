@@ -1,6 +1,6 @@
 ## 2026-09-27 — develop HEAD/CI status reconciliation
 
-- Atualizado o estado documental para `develop` em `580c01b`.
+- Atualizado o estado documental para `develop` em `73535fa`.
 - CI real do HEAD passou: CI teve 16 check runs executados com sucesso; Software Package Lifecycle Gates teve 3 jobs executados com sucesso.
 - PR #340 permanece aberta e sem merge por política do ciclo.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -12,8 +12,8 @@
 
 ## 2026-09-27 — development HEAD/CI status reconciliation
 
-- Atualizado o handoff e TODO para refletir `develop` em `580c01b`.
-- CI real para `580c01b` passou: workflow CI teve 16 check runs executados; Software Package Lifecycle Gates teve 3 jobs executados.
+- Atualizado o handoff e TODO para refletir `develop` em `73535fa`.
+- CI real para `73535fa` passou: workflow CI teve 16 check runs executados; Software Package Lifecycle Gates teve 3 jobs executados.
 - Evidência física permanece: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-27 — software WebRTC/Opus evidence scope reconciliation
