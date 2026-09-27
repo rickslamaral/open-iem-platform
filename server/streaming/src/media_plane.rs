@@ -983,6 +983,7 @@ mod tests {
             make_frame(f32::NAN, 0.2, 0.3, 0.4),
             make_frame(0.1, f32::INFINITY, 0.3, 0.4),
             make_frame(0.1, 0.2, f32::NEG_INFINITY, 0.4),
+            make_frame(0.1, 0.2, 0.3, f32::INFINITY),
         ] {
             mp.push_frame_output(&frame, 1, None).await;
         }
