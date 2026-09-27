@@ -1,4 +1,8 @@
 
+## 2026-09-27 — output budget excludes bridge drain
+
+- Corrigido `SessionRegistry::drive_once`: `output_budget` conta somente outputs RTC polled e pacotes de mídia codificados; frames drenados do bridge não consomem orçamento. Regressão cobre entrega de um frame com `output_budget=1`. Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-27 — SessionRegistry output budget preservation
 
 - Corrigido `SessionRegistry::drive_once` para consumir orçamento compartilhado entre saídas RTC pendentes e pacotes de mídia codificados antes de drenar frames. Regressão cobre duas chamadas e preservação de frame quando RTC consome orçamento. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

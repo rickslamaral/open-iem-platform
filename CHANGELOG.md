@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+### Fixed
+- `SessionRegistry::drive_once` no longer consumes encoded-media budget while draining bridge frames; bounded `output_budget` now counts RTC outputs and encoded packets only.
+
+### Tests
+- Added CODE regression for one-frame bridge delivery with `output_budget=1`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
 ### Tests
 - Added CODE regression proving `DriftEstimator` ignores local-counter regression without replacing accepted baseline. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
 

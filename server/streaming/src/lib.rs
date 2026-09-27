@@ -380,9 +380,7 @@ impl SessionRegistry {
             )
             .await;
         let mut drained = HashMap::new();
-        let mut remaining_output_budget = output_budget
-            .saturating_sub(outputs_polled)
-            .saturating_sub(frames_drained);
+        let mut remaining_output_budget = output_budget.saturating_sub(outputs_polled);
         for user_id in session_ids {
             if remaining_output_budget == 0 {
                 break;
@@ -1022,6 +1020,47 @@ mod tests {
         assert_eq!(second.frames_drained, 0);
         let sessions = plane.sessions.lock().await;
         assert_eq!(sessions["alice"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_output_budget_does_not_count_bridge_frames() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let mid = {
+            let mut sessions = registry.sessions.lock().await;
+            let peer = sessions.get_mut("alice").unwrap();
+            peer.rtc.media(str0m::media::Mid::from("0")).unwrap().mid()
+        };
+        registry
+            .sessions
+            .lock()
+            .await
+            .get_mut("alice")
+            .unwrap()
+            .media_mid = Some(mid);
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                1,
+                None,
+            )
+            .unwrap();
+
+        let report = registry.drive_once(&bridge, &plane, 1, 1).await;
+
+        assert_eq!(report.outputs_polled, 0);
+        assert_eq!(report.frames_drained, 1);
+        assert_eq!(report.packets_encoded, 1);
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions["alice"].drain_frames().is_empty());
     }
 
     #[tokio::test]

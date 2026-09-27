@@ -1,3 +1,7 @@
+
+## 2026-09-27 — output budget excludes bridge drain
+
+- Corrigido `SessionRegistry::drive_once`: `output_budget` conta somente outputs RTC polled e pacotes de mídia codificados; frames drenados do bridge não consomem orçamento. Regressão cobre entrega de um frame com `output_budget=1`. Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
 ## 2026-09-27 — latched output failure ingress isolation
 
 - `OpusReceiver::playout` rejeita ingress pendente após falha latched de saída antes de processar jitter; drops são contabilizados e reconnect continua necessário para recuperação. Teste `playout_discards_ingress_after_latched_output_failure` PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
