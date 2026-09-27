@@ -1,3 +1,9 @@
+## 2026-09-27 — MediaPlane non-finite sample boundary
+
+- `MediaPlane::push_frame_output` rejeita `NaN` e infinitos antes de adquirir o lock ou mutar sessões, filas, sequências e contadores de drop.
+- Regressão cobre os três valores não finitos, preservação de estado em múltiplas sessões e aceitação posterior de frame válido.
+- Evidência permanece `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-27 — JitterBuffer half-range rejection before ordered suffix
 
 - Added CODE regression proving an ambiguous `2^63 + 1` sequence inserted before an ordered suffix is rejected without mutating FIFO contents.

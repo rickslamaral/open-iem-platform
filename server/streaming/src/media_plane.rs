@@ -257,6 +257,14 @@ impl MediaPlane {
         engine_revision: u64,
         capture_timestamp: Option<SampleTimestamp>,
     ) {
+        if frame_output
+            .mixes
+            .iter()
+            .flat_map(|(left, right)| [left, right])
+            .any(|sample| !sample.is_finite())
+        {
+            return;
+        }
         let mut sessions = self.sessions.lock().await;
         for session in sessions.values_mut() {
             let samples = frame_output.mixes[session.mix_index];
@@ -710,6 +718,36 @@ mod tests {
         assert_eq!(frames[0].metadata.sequence, 0);
         assert_eq!(frames[1].metadata.sequence, 1);
         assert_eq!(frames[2].metadata.sequence, 2);
+    }
+
+    #[tokio::test]
+    async fn push_frame_output_rejects_non_finite_samples_without_mutation() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        mp.register_session("bob", 1).await.unwrap();
+
+        for frame in [
+            make_frame(f32::NAN, 0.2, 0.3, 0.4),
+            make_frame(0.1, f32::INFINITY, 0.3, 0.4),
+            make_frame(0.1, 0.2, f32::NEG_INFINITY, 0.4),
+        ] {
+            mp.push_frame_output(&frame, 1, None).await;
+        }
+
+        let sessions = mp.sessions.lock().await;
+        for session in sessions.values() {
+            assert_eq!(session.frame_sequence, 0);
+            assert_eq!(session.drop_count(), 0);
+            assert!(session.drain_frames().is_empty());
+        }
+        assert_eq!(mp.total_dropped(), 0);
+        drop(sessions);
+
+        mp.push_frame_output(&make_frame(0.1, 0.2, 0.3, 0.4), 2, None)
+            .await;
+        let sessions = mp.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames()[0].metadata.sequence, 0);
+        assert_eq!(sessions["bob"].drain_frames()[0].metadata.sequence, 0);
     }
 
     #[tokio::test]
