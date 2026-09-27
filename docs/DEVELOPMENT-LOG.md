@@ -5728,3 +5728,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Added CODE regression proving session with externally invalid `mix_index` preserves queued frame, sequence and drop counter while valid session still receives same `FrameOutput`.
 - Gates: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, focused streaming test PASS. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — MediaPlane invalid mix saturated queue boundary
+
+- Added CODE regression `push_frame_output_invalid_mix_preserves_full_queue_and_drop_accounting`, proving an externally invalid mix index neither consumes a full queue nor increments sequence/drop counters; restoring valid routing preserves normal overflow accounting.
+- Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

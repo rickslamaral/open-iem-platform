@@ -1091,6 +1091,43 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn push_frame_output_invalid_mix_preserves_full_queue_and_drop_accounting() {
+        let mp = MediaPlane::new();
+        mp.register_session("alice", 0).await.unwrap();
+        let frame = make_frame(0.1, 0.2, 0.0, 0.0);
+
+        for revision in 0..MEDIA_QUEUE_CAPACITY as u64 {
+            mp.push_frame_output(&frame, revision, None).await;
+        }
+
+        {
+            let mut sessions = mp.sessions.lock().await;
+            let session = sessions.get_mut("alice").unwrap();
+            session.mix_index = MAX_MIXES;
+        }
+        mp.push_frame_output(&frame, 99, None).await;
+
+        {
+            let mut sessions = mp.sessions.lock().await;
+            let session = sessions.get_mut("alice").unwrap();
+            assert_eq!(session.frame_sequence, MEDIA_QUEUE_CAPACITY as u64);
+            assert_eq!(session.drop_count(), 0);
+            assert_eq!(session.rx.len(), MEDIA_QUEUE_CAPACITY);
+            session.mix_index = 0;
+        }
+        assert_eq!(mp.total_dropped(), 0);
+
+        mp.push_frame_output(&frame, 100, None).await;
+
+        let sessions = mp.sessions.lock().await;
+        let session = sessions.get("alice").unwrap();
+        assert_eq!(session.frame_sequence, MEDIA_QUEUE_CAPACITY as u64 + 1);
+        assert_eq!(session.drop_count(), 1);
+        assert_eq!(mp.total_dropped(), 1);
+        assert_eq!(session.rx.len(), MEDIA_QUEUE_CAPACITY);
+    }
+
+    #[tokio::test]
     async fn push_frame_output_increments_sequence() {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();

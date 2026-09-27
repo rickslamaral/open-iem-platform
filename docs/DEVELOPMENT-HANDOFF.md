@@ -1173,3 +1173,8 @@ test → review → docs/GAP update → PR/CI
 ## 2026-09-27 — MediaSession sequence rollover boundary
 
 - Adicionada regressão CODE para `MediaSession::frame_sequence` em `u64::MAX`; sequência do frame limite, rollover para zero e ordem FIFO permanecem corretos. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — MediaPlane invalid mix saturated queue boundary
+
+- Added CODE regression `push_frame_output_invalid_mix_preserves_full_queue_and_drop_accounting`, proving an externally invalid mix index neither consumes a full queue nor increments sequence/drop counters; restoring valid routing preserves normal overflow accounting.
+- Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
