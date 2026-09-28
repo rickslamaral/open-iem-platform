@@ -1033,4 +1033,56 @@ mod tests {
             .await
             .assert_status(axum::http::StatusCode::NOT_FOUND);
     }
+
+    #[tokio::test]
+    async fn recall_scene_musician_forbidden() {
+        let (server, state) = build_test_app();
+        let eng_token = seed_user_and_login(&state, "eng_recall_fbdn", "pw", Role::Engineer);
+        let mus_token = seed_user_and_login(&state, "mus_recall_fbdn", "pw", Role::Musician);
+
+        let create_resp = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(eng_token)
+            .json(&empty_scene_body())
+            .await;
+        create_resp.assert_status(axum::http::StatusCode::CREATED);
+        let scene_id = create_resp.json::<Value>()["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+
+        server
+            .post(&format!("/api/v1/scenes/{scene_id}/recall"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(mus_token)
+            .await
+            .assert_status(axum::http::StatusCode::FORBIDDEN);
+    }
+
+    #[tokio::test]
+    async fn recall_scene_nonexistent_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_recall_nf", "pw", Role::Engineer);
+
+        server
+            .post("/api/v1/scenes/nonexistent-scene-id/recall")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn rollback_scene_nonexistent_scene_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_rb_noscene", "pw", Role::Engineer);
+
+        server
+            .post("/api/v1/scenes/nonexistent-scene-xyz/revisions/1/rollback")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
 }
