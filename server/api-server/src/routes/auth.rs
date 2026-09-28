@@ -319,17 +319,11 @@ mod tests {
     use control_protocol::Role;
     use control_server::ControlState;
     use serde_json::json;
-    use std::{
-        fs,
-        process::Command,
-        time::{SystemTime, UNIX_EPOCH},
-    };
+    use std::{fs, process::Command};
+    use uuid::Uuid;
 
     fn test_keys() -> (Vec<u8>, Vec<u8>) {
-        let nonce = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .expect("system clock must be valid")
-            .as_nanos();
+        let nonce = Uuid::new_v4();
         let private_path = std::env::temp_dir().join(format!("open-iem-auth-test-{nonce}.pem"));
         let public_path = std::env::temp_dir().join(format!("open-iem-auth-test-{nonce}.pub.pem"));
         let _ = fs::remove_file(&private_path);
@@ -338,14 +332,20 @@ mod tests {
             .args(["genpkey", "-algorithm", "ed25519", "-out"])
             .arg(&private_path)
             .status()
-            .expect("openssl must be installed");
+            .expect("openssl must be installed")
+            .success()
+            .then_some(())
+            .expect("openssl key generation must succeed");
         Command::new("openssl")
             .args(["pkey", "-in"])
             .arg(&private_path)
             .args(["-pubout", "-out"])
             .arg(&public_path)
             .status()
-            .expect("openssl public-key export");
+            .expect("openssl public-key export")
+            .success()
+            .then_some(())
+            .expect("openssl public-key export must succeed");
         let private = fs::read(&private_path).expect("private key must be readable");
         let public = fs::read(&public_path).expect("public key must be readable");
         let _ = fs::remove_file(private_path);

@@ -1,3 +1,9 @@
+## 2026-09-28 — deterministic API test key generation
+
+- Corrigidos helpers `test_keys()` de `routes/auth.rs` e `routes/channels.rs`: UUID v4 elimina colisões de nomes temporários em testes paralelos; comandos OpenSSL agora falham explicitamente quando retornam status não-zero.
+- Verificação: `cargo fmt`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml` (todos os testes PASS), frontends Musician/Engineer typecheck, testes e build PASS.
+- Revisão independente: PASS, sem concerns de segurança ou lógica. Evidência `CODE`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
 ## 2026-09-28 — estado CI reconciliado no HEAD `331f4d7`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `331f4d779799d48fd94bf7d521b903bb94871828`; working tree limpa antes desta atualização.
