@@ -1372,3 +1372,7 @@ test → review → docs/GAP update → PR/CI
 
 - Regressão `drive_once_accounts_media_write_failure_after_frame_drain` confirma `frames_drained == 2` junto com dois erros de escrita e zero pacotes codificados quando a fila do writer está cheia.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+## 2026-09-28 — SessionRegistry unavailable-writer preservation
+
+- Regressão CODE adicionada para `drive_once` quando `media_mid` não resolve writer Opus: frame permanece na fila e nenhum contador de drenagem, escrita ou pacote codificado é incrementado.
+- Gate focado PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

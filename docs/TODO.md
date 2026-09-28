@@ -1779,3 +1779,6 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## 2026-09-28 — SessionRegistry write-failure drain accounting
 
 - [x] Cobrir contabilização de frames drenados quando `MediaWriter::write` falha, preservando distinção entre consumo de frame, erro de escrita e pacote codificado. Evidência CODE local; runtime e hardware permanecem pendentes.
+## 2026-09-28 — SessionRegistry unavailable-writer preservation
+
+- [x] Cobrir `SessionRegistry::drive_once` com `media_mid` apontando para writer inexistente: frames já enfileirados permanecem preservados, sem drenagem, erro de escrita ou pacote codificado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

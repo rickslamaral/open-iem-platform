@@ -5934,3 +5934,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Regressão confirma que frames removidos da fila continuam contabilizados em `frames_drained` quando `MediaWriter::write` falha; `media_write_errors` permanece explícito e nenhum pacote é marcado como codificado.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+## 2026-09-28 — SessionRegistry unavailable-writer preservation
+
+- Adicionada regressão `drive_once_preserves_frames_when_media_writer_is_unavailable`, cobrindo sessão negociada com `media_mid` inexistente. A chamada não drena frames enfileirados e mantém `frames_drained`, `media_write_errors` e `packets_encoded` em zero.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
