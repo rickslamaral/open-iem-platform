@@ -1320,11 +1320,11 @@ test → review → docs/GAP update → PR/CI
 
 - Engineer Console agora distingue carregamento de histórico de cena de histórico vazio; estado transitório não exibe falso `Nenhuma revisão encontrada.`. Verificação: typecheck, 57 testes Vitest e build do Engineer, gates Rust e frontend Musician PASS. Evidência CODE local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
-## 2026-09-28 — estado CI reconciliado no HEAD `b817799`
+## 2026-09-28 — CI em execução no HEAD `e629e73`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `b817799a2515f783a3a101048ea5093fb5b990db`; HEAD e origin/develop alinhados.
+- `develop` e `origin/develop` estão sincronizadas no commit `e629e73c09d99799b13a78c3978e18358b0527be`; HEAD e origin/develop alinhados.
 - PR #340 permanece aberta contra `main`, sem merge conforme política do ciclo.
-- CI real do HEAD exato concluiu 16/16 SUCCESS: Rust, frontends, segurança, Audio Lab/ALSA `SIMULATED` e package lifecycle `.deb` amd64/arm64.
+- CI real do HEAD exato está em execução; jobs concluídos até agora incluem frontends, validação de skills, segurança npm/Python, documentação e simulações de áudio. Não declarar PASS antes da conclusão de todos os jobs.
 - Evidência permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-28 — Opus encode-failure timestamp boundary
