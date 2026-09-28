@@ -1,3 +1,10 @@
+## 2026-09-28 — estado reconciliado no HEAD `e2928d4`
+
+- `develop` e `origin/develop` sincronizadas no commit `e2928d4a2faf352a90df5566ac78d456eb7c12f9`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato: workflows `CI` e `Software Package Lifecycle Gates` concluíram com sucesso, com 16 jobs executados de verdade (runs `36435434719` e `36435434716`).
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime, hardware e release `v0.3.1` permanecem pendentes.
+
 ## 2026-09-28 — estado reconciliado no HEAD `3cdecc5`
 
 - `develop` e `origin/develop` sincronizadas no commit `3cdecc50372e46ce9c32b274c9f1c60ab35906d3` antes desta atualização documental; estado observado no início do ciclo: `git status --short --branch` e `git rev-parse HEAD origin/develop`.
@@ -7,7 +14,7 @@
 
 ## 2026-09-28 — verificação local do HEAD `7ec16c5`
 
-- Reconciliado após commit documental `7ec16c5`: `develop` e `origin/develop` permanecem sincronizadas; working tree limpa.
+- Reconciliado após commit documental `7ec16c5`: `develop` e `origin/develop` permanecem sincronizadas; working tree estava limpa antes desta atualização documental.
 - CI remoto do HEAD exato: 16/16 SUCCESS; PR #340 segue aberta contra `main` por política vigente.
 - Auditoria local: `cargo audit` instalado, mas invocação com `--manifest-path` é incompatível nesta versão; baseline RUSTSEC permanece registrado, sem novo finding confirmado.
 - Gates reais: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, frontends Musician (61 testes) e Engineer (57 testes), typecheck e build — PASS.
@@ -5907,7 +5914,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-09-27 — documentação reconciliada no HEAD `5df6047`
 
-- Estado canônico atualizado: `develop`/`origin/develop` em `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`, working tree limpa.
+- Estado canônico atualizado: `develop`/`origin/develop` em `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`, working tree estava limpa antes desta atualização documental.
 - Último gate local completo registrado: 531 testes `streaming` PASS; CI exato da PR #340: 16/16 SUCCESS. PR permanece aberta, sem merge.
 - Documentação atualizada para separar histórico de estado atual. Cobertura recente inclui capacidade bounded do `SessionRegistry`, replacement serializado, contagem de falhas de escrita/encode e justiça de `output_budget`.
 - Evidência permanece `CODE/CI/SIMULATED`; nenhum claim físico/runtime foi adicionado. WebRTC/DTLS-SRTP, PipeWire/ALSA, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem pendentes.

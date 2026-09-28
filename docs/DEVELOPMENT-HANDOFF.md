@@ -1,3 +1,11 @@
+## 2026-09-28 — estado verificado no HEAD `e2928d4`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `e2928d4a2faf352a90df5566ac78d456eb7c12f9`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu com sucesso: `CI` e `Software Package Lifecycle Gates`, 16 jobs executados de verdade (runs `36435434719` e `36435434716`).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge e abertura de novas PRs neste ciclo.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime e hardware permanecem não validados.
+- Próxima ação válida: validação física/release autorizada ou novo backlog explícito; não fabricar tarefa CODE.
+
 ## 2026-09-28 — estado verificado no HEAD `3cdecc5`
 
 - `develop` e `origin/develop` permanecem sincronizadas antes desta atualização documental; estado observado no início do ciclo: `git status --short --branch` e `git rev-parse HEAD origin/develop`.
@@ -8,7 +16,7 @@
 
 ## 2026-09-28 — estado verificado no HEAD `7ec16c5`
 
-- Reconciliado após commit documental `7ec16c5`: `develop` e `origin/develop` permanecem sincronizadas; working tree limpa.
+- Reconciliado após commit documental `7ec16c5`: `develop` e `origin/develop` permanecem sincronizadas; working tree estava limpa antes desta atualização documental.
 - CI remoto do HEAD exato: 16/16 SUCCESS; PR #340 segue aberta contra `main` por política vigente.
 - Auditoria local: `cargo audit` instalado, mas invocação com `--manifest-path` é incompatível nesta versão; baseline RUSTSEC permanece registrado, sem novo finding confirmado.
 - Gates locais Rust e frontends PASS; revisão independente PASS.

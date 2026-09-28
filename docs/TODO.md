@@ -1,3 +1,11 @@
+## 2026-09-28 — verificação local do HEAD `e2928d4`
+
+- `develop` e `origin/develop` sincronizadas no commit `e2928d4a2faf352a90df5566ac78d456eb7c12f9`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato: workflows `CI` e `Software Package Lifecycle Gates` concluíram com sucesso, 16 jobs executados de verdade ([CI run 36435434719](https://github.com/rickslamaral/open-iem-platform/actions/runs/36435434719); package gates run 36435434716).
+- PR #340 permanece aberta contra `main`, conforme política vigente; nenhum merge/PR novo executado.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — verificação local do HEAD `3cdecc5`
 
 - `develop` e `origin/develop` sincronizadas no commit `3cdecc50372e46ce9c32b274c9f1c60ab35906d3` antes desta atualização documental; estado observado no início do ciclo: `git status --short --branch` e `git rev-parse HEAD origin/develop`.
@@ -8,7 +16,7 @@
 
 ## 2026-09-28 — verificação local do HEAD `7ec16c5`
 
-- `develop` e `origin/develop` sincronizadas no commit `7ec16c591a1982f8ef07f037943bd6af3882455e`; working tree limpa.
+- `develop` e `origin/develop` sincronizadas no commit `7ec16c591a1982f8ef07f037943bd6af3882455e`; working tree estava limpa antes desta atualização documental.
 - PR #340 permanece aberta contra `main`; CI real do HEAD exato concluiu **16/16 SUCCESS**, com jobs executados de verdade.
 - Gates locais PASS: Rust fmt/clippy/testes (incluindo 534 testes de `streaming`), Musician typecheck/61 testes/build e Engineer typecheck/57 testes/build.
 - Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
