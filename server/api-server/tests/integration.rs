@@ -3382,3 +3382,79 @@ async fn set_send_gain_non_finite_returns_400() {
         "expected 400 or 422 for non-numeric gain_db"
     );
 }
+
+// ── DELETE /api/v1/mixes/{index}/assign — unassign_mix REST RBAC ─────────────
+
+#[tokio::test]
+async fn unassign_mix_engineer_ok() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_unas_ok", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_unas_ok", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_unas_ok").unwrap();
+    // Assign first.
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    // Unassign.
+    let resp = server
+        .delete("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::NO_CONTENT);
+    // Musician can no longer access send state on mix 0.
+    let resp2 = server
+        .get("/api/v1/mixes/0/sends/0")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&mus_token)
+        .await;
+    resp2.assert_status_forbidden();
+}
+
+#[tokio::test]
+async fn unassign_mix_musician_forbidden() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_unas_forbid", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_unas_forbid", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_unas_forbid").unwrap();
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .delete("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .await;
+    resp.assert_status_forbidden();
+}
+
+#[tokio::test]
+async fn unassign_mix_requires_authentication() {
+    let (server, _state) = build_test_app();
+    let resp = server
+        .delete("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .await;
+    resp.assert_status_unauthorized();
+}
+
+#[tokio::test]
+async fn unassign_mix_unassigned_returns_not_found() {
+    // Unassigning a mix that has no assignment returns 404.
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_unas_idem", "pw", Role::Engineer);
+    let resp = server
+        .delete("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(eng_token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::NOT_FOUND);
+}
