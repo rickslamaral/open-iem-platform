@@ -1,7 +1,7 @@
 ## [Unreleased]
 
 ### Documentation
-- Reconciliado status dos documentos canônicos no HEAD `b885aae`: `develop` sincronizado com `origin/develop`, PR #340 aberta sem merge e CI exato 16/16 SUCCESS.
+- Reconciliado status dos documentos canônicos no HEAD `9b733a4`: `develop` sincronizado com `origin/develop`, PR #340 aberta sem merge e CI exato 16/16 SUCCESS.
 - Registrada cobertura CODE/CI/SIMULATED de capacidade bounded do `SessionRegistry`, replacement serializado, contagem de falhas de mídia e justiça de budget. Runtime/hardware e release `v0.3.1` permanecem pendentes.
 
 ### Fixed
