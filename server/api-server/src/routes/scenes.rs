@@ -1085,4 +1085,84 @@ mod tests {
             .await
             .assert_status(axum::http::StatusCode::NOT_FOUND);
     }
+
+    #[tokio::test]
+    async fn delete_scene_musician_forbidden() {
+        let (server, state) = build_test_app();
+        let eng_token = seed_user_and_login(&state, "eng_del_fbdn", "pw", Role::Engineer);
+        let mus_token = seed_user_and_login(&state, "mus_del_fbdn", "pw", Role::Musician);
+
+        let create_resp = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(eng_token)
+            .json(&empty_scene_body())
+            .await;
+        create_resp.assert_status(axum::http::StatusCode::CREATED);
+        let scene_id = create_resp.json::<Value>()["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+
+        server
+            .delete(&format!("/api/v1/scenes/{scene_id}"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(mus_token)
+            .await
+            .assert_status(axum::http::StatusCode::FORBIDDEN);
+    }
+
+    #[tokio::test]
+    async fn delete_scene_nonexistent_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_del_nf", "pw", Role::Engineer);
+
+        server
+            .delete("/api/v1/scenes/nonexistent-scene-del")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn update_scene_nonexistent_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_upd_nf", "pw", Role::Engineer);
+
+        server
+            .put("/api/v1/scenes/nonexistent-scene-upd")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .json(&serde_json::json!({"config": {"channels": [], "mixes": []}}))
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn duplicate_scene_nonexistent_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_dup_nf", "pw", Role::Engineer);
+
+        server
+            .post("/api/v1/scenes/nonexistent-scene-dup/duplicate")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .json(&serde_json::json!({"name": "Copy"}))
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn list_scene_revisions_nonexistent_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "mus_rev_nf", "pw", Role::Musician);
+
+        server
+            .get("/api/v1/scenes/nonexistent-scene-rev/revisions")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
 }
