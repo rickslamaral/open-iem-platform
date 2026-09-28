@@ -2689,3 +2689,120 @@ async fn offer_with_revoked_device_returns_403() {
         .await;
     resp.assert_status(axum::http::StatusCode::FORBIDDEN);
 }
+
+// ── GAP-018 DTLS fingerprint binding — api-server integration ────────────────
+
+#[tokio::test]
+async fn offer_with_matching_dtls_fingerprint_succeeds() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_fp_ok", "pw", Role::Engineer);
+    let musician_token = seed_user_and_login(&state, "mus_fp_ok", "pw", Role::Musician);
+    let (mus_fp_ok_id, _, _, _) = state.db.find_user("mus_fp_ok").unwrap();
+    state.db.assign_mix(0, mus_fp_ok_id).unwrap();
+    // Pair device and register the fingerprint present in VALID_AUDIO_OFFER.
+    let registered_fp =
+        "sha-256 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00"
+            .to_string();
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-fp-ok",
+            "musician_id": "mus_fp_ok",
+            "mix_index": 0,
+            "credential": make_credential("fp-match-secret-1234"),
+            "dtls_fingerprint": registered_fp
+        }))
+        .await
+        .assert_status_ok();
+    // Offer whose SDP fingerprint matches the registered value must succeed.
+    let resp = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician_token)
+        .json(&json!({
+            "sdp": VALID_AUDIO_OFFER,
+            "mix_id": null,
+            "device_id": "rx-fp-ok",
+            "credential": make_credential("fp-match-secret-1234")
+        }))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert!(!body["sdp"].as_str().unwrap_or_default().is_empty());
+}
+
+#[tokio::test]
+async fn offer_with_mismatched_dtls_fingerprint_returns_400() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_fp_mismatch", "pw", Role::Engineer);
+    let musician_token = seed_user_and_login(&state, "mus_fp_mismatch", "pw", Role::Musician);
+    let (mus_fp_mismatch_id, _, _, _) = state.db.find_user("mus_fp_mismatch").unwrap();
+    state.db.assign_mix(0, mus_fp_mismatch_id).unwrap();
+    // Register a fingerprint that differs from what VALID_AUDIO_OFFER contains.
+    let different_fp =
+        "sha-256 FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF"
+            .to_string();
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-fp-mismatch",
+            "musician_id": "mus_fp_mismatch",
+            "mix_index": 0,
+            "credential": make_credential("fp-mismatch-secret-1234"),
+            "dtls_fingerprint": different_fp
+        }))
+        .await
+        .assert_status_ok();
+    // Offer whose SDP fingerprint does not match the registered value must fail.
+    let resp = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician_token)
+        .json(&json!({
+            "sdp": VALID_AUDIO_OFFER,
+            "mix_id": null,
+            "device_id": "rx-fp-mismatch",
+            "credential": make_credential("fp-mismatch-secret-1234")
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
+async fn offer_with_paired_device_no_fingerprint_registered_accepts_any_sdp_fingerprint() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_fp_none", "pw", Role::Engineer);
+    let musician_token = seed_user_and_login(&state, "mus_fp_none", "pw", Role::Musician);
+    let (mus_fp_none_id, _, _, _) = state.db.find_user("mus_fp_none").unwrap();
+    state.db.assign_mix(0, mus_fp_none_id).unwrap();
+    // Pair device WITHOUT registering a dtls_fingerprint (legacy / no-pin path).
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-fp-none",
+            "musician_id": "mus_fp_none",
+            "mix_index": 0,
+            "credential": make_credential("fp-none-secret-1234")
+        }))
+        .await
+        .assert_status_ok();
+    // Any valid SDP fingerprint must be accepted when none is pinned.
+    let resp = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician_token)
+        .json(&json!({
+            "sdp": VALID_AUDIO_OFFER,
+            "mix_id": null,
+            "device_id": "rx-fp-none",
+            "credential": make_credential("fp-none-secret-1234")
+        }))
+        .await;
+    resp.assert_status_ok();
+}
