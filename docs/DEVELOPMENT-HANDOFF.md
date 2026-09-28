@@ -1281,6 +1281,13 @@ test → review → docs/GAP update → PR/CI
 
 - Engineer Console agora distingue carregamento de histórico de cena de histórico vazio; estado transitório não exibe falso `Nenhuma revisão encontrada.`. Verificação: typecheck, 57 testes Vitest e build do Engineer, gates Rust e frontend Musician PASS. Evidência CODE local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
+## 2026-09-28 — estado CI reconciliado no HEAD `b817799`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `b817799a2515f783a3a101048ea5093fb5b990db`; working tree limpa.
+- PR #340 permanece aberta contra `main`, sem merge conforme política do ciclo.
+- CI real do HEAD exato concluiu 16/16 SUCCESS: Rust, frontends, segurança, Audio Lab/ALSA `SIMULATED` e package lifecycle `.deb` amd64/arm64.
+- Evidência permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — Opus encode-failure timestamp boundary
 
 - Added `MediaWriter` regression forcing bounded packet-buffer encode failure, asserting `next_rtp_timestamp` remains zero and the following valid packet starts at RTP timestamp zero.

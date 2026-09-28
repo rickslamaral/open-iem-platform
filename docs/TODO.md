@@ -1,3 +1,10 @@
+## 2026-09-28 — estado CI reconciliado no HEAD `b817799`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `b817799a2515f783a3a101048ea5093fb5b990db`; working tree limpa.
+- [x] PR #340 permanece aberta contra `main`; CI real do HEAD exato concluiu **16/16 SUCCESS**, incluindo Rust, frontends, segurança, Audio Lab/ALSA `SIMULATED` e gates `.deb` amd64/arm64.
+- Evidência continua `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — short software release gate profile
 
 - [x] Corrigir o gate de estabilidade para que perfis curtos executem pelo menos uma iteração bounded completa; `OPENIEM_SOAK_SECONDS=1` validado com pacote amd64, ALSA Loopback virtual e 533 testes `streaming`. Evidência `CODE/SOFTWARE/SIMULATED`; hardware físico permanece separado.

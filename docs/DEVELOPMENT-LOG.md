@@ -5841,6 +5841,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Elegibilidade Opus (`media_mid`, writer e payload Opus) é verificada antes do drain; frames de sessão ainda não pronta permanecem preservados.
 - Regressão `drive_once_encode_failure_does_not_starve_following_session`. Evidência CODE local: fmt, 531 testes streaming e clippy PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
 
+## 2026-09-28 — estado CI reconciliado no HEAD `b817799`
+
+- `develop` e `origin/develop` sincronizadas em `b817799a2515f783a3a101048ea5093fb5b990db`; working tree limpa.
+- PR #340 continua aberta contra `main`, sem merge conforme política do ciclo.
+- CI real do HEAD exato: **16/16 SUCCESS**, com Rust, frontends, segurança, Audio Lab/ALSA `SIMULATED` e lifecycle `.deb` amd64/arm64.
+- Evidência não eleva claims: runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` continuam pendentes. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — MediaWriter zero-channel metadata boundary
 
 - Added CODE regression proving `MediaWriter::encode` rejects `channels == 0` before RTP timestamp mutation; valid packets afterward retain timestamps `0` and `960`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
