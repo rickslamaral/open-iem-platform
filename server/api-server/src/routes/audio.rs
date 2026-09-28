@@ -361,3 +361,342 @@ pub async fn repair_device(
         repaired: true,
     }))
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        auth::{generate_refresh_token, hash_password, token_to_storage_key, JwtKeys},
+        db::Db,
+        middleware::jwt_auth,
+        routes::audio::{
+            ice_candidate, offer, pair_device, repair_device, revoke_device, sessions,
+        },
+        security::validate_origin,
+        state::AppState,
+    };
+    use axum::{
+        middleware,
+        routing::{delete, get, post, put},
+        Router,
+    };
+    use axum_test::TestServer;
+    use control_protocol::Role;
+    use control_server::ControlState;
+    use serde_json::json;
+    use std::{
+        fs,
+        process::Command,
+        time::{SystemTime, UNIX_EPOCH},
+    };
+
+    fn test_keys() -> (Vec<u8>, Vec<u8>) {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system clock must be valid")
+            .as_nanos();
+        let private_path = std::env::temp_dir().join(format!("open-iem-audio-test-{nonce}.pem"));
+        let public_path = std::env::temp_dir().join(format!("open-iem-audio-test-{nonce}.pub.pem"));
+        let _ = fs::remove_file(&private_path);
+        let _ = fs::remove_file(&public_path);
+        let status = Command::new("openssl")
+            .args(["genpkey", "-algorithm", "ed25519", "-out"])
+            .arg(&private_path)
+            .status()
+            .expect("openssl must be installed for integration tests");
+        assert!(status.success(), "openssl key generation failed");
+        let status = Command::new("openssl")
+            .args(["pkey", "-in"])
+            .arg(&private_path)
+            .args(["-pubout", "-out"])
+            .arg(&public_path)
+            .status()
+            .expect("openssl public-key export");
+        assert!(status.success(), "openssl public-key export failed");
+        let private = fs::read(&private_path).expect("private key must be readable");
+        let public = fs::read(&public_path).expect("public key must be readable");
+        let _ = fs::remove_file(private_path);
+        let _ = fs::remove_file(public_path);
+        (private, public)
+    }
+
+    fn build_test_app() -> (TestServer, AppState) {
+        let (private_pem, public_pem) = test_keys();
+        let jwt = JwtKeys::from_ed_pem(&private_pem, &public_pem).expect("test PEM valid");
+        let db = Db::open_in_memory().expect("in-memory DB");
+        let state = AppState::new(ControlState::new(), db, jwt);
+
+        let protected = Router::new()
+            .route("/api/v1/audio/offer", post(offer))
+            .route("/api/v1/audio/ice-candidate", post(ice_candidate))
+            .route("/api/v1/audio/sessions", get(sessions))
+            .route("/api/v1/audio/pairing", post(pair_device))
+            .route("/api/v1/audio/pairing/{device_id}", delete(revoke_device))
+            .route("/api/v1/audio/pairing/{device_id}", put(repair_device))
+            .layer(middleware::from_fn_with_state(state.clone(), jwt_auth));
+
+        let app = Router::new()
+            .merge(protected)
+            .with_state(state.clone())
+            .layer(middleware::from_fn(validate_origin));
+
+        (TestServer::new(app), state)
+    }
+
+    fn seed_user_token(state: &AppState, username: &str, role: Role) -> String {
+        let pw_hash = hash_password("pass").expect("hash");
+        state
+            .db
+            .create_user(username, &pw_hash, role)
+            .expect("create user");
+        let (user_id, _, _, _) = state.db.find_user(username).expect("user exists");
+        let jti = uuid::Uuid::new_v4().to_string();
+        let raw_refresh = generate_refresh_token();
+        let session_id = state
+            .db
+            .create_session_with_access(
+                user_id,
+                &token_to_storage_key(&raw_refresh),
+                4_000_000_000,
+                &uuid::Uuid::new_v4().to_string(),
+                &jti,
+                4_000_000_000,
+            )
+            .expect("session created");
+        state
+            .jwt
+            .issue_with_session(username, user_id, role, &jti, Some(session_id))
+            .expect("token issued")
+    }
+
+    // --- offer ---
+
+    #[tokio::test]
+    async fn offer_requires_authentication() {
+        let (server, _state) = build_test_app();
+        let resp = server
+            .post("/api/v1/audio/offer")
+            .json(&json!({ "sdp": "v=0\r\n" }))
+            .await;
+        assert_eq!(resp.status_code(), 401);
+    }
+
+    #[tokio::test]
+    async fn offer_oversized_sdp_returns_400() {
+        let (server, state) = build_test_app();
+        let token = seed_user_token(&state, "mus_offer", Role::Musician);
+        // 16 KiB + 1 byte
+        let oversized = "x".repeat(16 * 1024 + 1);
+        let resp = server
+            .post("/api/v1/audio/offer")
+            .add_header(
+                axum::http::HeaderName::from_static("authorization"),
+                axum::http::HeaderValue::from_str(&format!("Bearer {token}")).unwrap(),
+            )
+            .json(&json!({ "sdp": oversized }))
+            .await;
+        assert_eq!(resp.status_code(), 400);
+    }
+
+    #[tokio::test]
+    async fn offer_partial_pairing_credentials_returns_400() {
+        let (server, state) = build_test_app();
+        let token = seed_user_token(&state, "mus_partial_cred", Role::Musician);
+        // device_id without credential — inseparable boundary
+        let resp = server
+            .post("/api/v1/audio/offer")
+            .add_header(
+                axum::http::HeaderName::from_static("authorization"),
+                axum::http::HeaderValue::from_str(&format!("Bearer {token}")).unwrap(),
+            )
+            .json(&json!({ "sdp": "v=0\r\n", "device_id": "dev1" }))
+            .await;
+        assert_eq!(resp.status_code(), 400);
+    }
+
+    // --- ice_candidate ---
+
+    #[tokio::test]
+    async fn ice_candidate_requires_authentication() {
+        let (server, _state) = build_test_app();
+        let resp = server
+            .post("/api/v1/audio/ice-candidate")
+            .json(&json!({ "candidate": "candidate:0 1 UDP 2122252543 192.0.2.1 56000 typ host" }))
+            .await;
+        assert_eq!(resp.status_code(), 401);
+    }
+
+    #[tokio::test]
+    async fn ice_candidate_oversized_candidate_returns_400() {
+        let (server, state) = build_test_app();
+        let token = seed_user_token(&state, "mus_ice", Role::Musician);
+        // 2049 bytes > MAX_CANDIDATE_BYTES (2048)
+        let oversized = "x".repeat(2049);
+        let resp = server
+            .post("/api/v1/audio/ice-candidate")
+            .add_header(
+                axum::http::HeaderName::from_static("authorization"),
+                axum::http::HeaderValue::from_str(&format!("Bearer {token}")).unwrap(),
+            )
+            .json(&json!({ "candidate": oversized }))
+            .await;
+        assert_eq!(resp.status_code(), 400);
+    }
+
+    // --- sessions ---
+
+    #[tokio::test]
+    async fn sessions_requires_authentication() {
+        let (server, _state) = build_test_app();
+        let resp = server.get("/api/v1/audio/sessions").await;
+        assert_eq!(resp.status_code(), 401);
+    }
+
+    #[tokio::test]
+    async fn sessions_musician_forbidden() {
+        let (server, state) = build_test_app();
+        let token = seed_user_token(&state, "mus_sessions", Role::Musician);
+        let resp = server
+            .get("/api/v1/audio/sessions")
+            .add_header(
+                axum::http::HeaderName::from_static("authorization"),
+                axum::http::HeaderValue::from_str(&format!("Bearer {token}")).unwrap(),
+            )
+            .await;
+        assert_eq!(resp.status_code(), 403);
+    }
+
+    #[tokio::test]
+    async fn sessions_engineer_ok() {
+        let (server, state) = build_test_app();
+        let token = seed_user_token(&state, "eng_sessions", Role::Engineer);
+        let resp = server
+            .get("/api/v1/audio/sessions")
+            .add_header(
+                axum::http::HeaderName::from_static("authorization"),
+                axum::http::HeaderValue::from_str(&format!("Bearer {token}")).unwrap(),
+            )
+            .await;
+        assert_eq!(resp.status_code(), 200);
+    }
+
+    // --- pair_device ---
+
+    #[tokio::test]
+    async fn pair_device_requires_authentication() {
+        let (server, _state) = build_test_app();
+        let resp = server
+            .post("/api/v1/audio/pairing")
+            .json(&json!({
+                "device_id": "dev1",
+                "musician_id": "user1",
+                "mix_index": 0,
+                "credential": "dGVzdA=="
+            }))
+            .await;
+        assert_eq!(resp.status_code(), 401);
+    }
+
+    #[tokio::test]
+    async fn pair_device_musician_forbidden() {
+        let (server, state) = build_test_app();
+        let token = seed_user_token(&state, "mus_pair", Role::Musician);
+        let resp = server
+            .post("/api/v1/audio/pairing")
+            .add_header(
+                axum::http::HeaderName::from_static("authorization"),
+                axum::http::HeaderValue::from_str(&format!("Bearer {token}")).unwrap(),
+            )
+            .json(&json!({
+                "device_id": "dev1",
+                "musician_id": "user1",
+                "mix_index": 0,
+                "credential": "dGVzdA=="
+            }))
+            .await;
+        assert_eq!(resp.status_code(), 403);
+    }
+
+    #[tokio::test]
+    async fn pair_device_invalid_base64_credential_returns_400() {
+        let (server, state) = build_test_app();
+        let token = seed_user_token(&state, "eng_pair_bad_b64", Role::Engineer);
+        let resp = server
+            .post("/api/v1/audio/pairing")
+            .add_header(
+                axum::http::HeaderName::from_static("authorization"),
+                axum::http::HeaderValue::from_str(&format!("Bearer {token}")).unwrap(),
+            )
+            .json(&json!({
+                "device_id": "dev1",
+                "musician_id": "user1",
+                "mix_index": 0,
+                "credential": "not!valid!base64!!!"
+            }))
+            .await;
+        assert_eq!(resp.status_code(), 400);
+    }
+
+    // --- revoke_device ---
+
+    #[tokio::test]
+    async fn revoke_device_requires_authentication() {
+        let (server, _state) = build_test_app();
+        let resp = server.delete("/api/v1/audio/pairing/dev1").await;
+        assert_eq!(resp.status_code(), 401);
+    }
+
+    #[tokio::test]
+    async fn revoke_device_musician_forbidden() {
+        let (server, state) = build_test_app();
+        let token = seed_user_token(&state, "mus_revoke", Role::Musician);
+        let resp = server
+            .delete("/api/v1/audio/pairing/dev1")
+            .add_header(
+                axum::http::HeaderName::from_static("authorization"),
+                axum::http::HeaderValue::from_str(&format!("Bearer {token}")).unwrap(),
+            )
+            .await;
+        assert_eq!(resp.status_code(), 403);
+    }
+
+    #[tokio::test]
+    async fn revoke_device_unknown_device_returns_404() {
+        let (server, state) = build_test_app();
+        let token = seed_user_token(&state, "eng_revoke_unknown", Role::Engineer);
+        let resp = server
+            .delete("/api/v1/audio/pairing/no-such-device")
+            .add_header(
+                axum::http::HeaderName::from_static("authorization"),
+                axum::http::HeaderValue::from_str(&format!("Bearer {token}")).unwrap(),
+            )
+            .await;
+        assert_eq!(resp.status_code(), 404);
+    }
+
+    // --- repair_device ---
+
+    #[tokio::test]
+    async fn repair_device_requires_authentication() {
+        let (server, _state) = build_test_app();
+        let resp = server
+            .put("/api/v1/audio/pairing/dev1")
+            .json(&json!({ "old_credential": "dGVzdA==", "new_credential": "dGVzdA==" }))
+            .await;
+        assert_eq!(resp.status_code(), 401);
+    }
+
+    #[tokio::test]
+    async fn repair_device_musician_forbidden() {
+        let (server, state) = build_test_app();
+        let token = seed_user_token(&state, "mus_repair", Role::Musician);
+        let resp = server
+            .put("/api/v1/audio/pairing/dev1")
+            .add_header(
+                axum::http::HeaderName::from_static("authorization"),
+                axum::http::HeaderValue::from_str(&format!("Bearer {token}")).unwrap(),
+            )
+            .json(&json!({ "old_credential": "dGVzdA==", "new_credential": "dGVzdA==" }))
+            .await;
+        assert_eq!(resp.status_code(), 403);
+    }
+}
