@@ -1,3 +1,10 @@
+## 2026-09-28 — estado CI reconciliado no HEAD `d109055`
+
+- `develop` e `origin/develop` sincronizadas em `d109055d2bd3c4f6dee23113e0bc53449f835b9f`; HEAD e origin/develop alinhados.
+- PR #340 continua aberta contra `main`, sem merge conforme política do ciclo.
+- CI real do HEAD exato: **16/16 SUCCESS**; todos os jobs concluíram com sucesso.
+- Evidência não eleva claims: runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` continuam pendentes. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-27 — documentação reconciliada
 
 - Estado corrente confirmado em branches `develop` e `origin/develop`; PR #340 permanece aberta contra `main`.
@@ -5843,7 +5850,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-09-28 — estado CI reconciliado no HEAD `b817799`
 
-- `develop` e `origin/develop` sincronizadas em `b817799a2515f783a3a101048ea5093fb5b990db`; working tree limpa.
+- `develop` e `origin/develop` sincronizadas em `b817799a2515f783a3a101048ea5093fb5b990db`; HEAD e origin/develop alinhados.
 - PR #340 continua aberta contra `main`, sem merge conforme política do ciclo.
 - CI real do HEAD exato: **16/16 SUCCESS**, com Rust, frontends, segurança, Audio Lab/ALSA `SIMULATED` e lifecycle `.deb` amd64/arm64.
 - Evidência não eleva claims: runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` continuam pendentes. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.

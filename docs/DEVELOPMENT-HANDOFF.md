@@ -1,3 +1,10 @@
+## 2026-09-28 — estado CI reconciliado no HEAD `d109055`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `d109055d2bd3c4f6dee23113e0bc53449f835b9f`; HEAD e origin/develop alinhados.
+- PR #340 permanece aberta contra `main`, sem merge conforme política do ciclo.
+- CI real do HEAD exato concluiu 16/16 SUCCESS; os 16 jobs completaram com `SUCCESS`.
+- Evidência permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — short software release gate profile
 
 - Corrigido `scripts/ci/run-software-release-gates.sh`: perfil `OPENIEM_SOAK_SECONDS=1` agora executa ao menos uma iteração completa de áudio+mídia, em vez de encerrar antes do loop e reportar `no complete audio-media iteration`.
@@ -821,7 +828,7 @@
 
 ## Estado atual canônico — 2026-09-27
 
-- Branch: `develop`; HEAD local/remoto: `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`; working tree limpa.
+- Branch: `develop`; HEAD local/remoto: `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`; HEAD e origin/develop alinhados.
 - PR #340: aberta contra `main`, sem merge conforme política ativa.
 - CI exato do HEAD: **16/16 jobs SUCCESS**, incluindo Rust, frontends, segurança, packages amd64/arm64, ARM64 userspace smoke, Audio Lab/ALSA simulados, skills e documentação.
 - Suíte local registrada: **531 testes `streaming` PASS**; workspace Rust, frontends e gates documentais PASS nos ciclos recentes.
@@ -1283,7 +1290,7 @@ test → review → docs/GAP update → PR/CI
 
 ## 2026-09-28 — estado CI reconciliado no HEAD `b817799`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `b817799a2515f783a3a101048ea5093fb5b990db`; working tree limpa.
+- `develop` e `origin/develop` estão sincronizadas no commit `b817799a2515f783a3a101048ea5093fb5b990db`; HEAD e origin/develop alinhados.
 - PR #340 permanece aberta contra `main`, sem merge conforme política do ciclo.
 - CI real do HEAD exato concluiu 16/16 SUCCESS: Rust, frontends, segurança, Audio Lab/ALSA `SIMULATED` e package lifecycle `.deb` amd64/arm64.
 - Evidência permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
