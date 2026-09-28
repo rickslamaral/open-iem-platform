@@ -1,3 +1,10 @@
+## 2026-09-28 — verificação local do HEAD `05bc716`
+
+- Reconciliado estado após correção de colisões em helpers `test_keys()`: `develop` e `origin/develop` apontam para `05bc7165cc6bf9ed8bc1d4e27bdc3afcb63c497d`; working tree limpa.
+- Gates reais: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, frontends Musician (61 testes) e Engineer (57 testes), typecheck e build — PASS.
+- Revisão independente: PASS, sem concerns de segurança ou lógica.
+- PR #340 mantém 16/16 jobs CI SUCCESS. Evidência `CODE/CI/SIMULATED`; validação física e release `v0.3.1` permanecem pendentes.
+
 ## 2026-09-28 — deterministic API test key generation
 
 - Corrigidos helpers `test_keys()` de `routes/auth.rs` e `routes/channels.rs`: UUID v4 elimina colisões de nomes temporários em testes paralelos; comandos OpenSSL agora falham explicitamente quando retornam status não-zero.

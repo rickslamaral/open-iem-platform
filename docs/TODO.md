@@ -1,3 +1,11 @@
+## 2026-09-28 — verificação local do HEAD `05bc716`
+
+- `develop` e `origin/develop` sincronizadas no commit `05bc7165cc6bf9ed8bc1d4e27bdc3afcb63c497d`; working tree limpa.
+- PR #340 permanece aberta contra `main`; CI real do HEAD exato concluiu **16/16 SUCCESS**, com jobs executados de verdade.
+- Gates locais PASS: Rust fmt/clippy/testes (incluindo 534 testes de `streaming`), Musician typecheck/61 testes/build e Engineer typecheck/57 testes/build.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — CI reconciliado no HEAD `331f4d7`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `331f4d779799d48fd94bf7d521b903bb94871828`; working tree limpa antes desta atualização.

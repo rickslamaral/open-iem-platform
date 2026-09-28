@@ -1,3 +1,10 @@
+## 2026-09-28 — estado verificado no HEAD `05bc716`
+
+- `develop` e `origin/develop` sincronizadas em `05bc7165cc6bf9ed8bc1d4e27bdc3afcb63c497d`; working tree limpa.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente; CI real do HEAD exato: 16/16 SUCCESS.
+- Gates locais Rust e frontends PASS; revisão independente PASS.
+- Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime e hardware permanecem não validados.
+
 ## 2026-09-28 — deterministic API test key generation
 
 - Corrigidos helpers `test_keys()` de `routes/auth.rs` e `routes/channels.rs`: UUID v4 elimina colisões de nomes temporários em testes paralelos; comandos OpenSSL agora falham explicitamente quando retornam status não-zero.
