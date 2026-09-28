@@ -1,3 +1,18 @@
+## 2026-09-28 — GAP-018 DTLS fingerprint integration test fix
+
+- Fixed 3 DTLS fingerprint integration tests that were failing 403 due to incorrect
+  pairing setup: tests used `musician_id: "musician-1"` (a non-existent user) and
+  offered with a different musician token without mix assignment.
+- Fix: use actual test musician username in pairing `musician_id` field and call
+  `state.db.assign_mix(0, musician_id)` before the offer.
+- Tests now pass: `offer_with_matching_dtls_fingerprint_succeeds`,
+  `offer_with_mismatched_dtls_fingerprint_returns_400`,
+  `offer_with_paired_device_no_fingerprint_registered_accepts_any_sdp_fingerprint`.
+- GAP-018 api-server integration test coverage: match/mismatch/no-pin scenarios complete.
+- Commit `67d450f` pushed to `origin/develop`. Full gate: fmt/clippy/tests PASS (all suites).
+- Evidência: `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+- PHYSICAL: USER-APPROVED / NOT EXECUTED.
+
 ## Estado atual — 2026-09-27 — documentação reconciliada
 
 - branches `develop` e `origin/develop` estavam sincronizadas no momento deste registro; working tree estava limpa antes desta atualização.
