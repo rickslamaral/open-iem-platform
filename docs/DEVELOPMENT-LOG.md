@@ -5984,3 +5984,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Adicionada regressão `drive_once_preserves_frames_when_media_writer_is_unavailable`, cobrindo sessão negociada com `media_mid` inexistente. A chamada não drena frames enfileirados e mantém `frames_drained`, `media_write_errors` e `packets_encoded` em zero.
 - Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+## 2026-09-28 — unavailable media writer preserves bounded FIFO
+
+- Expanded `SessionRegistry::drive_once` regression to two queued frames with output budget 2. Missing media writer preserves both frames and sequence order without incrementing drain, write-error or encode counters.
+- Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

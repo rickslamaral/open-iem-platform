@@ -1830,3 +1830,6 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## 2026-09-28 — SessionRegistry unavailable-writer preservation
 
 - [x] Cobrir `SessionRegistry::drive_once` com `media_mid` apontando para writer inexistente: frames já enfileirados permanecem preservados, sem drenagem, erro de escrita ou pacote codificado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+## 2026-09-28 — SessionRegistry unavailable-writer FIFO boundary
+
+- [x] Cobrir dois frames enfileirados com `frame_budget = 2` quando o writer Opus está indisponível, preservando FIFO, sequência e contadores zerados. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

@@ -1420,3 +1420,7 @@ test → review → docs/GAP update → PR/CI
 
 - Regressão CODE adicionada para `drive_once` quando `media_mid` não resolve writer Opus: frame permanece na fila e nenhum contador de drenagem, escrita ou pacote codificado é incrementado.
 - Gate focado PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+## 2026-09-28 — unavailable media writer preserves bounded FIFO
+
+- Regression expanded `drive_once_preserves_frames_when_media_writer_is_unavailable` to enqueue two frames and run with `frame_budget = 2`; missing Opus writer leaves both frames FIFO, with zero drain/write/encode counters.
+- Focused streaming test and streaming clippy pass. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
