@@ -1,3 +1,10 @@
+## 2026-09-28 — verificação documental no HEAD `25638d8`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `25638d8ae87863d26a740e02a6a07943051e583d`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`; CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos runs `36478830258` e `36478830252`.
+- Este ciclo somente reconcilia estado documental; não introduz comportamento novo nem claim de runtime ou hardware.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — reconciliação documental no HEAD `9c720aa`
 
 - Confirmado `develop` e `origin/develop` no commit `9c720aa611f22ce526f63e1046b7ad9c5fe55d0e`, com working tree limpa antes desta atualização.

@@ -1,3 +1,11 @@
+## 2026-09-28 — estado verificado no HEAD `25638d8`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `25638d8ae87863d26a740e02a6a07943051e583d`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`, conforme política vigente; CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos runs `36478830258` e `36478830252`, com jobs executados de verdade.
+- Última mudança CODE preserva FIFO de mídia negociada quando `SessionRegistry::drive_once` não tem writer utilizável; nenhum comportamento novo foi implementado neste ciclo.
+- Evidência: `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem pendentes.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — estado verificado no HEAD `9c720aa`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `9c720aa611f22ce526f63e1046b7ad9c5fe55d0e`; working tree limpa antes desta atualização.
