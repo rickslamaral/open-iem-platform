@@ -1,8 +1,8 @@
-## Estado atual — 2026-09-27 — documentação reconciliada no HEAD `302d3ec`
+## Estado atual — 2026-09-27 — documentação reconciliada
 
-- `develop` e `origin/develop` estão sincronizados em `302d3eccb645cdde2306d3b9cbf2a5d974246355`; working tree estava limpa antes desta atualização.
+- branches `develop` e `origin/develop` estavam sincronizadas no momento deste registro; working tree estava limpa antes desta atualização.
 - `streaming`: 531 testes PASS no último gate local completo; cobertura CODE inclui MediaWriter/MediaPlane/MediaBridge/OpusReceiver/clock/transport/pairing/SessionRegistry.
-- CI exato da PR #340: **16/16 SUCCESS**; PR aberta contra `main`, sem merge.
+- CI registrado na PR #340: **16/16 SUCCESS**; PR aberta contra `main`, sem merge.
 - Commits recentes fecharam cobertura de capacidade bounded do `SessionRegistry`, serialização de replacement, falhas de `MediaWriter::write`/`encode` e justiça de `output_budget`.
 - Evidência: `CODE/CI`; simulações permanecem proxy e não equivalem a runtime físico. WebRTC/DTLS-SRTP runtime real, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`.
 - Próxima ação válida: validação física/release autorizada ou novo backlog explicitamente definido; não fabricar tarefa CODE.

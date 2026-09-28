@@ -1,7 +1,7 @@
-## 2026-09-27 — documentação reconciliada no HEAD 302d3ec
+## 2026-09-27 — documentação reconciliada
 
-- Estado corrente confirmado em `develop` e `origin/develop`, HEAD `302d3eccb645cdde2306d3b9cbf2a5d974246355`; PR #340 permanece aberta contra `main`.
-- CI remoto do HEAD exato: 16/16 SUCCESS, com jobs executados de verdade.
+- Estado corrente confirmado em branches `develop` e `origin/develop`; PR #340 permanece aberta contra `main`.
+- CI registrado na PR #340: 16/16 SUCCESS, com jobs executados de verdade.
 - Evidência `CODE/CI`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; release `v0.3.1` e runtime/hardware permanecem pendentes.
 
 ## 2026-09-27 — negotiate replacement lock regression

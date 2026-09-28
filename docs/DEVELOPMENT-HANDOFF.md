@@ -1,7 +1,7 @@
-## Estado atual — 2026-09-27 — documentação reconciliada no HEAD `302d3ec`
+## Estado atual — 2026-09-27 — documentação reconciliada
 
-- `develop` e `origin/develop` estão sincronizados em `302d3eccb645cdde2306d3b9cbf2a5d974246355`; working tree estava limpa antes desta atualização.
-- PR #340 aponta para este estado documental em `develop` contra `main`; CI remoto exato: 16/16 SUCCESS, todos os jobs executados.
+- branches `develop` e `origin/develop` estavam sincronizadas no momento deste registro; working tree estava limpa antes desta atualização.
+- PR #340 aponta para este estado documental em `develop` contra `main`; CI registrado na PR #340: 16/16 SUCCESS, todos os jobs executados.
 - Evidência: `CODE/CI`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Release `v0.3.1` e validações físicas permanecem bloqueadas.
 
 ## 2026-09-27 — failed bound replacement preserves capacity state
