@@ -1,3 +1,11 @@
+## 2026-09-28 — estado CI reconciliado no HEAD `b1ac4d6`
+
+- `develop` e `origin/develop` sincronizadas em `b1ac4d61e8c8e97a7e39767bb889dd168696fd35`; working tree limpa no início da verificação.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- CI real do HEAD exato concluiu **16/16 SUCCESS**, com jobs executados de verdade: Rust, frontends, segurança, documentação, pacotes `.deb` amd64/arm64 e áudio `SIMULATED`.
+- Evidência não eleva claims: runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` continuam pendentes.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — audio signaling bounds verification
 
 - Re-ran focused API regressions for oversized SDP and ICE candidate inputs. Both focused tests PASS in this verification run.

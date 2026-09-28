@@ -1,3 +1,11 @@
+## 2026-09-28 — verificação local do HEAD `b1ac4d6`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `b1ac4d61e8c8e97a7e39767bb889dd168696fd35`; working tree estava limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`, conforme política vigente; nenhum merge ou PR novo executado.
+- CI real do HEAD exato concluiu **16/16 SUCCESS**, incluindo Rust, frontends, segurança, documentação, pacotes `.deb` amd64/arm64 e gates de áudio `SIMULATED`.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — audio signaling bounds verification
 
 - [x] Focused integration tests `oversized_offer_sdp_returns_400_before_negotiation` and `oversized_ice_candidate_returns_400_before_session_lookup` pass.
