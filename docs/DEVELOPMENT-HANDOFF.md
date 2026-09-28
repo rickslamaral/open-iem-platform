@@ -1,6 +1,6 @@
-## 2026-09-28 — estado CI reconciliado no HEAD `d0cd127`
+## 2026-09-28 — estado CI reconciliado no HEAD `47bd53b`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `d0cd127df1c13632a0f6a86f69f71f92f83b4e95`; HEAD e origin/develop alinhados.
+- `develop` e `origin/develop` estão sincronizadas no commit `47bd53bd96b9dcc2ce2041d722b8f433283ed812`; HEAD e origin/develop alinhados.
 - PR #340 permanece aberta contra `main`, sem merge conforme política do ciclo.
 - CI real do HEAD exato concluiu 16/16 SUCCESS; os 16 jobs completaram com `pass`.
 - Evidência permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
