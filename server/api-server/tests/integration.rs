@@ -3269,3 +3269,116 @@ async fn set_send_muted_requires_authentication() {
         .await;
     resp.assert_status_unauthorized();
 }
+
+// ── /api/v1/mixes/{mix}/sends/{ch}/gain — REST RBAC and isolation ──────────
+
+#[tokio::test]
+async fn set_send_gain_engineer_rbac_ok() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_gain_ok", "pw", Role::Engineer);
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"gain_db": -6.0_f32}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert!(body["revision"].is_number());
+    let gain = body["gain_db"]
+        .as_f64()
+        .expect("gain_db field must be number");
+    assert!((gain - (-6.0)).abs() < 1e-3, "gain_db value mismatch");
+}
+
+#[tokio::test]
+async fn set_send_gain_musician_owns_mix_ok() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_gain_assign", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_gain_own", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_gain_own").unwrap();
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .json(&json!({"gain_db": 0.0_f32}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    let gain = body["gain_db"]
+        .as_f64()
+        .expect("gain_db field must be number");
+    assert!((gain - 0.0).abs() < 1e-3, "gain_db value mismatch");
+}
+
+#[tokio::test]
+async fn set_send_gain_musician_wrong_mix_forbidden() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_gain_wrong", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_gain_wrong", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_gain_wrong").unwrap();
+    // Assign to mix 0; musician tries to set gain on mix 1.
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .put("/api/v1/mixes/1/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .json(&json!({"gain_db": 0.0_f32}))
+        .await;
+    resp.assert_status_forbidden();
+}
+
+#[tokio::test]
+async fn set_send_gain_requires_authentication() {
+    let (server, _state) = build_test_app();
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .json(&json!({"gain_db": 0.0_f32}))
+        .await;
+    resp.assert_status_unauthorized();
+}
+
+#[tokio::test]
+async fn set_send_gain_out_of_range_returns_400() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_gain_range", "pw", Role::Engineer);
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"gain_db": 200.0_f32}))
+        .await;
+    resp.assert_status(axum::http::StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
+async fn set_send_gain_non_finite_returns_400() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_gain_nan", "pw", Role::Engineer);
+    // JSON cannot encode NaN/Inf — send a string to trigger deserialization error.
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"gain_db": "not_a_number"}))
+        .await;
+    assert!(
+        resp.status_code() == axum::http::StatusCode::BAD_REQUEST
+            || resp.status_code() == axum::http::StatusCode::UNPROCESSABLE_ENTITY,
+        "expected 400 or 422 for non-numeric gain_db"
+    );
+}
