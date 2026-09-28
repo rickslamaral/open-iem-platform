@@ -127,7 +127,7 @@
 
 ## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
 
-- Registro histórico: HEAD era `c3d8cc9` (`develop`); não representa estado corrente. Estado corrente: `b885aaefe156d452261034be620b88fc17d4a391`, CI exact HEAD 16/16 SUCCESS.
+- Registro histórico: HEAD era `c3d8cc9` (`develop`); não representa estado corrente. Estado corrente: `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`, CI exact HEAD 16/16 SUCCESS.
 - Gates locais atuais: fmt, clippy e 459 testes `streaming` PASS.
 - PR #340 permanece aberta, sem merge automático por política deste ciclo.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.

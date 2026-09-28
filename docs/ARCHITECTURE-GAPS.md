@@ -1,7 +1,7 @@
 # Architecture GAP Registry
 
 **Baseline:** 2026-09-16
-**Last reconciled:** 2026-09-27 — `develop` HEAD `b885aaefe156d452261034be620b88fc17d4a391`
+**Last reconciled:** 2026-09-27 — `develop` HEAD `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`
 **Evidence:** CODE/CI/SIMULATED; PR #340 open, no merge; physical/runtime validation pending
 **Source:** architecture audit, reconciliation, final P0 ADR closure
 **Rule:** code/tests/CI/hardware evidence remain separate. Documentation or compilation alone never resolves runtime/hardware GAPs.
@@ -28,7 +28,7 @@
 | GAP-008 | P0 | Auth | Bootstrap password safety and first-access enforcement | `Db::bootstrap_soundtech` is idempotent, Argon2id-only and M001-backed; startup now fails closed when `OPENIEM_SOUNDTECH_PASSWORD` is absent/empty; first-access password-change enforcement is implemented by login response and bootstrap-only password endpoint | RESOLVED (CODE) | ADR-009 | migrations, auth | Preserve first-access enforcement and add runtime evidence | Fresh/repeat/changed password/RBAC | Yes for runtime/support claims |
 | GAP-009 | P0 | Hardware | No Pi 5 physical validation | Cross-build only | HARDWARE VALIDATION REQUIRED | ADR-008/010 | 005,007,010 | Execute L3 Pi+USB gate | Physical report | Yes |
 | GAP-010 | P0 | Backend | No real PipeWire/ALSA runtime evidence | Simulated/JACK feature path | VALIDATION REQUIRED | ADR-008/010 | 007,009 | Implement/execute PipeWire path | L1–L3 runtime | Yes |
-| GAP-011 | P0 | CI | Current software CI evidence exists | Exact `develop` HEAD `b885aae` recorded with 16/16 jobs green; preserve per-HEAD evidence | RESOLVED | ADR-010 | none | Keep per-HEAD evidence | Jobs/steps green | No |
+| GAP-011 | P0 | CI | Current software CI evidence exists | Exact `develop` HEAD `5df6047` recorded with 16/16 jobs green; preserve per-HEAD evidence | RESOLVED | ADR-010 | none | Keep per-HEAD evidence | Jobs/steps green | No |
 | GAP-012 | P1 | Topology | AUX/pairs/playback/hybrid absent | Logical Channel only | DEFERRED | Future ADR | 010, backend | MVP Channel Mode; design later modes | Topology profiles | No |
 | GAP-013 | P1 | Devices | Capability/hot-plug runtime integration absent | Bounded `DeviceManager` capability validation, discovery snapshot and recovery state machine exist; API snapshot is Engineer/Admin protected; backend hot-plug/runtime integration remains absent | VALIDATION REQUIRED | ADR-008 | 012,010 | Integrate backend discovery and validate device loss/reconnect | Device loss/recovery | Yes for full topology |
 | GAP-014 | P1 | Lab | Audio Lab L1/L2 SIMULATED | 8 testes em audio_lab_l1_l2.rs, CI job audio-lab | RESOLVED (CI/SIMULATED) | ADR-010 | 001,012 | L3/L4 hardware pendentes | CI virtual audio | No (CI level done) |

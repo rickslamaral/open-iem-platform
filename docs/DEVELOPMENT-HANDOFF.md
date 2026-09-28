@@ -116,7 +116,7 @@
 ## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
 
 - HEAD atual: `c3d8cc9` (`develop`). Gates locais do streaming: 459 testes PASS, fmt e clippy PASS.
-- Registro histórico: CI do HEAD daquele lote estava em execução. Estado corrente: `b885aaefe156d452261034be620b88fc17d4a391`, exact HEAD CI 16/16 SUCCESS.
+- Registro histórico: CI do HEAD daquele lote estava em execução. Estado corrente: `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`, exact HEAD CI 16/16 SUCCESS.
 - PR #340 permanece aberta e sem merge por política do ciclo.
 - Próximo trabalho: selecionar próxima fronteira CODE concreta de streaming/mídia; não reivindicar runtime físico.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -787,7 +787,7 @@
 
 ## Estado atual canônico — 2026-09-27
 
-- Branch: `develop`; HEAD local/remoto: `b885aaefe156d452261034be620b88fc17d4a391`; working tree limpa.
+- Branch: `develop`; HEAD local/remoto: `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`; working tree limpa.
 - PR #340: aberta contra `main`, sem merge conforme política ativa.
 - CI exato do HEAD: **16/16 jobs SUCCESS**, incluindo Rust, frontends, segurança, packages amd64/arm64, ARM64 userspace smoke, Audio Lab/ALSA simulados, skills e documentação.
 - Suíte local registrada: **531 testes `streaming` PASS**; workspace Rust, frontends e gates documentais PASS nos ciclos recentes.

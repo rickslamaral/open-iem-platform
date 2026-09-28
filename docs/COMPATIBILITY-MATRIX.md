@@ -1,6 +1,6 @@
 # Open IEM — Compatibility Matrix
 
-**Status — 2026-09-27:** software/package gates pass on exact `develop` HEAD `b885aae`; physical Raspberry Pi, USB, PipeWire/ALSA and latency certification remain pending. PR #340 is open; no merge.
+**Status — 2026-09-27:** software/package gates pass on exact `develop` HEAD `5df6047`; physical Raspberry Pi, USB, PipeWire/ALSA and latency certification remain pending. PR #340 is open; no merge.
 
 | Family | OS baseline | Architectures | Software release | Hardware certification |
 |---|---|---:|---|---|

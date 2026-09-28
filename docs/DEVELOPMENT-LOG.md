@@ -140,7 +140,7 @@
 ## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
 
 - Atualizado o estado documental para `develop` em `c3d8cc9`.
-- Registro histórico: CI do HEAD daquele lote estava em execução. Estado corrente está no handoff canônico: `b885aaefe156d452261034be620b88fc17d4a391`, exact HEAD CI 16/16 SUCCESS.
+- Registro histórico: CI do HEAD daquele lote estava em execução. Estado corrente está no handoff canônico: `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`, exact HEAD CI 16/16 SUCCESS.
 - PR #340 permanece aberta e sem merge por política do ciclo.
 - Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
@@ -5828,9 +5828,9 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Added CODE regression `drive_once_accounts_media_write_failure_after_frame_drain`, forcing bounded writer exhaustion after frame drain. The test confirms one `media_write_errors`, zero encoded packets, and no resend on the next drive. Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
 
-## 2026-09-27 — documentação reconciliada no HEAD `b885aae`
+## 2026-09-27 — documentação reconciliada no HEAD `5df6047`
 
-- Estado canônico atualizado: `develop`/`origin/develop` em `b885aaefe156d452261034be620b88fc17d4a391`, working tree limpa.
+- Estado canônico atualizado: `develop`/`origin/develop` em `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`, working tree limpa.
 - Último gate local completo registrado: 531 testes `streaming` PASS; CI exato da PR #340: 16/16 SUCCESS. PR permanece aberta, sem merge.
 - Documentação atualizada para separar histórico de estado atual. Cobertura recente inclui capacidade bounded do `SessionRegistry`, replacement serializado, contagem de falhas de escrita/encode e justiça de `output_budget`.
 - Evidência permanece `CODE/CI/SIMULATED`; nenhum claim físico/runtime foi adicionado. WebRTC/DTLS-SRTP, PipeWire/ALSA, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem pendentes.

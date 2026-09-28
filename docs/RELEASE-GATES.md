@@ -2,7 +2,7 @@
 
 ## Current gate status — 2026-09-27
 
-- `develop` HEAD: `b885aaefe156d452261034be620b88fc17d4a391`.
+- `develop` HEAD: `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`.
 - PR #340: open, no merge.
 - CI exact HEAD: 16/16 jobs SUCCESS.
 - Software evidence: CODE/CI/SIMULATED. Hardware certification and `v0.3.1` release remain pending.
