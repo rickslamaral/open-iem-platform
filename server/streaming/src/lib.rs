@@ -109,6 +109,7 @@ struct PeerSession {
 pub struct SessionRegistry {
     sessions: Arc<Mutex<HashMap<String, PeerSession>>>,
     transport_outputs: Arc<Mutex<VecDeque<str0m::net::Transmit>>>,
+    last_driven_session: Arc<Mutex<Option<String>>>,
 }
 
 pub(crate) fn canonicalize_dtls_fingerprint(value: &str) -> Result<String, StreamingError> {
@@ -166,6 +167,7 @@ impl SessionRegistry {
             transport_outputs: Arc::new(Mutex::new(VecDeque::with_capacity(
                 TRANSPORT_OUTPUT_CAPACITY,
             ))),
+            last_driven_session: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -376,7 +378,15 @@ impl SessionRegistry {
         // a following session to use remaining budget in this drive.
         let mut session_ids = sessions.keys().cloned().collect::<Vec<_>>();
         session_ids.sort();
+        let last_driven_session = self.last_driven_session.lock().await.clone();
+        if let Some(last) = last_driven_session {
+            if let Some(index) = session_ids.iter().position(|user_id| user_id == &last) {
+                let rotation = (index + 1) % session_ids.len();
+                session_ids.rotate_left(rotation);
+            }
+        }
         for user_id in session_ids {
+            *self.last_driven_session.lock().await = Some(user_id.clone());
             let Some(peer) = sessions.get_mut(&user_id) else {
                 continue;
             };
@@ -1353,7 +1363,7 @@ mod tests {
         let plane = crate::media_plane::MediaPlane::new();
         plane.register_session("alice", 0).await.unwrap();
         let bridge = crate::media_bridge::MediaBridge::new();
-        registry.drive_once(&bridge, &plane, 0, 1).await;
+        registry.drive_once(&bridge, &plane, 1, 1).await;
         for revision in [31, 32] {
             bridge
                 .try_send(
@@ -2274,6 +2284,63 @@ FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00\r\n"
         let sessions = plane.sessions.lock().await;
         assert_eq!(sessions["alice"].drain_frames().len(), 1);
         assert_eq!(sessions["bob"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_rotates_session_start_after_output_budget_exhaustion() {
+        let registry = SessionRegistry::new();
+        for user_id in ["alice", "bob"] {
+            registry
+                .negotiate_offer(user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        let plane = crate::media_plane::MediaPlane::new();
+        for (user_id, stream_id) in [("alice", 0), ("bob", 1)] {
+            plane.register_session(user_id, stream_id).await.unwrap();
+        }
+        let bridge = crate::media_bridge::MediaBridge::new();
+        for user_id in ["alice", "bob"] {
+            let mid = {
+                let mut sessions = registry.sessions.lock().await;
+                sessions
+                    .get_mut(user_id)
+                    .unwrap()
+                    .rtc
+                    .media(str0m::media::Mid::from("0"))
+                    .unwrap()
+                    .mid()
+            };
+            registry
+                .sessions
+                .lock()
+                .await
+                .get_mut(user_id)
+                .unwrap()
+                .media_mid = Some(mid);
+        }
+        // Clear negotiation-time RTC output before asserting media fairness.
+        registry.drive_once(&bridge, &plane, 1, 100).await;
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.25, -0.125)],
+                },
+                1,
+                None,
+            )
+            .await;
+
+        let first = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(first.packets_encoded, 1);
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions["alice"].drain_frames().is_empty());
+        drop(sessions);
+
+        let second = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(second.packets_encoded, 1);
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions["bob"].drain_frames().is_empty());
     }
 
     #[tokio::test]

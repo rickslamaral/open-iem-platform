@@ -1,3 +1,7 @@
+## 2026-09-28 — SessionRegistry round-robin fairness
+
+- `SessionRegistry::drive_once` rotates session processing after each bounded pass, preserving initial lexicographic order and FIFO while preventing repeated `output_budget=1` calls from starving later negotiated sessions. Focused CODE regression and local fmt/test/clippy gates pass; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-28 — CI reconciliado no HEAD `bd37895`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `bd37895080bd2fc0c577b32e2dc7de8e9f97d2d3`; working tree limpa.
