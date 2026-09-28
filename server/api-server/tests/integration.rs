@@ -320,6 +320,40 @@ async fn config_backup_restore_rejects_musician() {
         .assert_status(axum::http::StatusCode::FORBIDDEN);
 }
 
+#[tokio::test]
+async fn config_backup_restore_rejects_invalid_snapshot_without_mutation() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "config_backup_invalid", "pw", Role::Engineer);
+    {
+        let mut control = state.control.lock().expect("control lock");
+        control
+            .set_channel(0, Channel::new(42, "Lead Vocal"))
+            .expect("test channel must configure");
+    }
+
+    let invalid_snapshot = json!({
+        "version": 99,
+        "created_at_utc_secs": 0,
+        "channels": [],
+        "mixes": []
+    });
+    server
+        .put("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token.clone())
+        .json(&invalid_snapshot)
+        .await
+        .assert_status(axum::http::StatusCode::BAD_REQUEST);
+
+    let after = server
+        .get("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .await;
+    after.assert_status_ok();
+    assert_eq!(after.json::<Value>()["channels"][0]["name"], "Lead Vocal");
+}
+
 // ── /api/v1/health ────────────────────────────────────────────────────────
 
 #[tokio::test]

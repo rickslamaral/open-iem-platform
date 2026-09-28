@@ -1,3 +1,9 @@
+## 2026-09-28 — config backup invalid snapshot atomicity coverage
+
+- Added API integration regression proving Engineer restore rejects unsupported snapshot version with `400 Bad Request` and preserves existing control state.
+- Verification: focused api-server test PASS; clippy and frontend gates PASS. `cargo fmt --all -- --check` must target `server/Cargo.toml`; archive validator path is absent on this checkout.
+- Evidência: `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — Engineer revision history failure-state coverage
 
 - Engineer Console revision history now opens before fetch completion and keeps panel/error visible when revision loading fails; stale revision rows clear before each load.
