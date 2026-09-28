@@ -194,6 +194,19 @@ mod tests {
     }
 
     #[test]
+    fn opus_encode_failure_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        writer.packet.clear();
+
+        assert_eq!(writer.encode(&frame()), Err(MediaWriterError::Encode));
+        assert_eq!(writer.next_rtp_timestamp, 0);
+
+        writer.packet.resize(OPUS_MAX_PACKET_BYTES, 0);
+        let packet = writer.encode(&frame()).unwrap();
+        assert_eq!(packet.rtp_timestamp, 0);
+    }
+
+    #[test]
     fn rejects_multiple_invalid_format_fields_before_frame_length() {
         let mut invalid = frame();
         invalid.metadata.sample_rate = 44_100;

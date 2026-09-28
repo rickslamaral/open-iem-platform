@@ -1268,3 +1268,9 @@ test → review → docs/GAP update → PR/CI
 ## 2026-09-28 — revision history loading state
 
 - Engineer Console agora distingue carregamento de histórico de cena de histórico vazio; estado transitório não exibe falso `Nenhuma revisão encontrada.`. Verificação: typecheck, 57 testes Vitest e build do Engineer, gates Rust e frontend Musician PASS. Evidência CODE local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — Opus encode-failure timestamp boundary
+
+- Added `MediaWriter` regression forcing bounded packet-buffer encode failure, asserting `next_rtp_timestamp` remains zero and the following valid packet starts at RTP timestamp zero.
+- Local gates: Rust fmt, clippy, full server tests (533 streaming unit tests plus integration suites), frontend typecheck/tests/build and documentation validation PASS. `npm test -- --watchAll=false` remains incompatible with Vitest; direct `npm test` passed (Musician 61, Engineer 57).
+- Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
