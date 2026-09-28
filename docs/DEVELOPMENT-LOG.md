@@ -1,3 +1,10 @@
+## 2026-09-28 — estado CI reconciliado no HEAD `d0cd127`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `d0cd127df1c13632a0f6a86f69f71f92f83b4e95`; HEAD e origin/develop alinhados.
+- PR #340 permanece aberta contra `main`; CI real do HEAD exato concluiu 16/16 SUCCESS com jobs executados de verdade.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem pendentes.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — channels route RBAC and input-validation tests
 
 - Added 10 integration tests in `server/api-server/src/routes/channels.rs` covering:
