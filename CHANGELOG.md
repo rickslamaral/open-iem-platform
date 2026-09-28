@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Tests
+- Added 10 integration tests for channels routes (get_state, list_channels, set_channel_gain, set_channel_mute): RBAC enforcement, authentication boundaries and gain input validation. api-server test count 67 → 77.
+
+
 ### Documentation
 - Reconciliado status dos documentos canônicos no HEAD `9b733a4`: `develop` sincronizado com `origin/develop`, PR #340 aberta sem merge e CI exato 16/16 SUCCESS.
 - Registrada cobertura CODE/CI/SIMULATED de capacidade bounded do `SessionRegistry`, replacement serializado, contagem de falhas de mídia e justiça de budget. Runtime/hardware e release `v0.3.1` permanecem pendentes.

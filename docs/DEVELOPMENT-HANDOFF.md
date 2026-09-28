@@ -1,3 +1,14 @@
+## 2026-09-28 — channels route RBAC and input-validation tests
+
+- Added 10 integration tests in `server/api-server/src/routes/channels.rs` covering:
+  - `get_state` authenticated (Musician OK) and unauthenticated (401)
+  - `list_channels` authenticated (Musician OK) and unauthenticated (401)
+  - `set_channel_gain` Engineer OK, Musician forbidden, out-of-range 400, non-finite 4xx
+  - `set_channel_mute` Engineer OK, Musician forbidden
+- `api-server` lib test count: 67 → 77 PASS; full server test suite PASS; frontends PASS.
+- Independent review: PASS.
+- Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-28 — estado CI reconciliado no HEAD `139ae8d`
 
 - `develop` e `origin/develop` estão sincronizadas em `139ae8dc2ed7a9609d4e9e0faf5e9ee58783dbb1`; HEAD e origin/develop alinhados.
