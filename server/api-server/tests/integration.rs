@@ -16,7 +16,7 @@ use api_server::{
             delete_user as admin_delete_user, list_sessions as admin_list_sessions,
             list_users as admin_list_users, revoke_session as admin_revoke_session,
         },
-        audio::{ice_candidate, offer, pair_device, revoke_device, sessions},
+        audio::{ice_candidate, offer, pair_device, repair_device, revoke_device, sessions},
         auth::{create_user, login, logout, refresh},
         channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
         health::health,
@@ -142,7 +142,7 @@ fn build_test_app() -> (TestServer, AppState) {
         .route("/api/v1/audio/pairing", post(pair_device))
         .route(
             "/api/v1/audio/pairing/{device_id}",
-            axum::routing::delete(revoke_device),
+            axum::routing::delete(revoke_device).put(repair_device),
         )
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
@@ -1087,7 +1087,7 @@ fn build_ws_app() -> (axum_test::TestServer, AppState) {
         .route("/api/v1/audio/pairing", post(pair_device))
         .route(
             "/api/v1/audio/pairing/{device_id}",
-            axum::routing::delete(revoke_device),
+            axum::routing::delete(revoke_device).put(repair_device),
         )
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
@@ -2580,6 +2580,155 @@ async fn revoke_device_removes_bound_session_preserves_unbound_session() {
     assert!(!sessions
         .iter()
         .any(|session| { session.device_id.as_deref() == Some("rx-revoke-bound") }));
+}
+// ── repair_device ──────────────────────────────────────────────────────────
+
+#[tokio::test]
+async fn repair_device_succeeds_after_revoke() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_repair_ok", "pw", Role::Engineer);
+    let credential = make_credential("repair-secret-1234");
+
+    // Pair
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-repair-ok",
+            "credential": credential,
+            "musician_id": "musician-1",
+            "mix_index": 0
+        }))
+        .await
+        .assert_status_ok();
+
+    // Revoke
+    server
+        .delete("/api/v1/audio/pairing/rx-repair-ok")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .await
+        .assert_status_ok();
+
+    let new_credential = make_credential("repair-new-secret-5678");
+
+    // Re-pair
+    let resp = server
+        .put("/api/v1/audio/pairing/rx-repair-ok")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "old_credential": credential,
+            "new_credential": new_credential
+        }))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert_eq!(body["device_id"], "rx-repair-ok");
+    assert_eq!(body["repaired"], true);
+}
+
+#[tokio::test]
+async fn repair_device_returns_404_for_unknown_device() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_repair_404", "pw", Role::Engineer);
+    let resp = server
+        .put("/api/v1/audio/pairing/no-such-rx")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "old_credential": make_credential("old-secret-12345"),
+            "new_credential": make_credential("new-secret-12345")
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::NOT_FOUND);
+}
+
+#[tokio::test]
+async fn repair_device_returns_409_when_device_is_active() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_repair_409", "pw", Role::Engineer);
+    let credential = make_credential("repair-active-secret-1234");
+
+    // Pair without revoking
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-repair-active",
+            "credential": credential,
+            "musician_id": "musician-1",
+            "mix_index": 0
+        }))
+        .await
+        .assert_status_ok();
+
+    let resp = server
+        .put("/api/v1/audio/pairing/rx-repair-active")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "old_credential": credential,
+            "new_credential": make_credential("new-secret-5678")
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::CONFLICT);
+}
+
+#[tokio::test]
+async fn repair_device_returns_401_for_bad_old_credential() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_repair_401", "pw", Role::Engineer);
+    let credential = make_credential("repair-secret-auth-1234");
+
+    // Pair + revoke
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-repair-auth",
+            "credential": credential,
+            "musician_id": "musician-1",
+            "mix_index": 0
+        }))
+        .await
+        .assert_status_ok();
+    server
+        .delete("/api/v1/audio/pairing/rx-repair-auth")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .await
+        .assert_status_ok();
+
+    let resp = server
+        .put("/api/v1/audio/pairing/rx-repair-auth")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "old_credential": make_credential("wrong-secret-1234"),
+            "new_credential": make_credential("new-secret-5678")
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn repair_device_returns_403_for_musician_role() {
+    let (server, state) = build_test_app();
+    let musician_token = seed_user_and_login(&state, "mus_repair_403", "pw", Role::Musician);
+    let resp = server
+        .put("/api/v1/audio/pairing/rx-any")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&musician_token)
+        .json(&json!({
+            "old_credential": make_credential("old-secret-1234"),
+            "new_credential": make_credential("new-secret-1234")
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::FORBIDDEN);
 }
 
 #[tokio::test]

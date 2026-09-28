@@ -265,3 +265,56 @@ pub async fn revoke_device(
     state.streaming.remove_by_device_id(&device_id).await;
     Ok(Json(RevokeDeviceResponse { revoked: true }))
 }
+
+/// Re-pair device request body.
+#[derive(Debug, Deserialize)]
+pub struct RepairDeviceRequest {
+    /// Current (old) base64-encoded device credential.
+    pub old_credential: String,
+    /// New base64-encoded device credential.
+    pub new_credential: String,
+}
+
+/// Re-pair device response.
+#[derive(Debug, Serialize)]
+pub struct RepairDeviceResponse {
+    /// Device that was re-paired.
+    pub device_id: String,
+    /// Whether re-pairing succeeded.
+    pub repaired: bool,
+}
+
+/// `PUT /api/v1/audio/pairing/:device_id` — re-pair a previously revoked device.
+/// Engineer/Admin only. Requires old credential to authorize credential rotation.
+///
+/// # Errors
+/// Returns `ApiError::NotFound` when device is unknown, `ApiError::Conflict` when
+/// device is not revoked, and `ApiError::Unauthorized` on bad credentials.
+pub async fn repair_device(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<JwtClaims>,
+    Path(device_id): Path<String>,
+    Json(body): Json<RepairDeviceRequest>,
+) -> Result<impl IntoResponse, ApiError> {
+    require_min_role(&claims, Role::Engineer)?;
+    let old_bytes = general_purpose::STANDARD
+        .decode(&body.old_credential)
+        .map_err(|_| ApiError::BadRequest("old_credential is not valid base64".to_owned()))?;
+    let new_bytes = general_purpose::STANDARD
+        .decode(&body.new_credential)
+        .map_err(|_| ApiError::BadRequest("new_credential is not valid base64".to_owned()))?;
+    state
+        .pairing
+        .replace_revoked(&device_id, &old_bytes, &new_bytes)
+        .await
+        .map_err(|e| match e {
+            PairingError::NotFound => ApiError::NotFound(format!("device {device_id} not found")),
+            PairingError::AlreadyPaired => ApiError::Conflict("device is not revoked".to_owned()),
+            PairingError::InvalidCredential => ApiError::Unauthorized("invalid credential"),
+            _ => ApiError::Internal("re-pair failed".to_owned()),
+        })?;
+    Ok(Json(RepairDeviceResponse {
+        device_id,
+        repaired: true,
+    }))
+}

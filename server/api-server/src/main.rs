@@ -17,7 +17,7 @@ use api_server::{
             delete_user as admin_delete_user, list_sessions as admin_list_sessions,
             list_users as admin_list_users, revoke_session as admin_revoke_session,
         },
-        audio::{ice_candidate, offer, pair_device, revoke_device, sessions},
+        audio::{ice_candidate, offer, pair_device, repair_device, revoke_device, sessions},
         auth::{change_password, create_user, login, logout, refresh},
         channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
         config::{backup_config, restore_config},
@@ -151,7 +151,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/audio/pairing", post(pair_device))
         .route(
             "/api/v1/audio/pairing/{device_id}",
-            axum::routing::delete(revoke_device),
+            axum::routing::delete(revoke_device).put(repair_device),
         )
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))

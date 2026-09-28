@@ -193,11 +193,7 @@ impl PairingRegistry {
         old_credential: &[u8],
         new_credential: &[u8],
     ) -> Result<(), PairingError> {
-        if old_credential.len() < 16
-            || old_credential.len() > MAX_CREDENTIAL_BYTES
-            || new_credential.len() < 16
-            || new_credential.len() > MAX_CREDENTIAL_BYTES
-        {
+        if old_credential.len() < 16 || old_credential.len() > MAX_CREDENTIAL_BYTES {
             return Err(PairingError::InvalidCredential);
         }
         let current = self
@@ -209,6 +205,9 @@ impl PairingRegistry {
             .ok_or(PairingError::NotFound)?;
         if !current.identity.revoked {
             return Err(PairingError::AlreadyPaired);
+        }
+        if new_credential.len() < 16 || new_credential.len() > MAX_CREDENTIAL_BYTES {
+            return Err(PairingError::InvalidCredential);
         }
         let old_digest = derive_digest(old_credential, current.credential_salt).await?;
         if !constant_time_eq(&current.credential_digest, &old_digest) {
