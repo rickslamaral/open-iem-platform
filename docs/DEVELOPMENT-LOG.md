@@ -5886,3 +5886,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-09-28 — revision history loading state
 
 - Engineer Console agora distingue carregamento de histórico de cena de histórico vazio; estado transitório não exibe falso `Nenhuma revisão encontrada.`. Verificação: typecheck, 57 testes Vitest e build do Engineer, gates Rust e frontend Musician PASS. Evidência CODE local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-28 — SessionRegistry frames-drained accounting
+
+- `SessionRegistry::drive_once` agora contabiliza em `DriveReport::frames_drained` tanto frames drenados da `MediaBridge` quanto frames removidos das filas do `MediaPlane`; contador permanece saturante e zero quando nenhum frame é consumido.
+- Regressão `drive_once_counts_bridge_and_session_frames_drained` cobre fan-out bridge + frame já enfileirado e confirma ausência de frames na chamada seguinte.
+- Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

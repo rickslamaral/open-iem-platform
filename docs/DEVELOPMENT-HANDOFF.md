@@ -1325,3 +1325,8 @@ test → review → docs/GAP update → PR/CI
 - Added `MediaWriter` regression forcing bounded packet-buffer encode failure, asserting `next_rtp_timestamp` remains zero and the following valid packet starts at RTP timestamp zero.
 - Local gates: Rust fmt, clippy, full server tests (533 streaming unit tests plus integration suites), frontend typecheck/tests/build and documentation validation PASS. `npm test -- --watchAll=false` remains incompatible with Vitest; direct `npm test` passed (Musician 61, Engineer 57).
 - Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-28 — SessionRegistry frames-drained accounting
+
+- `SessionRegistry::drive_once` agora contabiliza em `DriveReport::frames_drained` tanto frames drenados da `MediaBridge` quanto frames removidos das filas do `MediaPlane`; contador permanece saturante e zero quando nenhum frame é consumido.
+- Regressão `drive_once_counts_bridge_and_session_frames_drained` cobre fan-out bridge + frame já enfileirado e confirma ausência de frames na chamada seguinte.
+- Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
