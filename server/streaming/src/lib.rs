@@ -28,7 +28,7 @@ pub use opus_receiver::{
     AudioOutput, BoundedPcmOutput, JitterBuffer, OpusReceiver, OutputError, ReceiverError,
     ReceiverState, RECEIVER_QUEUE_CAPACITY,
 };
-pub use pairing::{DeviceIdentity, PairingError, PairingRegistry};
+pub use pairing::{DeviceIdentity, PairingError, PairingRegistry, MAX_CREDENTIAL_BYTES};
 use serde::Serialize;
 use std::{
     collections::{HashMap, VecDeque},
@@ -49,13 +49,13 @@ pub const AUDIO_FRAME_SAMPLES: usize = 960;
 pub const TRANSPORT_OUTPUT_CAPACITY: usize = 128;
 
 /// Maximum SDP body size accepted (16 KiB).
-const MAX_SDP_BYTES: usize = 16 * 1024;
+pub const MAX_SDP_BYTES: usize = 16 * 1024;
 /// Maximum ICE candidate string size accepted.
-const MAX_CANDIDATE_BYTES: usize = 2048;
+pub const MAX_CANDIDATE_BYTES: usize = 2048;
 /// Maximum user ID length.
-const MAX_USER_ID_BYTES: usize = 128;
+pub const MAX_USER_ID_BYTES: usize = 128;
 /// Maximum persisted mix identifier length.
-const MAX_MIX_ID_BYTES: usize = 128;
+pub const MAX_MIX_ID_BYTES: usize = 128;
 /// Maximum number of concurrent WebRTC peer sessions in `SessionRegistry`.
 pub const MAX_PEER_SESSIONS: usize = 64;
 

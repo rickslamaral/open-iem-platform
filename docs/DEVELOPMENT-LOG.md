@@ -1,3 +1,8 @@
+## 2026-09-28 — audio signaling request-field bounds
+
+- Added API pre-validation for UTF-8 byte lengths on SDP, ICE candidates, IDs, pairing credentials, and DTLS fingerprints; added focused oversized offer/ICE integration coverage.
+- Reused public streaming and pairing limits. Focused integration tests PASS; fmt, clippy and full Rust suite PASS.
+
 ## 2026-09-28 — estado reconciliado no HEAD `e2928d4`
 
 - `develop` e `origin/develop` sincronizadas no commit `e2928d4a2faf352a90df5566ac78d456eb7c12f9`; working tree estava limpa antes desta atualização documental.

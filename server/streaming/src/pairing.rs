@@ -245,7 +245,7 @@ fn valid_id(id: &str) -> bool {
 }
 
 const MAX_DEVICES: usize = 1024;
-const MAX_CREDENTIAL_BYTES: usize = 4096;
+pub const MAX_CREDENTIAL_BYTES: usize = 4096;
 
 async fn derive_digest(value: &[u8], salt: [u8; 16]) -> Result<[u8; 32], PairingError> {
     let value = value.to_owned();

@@ -203,7 +203,7 @@ fn build_test_app() -> (TestServer, AppState) {
             [127, 0, 0, 1],
             8080,
         )))))
-        .layer(DefaultBodyLimit::max(16 * 1024))
+        .layer(DefaultBodyLimit::max(32 * 1024))
         .layer(middleware::from_fn(validate_origin));
 
     let server = TestServer::new(app);
@@ -715,6 +715,19 @@ async fn musician_cannot_offer_unassigned_mix() {
 // ── /api/v1/audio/offer — bad SDP payload ──────────────────────────────────
 
 #[tokio::test]
+async fn oversized_offer_sdp_returns_400_before_negotiation() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "mus_oversized_sdp", "pw", Role::Musician);
+    let resp = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"sdp": "x".repeat(16 * 1024 + 1)}))
+        .await;
+    resp.assert_status(axum::http::StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
 async fn offer_with_bad_sdp_returns_400() {
     let (server, state) = build_test_app();
     let token = seed_user_and_login(&state, "mus4", "pw", Role::Musician);
@@ -728,6 +741,19 @@ async fn offer_with_bad_sdp_returns_400() {
 }
 
 // ── /api/v1/audio/ice-candidate ─────────────────────────────────────────────
+
+#[tokio::test]
+async fn oversized_ice_candidate_returns_400_before_session_lookup() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "mus_oversized_candidate", "pw", Role::Musician);
+    let resp = server
+        .post("/api/v1/audio/ice-candidate")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"candidate": "x".repeat(2048 + 1)}))
+        .await;
+    resp.assert_status(axum::http::StatusCode::BAD_REQUEST);
+}
 
 #[tokio::test]
 async fn ice_candidate_without_session_returns_400() {
@@ -1264,7 +1290,7 @@ fn build_ws_app() -> (axum_test::TestServer, AppState) {
             [127, 0, 0, 1],
             8080,
         )))))
-        .layer(DefaultBodyLimit::max(16 * 1024))
+        .layer(DefaultBodyLimit::max(32 * 1024))
         .layer(middleware::from_fn(validate_origin));
 
     // WebSocket tests require the HTTP transport (not mock).

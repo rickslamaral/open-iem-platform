@@ -210,7 +210,7 @@ async fn main() -> anyhow::Result<()> {
         .merge(protected)
         .merge(public)
         .with_state(state)
-        .layer(DefaultBodyLimit::max(16 * 1024))
+        .layer(DefaultBodyLimit::max(32 * 1024))
         .layer(middleware::from_fn(validate_origin))
         .layer(TraceLayer::new_for_http());
 

@@ -10,9 +10,32 @@ use base64::{engine::general_purpose, Engine as _};
 use control_protocol::Role;
 use mix_engine::MAX_MIXES;
 use serde::{Deserialize, Serialize};
-use streaming::{PairingError, SessionInfo};
+use streaming::{
+    PairingError, SessionInfo, MAX_CANDIDATE_BYTES, MAX_CREDENTIAL_BYTES, MAX_MIX_ID_BYTES,
+    MAX_SDP_BYTES, MAX_USER_ID_BYTES,
+};
 
-const MAX_MIX_ID_BYTES: usize = 128;
+const MAX_DTLS_FINGERPRINT_BYTES: usize = 103;
+
+fn validate_field_len(name: &str, value: &str, max: usize) -> Result<(), ApiError> {
+    if value.len() > max {
+        return Err(ApiError::BadRequest(format!(
+            "{name} exceeds maximum length"
+        )));
+    }
+    Ok(())
+}
+
+fn validate_optional_field_len(
+    name: &str,
+    value: Option<&str>,
+    max: usize,
+) -> Result<(), ApiError> {
+    if let Some(value) = value {
+        validate_field_len(name, value, max)?;
+    }
+    Ok(())
+}
 
 fn validate_mix_id(
     mix_id: Option<&str>,
@@ -114,6 +137,14 @@ pub async fn offer(
     Json(body): Json<OfferRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Musician)?;
+    validate_field_len("sdp", &body.sdp, MAX_SDP_BYTES)?;
+    validate_optional_field_len("mix_id", body.mix_id.as_deref(), MAX_MIX_ID_BYTES)?;
+    validate_optional_field_len("device_id", body.device_id.as_deref(), MAX_USER_ID_BYTES)?;
+    validate_optional_field_len(
+        "credential",
+        body.credential.as_deref(),
+        MAX_CREDENTIAL_BYTES,
+    )?;
     // Pairing fields are an inseparable credential boundary. Do not silently
     // downgrade a partially supplied pairing attempt to legacy auth.
     match (&body.device_id, &body.credential) {
@@ -176,6 +207,7 @@ pub async fn ice_candidate(
     Json(body): Json<IceCandidateRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Musician)?;
+    validate_field_len("candidate", &body.candidate, MAX_CANDIDATE_BYTES)?;
     state
         .streaming
         .add_ice_candidate(&claims.sub, &body.candidate)
@@ -208,6 +240,14 @@ pub async fn pair_device(
     Json(body): Json<PairDeviceRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
+    validate_field_len("device_id", &body.device_id, MAX_USER_ID_BYTES)?;
+    validate_field_len("musician_id", &body.musician_id, MAX_USER_ID_BYTES)?;
+    validate_field_len("credential", &body.credential, MAX_CREDENTIAL_BYTES)?;
+    validate_optional_field_len(
+        "dtls_fingerprint",
+        body.dtls_fingerprint.as_deref(),
+        MAX_DTLS_FINGERPRINT_BYTES,
+    )?;
     let cred_bytes = general_purpose::STANDARD
         .decode(&body.credential)
         .map_err(|_| ApiError::BadRequest("credential is not valid base64".to_owned()))?;
@@ -297,6 +337,9 @@ pub async fn repair_device(
     Json(body): Json<RepairDeviceRequest>,
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
+    validate_field_len("device_id", &device_id, MAX_USER_ID_BYTES)?;
+    validate_field_len("old_credential", &body.old_credential, MAX_CREDENTIAL_BYTES)?;
+    validate_field_len("new_credential", &body.new_credential, MAX_CREDENTIAL_BYTES)?;
     let old_bytes = general_purpose::STANDARD
         .decode(&body.old_credential)
         .map_err(|_| ApiError::BadRequest("old_credential is not valid base64".to_owned()))?;
