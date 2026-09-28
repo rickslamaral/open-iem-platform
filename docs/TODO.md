@@ -1,3 +1,10 @@
+## 2026-09-28 — CI reconciliado no HEAD `d3bc73a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `d3bc73ac1916558dc730d8b8fa688b64973ae0c0`; working tree limpa.
+- PR #340 permanece aberta contra `main`, conforme política vigente. CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (run `36493681853` e `36493681855`).
+- O último commit adiciona cobertura REST de login/logout/refresh: 8 testes, 160 testes de API/auth no total. Nenhum claim de runtime ou hardware novo.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — verificação documental no HEAD `25638d8`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `25638d8ae87863d26a740e02a6a07943051e583d`; working tree limpa antes desta atualização.
