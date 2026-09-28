@@ -1,3 +1,9 @@
+## 2026-09-28 — audio signaling bounds verification
+
+- Focused integration tests `oversized_offer_sdp_returns_400_before_negotiation` and `oversized_ice_candidate_returns_400_before_session_lookup` both PASS in this verification run.
+- The previous note that focused execution remained pending is obsolete; both focused commands now have recorded PASS evidence.
+- Evidence remains `CODE`; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real LAN, Raspberry Pi 5 and physical hardware remain unvalidated.
+
 ## 2026-09-28 — estado verificado no HEAD `e2928d4`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `e2928d4a2faf352a90df5566ac78d456eb7c12f9`; working tree estava limpa antes desta atualização documental.

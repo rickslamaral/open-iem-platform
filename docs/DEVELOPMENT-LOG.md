@@ -1,3 +1,8 @@
+## 2026-09-28 — audio signaling bounds verification
+
+- Re-ran focused API regressions for oversized SDP and ICE candidate inputs. Both focused tests PASS in this verification run.
+- This verifies request-bound enforcement in CODE only; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, LAN and physical hardware remain unvalidated.
+
 ## 2026-09-28 — audio signaling request-field bounds
 
 - Added API pre-validation for UTF-8 byte lengths on SDP, ICE candidates, IDs, pairing credentials, and DTLS fingerprints; added focused oversized offer/ICE integration coverage.
