@@ -1709,3 +1709,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## 2026-09-27 — SessionRegistry output-budget regression
 
 - [x] Cover encode failure with `output_budget == 1`, preserving following valid media frame for the next bounded drive. CODE/local evidence only; runtime and hardware validation remain pending.
+
+## 2026-09-28 — MediaWriter realtime allocation boundary
+
+- [x] Substituir construção `Vec` PCM por array fixo bounded na stack, sem alegar ausência de todas as alocações em `MediaWriter::encode`, preservando layout estéreo, codificação Opus e timestamps RTP.
+- Evidência CODE local: Rust fmt/clippy/testes, frontends Musician/Engineer typecheck/test/build e revisão independente PASS. `cargo audit` permanece bloqueado por `rsa 0.9.10` / `RUSTSEC-2023-0071` sem correção disponível; runtime e hardware continuam pendentes.

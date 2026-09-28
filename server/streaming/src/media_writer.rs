@@ -63,11 +63,15 @@ impl MediaWriter {
         if !frame.samples.0.is_finite() || !frame.samples.1.is_finite() {
             return Err(MediaWriterError::NonFiniteSample);
         }
-        let pcm = [frame.samples.0, frame.samples.1]
-            .into_iter()
-            .cycle()
-            .take(960 * 2)
-            .collect::<Vec<_>>();
+        // Avoid per-frame PCM staging allocation: this boundary may run on the
+        // realtime media drive, so build one bounded frame on the stack.
+        let pcm = std::array::from_fn::<_, { 960 * 2 }, _>(|index| {
+            if index % 2 == 0 {
+                frame.samples.0
+            } else {
+                frame.samples.1
+            }
+        });
         let len = self
             .encoder
             .encode(&pcm, 960, &mut self.packet)
