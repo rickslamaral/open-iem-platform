@@ -1,3 +1,10 @@
+## 2026-09-28 — estado reconciliado no HEAD `52b312c`
+
+- `develop` e `origin/develop` estão sincronizadas no HEAD `52b312c`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`; CI remoto real do HEAD exato concluiu 16/16 SUCCESS, com jobs executados de verdade.
+- Este ciclo confirma estado remoto e não introduz mudança funcional.
+- Evidência permanece `CODE/CI/SIMULATED`; validação física/runtime e release `v0.3.1` continuam pendentes.
+
 ## 2026-09-28 — estado reconciliado no HEAD `fd6b6c8`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `fd6b6c8f823151a25f63b11db4ce8a31568c6bd1`; working tree estava limpa antes desta atualização documental.
