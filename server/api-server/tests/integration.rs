@@ -19,6 +19,7 @@ use api_server::{
         audio::{ice_candidate, offer, pair_device, repair_device, revoke_device, sessions},
         auth::{create_user, login, logout, refresh},
         channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
+        config::{backup_config, restore_config},
         health::health,
         metrics::{get_metrics, reset_metrics},
         mixes::{
@@ -129,6 +130,10 @@ fn build_test_app() -> (TestServer, AppState) {
     }
 
     let protected = Router::new()
+        .route(
+            "/api/v1/config/backup",
+            get(backup_config).put(restore_config),
+        )
         .route("/api/v1/state", get(get_state))
         .route("/api/v1/channels", get(list_channels))
         .route("/api/v1/telemetry", get(get_telemetry))
@@ -231,6 +236,88 @@ fn seed_user_and_login(state: &AppState, username: &str, password: &str, role: R
         .jwt
         .issue_with_session(username, user_id, role, &jti, Some(session_id))
         .expect("token must be issued")
+}
+
+// ── /api/v1/config/backup ─────────────────────────────────────────────────
+
+#[tokio::test]
+async fn config_backup_restore_round_trip_through_api() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "config_backup_engineer", "pw", Role::Engineer);
+    {
+        let mut control = state.control.lock().expect("control lock");
+        control
+            .set_channel(0, Channel::new(42, "Lead Vocal"))
+            .expect("test channel must configure");
+        control
+            .set_mix(0, Mix::new(7, "Monitor A"))
+            .expect("test mix must configure");
+    }
+
+    let backup = server
+        .get("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token.clone())
+        .await;
+    backup.assert_status_ok();
+    let snapshot: Value = backup.json();
+    assert_eq!(snapshot["version"], 1);
+    assert!(snapshot.get("secrets").is_none());
+
+    {
+        let mut control = state.control.lock().expect("control lock");
+        control
+            .set_channel(0, Channel::new(99, "Temporary"))
+            .expect("temporary channel must configure");
+        control
+            .set_mix(0, Mix::new(99, "Temporary Mix"))
+            .expect("temporary mix must configure");
+    }
+
+    let restore = server
+        .put("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token.clone())
+        .json(&snapshot)
+        .await;
+    restore.assert_status_ok();
+    assert_eq!(restore.json::<Value>()["restored"], true);
+
+    let after = server
+        .get("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .await;
+    after.assert_status_ok();
+    let after_body = after.json::<Value>();
+    assert_eq!(after_body["channels"][0]["name"], "Lead Vocal");
+    assert_eq!(after_body["mixes"][0]["name"], "Monitor A");
+}
+
+#[tokio::test]
+async fn config_backup_restore_rejects_musician() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "config_backup_musician", "pw", Role::Musician);
+    let snapshot = json!({
+        "version": 1,
+        "created_at_utc_secs": 0,
+        "channels": [],
+        "mixes": []
+    });
+
+    server
+        .get("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token.clone())
+        .await
+        .assert_status(axum::http::StatusCode::FORBIDDEN);
+    server
+        .put("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&snapshot)
+        .await
+        .assert_status(axum::http::StatusCode::FORBIDDEN);
 }
 
 // ── /api/v1/health ────────────────────────────────────────────────────────
