@@ -629,6 +629,16 @@ impl SceneStore {
         let scene =
             crate::decode(&payload).map_err(|e| StoreError::CorruptPayload(e.to_string()))?;
         crate::validate(&scene).map_err(StoreError::Validation)?;
+        if scene.id != id {
+            return Err(StoreError::InvalidSnapshot(
+                "rollback payload ID does not match scene ID".to_owned(),
+            ));
+        }
+        if scene.revision != revision {
+            return Err(StoreError::InvalidSnapshot(
+                "rollback payload revision does not match requested revision".to_owned(),
+            ));
+        }
         let now = now_secs();
         conn.execute(
             "UPDATE scenes SET active_revision = ?1, updated_at = ?2 WHERE id = ?3",
@@ -1067,5 +1077,47 @@ mod tests {
             )
             .unwrap();
         assert_eq!(count, 2);
+    }
+    #[test]
+    fn rollback_rejects_payload_with_wrong_id() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Show", empty_config()).unwrap();
+        let mut bad_scene = scene.clone();
+        bad_scene.id = "other-id".to_owned();
+        let bad_payload = crate::encode(&bad_scene).unwrap();
+        let conn = store.conn.lock().unwrap();
+        conn.execute(
+            "UPDATE scene_revisions SET payload = ?1 WHERE scene_id = ?2 AND revision = 1",
+            rusqlite::params![bad_payload, scene.id],
+        )
+        .unwrap();
+        drop(conn);
+        let err = store.rollback_scene(&scene.id, 1).unwrap_err();
+        assert!(
+            matches!(err, StoreError::InvalidSnapshot(_)),
+            "unexpected: {err:?}"
+        );
+    }
+
+    #[test]
+    fn rollback_rejects_payload_with_wrong_revision() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Show", empty_config()).unwrap();
+        store.save_scene(&scene.id, empty_config()).unwrap();
+        let mut bad_scene = scene.clone();
+        bad_scene.revision = 2;
+        let bad_payload = crate::encode(&bad_scene).unwrap();
+        let conn = store.conn.lock().unwrap();
+        conn.execute(
+            "UPDATE scene_revisions SET payload = ?1 WHERE scene_id = ?2 AND revision = 1",
+            rusqlite::params![bad_payload, scene.id],
+        )
+        .unwrap();
+        drop(conn);
+        let err = store.rollback_scene(&scene.id, 1).unwrap_err();
+        assert!(
+            matches!(err, StoreError::InvalidSnapshot(_)),
+            "unexpected: {err:?}"
+        );
     }
 }
