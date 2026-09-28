@@ -1,3 +1,7 @@
+## 2026-09-28 — short software release gate profile
+
+- [x] Corrigir o gate de estabilidade para que perfis curtos executem pelo menos uma iteração bounded completa; `OPENIEM_SOAK_SECONDS=1` validado com pacote amd64, ALSA Loopback virtual e 533 testes `streaming`. Evidência `CODE/SOFTWARE/SIMULATED`; hardware físico permanece separado.
+
 ## Estado atual — 2026-09-27 — documentação reconciliada
 
 - branches `develop` e `origin/develop` estavam sincronizadas no momento deste registro; working tree estava limpa antes desta atualização.

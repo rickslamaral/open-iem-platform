@@ -1,3 +1,9 @@
+## 2026-09-28 — short software release gate profile
+
+- Corrigido `scripts/ci/run-software-release-gates.sh`: perfil `OPENIEM_SOAK_SECONDS=1` agora executa ao menos uma iteração completa de áudio+mídia, em vez de encerrar antes do loop e reportar `no complete audio-media iteration`.
+- Verificação real: `bash -n scripts/ci/run-software-release-gates.sh` PASS; `OPENIEM_SOAK_SECONDS=1 bash scripts/ci/run-software-release-gates.sh dist/open-iem_0.3.1_amd64.deb` PASS, incluindo pacote, maintainer scripts, ALSA Loopback virtual 48 kHz/440 Hz e 533 testes `streaming`.
+- Evidência: `CODE/SOFTWARE/SIMULATED`; ALSA Loopback é proxy virtual, não USB/PipeWire físico. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — config backup invalid snapshot atomicity coverage
 
 - Added API integration regression proving Engineer restore rejects unsupported snapshot version with `400 Bad Request` and preserves existing control state.
