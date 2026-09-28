@@ -1,6 +1,6 @@
-## 2026-09-27 — documentação reconciliada no HEAD c5feb0c
+## 2026-09-27 — documentação reconciliada no HEAD 42bb469
 
-- Estado corrente confirmado em `develop` e `origin/develop`, HEAD `c5feb0cfdece07d9be344cc0e6db4e6d2be8e664`; PR #340 permanece aberta contra `main`.
+- Estado corrente confirmado em `develop` e `origin/develop`, HEAD `42bb4692c27b25e0ee400646bd3be57e21427580`; PR #340 permanece aberta contra `main`.
 - CI remoto do HEAD exato: 16/16 SUCCESS, com jobs executados de verdade.
 - Evidência `CODE/CI`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; release `v0.3.1` e runtime/hardware permanecem pendentes.
 
