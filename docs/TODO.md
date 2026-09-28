@@ -1,3 +1,10 @@
+## 2026-09-28 — reconciliação documental no HEAD `fd6b6c8`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `fd6b6c8f823151a25f63b11db4ce8a31568c6bd1`; working tree estava limpa antes desta atualização documental.
+- PR #340 permanece aberta contra `main`; CI remoto real do HEAD exato concluiu 16/16 SUCCESS.
+- Commit atual aplica somente rustfmt aos testes das rotas de configuração; nenhum comportamento novo ou claim de runtime foi introduzido.
+- Evidência permanece `CODE/CI/SIMULATED`; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`.
+
 ## 2026-09-28 — verificação local do HEAD `b1ac4d6`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `b1ac4d61e8c8e97a7e39767bb889dd168696fd35`; working tree estava limpa antes desta atualização.
