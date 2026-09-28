@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Documentation
+- Reconciliado status canônico no HEAD `124b7a2`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS. Runtime e hardware permanecem pendentes.
+
 ### Fixed
 - `SessionRegistry::drive_once` contabiliza falha quando writer Opus negociado desaparece antes de `write`, evitando descarte silencioso de frame. Evidência CODE local.
 

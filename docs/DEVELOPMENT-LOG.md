@@ -1,3 +1,9 @@
+## 2026-09-28 — verificação documental no HEAD `124b7a2`
+
+- Reconciliado estado canônico após `124b7a221dfaf383fe6de222200361bbc0a3cf29`: `develop` e `origin/develop` sincronizadas, PR #340 aberta contra `main` e CI remoto real 16/16 SUCCESS.
+- A mudança anterior contabiliza writer Opus ausente antes de `write`; evidência permanece CODE local. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam pendentes.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — estado reconciliado no HEAD `5672029`
 
 - `develop` e `origin/develop` estão sincronizadas no HEAD `52b312c`; working tree limpa antes desta atualização.

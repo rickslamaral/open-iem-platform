@@ -1,3 +1,10 @@
+## 2026-09-28 — verificação documental no HEAD `124b7a2`
+
+- `develop` e `origin/develop` sincronizadas no HEAD `124b7a221dfaf383fe6de222200361bbc0a3cf29`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente. CI remoto real do HEAD exato concluiu 16/16 SUCCESS; jobs executados de verdade.
+- Última correção CODE contabiliza falha quando `MediaWriter` desaparece antes de `write`; evidência local registrada no commit `124b7a2`.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — reconciliação documental no HEAD `5672029`
 
 - `develop` e `origin/develop` estão sincronizadas no HEAD `52b312c`; working tree limpa antes desta atualização.
