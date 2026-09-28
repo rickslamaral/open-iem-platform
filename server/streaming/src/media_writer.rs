@@ -211,6 +211,23 @@ mod tests {
     }
 
     #[test]
+    fn rejects_zero_channel_count() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.metadata.channels = 0;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::InvalidFormat)
+        );
+
+        let first = writer.encode(&frame()).unwrap();
+        let second = writer.encode(&frame()).unwrap();
+        assert_eq!(first.rtp_timestamp, 0);
+        assert_eq!(second.rtp_timestamp, 960);
+    }
+
+    #[test]
     fn rejects_wrong_channel_count() {
         let mut invalid = frame();
         invalid.metadata.channels = 1;

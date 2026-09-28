@@ -5840,3 +5840,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `SessionRegistry::drive_once` agora mantém orçamento compartilhado de saída para pacotes codificados com sucesso: falha de `MediaWriter::encode` descarta frame stateful, incrementa `encode_errors` e não impede sessão negociada seguinte de usar orçamento restante.
 - Elegibilidade Opus (`media_mid`, writer e payload Opus) é verificada antes do drain; frames de sessão ainda não pronta permanecem preservados.
 - Regressão `drive_once_encode_failure_does_not_starve_following_session`. Evidência CODE local: fmt, 531 testes streaming e clippy PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-28 — MediaWriter zero-channel metadata boundary
+
+- Added CODE regression proving `MediaWriter::encode` rejects `channels == 0` before RTP timestamp mutation; valid packets afterward retain timestamps `0` and `960`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

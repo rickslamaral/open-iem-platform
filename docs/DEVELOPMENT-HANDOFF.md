@@ -1239,3 +1239,7 @@ test → review → docs/GAP update → PR/CI
 - `MediaWriter::encode` monta frame PCM estéreo de 20 ms em array fixo na stack, removendo alocação `Vec` do buffer PCM por frame; a cópia bounded do payload Opus permanece. Sem mudança de formato, timestamps RTP ou limite de pacote.
 - Gates locais: Rust fmt, clippy e `cargo test --manifest-path server/Cargo.toml` PASS; frontend Musician 61 testes/build PASS; Engineer 50 testes/build PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
 - Segurança: `cargo audit` bloqueado por `rsa 0.9.10` / `RUSTSEC-2023-0071`, sem upgrade fix disponível; `tests/validate_archive.py` ausente neste checkout.
+
+## 2026-09-28 — MediaWriter zero-channel metadata boundary
+
+- Added CODE regression proving `MediaWriter::encode` rejects `channels == 0` before RTP timestamp mutation; valid packets afterward retain timestamps `0` and `960`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
