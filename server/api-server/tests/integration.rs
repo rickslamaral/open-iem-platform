@@ -3102,3 +3102,170 @@ async fn offer_with_paired_device_no_fingerprint_registered_accepts_any_sdp_fing
         .await;
     resp.assert_status_ok();
 }
+
+// ── /api/v1/mixes/{mix}/sends/{ch}/pan — REST RBAC and isolation ───────────
+
+#[tokio::test]
+async fn set_send_pan_engineer_ok() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_pan_ok", "pw", Role::Engineer);
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/pan")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"pan": 0.5_f32}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert!(body["revision"].is_number());
+    let pan = body["pan"].as_f64().expect("pan field must be number");
+    assert!((pan - 0.5).abs() < 1e-5, "pan value mismatch");
+}
+
+#[tokio::test]
+async fn set_send_pan_musician_owns_mix_ok() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_pan_assign", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_pan_own", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_pan_own").unwrap();
+    // Engineer assigns musician to mix 0.
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/pan")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .json(&json!({"pan": -0.5_f32}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    let pan = body["pan"].as_f64().expect("pan field must be number");
+    assert!((pan - (-0.5)).abs() < 1e-5, "pan value mismatch");
+}
+
+#[tokio::test]
+async fn set_send_pan_musician_wrong_mix_forbidden() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_pan_wrong", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_pan_wrong", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_pan_wrong").unwrap();
+    // Assign to mix 0; musician tries to set pan on mix 1.
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .put("/api/v1/mixes/1/sends/0/pan")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .json(&json!({"pan": 0.0_f32}))
+        .await;
+    resp.assert_status_forbidden();
+}
+
+#[tokio::test]
+async fn set_send_pan_requires_authentication() {
+    let (server, _state) = build_test_app();
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/pan")
+        .add_header("Origin", "http://localhost")
+        .json(&json!({"pan": 0.0_f32}))
+        .await;
+    resp.assert_status_unauthorized();
+}
+
+#[tokio::test]
+async fn set_send_pan_out_of_range_returns_400() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_pan_range", "pw", Role::Engineer);
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/pan")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"pan": 5.0_f32}))
+        .await;
+    resp.assert_status(axum::http::StatusCode::BAD_REQUEST);
+}
+
+// ── /api/v1/mixes/{mix}/sends/{ch}/mute — REST RBAC and isolation ──────────
+
+#[tokio::test]
+async fn set_send_muted_engineer_ok() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_mute_ok", "pw", Role::Engineer);
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/mute")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"muted": true}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert!(body["revision"].is_number());
+    assert_eq!(body["muted"], true);
+}
+
+#[tokio::test]
+async fn set_send_muted_musician_owns_mix_ok() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_mute_assign", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_mute_own", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_mute_own").unwrap();
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/mute")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .json(&json!({"muted": false}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert_eq!(body["muted"], false);
+}
+
+#[tokio::test]
+async fn set_send_muted_musician_wrong_mix_forbidden() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_mute_wrong", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_mute_wrong", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_mute_wrong").unwrap();
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .put("/api/v1/mixes/1/sends/0/mute")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .json(&json!({"muted": true}))
+        .await;
+    resp.assert_status_forbidden();
+}
+
+#[tokio::test]
+async fn set_send_muted_requires_authentication() {
+    let (server, _state) = build_test_app();
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/mute")
+        .add_header("Origin", "http://localhost")
+        .json(&json!({"muted": false}))
+        .await;
+    resp.assert_status_unauthorized();
+}
