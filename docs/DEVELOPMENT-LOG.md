@@ -1,9 +1,10 @@
-## 2026-09-28 — reconciliação documental no HEAD `b4012b4`
+## 2026-09-28 — reconciliação documental no HEAD `bd7cf7b`
 
-- Confirmado `develop` e `origin/develop` no commit `b4012b4e4c2f540ff3b87165a47d4c22da555331`, com working tree limpa antes da atualização.
-- PR #340 continua aberta contra `main` ([PR #340](https://github.com/rickslamaral/open-iem-platform/pull/340)); checks 16/16 SUCCESS foram observados na ponta `feff5b989132ca288090fb3762688af13e2080a8`, não no HEAD local `b4012b4e4c2f540ff3b87165a47d4c22da555331`.
-- Nenhum comportamento novo foi implementado. O inventário atual não aponta tarefa CODE executável adicional sem fabricar escopo. Release `v0.3.1` e validação física/runtime permanecem pendentes.
+- Confirmado `develop` e `origin/develop` no commit `bd7cf7b548e08fbe1d47f215fa3f14027580fcd2`, com working tree limpa antes da atualização.
+- PR #340 continua aberta contra `main`; ponta coincide com HEAD local e CI remoto real concluiu 16/16 SUCCESS, com jobs executados de verdade (runs `36471892420` e `36471892342`).
+- Nenhum comportamento novo foi implementado. Inventário atual não aponta tarefa CODE executável adicional sem fabricar escopo. Release `v0.3.1` e validação física/runtime permanecem pendentes.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 
 ## 2026-09-28 — verificação documental no HEAD `124b7a2`
 
