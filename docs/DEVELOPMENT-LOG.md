@@ -1,3 +1,9 @@
+## 2026-09-27 — documentação reconciliada no HEAD c5feb0c
+
+- Estado corrente confirmado em `develop` e `origin/develop`, HEAD `c5feb0cfdece07d9be344cc0e6db4e6d2be8e664`; PR #340 permanece aberta contra `main`.
+- CI remoto do HEAD exato: 16/16 SUCCESS, com jobs executados de verdade.
+- Evidência `CODE/CI`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; release `v0.3.1` e runtime/hardware permanecem pendentes.
+
 ## 2026-09-27 — negotiate replacement lock regression
 
 - Adicionada regressão `replacement_offer_waits_for_existing_session_lock`: uma oferta de replacement não conclui enquanto o lock de sessões está retido, confirmando serialização do replacement com operações que usam esse lock. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.

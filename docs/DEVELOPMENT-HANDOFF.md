@@ -1,3 +1,9 @@
+## Estado atual — 2026-09-27 — documentação reconciliada no HEAD `c5feb0c`
+
+- `develop` e `origin/develop` estão sincronizados em `c5feb0cfdece07d9be344cc0e6db4e6d2be8e664`; working tree estava limpa antes desta atualização.
+- PR #340 aponta para este HEAD em `develop` contra `main`; CI remoto exato: 16/16 SUCCESS, todos os jobs executados.
+- Evidência: `CODE/CI`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Release `v0.3.1` e validações físicas permanecem bloqueadas.
+
 ## 2026-09-27 — failed bound replacement preserves capacity state
 
 - Added CODE regression `phase553_failed_bound_replacement_at_capacity_preserves_session`: malformed SDP during replacement at full capacity leaves all existing session metadata unchanged. Focused test and streaming clippy PASS. Evidence `CODE` local; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

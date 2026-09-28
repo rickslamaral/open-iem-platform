@@ -1,10 +1,10 @@
-## Estado atual — 2026-09-27 — documentação reconciliada no HEAD `b885aae`
+## Estado atual — 2026-09-27 — documentação reconciliada no HEAD `c5feb0c`
 
-- `develop` e `origin/develop` estão sincronizados em `b885aaefe156d452261034be620b88fc17d4a391`; working tree limpa.
+- `develop` e `origin/develop` estão sincronizados em `c5feb0cfdece07d9be344cc0e6db4e6d2be8e664`; working tree estava limpa antes desta atualização.
 - `streaming`: 531 testes PASS no último gate local completo; cobertura CODE inclui MediaWriter/MediaPlane/MediaBridge/OpusReceiver/clock/transport/pairing/SessionRegistry.
 - CI exato da PR #340: **16/16 SUCCESS**; PR aberta contra `main`, sem merge.
 - Commits recentes fecharam cobertura de capacidade bounded do `SessionRegistry`, serialização de replacement, falhas de `MediaWriter::write`/`encode` e justiça de `output_budget`.
-- Evidência: `CODE/CI/SIMULATED`. WebRTC/DTLS-SRTP runtime real, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`.
+- Evidência: `CODE/CI`; simulações permanecem proxy e não equivalem a runtime físico. WebRTC/DTLS-SRTP runtime real, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`.
 - Próxima ação válida: validação física/release autorizada ou novo backlog explicitamente definido; não fabricar tarefa CODE.
 
 ## 2026-09-27 — failed bound replacement preserves capacity state
