@@ -64,11 +64,7 @@ mod tests {
         security::validate_origin,
         state::AppState,
     };
-    use axum::{
-        middleware,
-        routing::get,
-        Router,
-    };
+    use axum::{middleware, routing::get, Router};
     use axum_test::TestServer;
     use config_backup::ConfigSnapshot;
     use control_protocol::Role;
