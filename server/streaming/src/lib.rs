@@ -1097,28 +1097,33 @@ mod tests {
         let plane = crate::media_plane::MediaPlane::new();
         plane.register_session("alice", 0).await.unwrap();
         let bridge = crate::media_bridge::MediaBridge::new();
-        plane
-            .push_frame_output(
-                &mix_engine::FrameOutput {
-                    mixes: [(0.5, -0.25), (0.0, 0.0)],
-                },
-                11,
-                None,
-            )
-            .await;
+        for (left, right, timestamp) in [(0.5, -0.25, 11), (0.25, 0.75, 12)] {
+            plane
+                .push_frame_output(
+                    &mix_engine::FrameOutput {
+                        mixes: [(left, right), (0.0, 0.0)],
+                    },
+                    timestamp,
+                    None,
+                )
+                .await;
+        }
 
         {
             let mut sessions = registry.sessions.lock().await;
             sessions.get_mut("alice").unwrap().media_mid = Some(str0m::media::Mid::from("0"));
         }
 
-        let report = registry.drive_once(&bridge, &plane, 1, 1).await;
+        let report = registry.drive_once(&bridge, &plane, 1, 2).await;
         assert_eq!(report.frames_drained, 0);
         assert_eq!(report.packets_encoded, 0);
         assert_eq!(report.media_write_errors, 0);
 
         let sessions = plane.sessions.lock().await;
-        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+        let frames = sessions["alice"].drain_frames();
+        assert_eq!(frames.len(), 2);
+        assert_eq!(frames[0].metadata.sequence, 0);
+        assert_eq!(frames[1].metadata.sequence, 1);
     }
 
     #[tokio::test]
