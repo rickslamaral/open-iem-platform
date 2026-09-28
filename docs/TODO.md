@@ -1,3 +1,10 @@
+## 2026-09-28 — estado CI reconciliado no HEAD `139ae8d`
+
+- [x] `develop` e `origin/develop` estão sincronizadas em `139ae8dc2ed7a9609d4e9e0faf5e9ee58783dbb1`; HEAD e origin/develop alinhados.
+- [x] PR #340 permanece aberta contra `main`; CI real do HEAD exato concluiu **16/16 SUCCESS**, com jobs executados de verdade.
+- Evidência continua `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — estado CI reconciliado no HEAD `d109055`
 
 - [x] `develop` e `origin/develop` estão sincronizadas no commit `d109055d2bd3c4f6dee23113e0bc53449f835b9f`; HEAD e origin/develop alinhados.
