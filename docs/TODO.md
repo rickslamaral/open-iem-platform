@@ -1775,3 +1775,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Substituir construção `Vec` PCM por array fixo bounded na stack, sem alegar ausência de todas as alocações em `MediaWriter::encode`, preservando layout estéreo, codificação Opus e timestamps RTP.
 - Evidência CODE local: Rust fmt/clippy/testes, frontends Musician/Engineer typecheck/test/build e revisão independente PASS. `cargo audit` permanece bloqueado por `rsa 0.9.10` / `RUSTSEC-2023-0071` sem correção disponível; runtime e hardware continuam pendentes.
+
+## 2026-09-28 — SessionRegistry write-failure drain accounting
+
+- [x] Cobrir contabilização de frames drenados quando `MediaWriter::write` falha, preservando distinção entre consumo de frame, erro de escrita e pacote codificado. Evidência CODE local; runtime e hardware permanecem pendentes.

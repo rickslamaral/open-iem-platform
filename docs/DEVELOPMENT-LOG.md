@@ -5929,3 +5929,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `SessionRegistry::drive_once` agora contabiliza em `DriveReport::frames_drained` tanto frames drenados da `MediaBridge` quanto frames removidos das filas do `MediaPlane`; contador permanece saturante e zero quando nenhum frame é consumido.
 - Regressão `drive_once_counts_bridge_and_session_frames_drained` cobre fan-out bridge + frame já enfileirado e confirma ausência de frames na chamada seguinte.
 - Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-28 — SessionRegistry write-failure drain accounting
+
+- Regressão confirma que frames removidos da fila continuam contabilizados em `frames_drained` quando `MediaWriter::write` falha; `media_write_errors` permanece explícito e nenhum pacote é marcado como codificado.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

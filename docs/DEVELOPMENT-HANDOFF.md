@@ -1367,3 +1367,8 @@ test → review → docs/GAP update → PR/CI
 - `SessionRegistry::drive_once` agora contabiliza em `DriveReport::frames_drained` tanto frames drenados da `MediaBridge` quanto frames removidos das filas do `MediaPlane`; contador permanece saturante e zero quando nenhum frame é consumido.
 - Regressão `drive_once_counts_bridge_and_session_frames_drained` cobre fan-out bridge + frame já enfileirado e confirma ausência de frames na chamada seguinte.
 - Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-28 — SessionRegistry write-failure drain accounting
+
+- Regressão `drive_once_accounts_media_write_failure_after_frame_drain` confirma `frames_drained == 2` junto com dois erros de escrita e zero pacotes codificados quando a fila do writer está cheia.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

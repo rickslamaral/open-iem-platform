@@ -915,6 +915,7 @@ mod tests {
             .await;
 
         let first = registry.drive_once(&bridge, &plane, 2, 1_000).await;
+        assert_eq!(first.frames_drained, 2);
         assert_eq!(first.media_write_errors, 2);
         assert_eq!(first.packets_encoded, 0);
         let sessions = plane.sessions.lock().await;
