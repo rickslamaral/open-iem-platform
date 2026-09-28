@@ -1,4 +1,4 @@
-## 2026-09-28 — estado reconciliado no HEAD `52b312c`
+## 2026-09-28 — estado reconciliado no HEAD `5672029`
 
 - `develop` e `origin/develop` estão sincronizadas no HEAD `52b312c`; working tree limpa antes desta atualização.
 - PR #340 permanece aberta contra `main`; CI remoto real do HEAD exato concluiu 16/16 SUCCESS, com jobs executados de verdade.
