@@ -27,6 +27,15 @@ pub struct SceneSummary {
     pub updated_at: i64,
 }
 
+/// Summary of a stored scene revision.
+#[derive(Debug, Clone)]
+pub struct RevisionSummary {
+    /// Revision number.
+    pub revision: u64,
+    /// Unix timestamp of when this revision was created.
+    pub created_at: i64,
+}
+
 /// Store errors.
 #[derive(Debug, thiserror::Error)]
 pub enum StoreError {
@@ -548,6 +557,86 @@ impl SceneStore {
         }
     }
 
+    /// List all stored revisions for a scene in ascending order.
+    ///
+    /// # Errors
+    /// Returns `StoreError::NotFound` if `id` does not exist,
+    /// or `StoreError::Db` / `StoreError::LockPoisoned` on failure.
+    pub fn list_revisions(&self, id: &str) -> Result<Vec<RevisionSummary>, StoreError> {
+        let conn = self.conn.lock().map_err(|_| StoreError::LockPoisoned)?;
+        conn.query_row("SELECT id FROM scenes WHERE id = ?1", params![id], |_| {
+            Ok(())
+        })
+        .map_err(|e| match e {
+            rusqlite::Error::QueryReturnedNoRows => StoreError::NotFound(id.to_owned()),
+            other => StoreError::Db(other),
+        })?;
+        let mut stmt = conn.prepare(
+            "SELECT revision, created_at FROM scene_revisions WHERE scene_id = ?1 ORDER BY revision ASC",
+        )?;
+        let rows = stmt.query_map(params![id], |row| {
+            let rev: i64 = row.get(0)?;
+            Ok(RevisionSummary {
+                revision: u64::try_from(rev).map_err(|_| {
+                    rusqlite::Error::FromSqlConversionFailure(
+                        0,
+                        rusqlite::types::Type::Integer,
+                        Box::new(std::io::Error::new(
+                            std::io::ErrorKind::InvalidData,
+                            "negative revision",
+                        )),
+                    )
+                })?,
+                created_at: row.get(1)?,
+            })
+        })?;
+        let revisions: Result<Vec<_>, _> = rows.collect();
+        Ok(revisions?)
+    }
+
+    /// Rollback a scene to a previously stored revision.
+    ///
+    /// Moves the active pointer to the target revision without inserting a new row.
+    ///
+    /// # Errors
+    /// Returns `StoreError::NotFound` if `id` or `revision` does not exist,
+    /// `StoreError::CorruptPayload` if stored JSON is invalid,
+    /// `StoreError::Validation` if the payload fails validation,
+    /// or `StoreError::Db` / `StoreError::LockPoisoned` on failure.
+    pub fn rollback_scene(&self, id: &str, revision: u64) -> Result<Scene, StoreError> {
+        let conn = self.conn.lock().map_err(|_| StoreError::LockPoisoned)?;
+        conn.query_row("SELECT id FROM scenes WHERE id = ?1", params![id], |_| {
+            Ok(())
+        })
+        .map_err(|e| match e {
+            rusqlite::Error::QueryReturnedNoRows => StoreError::NotFound(id.to_owned()),
+            other => StoreError::Db(other),
+        })?;
+        let rev_i64 = i64::try_from(revision)
+            .map_err(|_| StoreError::InvalidSnapshot("revision exceeds SQLite range".to_owned()))?;
+        let payload: String = conn
+            .query_row(
+                "SELECT payload FROM scene_revisions WHERE scene_id = ?1 AND revision = ?2",
+                params![id, rev_i64],
+                |row| row.get(0),
+            )
+            .map_err(|e| match e {
+                rusqlite::Error::QueryReturnedNoRows => {
+                    StoreError::NotFound(format!("revision {revision} not found for scene {id}"))
+                }
+                other => StoreError::Db(other),
+            })?;
+        let scene =
+            crate::decode(&payload).map_err(|e| StoreError::CorruptPayload(e.to_string()))?;
+        crate::validate(&scene).map_err(StoreError::Validation)?;
+        let now = now_secs();
+        conn.execute(
+            "UPDATE scenes SET active_revision = ?1, updated_at = ?2 WHERE id = ?3",
+            params![rev_i64, now, id],
+        )?;
+        Ok(scene)
+    }
+
     /// Test helper: corrupt the latest revision payload for a scene.
     ///
     /// # Panics
@@ -926,5 +1015,57 @@ mod tests {
         store.corrupt_for_test(&scene.id);
         let err = store.export_snapshot().unwrap_err();
         assert!(matches!(err, StoreError::CorruptPayload(_)));
+    }
+    #[test]
+    fn list_revisions_returns_ordered_revisions() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Show", empty_config()).unwrap();
+        store.save_scene(&scene.id, empty_config()).unwrap();
+        store.save_scene(&scene.id, empty_config()).unwrap();
+        let revs = store.list_revisions(&scene.id).unwrap();
+        let nums: Vec<u64> = revs.iter().map(|r| r.revision).collect();
+        assert_eq!(nums, vec![1, 2, 3]);
+    }
+
+    #[test]
+    fn rollback_scene_sets_active_revision() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Show", empty_config()).unwrap();
+        store.save_scene(&scene.id, empty_config()).unwrap();
+        store.rollback_scene(&scene.id, 1).unwrap();
+        let fetched = store.get_scene(&scene.id).unwrap();
+        assert_eq!(fetched.revision, 1);
+    }
+
+    #[test]
+    fn rollback_scene_not_found_for_bad_id() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let err = store.rollback_scene("no-such-id", 1).unwrap_err();
+        assert!(matches!(err, StoreError::NotFound(_)));
+    }
+
+    #[test]
+    fn rollback_scene_not_found_for_bad_revision() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Show", empty_config()).unwrap();
+        let err = store.rollback_scene(&scene.id, 99).unwrap_err();
+        assert!(matches!(err, StoreError::NotFound(_)));
+    }
+
+    #[test]
+    fn rollback_scene_preserves_revision_count() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Show", empty_config()).unwrap();
+        store.save_scene(&scene.id, empty_config()).unwrap();
+        store.rollback_scene(&scene.id, 1).unwrap();
+        let conn = store.conn.lock().unwrap();
+        let count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM scene_revisions WHERE scene_id = ?1",
+                params![scene.id],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(count, 2);
     }
 }

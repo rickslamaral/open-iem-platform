@@ -3,7 +3,7 @@
 #![deny(unsafe_code)]
 
 mod store;
-pub use store::{SceneStore, SceneSummary, StoreError};
+pub use store::{RevisionSummary, SceneStore, SceneSummary, StoreError};
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
