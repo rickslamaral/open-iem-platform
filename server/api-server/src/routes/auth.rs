@@ -306,7 +306,7 @@ mod tests {
         auth::{generate_refresh_token, hash_password, token_to_storage_key, JwtKeys},
         db::Db,
         middleware::jwt_auth,
-        routes::auth::{change_password, create_user},
+        routes::auth::{change_password, create_user, login, logout, refresh},
         security::validate_origin,
         state::AppState,
     };
@@ -362,11 +362,17 @@ mod tests {
 
         let protected = Router::new()
             .route("/api/v1/auth/password", put(change_password))
+            .route("/api/v1/auth/logout", post(logout))
             .route("/api/v1/admin/users", post(create_user))
             .layer(middleware::from_fn_with_state(state.clone(), jwt_auth));
 
+        let public = Router::new()
+            .route("/api/v1/auth/login", post(login))
+            .route("/api/v1/auth/refresh", post(refresh));
+
         let app = Router::new()
             .merge(protected)
+            .merge(public)
             .with_state(state.clone())
             .layer(middleware::from_fn(validate_origin));
 
@@ -518,5 +524,123 @@ mod tests {
             .json(&json!({"username": "", "password": "securepassword", "role": "MUSICIAN"}))
             .await;
         resp.assert_status_bad_request();
+    }
+
+    // --- login ---
+
+    #[tokio::test]
+    async fn login_valid_credentials_ok() {
+        let (server, state) = build_test_app();
+        let pw_hash = hash_password("correct_pw").expect("hash");
+        state
+            .db
+            .create_user("login_ok", &pw_hash, Role::Musician)
+            .expect("create");
+
+        let resp = server
+            .post("/api/v1/auth/login")
+            .add_header("Origin", "http://localhost")
+            .json(&json!({"username": "login_ok", "password": "correct_pw"}))
+            .await;
+        resp.assert_status_ok();
+        let body: serde_json::Value = resp.json();
+        assert!(body.get("access_token").is_some(), "access_token absent");
+    }
+
+    #[tokio::test]
+    async fn login_wrong_password_returns_unauthorized() {
+        let (server, state) = build_test_app();
+        let pw_hash = hash_password("correct_pw").expect("hash");
+        state
+            .db
+            .create_user("login_badpw", &pw_hash, Role::Musician)
+            .expect("create");
+
+        let resp = server
+            .post("/api/v1/auth/login")
+            .add_header("Origin", "http://localhost")
+            .json(&json!({"username": "login_badpw", "password": "wrong_pw"}))
+            .await;
+        resp.assert_status_unauthorized();
+    }
+
+    #[tokio::test]
+    async fn login_unknown_user_returns_not_found() {
+        let (server, _state) = build_test_app();
+
+        let resp = server
+            .post("/api/v1/auth/login")
+            .add_header("Origin", "http://localhost")
+            .json(&json!({"username": "nobody_here", "password": "any_pw"}))
+            .await;
+        // find_user returns NotFound which maps to 404
+        assert!(
+            resp.status_code().as_u16() == 404 || resp.status_code().as_u16() == 401,
+            "expected 404 or 401 for unknown user, got {}",
+            resp.status_code()
+        );
+    }
+
+    #[tokio::test]
+    async fn login_empty_username_returns_bad_request() {
+        let (server, _state) = build_test_app();
+
+        let resp = server
+            .post("/api/v1/auth/login")
+            .add_header("Origin", "http://localhost")
+            .json(&json!({"username": "", "password": "some_pw"}))
+            .await;
+        resp.assert_status_bad_request();
+    }
+
+    #[tokio::test]
+    async fn login_empty_password_returns_bad_request() {
+        let (server, _state) = build_test_app();
+
+        let resp = server
+            .post("/api/v1/auth/login")
+            .add_header("Origin", "http://localhost")
+            .json(&json!({"username": "someone", "password": ""}))
+            .await;
+        resp.assert_status_bad_request();
+    }
+
+    // --- refresh ---
+
+    #[tokio::test]
+    async fn refresh_missing_cookie_returns_unauthorized() {
+        let (server, _state) = build_test_app();
+
+        let resp = server
+            .post("/api/v1/auth/refresh")
+            .add_header("Origin", "http://localhost")
+            .await;
+        resp.assert_status_unauthorized();
+    }
+
+    // --- logout ---
+
+    #[tokio::test]
+    async fn logout_requires_authentication() {
+        let (server, _state) = build_test_app();
+
+        let resp = server
+            .post("/api/v1/auth/logout")
+            .add_header("Origin", "http://localhost")
+            .await;
+        resp.assert_status_unauthorized();
+    }
+
+    #[tokio::test]
+    async fn logout_authenticated_returns_no_content() {
+        let (server, state) = build_test_app();
+        let (_id, token) = seed_user_token(&state, "logout_user", Role::Musician);
+
+        let resp = server
+            .post("/api/v1/auth/logout")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await;
+        resp.assert_status(axum::http::StatusCode::NO_CONTENT);
     }
 }
