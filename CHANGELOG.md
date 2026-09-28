@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Fixed
+- `SessionRegistry::drive_once` contabiliza falha quando writer Opus negociado desaparece antes de `write`, evitando descarte silencioso de frame. Evidência CODE local.
+
+
 ### Tests
 - Added 10 integration tests for channels routes (get_state, list_channels, set_channel_gain, set_channel_mute): RBAC enforcement, authentication boundaries and gain input validation. api-server test count 67 → 77.
 

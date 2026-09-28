@@ -5988,3 +5988,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Expanded `SessionRegistry::drive_once` regression to two queued frames with output budget 2. Missing media writer preserves both frames and sequence order without incrementing drain, write-error or encode counters.
 - Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-28 — SessionRegistry unavailable-writer accounting
+
+- `SessionRegistry::drive_once` agora contabiliza `media_write_errors` quando o writer negociado desaparece entre a validação inicial e a escrita do frame. O frame já drenado permanece descarte explícito, sem incrementar `packets_encoded`.
+- Regressão focada `drive_once_accounts_media_write_failure_after_frame_drain` permanece PASS para falha de `write`; o ramo de writer ausente é protegido por contagem fail-closed, mas não possui seam determinístico para simular desaparecimento entre `encode` e `write`. Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.

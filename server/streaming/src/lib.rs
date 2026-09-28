@@ -412,6 +412,7 @@ impl SessionRegistry {
                             continue;
                         };
                         let Some(media_writer) = peer.rtc.writer(mid) else {
+                            media_write_errors = media_write_errors.saturating_add(1);
                             continue;
                         };
                         let Some(pt) = media_writer
