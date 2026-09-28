@@ -1,6 +1,6 @@
-## Estado atual — 2026-09-27 — documentação reconciliada no HEAD `42bb469`
+## Estado atual — 2026-09-27 — documentação reconciliada no HEAD `302d3ec`
 
-- `develop` e `origin/develop` estão sincronizados em `42bb4692c27b25e0ee400646bd3be57e21427580`; working tree estava limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizados em `302d3eccb645cdde2306d3b9cbf2a5d974246355`; working tree estava limpa antes desta atualização.
 - `streaming`: 531 testes PASS no último gate local completo; cobertura CODE inclui MediaWriter/MediaPlane/MediaBridge/OpusReceiver/clock/transport/pairing/SessionRegistry.
 - CI exato da PR #340: **16/16 SUCCESS**; PR aberta contra `main`, sem merge.
 - Commits recentes fecharam cobertura de capacidade bounded do `SessionRegistry`, serialização de replacement, falhas de `MediaWriter::write`/`encode` e justiça de `output_budget`.
