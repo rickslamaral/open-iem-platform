@@ -5,7 +5,7 @@
 
 ## 2026-09-28 — audio signaling request-field bounds
 
-- Added API pre-validation for UTF-8 byte lengths on SDP, ICE candidates, IDs, pairing credentials, and DTLS fingerprints; oversized offer SDP and ICE candidate integration coverage added; focused test execution remains pending after body-limit test harness adjustment.
+- Added API pre-validation for UTF-8 byte lengths on SDP, ICE candidates, IDs, pairing credentials, and DTLS fingerprints; oversized offer SDP and ICE candidate integration coverage added. Focused tests `oversized_offer_sdp_returns_400_before_negotiation` and `oversized_ice_candidate_returns_400_before_session_lookup` PASS.
 - Pairing registry limits are public and reused by API validation. No physical/runtime validation performed.
 
 ## 2026-09-28 — verificação local do HEAD `e2928d4`
