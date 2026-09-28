@@ -1,3 +1,11 @@
+## 2026-09-28 — verificação local do HEAD `3cdecc5`
+
+- `develop` e `origin/develop` sincronizadas no commit `3cdecc50372e46ce9c32b274c9f1c60ab35906d3` antes desta atualização documental; estado observado no início do ciclo: `git status --short --branch` e `git rev-parse HEAD origin/develop`.
+- PR #340 permanece aberta contra `main` ([PR #340](https://github.com/rickslamaral/open-iem-platform/pull/340)); CI real do HEAD exato concluiu **16/16 SUCCESS**, com jobs executados de verdade ([CI run 36433546639](https://github.com/rickslamaral/open-iem-platform/actions/runs/36433546639)).
+- O último lote CODE preserva frames enfileirados quando não há `MediaWriter` negociado; evidência local: `cargo test --manifest-path server/Cargo.toml -p streaming --lib drive_once_preserves_frames_when_media_writer_is_unavailable` PASS no commit `3cdecc5`.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — verificação local do HEAD `7ec16c5`
 
 - `develop` e `origin/develop` sincronizadas no commit `7ec16c591a1982f8ef07f037943bd6af3882455e`; working tree limpa.

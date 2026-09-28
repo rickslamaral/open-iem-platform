@@ -1,3 +1,11 @@
+## 2026-09-28 — estado verificado no HEAD `3cdecc5`
+
+- `develop` e `origin/develop` permanecem sincronizadas antes desta atualização documental; estado observado no início do ciclo: `git status --short --branch` e `git rev-parse HEAD origin/develop`.
+- CI remoto do HEAD exato: 16/16 SUCCESS ([run 36433546639](https://github.com/rickslamaral/open-iem-platform/actions/runs/36433546639)); PR #340 segue aberta contra `main` ([PR #340](https://github.com/rickslamaral/open-iem-platform/pull/340)) por política vigente.
+- Última mudança CODE: `SessionRegistry::drive_once` preserva frames quando sessão negociada ainda não tem `MediaWriter` utilizável; `cargo test --manifest-path server/Cargo.toml -p streaming --lib drive_once_preserves_frames_when_media_writer_is_unavailable` PASS no commit `3cdecc5`.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime e hardware permanecem não validados.
+- Próxima ação válida: validação física/release autorizada ou novo backlog explicitamente definido; não fabricar tarefa CODE.
+
 ## 2026-09-28 — estado verificado no HEAD `7ec16c5`
 
 - Reconciliado após commit documental `7ec16c5`: `develop` e `origin/develop` permanecem sincronizadas; working tree limpa.
