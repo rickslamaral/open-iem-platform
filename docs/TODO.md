@@ -1,6 +1,6 @@
-## 2026-09-28 — verificação local do HEAD `05bc716`
+## 2026-09-28 — verificação local do HEAD `7ec16c5`
 
-- `develop` e `origin/develop` sincronizadas no commit `05bc7165cc6bf9ed8bc1d4e27bdc3afcb63c497d`; working tree limpa.
+- `develop` e `origin/develop` sincronizadas no commit `7ec16c591a1982f8ef07f037943bd6af3882455e`; working tree limpa.
 - PR #340 permanece aberta contra `main`; CI real do HEAD exato concluiu **16/16 SUCCESS**, com jobs executados de verdade.
 - Gates locais PASS: Rust fmt/clippy/testes (incluindo 534 testes de `streaming`), Musician typecheck/61 testes/build e Engineer typecheck/57 testes/build.
 - Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.

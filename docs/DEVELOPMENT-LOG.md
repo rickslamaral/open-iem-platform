@@ -1,6 +1,8 @@
-## 2026-09-28 — verificação local do HEAD `05bc716`
+## 2026-09-28 — verificação local do HEAD `7ec16c5`
 
-- Reconciliado estado após correção de colisões em helpers `test_keys()`: `develop` e `origin/develop` apontam para `05bc7165cc6bf9ed8bc1d4e27bdc3afcb63c497d`; working tree limpa.
+- Reconciliado após commit documental `7ec16c5`: `develop` e `origin/develop` permanecem sincronizadas; working tree limpa.
+- CI remoto do HEAD exato: 16/16 SUCCESS; PR #340 segue aberta contra `main` por política vigente.
+- Auditoria local: `cargo audit` instalado, mas invocação com `--manifest-path` é incompatível nesta versão; baseline RUSTSEC permanece registrado, sem novo finding confirmado.
 - Gates reais: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, frontends Musician (61 testes) e Engineer (57 testes), typecheck e build — PASS.
 - Revisão independente: PASS, sem concerns de segurança ou lógica.
 - PR #340 mantém 16/16 jobs CI SUCCESS. Evidência `CODE/CI/SIMULATED`; validação física e release `v0.3.1` permanecem pendentes.
