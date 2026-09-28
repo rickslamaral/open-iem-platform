@@ -334,7 +334,19 @@ impl SessionRegistry {
         let mut media_write_errors: usize = 0;
 
         let mut sessions = self.sessions.lock().await;
-        for peer in sessions.values_mut() {
+        let mut session_ids = sessions.keys().cloned().collect::<Vec<_>>();
+        session_ids.sort();
+        let last_driven_session = self.last_driven_session.lock().await.clone();
+        if let Some(last) = last_driven_session {
+            if let Some(index) = session_ids.iter().position(|user_id| user_id == &last) {
+                let rotation = (index + 1) % session_ids.len();
+                session_ids.rotate_left(rotation);
+            }
+        }
+        for user_id in &session_ids {
+            let Some(peer) = sessions.get_mut(user_id) else {
+                continue;
+            };
             while outputs_polled < output_budget {
                 match peer.rtc.poll_output() {
                     Ok(Output::Timeout(_)) => break,
@@ -376,15 +388,6 @@ impl SessionRegistry {
         // Drain and encode each session together. Failed encodes discard stateful
         // writer input without consuming shared encoded-output budget, allowing
         // a following session to use remaining budget in this drive.
-        let mut session_ids = sessions.keys().cloned().collect::<Vec<_>>();
-        session_ids.sort();
-        let last_driven_session = self.last_driven_session.lock().await.clone();
-        if let Some(last) = last_driven_session {
-            if let Some(index) = session_ids.iter().position(|user_id| user_id == &last) {
-                let rotation = (index + 1) % session_ids.len();
-                session_ids.rotate_left(rotation);
-            }
-        }
         for user_id in session_ids {
             *self.last_driven_session.lock().await = Some(user_id.clone());
             let Some(peer) = sessions.get_mut(&user_id) else {
@@ -397,28 +400,38 @@ impl SessionRegistry {
                         .any(|params| params.spec().codec == str0m::format::Codec::Opus)
                 });
                 if has_opus_writer {
-                    let Ok(frames) = media_plane
-                        .drain_session_frames_with_budget(
-                            &peer.user_id,
-                            frame_budget
-                                .min(output_budget.saturating_sub(
-                                    outputs_polled.saturating_add(packets_encoded),
-                                )),
-                        )
-                        .await
-                    else {
-                        continue;
-                    };
-                    frames_drained = frames_drained.saturating_add(frames.len());
-                    for frame in frames {
+                    let mut session_frames_drained = 0;
+                    while session_frames_drained < frame_budget
+                        && outputs_polled.saturating_add(packets_encoded) < output_budget
+                    {
+                        let Ok(frames) = media_plane
+                            .drain_session_frames_with_budget(
+                                &peer.user_id,
+                                (frame_budget - session_frames_drained).min(1),
+                            )
+                            .await
+                        else {
+                            break;
+                        };
+                        let Some(frame) = frames.into_iter().next() else {
+                            break;
+                        };
+                        session_frames_drained = session_frames_drained.saturating_add(1);
+                        frames_drained = frames_drained.saturating_add(1);
                         if outputs_polled.saturating_add(packets_encoded) >= output_budget {
                             budget_exhausted = true;
                             break;
                         }
                         let Ok(packet) = peer.writer.encode(&frame) else {
                             encode_errors = encode_errors.saturating_add(1);
-                            // Encode failure counts bounded discard explicitly;
-                            // do not requeue stateful writer input.
+                            // With one output slot, stop after failure so later
+                            // queued frames survive for the next bounded pass.
+                            if output_budget
+                                .saturating_sub(outputs_polled.saturating_add(packets_encoded))
+                                <= 1
+                            {
+                                break;
+                            }
                             continue;
                         };
                         let Some(media_writer) = peer.rtc.writer(mid) else {

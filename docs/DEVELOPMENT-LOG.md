@@ -1,3 +1,9 @@
+## 2026-09-28 — session drive fairness review correction
+
+- Independent review found two fairness defects in `SessionRegistry::drive_once`: RTC polling still followed unordered `HashMap` order, and draining a batch could discard frames beyond shared output budget.
+- Corrected implementation rotates one deterministic session order across RTC polling and media processing; media drains one frame per bounded iteration, preserving queued FIFO frames across calls. Encode failure with one remaining output slot stops session processing without consuming later queued frames.
+- Verification: Rust fmt, clippy, full server suite (all tests PASS), streaming focused suite (27 PASS), Musician frontend typecheck/tests/build (61 tests PASS), Engineer frontend typecheck/tests/build (57 tests PASS). Evidence `CODE`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, LAN and Raspberry Pi 5 remain unvalidated. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — CI reconciliado no HEAD `bd37895`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `bd37895080bd2fc0c577b32e2dc7de8e9f97d2d3`; working tree estava limpa antes desta atualização documental.

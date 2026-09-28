@@ -1,3 +1,9 @@
+## 2026-09-28 — session drive fairness review correction
+
+- Independent review found two fairness defects in `SessionRegistry::drive_once`: RTC polling still followed unordered `HashMap` order, and draining a batch could discard frames beyond shared output budget.
+- Corrected implementation rotates one deterministic session order across RTC polling and media processing; media drains one frame per bounded iteration, preserving queued FIFO frames across calls. Encode failure with one remaining output slot stops session processing without consuming later queued frames.
+- Verification: Rust fmt, clippy, full server suite (all tests PASS), streaming focused suite (27 PASS), Musician frontend typecheck/tests/build (61 tests PASS), Engineer frontend typecheck/tests/build (57 tests PASS). Evidence `CODE`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, LAN and Raspberry Pi 5 remain unvalidated. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — SessionRegistry round-robin fairness
 
 - `SessionRegistry::drive_once` rotates session processing after each bounded pass, preserving initial lexicographic order and FIFO while preventing repeated `output_budget=1` calls from starving later negotiated sessions. Focused CODE regression and local fmt/test/clippy gates pass; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
