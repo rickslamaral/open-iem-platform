@@ -1,3 +1,10 @@
+## 2026-09-28 — reconciliação documental no HEAD `9c720aa`
+
+- Confirmado `develop` e `origin/develop` no commit `9c720aa611f22ce526f63e1046b7ad9c5fe55d0e`, com working tree limpa antes desta atualização.
+- PR #340 continua aberta contra `main`; CI remoto real do HEAD exato concluiu 16/16 SUCCESS, com jobs executados de verdade (runs `36474267795` e `36474267843`).
+- Nenhum comportamento novo foi implementado. Release `v0.3.1`, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN e Raspberry Pi 5 continuam pendentes.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — reconciliação documental no HEAD `bd7cf7b`
 
 - Confirmado `develop` e `origin/develop` no commit `bd7cf7b548e08fbe1d47f215fa3f14027580fcd2`, com working tree limpa antes da atualização.
