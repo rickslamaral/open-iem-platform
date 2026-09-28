@@ -1265,3 +1265,6 @@ test → review → docs/GAP update → PR/CI
 ## 2026-09-28 — MediaWriter zero-channel metadata boundary
 
 - Added CODE regression proving `MediaWriter::encode` rejects `channels == 0` before RTP timestamp mutation; valid packets afterward retain timestamps `0` and `960`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-28 — revision history loading state
+
+- Engineer Console agora distingue carregamento de histórico de cena de histórico vazio; estado transitório não exibe falso `Nenhuma revisão encontrada.`. Verificação: typecheck, 57 testes Vitest e build do Engineer, gates Rust e frontend Musician PASS. Evidência CODE local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.

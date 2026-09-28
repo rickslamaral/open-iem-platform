@@ -423,6 +423,7 @@ function ScenePanel({ token }: { token: string }) {
   const [viewingRevisions, setViewingRevisions] = useState<string | null>(null);
   const [revisions, setRevisions] = useState<RevisionSummary[]>([]);
   const [revisionsError, setRevisionsError] = useState<string | null>(null);
+  const [revisionsLoading, setRevisionsLoading] = useState(false);
   const loadScenes = useCallback(async () => {
     const generation = ++loadGeneration.current;
     setLoading(true); setError(null);
@@ -473,12 +474,12 @@ function ScenePanel({ token }: { token: string }) {
   }
 
   async function loadRevisions(id: string) {
-    setBusy(id); setRevisionsError(null); setRevisions([]); setViewingRevisions(id);
+    setBusy(id); setRevisionsError(null); setRevisions([]); setViewingRevisions(id); setRevisionsLoading(true);
     try {
       const data = await request<{ revisions: RevisionSummary[] }>(`/api/v1/scenes/${id}/revisions`, token);
       setRevisions(Array.isArray(data?.revisions) ? data.revisions : []);
     } catch (cause) { setRevisionsError(cause instanceof Error ? cause.message : 'Falha ao carregar revisões'); }
-    finally { setBusy(null); }
+    finally { setBusy(null); setRevisionsLoading(false); }
   }
 
   async function rollback(sceneId: string, rev: number) {
@@ -521,12 +522,13 @@ function ScenePanel({ token }: { token: string }) {
     {viewingRevisions && <div className="card" style={{ marginTop: '1rem' }}>
       <h3>Revisões da cena</h3>
       {revisionsError && <p className="error" role="alert">{revisionsError}</p>}
-      {revisions.length === 0 && !revisionsError && <p className="muted">Nenhuma revisão encontrada.</p>}
+      {revisionsLoading && <p className="muted">Carregando revisões...</p>}
+      {!revisionsLoading && revisions.length === 0 && !revisionsError && <p className="muted">Nenhuma revisão encontrada.</p>}
       {revisions.map((r) => <div className="row" key={r.revision} style={{ marginBottom: '0.25rem' }}>
         <span>Revisão {r.revision} — {new Date(r.created_at * 1000).toLocaleString('pt-BR')}</span>
         <button aria-label={`Reverter para revisão ${r.revision}`} disabled={busy !== null} onClick={() => void rollback(viewingRevisions, r.revision)}>Reverter</button>
       </div>)}
-      <button className="secondary" style={{ marginTop: '0.5rem' }} onClick={() => { setViewingRevisions(null); setRevisions([]); setRevisionsError(null); }}>Fechar</button>
+      <button className="secondary" style={{ marginTop: '0.5rem' }} onClick={() => { setViewingRevisions(null); setRevisions([]); setRevisionsError(null); setRevisionsLoading(false); }}>Fechar</button>
     </div>}
     {!loading && scenes.length === 0 && <p className="muted">Nenhuma cena cadastrada.</p>}
     {scenes.map((scene) => { const active = activeScene?.id === scene.id; return <div className="row" key={scene.id}>
