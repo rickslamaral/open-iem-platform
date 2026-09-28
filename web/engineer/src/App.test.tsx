@@ -613,3 +613,113 @@ describe('Engineer Console', () => {
   });
 
 });
+
+describe('revision history panel', () => {
+  const revisionsFetch = (opts: { revisionsFail?: boolean; rollbackFail?: boolean } = {}) => {
+    return vi.fn().mockImplementation((path: string, _init?: RequestInit) => {
+      if (path === '/api/v1/auth/login') return json({ access_token: 'test-token' });
+      if (path === '/api/v1/audio/sessions') return json({ sessions: [] });
+      if (path === '/api/v1/mixes') return json([]);
+      if (path === '/api/v1/state') return json({ revision: 1, channels: [] });
+      if (path === '/api/v1/telemetry') return json({ availability: 'simulated', backend: 'simulated', sample_rate_hz: null, frames_processed: null, xrun_count: null });
+      if (path === '/api/v1/scenes') return json({ scenes: [{ id: 'scene-1', name: 'Show', active_revision: 3, created_at: 1700000000, updated_at: 1700000000 }] });
+      if (path === '/api/v1/scenes/active') return json({ scene: { id: 'scene-1', name: 'Show' } });
+      if (path === '/api/v1/scenes/scene-1/revisions') {
+        if (opts.revisionsFail) return json({ error: 'falhou' }, 500);
+        return json({ revisions: [{ revision: 3, created_at: 1700003000 }, { revision: 2, created_at: 1700002000 }, { revision: 1, created_at: 1700001000 }] });
+      }
+      if (typeof path === 'string' && path.includes('/revisions/') && path.endsWith('/rollback')) {
+        if (opts.rollbackFail) return json({ error: 'falhou' }, 500);
+        return json({}, 200);
+      }
+      return json({}, 204);
+    });
+  };
+
+  async function loginAndRevisions(opts: Parameters<typeof revisionsFetch>[0] = {}) {
+    const fetchMock = revisionsFetch(opts);
+    vi.stubGlobal('fetch', fetchMock);
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'engineer' } });
+    fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    await screen.findAllByText('Show');
+    return fetchMock;
+  }
+
+  it('abre painel de revisões ao clicar em Histórico', async () => {
+    await loginAndRevisions();
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico de revisões da cena Show' }));
+    expect(await screen.findByText('Revisões da cena')).toBeTruthy();
+    expect((await screen.findAllByText(/Revisão 3/)).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Revisão 2/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Revisão 1/).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('exibe botão Reverter para cada revisão', async () => {
+    await loginAndRevisions();
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico de revisões da cena Show' }));
+    await screen.findByText('Revisões da cena');
+    const revertBtns = screen.getAllByRole('button', { name: /Reverter para revisão/ });
+    expect(revertBtns.length).toBe(3);
+  });
+
+  it('envia POST de rollback ao clicar em Reverter', async () => {
+    const fetchMock = await loginAndRevisions();
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico de revisões da cena Show' }));
+    await screen.findByText('Revisões da cena');
+    fireEvent.click(screen.getByRole('button', { name: 'Reverter para revisão 2' }));
+    await waitFor(() =>
+      expect(fetchMock.mock.calls.some(([path, init]) =>
+        String(path) === '/api/v1/scenes/scene-1/revisions/2/rollback' &&
+        (init as RequestInit)?.method === 'POST'
+      )).toBe(true)
+    );
+  });
+
+  it('fecha painel ao clicar em Fechar', async () => {
+    await loginAndRevisions();
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico de revisões da cena Show' }));
+    expect(await screen.findByText('Revisões da cena')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+    await waitFor(() => expect(screen.queryByText('Revisões da cena')).toBeNull());
+  });
+
+  it('exibe mensagem quando nenhuma revisão encontrada', async () => {
+    const fetchMock = revisionsFetch();
+    fetchMock.mockImplementation((path: string, _init?: RequestInit) => {
+      if (path === '/api/v1/auth/login') return json({ access_token: 'test-token' });
+      if (path === '/api/v1/audio/sessions') return json({ sessions: [] });
+      if (path === '/api/v1/mixes') return json([]);
+      if (path === '/api/v1/state') return json({ revision: 1, channels: [] });
+      if (path === '/api/v1/telemetry') return json({ availability: 'simulated', backend: 'simulated', sample_rate_hz: null, frames_processed: null, xrun_count: null });
+      if (path === '/api/v1/scenes') return json({ scenes: [{ id: 'scene-1', name: 'Show', active_revision: 3, created_at: 1700000000, updated_at: 1700000000 }] });
+      if (path === '/api/v1/scenes/active') return json({ scene: { id: 'scene-1', name: 'Show' } });
+      if (path === '/api/v1/scenes/scene-1/revisions') return json({ revisions: [] });
+      return json({}, 204);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'engineer' } });
+    fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    await screen.findAllByText('Show');
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico de revisões da cena Show' }));
+    expect(await screen.findByText('Nenhuma revisão encontrada.')).toBeTruthy();
+  });
+
+  it('exibe erro quando carregamento de revisões falha', async () => {
+    await loginAndRevisions({ revisionsFail: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico de revisões da cena Show' }));
+    // Panel heading only appears on success; on failure only the error alert is rendered
+    expect(await screen.findByRole('alert')).toBeTruthy();
+  });
+
+  it('exibe erro quando rollback falha', async () => {
+    await loginAndRevisions({ rollbackFail: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Histórico de revisões da cena Show' }));
+    await screen.findByText('Revisões da cena');
+    fireEvent.click(screen.getByRole('button', { name: 'Reverter para revisão 3' }));
+    expect(await screen.findByRole('alert')).toBeTruthy();
+  });
+});

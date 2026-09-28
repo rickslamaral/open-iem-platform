@@ -473,11 +473,10 @@ function ScenePanel({ token }: { token: string }) {
   }
 
   async function loadRevisions(id: string) {
-    setBusy(id); setRevisionsError(null);
+    setBusy(id); setRevisionsError(null); setRevisions([]); setViewingRevisions(id);
     try {
       const data = await request<{ revisions: RevisionSummary[] }>(`/api/v1/scenes/${id}/revisions`, token);
       setRevisions(Array.isArray(data?.revisions) ? data.revisions : []);
-      setViewingRevisions(id);
     } catch (cause) { setRevisionsError(cause instanceof Error ? cause.message : 'Falha ao carregar revisões'); }
     finally { setBusy(null); }
   }

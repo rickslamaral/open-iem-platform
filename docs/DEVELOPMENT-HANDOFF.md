@@ -1,3 +1,10 @@
+## 2026-09-28 — Engineer revision history failure-state coverage
+
+- Engineer Console revision history now opens before fetch completion and keeps panel/error visible when revision loading fails; stale revision rows clear before each load.
+- Added frontend regressions for revision listing, empty history, rollback POST, close action, revision-load failure and rollback failure.
+- Verification: `npm run typecheck`, `npm run test -- --run` (57 tests) and `npm run build` PASS; Rust fmt/clippy/full test suite PASS.
+- Evidência: `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — GAP-018 DTLS fingerprint integration test fix
 
 - Fixed 3 DTLS fingerprint integration tests that were failing 403 due to incorrect
