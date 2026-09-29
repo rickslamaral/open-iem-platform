@@ -1,3 +1,10 @@
+## 2026-09-29 — CI confirmado no HEAD `0b9a935`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `0b9a9359cc4b79a6f9a7cfaab56b75a607a54578`; working tree limpa antes desta atualização documental.
+- CI do commit documental anterior `02dc563` foi confirmado em 16/16 SUCCESS; os jobs executaram com steps reais. Novo commit aguarda execução própria no GitHub Actions.
+- PR #340 permanece aberta contra `main`; sem merge conforme política vigente.
+- Backlog CODE executável permanece esgotado; itens bloqueados restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — CI confirmado no HEAD `02dc563`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `02dc563a17b1414e674e4bde4a71cd4b615f4638`; working tree limpa antes desta atualização documental.
