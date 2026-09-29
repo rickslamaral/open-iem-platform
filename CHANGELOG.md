@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Documentation
+- Confirmado CI remoto real no HEAD `952b026`: 16/16 SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36587133694` e `36587133676`).
+
 ### Fixed
 - Reforçada regressão de remoção de sessão MediaPlane, preservando FIFO de sessões vizinhas.
 
