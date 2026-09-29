@@ -1,3 +1,10 @@
+## 2026-09-29 — estado verificado no HEAD `8542bdb`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `8542bdb`; working tree limpa.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] CI remoto real do HEAD exato concluiu 16/16 SUCCESS; jobs executaram de verdade.
+- Nenhum novo item CODE executável seguro identificado sem fabricar escopo. Runtime/hardware e release permanecem `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — estado verificado no HEAD `26cd74a`
 
 - [x] `develop` e `origin/develop` estão sincronizadas no commit `26cd74ac704a61b03f3bee2fdba1fef49ad26e04`; working tree limpa.

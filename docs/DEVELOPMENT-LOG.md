@@ -1,3 +1,10 @@
+## 2026-09-29 — CI reconciliado no HEAD `8542bdb`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `8542bdb`; working tree limpa antes desta atualização documental.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- CI remoto real observado no HEAD exato concluiu 16/16 SUCCESS; jobs executaram de verdade.
+- Nenhum claim novo de runtime ou hardware. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — admin API test key isolation
 
 - Corrigido `routes/admin.rs::test_keys()` para usar UUID v4 nos caminhos temporários, eliminando colisões entre testes paralelos. Geração e exportação OpenSSL agora exigem exit status bem-sucedido antes da leitura dos arquivos.
