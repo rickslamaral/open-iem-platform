@@ -148,7 +148,7 @@ impl AudioEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::{AudioConfig, BackendKind};
+    use crate::config::AudioConfig;
 
     #[test]
     fn test_simulated_engine_creates_ok() {
@@ -174,7 +174,7 @@ mod tests {
         #[cfg(not(feature = "jack"))]
         {
             let cfg = AudioConfig {
-                backend: BackendKind::Jack,
+                backend: crate::config::BackendKind::Jack,
                 ..Default::default()
             };
             let result = AudioEngine::new(cfg);

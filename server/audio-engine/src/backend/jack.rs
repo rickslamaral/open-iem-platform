@@ -2,7 +2,7 @@
 //!
 //! This module is compiled only when the `jack` Cargo feature is enabled.
 //! On the target hardware (Raspberry Pi 5) `pipewire-jack` provides a
-//! JACK-compatible library that routes JACK API calls through the PipeWire
+//! JACK-compatible library that routes JACK API calls through the `PipeWire`
 //! graph transparently.
 //!
 //! # Prerequisites (hardware)
@@ -33,14 +33,14 @@
 //!
 //! # Realtime Rules (enforced in callback)
 //!
-//! The JACK process callback runs in a realtime OS thread managed by PipeWire.
+//! The JACK process callback runs in a realtime OS thread managed by `PipeWire`.
 //! All rules from [`mix_engine`] apply: no I/O, no alloc, no blocking.
 //!
 //! # SIMULATED status
 //!
 //! This module compiles with the `jack` feature but **has not been validated
 //! on hardware**. It is a correctly-structured stub. Validation deferred to
-//! Phase 5 (hardware integration on RPi 5 with PipeWire).
+//! Phase 5 (hardware integration on `RPi` 5 with `PipeWire`).
 
 #![cfg(feature = "jack")]
 
@@ -54,7 +54,7 @@ use std::sync::{
 use crate::rt_boundary::RealtimeProcessor;
 
 use crate::{
-    backend::{Backend, BackendResult, ProcessStats},
+    backend::{Backend, BackendResult},
     error::AudioEngineError,
 };
 
@@ -69,7 +69,7 @@ struct ActiveClient {
     _handle: jack::AsyncClient<JackNotificationHandler, JackProcessHandler>,
 }
 
-/// JACK backend — connects to pipewire-jack and drives MixEngine from callback.
+/// JACK backend — connects to pipewire-jack and drives `MixEngine` from callback.
 ///
 /// # SIMULATED
 ///
@@ -158,8 +158,8 @@ impl Backend for JackBackend {
             .map_err(|e| AudioEngineError::BackendInit(e.to_string()))?;
 
         // Update sample rate from what JACK negotiated.
-        self.sample_rate = client.sample_rate() as u32;
-        self.buffer_frames = client.buffer_size() as u32;
+        self.sample_rate = client.sample_rate();
+        self.buffer_frames = client.buffer_size();
 
         // Register input ports (one per channel slot).
         let mut in_ports: Vec<jack::Port<AudioIn>> = Vec::with_capacity(MAX_CHANNELS);
@@ -178,13 +178,12 @@ impl Backend for JackBackend {
             .register_port("output_1_R", AudioOut::default())
             .map_err(|e| AudioEngineError::BackendInit(e.to_string()))?;
 
-        let processor = match self.processor.take() {
-            Some(processor) => processor,
-            None => {
-                let (processor, producer) = RealtimeProcessor::new(self.engine_template.clone());
-                self.control_producer = Some(producer);
-                processor
-            }
+        let processor = if let Some(processor) = self.processor.take() {
+            processor
+        } else {
+            let (processor, producer) = RealtimeProcessor::new(self.engine_template.clone());
+            self.control_producer = Some(producer);
+            processor
         };
 
         let process = JackProcessHandler {
@@ -276,7 +275,7 @@ struct JackProcessHandler {
 
 impl jack::ProcessHandler for JackProcessHandler {
     fn process(&mut self, _: &Client, ps: &ProcessScope) -> Control {
-        let frames = self.out_l.as_slice(ps).len();
+        let frames = ps.n_frames() as usize;
         for frame in 0..frames {
             let mut samples = [0.0_f32; MAX_CHANNELS];
             for (i, port) in self.in_ports.iter().enumerate() {
@@ -298,6 +297,7 @@ struct JackNotificationHandler {
     lifecycle: Arc<AtomicU8>,
 }
 
+#[allow(unsafe_code)] // SAFETY: JACK 0.13 requires shutdown unsafe; only atomic ops here.
 impl jack::NotificationHandler for JackNotificationHandler {
     unsafe fn shutdown(&mut self, _: jack::ClientStatus, _: &str) {
         let _ = self.lifecycle.compare_exchange(
