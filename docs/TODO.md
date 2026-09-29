@@ -2351,3 +2351,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Reconciliar status de CI: 16/16 jobs SUCCESS nos workflows `CI` (run `36622496423`) e `Software Package Lifecycle Gates` (run `36622496449`), com execução real no commit exato `95de067730f7724f050b23d89f9cbdf850b346d7`.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI remoto confirmado no HEAD `faa728d`
+
+- [x] Reconciliar status de CI: 16/16 jobs SUCCESS nos workflows `CI` (run `36628466615`) e `Software Package Lifecycle Gates` (run `36628466815`), com execução real no commit exato `faa728d8b6f16d45751889a282bdf78462be0be8`.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
