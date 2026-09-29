@@ -1,8 +1,8 @@
-## 2026-09-28 — estado verificado no HEAD `9b48187`
+## 2026-09-29 — estado verificado no HEAD `2540829`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `9b48187`.
-- [x] PR #340 permanece aberta contra `main`.
-- [x] CI remoto real do HEAD exato concluiu 16/16 SUCCESS; jobs executaram de verdade.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `25408293f6cccda807e839564fc2ec3b76d16ee1`.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36509715462` e `36509715460`); jobs executaram de verdade.
 - Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN e Raspberry Pi 5 permanecem não validados; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — estado verificado no HEAD `8542bdb`
