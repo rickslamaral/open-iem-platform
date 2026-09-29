@@ -1,3 +1,10 @@
+## 2026-09-29 — CI reconciliado no HEAD `c64da5a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `c64da5a82773b1586093fe1583898a79ad62bb57`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36524518048`) e `Software Package Lifecycle Gates` (run `36524518066`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — CI reconciliado no HEAD `dfc1c48`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `dfc1c4839501434908b37441848401620e95ba03`; working tree limpa antes desta atualização documental.
