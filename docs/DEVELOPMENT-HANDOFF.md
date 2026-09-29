@@ -1,3 +1,10 @@
+## 2026-09-29 — CI reconciliado no HEAD `26cd74a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `26cd74ac704a61b03f3bee2fdba1fef49ad26e04`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`, conforme política vigente; nenhum merge ou nova PR foi executado.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36505523140` e `36505523135`); jobs executaram de verdade.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — admin API test key isolation
 
 - Corrigido `routes/admin.rs::test_keys()` para usar UUID v4 nos caminhos temporários, eliminando colisões entre testes paralelos. Geração e exportação OpenSSL agora exigem exit status bem-sucedido antes da leitura dos arquivos.

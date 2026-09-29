@@ -1,3 +1,10 @@
+## 2026-09-29 — estado verificado no HEAD `26cd74a`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `26cd74ac704a61b03f3bee2fdba1fef49ad26e04`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36505523140` e `36505523135`).
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Nenhum novo item CODE executável seguro identificado sem fabricar escopo. Runtime/hardware e release permanecem `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-28 — SessionRegistry round-robin fairness
 
 - `SessionRegistry::drive_once` rotates session processing after each bounded pass, preserving initial lexicographic order and FIFO while preventing repeated `output_budget=1` calls from starving later negotiated sessions. Focused CODE regression and local fmt/test/clippy gates pass; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
