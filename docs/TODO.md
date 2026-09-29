@@ -1,3 +1,11 @@
+## 2026-09-29 — estado verificado no HEAD `c2e50d3`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `c2e50d39c9c3b37d62cd704fe78d79e626be53fd`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36521676478`) e `Software Package Lifecycle Gates` (run `36521676570`); jobs executaram de verdade.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Backlog CODE permanece esgotado: itens restantes exigem hardware físico, confirmação de release ou secret externo Ed25519.
+- Evidência: `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN e Raspberry Pi 5 permanecem não validados. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — estado verificado no HEAD `1acd16e`
 
 - [x] `develop` e `origin/develop` estão sincronizadas no commit `1acd16e0af5b680fd4085ae4c631420ef1156d46`; working tree limpa.
