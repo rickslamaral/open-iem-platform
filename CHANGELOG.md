@@ -6,7 +6,6 @@
 ### Documentation
 - Confirmado CI remoto real no HEAD `c3b25fe`: os workflows `CI` e `Software Package Lifecycle Gates` concluíram com SUCCESS (runs `36617955055` e `36617955009`).
 
-## [Unreleased]
 
 ### Documentation
 - Confirmado CI remoto no HEAD `09d3504`: os workflows `CI` e `Software Package Lifecycle Gates` concluíram com SUCCESS (runs `36615308044` e `36615308200`). PR #340 permanece aberta.
