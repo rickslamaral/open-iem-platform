@@ -1,3 +1,9 @@
+## 2026-09-29 — CI confirmado no HEAD `c3b25fe`
+
+- `develop` e `origin/develop` apontam para o commit `c3b25fe2e46d613a5de6b70510ba2974cddac899`.
+- CI remoto real do HEAD exato: workflows `CI` e `Software Package Lifecycle Gates` concluídos com SUCCESS (runs `36617955055` e `36617955009`).
+- PR #340 permanece aberta contra `main`.
+
 ## 2026-09-29 — CI confirmado no HEAD `09d3504`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `09d35044f585f1026a7bb58c5a9186cd374e06b9`; working tree limpa antes desta atualização documental.
