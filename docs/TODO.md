@@ -2065,3 +2065,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 ## 2026-09-28 — SessionRegistry negotiated-media FIFO boundary
 
 - [x] Expand CODE regression for negotiated media without Opus payload to two queued frames; `drive_once` preserves both frames FIFO with sequence metadata and zero drain/write/encode counters. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-29 — CI remoto confirmado no HEAD `edbc75f`
+
+- [x] Reconciliar status de CI: 16/16 jobs SUCCESS nos workflows `CI` (run `36553099983`) e `Software Package Lifecycle Gates` (run `36553099948`), com execução real no commit exato `edbc75f81743c78064eab546d115c857b9008d56`.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
