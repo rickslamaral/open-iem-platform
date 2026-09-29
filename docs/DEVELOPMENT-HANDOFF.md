@@ -1569,3 +1569,9 @@ test → review → docs/GAP update → PR/CI
 
 - Regression expanded `drive_once_preserves_frames_when_media_writer_is_unavailable` to enqueue two frames and run with `frame_budget = 2`; missing Opus writer leaves both frames FIFO, with zero drain/write/encode counters.
 - Focused streaming test and streaming clippy pass. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-29 — estado verificado no HEAD `a58506a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `a58506adf539b25995a0c4f6d319e5a510e46577`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36525103904`) e `Software Package Lifecycle Gates` (run `36525103914`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `a58506a`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.

@@ -6118,3 +6118,9 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-09-28 — SessionRegistry negotiated-media FIFO boundary
 
 - Expanded streaming regression to two queued frames when negotiated media has no Opus payload. `drive_once` preserves FIFO and sequence metadata without draining or counting output. Focused test and streaming clippy pass. Evidence CODE local; runtime and hardware remain unvalidated.
+## 2026-09-29 — estado verificado no HEAD `a58506a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `a58506adf539b25995a0c4f6d319e5a510e46577`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36525103904`) e `Software Package Lifecycle Gates` (run `36525103914`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `a58506a`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
