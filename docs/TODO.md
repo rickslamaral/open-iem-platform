@@ -1,3 +1,10 @@
+## 2026-09-28 — estado verificado no HEAD `9b48187`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `9b48187`.
+- [x] PR #340 permanece aberta contra `main`.
+- [x] CI remoto real do HEAD exato concluiu 16/16 SUCCESS; jobs executaram de verdade.
+- Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN e Raspberry Pi 5 permanecem não validados; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — estado verificado no HEAD `8542bdb`
 
 - [x] `develop` e `origin/develop` estão sincronizadas no commit `8542bdb`; working tree limpa.
