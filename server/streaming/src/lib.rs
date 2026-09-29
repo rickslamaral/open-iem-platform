@@ -332,6 +332,7 @@ impl SessionRegistry {
         let mut poll_errors = 0;
         let mut encode_errors: usize = 0;
         let mut media_write_errors: usize = 0;
+        let mut last_session_with_budget_use: Option<String> = None;
 
         let mut sessions = self.sessions.lock().await;
         let mut session_ids = sessions.keys().cloned().collect::<Vec<_>>();
@@ -355,6 +356,7 @@ impl SessionRegistry {
                         break;
                     }
                     Ok(Output::Transmit(transmit)) => {
+                        last_session_with_budget_use = Some(user_id.clone());
                         let mut outputs = self.transport_outputs.lock().await;
                         if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
                             transmitted_bytes += transmit.contents.len();
@@ -365,6 +367,7 @@ impl SessionRegistry {
                         outputs_polled += 1;
                     }
                     Ok(Output::Event(event)) => {
+                        last_session_with_budget_use = Some(user_id.clone());
                         if let Event::MediaAdded(media) = event {
                             if media.kind.is_audio() {
                                 peer.media_mid = Some(media.mid);
@@ -389,7 +392,6 @@ impl SessionRegistry {
         // writer input without consuming shared encoded-output budget, allowing
         // a following session to use remaining budget in this drive.
         for user_id in session_ids {
-            *self.last_driven_session.lock().await = Some(user_id.clone());
             let Some(peer) = sessions.get_mut(&user_id) else {
                 continue;
             };
@@ -417,6 +419,7 @@ impl SessionRegistry {
                             break;
                         };
                         session_frames_drained = session_frames_drained.saturating_add(1);
+                        last_session_with_budget_use = Some(user_id.clone());
                         frames_drained = frames_drained.saturating_add(1);
                         if outputs_polled.saturating_add(packets_encoded) >= output_budget {
                             budget_exhausted = true;
@@ -469,6 +472,7 @@ impl SessionRegistry {
             while outputs_polled.saturating_add(packets_encoded) < output_budget {
                 match peer.rtc.poll_output() {
                     Ok(Output::Transmit(transmit)) => {
+                        last_session_with_budget_use = Some(user_id.clone());
                         let mut outputs = self.transport_outputs.lock().await;
                         if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
                             transmitted_bytes += transmit.contents.len();
@@ -479,6 +483,7 @@ impl SessionRegistry {
                         outputs_polled += 1;
                     }
                     Ok(Output::Event(event)) => {
+                        last_session_with_budget_use = Some(user_id.clone());
                         if let Event::MediaAdded(media) = event {
                             if media.kind.is_audio() {
                                 peer.media_mid = Some(media.mid);
@@ -498,6 +503,10 @@ impl SessionRegistry {
                 budget_exhausted = true;
                 break;
             }
+        }
+
+        if let Some(last_session) = last_session_with_budget_use {
+            *self.last_driven_session.lock().await = Some(last_session);
         }
 
         DriveReport {
