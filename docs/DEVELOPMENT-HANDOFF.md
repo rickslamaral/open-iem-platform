@@ -1,3 +1,11 @@
+## 2026-09-29 — CI reconciliado no HEAD `a936f00`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `a936f007d...`; working tree limpa.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- CI remoto real observado no HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36510287026`) e `Software Package Lifecycle Gates` (run `36510286970`); jobs executaram de verdade.
+- Backlog CODE esgotado: nenhum item `[ ]` executável sem hardware físico, confirmação de release ou secret externo. Não há tarefa CODE segura a implementar.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — CI reconciliado no HEAD `2540829`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `25408293f6cccda807e839564fc2ec3b76d16ee1`.
