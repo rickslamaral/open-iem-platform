@@ -1,3 +1,10 @@
+## 2026-09-29 — estado verificado no HEAD `1711b99`
+
+- [x] `develop` e `origin/develop` sincronizadas no commit `1711b99eb69bb4fe6dae4d15c185670a102b4870`; working tree limpa.
+- [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36544456280`, `Software Package Lifecycle Gates` run `36544456439`.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — estado verificado no HEAD `16ed89a`
 
 - [x] `develop` e `origin/develop` sincronizadas no commit `16ed89a82773f9b8067dce967723fe4fb910995e`; working tree limpa.
