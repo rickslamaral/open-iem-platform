@@ -1148,4 +1148,20 @@ mod tests {
         // Active scene must still be fetchable.
         store.get_scene(&scene.id).unwrap();
     }
+
+    #[test]
+    fn rollback_rejects_pruned_revision() {
+        // Accumulate MAX_REVISIONS_PER_SCENE + 3 saves so that revision 1 is pruned.
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("PruneRollback", empty_config()).unwrap();
+        for _ in 0..(crate::MAX_REVISIONS_PER_SCENE + 3) {
+            store.save_scene(&scene.id, empty_config()).unwrap();
+        }
+        // Revision 1 must have been pruned; rollback must fail with NotFound.
+        let err = store.rollback_scene(&scene.id, 1).unwrap_err();
+        assert!(
+            matches!(err, StoreError::NotFound(_)),
+            "expected NotFound for pruned revision 1, got: {err:?}"
+        );
+    }
 }
