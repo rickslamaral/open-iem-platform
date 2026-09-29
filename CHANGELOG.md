@@ -1166,3 +1166,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - Added regression coverage for RTP timestamp wraparound at the 32-bit boundary in the streaming Opus writer.
+
+### Documentation — 2026-09-29
+
+- Reconciled CI evidence for exact HEAD `45b43dd`: 16/16 real jobs passed across CI and software package lifecycle workflows.
