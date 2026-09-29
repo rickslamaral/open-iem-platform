@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Documentation
+- Reconciliado status no HEAD `c3fee09`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real agregado 16/16 SUCCESS (runs `36577850285` com 13 jobs e `36577850606` com 3 jobs). Runtime e hardware permanecem pendentes.
+
 ### Changed
 - Reconciliado status CI remoto real no HEAD `8ac3b75`; backlog CODE permanece esgotado.
 
