@@ -1,3 +1,10 @@
+## 2026-09-29 — CI remoto confirmado no HEAD `5c9791f`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `5c9791f` (HEAD exato desta execução); working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36644410144` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36644410034` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — CI remoto confirmado no HEAD `4a02867`
 
 - [x] `develop` e `origin/develop` estão sincronizadas no commit `4a028675656c007fa1ea94cc9ac785191e218749`; working tree limpa.
