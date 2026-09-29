@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Changed
+- Reconciliado status CI remoto real no HEAD `8ac3b75`; backlog CODE permanece esgotado.
+
 ### Documentation
 - Reconciliado status no HEAD `b344608`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS (runs `36574791124` e `36574790490`). Runtime e hardware permanecem pendentes.
 
