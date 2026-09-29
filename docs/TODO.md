@@ -1,3 +1,10 @@
+## 2026-09-29 — CI reconciliado no HEAD `d3b0c9b`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `d3b0c9b4fe94158ae619b76dec0789eeb65c51dd`; working tree estava limpa antes desta atualização documental.
+- CI remoto real observado no HEAD exato: `CI` run `36563542435` e `Software Package Lifecycle Gates` run `36563542250`; 16/16 jobs SUCCESS, todos com steps executados.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — CI reconciliado no HEAD `b512e78`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `b512e7821d9c20437e4eca914992ea5d4ea14ded`; working tree limpa.
