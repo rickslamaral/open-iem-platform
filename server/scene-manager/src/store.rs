@@ -466,6 +466,13 @@ impl SceneStore {
             "UPDATE scenes SET active_revision = ?1, updated_at = ?2 WHERE id = ?3",
             params![new_rev, now, id],
         )?;
+        // Prune oldest non-active revisions to stay within MAX_REVISIONS_PER_SCENE.
+        // The active revision is never deleted; old revisions are deleted oldest-first.
+        let trim_limit = i64::try_from(crate::MAX_REVISIONS_PER_SCENE).unwrap_or(i64::MAX);
+        tx.execute(
+            "DELETE FROM scene_revisions              WHERE scene_id = ?1              AND revision != (SELECT active_revision FROM scenes WHERE id = ?1)              AND revision NOT IN (                 SELECT revision FROM scene_revisions                  WHERE scene_id = ?1                  ORDER BY revision DESC                  LIMIT ?2             )",
+            params![id, trim_limit],
+        )?;
         tx.commit()?;
         Ok(scene)
     }
@@ -1119,5 +1126,26 @@ mod tests {
             matches!(err, StoreError::InvalidSnapshot(_)),
             "unexpected: {err:?}"
         );
+    }
+
+    #[test]
+    fn save_trims_oldest_revisions_beyond_max() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("Trim", empty_config()).unwrap();
+        // Save MAX_REVISIONS_PER_SCENE + 5 extra revisions.
+        let total = crate::MAX_REVISIONS_PER_SCENE + 5;
+        for _ in 0..total {
+            store.save_scene(&scene.id, empty_config()).unwrap();
+        }
+        let revisions = store.list_revisions(&scene.id).unwrap();
+        // Must not exceed MAX_REVISIONS_PER_SCENE.
+        assert!(
+            revisions.len() <= crate::MAX_REVISIONS_PER_SCENE,
+            "expected at most {} revisions, got {}",
+            crate::MAX_REVISIONS_PER_SCENE,
+            revisions.len()
+        );
+        // Active scene must still be fetchable.
+        store.get_scene(&scene.id).unwrap();
     }
 }
