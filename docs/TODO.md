@@ -1,3 +1,10 @@
+## 2026-09-29 — CI confirmado no HEAD `09d3504`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `09d35044f585f1026a7bb58c5a9186cd374e06b9`; working tree limpa antes desta atualização documental.
+- CI remoto do HEAD exato concluiu com SUCCESS nos workflows `CI` (run `36615308044`) e `Software Package Lifecycle Gates` (run `36615308200`).
+- PR #340 permanece aberta contra `main`.
+- Nenhum comportamento novo foi introduzido nesta atualização documental.
+
 ## 2026-09-29 — CI confirmado no HEAD `35900f1`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `35900f1`; working tree limpa antes desta atualização documental.
