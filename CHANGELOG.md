@@ -1,6 +1,9 @@
 ## [Unreleased]
 
 ### Documentation
+- Reconciliado status no HEAD `d690bed`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS. Runtime e hardware permanecem pendentes.
+
+### Documentation
 - Reconciliado status canônico no HEAD `124b7a2`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS. Runtime e hardware permanecem pendentes.
 
 ### Fixed
