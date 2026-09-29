@@ -1733,3 +1733,10 @@ test → review → docs/GAP update → PR/CI
 - CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36557211865`) e `Software Package Lifecycle Gates` (run `36557211850`); jobs executaram de verdade.
 - PR #340 permanece aberta contra `main`, com HEAD exato `5931d39`, sem merge conforme política vigente.
 - Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `13d23ca`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `13d23cafc30482688e12b4d576a70de38a32fddb`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36559393188`) e `Software Package Lifecycle Gates` (run `36559393129`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `13d23ca`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.

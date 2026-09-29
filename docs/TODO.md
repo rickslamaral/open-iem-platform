@@ -2097,3 +2097,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [x] Reconciliar status de CI: 16/16 jobs SUCCESS nos workflows `CI` (run `36557211865`) e `Software Package Lifecycle Gates` (run `36557211850`), com execução real no commit exato `5931d3969953b8ed51c42f3b481eed5cc64e4b37`.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI remoto confirmado no HEAD `13d23ca`
+
+- [x] Reconciliar status de CI: 16/16 jobs SUCCESS nos workflows `CI` (run `36559393188`) e `Software Package Lifecycle Gates` (run `36559393129`), com execução real no commit exato `13d23cafc30482688e12b4d576a70de38a32fddb`.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
