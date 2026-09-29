@@ -1,3 +1,13 @@
+## 2026-09-29 — estado verificado no HEAD `f52024b`
+
+- [x] `develop` e `origin/develop` sincronizadas em `f52024b`; working tree limpa.
+- [x] Dois commits novos neste ciclo:
+  - `03e8949` `[verified] feat(scene-manager): cap revision history at MAX_REVISIONS_PER_SCENE=32` — adiciona constante e prune atômico na transação de save.
+  - `f52024b` `[verified] test(scene-manager): rollback_rejects_pruned_revision regression guard` — testa que rollback para revisão prunada retorna NotFound.
+- [x] Gates locais: fmt/clippy limpos; 38/38 testes scene-manager; 1246 testes totais todos verdes; revisão independente PASS em ambos os commits.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Backlog CODE: itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — estado verificado no HEAD `bceb956`
 
 - [x] `develop` e `origin/develop` sincronizadas no commit `bceb956d203a1ff9893869b5278cd1df87b15042`; working tree limpa.
