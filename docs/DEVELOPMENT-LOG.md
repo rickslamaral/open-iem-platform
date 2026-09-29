@@ -6253,3 +6253,9 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36561947450`) e `Software Package Lifecycle Gates` (run `36561947454`); jobs executaram de verdade.
 - PR #340 permanece aberta contra `main`, com HEAD exato `45b43dd`, sem merge conforme política vigente.
 - Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-29 — CI confirmado no HEAD `a552587`
+
+- CI remoto 16/16 SUCCESS em `a5525876b60a798b4bf40690ba13403c827b065f`.
+- Runs reais: `CI` `36565113281`, `Software Package Lifecycle Gates` `36565113286`.
+- PR #340 permanece aberta contra `main`; sem merge.
+- Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
