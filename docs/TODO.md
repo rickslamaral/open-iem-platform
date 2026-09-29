@@ -1399,7 +1399,7 @@ Não fechar item por simulação, CI, cross-build, loopback ou ausência de erro
 - [x] P1-004 — recovery concluído: PR #81, CI run `35055191463` 13/13, gates locais PASS; sem validação física.
 - [x] P1-005 — network concluído (PR #72).
 - [ ] P1-006 — release bloqueado: confirmação explícita, instalação real e Raspberry Pi 5 ainda pendentes.
-- [x] P1-007 — backup/restore de configuração sem secrets implementado na PR #73; CLI local `iem config backup/restore` adicionada na Phase 96; 8 testes unitários; restauração em ambiente limpo e integração operacional ainda pendentes.
+- [x] P1-007 — backup/restore de configuração sem secrets implementado na PR #73; CLI local `iem config backup/restore` adicionada na Phase 96; teste populado agora cobre serialização e restore em estado limpo; validação operacional implantada e runtime permanecem pendentes.
 - [x] P1-008 — concluído (PR #75).
 - [x] P2 — SceneManager SQLite: `SceneStore` implementado com revisions imutáveis, recall transacional e detecção de payload corrompido; PR #86, CI 13/13 (run `35067216669`). CODE+CI; runtime/hardware pendentes.
 - [x] P2 — Scenes REST API: 7 rotas REST (GET/POST /api/v1/scenes, GET /api/v1/scenes/active, GET/PUT/DELETE /api/v1/scenes/{id}, POST /api/v1/scenes/{id}/recall) com RBAC, SceneStore integrado ao AppState; 7 testes de integração; PR #87, CI 13/13. CODE+CI; runtime/hardware pendentes.

@@ -6340,3 +6340,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Regressão CODE amplia `remove_session_is_exact_and_preserves_other_sessions` para três frames por sessão; remover `alice` preserva os três frames FIFO de `alice-backup` e mantém falha fechada para a sessão removida.
 - Evidência permanece CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
+## 2026-09-29 — Config backup clean-state restore coverage
+
+- CLI `iem config restore` now has populated snapshot coverage: channel, mix and send state are serialized, written to an isolated file and validated by restore into a fresh `ControlState`.
+- `cargo test --manifest-path server/Cargo.toml -p admin-cli --bin iem` — 7 tests PASS. Evidence `CODE` local; deployed operational validation, WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.

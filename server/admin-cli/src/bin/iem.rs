@@ -348,6 +348,37 @@ mod tests {
     }
 
     #[test]
+    fn restore_accepts_populated_snapshot_in_fresh_state() {
+        let path = std::env::temp_dir().join(format!(
+            "iem-config-populated-{}-{}.json",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("system clock")
+                .as_nanos()
+        ));
+        let mut source = control_server::ControlState::new();
+        let mut channel = mix_engine::Channel::new(42, "Lead Vocal");
+        channel.set_gain_db(-3.0);
+        source.set_channel(0, channel).expect("set channel");
+        let mut mix = mix_engine::Mix::new(7, "Monitor A");
+        mix.set_master_gain_db(-6.0);
+        let mut send = mix_engine::MixSend::new(42, 7);
+        send.set_gain_db(-9.0);
+        send.set_pan(0.25);
+        mix.set_send(0, send).expect("set send");
+        source.set_mix(0, mix).expect("set mix");
+        let json = config_backup::serialize(&config_backup::backup(&source)).expect("serialize");
+        std::fs::write(&path, json).expect("snapshot exists");
+
+        run_config(ConfigCommand::Restore {
+            input: path.clone(),
+        })
+        .expect("populated snapshot restores into fresh state");
+        std::fs::remove_file(path).expect("snapshot removed");
+    }
+
+    #[test]
     fn config_commands_do_not_dispatch_make_targets() {
         assert!(CommandName::Config {
             action: ConfigCommand::Backup {
