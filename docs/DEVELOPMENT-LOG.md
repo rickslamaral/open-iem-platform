@@ -6359,3 +6359,10 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - CLI `iem config restore` now has populated snapshot coverage: channel, mix and send state are serialized, written to an isolated file and validated by restore into a fresh `ControlState`.
 - `cargo test --manifest-path server/Cargo.toml -p admin-cli --bin iem` — 7 tests PASS. Evidence `CODE` local; deployed operational validation, WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-29 — CI confirmado no HEAD `e77c95f`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `e77c95f3438f666b545cbbce612947ce99da6d54`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS: `CI` run `36595095246` e `Software Package Lifecycle Gates` run `36595095128`; jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `e77c95f`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
