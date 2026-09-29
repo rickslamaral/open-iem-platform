@@ -1,3 +1,8 @@
+## 2026-09-29 — admin API test key isolation
+
+- Corrigido `routes/admin.rs::test_keys()` para usar UUID v4 nos caminhos temporários, eliminando colisões entre testes paralelos. Geração e exportação OpenSSL agora exigem exit status bem-sucedido antes da leitura dos arquivos.
+- Evidência: `cargo test --manifest-path server/Cargo.toml` PASS; revisão independente PASS.
+
 ## 2026-09-28 — session drive fairness review correction
 
 - Independent review found two fairness defects in `SessionRegistry::drive_once`: RTC polling still followed unordered `HashMap` order, and draining a batch could discard frames beyond shared output budget.
