@@ -468,7 +468,9 @@ impl SceneStore {
         )?;
         // Prune oldest non-active revisions to stay within MAX_REVISIONS_PER_SCENE.
         // The active revision is never deleted; old revisions are deleted oldest-first.
-        let trim_limit = i64::try_from(crate::MAX_REVISIONS_PER_SCENE).unwrap_or(i64::MAX);
+        // Active revision is retained separately; keep only remaining slots for history.
+        let trim_limit =
+            i64::try_from(crate::MAX_REVISIONS_PER_SCENE.saturating_sub(1)).unwrap_or(i64::MAX);
         tx.execute(
             "DELETE FROM scene_revisions              WHERE scene_id = ?1              AND revision != (SELECT active_revision FROM scenes WHERE id = ?1)              AND revision NOT IN (                 SELECT revision FROM scene_revisions                  WHERE scene_id = ?1                  ORDER BY revision DESC                  LIMIT ?2             )",
             params![id, trim_limit],
@@ -1147,6 +1149,24 @@ mod tests {
         );
         // Active scene must still be fetchable.
         store.get_scene(&scene.id).unwrap();
+    }
+
+    #[test]
+    fn rollback_then_save_stays_within_revision_limit() {
+        let store = SceneStore::open_in_memory().unwrap();
+        let scene = store.create_scene("RollbackTrim", empty_config()).unwrap();
+        for _ in 0..(crate::MAX_REVISIONS_PER_SCENE + 2) {
+            store.save_scene(&scene.id, empty_config()).unwrap();
+        }
+        let target = store
+            .list_revisions(&scene.id)
+            .unwrap()
+            .first()
+            .unwrap()
+            .revision;
+        store.rollback_scene(&scene.id, target).unwrap();
+        store.save_scene(&scene.id, empty_config()).unwrap();
+        assert!(store.list_revisions(&scene.id).unwrap().len() <= crate::MAX_REVISIONS_PER_SCENE);
     }
 
     #[test]
