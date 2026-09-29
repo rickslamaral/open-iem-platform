@@ -1,3 +1,13 @@
+## 2026-09-29 — fix: audio-engine clippy commit `2ed9b76`
+
+- Commit `2ed9b76` pushed to `develop`: removed unused imports (`ProcessStats`, `BackendKind`), redundant `as u32` casts, refactored `match→if let`, fixed frame count source to `ps.n_frames()`, downgraded `unsafe_code` lint from `forbid` to `deny` with scoped `#[allow]` on JACK shutdown impl.
+- Gates: `cargo fmt` clean, `cargo clippy --all-targets -D warnings` clean, `cargo test` all pass.
+- Independent review: PASS (no security concerns, no logic errors).
+- CI run queued for new HEAD; previous HEAD `e29064b` had 16/16 SUCCESS (runs `36600862643`, `36600862872`).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE: esgotado. Itens restantes exigem hardware físico (RPi5/PipeWire/ALSA), confirmação de release ou secrets externos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+
 ## 2026-09-29 — CI confirmado no HEAD `376b246`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `376b246c62d67b5b7266535eefd9ff7aa749e816`; working tree limpa antes desta atualização documental.
