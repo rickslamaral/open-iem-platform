@@ -1165,4 +1165,41 @@ mod tests {
             .await
             .assert_status(axum::http::StatusCode::NOT_FOUND);
     }
+
+    #[tokio::test]
+    async fn rollback_scene_pruned_revision_returns_not_found() {
+        // Accumulate MAX_REVISIONS_PER_SCENE + 3 saves so revision 1 is pruned;
+        // HTTP rollback to it must return 404.
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_rb_pruned", "pw", Role::Engineer);
+
+        let create_resp = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token.clone())
+            .json(&empty_scene_body())
+            .await;
+        create_resp.assert_status(axum::http::StatusCode::CREATED);
+        let scene_id = create_resp.json::<Value>()["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+
+        for _ in 0..(scene_manager::MAX_REVISIONS_PER_SCENE + 3) {
+            server
+                .put(&format!("/api/v1/scenes/{scene_id}"))
+                .add_header("Origin", "http://localhost")
+                .authorization_bearer(token.clone())
+                .json(&serde_json::json!({"config": {"channels": [], "mixes": []}}))
+                .await
+                .assert_status_ok();
+        }
+
+        server
+            .post(&format!("/api/v1/scenes/{scene_id}/revisions/1/rollback"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
 }
