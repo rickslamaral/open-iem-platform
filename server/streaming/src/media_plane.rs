@@ -1494,17 +1494,23 @@ mod tests {
         let mp = MediaPlane::new();
         mp.register_session("alice", 0).await.unwrap();
         mp.register_session("alice-backup", 1).await.unwrap();
-        let frame = make_frame(0.1, 0.2, 0.8, 0.9);
-        mp.push_frame_output(&frame, 7, None).await;
+        for (left, right) in [(0.1, 0.2), (0.3, 0.4), (0.5, 0.6)] {
+            let frame = make_frame(left, right, left + 0.7, right + 0.7);
+            mp.push_frame_output(&frame, 7, None).await;
+        }
 
         assert!(mp.remove_session("alice").await);
         assert_eq!(mp.sessions().await, vec![("alice-backup".to_owned(), 1)]);
+        let surviving = mp
+            .drain_session_frames_with_budget("alice-backup", 3)
+            .await
+            .unwrap();
         assert_eq!(
-            mp.drain_session_frames_with_budget("alice-backup", 1)
-                .await
-                .unwrap()[0]
-                .samples,
-            (0.8, 0.9)
+            surviving
+                .iter()
+                .map(|frame| frame.samples)
+                .collect::<Vec<_>>(),
+            vec![(0.8, 0.9), (1.0, 1.1), (1.2, 1.3)]
         );
         assert_eq!(
             mp.drain_session_frames_with_budget("alice", 1).await,

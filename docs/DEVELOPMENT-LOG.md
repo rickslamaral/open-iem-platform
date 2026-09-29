@@ -6321,3 +6321,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - CI remoto real do HEAD exato concluiu 16/16 SUCCESS: `CI` run `36581080377` e `Software Package Lifecycle Gates` run `36581080457`; jobs executaram de verdade.
 - PR #340 permanece aberta contra `main`, com HEAD exato `37107be`, sem merge conforme política vigente.
 - Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — MediaPlane remoção preserva FIFO de sessões vizinhas
+
+- Regressão CODE amplia `remove_session_is_exact_and_preserves_other_sessions` para três frames por sessão; remover `alice` preserva os três frames FIFO de `alice-backup` e mantém falha fechada para a sessão removida.
+- Evidência permanece CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
