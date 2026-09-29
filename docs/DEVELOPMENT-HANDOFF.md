@@ -1,3 +1,11 @@
+## 2026-09-29 — estado verificado no HEAD `058c1ed`
+
+- [x] `develop` e `origin/develop` sincronizadas em `058c1ed`; working tree limpa.
+- [x] CI remoto real do HEAD exato: 13/13 SUCCESS; `CI` run `36541377652`, `Software Package Lifecycle Gates` run `36541377443`; todos os jobs com steps reais.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] 1288 testes totais passando localmente.
+- [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — estado verificado no HEAD `f52024b`
 
 - [x] `develop` e `origin/develop` sincronizadas em `f52024b`; working tree limpa.
