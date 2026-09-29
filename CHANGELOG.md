@@ -1,6 +1,9 @@
 ## [Unreleased]
 
 ### Documentation
+- Reconciliado status no HEAD `b512e78`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS (runs `36560452470` e `36560452519`). Runtime e hardware permanecem pendentes.
+
+### Documentation
 - Reconciliado status no HEAD `bceb956`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS (runs `36532903638` e `36532903586`). Runtime e hardware permanecem pendentes.
 
 ### Documentation
