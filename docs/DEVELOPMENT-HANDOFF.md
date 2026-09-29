@@ -1,6 +1,13 @@
+## 2026-09-29 — CI confirmado no HEAD `14138c1`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `14138c10276819a2f116e801b32f4dd50c599f12`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: **16/16 SUCCESS**; `CI` run `36624874034` e `Software Package Lifecycle Gates` run `36624873796`; todos os jobs executaram com steps reais.
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-29 — CI confirmado no HEAD `99a6ea0`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `99a6ea07956b666631489652f0abb4bd1d25b59b`; working tree limpa.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `99a6ea07956b666631489652f0abb4bd1d25b59b`; working tree estava limpa antes desta atualização documental.
 - [x] CI remoto real do HEAD exato: **16/16 SUCCESS**; `CI` run `36623600962` e `Software Package Lifecycle Gates` run `36623601124`; jobs executaram com steps reais.
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -108,7 +115,7 @@
 
 ## 2026-09-29 — CI confirmado no HEAD `c3fee09`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `c3fee09e414787487d697ba0f056abae21bc85b7`; working tree limpa.
+- `develop` e `origin/develop` estão sincronizadas no commit `c3fee09e414787487d697ba0f056abae21bc85b7`; working tree estava limpa antes desta atualização documental.
 - CI remoto real do HEAD exato: **16/16 SUCCESS** no agregado dos workflows `CI` (run `36577850285`, 13 jobs) e `Software Package Lifecycle Gates` (run `36577850606`, 3 jobs), todos com steps executados.
 - PR #340 permanece aberta contra `main`; sem merge conforme política vigente.
 - Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -136,63 +143,63 @@
 
 ## 2026-09-29 — CI reconciliado no HEAD `3c54bf1`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `3c54bf139aa16ca14420a47873501fbb2870498b`; working tree limpa.
+- `develop` e `origin/develop` estão sincronizadas no commit `3c54bf139aa16ca14420a47873501fbb2870498b`; working tree estava limpa antes desta atualização documental.
 - CI remoto real observado no HEAD exato: `CI` run `36558323618` e `Software Package Lifecycle Gates` run `36558323619`; 16/16 jobs SUCCESS, todos com steps executados.
 - PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
 - Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — CI reconciliado no HEAD `ad36828`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `ad3682873d3f75a2cc93875c75ff9d02b7c74073`; working tree limpa.
+- `develop` e `origin/develop` estão sincronizadas no commit `ad3682873d3f75a2cc93875c75ff9d02b7c74073`; working tree estava limpa antes desta atualização documental.
 - CI remoto real observado no HEAD exato: `CI` run `36556297666` (https://github.com/rickslamaral/open-iem-platform/actions/runs/36556297666) e `Software Package Lifecycle Gates` run `36556297592` (https://github.com/rickslamaral/open-iem-platform/actions/runs/36556297592); 16/16 jobs SUCCESS, todos com steps executados. `CODE/CI/SIMULATED` qualifica somente evidência de runtime/hardware, não esses jobs CI.
 - PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
 - Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — estado verificado no HEAD `6328125`
 
-- [x] `develop` e `origin/develop` sincronizadas em `6328125c9db271bf927de20502fbd012ae551864`; working tree limpa.
+- [x] `develop` e `origin/develop` sincronizadas em `6328125c9db271bf927de20502fbd012ae551864`; working tree estava limpa antes desta atualização documental.
 - [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36554183253`, `Software Package Lifecycle Gates` run `36554183273`; todos os jobs com steps reais.
 - [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
 - [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — estado verificado no HEAD `c80a94a`
 
-- [x] `develop` e `origin/develop` sincronizadas em `c80a94a7a2d73bdd644258de14d5e5b0df98dcc6`; working tree limpa.
+- [x] `develop` e `origin/develop` sincronizadas em `c80a94a7a2d73bdd644258de14d5e5b0df98dcc6`; working tree estava limpa antes desta atualização documental.
 - [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36551997611`, `Software Package Lifecycle Gates` run `36551997563`; todos os jobs com steps reais.
 - [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
 - [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — estado verificado no HEAD `67a1f6c`
 
-- [x] `develop` e `origin/develop` sincronizadas em `67a1f6c419c9e1bbe3f17436bcb08b74922329fe`; working tree limpa.
+- [x] `develop` e `origin/develop` sincronizadas em `67a1f6c419c9e1bbe3f17436bcb08b74922329fe`; working tree estava limpa antes desta atualização documental.
 - [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36550099659`, `Software Package Lifecycle Gates` run `36550099688`; todos os jobs com steps reais.
 - [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
 - [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — estado verificado no HEAD `5a04104`
 
-- [x] `develop` e `origin/develop` sincronizadas em `5a04104ee764f6a6174bee1110b7662156cd4177`; working tree limpa.
+- [x] `develop` e `origin/develop` sincronizadas em `5a04104ee764f6a6174bee1110b7662156cd4177`; working tree estava limpa antes desta atualização documental.
 - [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36549126838`, `Software Package Lifecycle Gates` run `36549126835`; todos os jobs com steps reais.
 - [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
 - [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — estado verificado no HEAD `c4c3f2b`
 
-- [x] `develop` e `origin/develop` sincronizadas em `c4c3f2bc89f68414ec9e4b85026b795d0bbc97be`; working tree limpa.
+- [x] `develop` e `origin/develop` sincronizadas em `c4c3f2bc89f68414ec9e4b85026b795d0bbc97be`; working tree estava limpa antes desta atualização documental.
 - [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36545735036`, `Software Package Lifecycle Gates` run `36545735092`; todos os jobs com steps reais.
 - [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
 - [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — estado verificado no HEAD `1711b99`
 
-- [x] `develop` e `origin/develop` sincronizadas em `1711b99`; working tree limpa.
+- [x] `develop` e `origin/develop` sincronizadas em `1711b99`; working tree estava limpa antes desta atualização documental.
 - [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36544456280`, `Software Package Lifecycle Gates` run `36544456439`; todos os jobs com steps reais.
 - [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
 - [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — estado verificado no HEAD `16ed89a`
 
-- [x] `develop` e `origin/develop` sincronizadas em `16ed89a`; working tree limpa.
+- [x] `develop` e `origin/develop` sincronizadas em `16ed89a`; working tree estava limpa antes desta atualização documental.
 - [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36542229270`, `Software Package Lifecycle Gates` run `36542229281`; todos os jobs com steps reais.
 - [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
 - [x] 1288 testes totais passando localmente.
@@ -200,7 +207,7 @@
 
 ## 2026-09-29 — estado verificado no HEAD `058c1ed`
 
-- [x] `develop` e `origin/develop` sincronizadas em `058c1ed`; working tree limpa.
+- [x] `develop` e `origin/develop` sincronizadas em `058c1ed`; working tree estava limpa antes desta atualização documental.
 - [x] CI remoto real do HEAD exato: 13/13 SUCCESS; `CI` run `36541377652`, `Software Package Lifecycle Gates` run `36541377443`; todos os jobs com steps reais.
 - [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
 - [x] 1288 testes totais passando localmente.
@@ -208,7 +215,7 @@
 
 ## 2026-09-29 — estado verificado no HEAD `f52024b`
 
-- [x] `develop` e `origin/develop` sincronizadas em `f52024b`; working tree limpa.
+- [x] `develop` e `origin/develop` sincronizadas em `f52024b`; working tree estava limpa antes desta atualização documental.
 - [x] Dois commits novos neste ciclo:
   - `03e8949` `[verified] feat(scene-manager): cap revision history at MAX_REVISIONS_PER_SCENE=32` — adiciona constante e prune atômico na transação de save.
   - `f52024b` `[verified] test(scene-manager): rollback_rejects_pruned_revision regression guard` — testa que rollback para revisão prunada retorna NotFound.
@@ -218,7 +225,7 @@
 
 ## 2026-09-29 — estado verificado no HEAD `bceb956`
 
-- [x] `develop` e `origin/develop` sincronizadas no commit `bceb956d203a1ff9893869b5278cd1df87b15042`; working tree limpa.
+- [x] `develop` e `origin/develop` sincronizadas no commit `bceb956d203a1ff9893869b5278cd1df87b15042`; working tree estava limpa antes desta atualização documental.
 - [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36532903638`, `Software Package Lifecycle Gates` run `36532903586`.
 - [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
 - [x] Backlog CODE esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -330,7 +337,7 @@
 
 ## 2026-09-29 — CI reconciliado no HEAD `a936f00`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `a936f007d...`; working tree limpa.
+- `develop` e `origin/develop` estão sincronizadas no commit `a936f007d...`; working tree estava limpa antes desta atualização documental.
 - PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
 - CI remoto real observado no HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36510287026`) e `Software Package Lifecycle Gates` (run `36510286970`); jobs executaram de verdade.
 - Backlog CODE esgotado: nenhum item `[ ]` executável sem hardware físico, confirmação de release ou secret externo. Não há tarefa CODE segura a implementar.
@@ -1897,7 +1904,7 @@ test → review → docs/GAP update → PR/CI
 - Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 ## 2026-09-29 — CI confirmado no HEAD `2bce00f`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `2bce00f`; working tree limpa.
+- `develop` e `origin/develop` estão sincronizadas no commit `2bce00f`; working tree estava limpa antes desta atualização documental.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36603462538` e `Software Package Lifecycle Gates` run `36603462530`; todos os jobs concluíram com steps executados.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
