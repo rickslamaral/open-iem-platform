@@ -2020,3 +2020,10 @@ test → review → docs/GAP update → PR/CI
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36641709176` (13 jobs) e `Software Package Lifecycle Gates` run `36641709015` (3 jobs); todos os jobs executaram com steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `63cf41d`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `63cf41dcfa23d9be0a791509063ded7970ac57da`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36643428190` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36643428149` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
