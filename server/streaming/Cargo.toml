@@ -8,7 +8,7 @@ repository.workspace = true
 
 [dependencies]
 # WebRTC (Sans-IO, no external media engine dependency)
-str0m = "0.23"
+str0m = "0.24"
 
 # Async runtime
 tokio = { version = "1", features = ["full"] }
