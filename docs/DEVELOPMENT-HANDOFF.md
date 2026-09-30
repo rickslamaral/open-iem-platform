@@ -2292,3 +2292,10 @@ test → review → docs/GAP update → PR/CI
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36677580323` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36677580330` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `a3626a5`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `a3626a5e85a93af136143dd1bae31ef11905b77c`; working tree limpa antes desta atualização.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36680256784` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36680256806` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
