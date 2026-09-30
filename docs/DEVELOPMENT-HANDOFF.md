@@ -1,3 +1,10 @@
+## 2026-09-30 — handoff no HEAD `39a3cd3`
+
+- `develop` e `origin/develop` sincronizadas em `39a3cd3d64f2ac98db865ae7bfeb45a673dd81a9`.
+- CI real no SHA exato: 16/16 SUCCESS (`36663771217`, `36663771233`), com steps executados.
+- PR #340 continua aberta contra `main`; não fazer merge neste ciclo.
+- Nenhuma tarefa CODE executável nova identificada. Próximo ciclo deve revalidar CI e backlog; manter `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-30 — CI remoto confirmado no HEAD `7a28e4b`
 
 - [x] `develop` e `origin/develop` estão sincronizadas no commit `7a28e4b9a5472ae50113887089105b4d43406991`; working tree limpa antes desta atualização documental.
