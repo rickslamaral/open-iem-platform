@@ -1,5 +1,5 @@
 ## [Unreleased]
-- Registrada evidência CI remoto 16/16 SUCCESS no HEAD `6c13d33`, runs `36764206324` e `36764206316`; PR #340 permanece aberta e não houve merge.
+- Registrada evidência CI remoto 16/16 SUCCESS no HEAD `357c460`, runs `36767883998` e `36767884082`; PR #340 permanece aberta e não houve merge.
 
 ### Changed
 - Registrada evidência CI remoto 16/16 SUCCESS no HEAD `6f48262ab6d35047ea816ea4ffff56f5e72f80f5`.
