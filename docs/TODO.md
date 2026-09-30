@@ -1,7 +1,7 @@
-## 2026-09-30 — CI remoto pendente no HEAD `908657d2df6b2861d1d61668afe80856e2e81f0a`
+## 2026-09-30 — CI remoto confirmado no HEAD `6c1316191b23a9818f29f040a4e2dc04859a1c04`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `908657d2df6b2861d1d61668afe80856e2e81f0a`; working tree limpa.
-- CI do HEAD atual está pendente: [`CI`](https://github.com/rickslamaral/open-iem-platform/actions/runs/36738483943) e [`Software Package Lifecycle Gates`](https://github.com/rickslamaral/open-iem-platform/actions/runs/36738485840); não declarar PASS antes da conclusão.
+- `develop` e `origin/develop` estão sincronizadas no commit `6c1316191b23a9818f29f040a4e2dc04859a1c04`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: [`CI`](https://github.com/rickslamaral/open-iem-platform/actions/runs/36738655715) e [`Software Package Lifecycle Gates`](https://github.com/rickslamaral/open-iem-platform/actions/runs/36738655794); todos os jobs executaram steps reais.
 - [PR #340](https://github.com/rickslamaral/open-iem-platform/pull/340) permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 

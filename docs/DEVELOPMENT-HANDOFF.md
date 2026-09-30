@@ -1,7 +1,7 @@
-## 2026-09-30 — CI remoto pendente no HEAD `908657d2df6b2861d1d61668afe80856e2e81f0a`
+## 2026-09-30 — CI remoto confirmado no HEAD `6c1316191b23a9818f29f040a4e2dc04859a1c04`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `908657d2df6b2861d1d61668afe80856e2e81f0a`; working tree limpa antes desta atualização.
-- CI dos workflows `CI` e `Software Package Lifecycle Gates` está pendente no HEAD atual; runs `36738483943` e `36738485840` ainda não concluíram.
+- `develop` e `origin/develop` estão sincronizadas no commit `6c1316191b23a9818f29f040a4e2dc04859a1c04`; working tree limpa antes desta atualização.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36738655715` (13 jobs) e `Software Package Lifecycle Gates` run `36738655794` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Nenhuma tarefa CODE executável nova identificada. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
