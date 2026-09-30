@@ -1,3 +1,9 @@
+## 2026-09-30 — CI remoto confirmado no HEAD `3a9eee4`
+
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS** nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36657428068` e `36657428060`), com steps reais.
+- `develop` e `origin/develop` estão sincronizadas; PR #340 permanece aberta contra `main` por política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; validação física permanece não executada.
+
 ## 2026-09-30 — CI remoto confirmado no HEAD `f1bce0c`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `f1bce0cfff8a9ae73c2146d4a4828cd983e2667d`; working tree estava limpa antes desta atualização documental.
