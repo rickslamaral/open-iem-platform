@@ -1,3 +1,10 @@
+## 2026-09-30 — CI remoto confirmado no HEAD `84c6205`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `84c6205f3ea326a4adb2e91e0ec6cc625b7bf0cf`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: [`CI`](https://github.com/rickslamaral/open-iem-platform/actions/runs/36734807944) (13 jobs) e [`Software Package Lifecycle Gates`](https://github.com/rickslamaral/open-iem-platform/actions/runs/36734807645) (3 jobs); todos os jobs executaram steps reais.
+- [PR #340](https://github.com/rickslamaral/open-iem-platform/pull/340) permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-09-30 — CI remoto confirmado no HEAD `9e8256b`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `9e8256b92a923388980efe86c09140a6b9c2f2d5`; working tree limpa.
