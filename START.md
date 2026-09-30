@@ -4,7 +4,7 @@
 
 ## Estado canônico atual
 
-As 13 fases canônicas permanecem fixas. O snapshot operacional atual está em branch `develop`, HEAD `a4e66a545a493ff5e6e36600c73157a8c3d8f16b`; PR #340 permanece aberta e sem merge. As fases incrementais não substituem nem renumeram as fases canônicas. Evidência atual: `CODE/CI`; CI remoto no HEAD exato concluiu **16/16 SUCCESS** (`CI` run `36760855396`, `Software Package Lifecycle Gates` run `36760855353`); runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam pendentes.
+As 13 fases canônicas permanecem fixas. O snapshot operacional atual está em branch `develop`, HEAD `3505eb05e2baf6515815c5134854590e370d552a`; PR #340 permanece aberta e sem merge. As fases incrementais não substituem nem renumeram as fases canônicas. Evidência atual: `CODE/CI/SIMULATED`; CI remoto no HEAD exato concluiu **16/16 SUCCESS** (`CI` run `36773191604`, `Software Package Lifecycle Gates` run `36773191475`); runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam pendentes.
 
 ```text
 Concluídas: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 6
