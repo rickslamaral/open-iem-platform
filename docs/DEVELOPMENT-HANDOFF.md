@@ -1,3 +1,10 @@
+## 2026-09-30 — CI remoto confirmado no HEAD `24456b1`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `24456b1329cbaf1a49b5bbe58c2d113f588d1726`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: CI run 36690119153 (13 jobs) e Software Package Lifecycle Gates run 36690119128 (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência CODE/CI/SIMULATED; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release v0.3.1 seguem PENDING/BLOCKED. PHYSICAL: USER-APPROVED / NOT EXECUTED.
+
 ## 2026-09-30 — CI remoto confirmado no HEAD `e3930bc`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `e3930bcb795b38bca600c7c85590fb10012a8746`; working tree estava limpa antes deste registro.
