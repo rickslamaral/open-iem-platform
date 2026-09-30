@@ -6666,3 +6666,10 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36671597438` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36671597453` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `f3c2494`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `f3c249409851646be6bd369d174e3f52dc63f1e2`; working tree limpa antes desta atualização.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36672966796` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36672966714` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
