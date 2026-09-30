@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Documentation
+- Confirmado CI remoto real no HEAD `7a28e4b`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36661932592` e `36661932581`). PR #340 permanece aberta.
+
 ### Changed
 - Confirmed real CI success for exact `develop` HEAD `f1bce0cfff8a9ae73c2146d4a4828cd983e2667d` (16/16 jobs).
 
