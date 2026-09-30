@@ -1,4 +1,7 @@
 ## [Unreleased]
+### Changed
+- Registrada evidência CI remoto 16/16 SUCCESS no HEAD `6f48262ab6d35047ea816ea4ffff56f5e72f80f5`.
+
 
 ### Documentation
 - Confirmado CI remoto real no HEAD `a4e66a5`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36760855396` e `36760855353`). PR #340 permanece aberta; validação física e release seguem pendentes.
