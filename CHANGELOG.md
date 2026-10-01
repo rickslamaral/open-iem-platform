@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Changed
+- Reconciled current CI evidence for `develop` HEAD `ef0f230` (16/16 SUCCESS).
+
 ### Documentation
 - Confirmado CI remoto real no HEAD `a0d1ad4`: 16/16 jobs SUCCESS (`CI` run `36793038213`; `Software Package Lifecycle Gates` run `36793038191`). PR #340 permanece aberta; runtime físico e release seguem pendentes.
 - Registrada evidência CI remoto 16/16 SUCCESS no HEAD `ccea120`; runs `36770008849` e `36770008852`; PR #340 permanece aberta e não houve merge.
