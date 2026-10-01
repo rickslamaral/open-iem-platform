@@ -125,7 +125,7 @@ mod tests {
     fn empty_input_ok() {
         let profile = ReorderProfile::new(4).unwrap();
         let result = profile.apply(&[]);
-        assert!(result.delivered.is_empty());
+        assert_eq!(result.delivered.len(), 0);
         assert_eq!(result.reordered, 0);
     }
 
