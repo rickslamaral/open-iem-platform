@@ -79,6 +79,22 @@ pub struct ActiveSceneResponse {
     pub scene: Option<scene_manager::Scene>,
 }
 
+/// Response body for `GET /api/v1/scenes/{id}/revisions`.
+#[derive(Serialize)]
+pub struct ListRevisionsResponse {
+    /// All revisions in ascending order.
+    pub revisions: Vec<RevisionSummaryDto>,
+}
+
+/// A single revision entry.
+#[derive(Serialize)]
+pub struct RevisionSummaryDto {
+    /// Revision number.
+    pub revision: u64,
+    /// Unix timestamp of revision creation.
+    pub created_at: i64,
+}
+
 /// `GET /api/v1/scenes/backup` — exports durable scene state.
 #[allow(clippy::unused_async)]
 /// # Errors
@@ -289,6 +305,48 @@ pub async fn recall_scene(
     Ok(StatusCode::NO_CONTENT)
 }
 
+/// `GET /api/v1/scenes/{id}/revisions` — list all stored revisions for a scene.
+#[allow(clippy::unused_async)]
+/// # Errors
+/// Returns `ApiError::Forbidden` when caller lacks Musician role.
+/// Returns `ApiError::NotFound` when `id` does not exist.
+/// Returns `ApiError::Internal` on store failure.
+pub async fn list_scene_revisions(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<JwtClaims>,
+    Path(id): Path<String>,
+) -> Result<impl IntoResponse, ApiError> {
+    require_min_role(&claims, Role::Musician)?;
+    let revisions = state.scenes.list_revisions(&id).map_err(map_store_err)?;
+    let revisions = revisions
+        .into_iter()
+        .map(|r| RevisionSummaryDto {
+            revision: r.revision,
+            created_at: r.created_at,
+        })
+        .collect();
+    Ok(Json(ListRevisionsResponse { revisions }))
+}
+
+/// `POST /api/v1/scenes/{id}/revisions/{rev}/rollback` — rollback to a prior revision.
+#[allow(clippy::unused_async)]
+/// # Errors
+/// Returns `ApiError::Forbidden` when caller lacks Engineer role.
+/// Returns `ApiError::NotFound` when `id` or `rev` does not exist.
+/// Returns `ApiError::Internal` on store failure.
+pub async fn rollback_scene(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<JwtClaims>,
+    Path((id, rev)): Path<(String, u64)>,
+) -> Result<impl IntoResponse, ApiError> {
+    require_min_role(&claims, Role::Engineer)?;
+    let scene = state
+        .scenes
+        .rollback_scene(&id, rev)
+        .map_err(map_store_err)?;
+    Ok(Json(scene))
+}
+
 // ---------------------------------------------------------------------------
 // Integration tests
 // ---------------------------------------------------------------------------
@@ -301,7 +359,8 @@ mod tests {
         middleware::jwt_auth,
         routes::scenes::{
             backup_scenes, create_scene, delete_scene, duplicate_scene, get_active_scene,
-            get_scene, list_scenes, recall_scene, restore_scenes, update_scene,
+            get_scene, list_scene_revisions, list_scenes, recall_scene, restore_scenes,
+            rollback_scene, update_scene,
         },
         security::validate_origin,
         state::AppState,
@@ -380,6 +439,11 @@ mod tests {
             )
             .route("/api/v1/scenes/{id}/recall", post(recall_scene))
             .route("/api/v1/scenes/{id}/duplicate", post(duplicate_scene))
+            .route("/api/v1/scenes/{id}/revisions", get(list_scene_revisions))
+            .route(
+                "/api/v1/scenes/{id}/revisions/{rev}/rollback",
+                post(rollback_scene),
+            )
             .layer(middleware::from_fn_with_state(state.clone(), jwt_auth));
 
         let app = Router::new()
@@ -823,5 +887,319 @@ mod tests {
             .json(&json!({"name": "Denied"}))
             .await
             .assert_status(axum::http::StatusCode::FORBIDDEN);
+    }
+    #[tokio::test]
+    async fn list_revisions_returns_history_for_musician() {
+        let (server, state) = build_test_app();
+        let eng_token = seed_user_and_login(&state, "eng_list_rev", "pw", Role::Engineer);
+        let mus_token = seed_user_and_login(&state, "mus_list_rev", "pw", Role::Musician);
+
+        let create_resp = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(eng_token.clone())
+            .json(&empty_scene_body())
+            .await;
+        create_resp.assert_status(axum::http::StatusCode::CREATED);
+        let scene_id = create_resp.json::<Value>()["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+
+        server
+            .put(&format!("/api/v1/scenes/{scene_id}"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(eng_token)
+            .json(&json!({"config": {"channels": [], "mixes": []}}))
+            .await
+            .assert_status_ok();
+
+        let resp = server
+            .get(&format!("/api/v1/scenes/{scene_id}/revisions"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(mus_token)
+            .await;
+        resp.assert_status_ok();
+        let body: Value = resp.json();
+        let revisions = body["revisions"].as_array().unwrap();
+        assert_eq!(revisions.len(), 2);
+        assert_eq!(revisions[0]["revision"], 1);
+        assert_eq!(revisions[1]["revision"], 2);
+    }
+
+    #[tokio::test]
+    async fn rollback_scene_requires_engineer() {
+        let (server, state) = build_test_app();
+        let eng_token = seed_user_and_login(&state, "eng_rb_role", "pw", Role::Engineer);
+        let mus_token = seed_user_and_login(&state, "mus_rb_role", "pw", Role::Musician);
+
+        let create_resp = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(eng_token.clone())
+            .json(&empty_scene_body())
+            .await;
+        create_resp.assert_status(axum::http::StatusCode::CREATED);
+        let scene_id = create_resp.json::<Value>()["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+
+        server
+            .put(&format!("/api/v1/scenes/{scene_id}"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(eng_token)
+            .json(&json!({"config": {"channels": [], "mixes": []}}))
+            .await
+            .assert_status_ok();
+
+        server
+            .post(&format!("/api/v1/scenes/{scene_id}/revisions/1/rollback"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(mus_token)
+            .await
+            .assert_status(axum::http::StatusCode::FORBIDDEN);
+    }
+
+    #[tokio::test]
+    async fn rollback_scene_to_prior_revision() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_rollback_prior", "pw", Role::Engineer);
+
+        let create_resp = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token.clone())
+            .json(&empty_scene_body())
+            .await;
+        create_resp.assert_status(axum::http::StatusCode::CREATED);
+        let scene_id = create_resp.json::<Value>()["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+
+        // Save rev 2 with a channel
+        server
+            .put(&format!("/api/v1/scenes/{scene_id}"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token.clone())
+            .json(&json!({"config": {"channels": [{"slot": 0, "id": 1, "name": "Vox", "gain_db": 0.0, "muted": false, "locked": false, "enabled": true}], "mixes": []}}))
+            .await
+            .assert_status_ok();
+
+        // Rollback to rev 1
+        let rb_resp = server
+            .post(&format!("/api/v1/scenes/{scene_id}/revisions/1/rollback"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token.clone())
+            .await;
+        rb_resp.assert_status_ok();
+        let rb_body: Value = rb_resp.json();
+        assert_eq!(rb_body["revision"], 1);
+
+        // GET scene should be rev 1 with empty channels
+        let get_resp = server
+            .get(&format!("/api/v1/scenes/{scene_id}"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await;
+        get_resp.assert_status_ok();
+        let get_body: Value = get_resp.json();
+        assert_eq!(get_body["revision"], 1);
+        assert_eq!(get_body["config"]["channels"].as_array().unwrap().len(), 0);
+    }
+
+    #[tokio::test]
+    async fn rollback_scene_invalid_revision_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_rollback_nf", "pw", Role::Engineer);
+
+        let create_resp = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token.clone())
+            .json(&empty_scene_body())
+            .await;
+        create_resp.assert_status(axum::http::StatusCode::CREATED);
+        let scene_id = create_resp.json::<Value>()["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+
+        server
+            .post(&format!("/api/v1/scenes/{scene_id}/revisions/999/rollback"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn recall_scene_musician_forbidden() {
+        let (server, state) = build_test_app();
+        let eng_token = seed_user_and_login(&state, "eng_recall_fbdn", "pw", Role::Engineer);
+        let mus_token = seed_user_and_login(&state, "mus_recall_fbdn", "pw", Role::Musician);
+
+        let create_resp = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(eng_token)
+            .json(&empty_scene_body())
+            .await;
+        create_resp.assert_status(axum::http::StatusCode::CREATED);
+        let scene_id = create_resp.json::<Value>()["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+
+        server
+            .post(&format!("/api/v1/scenes/{scene_id}/recall"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(mus_token)
+            .await
+            .assert_status(axum::http::StatusCode::FORBIDDEN);
+    }
+
+    #[tokio::test]
+    async fn recall_scene_nonexistent_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_recall_nf", "pw", Role::Engineer);
+
+        server
+            .post("/api/v1/scenes/nonexistent-scene-id/recall")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn rollback_scene_nonexistent_scene_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_rb_noscene", "pw", Role::Engineer);
+
+        server
+            .post("/api/v1/scenes/nonexistent-scene-xyz/revisions/1/rollback")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn delete_scene_musician_forbidden() {
+        let (server, state) = build_test_app();
+        let eng_token = seed_user_and_login(&state, "eng_del_fbdn", "pw", Role::Engineer);
+        let mus_token = seed_user_and_login(&state, "mus_del_fbdn", "pw", Role::Musician);
+
+        let create_resp = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(eng_token)
+            .json(&empty_scene_body())
+            .await;
+        create_resp.assert_status(axum::http::StatusCode::CREATED);
+        let scene_id = create_resp.json::<Value>()["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+
+        server
+            .delete(&format!("/api/v1/scenes/{scene_id}"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(mus_token)
+            .await
+            .assert_status(axum::http::StatusCode::FORBIDDEN);
+    }
+
+    #[tokio::test]
+    async fn delete_scene_nonexistent_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_del_nf", "pw", Role::Engineer);
+
+        server
+            .delete("/api/v1/scenes/nonexistent-scene-del")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn update_scene_nonexistent_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_upd_nf", "pw", Role::Engineer);
+
+        server
+            .put("/api/v1/scenes/nonexistent-scene-upd")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .json(&serde_json::json!({"config": {"channels": [], "mixes": []}}))
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn duplicate_scene_nonexistent_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_dup_nf", "pw", Role::Engineer);
+
+        server
+            .post("/api/v1/scenes/nonexistent-scene-dup/duplicate")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .json(&serde_json::json!({"name": "Copy"}))
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn list_scene_revisions_nonexistent_returns_not_found() {
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "mus_rev_nf", "pw", Role::Musician);
+
+        server
+            .get("/api/v1/scenes/nonexistent-scene-rev/revisions")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn rollback_scene_pruned_revision_returns_not_found() {
+        // Accumulate MAX_REVISIONS_PER_SCENE + 3 saves so revision 1 is pruned;
+        // HTTP rollback to it must return 404.
+        let (server, state) = build_test_app();
+        let token = seed_user_and_login(&state, "eng_rb_pruned", "pw", Role::Engineer);
+
+        let create_resp = server
+            .post("/api/v1/scenes")
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token.clone())
+            .json(&empty_scene_body())
+            .await;
+        create_resp.assert_status(axum::http::StatusCode::CREATED);
+        let scene_id = create_resp.json::<Value>()["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+
+        for _ in 0..(scene_manager::MAX_REVISIONS_PER_SCENE + 3) {
+            server
+                .put(&format!("/api/v1/scenes/{scene_id}"))
+                .add_header("Origin", "http://localhost")
+                .authorization_bearer(token.clone())
+                .json(&serde_json::json!({"config": {"channels": [], "mixes": []}}))
+                .await
+                .assert_status_ok();
+        }
+
+        server
+            .post(&format!("/api/v1/scenes/{scene_id}/revisions/1/rollback"))
+            .add_header("Origin", "http://localhost")
+            .authorization_bearer(token)
+            .await
+            .assert_status(axum::http::StatusCode::NOT_FOUND);
     }
 }

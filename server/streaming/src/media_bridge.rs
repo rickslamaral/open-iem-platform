@@ -333,6 +333,34 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drain_rejects_non_finite_frame_before_following_valid_frame() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+
+        bridge
+            .try_send(
+                FrameOutput {
+                    mixes: [(f32::NAN, 0.5), (0.75, 1.0)],
+                },
+                7,
+                None,
+            )
+            .unwrap();
+        bridge.try_send(frame(), 8, None).unwrap();
+
+        assert_eq!(bridge.drain_to(&plane).await, 2);
+        let frames = plane
+            .drain_session_frames_with_budget("alice", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(frames.len(), 1);
+        assert_eq!(frames[0].metadata.revision, 8);
+        assert_eq!(frames[0].metadata.sequence, 0);
+        assert_eq!(plane.total_dropped(), 0);
+    }
+
+    #[tokio::test]
     async fn drain_consumes_frames_when_destination_queue_is_full() {
         let bridge = MediaBridge::new();
         let plane = MediaPlane::new();
@@ -363,6 +391,41 @@ mod tests {
                 .collect::<Vec<_>>(),
             (0..MEDIA_QUEUE_CAPACITY as u64).collect::<Vec<_>>()
         );
+    }
+
+    #[tokio::test]
+    async fn drain_partial_destination_overflow_preserves_available_fanout() {
+        let bridge = MediaBridge::new();
+        let plane = MediaPlane::new();
+        plane.register_session("full", 0).await.unwrap();
+
+        for revision in 0..MEDIA_QUEUE_CAPACITY as u64 {
+            plane.push_frame_output(&frame(), revision, None).await;
+        }
+        plane.register_session("available", 1).await.unwrap();
+        assert_eq!(plane.total_dropped(), 0);
+
+        bridge.try_send(frame(), 999, None).unwrap();
+        assert_eq!(bridge.drain_to(&plane).await, 1);
+        assert_eq!(plane.total_dropped(), 1);
+
+        let full_frames = plane
+            .drain_session_frames_with_budget("full", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(full_frames.len(), MEDIA_QUEUE_CAPACITY);
+        assert!(full_frames
+            .iter()
+            .enumerate()
+            .all(|(index, output)| output.metadata.revision == index as u64));
+
+        let available_frames = plane
+            .drain_session_frames_with_budget("available", usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(available_frames.len(), 1);
+        assert_eq!(available_frames[0].metadata.revision, 999);
+        assert_eq!(bridge.drain_to(&plane).await, 0);
     }
 
     #[tokio::test]

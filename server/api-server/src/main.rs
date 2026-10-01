@@ -17,7 +17,7 @@ use api_server::{
             delete_user as admin_delete_user, list_sessions as admin_list_sessions,
             list_users as admin_list_users, revoke_session as admin_revoke_session,
         },
-        audio::{ice_candidate, offer, pair_device, revoke_device, sessions},
+        audio::{ice_candidate, offer, pair_device, repair_device, revoke_device, sessions},
         auth::{change_password, create_user, login, logout, refresh},
         channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
         config::{backup_config, restore_config},
@@ -31,7 +31,8 @@ use api_server::{
         presets::{apply_preset, list_presets},
         scenes::{
             backup_scenes, create_scene, delete_scene, duplicate_scene, get_active_scene,
-            get_scene, list_scenes, recall_scene, restore_scenes, update_scene,
+            get_scene, list_scene_revisions, list_scenes, recall_scene, restore_scenes,
+            rollback_scene, update_scene,
         },
         system::get_system_info,
         telemetry::get_telemetry,
@@ -133,6 +134,11 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/scenes/active", get(get_active_scene))
         .route("/api/v1/scenes/{id}/recall", post(recall_scene))
         .route("/api/v1/scenes/{id}/duplicate", post(duplicate_scene))
+        .route("/api/v1/scenes/{id}/revisions", get(list_scene_revisions))
+        .route(
+            "/api/v1/scenes/{id}/revisions/{rev}/rollback",
+            post(rollback_scene),
+        )
         .route(
             "/api/v1/scenes/{id}",
             get(get_scene).put(update_scene).delete(delete_scene),
@@ -151,7 +157,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/audio/pairing", post(pair_device))
         .route(
             "/api/v1/audio/pairing/{device_id}",
-            axum::routing::delete(revoke_device),
+            axum::routing::delete(revoke_device).put(repair_device),
         )
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
@@ -204,7 +210,7 @@ async fn main() -> anyhow::Result<()> {
         .merge(protected)
         .merge(public)
         .with_state(state)
-        .layer(DefaultBodyLimit::max(16 * 1024))
+        .layer(DefaultBodyLimit::max(32 * 1024))
         .layer(middleware::from_fn(validate_origin))
         .layer(TraceLayer::new_for_http());
 

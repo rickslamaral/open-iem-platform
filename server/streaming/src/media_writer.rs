@@ -7,10 +7,11 @@
 
 use crate::clock::SampleTimestamp;
 use crate::media_plane::MediaFrame;
+
+/// Compatibility re-export for callers using the media-writer module path.
+pub use crate::OPUS_MAX_PACKET_BYTES;
 use opus_pure::{Application, OpusEncoder};
 use thiserror::Error;
-
-pub const OPUS_MAX_PACKET_BYTES: usize = 4_000;
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum MediaWriterError {
@@ -18,6 +19,8 @@ pub enum MediaWriterError {
     InvalidFormat,
     #[error("media frame sample count is not one 20 ms frame")]
     InvalidFrameLength,
+    #[error("media frame contains a non-finite sample")]
+    NonFiniteSample,
     #[error("Opus encoder failed")]
     Encode,
 }
@@ -57,11 +60,18 @@ impl MediaWriter {
         if frame.metadata.frame_duration_ms != 20 {
             return Err(MediaWriterError::InvalidFrameLength);
         }
-        let pcm = [frame.samples.0, frame.samples.1]
-            .into_iter()
-            .cycle()
-            .take(960 * 2)
-            .collect::<Vec<_>>();
+        if !frame.samples.0.is_finite() || !frame.samples.1.is_finite() {
+            return Err(MediaWriterError::NonFiniteSample);
+        }
+        // Avoid per-frame PCM staging allocation: this boundary may run on the
+        // realtime media drive, so build one bounded frame on the stack.
+        let pcm = std::array::from_fn::<_, { 960 * 2 }, _>(|index| {
+            if index % 2 == 0 {
+                frame.samples.0
+            } else {
+                frame.samples.1
+            }
+        });
         let len = self
             .encoder
             .encode(&pcm, 960, &mut self.packet)
@@ -154,6 +164,98 @@ mod tests {
     }
 
     #[test]
+    fn rtp_timestamp_wraps_at_u32_boundary() {
+        let mut writer = MediaWriter::new().unwrap();
+        writer.next_rtp_timestamp = u32::MAX - 959;
+
+        let before_wrap = writer.encode(&frame()).unwrap();
+        let after_wrap = writer.encode(&frame()).unwrap();
+
+        assert_eq!(before_wrap.rtp_timestamp, u32::MAX - 959);
+        assert_eq!(after_wrap.rtp_timestamp, 0);
+    }
+
+    #[test]
+    fn failed_encode_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.metadata.sample_rate = 44_100;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::InvalidFormat)
+        );
+
+        let first = writer.encode(&frame()).unwrap();
+        let second = writer.encode(&frame()).unwrap();
+
+        assert_eq!(first.rtp_timestamp, 0);
+        assert_eq!(second.rtp_timestamp, 960);
+    }
+
+    #[test]
+    fn opus_encode_failure_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        writer.packet.clear();
+
+        assert_eq!(writer.encode(&frame()), Err(MediaWriterError::Encode));
+        assert_eq!(writer.next_rtp_timestamp, 0);
+
+        writer.packet.resize(OPUS_MAX_PACKET_BYTES, 0);
+        let packet = writer.encode(&frame()).unwrap();
+        assert_eq!(packet.rtp_timestamp, 0);
+    }
+
+    #[test]
+    fn rejects_multiple_invalid_format_fields_before_frame_length() {
+        let mut invalid = frame();
+        invalid.metadata.sample_rate = 44_100;
+        invalid.metadata.channels = 1;
+        invalid.metadata.frame_duration_ms = 10;
+        let mut writer = MediaWriter::new().unwrap();
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::InvalidFormat)
+        );
+
+        let valid = writer.encode(&frame()).unwrap();
+        assert_eq!(valid.rtp_timestamp, 0);
+    }
+
+    #[test]
+    fn rejects_zero_channel_count() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.metadata.channels = 0;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::InvalidFormat)
+        );
+
+        let first = writer.encode(&frame()).unwrap();
+        let second = writer.encode(&frame()).unwrap();
+        assert_eq!(first.rtp_timestamp, 0);
+        assert_eq!(second.rtp_timestamp, 960);
+    }
+
+    #[test]
+    fn rejects_wrong_channel_count() {
+        let mut invalid = frame();
+        invalid.metadata.channels = 1;
+        let mut writer = MediaWriter::new().unwrap();
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::InvalidFormat)
+        );
+
+        let valid = writer.encode(&frame()).unwrap();
+        assert_eq!(valid.rtp_timestamp, 0);
+    }
+
+    #[test]
     fn rejects_wrong_frame_duration() {
         let mut f = frame();
         f.metadata.frame_duration_ms = 10;
@@ -161,5 +263,68 @@ mod tests {
             MediaWriter::new().unwrap().encode(&f),
             Err(MediaWriterError::InvalidFrameLength)
         );
+    }
+
+    #[test]
+    fn failed_frame_duration_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.metadata.frame_duration_ms = 10;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::InvalidFrameLength)
+        );
+
+        let first = writer.encode(&frame()).unwrap();
+        let second = writer.encode(&frame()).unwrap();
+
+        assert_eq!(first.rtp_timestamp, 0);
+        assert_eq!(second.rtp_timestamp, 960);
+    }
+
+    #[test]
+    fn rejects_nan_sample_and_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.samples.0 = f32::NAN;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::NonFiniteSample)
+        );
+
+        let valid = writer.encode(&frame()).unwrap();
+        assert_eq!(valid.rtp_timestamp, 0);
+    }
+
+    #[test]
+    fn rejects_negative_infinite_sample_and_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.samples.0 = f32::NEG_INFINITY;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::NonFiniteSample)
+        );
+
+        let valid = writer.encode(&frame()).unwrap();
+        assert_eq!(valid.rtp_timestamp, 0);
+    }
+
+    #[test]
+    fn rejects_infinite_sample_and_preserves_rtp_timestamp() {
+        let mut writer = MediaWriter::new().unwrap();
+        let mut invalid = frame();
+        invalid.samples.1 = f32::INFINITY;
+
+        assert_eq!(
+            writer.encode(&invalid),
+            Err(MediaWriterError::NonFiniteSample)
+        );
+
+        let valid = writer.encode(&frame()).unwrap();
+        assert_eq!(valid.rtp_timestamp, 0);
     }
 }

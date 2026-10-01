@@ -837,7 +837,7 @@ fn reconnect_after_loss_resumes_opus_receiver() {
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.packets_received, 6);
     assert_eq!(snapshot.reconnect_count, 1);
-    assert_eq!(snapshot.plc_frames_total, 3);
+    assert_eq!(snapshot.plc_frames_total, 2);
     assert_eq!(snapshot.output_failures, 0);
     assert!(output
         .frames
@@ -2417,7 +2417,7 @@ fn reconnect_after_combined_bandwidth_loss_resumes_opus_receiver() {
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.packets_received, 6);
     assert_eq!(snapshot.reconnect_count, 1);
-    assert_eq!(snapshot.plc_frames_total, 3);
+    assert_eq!(snapshot.plc_frames_total, 2);
     assert_eq!(snapshot.output_failures, 0);
     assert!(output
         .frames
@@ -4277,8 +4277,8 @@ fn reconnect_after_combined_outage_loss_duplicate_resumes_opus_receiver() {
     assert!(output.frames[pre_reconnect_frames..]
         .iter()
         .any(|frame| frame.iter().any(|sample| sample.abs() > 0.001)));
-    assert_eq!(output.muted, 1);
-    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(output.muted, 2);
+    assert_eq!(receiver.state(), ReceiverState::Muted);
     assert_eq!(snapshot.reconnect_count, 1);
     assert!(snapshot.late_packets > late_before_reconnect);
     assert_eq!(snapshot.output_failures, 0);
@@ -4363,8 +4363,8 @@ fn reconnect_after_combined_outage_jitter_duplicate_resumes_opus_receiver() {
     assert!(output.frames[pre_reconnect_frames..]
         .iter()
         .any(|frame| frame.iter().any(|sample| sample.abs() > 0.001)));
-    assert_eq!(output.muted, 1);
-    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(output.muted, 2);
+    assert_eq!(receiver.state(), ReceiverState::Muted);
     assert_eq!(snapshot.reconnect_count, 1);
     assert!(snapshot.late_packets > late_before_reconnect);
     assert_eq!(snapshot.output_failures, 0);
@@ -4449,8 +4449,8 @@ fn reconnect_after_combined_outage_reorder_duplicate_resumes_opus_receiver() {
     assert!(output.frames[pre_reconnect_frames..]
         .iter()
         .any(|frame| frame.iter().any(|sample| sample.abs() > 0.001)));
-    assert_eq!(output.muted, 1);
-    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(output.muted, 2);
+    assert_eq!(receiver.state(), ReceiverState::Muted);
     assert_eq!(snapshot.reconnect_count, 1);
     assert!(snapshot.late_packets > late_before_reconnect);
     assert_eq!(snapshot.output_failures, 0);
@@ -5150,8 +5150,8 @@ fn reconnect_after_combined_outage_jitter_reorder_duplicate_resumes_opus_receive
     }
     let snapshot = metrics.snapshot();
     assert!(output.frames.len() > pre_reconnect_frames);
-    assert_eq!(output.muted, 1);
-    assert_eq!(receiver.state(), ReceiverState::Playing);
+    assert_eq!(output.muted, 3);
+    assert_eq!(receiver.state(), ReceiverState::Muted);
     assert_eq!(snapshot.reconnect_count, 1);
     assert_eq!(snapshot.output_failures, 0);
 }

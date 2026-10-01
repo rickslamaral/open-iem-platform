@@ -1,8 +1,213 @@
+## [Unreleased]
+
+### Changed
+- Reconciled current CI evidence for `develop` HEAD `13facee` (16/16 SUCCESS).
+
+### Documentation
+- Confirmado CI remoto real no HEAD `a0d1ad4`: 16/16 jobs SUCCESS (`CI` run `36793038213`; `Software Package Lifecycle Gates` run `36793038191`). PR #340 permanece aberta; runtime físico e release seguem pendentes.
+- Registrada evidência CI remoto 16/16 SUCCESS no HEAD `ccea120`; runs `36770008849` e `36770008852`; PR #340 permanece aberta e não houve merge.
+- Registrada evidência CI remoto 16/16 SUCCESS no HEAD `357c460`, runs `36767883998` e `36767884082`; PR #340 permanece aberta e não houve merge.
+
+### Changed
+- Registrada evidência CI remoto 16/16 SUCCESS no HEAD `6f48262ab6d35047ea816ea4ffff56f5e72f80f5`.
+
+
+### Documentation
+- Confirmado CI remoto real no HEAD `a4e66a5`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36760855396` e `36760855353`). PR #340 permanece aberta; validação física e release seguem pendentes.
+- Confirmado CI remoto real no HEAD `84c6205`: 16/16 jobs SUCCESS nos workflows [`CI`](https://github.com/rickslamaral/open-iem-platform/actions/runs/36734807944) e [`Software Package Lifecycle Gates`](https://github.com/rickslamaral/open-iem-platform/actions/runs/36734807645). [PR #340](https://github.com/rickslamaral/open-iem-platform/pull/340) permanece aberta; validação física e release seguem pendentes.
+- Confirmado CI remoto real no HEAD `9e8256b`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36729216696` e `36729216718`). PR #340 permanece aberta; validação física e release seguem pendentes.
+
+### Documentation
+- Confirmado CI remoto real no HEAD `e7b3bec`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36707774945` e `36707774935`). PR #340 permanece aberta; validação física e release seguem pendentes.
+
+### Documentation
+- Confirmado CI remoto real no HEAD `f2265bd`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36706648171` e `36706648056`). PR #340 permanece aberta; validação física e release seguem pendentes.
+
+### Documentation
+- Confirmado CI remoto real no HEAD `1b2864b`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36704161364` e `36704161450`). PR #340 permanece aberta; validação física e release seguem pendentes.
+- Confirmado CI remoto real no HEAD `15d3502`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36702643254` e `36702643137`). PR #340 permanece aberta; validação física e release seguem pendentes.
+- Confirmado CI remoto real no HEAD `6c36616`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36697433918` e `36697433884`). PR #340 permanece aberta; validação física e release seguem pendentes.
+
+### Documentation
+- Confirmado CI remoto real no HEAD `026738f`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36696343042` e `36696343044`). PR #340 permanece aberta; validação física e release seguem pendentes.
+
+### Documentation
+- Confirmado CI remoto real no HEAD `13f3db1`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36683056715` e `36683056760`). PR #340 permanece aberta; runtime/hardware seguem pendentes.
+
+### Documentation
+- Confirmado CI remoto real no HEAD `7a28e4b`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36661932592` e `36661932581`). PR #340 permanece aberta.
+
+### Changed
+- Confirmed real CI success for exact `develop` HEAD `f1bce0cfff8a9ae73c2146d4a4828cd983e2667d` (16/16 jobs).
+
+### Documentation
+- Confirmado CI remoto real no HEAD `49b73a3`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36655834425` e `36655834457`). PR #340 permanece aberta.
+
+
+### Documentation
+- Confirmado CI remoto real no HEAD `0418045`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36654832435` e `36654832458`). PR #340 permanece aberta.
+
+### Documentation
+- Confirmado CI remoto real no HEAD `19f0d5b`: 16/16 jobs SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36629568576` e `36629568577`). PR #340 permanece aberta.
+
+### Documentation
+- Confirmado CI remoto real no HEAD `c3b25fe`: os workflows `CI` e `Software Package Lifecycle Gates` concluíram com SUCCESS (runs `36617955055` e `36617955009`).
+
+
+### Documentation
+- Confirmado CI remoto no HEAD `09d3504`: os workflows `CI` e `Software Package Lifecycle Gates` concluíram com SUCCESS (runs `36615308044` e `36615308200`). PR #340 permanece aberta.
+
+
+### Documentation
+- Confirmado CI remoto real no HEAD `35900f1`: 16/16 SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36614347153` e `36614347059`). PR #340 permanece aberta; runtime/hardware seguem pendentes.
+
+### Documentation
+- Confirmado CI remoto real no HEAD `ac91cd3`: 16/16 SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36610920688` e `36610920691`).
+
+
+
+### Documentation
+- Confirmado CI remoto real no HEAD `55c6f2d`: 16/16 SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36589360831` e `36589360867`).
+
+- Confirmado CI remoto real no HEAD `952b026`: 16/16 SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36587133694` e `36587133676`).
+
+### Fixed
+- Reforçada regressão de remoção de sessão MediaPlane, preservando FIFO de sessões vizinhas.
+
+
+### Documentation
+- Reconciliado status no HEAD `c3fee09`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real agregado 16/16 SUCCESS (runs `36577850285` com 13 jobs e `36577850606` com 3 jobs). Runtime e hardware permanecem pendentes.
+
+### Changed
+- Reconciliado status CI remoto real no HEAD `8ac3b75`; backlog CODE permanece esgotado.
+
+### Documentation
+- Reconciliado status no HEAD `b344608`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS (runs `36574791124` e `36574790490`). Runtime e hardware permanecem pendentes.
+
+### Documentation
+- Reconciliado status no HEAD `b512e78`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS (runs `36560452470` e `36560452519`). Runtime e hardware permanecem pendentes.
+
+### Documentation
+- Reconciliado status no HEAD `bceb956`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS (runs `36532903638` e `36532903586`). Runtime e hardware permanecem pendentes.
+
+### Documentation
+- Reconciliado status no HEAD `62ae159`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS (runs `36531203193` e `36531203234`). Runtime e hardware permanecem pendentes.
+
+### Documentation
+- Reconciliado status no HEAD `bbb215f`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS (runs `36528577866` e `36528577872`). Runtime e hardware permanecem pendentes.
+
+### Documentation
+- Reconciliado status no HEAD `d690bed`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS. Runtime e hardware permanecem pendentes.
+
+### Documentation
+- Reconciliado status canônico no HEAD `124b7a2`: `develop` sincronizado com `origin/develop`, PR #340 aberta e CI remoto real 16/16 SUCCESS. Runtime e hardware permanecem pendentes.
+
+### Fixed
+- `SessionRegistry::drive_once` contabiliza falha quando writer Opus negociado desaparece antes de `write`, evitando descarte silencioso de frame. Evidência CODE local.
+
+
+### Tests
+- Added 10 integration tests for channels routes (get_state, list_channels, set_channel_gain, set_channel_mute): RBAC enforcement, authentication boundaries and gain input validation. api-server test count 67 → 77.
+
+
+### Documentation
+- Reconciliado status dos documentos canônicos no HEAD `9b733a4`: `develop` sincronizado com `origin/develop`, PR #340 aberta sem merge e CI exato 16/16 SUCCESS.
+- Registrada cobertura CODE/CI/SIMULATED de capacidade bounded do `SessionRegistry`, replacement serializado, contagem de falhas de mídia e justiça de budget. Runtime/hardware e release `v0.3.1` permanecem pendentes.
+
+### Fixed
+- `SessionRegistry::drive_once` no longer consumes encoded-media budget while draining bridge frames; bounded `output_budget` now counts RTC outputs and encoded packets only.
+
+### Tests
+- Added CODE regression proving a failed Opus encode leaves RTP timestamp unchanged before the next successful packet.
+
+- Added CODE regression for one-frame bridge delivery with `output_budget=1`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+### Tests
+- Added CODE regression proving `DriftEstimator` ignores local-counter regression without replacing accepted baseline. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+### Fixed
+- Align local `OpusReceiver` invalid-ingress drop accounting with aggregate metrics, including saturating overflow behavior.
+
+### Fixed
+- Centralizada validação fail-closed de PCM decodificado nos caminhos Opus normal e PLC.
+
+
+### Tests
+- Added software/SIMULATED two-peer WebRTC/DTLS-SRTP/Opus Sans-IO integration coverage with virtual UDP routing and decoded stereo output. Physical hardware and real-network validation remain separate.
+## 2026-09-27 — Bounded PCM receiver output boundary
+
+- `streaming::BoundedPcmOutput` fornece fila de frames PCM estéreo limitada a 256 frames, rejeita overflow e entradas inválidas sem mutação e limpa frames pendentes em `mute`.
+- Evidência CODE local; saída PipeWire/ALSA, runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
+### Tests
+- Added streaming pairing credential boundary regressions for minimum accepted length, oversized authentication, and revoked replacement state preservation.
+
+
+### Fixed
+- Streaming: PLC audio-output failures now increment dropped-packet counters consistently with decoded-frame output failures.
+- Added deterministic CODE regressions for PLC decoder and invalid sample-count failures, including dropped-packet accounting.
+- Count invalid Opus decoder/payload and PLC failures in receiver drop metrics and local drop accounting.
+
+### Tests
+- Added negative-infinity `MediaWriter` regression proving non-finite samples are rejected without consuming RTP timestamp.
+
+### Fixed
+- Reject non-finite samples before MediaWriter Opus encoding.
+
+
+### Tests
+- Added deterministic CODE/SIMULATED media-plane Opus round-trip coverage from `MediaBridge` through `MediaPlane` and `MediaWriter` into `OpusReceiver`; WebRTC/DTLS-SRTP runtime remains unvalidated.
+
+### Tests
+- Added zero-capacity jitter regression proving invalid Opus payloads are rejected before `QueueFull` without state mutation.
+- Added streaming regression proving empty Opus payload rejection precedes duplicate and capacity classification without mutating jitter state.
+
+### Fixed
+- Added Opus receiver regression coverage for stale jitter draining across sequence rollover.
+
+### Fixed
+- Drain stale and ambiguous Opus jitter packets before playout, preventing avoidable output gaps.
+
+
+### Fixed
+- Isolamento de geração no receiver Opus: `reconnect` descarta pacotes pendentes do jitter buffer para impedir áudio obsoleto após reconexão.
+
+### Fixed
+- Coberta preservação da fila do `JitterBuffer` ao rejeitar duplicata durante rollover de sequência Opus.
+
+
+### Tests
+- Added streaming regression proving duplicate jitter packets take precedence over `QueueFull` and preserve full FIFO queue.
+
+
+### Tests
+- Added Phase 559 regression proving duplicate Opus sequence `u64::MAX` remains classified as late after rollover, without packet-drop accounting or state loss.
+
+- Added streaming regression coverage for exact `OPUS_MAX_PACKET_BYTES` acceptance and oversized jitter-packet rejection without queue mutation.
+
+
+### Fixed
+- Add CODE regression for JitterBuffer capacity clamping at its maximum bound.
+- Added streaming regression coverage proving failed UDP sends requeue all unsent datagrams in FIFO order.
+
 ### Tests
 - Batch Phase 523–532 adiciona dez regressões de identidade, fila de transporte e preservação de estado no streaming; 380 testes `streaming` passam localmente.
 - Evidência permanece CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi permanecem não validados.
 
-## [Unreleased]
+### Fixed
+- Added regression coverage for conflicting DTLS fingerprints in bound SDP offers.
+- Rejeita fingerprint DTLS malformada em SDP bound sem substituir sessão existente.
+- Added bound-session regression coverage for fail-closed rejection of unsupported DTLS fingerprint algorithms without session mutation.
+- Canonicalização de fingerprints DTLS persistidas antes da validação de ofertas bound.
+
+### Fixed
+- Preserve pending transport output when `SessionRegistry::drive_once` receives `frame_budget == 0`.
+- Preserve queued streaming bridge frames when `drive_once` receives a zero frame budget.
+
+### Documentation
+- ADR-015 classifica Windows WASAPI/ASIO como fora do MVP Linux-first; T16 passa a `NOT_APPLICABLE`, com backend nativo no backlog futuro. Windows + Docker Desktop continua smoke/control-plane, sem claim de áudio nativo.
+- T00 reconciliou status do lote em 2026-09-26. Registro histórico preservado; estado corrente está no handoff e aponta para `develop` HEAD `b885aaefe156d452261034be620b88fc17d4a391`, com CI exato 16/16 SUCCESS e PR #340 aberta sem merge.
+- Adicionada matriz compacta de 16 itens: 15 pendências de runtime, hardware e release permanecem `PENDING/BLOCKED`; T16 foi classificado `NOT_APPLICABLE` por ADR-015. As pendências incluem WebRTC E2E real, DTLS-SRTP real, PipeWire físico, ALSA/USB, LAN real, Raspberry Pi 5, hot-plug, XRUN físico, latência p99, soak real, reboot, térmica/energia, release, lifecycle host e assinatura. Nenhuma validação física foi alegada.
 
 ### Added
 - Streaming CODE boundary coverage for phases 513–522: fail-closed input/replacement cases, bounded transport requeue after partial drain, and deterministic session listing.
@@ -1036,3 +1241,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Local focused evidence: 330 `streaming` tests pass; hardware/runtime claims unchanged.
 
 - Streaming: expanded CODE boundary coverage for bounded transport queues and session lifecycle (Phases 493–502).
+
+- Added streaming boundary regressions for ICE validation, identifier byte limits and bounded transport queue behavior.
+
+### Changed
+- Unified Opus writer and receiver packet-size boundary at 1500 bytes with regression coverage.
+
+### Fixed
+
+- Added regression coverage for RTP timestamp wraparound at the 32-bit boundary in the streaming Opus writer.
+
+### Documentation — 2026-09-29
+
+- Reconciled CI evidence for exact HEAD `45b43dd`: 16/16 real jobs passed across CI and software package lifecycle workflows.

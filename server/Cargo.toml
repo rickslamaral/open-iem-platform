@@ -29,7 +29,12 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/rickslamaral/open-iem-platform"
 
 [workspace.lints.rust]
-unsafe_code = "forbid"
+# Workspace policy: deny unsafe code everywhere.
+# Exception: audio-engine's JACK backend must implement one unsafe trait method
+# (NotificationHandler::shutdown is declared unsafe in JACK 0.13). That impl
+# carries an explicit #[allow(unsafe_code)] + SAFETY comment; all other crates
+# remain fully unsafe-free.
+unsafe_code = "deny"
 
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }

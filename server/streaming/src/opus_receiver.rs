@@ -14,17 +14,35 @@ use std::{
 };
 use thiserror::Error;
 
+use crate::OPUS_MAX_PACKET_BYTES;
 use observability::ReceiverMetrics;
 
 /// Maximum encoded packets retained before newest packet is dropped.
 pub const RECEIVER_QUEUE_CAPACITY: usize = 32;
-const MAX_PACKET_BYTES: usize = 1500;
 const MAX_JITTER_CAPACITY: usize = 256;
+const MAX_OUTPUT_CAPACITY: usize = 256;
+const MAX_OUTPUT_SAMPLES: usize = MAX_DECODED_SAMPLES * 2;
 const MAX_DECODED_SAMPLES: usize = 5760;
 /// MVP Opus packetization is fixed at 20 ms, 48 kHz stereo.
 const PLC_FRAME_SAMPLES: usize = 960;
 /// Maximum consecutive PLC-concealed frames before fail-safe mute.
 const PLC_MAX_CONSECUTIVE: u32 = 4;
+
+#[inline]
+fn decoded_pcm_is_valid(samples: &[f32], decoded_samples: usize, expected_samples: usize) -> bool {
+    decoded_samples == expected_samples
+        && decoded_samples <= MAX_DECODED_SAMPLES
+        && decoded_samples
+            .checked_mul(2)
+            .is_some_and(|stereo_samples| {
+                stereo_samples <= samples.len() && pcm_is_finite(&samples[..stereo_samples])
+            })
+}
+
+#[inline]
+fn pcm_is_finite(samples: &[f32]) -> bool {
+    samples.iter().all(|sample| sample.is_finite())
+}
 
 /// Receiver lifecycle. `Muted` is fail-safe: no stale audio reaches output.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -68,6 +86,69 @@ pub trait AudioOutput {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct OutputError;
 
+/// Bounded in-memory PCM sink for headless and deterministic receiver paths.
+///
+/// This is a CODE/SIMULATED output boundary, not `PipeWire`, ALSA, or hardware
+/// integration. The queue holds at most 256 frames, each with at most
+/// `MAX_OUTPUT_SAMPLES` stereo samples. Once either bound is exhausted, writes
+/// fail without mutating queued frames.
+#[derive(Debug)]
+pub struct BoundedPcmOutput {
+    frames: VecDeque<Vec<f32>>,
+    capacity: usize,
+}
+
+impl BoundedPcmOutput {
+    /// Create a sink with bounded frame capacity. Zero capacity rejects writes.
+    #[must_use]
+    pub fn new(capacity: usize) -> Self {
+        let capacity = capacity.min(MAX_OUTPUT_CAPACITY);
+        Self {
+            frames: VecDeque::with_capacity(capacity),
+            capacity,
+        }
+    }
+
+    /// Number of PCM frames waiting for consumption.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.frames.len()
+    }
+
+    /// Whether no PCM frames are waiting.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.frames.is_empty()
+    }
+
+    /// Remove oldest queued frame for a deterministic consumer.
+    pub fn pop_frame(&mut self) -> Option<Vec<f32>> {
+        self.frames.pop_front()
+    }
+}
+
+impl AudioOutput for BoundedPcmOutput {
+    fn write(&mut self, samples: &[f32], channels: u8) -> Result<(), OutputError> {
+        if channels != 2
+            || samples.is_empty()
+            || samples.len() > MAX_OUTPUT_SAMPLES
+            || samples.iter().any(|sample| !sample.is_finite())
+            || !samples.len().is_multiple_of(usize::from(channels))
+        {
+            return Err(OutputError);
+        }
+        if self.frames.len() >= self.capacity {
+            return Err(OutputError);
+        }
+        self.frames.push_back(samples.to_vec());
+        Ok(())
+    }
+
+    fn mute(&mut self) {
+        self.frames.clear();
+    }
+}
+
 /// Bounded packet jitter buffer. Sequence gaps are tolerated and reported by
 /// `pop`; missing packets produce mute rather than fabricated audio.
 #[derive(Debug)]
@@ -92,20 +173,41 @@ impl JitterBuffer {
     /// Returns [`ReceiverError::InvalidPacket`] for invalid payloads or
     /// [`ReceiverError::QueueFull`] when capacity is exhausted.
     pub fn push(&mut self, sequence: u64, packet: &[u8]) -> Result<(), ReceiverError> {
-        if packet.is_empty() || packet.len() > MAX_PACKET_BYTES {
+        if packet.is_empty() || packet.len() > OPUS_MAX_PACKET_BYTES {
             return Err(ReceiverError::InvalidPacket);
         }
         if self.packets.iter().any(|(seq, _)| *seq == sequence) {
             return Err(ReceiverError::DuplicateSequence);
         }
+        let mut pos = self.packets.len();
+        for (index, (seq, _)) in self.packets.iter().enumerate() {
+            match sequence_order(sequence, *seq) {
+                SequenceOrder::Before => {
+                    pos = index;
+                    break;
+                }
+                SequenceOrder::After => {}
+                SequenceOrder::Equal | SequenceOrder::Ambiguous => {
+                    return Err(ReceiverError::InvalidPacket);
+                }
+            }
+        }
+        let first = self.packets.front().map_or(sequence, |(seq, _)| *seq);
+        let last = self.packets.back().map_or(sequence, |(seq, _)| *seq);
+        let prospective_first = if pos == 0 { sequence } else { first };
+        let prospective_last = if pos == self.packets.len() {
+            sequence
+        } else {
+            last
+        };
+        if prospective_first != prospective_last
+            && sequence_order(prospective_first, prospective_last) != SequenceOrder::Before
+        {
+            return Err(ReceiverError::InvalidPacket);
+        }
         if self.packets.len() >= self.capacity {
             return Err(ReceiverError::QueueFull);
         }
-        let pos = self
-            .packets
-            .iter()
-            .position(|(seq, _)| *seq > sequence)
-            .unwrap_or(self.packets.len());
         self.packets.insert(pos, (sequence, packet.to_vec()));
         Ok(())
     }
@@ -121,6 +223,13 @@ impl JitterBuffer {
     pub fn pop(&mut self) -> Option<(u64, Vec<u8>)> {
         self.packets.pop_front()
     }
+    /// Discard all buffered packets and return number discarded.
+    pub fn clear(&mut self) -> usize {
+        let discarded = self.packets.len();
+        self.packets.clear();
+        discarded
+    }
+
     /// Number packets buffered.
     #[must_use]
     pub fn len(&self) -> usize {
@@ -133,16 +242,41 @@ impl JitterBuffer {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum SequenceOrder {
+    Before,
+    Equal,
+    After,
+    Ambiguous,
+}
+
+/// Compare extended RTP sequence numbers using serial-number arithmetic.
+/// Values exactly half the u64 space apart are ambiguous and rejected.
+fn sequence_order(left: u64, right: u64) -> SequenceOrder {
+    let distance = right.wrapping_sub(left);
+    if distance == 0 {
+        SequenceOrder::Equal
+    } else if distance == (1_u64 << 63) {
+        SequenceOrder::Ambiguous
+    } else if distance < (1_u64 << 63) {
+        SequenceOrder::Before
+    } else {
+        SequenceOrder::After
+    }
+}
+
 /// Native/headless receiver. `SIMULATED` means output sink is supplied by caller.
 pub struct OpusReceiver {
-    ingress: Sender<(u64, u64, [u8; MAX_PACKET_BYTES], usize)>,
-    ingress_rx: Receiver<(u64, u64, [u8; MAX_PACKET_BYTES], usize)>,
+    ingress: Sender<(u64, u64, [u8; OPUS_MAX_PACKET_BYTES], usize)>,
+    ingress_rx: Receiver<(u64, u64, [u8; OPUS_MAX_PACKET_BYTES], usize)>,
     jitter: JitterBuffer,
     decoder: OpusDecoder,
     state: ReceiverState,
     next_sequence: Option<u64>,
     pcm: Vec<f32>,
     dropped_packets: u64,
+    invalid_ingress_dropped_packets: AtomicU64,
+    ingress_queue_dropped_packets: AtomicU64,
     /// Count of PLC-concealed frames since last good decode.
     plc_consecutive: u32,
     /// Total PLC frames generated (cumulative, never resets).
@@ -150,6 +284,12 @@ pub struct OpusReceiver {
     generation: Arc<AtomicU64>,
     output_failed: bool,
     metrics: Option<Arc<ReceiverMetrics>>,
+    #[cfg(test)]
+    plc_decode_override: Option<Result<usize, ()>>,
+    #[cfg(test)]
+    decode_non_finite_override: bool,
+    #[cfg(test)]
+    plc_non_finite_override: bool,
 }
 
 impl OpusReceiver {
@@ -170,11 +310,19 @@ impl OpusReceiver {
             next_sequence: None,
             pcm: vec![0.0; MAX_DECODED_SAMPLES * 2],
             dropped_packets: 0,
+            invalid_ingress_dropped_packets: AtomicU64::new(0),
+            ingress_queue_dropped_packets: AtomicU64::new(0),
             plc_consecutive: 0,
             plc_frames_total: 0,
             generation: Arc::new(AtomicU64::new(0)),
             output_failed: false,
             metrics: None,
+            #[cfg(test)]
+            plc_decode_override: None,
+            #[cfg(test)]
+            decode_non_finite_override: false,
+            #[cfg(test)]
+            plc_non_finite_override: false,
         })
     }
     /// Attach observability metrics to this receiver.
@@ -182,6 +330,51 @@ impl OpusReceiver {
     pub fn with_metrics(mut self, metrics: Arc<ReceiverMetrics>) -> Self {
         self.metrics = Some(metrics);
         self
+    }
+
+    #[cfg(test)]
+    fn set_plc_decode_override(&mut self, result: Result<usize, ()>) {
+        self.plc_decode_override = Some(result);
+    }
+
+    #[cfg(test)]
+    fn set_decode_non_finite_override(&mut self) {
+        self.decode_non_finite_override = true;
+    }
+
+    #[cfg(test)]
+    fn set_plc_non_finite_override(&mut self) {
+        self.plc_non_finite_override = true;
+    }
+
+    fn decode_packet(&mut self, packet: &[u8]) -> Result<usize, ()> {
+        let samples = self
+            .decoder
+            .decode(packet, MAX_DECODED_SAMPLES, &mut self.pcm)
+            .map_err(|_| ())?;
+        #[cfg(test)]
+        if self.decode_non_finite_override {
+            self.decode_non_finite_override = false;
+            self.pcm[0] = f32::NAN;
+        }
+        Ok(samples)
+    }
+
+    fn decode_plc(&mut self) -> Result<usize, ()> {
+        #[cfg(test)]
+        if let Some(result) = self.plc_decode_override.take() {
+            return result;
+        }
+        let samples = self
+            .decoder
+            .decode(&[], PLC_FRAME_SAMPLES, &mut self.pcm)
+            .map_err(|_| ())?;
+        #[cfg(test)]
+        if self.plc_non_finite_override {
+            self.plc_non_finite_override = false;
+            self.pcm[0] = f32::NAN;
+        }
+        Ok(samples)
     }
 
     /// Enqueue encoded payload without waiting. `sequence` must be a monotonic
@@ -192,19 +385,36 @@ impl OpusReceiver {
     ///
     /// Returns an error for invalid payloads, full queue, or disconnected receiver.
     pub fn enqueue(&self, sequence: u64, packet: &[u8]) -> Result<(), ReceiverError> {
-        if packet.is_empty() || packet.len() > MAX_PACKET_BYTES {
+        if packet.is_empty() || packet.len() > OPUS_MAX_PACKET_BYTES {
+            let mut observed = self.invalid_ingress_dropped_packets.load(Ordering::Relaxed);
+            while observed < u64::MAX {
+                match self.invalid_ingress_dropped_packets.compare_exchange_weak(
+                    observed,
+                    observed + 1,
+                    Ordering::Relaxed,
+                    Ordering::Relaxed,
+                ) {
+                    Ok(_) => break,
+                    Err(current) => observed = current,
+                }
+            }
             if let Some(ref m) = self.metrics {
                 m.record_dropped();
             }
             return Err(ReceiverError::InvalidPacket);
         }
         let generation = self.generation.load(Ordering::Acquire);
-        let mut payload = [0_u8; MAX_PACKET_BYTES];
+        let mut payload = [0_u8; OPUS_MAX_PACKET_BYTES];
         payload[..packet.len()].copy_from_slice(packet);
         self.ingress
             .try_send((generation, sequence, payload, packet.len()))
             .map_err(|e| match e {
                 TrySendError::Full(_) => {
+                    let _ = self.ingress_queue_dropped_packets.fetch_update(
+                        Ordering::Relaxed,
+                        Ordering::Relaxed,
+                        |value| Some(value.saturating_add(1)),
+                    );
                     if let Some(ref m) = self.metrics {
                         m.record_dropped();
                     }
@@ -222,10 +432,22 @@ impl OpusReceiver {
     #[allow(clippy::too_many_lines)]
     pub fn playout<O: AudioOutput>(&mut self, output: &mut O) -> Result<(), ReceiverError> {
         let generation = self.generation.load(Ordering::Acquire);
+        if self.output_failed {
+            while self.ingress_rx.try_recv().is_ok() {
+                self.dropped_packets = self.dropped_packets.saturating_add(1);
+                if let Some(ref m) = self.metrics {
+                    m.record_dropped();
+                }
+            }
+            self.state = ReceiverState::Muted;
+            output.mute();
+            return Err(ReceiverError::OutputFailed);
+        }
         while let Ok(packet) = self.ingress_rx.try_recv() {
             if packet.0 != generation {
                 // Reconnect can race with an ingress sender after the drain above.
                 // Count late packets here instead of silently losing telemetry.
+                self.dropped_packets = self.dropped_packets.saturating_add(1);
                 if let Some(ref m) = self.metrics {
                     m.record_dropped();
                 }
@@ -251,50 +473,69 @@ impl OpusReceiver {
                 }
             }
         }
-        if self.output_failed {
-            self.state = ReceiverState::Muted;
-            output.mute();
-            return Err(ReceiverError::OutputFailed);
-        }
-        let Some((sequence, _)) = self.jitter.peek() else {
+        let Some((_, _)) = self.jitter.peek() else {
             self.state = ReceiverState::Muted;
             output.mute();
             return Ok(());
         };
         if let Some(expected) = self.next_sequence {
-            if sequence < expected {
-                let _ = self.jitter.pop();
-                self.dropped_packets = self.dropped_packets.saturating_add(1);
-                if let Some(ref m) = self.metrics {
-                    m.record_late();
+            // Drain every stale prefix before deciding whether to conceal a gap
+            // or decode the next packet. A single playout must not leave jitter
+            // behind packets already older than the expected sequence.
+            let mut drained_prefix = false;
+            while let Some((sequence, _)) = self.jitter.peek() {
+                match sequence_order(sequence, expected) {
+                    SequenceOrder::Ambiguous => {
+                        let _ = self.jitter.pop();
+                        drained_prefix = true;
+                        self.dropped_packets = self.dropped_packets.saturating_add(1);
+                        if let Some(ref m) = self.metrics {
+                            m.record_dropped();
+                        }
+                    }
+                    SequenceOrder::Before => {
+                        let _ = self.jitter.pop();
+                        drained_prefix = true;
+                        self.dropped_packets = self.dropped_packets.saturating_add(1);
+                        if let Some(ref m) = self.metrics {
+                            m.record_late();
+                        }
+                    }
+                    SequenceOrder::Equal | SequenceOrder::After => break,
+                }
+            }
+            let Some((sequence, _)) = self.jitter.peek() else {
+                if drained_prefix {
+                    self.state = ReceiverState::Muted;
+                    output.mute();
                 }
                 return Ok(());
-            }
-            if sequence > expected {
+            };
+            if sequence_order(expected, sequence) == SequenceOrder::Before {
                 // Packet missing. Attempt PLC up to PLC_MAX_CONSECUTIVE frames.
                 if self.plc_consecutive < PLC_MAX_CONSECUTIVE {
                     // Consume budget before decoding; decoder failure must not reopen PLC.
                     self.plc_consecutive += 1;
-                    self.next_sequence = Some(expected.saturating_add(1));
-                    let Ok(samples) = self.decoder.decode(&[], PLC_FRAME_SAMPLES, &mut self.pcm)
-                    else {
+                    self.next_sequence = Some(expected.wrapping_add(1));
+                    let Ok(samples) = self.decode_plc() else {
                         self.state = ReceiverState::Muted;
                         self.output_failed = true;
                         if let Some(ref m) = self.metrics {
                             m.record_output_failure();
+                            m.record_dropped();
                         }
+                        self.dropped_packets = self.dropped_packets.saturating_add(1);
                         output.mute();
                         return Err(ReceiverError::InvalidPacket);
                     };
-                    if samples != PLC_FRAME_SAMPLES
-                        || samples.checked_mul(2).is_none()
-                        || samples * 2 > self.pcm.len()
-                    {
+                    if !decoded_pcm_is_valid(&self.pcm, samples, PLC_FRAME_SAMPLES) {
                         self.state = ReceiverState::Muted;
                         self.output_failed = true;
                         if let Some(ref m) = self.metrics {
                             m.record_output_failure();
+                            m.record_dropped();
                         }
+                        self.dropped_packets = self.dropped_packets.saturating_add(1);
                         output.mute();
                         return Err(ReceiverError::InvalidPacket);
                     }
@@ -307,7 +548,9 @@ impl OpusReceiver {
                         self.output_failed = true;
                         if let Some(ref m) = self.metrics {
                             m.record_output_failure();
+                            m.record_dropped();
                         }
+                        self.dropped_packets = self.dropped_packets.saturating_add(1);
                         output.mute();
                         return Err(ReceiverError::OutputFailed);
                     }
@@ -332,30 +575,27 @@ impl OpusReceiver {
             output.mute();
             return Ok(());
         };
-        let samples = self
-            .decoder
-            .decode(&packet, MAX_DECODED_SAMPLES, &mut self.pcm)
-            .map_err(|_| {
-                self.state = ReceiverState::Muted;
-                self.output_failed = true;
-                if let Some(ref m) = self.metrics {
-                    m.record_output_failure();
-                }
-                self.next_sequence = Some(sequence.saturating_add(1));
-                output.mute();
-                ReceiverError::InvalidPacket
-            })?;
-        if samples != PLC_FRAME_SAMPLES
-            || samples > MAX_DECODED_SAMPLES
-            || samples.checked_mul(2).is_none()
-            || samples * 2 > self.pcm.len()
-        {
+        let samples = self.decode_packet(&packet).map_err(|()| {
             self.state = ReceiverState::Muted;
             self.output_failed = true;
             if let Some(ref m) = self.metrics {
                 m.record_output_failure();
+                m.record_dropped();
             }
-            self.next_sequence = Some(sequence.saturating_add(1));
+            self.dropped_packets = self.dropped_packets.saturating_add(1);
+            self.next_sequence = Some(sequence.wrapping_add(1));
+            output.mute();
+            ReceiverError::InvalidPacket
+        })?;
+        if !decoded_pcm_is_valid(&self.pcm, samples, PLC_FRAME_SAMPLES) {
+            self.state = ReceiverState::Muted;
+            self.output_failed = true;
+            if let Some(ref m) = self.metrics {
+                m.record_output_failure();
+                m.record_dropped();
+            }
+            self.dropped_packets = self.dropped_packets.saturating_add(1);
+            self.next_sequence = Some(sequence.wrapping_add(1));
             output.mute();
             return Err(ReceiverError::InvalidPacket);
         }
@@ -364,12 +604,14 @@ impl OpusReceiver {
             self.output_failed = true;
             if let Some(ref m) = self.metrics {
                 m.record_output_failure();
+                m.record_dropped();
             }
-            self.next_sequence = Some(sequence.saturating_add(1));
+            self.dropped_packets = self.dropped_packets.saturating_add(1);
+            self.next_sequence = Some(sequence.wrapping_add(1));
             output.mute();
             ReceiverError::OutputFailed
         })?;
-        self.next_sequence = Some(sequence.saturating_add(1));
+        self.next_sequence = Some(sequence.wrapping_add(1));
         self.plc_consecutive = 0;
         self.state = ReceiverState::Playing;
         Ok(())
@@ -382,20 +624,28 @@ impl OpusReceiver {
         self.next_sequence = None;
         self.output_failed = false;
         self.plc_consecutive = 0;
+        let stale_jitter = self.jitter.clear() as u64;
+        self.dropped_packets = self.dropped_packets.saturating_add(stale_jitter);
         if let Some(ref m) = self.metrics {
             m.record_reconnect();
+            for _ in 0..stale_jitter {
+                m.record_dropped();
+            }
         }
         // Discard stale ingress packets and account for each rejected packet.
         while self.ingress_rx.try_recv().is_ok() {
+            self.dropped_packets = self.dropped_packets.saturating_add(1);
             if let Some(ref m) = self.metrics {
                 m.record_dropped();
             }
         }
     }
-    /// Number packets rejected by jitter admission (overflow or duplicate).
+    /// Number packets discarded by receiver admission or reconnect isolation.
     #[must_use]
     pub fn dropped_packets(&self) -> u64 {
         self.dropped_packets
+            .saturating_add(self.invalid_ingress_dropped_packets.load(Ordering::Relaxed))
+            .saturating_add(self.ingress_queue_dropped_packets.load(Ordering::Relaxed))
     }
 
     /// Current fail-safe lifecycle state.
@@ -431,12 +681,427 @@ mod tests {
         fn mute(&mut self) {}
     }
     #[test]
+    fn bounded_pcm_output_rejects_overflow_without_mutation() {
+        let mut output = BoundedPcmOutput::new(1);
+        output.write(&[0.1, 0.2], 2).unwrap();
+        assert_eq!(output.write(&[0.3, 0.4], 2), Err(OutputError));
+        assert_eq!(output.len(), 1);
+        assert_eq!(output.pop_frame(), Some(vec![0.1, 0.2]));
+    }
+
+    #[test]
+    fn bounded_pcm_output_mute_discards_pending_frames() {
+        let mut output = BoundedPcmOutput::new(2);
+        output.write(&[0.1, 0.2], 2).unwrap();
+        output.write(&[0.3, 0.4], 2).unwrap();
+        output.mute();
+        assert!(output.is_empty());
+    }
+
+    #[test]
+    fn playout_rejects_non_finite_plc_pcm_before_output() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut receiver = OpusReceiver::new().unwrap().with_metrics(metrics.clone());
+        let packet = make_opus_packet();
+        receiver.enqueue(1, &packet).unwrap();
+        receiver.enqueue(3, &packet).unwrap();
+        let mut output = Sink { frames: 0 };
+        receiver.playout(&mut output).unwrap();
+        receiver.set_plc_non_finite_override();
+
+        assert_eq!(
+            receiver.playout(&mut output),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(output.frames, 960 * 2);
+        assert_eq!(receiver.state(), ReceiverState::Muted);
+        assert_eq!(receiver.dropped_packets(), 1);
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
+        assert_eq!(metrics.snapshot().output_failures, 1);
+    }
+
+    #[test]
+    fn playout_rejects_non_finite_decoded_pcm_before_output() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut receiver = OpusReceiver::new().unwrap().with_metrics(metrics.clone());
+        let packet = make_opus_packet();
+        receiver.enqueue(1, &packet).unwrap();
+        receiver.set_decode_non_finite_override();
+        let mut output = Sink { frames: 0 };
+
+        assert_eq!(
+            receiver.playout(&mut output),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(output.frames, 0);
+        assert_eq!(receiver.state(), ReceiverState::Muted);
+        assert_eq!(receiver.dropped_packets(), 1);
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
+        assert_eq!(metrics.snapshot().output_failures, 1);
+    }
+
+    #[test]
+    fn decoded_pcm_validation_rejects_invalid_shape_or_samples() {
+        let valid = vec![0.0_f32; PLC_FRAME_SAMPLES * 2];
+        assert!(decoded_pcm_is_valid(
+            &valid,
+            PLC_FRAME_SAMPLES,
+            PLC_FRAME_SAMPLES
+        ));
+        assert!(!decoded_pcm_is_valid(
+            &valid,
+            PLC_FRAME_SAMPLES - 1,
+            PLC_FRAME_SAMPLES
+        ));
+        assert!(!decoded_pcm_is_valid(
+            &valid[..valid.len() - 1],
+            PLC_FRAME_SAMPLES,
+            PLC_FRAME_SAMPLES
+        ));
+        assert!(!decoded_pcm_is_valid(
+            &valid,
+            MAX_DECODED_SAMPLES + 1,
+            MAX_DECODED_SAMPLES + 1
+        ));
+
+        for invalid in [f32::NAN, f32::INFINITY, f32::NEG_INFINITY] {
+            let mut samples = valid.clone();
+            samples[0] = invalid;
+            assert!(!decoded_pcm_is_valid(
+                &samples,
+                PLC_FRAME_SAMPLES,
+                PLC_FRAME_SAMPLES
+            ));
+        }
+    }
+
+    #[test]
+    fn bounded_pcm_output_rejects_non_stereo_or_empty_frames() {
+        let mut output = BoundedPcmOutput::new(1);
+        assert_eq!(output.write(&[0.1], 1), Err(OutputError));
+        assert_eq!(output.write(&[], 2), Err(OutputError));
+        assert!(output.is_empty());
+    }
+
+    #[test]
+    fn bounded_pcm_output_rejects_non_finite_samples_without_mutation() {
+        let mut output = BoundedPcmOutput::new(2);
+        output.write(&[0.1, 0.2], 2).unwrap();
+
+        for samples in [
+            [f32::NAN, 0.0],
+            [f32::INFINITY, 0.0],
+            [f32::NEG_INFINITY, 0.0],
+        ] {
+            assert_eq!(output.write(&samples, 2), Err(OutputError));
+            assert_eq!(output.len(), 1);
+        }
+
+        assert_eq!(output.pop_frame(), Some(vec![0.1, 0.2]));
+    }
+
+    #[test]
+    fn bounded_pcm_output_clamps_requested_capacity() {
+        let output = BoundedPcmOutput::new(usize::MAX);
+        assert_eq!(output.capacity, MAX_OUTPUT_CAPACITY);
+    }
+
+    #[test]
+    fn bounded_pcm_output_accepts_exact_maximum_frame_size() {
+        let mut output = BoundedPcmOutput::new(1);
+        let samples = vec![0.25; MAX_OUTPUT_SAMPLES];
+
+        output.write(&samples, 2).unwrap();
+
+        assert_eq!(output.len(), 1);
+        assert_eq!(output.pop_frame(), Some(samples));
+    }
+
+    #[test]
+    fn bounded_pcm_output_rejects_oversized_frame_without_mutation() {
+        let mut output = BoundedPcmOutput::new(1);
+        let samples = vec![0.0; MAX_OUTPUT_SAMPLES + 2];
+        assert_eq!(output.write(&samples, 2), Err(OutputError));
+        assert!(output.is_empty());
+    }
+
+    #[test]
+    fn bounded_pcm_output_zero_capacity_rejects_write() {
+        let mut output = BoundedPcmOutput::new(0);
+        assert_eq!(output.write(&[0.1, 0.2], 2), Err(OutputError));
+        assert!(output.is_empty());
+    }
+
+    #[test]
     fn jitter_orders_packets() {
         let mut j = JitterBuffer::new(2);
         j.push(2, b"b").unwrap();
         j.push(1, b"a").unwrap();
         assert_eq!(j.pop().unwrap().0, 1);
     }
+    #[test]
+    fn jitter_orders_packets_across_sequence_wrap() {
+        let mut j = JitterBuffer::new(2);
+        j.push(0, b"next").unwrap();
+        j.push(u64::MAX, b"last").unwrap();
+
+        assert_eq!(j.pop().unwrap().0, u64::MAX);
+        assert_eq!(j.pop().unwrap().0, 0);
+    }
+
+    #[test]
+    fn jitter_duplicate_across_sequence_wrap_preserves_queue() {
+        let mut j = JitterBuffer::new(2);
+        j.push(u64::MAX, b"last").unwrap();
+        j.push(0, b"next").unwrap();
+
+        assert_eq!(
+            j.push(u64::MAX, b"duplicate"),
+            Err(ReceiverError::DuplicateSequence)
+        );
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (u64::MAX, b"last".to_vec()));
+        assert_eq!(j.pop().unwrap(), (0, b"next".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn receiver_plays_packets_across_sequence_wrap() {
+        let mut r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        r.enqueue(0, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+
+        r.playout(&mut s).unwrap();
+        r.playout(&mut s).unwrap();
+
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(r.state(), ReceiverState::Playing);
+        assert_eq!(r.dropped_packets(), 0);
+    }
+
+    #[test]
+    fn receiver_classifies_duplicate_across_sequence_wrap_as_late() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new().unwrap().with_metrics(metrics.clone());
+        let pkt = make_opus_packet();
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        r.enqueue(0, &pkt).unwrap();
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+
+        r.playout(&mut s).unwrap();
+        r.playout(&mut s).unwrap();
+
+        let snapshot = metrics.snapshot();
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(snapshot.late_packets, 1);
+        assert_eq!(snapshot.packets_dropped, 0);
+        assert_eq!(r.state(), ReceiverState::Playing);
+    }
+
+    #[test]
+    fn jitter_duplicate_at_capacity_preserves_queue() {
+        let mut j = JitterBuffer::new(2);
+        j.push(1, b"first").unwrap();
+        j.push(2, b"second").unwrap();
+
+        assert_eq!(
+            j.push(1, b"duplicate"),
+            Err(ReceiverError::DuplicateSequence)
+        );
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (1, b"first".to_vec()));
+        assert_eq!(j.pop().unwrap(), (2, b"second".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn jitter_invalid_packet_at_capacity_preserves_queue() {
+        let mut j = JitterBuffer::new(1);
+        let oversized = vec![0_u8; OPUS_MAX_PACKET_BYTES + 1];
+        j.push(1, b"accepted").unwrap();
+
+        assert_eq!(j.push(2, &oversized), Err(ReceiverError::InvalidPacket));
+        assert_eq!(j.len(), 1);
+        assert_eq!(j.pop().unwrap(), (1, b"accepted".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn jitter_empty_packet_precedes_duplicate_and_capacity() {
+        let mut j = JitterBuffer::new(1);
+        j.push(1, b"accepted").unwrap();
+
+        assert_eq!(j.push(1, &[]), Err(ReceiverError::InvalidPacket));
+        assert_eq!(j.len(), 1);
+        assert_eq!(j.pop().unwrap(), (1, b"accepted".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn jitter_invalid_packet_precedes_duplicate() {
+        let mut j = JitterBuffer::new(2);
+        let oversized = vec![0_u8; OPUS_MAX_PACKET_BYTES + 1];
+        j.push(1, b"accepted").unwrap();
+
+        assert_eq!(j.push(1, &oversized), Err(ReceiverError::InvalidPacket));
+        assert_eq!(j.len(), 1);
+        assert_eq!(j.pop().unwrap(), (1, b"accepted".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn sequence_order_classifies_equal_and_half_range_as_distinct() {
+        assert_eq!(sequence_order(42, 42), SequenceOrder::Equal);
+        assert_eq!(
+            sequence_order(42, 42_u64.wrapping_add(1_u64 << 63)),
+            SequenceOrder::Ambiguous
+        );
+    }
+
+    #[test]
+    fn sequence_order_accepts_maximum_unambiguous_distance_in_both_directions() {
+        let maximum = (1_u64 << 63) - 1;
+
+        assert_eq!(sequence_order(0, maximum), SequenceOrder::Before);
+        assert_eq!(sequence_order(maximum, 0), SequenceOrder::After);
+        assert_eq!(sequence_order(1_u64 << 63, u64::MAX), SequenceOrder::Before);
+        assert_eq!(sequence_order(u64::MAX, 1_u64 << 63), SequenceOrder::After);
+    }
+
+    #[test]
+    fn jitter_rejects_ambiguous_half_range_sequence() {
+        let mut j = JitterBuffer::new(2);
+        j.push(0, b"first").unwrap();
+        assert_eq!(
+            j.push(1_u64 << 63, b"ambiguous"),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(j.len(), 1);
+    }
+
+    #[test]
+    fn jitter_ambiguous_sequence_precedes_capacity() {
+        let mut j = JitterBuffer::new(1);
+        j.push(0, b"accepted").unwrap();
+
+        assert_eq!(
+            j.push(1_u64 << 63, b"ambiguous"),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(j.len(), 1);
+        assert_eq!(j.pop().unwrap(), (0, b"accepted".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn jitter_rejects_half_range_after_ordered_packet_without_mutation() {
+        let mut j = JitterBuffer::new(3);
+        j.push(0, b"first").unwrap();
+        j.push((1_u64 << 63) - 1, b"second").unwrap();
+
+        assert_eq!(
+            j.push(1_u64 << 63, b"ambiguous"),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (0, b"first".to_vec()));
+        assert_eq!(j.pop().unwrap(), ((1_u64 << 63) - 1, b"second".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn jitter_accepts_maximum_unambiguous_distance_before_ordered_prefix() {
+        let mut j = JitterBuffer::new(3);
+        let first = (1_u64 << 63) - 1;
+        let preceding = 0;
+        j.push(first, b"first").unwrap();
+
+        assert_eq!(j.push(preceding, b"preceding"), Ok(()));
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (preceding, b"preceding".to_vec()));
+        assert_eq!(j.pop().unwrap(), (first, b"first".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn jitter_accepts_maximum_unambiguous_distance_after_ordered_suffix() {
+        let mut j = JitterBuffer::new(3);
+        let following = (1_u64 << 63) - 1;
+        let first = 0;
+        j.push(first, b"first").unwrap();
+
+        assert_eq!(j.push(following, b"following"), Ok(()));
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (first, b"first".to_vec()));
+        assert_eq!(j.pop().unwrap(), (following, b"following".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn jitter_accepts_maximum_unambiguous_distance_across_wrap() {
+        let mut j = JitterBuffer::new(3);
+        let first = 0;
+        let preceding = (1_u64 << 63) + 1;
+        j.push(first, b"first").unwrap();
+
+        assert_eq!(j.push(preceding, b"preceding"), Ok(()));
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (preceding, b"preceding".to_vec()));
+        assert_eq!(j.pop().unwrap(), (first, b"first".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn jitter_rejects_half_range_before_ordered_prefix_without_mutation() {
+        let mut j = JitterBuffer::new(3);
+        j.push(1, b"first").unwrap();
+        j.push(2, b"second").unwrap();
+
+        assert_eq!(
+            j.push((1_u64 << 63) + 1, b"ambiguous"),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (1, b"first".to_vec()));
+        assert_eq!(j.pop().unwrap(), (2, b"second".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn jitter_rejects_half_range_before_ordered_suffix_without_mutation() {
+        let mut j = JitterBuffer::new(3);
+        j.push(0, b"first").unwrap();
+        j.push(1, b"second").unwrap();
+
+        assert_eq!(
+            j.push((1_u64 << 63) + 1, b"ambiguous"),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (0, b"first".to_vec()));
+        assert_eq!(j.pop().unwrap(), (1, b"second".to_vec()));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn jitter_rejects_non_transitive_serial_window() {
+        let mut j = JitterBuffer::new(3);
+        j.push(0, b"first").unwrap();
+        j.push((1_u64 << 63) - 1, b"second").unwrap();
+
+        assert_eq!(
+            j.push((1_u64 << 63) + 1, b"non-transitive"),
+            Err(ReceiverError::InvalidPacket)
+        );
+        assert_eq!(j.len(), 2);
+        assert_eq!(j.pop().unwrap(), (0, b"first".to_vec()));
+        assert_eq!(j.pop().unwrap(), ((1_u64 << 63) - 1, b"second".to_vec()));
+        assert!(j.is_empty());
+    }
+
     #[test]
     fn jitter_is_bounded() {
         let mut j = JitterBuffer::new(1);
@@ -445,9 +1110,55 @@ mod tests {
     }
 
     #[test]
+    fn jitter_clamps_capacity_at_maximum_boundary() {
+        let mut j = JitterBuffer::new(MAX_JITTER_CAPACITY + 1);
+
+        for sequence in 0..MAX_JITTER_CAPACITY as u64 {
+            j.push(sequence, b"a").unwrap();
+        }
+
+        assert_eq!(j.len(), MAX_JITTER_CAPACITY);
+        assert_eq!(
+            j.push(MAX_JITTER_CAPACITY as u64, b"a"),
+            Err(ReceiverError::QueueFull)
+        );
+        assert_eq!(j.len(), MAX_JITTER_CAPACITY);
+        for sequence in 0..MAX_JITTER_CAPACITY as u64 {
+            let (actual_sequence, packet) = j.pop().unwrap();
+            assert_eq!(actual_sequence, sequence);
+            assert_eq!(packet, b"a");
+        }
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn jitter_enforces_shared_opus_packet_limit_without_mutation() {
+        let mut j = JitterBuffer::new(2);
+        let accepted = vec![0_u8; OPUS_MAX_PACKET_BYTES];
+        let oversized = vec![0_u8; OPUS_MAX_PACKET_BYTES + 1];
+
+        j.push(1, &accepted).unwrap();
+        assert_eq!(j.push(2, &oversized), Err(ReceiverError::InvalidPacket));
+        assert_eq!(j.len(), 1);
+        let (sequence, packet) = j.pop().unwrap();
+        assert_eq!(sequence, 1);
+        assert_eq!(packet.len(), OPUS_MAX_PACKET_BYTES);
+        assert!(j.is_empty());
+    }
+
+    #[test]
     fn zero_capacity_jitter_rejects_packets() {
         let mut j = JitterBuffer::new(0);
         assert_eq!(j.push(1, b"a"), Err(ReceiverError::QueueFull));
+        assert!(j.is_empty());
+    }
+
+    #[test]
+    fn zero_capacity_jitter_rejects_invalid_packet_before_capacity() {
+        let mut j = JitterBuffer::new(0);
+        assert_eq!(j.push(1, &[]), Err(ReceiverError::InvalidPacket));
+        assert!(j.is_empty());
+        assert_eq!(j.push(1, b"valid"), Err(ReceiverError::QueueFull));
         assert!(j.is_empty());
     }
     #[test]
@@ -465,7 +1176,29 @@ mod tests {
     }
 
     #[test]
-    fn reconnect_preserves_queued_packet_for_resynchronization() {
+    fn reconnect_accepts_new_sequence_without_plc_or_stale_playout() {
+        let mut r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap();
+        assert_eq!(r.state(), ReceiverState::Playing);
+
+        r.enqueue(7, &pkt).unwrap();
+        r.reconnect(&mut s);
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(r.plc_consecutive(), 0);
+
+        r.enqueue(100, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        assert_eq!(r.state(), ReceiverState::Playing);
+        assert_eq!(r.plc_consecutive(), 0);
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(r.dropped_packets(), 1);
+    }
+
+    #[test]
+    fn reconnect_discards_queued_packet_before_resynchronization() {
         let mut r = OpusReceiver::new().unwrap();
         let pkt = make_opus_packet();
         r.enqueue(1, &pkt).unwrap();
@@ -477,6 +1210,9 @@ mod tests {
         }
         assert_eq!(r.playout(&mut s), Err(ReceiverError::OutputFailed));
         r.reconnect(&mut s);
+        assert_eq!(r.playout(&mut s), Ok(()));
+        assert_eq!(r.state(), ReceiverState::Muted);
+        r.enqueue(100, &pkt).unwrap();
         assert_eq!(r.playout(&mut s), Ok(()));
         assert_eq!(r.state(), ReceiverState::Playing);
     }
@@ -611,7 +1347,50 @@ mod tests {
         r.enqueue(1, &[0xff]).unwrap();
 
         assert_eq!(r.playout(&mut s), Err(ReceiverError::InvalidPacket));
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.output_failures, 1);
+        assert_eq!(snapshot.packets_dropped, 1);
+        assert_eq!(r.dropped_packets(), 1);
+    }
+
+    #[test]
+    fn plc_decoder_failure_counts_as_dropped_packet() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(3, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap();
+        r.set_plc_decode_override(Err(()));
+
+        assert_eq!(r.playout(&mut s), Err(ReceiverError::InvalidPacket));
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
         assert_eq!(metrics.snapshot().output_failures, 1);
+        assert_eq!(r.state(), ReceiverState::Muted);
+    }
+
+    #[test]
+    fn plc_invalid_sample_count_counts_as_dropped_packet() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(3, &pkt).unwrap();
+        let mut s = Sink { frames: 0 };
+        r.playout(&mut s).unwrap();
+        r.set_plc_decode_override(Ok(PLC_FRAME_SAMPLES - 1));
+
+        assert_eq!(r.playout(&mut s), Err(ReceiverError::InvalidPacket));
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(metrics.snapshot().packets_dropped, 1);
+        assert_eq!(metrics.snapshot().output_failures, 1);
+        assert_eq!(r.state(), ReceiverState::Muted);
     }
 
     #[test]
@@ -633,7 +1412,102 @@ mod tests {
             r.playout(&mut FailingSink),
             Err(ReceiverError::OutputFailed)
         );
-        assert_eq!(metrics.snapshot().output_failures, 1);
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.output_failures, 1);
+        assert_eq!(snapshot.packets_dropped, 1);
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(r.state(), ReceiverState::Muted);
+    }
+
+    #[test]
+    fn playout_discards_ingress_after_latched_output_failure() {
+        struct FailingSink;
+        impl AudioOutput for FailingSink {
+            fn write(&mut self, _: &[f32], _: u8) -> Result<(), OutputError> {
+                Err(OutputError)
+            }
+            fn mute(&mut self) {}
+        }
+
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut receiver = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let packet = make_opus_packet();
+        receiver.enqueue(1, &packet).unwrap();
+        assert_eq!(
+            receiver.playout(&mut FailingSink),
+            Err(ReceiverError::OutputFailed)
+        );
+
+        receiver.enqueue(2, &packet).unwrap();
+        assert_eq!(
+            receiver.playout(&mut FailingSink),
+            Err(ReceiverError::OutputFailed)
+        );
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.packets_received, 1);
+        assert_eq!(snapshot.packets_dropped, 2);
+        assert_eq!(receiver.dropped_packets(), 2);
+        assert_eq!(receiver.state(), ReceiverState::Muted);
+    }
+
+    #[test]
+    fn reconnect_recovers_after_output_failure() {
+        struct FailingSink;
+        impl AudioOutput for FailingSink {
+            fn write(&mut self, _: &[f32], _: u8) -> Result<(), OutputError> {
+                Err(OutputError)
+            }
+            fn mute(&mut self) {}
+        }
+
+        let mut r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        assert_eq!(
+            r.playout(&mut FailingSink),
+            Err(ReceiverError::OutputFailed)
+        );
+        assert_eq!(r.state(), ReceiverState::Muted);
+
+        let mut sink = Sink { frames: 0 };
+        r.reconnect(&mut sink);
+        r.enqueue(100, &pkt).unwrap();
+        assert_eq!(r.playout(&mut sink), Ok(()));
+        assert_eq!(r.state(), ReceiverState::Playing);
+        assert_eq!(sink.frames, 960 * 2);
+    }
+
+    #[test]
+    fn plc_output_failure_counts_as_dropped_packet() {
+        struct FailingSink;
+        impl AudioOutput for FailingSink {
+            fn write(&mut self, _: &[f32], _: u8) -> Result<(), OutputError> {
+                Err(OutputError)
+            }
+            fn mute(&mut self) {}
+        }
+
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        r.enqueue(1, &pkt).unwrap();
+        r.enqueue(3, &pkt).unwrap();
+        let mut sink = Sink { frames: 0 };
+        r.playout(&mut sink).unwrap();
+
+        assert_eq!(
+            r.playout(&mut FailingSink),
+            Err(ReceiverError::OutputFailed)
+        );
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.output_failures, 1);
+        assert_eq!(snapshot.packets_dropped, 1);
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(r.state(), ReceiverState::Muted);
     }
 
     #[test]
@@ -667,7 +1541,7 @@ mod tests {
         r.reconnect(&mut s);
         // Inject old-generation ingress after reconnect drain. This exercises
         // the stale-generation branch in playout deterministically.
-        let mut payload = [0_u8; MAX_PACKET_BYTES];
+        let mut payload = [0_u8; OPUS_MAX_PACKET_BYTES];
         payload[..pkt.len()].copy_from_slice(&pkt);
         r.ingress
             .try_send((0, 1, payload, pkt.len()))
@@ -683,7 +1557,7 @@ mod tests {
         let r = OpusReceiver::new()
             .unwrap()
             .with_metrics(Arc::clone(&metrics));
-        let oversized = vec![0_u8; MAX_PACKET_BYTES + 1];
+        let oversized = vec![0_u8; OPUS_MAX_PACKET_BYTES + 1];
 
         assert_eq!(r.enqueue(1, &[]), Err(ReceiverError::InvalidPacket));
         assert_eq!(r.enqueue(2, &oversized), Err(ReceiverError::InvalidPacket));
@@ -691,6 +1565,18 @@ mod tests {
         let snap = metrics.snapshot();
         assert_eq!(snap.packets_received, 0);
         assert_eq!(snap.packets_dropped, 2);
+        assert_eq!(r.dropped_packets(), 2);
+        assert!(r.ingress_rx.is_empty());
+    }
+
+    #[test]
+    fn invalid_ingress_drop_counter_saturates() {
+        let r = OpusReceiver::new().unwrap();
+        r.invalid_ingress_dropped_packets
+            .store(u64::MAX, Ordering::Relaxed);
+
+        assert_eq!(r.enqueue(1, &[]), Err(ReceiverError::InvalidPacket));
+        assert_eq!(r.dropped_packets(), u64::MAX);
     }
 
     #[test]
@@ -731,6 +1617,162 @@ mod tests {
     }
 
     #[test]
+    fn metrics_record_dropped_on_ambiguous_half_range_packet() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(0, &pkt).unwrap();
+        r.enqueue(1_u64 << 63, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+
+        let snap = metrics.snapshot();
+        assert_eq!(snap.packets_received, 1);
+        assert_eq!(snap.packets_dropped, 1);
+        assert_eq!(snap.late_packets, 0);
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(r.state(), ReceiverState::Playing);
+    }
+
+    #[test]
+    fn metrics_record_dropped_on_ambiguous_half_range_packet_after_expected_sequence() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(0, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue((1_u64 << 63) + 1, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+
+        let snap = metrics.snapshot();
+        assert_eq!(snap.packets_received, 2);
+        assert_eq!(snap.packets_dropped, 1);
+        assert_eq!(snap.late_packets, 0);
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(r.state(), ReceiverState::Muted);
+    }
+
+    #[test]
+    fn playout_drains_multiple_stale_packets_before_decoding_expected() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(10, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue(8, &pkt).unwrap();
+        r.enqueue(9, &pkt).unwrap();
+        r.enqueue(11, &pkt).unwrap();
+
+        r.playout(&mut s).unwrap();
+
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(metrics.snapshot().late_packets, 2);
+        assert_eq!(r.dropped_packets(), 2);
+        assert_eq!(r.state(), ReceiverState::Playing);
+    }
+
+    #[test]
+    fn playout_mutes_after_draining_stale_only_prefix() {
+        let mut r = OpusReceiver::new().unwrap();
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(10, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue(8, &pkt).unwrap();
+        r.enqueue(9, &pkt).unwrap();
+
+        r.playout(&mut s).unwrap();
+
+        assert_eq!(r.state(), ReceiverState::Muted);
+        assert_eq!(s.frames, 960 * 2);
+    }
+
+    #[test]
+    fn playout_mutes_after_draining_ambiguous_only_prefix() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(0, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue((1_u64 << 63) + 1, &pkt).unwrap();
+
+        r.playout(&mut s).unwrap();
+
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.packets_dropped, 1);
+        assert_eq!(snapshot.late_packets, 0);
+        assert_eq!(r.dropped_packets(), 1);
+        assert_eq!(r.state(), ReceiverState::Muted);
+        assert_eq!(s.frames, 960 * 2);
+    }
+
+    #[test]
+    fn playout_drains_stale_prefix_across_sequence_rollover() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        // Establish expected sequence zero through the u64 rollover.
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+
+        r.enqueue(u64::MAX - 1, &pkt).unwrap();
+        r.enqueue(u64::MAX, &pkt).unwrap();
+        r.enqueue(0, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(metrics.snapshot().late_packets, 2);
+        assert_eq!(r.dropped_packets(), 2);
+        assert_eq!(r.state(), ReceiverState::Playing);
+    }
+
+    #[test]
+    fn playout_drops_ambiguous_packets_and_keeps_expected_playable() {
+        let metrics = Arc::new(ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(0, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue((1_u64 << 63) + 1, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue(1, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue((1_u64 << 63) + 2, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+
+        let snapshot = metrics.snapshot();
+        assert_eq!(s.frames, 960 * 2 * 2);
+        assert_eq!(snapshot.packets_dropped, 2);
+        assert_eq!(snapshot.late_packets, 0);
+        assert_eq!(r.dropped_packets(), 2);
+        assert_eq!(r.state(), ReceiverState::Muted);
+    }
+
+    #[test]
     fn metrics_record_late_on_stale_packet() {
         // A packet replayed at the same sequence after it was already played
         // must increment late_packets, not packets_dropped.
@@ -768,6 +1810,16 @@ mod tests {
         }
         assert_eq!(r.enqueue(33, &pkt), Err(ReceiverError::QueueFull));
         assert_eq!(metrics.snapshot().packets_dropped, 1);
+        assert_eq!(r.dropped_packets(), 1);
+    }
+
+    #[test]
+    fn ingress_queue_drop_counter_saturates() {
+        let r = OpusReceiver::new().unwrap();
+        r.ingress_queue_dropped_packets
+            .store(u64::MAX, Ordering::Relaxed);
+
+        assert_eq!(r.dropped_packets(), u64::MAX);
     }
 
     #[test]
@@ -784,6 +1836,33 @@ mod tests {
         r.reconnect(&mut s);
 
         assert_eq!(metrics.snapshot().packets_dropped, 2);
+    }
+
+    #[test]
+    fn metrics_record_reconnect_drops_stale_jitter_and_ingress_packets() {
+        let metrics = Arc::new(observability::ReceiverMetrics::default());
+        let mut r = OpusReceiver::new()
+            .unwrap()
+            .with_metrics(Arc::clone(&metrics));
+        let pkt = make_opus_packet();
+        let mut s = Sink { frames: 0 };
+
+        r.enqueue(1, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue(2, &pkt).unwrap();
+        r.enqueue(3, &pkt).unwrap();
+        r.playout(&mut s).unwrap();
+        r.enqueue(4, &pkt).unwrap();
+        r.enqueue(5, &pkt).unwrap();
+        r.reconnect(&mut s);
+
+        let snapshot = metrics.snapshot();
+        assert_eq!(snapshot.packets_received, 3);
+        assert_eq!(snapshot.packets_dropped, 3);
+        assert_eq!(snapshot.late_packets, 0);
+        assert_eq!(snapshot.reconnect_count, 1);
+        assert_eq!(r.dropped_packets(), 3);
+        assert_eq!(r.state(), ReceiverState::Reconnecting);
     }
 
     #[test]

@@ -380,3 +380,46 @@ mod tests {
         assert_eq!(reg.len(), MAX_SESSIONS);
     }
 }
+
+// --- boundary regressions for validation on peek and remove_recovered ---
+#[cfg(test)]
+mod recovery_validation_boundary_tests {
+    use super::*;
+
+    #[test]
+    fn empty_user_id_rejected_on_peek() {
+        let reg = RecoveryRegistry::new();
+        let err = reg.session_reconnected_peek("").unwrap_err();
+        assert_eq!(err, RecoveryError::EmptyUserId);
+    }
+
+    #[test]
+    fn oversized_user_id_rejected_on_peek() {
+        let reg = RecoveryRegistry::new();
+        let long_id = "x".repeat(MAX_USER_ID_BYTES + 1);
+        let err = reg.session_reconnected_peek(&long_id).unwrap_err();
+        assert_eq!(err, RecoveryError::UserIdTooLong);
+    }
+
+    #[test]
+    fn empty_user_id_rejected_on_remove_recovered() {
+        let mut reg = RecoveryRegistry::new();
+        let err = reg.remove_recovered("").unwrap_err();
+        assert_eq!(err, RecoveryError::EmptyUserId);
+    }
+
+    #[test]
+    fn oversized_user_id_rejected_on_remove_recovered() {
+        let mut reg = RecoveryRegistry::new();
+        let long_id = "x".repeat(MAX_USER_ID_BYTES + 1);
+        let err = reg.remove_recovered(&long_id).unwrap_err();
+        assert_eq!(err, RecoveryError::UserIdTooLong);
+    }
+
+    #[test]
+    fn remove_recovered_absent_entry_returns_none() {
+        let mut reg = RecoveryRegistry::new();
+        let result = reg.remove_recovered("no-such-user").unwrap();
+        assert_eq!(result, None);
+    }
+}

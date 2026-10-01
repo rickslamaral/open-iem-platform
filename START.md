@@ -4,7 +4,8 @@
 
 ## Estado canônico atual
 
-As 13 fases canônicas permanecem fixas. A Phase 214 é o trabalho incremental mais recente mergeado em main; as fases incrementais não substituem nem renumeram as fases canônicas.
+As 13 fases canônicas permanecem fixas. O snapshot operacional atual está em branch `develop`, HEAD `13facee599c55e68fac7504bf39ad0d0a2c9edac`; PR #340 permanece aberta e sem merge. As fases incrementais não substituem nem renumeram as fases canônicas. Evidência atual: `CODE/CI/SIMULATED`; CI remoto no HEAD exato concluiu **16/16 SUCCESS** (`CI` run `36794695805`, `Software Package Lifecycle Gates` run `36794695898`); runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam pendentes.
+
 
 ```text
 Concluídas: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 6

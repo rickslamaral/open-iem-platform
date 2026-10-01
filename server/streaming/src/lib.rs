@@ -8,6 +8,9 @@
 //!   `Rtc::add_remote_candidate` in the Sans-IO session.
 //! - Oversized candidate rejection (>2048 bytes).
 
+/// Maximum encoded Opus payload accepted across writer and receiver ingress.
+pub const OPUS_MAX_PACKET_BYTES: usize = 1500;
+
 pub mod clock;
 pub mod media_bridge;
 pub mod media_plane;
@@ -20,12 +23,12 @@ pub use media_plane::{
     MediaFrame, MediaPlane, MediaPlaneError, MediaSession, MediaSessionError, StreamMetadata,
     MEDIA_QUEUE_CAPACITY,
 };
-pub use media_writer::{MediaPacket, MediaWriter, MediaWriterError, OPUS_MAX_PACKET_BYTES};
+pub use media_writer::{MediaPacket, MediaWriter, MediaWriterError};
 pub use opus_receiver::{
-    AudioOutput, JitterBuffer, OpusReceiver, OutputError, ReceiverError, ReceiverState,
-    RECEIVER_QUEUE_CAPACITY,
+    AudioOutput, BoundedPcmOutput, JitterBuffer, OpusReceiver, OutputError, ReceiverError,
+    ReceiverState, RECEIVER_QUEUE_CAPACITY,
 };
-pub use pairing::{DeviceIdentity, PairingError, PairingRegistry};
+pub use pairing::{DeviceIdentity, PairingError, PairingRegistry, MAX_CREDENTIAL_BYTES};
 use serde::Serialize;
 use std::{
     collections::{HashMap, VecDeque},
@@ -46,13 +49,15 @@ pub const AUDIO_FRAME_SAMPLES: usize = 960;
 pub const TRANSPORT_OUTPUT_CAPACITY: usize = 128;
 
 /// Maximum SDP body size accepted (16 KiB).
-const MAX_SDP_BYTES: usize = 16 * 1024;
+pub const MAX_SDP_BYTES: usize = 16 * 1024;
 /// Maximum ICE candidate string size accepted.
-const MAX_CANDIDATE_BYTES: usize = 2048;
+pub const MAX_CANDIDATE_BYTES: usize = 2048;
 /// Maximum user ID length.
-const MAX_USER_ID_BYTES: usize = 128;
+pub const MAX_USER_ID_BYTES: usize = 128;
 /// Maximum persisted mix identifier length.
-const MAX_MIX_ID_BYTES: usize = 128;
+pub const MAX_MIX_ID_BYTES: usize = 128;
+/// Maximum number of concurrent WebRTC peer sessions in `SessionRegistry`.
+pub const MAX_PEER_SESSIONS: usize = 64;
 
 #[derive(Debug, Error)]
 pub enum StreamingError {
@@ -62,6 +67,8 @@ pub enum StreamingError {
     SessionNotFound(String),
     #[error("ICE candidate is invalid")]
     InvalidIceCandidate,
+    #[error("session registry is at capacity (64 sessions)")]
+    TooManySessions,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -81,6 +88,8 @@ pub struct DriveReport {
     pub packets_encoded: usize,
     pub transport_outputs_dropped: usize,
     pub poll_errors: usize,
+    pub encode_errors: usize,
+    pub media_write_errors: usize,
 }
 
 struct PeerSession {
@@ -100,6 +109,7 @@ struct PeerSession {
 pub struct SessionRegistry {
     sessions: Arc<Mutex<HashMap<String, PeerSession>>>,
     transport_outputs: Arc<Mutex<VecDeque<str0m::net::Transmit>>>,
+    last_driven_session: Arc<Mutex<Option<String>>>,
 }
 
 pub(crate) fn canonicalize_dtls_fingerprint(value: &str) -> Result<String, StreamingError> {
@@ -138,6 +148,17 @@ fn extract_dtls_fingerprint(sdp: &str) -> Result<String, StreamingError> {
     Ok(fingerprint.clone())
 }
 
+impl DriveReport {
+    #[must_use]
+    /// Number of frames discarded after encode failure.
+    ///
+    /// Encode failures are counted explicitly by `encode_errors`; requeue is
+    /// unsafe because `MediaWriter::encode` may advance state before failure.
+    pub const fn encode_discards(&self) -> usize {
+        self.encode_errors
+    }
+}
+
 impl SessionRegistry {
     #[must_use]
     pub fn new() -> Self {
@@ -146,6 +167,7 @@ impl SessionRegistry {
             transport_outputs: Arc::new(Mutex::new(VecDeque::with_capacity(
                 TRANSPORT_OUTPUT_CAPACITY,
             ))),
+            last_driven_session: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -199,6 +221,7 @@ impl SessionRegistry {
             .map_err(|error| StreamingError::InvalidOffer(error.to_string()))?;
         if let Some(identity) = identity {
             if let Some(expected_fingerprint) = identity.dtls_fingerprint.as_deref() {
+                let expected_fingerprint = canonicalize_dtls_fingerprint(expected_fingerprint)?;
                 let offered_fingerprint = extract_dtls_fingerprint(sdp)?;
                 if expected_fingerprint != offered_fingerprint {
                     return Err(StreamingError::InvalidOffer(
@@ -210,6 +233,10 @@ impl SessionRegistry {
         // Serialize offers. This prevents returning an answer for a peer that a
         // concurrent offer would immediately replace.
         let mut sessions = self.sessions.lock().await;
+        // Replacement offers for an existing user_id do not consume new capacity.
+        if !sessions.contains_key(user_id) && sessions.len() >= MAX_PEER_SESSIONS {
+            return Err(StreamingError::TooManySessions);
+        }
         let mut peer = PeerSession {
             user_id: user_id.to_owned(),
             mix_id,
@@ -293,44 +320,34 @@ impl SessionRegistry {
         if output_budget == 0 {
             return DriveReport::default();
         }
-        let frames_drained = bridge
-            .drain_to_with_budget(media_plane, frame_budget.min(output_budget))
-            .await;
-        let session_ids = self
-            .sessions
-            .lock()
-            .await
-            .values()
-            .filter(|peer| peer.media_mid.is_some())
-            .map(|peer| peer.user_id.clone())
-            .collect::<Vec<_>>();
-        let mut drained = HashMap::new();
-        let mut remaining_output_budget = output_budget.saturating_sub(frames_drained);
-        for user_id in session_ids {
-            if remaining_output_budget == 0 {
-                break;
-            }
-            if let Ok(frames) = media_plane
-                .drain_session_frames_with_budget(
-                    &user_id,
-                    frame_budget.min(remaining_output_budget),
-                )
-                .await
-            {
-                remaining_output_budget = remaining_output_budget.saturating_sub(frames.len());
-                drained.insert(user_id, frames);
-            }
-        }
-
-        let mut sessions = self.sessions.lock().await;
+        // Poll pending RTC output before consuming media frames. This makes
+        // `output_budget` cover both RTC outputs and encoded media packets.
+        // Keeping ineligible sessions out of `drained` preserves their queued
+        // frames for a later drive pass after negotiation becomes usable.
         let mut outputs_polled = 0;
         let mut transmitted_bytes = 0;
         let mut packets_encoded = 0;
         let mut budget_exhausted = false;
         let mut transport_outputs_dropped = 0;
         let mut poll_errors = 0;
+        let mut encode_errors: usize = 0;
+        let mut media_write_errors: usize = 0;
+        let mut last_session_with_budget_use: Option<String> = None;
 
-        for peer in sessions.values_mut() {
+        let mut sessions = self.sessions.lock().await;
+        let mut session_ids = sessions.keys().cloned().collect::<Vec<_>>();
+        session_ids.sort();
+        let last_driven_session = self.last_driven_session.lock().await.clone();
+        if let Some(last) = last_driven_session {
+            if let Some(index) = session_ids.iter().position(|user_id| user_id == &last) {
+                let rotation = (index + 1) % session_ids.len();
+                session_ids.rotate_left(rotation);
+            }
+        }
+        for user_id in &session_ids {
+            let Some(peer) = sessions.get_mut(user_id) else {
+                continue;
+            };
             while outputs_polled < output_budget {
                 match peer.rtc.poll_output() {
                     Ok(Output::Timeout(_)) => break,
@@ -339,6 +356,7 @@ impl SessionRegistry {
                         break;
                     }
                     Ok(Output::Transmit(transmit)) => {
+                        last_session_with_budget_use = Some(user_id.clone());
                         let mut outputs = self.transport_outputs.lock().await;
                         if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
                             transmitted_bytes += transmit.contents.len();
@@ -349,6 +367,7 @@ impl SessionRegistry {
                         outputs_polled += 1;
                     }
                     Ok(Output::Event(event)) => {
+                        last_session_with_budget_use = Some(user_id.clone());
                         if let Event::MediaAdded(media) = event {
                             if media.kind.is_audio() {
                                 peer.media_mid = Some(media.mid);
@@ -358,17 +377,68 @@ impl SessionRegistry {
                     }
                 }
             }
+            if outputs_polled >= output_budget {
+                break;
+            }
+        }
+        let mut frames_drained = bridge
+            .drain_to_with_budget(
+                media_plane,
+                frame_budget.min(output_budget.saturating_sub(outputs_polled)),
+            )
+            .await;
+
+        // Drain and encode each session together. Failed encodes discard stateful
+        // writer input without consuming shared encoded-output budget, allowing
+        // a following session to use remaining budget in this drive.
+        for user_id in session_ids {
+            let Some(peer) = sessions.get_mut(&user_id) else {
+                continue;
+            };
             if let Some(mid) = peer.media_mid {
-                if let Some(frames) = drained.remove(&peer.user_id) {
-                    for frame in frames {
-                        if packets_encoded >= output_budget {
+                let has_opus_writer = peer.rtc.writer(mid).is_some_and(|writer| {
+                    writer
+                        .payload_params()
+                        .any(|params| params.spec().codec == str0m::format::Codec::Opus)
+                });
+                if has_opus_writer {
+                    let mut session_frames_drained = 0;
+                    while session_frames_drained < frame_budget
+                        && outputs_polled.saturating_add(packets_encoded) < output_budget
+                    {
+                        let Ok(frames) = media_plane
+                            .drain_session_frames_with_budget(
+                                &peer.user_id,
+                                (frame_budget - session_frames_drained).min(1),
+                            )
+                            .await
+                        else {
+                            break;
+                        };
+                        let Some(frame) = frames.into_iter().next() else {
+                            break;
+                        };
+                        session_frames_drained = session_frames_drained.saturating_add(1);
+                        last_session_with_budget_use = Some(user_id.clone());
+                        frames_drained = frames_drained.saturating_add(1);
+                        if outputs_polled.saturating_add(packets_encoded) >= output_budget {
                             budget_exhausted = true;
                             break;
                         }
                         let Ok(packet) = peer.writer.encode(&frame) else {
+                            encode_errors = encode_errors.saturating_add(1);
+                            // With one output slot, stop after failure so later
+                            // queued frames survive for the next bounded pass.
+                            if output_budget
+                                .saturating_sub(outputs_polled.saturating_add(packets_encoded))
+                                <= 1
+                            {
+                                break;
+                            }
                             continue;
                         };
                         let Some(media_writer) = peer.rtc.writer(mid) else {
+                            media_write_errors = media_write_errors.saturating_add(1);
                             continue;
                         };
                         let Some(pt) = media_writer
@@ -391,40 +461,52 @@ impl SessionRegistry {
                             .is_ok()
                         {
                             packets_encoded += 1;
-                        }
-                        if outputs_polled < output_budget {
-                            match peer.rtc.poll_output() {
-                                Ok(Output::Transmit(transmit)) => {
-                                    let mut outputs = self.transport_outputs.lock().await;
-                                    if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
-                                        transmitted_bytes += transmit.contents.len();
-                                        outputs.push_back(transmit);
-                                    } else {
-                                        transport_outputs_dropped += 1;
-                                    }
-                                    outputs_polled += 1;
-                                }
-                                Ok(Output::Event(event)) => {
-                                    if let Event::MediaAdded(media) = event {
-                                        if media.kind.is_audio() {
-                                            peer.media_mid = Some(media.mid);
-                                        }
-                                    }
-                                    outputs_polled += 1;
-                                }
-                                Ok(Output::Timeout(_)) => {}
-                                Err(_) => {
-                                    poll_errors += 1;
-                                }
-                            }
+                        } else {
+                            media_write_errors = media_write_errors.saturating_add(1);
                         }
                     }
                 }
             }
-            if output_budget > 0 && outputs_polled >= output_budget {
+            // Poll only after consuming all drained frames. Polling between
+            // frames can exhaust shared budget and discard later drained frames.
+            while outputs_polled.saturating_add(packets_encoded) < output_budget {
+                match peer.rtc.poll_output() {
+                    Ok(Output::Transmit(transmit)) => {
+                        last_session_with_budget_use = Some(user_id.clone());
+                        let mut outputs = self.transport_outputs.lock().await;
+                        if outputs.len() < TRANSPORT_OUTPUT_CAPACITY {
+                            transmitted_bytes += transmit.contents.len();
+                            outputs.push_back(transmit);
+                        } else {
+                            transport_outputs_dropped += 1;
+                        }
+                        outputs_polled += 1;
+                    }
+                    Ok(Output::Event(event)) => {
+                        last_session_with_budget_use = Some(user_id.clone());
+                        if let Event::MediaAdded(media) = event {
+                            if media.kind.is_audio() {
+                                peer.media_mid = Some(media.mid);
+                            }
+                        }
+                        outputs_polled += 1;
+                    }
+                    Ok(Output::Timeout(_)) => break,
+                    Err(_) => {
+                        poll_errors += 1;
+                        break;
+                    }
+                }
+            }
+            if output_budget > 0 && outputs_polled.saturating_add(packets_encoded) >= output_budget
+            {
                 budget_exhausted = true;
                 break;
             }
+        }
+
+        if let Some(last_session) = last_session_with_budget_use {
+            *self.last_driven_session.lock().await = Some(last_session);
         }
 
         DriveReport {
@@ -435,6 +517,8 @@ impl SessionRegistry {
             packets_encoded,
             transport_outputs_dropped,
             poll_errors,
+            encode_errors,
+            media_write_errors,
         }
     }
 
@@ -671,6 +755,280 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drive_once_counts_encode_error_and_continues_to_valid_frame() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+
+        let mid = {
+            let mut sessions = registry.sessions.lock().await;
+            let peer = sessions.get_mut("alice").unwrap();
+            peer.rtc.media(str0m::media::Mid::from("0")).unwrap().mid()
+        };
+        registry
+            .sessions
+            .lock()
+            .await
+            .get_mut("alice")
+            .unwrap()
+            .media_mid = Some(mid);
+
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                1,
+                None,
+            )
+            .await;
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.25, -0.125), (0.0, 0.0)],
+                },
+                2,
+                None,
+            )
+            .await;
+
+        {
+            let sessions = plane.sessions.lock().await;
+            let session = sessions.get("alice").unwrap();
+            let mut frames = session.drain_frames();
+            frames[0].metadata.sample_rate = 44_100;
+            for frame in frames {
+                session.tx.try_send(frame).unwrap();
+            }
+        }
+
+        let report = registry.drive_once(&bridge, &plane, 2, 2).await;
+        assert_eq!(report.encode_errors, 1);
+        assert_eq!(report.encode_discards(), 1);
+        assert_eq!(report.media_write_errors, 0);
+        assert_eq!(report.packets_encoded, 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_encode_failure_does_not_starve_following_session() {
+        let registry = SessionRegistry::new();
+        for user_id in ["alice", "bob"] {
+            registry
+                .negotiate_offer(user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        let plane = crate::media_plane::MediaPlane::new();
+        for (user_id, stream_id) in [("alice", 0), ("bob", 1)] {
+            plane.register_session(user_id, stream_id).await.unwrap();
+        }
+        let bridge = crate::media_bridge::MediaBridge::new();
+
+        for user_id in ["alice", "bob"] {
+            let mid = {
+                let mut sessions = registry.sessions.lock().await;
+                let peer = sessions.get_mut(user_id).unwrap();
+                peer.rtc.media(str0m::media::Mid::from("0")).unwrap().mid()
+            };
+            registry
+                .sessions
+                .lock()
+                .await
+                .get_mut(user_id)
+                .unwrap()
+                .media_mid = Some(mid);
+        }
+
+        for revision in [1] {
+            plane
+                .push_frame_output(
+                    &mix_engine::FrameOutput {
+                        mixes: [(0.5, -0.25), (0.0, 0.0)],
+                    },
+                    revision,
+                    None,
+                )
+                .await;
+        }
+        {
+            let sessions = plane.sessions.lock().await;
+            let session = sessions.get("alice").unwrap();
+            let mut frames = session.drain_frames();
+            frames[0].metadata.sample_rate = 44_100;
+            for frame in frames {
+                session.tx.try_send(frame).unwrap();
+            }
+        }
+
+        let report = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(report.encode_errors, 1);
+        assert_eq!(report.packets_encoded, 1);
+        assert_eq!(report.media_write_errors, 0);
+
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions["alice"].drain_frames().is_empty());
+        assert!(sessions["bob"].drain_frames().is_empty());
+    }
+
+    #[tokio::test]
+    async fn drive_once_accounts_media_write_failure_after_frame_drain() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+
+        let mid = {
+            let mut sessions = registry.sessions.lock().await;
+            let peer = sessions.get_mut("alice").unwrap();
+            peer.rtc.media(str0m::media::Mid::from("0")).unwrap().mid()
+        };
+        registry
+            .sessions
+            .lock()
+            .await
+            .get_mut("alice")
+            .unwrap()
+            .media_mid = Some(mid);
+
+        {
+            // str0m's writer queue holds 100 entries; one more makes next drive fail.
+            const STR0M_WRITER_QUEUE_CAPACITY_PLUS_ONE: usize = 100 + 1;
+            let mut sessions = registry.sessions.lock().await;
+            let peer = sessions.get_mut("alice").unwrap();
+            let writer = peer.rtc.writer(mid).unwrap();
+            let pt = writer
+                .payload_params()
+                .find(|params| params.spec().codec == str0m::format::Codec::Opus)
+                .unwrap()
+                .pt();
+            let wallclock = Instant::now();
+            for index in 0..STR0M_WRITER_QUEUE_CAPACITY_PLUS_ONE {
+                peer.rtc
+                    .writer(mid)
+                    .unwrap()
+                    .write(
+                        pt,
+                        wallclock,
+                        str0m::media::MediaTime::new(
+                            index as u64 * 960,
+                            str0m::media::Frequency::FORTY_EIGHT_KHZ,
+                        ),
+                        [0u8],
+                    )
+                    .unwrap();
+            }
+        }
+
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                1,
+                None,
+            )
+            .await;
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.25, -0.125), (0.0, 0.0)],
+                },
+                2,
+                None,
+            )
+            .await;
+
+        let first = registry.drive_once(&bridge, &plane, 2, 1_000).await;
+        assert_eq!(first.frames_drained, 2);
+        assert_eq!(first.media_write_errors, 2);
+        assert_eq!(first.packets_encoded, 0);
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions["alice"].drain_frames().is_empty());
+        drop(sessions);
+
+        let second = registry.drive_once(&bridge, &plane, 1, 1_000).await;
+        assert_eq!(second.media_write_errors, 0);
+        assert_eq!(second.packets_encoded, 0);
+    }
+
+    #[tokio::test]
+    async fn drive_once_encode_error_with_single_output_budget_preserves_following_frame() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+
+        let mid = {
+            let mut sessions = registry.sessions.lock().await;
+            let peer = sessions.get_mut("alice").unwrap();
+            peer.rtc.media(str0m::media::Mid::from("0")).unwrap().mid()
+        };
+        registry
+            .sessions
+            .lock()
+            .await
+            .get_mut("alice")
+            .unwrap()
+            .media_mid = Some(mid);
+
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                1,
+                None,
+            )
+            .await;
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.25, -0.125), (0.0, 0.0)],
+                },
+                2,
+                None,
+            )
+            .await;
+
+        {
+            let sessions = plane.sessions.lock().await;
+            let session = sessions.get("alice").unwrap();
+            let mut frames = session.drain_frames();
+            frames[0].metadata.sample_rate = 44_100;
+            for frame in frames {
+                session.tx.try_send(frame).unwrap();
+            }
+        }
+
+        let first = registry.drive_once(&bridge, &plane, 2, 1).await;
+        assert_eq!(first.encode_errors, 1);
+        assert_eq!(first.packets_encoded, 0);
+        assert_eq!(first.encode_discards(), 1);
+
+        let second = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(second.encode_errors, 0);
+        assert_eq!(second.packets_encoded, 1);
+    }
+
+    #[test]
+    fn drive_report_default_starts_media_write_errors_at_zero() {
+        assert_eq!(DriveReport::default().media_write_errors, 0);
+    }
+
+    #[tokio::test]
     async fn drive_once_zero_output_budget_preserves_bridge_frames() {
         let registry = SessionRegistry::new();
         let plane = crate::media_plane::MediaPlane::new();
@@ -717,6 +1075,87 @@ mod tests {
         assert!(!report.budget_exhausted);
         let sessions = plane.sessions.lock().await;
         assert_eq!(sessions["alice"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_preserves_frames_when_media_writer_is_unavailable() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        for (left, right, timestamp) in [(0.5, -0.25, 11), (0.25, 0.75, 12)] {
+            plane
+                .push_frame_output(
+                    &mix_engine::FrameOutput {
+                        mixes: [(left, right), (0.0, 0.0)],
+                    },
+                    timestamp,
+                    None,
+                )
+                .await;
+        }
+
+        {
+            let mut sessions = registry.sessions.lock().await;
+            sessions.get_mut("alice").unwrap().media_mid = Some(str0m::media::Mid::from("missing"));
+        }
+
+        let report = registry.drive_once(&bridge, &plane, 1, 2).await;
+        assert_eq!(report.frames_drained, 0);
+        assert_eq!(report.media_write_errors, 0);
+        assert_eq!(report.packets_encoded, 0);
+
+        let sessions = plane.sessions.lock().await;
+        let frames = sessions["alice"].drain_frames();
+        assert_eq!(frames.len(), 2);
+        assert_eq!(frames[0].metadata.sequence, 0);
+        assert_eq!(frames[1].metadata.sequence, 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_preserves_frames_when_negotiated_media_has_no_opus_payload() {
+        let registry = SessionRegistry::new();
+        let offer = VALID_OFFER
+            .replace("SAVPF 111", "SAVPF 0")
+            .replace("rtpmap:111 opus/48000/2", "rtpmap:0 PCMU/8000");
+        registry
+            .negotiate_offer("alice", &offer, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        for (left, right, timestamp) in [(0.5, -0.25, 11), (0.25, 0.75, 12)] {
+            plane
+                .push_frame_output(
+                    &mix_engine::FrameOutput {
+                        mixes: [(left, right), (0.0, 0.0)],
+                    },
+                    timestamp,
+                    None,
+                )
+                .await;
+        }
+
+        {
+            let mut sessions = registry.sessions.lock().await;
+            sessions.get_mut("alice").unwrap().media_mid = Some(str0m::media::Mid::from("0"));
+        }
+
+        let report = registry.drive_once(&bridge, &plane, 1, 2).await;
+        assert_eq!(report.frames_drained, 0);
+        assert_eq!(report.packets_encoded, 0);
+        assert_eq!(report.media_write_errors, 0);
+
+        let sessions = plane.sessions.lock().await;
+        let frames = sessions["alice"].drain_frames();
+        assert_eq!(frames.len(), 2);
+        assert_eq!(frames[0].metadata.sequence, 0);
+        assert_eq!(frames[1].metadata.sequence, 1);
     }
 
     #[tokio::test]
@@ -804,9 +1243,136 @@ mod tests {
 
         assert_eq!(first.frames_drained, 1);
         assert_eq!(second.frames_drained, 1);
-        assert!(first.outputs_polled <= 1);
-        assert!(second.outputs_polled <= 1);
+        assert!(first.outputs_polled + first.packets_encoded <= 1);
+        assert!(second.outputs_polled + second.packets_encoded <= 1);
         assert!(registry.drain_transport_outputs(8).await.len() <= 8);
+    }
+
+    #[tokio::test]
+    async fn drive_once_counts_bridge_and_session_frames_drained() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        let mid = {
+            let mut sessions = registry.sessions.lock().await;
+            let peer = sessions.get_mut("alice").unwrap();
+            peer.rtc.media(str0m::media::Mid::from("0")).unwrap().mid()
+        };
+        registry
+            .sessions
+            .lock()
+            .await
+            .get_mut("alice")
+            .unwrap()
+            .media_mid = Some(mid);
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                11,
+                None,
+            )
+            .unwrap();
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.25, -0.125), (0.0, 0.0)],
+                },
+                12,
+                None,
+            )
+            .await;
+
+        let report = registry.drive_once(&bridge, &plane, 3, 4).await;
+
+        assert_eq!(report.frames_drained, 3);
+        assert_eq!(report.packets_encoded, 2);
+        assert_eq!(
+            registry
+                .drive_once(&bridge, &plane, 2, 2)
+                .await
+                .frames_drained,
+            0
+        );
+    }
+
+    #[tokio::test]
+    async fn drive_once_preserves_media_when_rtc_output_consumes_budget() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .expect("offer must succeed");
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                31,
+                None,
+            )
+            .unwrap();
+
+        let first = registry.drive_once(&bridge, &plane, 1, 1).await;
+        let second = registry.drive_once(&bridge, &plane, 1, 1).await;
+
+        for report in [first, second] {
+            assert!(report.outputs_polled + report.packets_encoded <= 1);
+        }
+        assert_eq!(first.frames_drained, 1);
+        assert_eq!(second.frames_drained, 0);
+        let sessions = plane.sessions.lock().await;
+        assert_eq!(sessions["alice"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_output_budget_does_not_count_bridge_frames() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let plane = crate::media_plane::MediaPlane::new();
+        plane.register_session("alice", 0).await.unwrap();
+        let mid = {
+            let mut sessions = registry.sessions.lock().await;
+            let peer = sessions.get_mut("alice").unwrap();
+            peer.rtc.media(str0m::media::Mid::from("0")).unwrap().mid()
+        };
+        registry
+            .sessions
+            .lock()
+            .await
+            .get_mut("alice")
+            .unwrap()
+            .media_mid = Some(mid);
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.0, 0.0)],
+                },
+                1,
+                None,
+            )
+            .unwrap();
+
+        let report = registry.drive_once(&bridge, &plane, 1, 1).await;
+
+        assert_eq!(report.outputs_polled, 0);
+        assert_eq!(report.frames_drained, 2);
+        assert_eq!(report.packets_encoded, 1);
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions["alice"].drain_frames().is_empty());
     }
 
     #[tokio::test]
@@ -819,7 +1385,7 @@ mod tests {
         let plane = crate::media_plane::MediaPlane::new();
         plane.register_session("alice", 0).await.unwrap();
         let bridge = crate::media_bridge::MediaBridge::new();
-        registry.drive_once(&bridge, &plane, 0, 1).await;
+        registry.drive_once(&bridge, &plane, 1, 1).await;
         for revision in [31, 32] {
             bridge
                 .try_send(
@@ -1375,6 +1941,161 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn bound_session_accepts_uppercase_fingerprint_identity() {
+        let registry = SessionRegistry::new();
+        let fingerprint = extract_dtls_fingerprint(VALID_OFFER)
+            .unwrap()
+            .to_ascii_uppercase();
+        let identity = DeviceIdentity {
+            device_id: "rx-uppercase".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(fingerprint),
+        };
+        registry
+            .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+            .await
+            .expect("fingerprint comparison must be case-insensitive");
+    }
+
+    #[test]
+    fn unsupported_dtls_fingerprint_algorithm_is_rejected() {
+        let sha1 = "sha-1 00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44";
+        assert!(matches!(
+            canonicalize_dtls_fingerprint(sha1),
+            Err(StreamingError::InvalidOffer(message)) if message == "invalid DTLS fingerprint"
+        ));
+    }
+
+    #[tokio::test]
+    async fn bound_session_rejects_unsupported_fingerprint_algorithm_without_mutating_existing_session(
+    ) {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
+            .await
+            .unwrap();
+        let before = registry.list().await;
+        let identity = DeviceIdentity {
+            device_id: "rx-sha1".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(
+                "sha-1 00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33".into(),
+            ),
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+                .await,
+            Err(StreamingError::InvalidOffer(message)) if message == "invalid DTLS fingerprint"
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
+    async fn phase551_bound_offer_rejects_malformed_fingerprint_without_mutating_existing_session()
+    {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
+            .await
+            .unwrap();
+        let before = registry.list().await;
+        let valid_fingerprint = extract_dtls_fingerprint(VALID_OFFER).unwrap();
+        let malformed_offer = VALID_OFFER.replace(
+            &format!("a=fingerprint:{valid_fingerprint}\r\n"),
+            "a=fingerprint:sha-256 00:11:22\r\n",
+        );
+        assert_ne!(malformed_offer, VALID_OFFER);
+        let identity = DeviceIdentity {
+            device_id: "rx-malformed-offer".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(valid_fingerprint),
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound(
+                    "alice",
+                    &malformed_offer,
+                    Some("0".into()),
+                    Some(&identity),
+                )
+                .await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
+    async fn phase552_bound_offer_rejects_conflicting_fingerprints_without_mutating_existing_session(
+    ) {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
+            .await
+            .unwrap();
+        let before = registry.list().await;
+        let valid_fingerprint = extract_dtls_fingerprint(VALID_OFFER).unwrap();
+        let conflicting_offer = format!(
+            "{VALID_OFFER}a=fingerprint:{valid_fingerprint}\r\n\
+a=fingerprint:sha-256 FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00:\
+FF:EE:DD:CC:BB:AA:99:88:77:66:55:44:33:22:11:00\r\n"
+        );
+        let identity = DeviceIdentity {
+            device_id: "rx-conflicting-offer".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some(valid_fingerprint),
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound(
+                    "alice",
+                    &conflicting_offer,
+                    Some("0".into()),
+                    Some(&identity),
+                )
+                .await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
+    async fn bound_session_rejects_malformed_fingerprint_without_mutating_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original-mix".into()))
+            .await
+            .unwrap();
+        let before = registry.list().await;
+        let identity = DeviceIdentity {
+            device_id: "rx-malformed".into(),
+            musician_id: "alice".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: Some("sha-256 00:11:22".into()),
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound("alice", VALID_OFFER, Some("0".into()), Some(&identity))
+                .await,
+            Err(StreamingError::InvalidOffer(message)) if message == "invalid DTLS fingerprint"
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
     async fn bound_session_keeps_device_identity_and_revoke_removes_it() {
         let registry = SessionRegistry::new();
         let identity = DeviceIdentity {
@@ -1431,7 +2152,7 @@ mod tests {
             mix_index: 0,
             revoked: false,
             dtls_fingerprint: Some(
-                "sha-256 FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF".into(),
+                "sha-256 FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF".into(),
             ),
         };
         assert!(matches!(
@@ -1585,6 +2306,63 @@ mod tests {
         let sessions = plane.sessions.lock().await;
         assert_eq!(sessions["alice"].drain_frames().len(), 1);
         assert_eq!(sessions["bob"].drain_frames().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn drive_once_rotates_session_start_after_output_budget_exhaustion() {
+        let registry = SessionRegistry::new();
+        for user_id in ["alice", "bob"] {
+            registry
+                .negotiate_offer(user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        let plane = crate::media_plane::MediaPlane::new();
+        for (user_id, stream_id) in [("alice", 0), ("bob", 1)] {
+            plane.register_session(user_id, stream_id).await.unwrap();
+        }
+        let bridge = crate::media_bridge::MediaBridge::new();
+        for user_id in ["alice", "bob"] {
+            let mid = {
+                let mut sessions = registry.sessions.lock().await;
+                sessions
+                    .get_mut(user_id)
+                    .unwrap()
+                    .rtc
+                    .media(str0m::media::Mid::from("0"))
+                    .unwrap()
+                    .mid()
+            };
+            registry
+                .sessions
+                .lock()
+                .await
+                .get_mut(user_id)
+                .unwrap()
+                .media_mid = Some(mid);
+        }
+        // Clear negotiation-time RTC output before asserting media fairness.
+        registry.drive_once(&bridge, &plane, 1, 100).await;
+        plane
+            .push_frame_output(
+                &mix_engine::FrameOutput {
+                    mixes: [(0.5, -0.25), (0.25, -0.125)],
+                },
+                1,
+                None,
+            )
+            .await;
+
+        let first = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(first.packets_encoded, 1);
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions["alice"].drain_frames().is_empty());
+        drop(sessions);
+
+        let second = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(second.packets_encoded, 1);
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions["bob"].drain_frames().is_empty());
     }
 
     #[tokio::test]
@@ -1747,6 +2525,30 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn drive_once_zero_frame_budget_preserves_bridge_frames() {
+        let registry = SessionRegistry::new();
+        let plane = crate::media_plane::MediaPlane::new();
+        let bridge = crate::media_bridge::MediaBridge::new();
+        bridge
+            .try_send(
+                mix_engine::FrameOutput {
+                    mixes: [(0.3, 0.3), (0.4, 0.4)],
+                },
+                79,
+                None,
+            )
+            .unwrap();
+
+        let first = registry.drive_once(&bridge, &plane, 0, 1).await;
+        assert_eq!(first.frames_drained, 0);
+        let second = registry.drive_once(&bridge, &plane, 1, 1).await;
+        assert_eq!(second.frames_drained, 1);
+
+        let sessions = plane.sessions.lock().await;
+        assert!(sessions.is_empty());
+    }
+
+    #[tokio::test]
     async fn drive_once_preserves_excess_bridge_frames_across_bounded_calls() {
         let registry = SessionRegistry::new();
         let plane = crate::media_plane::MediaPlane::new();
@@ -1824,6 +2626,69 @@ mod tests {
         assert_eq!(sessions[0].user_id, "eve");
         assert_eq!(sessions[0].mix_id.as_deref(), Some("1"));
         assert!(sessions[0].device_id.is_none());
+    }
+
+    #[tokio::test]
+    async fn phase553_failed_bound_replacement_at_capacity_preserves_session() {
+        let registry = SessionRegistry::new();
+        for index in 0..MAX_PEER_SESSIONS {
+            let user_id = format!("user-{index}");
+            registry
+                .negotiate_offer(&user_id, VALID_OFFER, Some("original-mix".into()))
+                .await
+                .expect("initial offer must succeed");
+        }
+        let before = registry.list().await;
+        let identity = DeviceIdentity {
+            device_id: "replacement-device".into(),
+            musician_id: "user-0".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+
+        assert!(matches!(
+            registry
+                .negotiate_offer_bound(
+                    "user-0",
+                    "not-an-sdp-offer",
+                    Some("0".into()),
+                    Some(&identity),
+                )
+                .await,
+            Err(StreamingError::InvalidOffer(_))
+        ));
+        assert_eq!(registry.list().await, before);
+    }
+
+    #[tokio::test]
+    async fn replacement_offer_waits_for_existing_session_lock() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, Some("original".into()))
+            .await
+            .expect("initial offer must succeed");
+
+        let guard = registry.sessions.lock().await;
+        let replacement = {
+            let registry = registry.clone();
+            tokio::spawn(async move {
+                registry
+                    .negotiate_offer("alice", VALID_OFFER, Some("replacement".into()))
+                    .await
+                    .expect("replacement offer must succeed")
+            })
+        };
+
+        tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+        assert!(!replacement.is_finished());
+        drop(guard);
+
+        replacement.await.expect("replacement task must not panic");
+        assert_eq!(
+            registry.list().await[0].mix_id.as_deref(),
+            Some("replacement")
+        );
     }
 
     #[tokio::test]
@@ -5008,6 +5873,247 @@ mod tests {
         );
     }
 
+    #[tokio::test]
+    async fn phase533_candidate_at_multibyte_user_id_byte_limit_is_accepted() {
+        let registry = SessionRegistry::new();
+        let user_id = "é".repeat(MAX_USER_ID_BYTES / "é".len());
+        registry
+            .negotiate_offer(&user_id, VALID_OFFER, None)
+            .await
+            .unwrap();
+        registry
+            .add_ice_candidate(&user_id, VALID_CANDIDATE)
+            .await
+            .unwrap();
+        assert_eq!(registry.list().await[0].user_id, user_id);
+    }
+
+    #[tokio::test]
+    async fn phase534_oversized_candidate_user_id_does_not_match_existing_session() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        let oversized = "x".repeat(MAX_USER_ID_BYTES + 1);
+        assert!(matches!(
+            registry
+                .add_ice_candidate(&oversized, VALID_CANDIDATE)
+                .await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert_eq!(registry.list().await[0].user_id, "alice");
+    }
+
+    #[tokio::test]
+    async fn phase535_candidate_for_empty_user_id_is_rejected_before_lookup() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry.add_ice_candidate("", VALID_CANDIDATE).await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase536_candidate_with_carriage_return_is_rejected_before_lookup() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry
+                .add_ice_candidate("missing", &format!("{VALID_CANDIDATE}\r"))
+                .await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase537_candidate_with_line_feed_is_rejected_before_lookup() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry
+                .add_ice_candidate("missing", &format!("{VALID_CANDIDATE}\n"))
+                .await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase538_candidate_without_prefix_is_rejected_without_mutation() {
+        let registry = SessionRegistry::new();
+        registry
+            .negotiate_offer("alice", VALID_OFFER, None)
+            .await
+            .unwrap();
+        assert!(matches!(
+            registry.add_ice_candidate("alice", "1 2 3").await,
+            Err(StreamingError::InvalidIceCandidate)
+        ));
+        assert_eq!(registry.list().await.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn phase539_unknown_user_with_valid_candidate_does_not_create_session() {
+        let registry = SessionRegistry::new();
+        assert!(matches!(
+            registry
+                .add_ice_candidate("missing", VALID_CANDIDATE)
+                .await,
+            Err(StreamingError::SessionNotFound(user)) if user == "missing"
+        ));
+        assert!(registry.is_empty().await);
+    }
+
+    #[tokio::test]
+    async fn phase540_transport_drain_budget_above_capacity_is_bounded() {
+        let registry = SessionRegistry::new();
+        let outputs: Vec<_> = (0..=TRANSPORT_OUTPUT_CAPACITY)
+            .map(|index| test_transmit(format!("packet-{index}").as_bytes()))
+            .collect();
+        assert_eq!(
+            registry.requeue_transport_outputs(outputs).await,
+            1,
+            "requeue must preserve bounded queue capacity"
+        );
+
+        let drained = registry.drain_transport_outputs(usize::MAX).await;
+        assert_eq!(drained.len(), TRANSPORT_SEND_BUDGET);
+        assert_eq!(drained.first().unwrap().contents.as_ref(), b"packet-1");
+        assert_eq!(
+            drained.last().unwrap().contents.as_ref(),
+            format!("packet-{TRANSPORT_SEND_BUDGET}").as_bytes()
+        );
+        let second = registry.drain_transport_outputs(usize::MAX).await;
+        let third = registry.drain_transport_outputs(usize::MAX).await;
+        let fourth = registry.drain_transport_outputs(usize::MAX).await;
+        assert_eq!(second.len(), TRANSPORT_SEND_BUDGET);
+        assert_eq!(third.len(), TRANSPORT_SEND_BUDGET);
+        assert_eq!(fourth.len(), TRANSPORT_SEND_BUDGET);
+        assert_eq!(second.first().unwrap().contents.as_ref(), b"packet-33");
+        assert_eq!(third.first().unwrap().contents.as_ref(), b"packet-65");
+        assert_eq!(fourth.first().unwrap().contents.as_ref(), b"packet-97");
+        assert!(registry
+            .drain_transport_outputs(usize::MAX)
+            .await
+            .is_empty());
+    }
+
+    #[tokio::test]
+    async fn phase541_empty_transport_drain_does_not_change_queue() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"pending")])
+            .await;
+        assert!(registry.drain_transport_outputs(0).await.is_empty());
+        assert_eq!(
+            registry.drain_transport_outputs(1).await[0]
+                .contents
+                .as_ref(),
+            b"pending"
+        );
+    }
+
+    #[tokio::test]
+    async fn phase543_partial_requeue_retains_latest_failed_datagrams() {
+        let registry = SessionRegistry::new();
+        let capacity = TRANSPORT_OUTPUT_CAPACITY;
+        let existing: Vec<_> = (0..capacity - 1)
+            .map(|index| test_transmit(format!("existing-{index}").as_bytes()))
+            .collect();
+        registry.requeue_transport_outputs(existing).await;
+
+        let dropped = registry
+            .requeue_transport_outputs(vec![
+                test_transmit(b"failed-first"),
+                test_transmit(b"failed-second"),
+            ])
+            .await;
+
+        assert_eq!(dropped, 1);
+        let mut outputs = Vec::new();
+        for _ in 0..4 {
+            outputs.extend(registry.drain_transport_outputs(usize::MAX).await);
+        }
+        assert_eq!(outputs.len(), capacity);
+        assert_eq!(outputs[0].contents.as_ref(), b"failed-second");
+        assert_eq!(outputs[1].contents.as_ref(), b"existing-0");
+    }
+
+    #[tokio::test]
+    async fn phase543_partial_requeue_retains_latest_fifo_before_existing_suffix() {
+        let registry = SessionRegistry::new();
+        let capacity = TRANSPORT_OUTPUT_CAPACITY;
+        let existing: Vec<_> = (0..capacity - 2)
+            .map(|index| test_transmit(format!("existing-{index}").as_bytes()))
+            .collect();
+        registry.requeue_transport_outputs(existing).await;
+
+        let dropped = registry
+            .requeue_transport_outputs(vec![
+                test_transmit(b"failed-first"),
+                test_transmit(b"failed-second"),
+                test_transmit(b"failed-third"),
+            ])
+            .await;
+
+        assert_eq!(dropped, 1);
+        let mut outputs = Vec::new();
+        for _ in 0..4 {
+            outputs.extend(registry.drain_transport_outputs(usize::MAX).await);
+        }
+        assert_eq!(outputs.len(), capacity);
+        assert_eq!(outputs[0].contents.as_ref(), b"failed-second");
+        assert_eq!(outputs[1].contents.as_ref(), b"failed-third");
+        assert_eq!(outputs[2].contents.as_ref(), b"existing-0");
+    }
+
+    #[tokio::test]
+    async fn phase542_transport_requeue_preserves_order_after_empty_drain() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"one"), test_transmit(b"two")])
+            .await;
+        assert!(registry.drain_transport_outputs(0).await.is_empty());
+        let outputs = registry.drain_transport_outputs(2).await;
+        assert_eq!(outputs[0].contents.as_ref(), b"one");
+        assert_eq!(outputs[1].contents.as_ref(), b"two");
+    }
+
+    #[tokio::test]
+    async fn phase547_zero_frame_budget_preserves_pending_transport_outputs() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"pending")])
+            .await;
+        let bridge = crate::media_bridge::MediaBridge::new();
+        let plane = crate::media_plane::MediaPlane::new();
+
+        let report = registry.drive_once(&bridge, &plane, 0, 1).await;
+
+        assert_eq!(report, DriveReport::default());
+        let outputs = registry.drain_transport_outputs(1).await;
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0].contents.as_ref(), b"pending");
+    }
+
+    #[tokio::test]
+    async fn phase544_zero_output_budget_preserves_pending_transport_outputs() {
+        let registry = SessionRegistry::new();
+        registry
+            .requeue_transport_outputs(vec![test_transmit(b"pending")])
+            .await;
+        let bridge = crate::media_bridge::MediaBridge::new();
+        let plane = crate::media_plane::MediaPlane::new();
+
+        let report = registry.drive_once(&bridge, &plane, 1, 0).await;
+
+        assert_eq!(report, DriveReport::default());
+        let outputs = registry.drain_transport_outputs(1).await;
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0].contents.as_ref(), b"pending");
+    }
+
     fn test_transmit(contents: &[u8]) -> str0m::net::Transmit {
         str0m::net::Transmit {
             proto: Protocol::Udp,
@@ -5015,5 +6121,190 @@ mod tests {
             destination: "127.0.0.1:2000".parse().unwrap(),
             contents: contents.to_vec().into(),
         }
+    }
+
+    #[tokio::test]
+    async fn session_registry_rejects_new_session_at_capacity() {
+        let registry = SessionRegistry::new();
+        for i in 0..64 {
+            let user_id = format!("u{i}");
+            registry
+                .negotiate_offer(&user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        let result = registry
+            .negotiate_offer("overflow_user", VALID_OFFER, None)
+            .await;
+        assert!(
+            matches!(result, Err(StreamingError::TooManySessions)),
+            "expected TooManySessions at capacity; got {result:?}"
+        );
+        assert_eq!(registry.len().await, 64, "count must be stable");
+    }
+
+    #[tokio::test]
+    async fn session_registry_allows_replacement_at_capacity() {
+        let registry = SessionRegistry::new();
+        for i in 0..64 {
+            let user_id = format!("u{i}");
+            registry
+                .negotiate_offer(&user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        let result = registry.negotiate_offer("u0", VALID_OFFER, None).await;
+        assert!(
+            result.is_ok(),
+            "replacement offer at capacity must succeed; got {result:?}"
+        );
+        assert_eq!(
+            registry.len().await,
+            64,
+            "count must be stable after replacement"
+        );
+    }
+
+    #[tokio::test]
+    async fn session_registry_last_slot_below_capacity_accepts_new_user() {
+        let registry = SessionRegistry::new();
+        for i in 0..63 {
+            let user_id = format!("u{i}");
+            registry
+                .negotiate_offer(&user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        let result = registry
+            .negotiate_offer("last_user", VALID_OFFER, None)
+            .await;
+        assert!(
+            result.is_ok(),
+            "one slot below capacity must accept new user; got {result:?}"
+        );
+        assert_eq!(registry.len().await, 64);
+    }
+    #[tokio::test]
+    async fn session_registry_remove_at_capacity_frees_slot() {
+        let registry = SessionRegistry::new();
+        for i in 0..64 {
+            let user_id = format!("u{i}");
+            registry
+                .negotiate_offer(&user_id, VALID_OFFER, None)
+                .await
+                .unwrap();
+        }
+        // Registry is at capacity; new user must fail.
+        let overflow = registry
+            .negotiate_offer("overflow_user", VALID_OFFER, None)
+            .await;
+        assert!(
+            matches!(overflow, Err(StreamingError::TooManySessions)),
+            "expected TooManySessions before remove; got {overflow:?}"
+        );
+        // Remove one session to free the slot.
+        assert!(registry.remove("u0").await, "remove must return true");
+        assert_eq!(registry.len().await, 63, "len must drop to 63 after remove");
+        // Now a new session must succeed.
+        let result = registry
+            .negotiate_offer("new_user", VALID_OFFER, None)
+            .await;
+        assert!(
+            result.is_ok(),
+            "new session must succeed after remove; got {result:?}"
+        );
+        assert_eq!(registry.len().await, 64, "len must return to 64");
+    }
+
+    #[tokio::test]
+    async fn negotiate_offer_bound_too_many_sessions_at_capacity() {
+        let registry = SessionRegistry::new();
+        for i in 0..64 {
+            let user_id = format!("u{i}");
+            let device_id = format!("d{i}");
+            let identity = DeviceIdentity {
+                device_id: device_id.clone(),
+                musician_id: user_id.clone(),
+                mix_index: 0,
+                revoked: false,
+                dtls_fingerprint: None,
+            };
+            registry
+                .negotiate_offer_bound(&user_id, VALID_OFFER, Some("0".into()), Some(&identity))
+                .await
+                .unwrap();
+        }
+        assert_eq!(registry.len().await, 64);
+        let identity_overflow = DeviceIdentity {
+            device_id: "d_overflow".into(),
+            musician_id: "overflow_user".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+        let overflow = registry
+            .negotiate_offer_bound(
+                "overflow_user",
+                VALID_OFFER,
+                Some("0".into()),
+                Some(&identity_overflow),
+            )
+            .await;
+        assert!(
+            matches!(overflow, Err(StreamingError::TooManySessions)),
+            "expected TooManySessions from bound path at capacity; got {overflow:?}"
+        );
+        assert_eq!(
+            registry.len().await,
+            64,
+            "capacity must remain unchanged after rejection"
+        );
+    }
+
+    #[tokio::test]
+    async fn negotiate_offer_bound_replacement_succeeds_at_capacity() {
+        let registry = SessionRegistry::new();
+        // Fill to capacity using the bound path.
+        for i in 0..64 {
+            let user_id = format!("u{i}");
+            let device_id = format!("d{i}");
+            let identity = DeviceIdentity {
+                device_id: device_id.clone(),
+                musician_id: user_id.clone(),
+                mix_index: 0,
+                revoked: false,
+                dtls_fingerprint: None,
+            };
+            registry
+                .negotiate_offer_bound(&user_id, VALID_OFFER, Some("0".into()), Some(&identity))
+                .await
+                .unwrap();
+        }
+        assert_eq!(registry.len().await, 64);
+        // Re-offer from an existing user must succeed — replacement does not consume a new slot.
+        let existing_identity = DeviceIdentity {
+            device_id: "d0".into(),
+            musician_id: "u0".into(),
+            mix_index: 0,
+            revoked: false,
+            dtls_fingerprint: None,
+        };
+        let result = registry
+            .negotiate_offer_bound(
+                "u0",
+                VALID_OFFER,
+                Some("0".into()),
+                Some(&existing_identity),
+            )
+            .await;
+        assert!(
+            result.is_ok(),
+            "bound replacement offer at capacity must succeed; got {result:?}"
+        );
+        assert_eq!(
+            registry.len().await,
+            64,
+            "capacity must stay at 64 after bound replacement"
+        );
     }
 }

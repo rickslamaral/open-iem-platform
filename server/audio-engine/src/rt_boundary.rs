@@ -183,3 +183,65 @@ mod tests {
         );
     }
 }
+
+// --- boundary regressions for dropped_commands counter ---
+#[cfg(test)]
+mod rt_boundary_dropped_commands_tests {
+    use super::*;
+    use mix_engine::{Channel, Mix, MixEngine, MixSend};
+
+    fn make_processor() -> (RealtimeProcessor, ControlProducer) {
+        let mut engine = MixEngine::new();
+        engine
+            .set_channel(0, Channel::new(0, "input"))
+            .expect("valid test engine");
+        let mut mix = Mix::new(1, "monitor");
+        mix.set_send(0, MixSend::new(0, 1))
+            .expect("valid test engine");
+        engine.set_mix(0, mix).expect("valid test engine");
+        RealtimeProcessor::new(engine)
+    }
+
+    #[test]
+    fn producer_dropped_commands_increments_on_full_queue() {
+        let (_proc, producer) = make_processor();
+        // Fill queue exactly to capacity.
+        for _ in 0..CONTROL_QUEUE_CAPACITY {
+            producer
+                .try_send(AudioControl::MasterGain {
+                    mix_index: 0,
+                    gain_db: 0.0,
+                })
+                .expect("queue not yet full");
+        }
+        assert_eq!(producer.dropped_commands(), 0, "no drops before overflow");
+        // One more must fail and increment counter.
+        let _ = producer.try_send(AudioControl::MasterGain {
+            mix_index: 0,
+            gain_db: 0.0,
+        });
+        assert_eq!(producer.dropped_commands(), 1, "exactly one drop counted");
+    }
+
+    #[test]
+    fn processor_dropped_commands_shares_counter_with_producer() {
+        let (proc, producer) = make_processor();
+        // Fill and overflow queue.
+        for _ in 0..CONTROL_QUEUE_CAPACITY {
+            let _ = producer.try_send(AudioControl::MasterMute {
+                mix_index: 0,
+                muted: false,
+            });
+        }
+        let _ = producer.try_send(AudioControl::MasterMute {
+            mix_index: 0,
+            muted: false,
+        });
+        // RealtimeProcessor must see the same count via its own accessor.
+        assert_eq!(
+            proc.dropped_commands(),
+            1,
+            "processor reflects same drop count as producer"
+        );
+    }
+}

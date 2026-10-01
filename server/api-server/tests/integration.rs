@@ -16,9 +16,10 @@ use api_server::{
             delete_user as admin_delete_user, list_sessions as admin_list_sessions,
             list_users as admin_list_users, revoke_session as admin_revoke_session,
         },
-        audio::{ice_candidate, offer, pair_device, revoke_device, sessions},
+        audio::{ice_candidate, offer, pair_device, repair_device, revoke_device, sessions},
         auth::{create_user, login, logout, refresh},
         channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
+        config::{backup_config, restore_config},
         health::health,
         metrics::{get_metrics, reset_metrics},
         mixes::{
@@ -129,6 +130,10 @@ fn build_test_app() -> (TestServer, AppState) {
     }
 
     let protected = Router::new()
+        .route(
+            "/api/v1/config/backup",
+            get(backup_config).put(restore_config),
+        )
         .route("/api/v1/state", get(get_state))
         .route("/api/v1/channels", get(list_channels))
         .route("/api/v1/telemetry", get(get_telemetry))
@@ -142,7 +147,7 @@ fn build_test_app() -> (TestServer, AppState) {
         .route("/api/v1/audio/pairing", post(pair_device))
         .route(
             "/api/v1/audio/pairing/{device_id}",
-            axum::routing::delete(revoke_device),
+            axum::routing::delete(revoke_device).put(repair_device),
         )
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
@@ -198,7 +203,7 @@ fn build_test_app() -> (TestServer, AppState) {
             [127, 0, 0, 1],
             8080,
         )))))
-        .layer(DefaultBodyLimit::max(16 * 1024))
+        .layer(DefaultBodyLimit::max(32 * 1024))
         .layer(middleware::from_fn(validate_origin));
 
     let server = TestServer::new(app);
@@ -231,6 +236,122 @@ fn seed_user_and_login(state: &AppState, username: &str, password: &str, role: R
         .jwt
         .issue_with_session(username, user_id, role, &jti, Some(session_id))
         .expect("token must be issued")
+}
+
+// ── /api/v1/config/backup ─────────────────────────────────────────────────
+
+#[tokio::test]
+async fn config_backup_restore_round_trip_through_api() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "config_backup_engineer", "pw", Role::Engineer);
+    {
+        let mut control = state.control.lock().expect("control lock");
+        control
+            .set_channel(0, Channel::new(42, "Lead Vocal"))
+            .expect("test channel must configure");
+        control
+            .set_mix(0, Mix::new(7, "Monitor A"))
+            .expect("test mix must configure");
+    }
+
+    let backup = server
+        .get("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token.clone())
+        .await;
+    backup.assert_status_ok();
+    let snapshot: Value = backup.json();
+    assert_eq!(snapshot["version"], 1);
+    assert!(snapshot.get("secrets").is_none());
+
+    {
+        let mut control = state.control.lock().expect("control lock");
+        control
+            .set_channel(0, Channel::new(99, "Temporary"))
+            .expect("temporary channel must configure");
+        control
+            .set_mix(0, Mix::new(99, "Temporary Mix"))
+            .expect("temporary mix must configure");
+    }
+
+    let restore = server
+        .put("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token.clone())
+        .json(&snapshot)
+        .await;
+    restore.assert_status_ok();
+    assert_eq!(restore.json::<Value>()["restored"], true);
+
+    let after = server
+        .get("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .await;
+    after.assert_status_ok();
+    let after_body = after.json::<Value>();
+    assert_eq!(after_body["channels"][0]["name"], "Lead Vocal");
+    assert_eq!(after_body["mixes"][0]["name"], "Monitor A");
+}
+
+#[tokio::test]
+async fn config_backup_restore_rejects_musician() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "config_backup_musician", "pw", Role::Musician);
+    let snapshot = json!({
+        "version": 1,
+        "created_at_utc_secs": 0,
+        "channels": [],
+        "mixes": []
+    });
+
+    server
+        .get("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token.clone())
+        .await
+        .assert_status(axum::http::StatusCode::FORBIDDEN);
+    server
+        .put("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&snapshot)
+        .await
+        .assert_status(axum::http::StatusCode::FORBIDDEN);
+}
+
+#[tokio::test]
+async fn config_backup_restore_rejects_invalid_snapshot_without_mutation() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "config_backup_invalid", "pw", Role::Engineer);
+    {
+        let mut control = state.control.lock().expect("control lock");
+        control
+            .set_channel(0, Channel::new(42, "Lead Vocal"))
+            .expect("test channel must configure");
+    }
+
+    let invalid_snapshot = json!({
+        "version": 99,
+        "created_at_utc_secs": 0,
+        "channels": [],
+        "mixes": []
+    });
+    server
+        .put("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token.clone())
+        .json(&invalid_snapshot)
+        .await
+        .assert_status(axum::http::StatusCode::BAD_REQUEST);
+
+    let after = server
+        .get("/api/v1/config/backup")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .await;
+    after.assert_status_ok();
+    assert_eq!(after.json::<Value>()["channels"][0]["name"], "Lead Vocal");
 }
 
 // ── /api/v1/health ────────────────────────────────────────────────────────
@@ -594,6 +715,19 @@ async fn musician_cannot_offer_unassigned_mix() {
 // ── /api/v1/audio/offer — bad SDP payload ──────────────────────────────────
 
 #[tokio::test]
+async fn oversized_offer_sdp_returns_400_before_negotiation() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "mus_oversized_sdp", "pw", Role::Musician);
+    let resp = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"sdp": "x".repeat(16 * 1024 + 1)}))
+        .await;
+    resp.assert_status(axum::http::StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
 async fn offer_with_bad_sdp_returns_400() {
     let (server, state) = build_test_app();
     let token = seed_user_and_login(&state, "mus4", "pw", Role::Musician);
@@ -607,6 +741,19 @@ async fn offer_with_bad_sdp_returns_400() {
 }
 
 // ── /api/v1/audio/ice-candidate ─────────────────────────────────────────────
+
+#[tokio::test]
+async fn oversized_ice_candidate_returns_400_before_session_lookup() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "mus_oversized_candidate", "pw", Role::Musician);
+    let resp = server
+        .post("/api/v1/audio/ice-candidate")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"candidate": "x".repeat(2048 + 1)}))
+        .await;
+    resp.assert_status(axum::http::StatusCode::BAD_REQUEST);
+}
 
 #[tokio::test]
 async fn ice_candidate_without_session_returns_400() {
@@ -1087,7 +1234,7 @@ fn build_ws_app() -> (axum_test::TestServer, AppState) {
         .route("/api/v1/audio/pairing", post(pair_device))
         .route(
             "/api/v1/audio/pairing/{device_id}",
-            axum::routing::delete(revoke_device),
+            axum::routing::delete(revoke_device).put(repair_device),
         )
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
@@ -1143,7 +1290,7 @@ fn build_ws_app() -> (axum_test::TestServer, AppState) {
             [127, 0, 0, 1],
             8080,
         )))))
-        .layer(DefaultBodyLimit::max(16 * 1024))
+        .layer(DefaultBodyLimit::max(32 * 1024))
         .layer(middleware::from_fn(validate_origin));
 
     // WebSocket tests require the HTTP transport (not mock).
@@ -2581,6 +2728,155 @@ async fn revoke_device_removes_bound_session_preserves_unbound_session() {
         .iter()
         .any(|session| { session.device_id.as_deref() == Some("rx-revoke-bound") }));
 }
+// ── repair_device ──────────────────────────────────────────────────────────
+
+#[tokio::test]
+async fn repair_device_succeeds_after_revoke() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_repair_ok", "pw", Role::Engineer);
+    let credential = make_credential("repair-secret-1234");
+
+    // Pair
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-repair-ok",
+            "credential": credential,
+            "musician_id": "musician-1",
+            "mix_index": 0
+        }))
+        .await
+        .assert_status_ok();
+
+    // Revoke
+    server
+        .delete("/api/v1/audio/pairing/rx-repair-ok")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .await
+        .assert_status_ok();
+
+    let new_credential = make_credential("repair-new-secret-5678");
+
+    // Re-pair
+    let resp = server
+        .put("/api/v1/audio/pairing/rx-repair-ok")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "old_credential": credential,
+            "new_credential": new_credential
+        }))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert_eq!(body["device_id"], "rx-repair-ok");
+    assert_eq!(body["repaired"], true);
+}
+
+#[tokio::test]
+async fn repair_device_returns_404_for_unknown_device() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_repair_404", "pw", Role::Engineer);
+    let resp = server
+        .put("/api/v1/audio/pairing/no-such-rx")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "old_credential": make_credential("old-secret-12345"),
+            "new_credential": make_credential("new-secret-12345")
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::NOT_FOUND);
+}
+
+#[tokio::test]
+async fn repair_device_returns_409_when_device_is_active() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_repair_409", "pw", Role::Engineer);
+    let credential = make_credential("repair-active-secret-1234");
+
+    // Pair without revoking
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-repair-active",
+            "credential": credential,
+            "musician_id": "musician-1",
+            "mix_index": 0
+        }))
+        .await
+        .assert_status_ok();
+
+    let resp = server
+        .put("/api/v1/audio/pairing/rx-repair-active")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "old_credential": credential,
+            "new_credential": make_credential("new-secret-5678")
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::CONFLICT);
+}
+
+#[tokio::test]
+async fn repair_device_returns_401_for_bad_old_credential() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_repair_401", "pw", Role::Engineer);
+    let credential = make_credential("repair-secret-auth-1234");
+
+    // Pair + revoke
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-repair-auth",
+            "credential": credential,
+            "musician_id": "musician-1",
+            "mix_index": 0
+        }))
+        .await
+        .assert_status_ok();
+    server
+        .delete("/api/v1/audio/pairing/rx-repair-auth")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .await
+        .assert_status_ok();
+
+    let resp = server
+        .put("/api/v1/audio/pairing/rx-repair-auth")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "old_credential": make_credential("wrong-secret-1234"),
+            "new_credential": make_credential("new-secret-5678")
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn repair_device_returns_403_for_musician_role() {
+    let (server, state) = build_test_app();
+    let musician_token = seed_user_and_login(&state, "mus_repair_403", "pw", Role::Musician);
+    let resp = server
+        .put("/api/v1/audio/pairing/rx-any")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&musician_token)
+        .json(&json!({
+            "old_credential": make_credential("old-secret-1234"),
+            "new_credential": make_credential("new-secret-1234")
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::FORBIDDEN);
+}
 
 #[tokio::test]
 async fn offer_without_pairing_fields_is_backward_compatible() {
@@ -2688,4 +2984,477 @@ async fn offer_with_revoked_device_returns_403() {
         }))
         .await;
     resp.assert_status(axum::http::StatusCode::FORBIDDEN);
+}
+
+// ── GAP-018 DTLS fingerprint binding — api-server integration ────────────────
+
+#[tokio::test]
+async fn offer_with_matching_dtls_fingerprint_succeeds() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_fp_ok", "pw", Role::Engineer);
+    let musician_token = seed_user_and_login(&state, "mus_fp_ok", "pw", Role::Musician);
+    let (mus_fp_ok_id, _, _, _) = state.db.find_user("mus_fp_ok").unwrap();
+    state.db.assign_mix(0, mus_fp_ok_id).unwrap();
+    // Pair device and register the fingerprint present in VALID_AUDIO_OFFER.
+    let registered_fp =
+        "sha-256 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00"
+            .to_string();
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-fp-ok",
+            "musician_id": "mus_fp_ok",
+            "mix_index": 0,
+            "credential": make_credential("fp-match-secret-1234"),
+            "dtls_fingerprint": registered_fp
+        }))
+        .await
+        .assert_status_ok();
+    // Offer whose SDP fingerprint matches the registered value must succeed.
+    let resp = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician_token)
+        .json(&json!({
+            "sdp": VALID_AUDIO_OFFER,
+            "mix_id": null,
+            "device_id": "rx-fp-ok",
+            "credential": make_credential("fp-match-secret-1234")
+        }))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert!(!body["sdp"].as_str().unwrap_or_default().is_empty());
+}
+
+#[tokio::test]
+async fn offer_with_mismatched_dtls_fingerprint_returns_400() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_fp_mismatch", "pw", Role::Engineer);
+    let musician_token = seed_user_and_login(&state, "mus_fp_mismatch", "pw", Role::Musician);
+    let (mus_fp_mismatch_id, _, _, _) = state.db.find_user("mus_fp_mismatch").unwrap();
+    state.db.assign_mix(0, mus_fp_mismatch_id).unwrap();
+    // Register a fingerprint that differs from what VALID_AUDIO_OFFER contains.
+    let different_fp =
+        "sha-256 FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF:FF"
+            .to_string();
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-fp-mismatch",
+            "musician_id": "mus_fp_mismatch",
+            "mix_index": 0,
+            "credential": make_credential("fp-mismatch-secret-1234"),
+            "dtls_fingerprint": different_fp
+        }))
+        .await
+        .assert_status_ok();
+    // Offer whose SDP fingerprint does not match the registered value must fail.
+    let resp = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician_token)
+        .json(&json!({
+            "sdp": VALID_AUDIO_OFFER,
+            "mix_id": null,
+            "device_id": "rx-fp-mismatch",
+            "credential": make_credential("fp-mismatch-secret-1234")
+        }))
+        .await;
+    resp.assert_status(axum::http::StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
+async fn offer_with_paired_device_no_fingerprint_registered_accepts_any_sdp_fingerprint() {
+    let (server, state) = build_test_app();
+    let engineer_token = seed_user_and_login(&state, "eng_fp_none", "pw", Role::Engineer);
+    let musician_token = seed_user_and_login(&state, "mus_fp_none", "pw", Role::Musician);
+    let (mus_fp_none_id, _, _, _) = state.db.find_user("mus_fp_none").unwrap();
+    state.db.assign_mix(0, mus_fp_none_id).unwrap();
+    // Pair device WITHOUT registering a dtls_fingerprint (legacy / no-pin path).
+    server
+        .post("/api/v1/audio/pairing")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&engineer_token)
+        .json(&json!({
+            "device_id": "rx-fp-none",
+            "musician_id": "mus_fp_none",
+            "mix_index": 0,
+            "credential": make_credential("fp-none-secret-1234")
+        }))
+        .await
+        .assert_status_ok();
+    // Any valid SDP fingerprint must be accepted when none is pinned.
+    let resp = server
+        .post("/api/v1/audio/offer")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(musician_token)
+        .json(&json!({
+            "sdp": VALID_AUDIO_OFFER,
+            "mix_id": null,
+            "device_id": "rx-fp-none",
+            "credential": make_credential("fp-none-secret-1234")
+        }))
+        .await;
+    resp.assert_status_ok();
+}
+
+// ── /api/v1/mixes/{mix}/sends/{ch}/pan — REST RBAC and isolation ───────────
+
+#[tokio::test]
+async fn set_send_pan_engineer_ok() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_pan_ok", "pw", Role::Engineer);
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/pan")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"pan": 0.5_f32}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert!(body["revision"].is_number());
+    let pan = body["pan"].as_f64().expect("pan field must be number");
+    assert!((pan - 0.5).abs() < 1e-5, "pan value mismatch");
+}
+
+#[tokio::test]
+async fn set_send_pan_musician_owns_mix_ok() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_pan_assign", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_pan_own", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_pan_own").unwrap();
+    // Engineer assigns musician to mix 0.
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/pan")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .json(&json!({"pan": -0.5_f32}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    let pan = body["pan"].as_f64().expect("pan field must be number");
+    assert!((pan - (-0.5)).abs() < 1e-5, "pan value mismatch");
+}
+
+#[tokio::test]
+async fn set_send_pan_musician_wrong_mix_forbidden() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_pan_wrong", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_pan_wrong", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_pan_wrong").unwrap();
+    // Assign to mix 0; musician tries to set pan on mix 1.
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .put("/api/v1/mixes/1/sends/0/pan")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .json(&json!({"pan": 0.0_f32}))
+        .await;
+    resp.assert_status_forbidden();
+}
+
+#[tokio::test]
+async fn set_send_pan_requires_authentication() {
+    let (server, _state) = build_test_app();
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/pan")
+        .add_header("Origin", "http://localhost")
+        .json(&json!({"pan": 0.0_f32}))
+        .await;
+    resp.assert_status_unauthorized();
+}
+
+#[tokio::test]
+async fn set_send_pan_out_of_range_returns_400() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_pan_range", "pw", Role::Engineer);
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/pan")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"pan": 5.0_f32}))
+        .await;
+    resp.assert_status(axum::http::StatusCode::BAD_REQUEST);
+}
+
+// ── /api/v1/mixes/{mix}/sends/{ch}/mute — REST RBAC and isolation ──────────
+
+#[tokio::test]
+async fn set_send_muted_engineer_ok() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_mute_ok", "pw", Role::Engineer);
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/mute")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"muted": true}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert!(body["revision"].is_number());
+    assert_eq!(body["muted"], true);
+}
+
+#[tokio::test]
+async fn set_send_muted_musician_owns_mix_ok() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_mute_assign", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_mute_own", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_mute_own").unwrap();
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/mute")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .json(&json!({"muted": false}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert_eq!(body["muted"], false);
+}
+
+#[tokio::test]
+async fn set_send_muted_musician_wrong_mix_forbidden() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_mute_wrong", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_mute_wrong", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_mute_wrong").unwrap();
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .put("/api/v1/mixes/1/sends/0/mute")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .json(&json!({"muted": true}))
+        .await;
+    resp.assert_status_forbidden();
+}
+
+#[tokio::test]
+async fn set_send_muted_requires_authentication() {
+    let (server, _state) = build_test_app();
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/mute")
+        .add_header("Origin", "http://localhost")
+        .json(&json!({"muted": false}))
+        .await;
+    resp.assert_status_unauthorized();
+}
+
+// ── /api/v1/mixes/{mix}/sends/{ch}/gain — REST RBAC and isolation ──────────
+
+#[tokio::test]
+async fn set_send_gain_engineer_rbac_ok() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_gain_ok", "pw", Role::Engineer);
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"gain_db": -6.0_f32}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    assert!(body["revision"].is_number());
+    let gain = body["gain_db"]
+        .as_f64()
+        .expect("gain_db field must be number");
+    assert!((gain - (-6.0)).abs() < 1e-3, "gain_db value mismatch");
+}
+
+#[tokio::test]
+async fn set_send_gain_musician_owns_mix_ok() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_gain_assign", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_gain_own", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_gain_own").unwrap();
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .json(&json!({"gain_db": 0.0_f32}))
+        .await;
+    resp.assert_status_ok();
+    let body: Value = resp.json();
+    let gain = body["gain_db"]
+        .as_f64()
+        .expect("gain_db field must be number");
+    assert!((gain - 0.0).abs() < 1e-3, "gain_db value mismatch");
+}
+
+#[tokio::test]
+async fn set_send_gain_musician_wrong_mix_forbidden() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_gain_wrong", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_gain_wrong", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_gain_wrong").unwrap();
+    // Assign to mix 0; musician tries to set gain on mix 1.
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .put("/api/v1/mixes/1/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .json(&json!({"gain_db": 0.0_f32}))
+        .await;
+    resp.assert_status_forbidden();
+}
+
+#[tokio::test]
+async fn set_send_gain_requires_authentication() {
+    let (server, _state) = build_test_app();
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .json(&json!({"gain_db": 0.0_f32}))
+        .await;
+    resp.assert_status_unauthorized();
+}
+
+#[tokio::test]
+async fn set_send_gain_out_of_range_returns_400() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_gain_range", "pw", Role::Engineer);
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"gain_db": 200.0_f32}))
+        .await;
+    resp.assert_status(axum::http::StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
+async fn set_send_gain_non_finite_returns_400() {
+    let (server, state) = build_test_app();
+    let token = seed_user_and_login(&state, "eng_gain_nan", "pw", Role::Engineer);
+    // JSON cannot encode NaN/Inf — send a string to trigger deserialization error.
+    let resp = server
+        .put("/api/v1/mixes/0/sends/0/gain")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(token)
+        .json(&json!({"gain_db": "not_a_number"}))
+        .await;
+    assert!(
+        resp.status_code() == axum::http::StatusCode::BAD_REQUEST
+            || resp.status_code() == axum::http::StatusCode::UNPROCESSABLE_ENTITY,
+        "expected 400 or 422 for non-numeric gain_db"
+    );
+}
+
+// ── DELETE /api/v1/mixes/{index}/assign — unassign_mix REST RBAC ─────────────
+
+#[tokio::test]
+async fn unassign_mix_engineer_ok() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_unas_ok", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_unas_ok", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_unas_ok").unwrap();
+    // Assign first.
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    // Unassign.
+    let resp = server
+        .delete("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::NO_CONTENT);
+    // Musician can no longer access send state on mix 0.
+    let resp2 = server
+        .get("/api/v1/mixes/0/sends/0")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&mus_token)
+        .await;
+    resp2.assert_status_forbidden();
+}
+
+#[tokio::test]
+async fn unassign_mix_musician_forbidden() {
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_unas_forbid", "pw", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_unas_forbid", "pw", Role::Musician);
+    let (mus_id, _, _, _) = state.db.find_user("mus_unas_forbid").unwrap();
+    server
+        .post("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(&eng_token)
+        .json(&json!({"user_id": mus_id}))
+        .await
+        .assert_status_ok();
+    let resp = server
+        .delete("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(mus_token)
+        .await;
+    resp.assert_status_forbidden();
+}
+
+#[tokio::test]
+async fn unassign_mix_requires_authentication() {
+    let (server, _state) = build_test_app();
+    let resp = server
+        .delete("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .await;
+    resp.assert_status_unauthorized();
+}
+
+#[tokio::test]
+async fn unassign_mix_unassigned_returns_not_found() {
+    // Unassigning a mix that has no assignment returns 404.
+    let (server, state) = build_test_app();
+    let eng_token = seed_user_and_login(&state, "eng_unas_idem", "pw", Role::Engineer);
+    let resp = server
+        .delete("/api/v1/mixes/0/assign")
+        .add_header("Origin", "http://localhost")
+        .authorization_bearer(eng_token)
+        .await;
+    resp.assert_status(axum::http::StatusCode::NOT_FOUND);
 }

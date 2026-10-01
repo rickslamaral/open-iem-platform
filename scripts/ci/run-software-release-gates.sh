@@ -29,15 +29,18 @@ fi
 # hardware stability. Profile deadline is checked between bounded commands; each gets a small completion grace.
 start_epoch=$SECONDS
 iterations=0
-while :; do
+while (( iterations == 0 || SECONDS - start_epoch < SOAK_SECONDS )); do
   remaining=$((SOAK_SECONDS - (SECONDS - start_epoch)))
-  (( remaining > 0 )) || break
+  # First bounded iteration must run even when its fixed runtime exceeds a
+  # short requested profile; otherwise valid 1-second smoke gates report no work.
+  (( remaining > 0 )) || remaining=1
   if ! timeout --signal=TERM --kill-after=5s "$((remaining + 5))s" scripts/ci/run-headless-audio.sh; then
     echo 'SOFTWARE stability soak: FAIL (headless audio regression)' >&2
     exit 1
   fi
   remaining=$((SOAK_SECONDS - (SECONDS - start_epoch)))
-  (( remaining > 0 )) || break
+  # Complete first audio-media iteration even when short profile elapsed during audio gate.
+  (( remaining > 0 )) || remaining=1
   if ! timeout --signal=TERM --kill-after=5s "$((remaining + 5))s" cargo test --manifest-path server/Cargo.toml --package streaming --lib; then
     echo 'SOFTWARE stability soak: FAIL (streaming regression)' >&2
     exit 1

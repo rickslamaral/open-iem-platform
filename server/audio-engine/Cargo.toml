@@ -12,6 +12,12 @@ categories = ["multimedia::audio"]
 [lints]
 workspace = true
 
+[package.metadata.lint-override]
+# audio-engine is the JACK hardware adapter. JACK 0.13 requires implementing
+# one unsafe notification callback (shutdown). No other unsafe code is present;
+# this override is narrowly justified by the hardware trait contract.
+unsafe_code = "allow (required by jack::NotificationHandler trait in JACK 0.13)"
+
 [features]
 # Enable to compile the JACK/PipeWire backend (requires libjack-dev on host).
 # NOT enabled by default — VPS/CI builds use the simulated backend.

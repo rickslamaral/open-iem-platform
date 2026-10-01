@@ -1,5 +1,12 @@
 # Open IEM — Release Gates
 
+## Current gate status — 2026-09-30
+
+- `develop` HEAD: `3bd76f7e080ac5a86dad197de4670dbb1fdc0ab7`.
+- PR #340: open, no merge.
+- CI exact HEAD: 16/16 jobs SUCCESS.
+- Software evidence: CODE/CI/SIMULATED. Hardware certification and `v0.3.1` release remain pending.
+
 ## Evidence classes
 
 - `CODE`: source, unit/integration tests and static checks.

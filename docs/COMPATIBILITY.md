@@ -1,5 +1,7 @@
 # Linux compatibility
 
+**Current evidence — 2026-09-27:** software targets and cross-builds only. Exact `develop` HEAD `5df6047` has CODE/CI/SIMULATED evidence; physical Pi, USB, thermal, power, real audio and latency remain unvalidated.
+
 | Platform | amd64 | arm64 | Status |
 |---|---:|---:|---|
 | Debian 12+ | yes | yes | software target |

@@ -312,6 +312,7 @@ function EqBandControl({ mixIndex, bandIndex, frequencyHz, gainDb, q, enabled, o
 
 type SceneSummary = { id: string; name: string; active_revision: number; created_at: number; updated_at: number };
 type Scene = { id: string; name: string; revision: number; config?: unknown };
+type RevisionSummary = { revision: number; created_at: number };
 type PresetSummary = { id: string; name: string; kind: string; description: string };
 
 function parsePreset(value: unknown): PresetSummary | null {
@@ -419,6 +420,10 @@ function ScenePanel({ token }: { token: string }) {
   const [configText, setConfigText] = useState('');
   const editGeneration = useRef(0);
   const loadGeneration = useRef(0);
+  const [viewingRevisions, setViewingRevisions] = useState<string | null>(null);
+  const [revisions, setRevisions] = useState<RevisionSummary[]>([]);
+  const [revisionsError, setRevisionsError] = useState<string | null>(null);
+  const [revisionsLoading, setRevisionsLoading] = useState(false);
   const loadScenes = useCallback(async () => {
     const generation = ++loadGeneration.current;
     setLoading(true); setError(null);
@@ -468,6 +473,24 @@ function ScenePanel({ token }: { token: string }) {
     finally { setBusy(null); }
   }
 
+  async function loadRevisions(id: string) {
+    setBusy(id); setRevisionsError(null); setRevisions([]); setViewingRevisions(id); setRevisionsLoading(true);
+    try {
+      const data = await request<{ revisions: RevisionSummary[] }>(`/api/v1/scenes/${id}/revisions`, token);
+      setRevisions(Array.isArray(data?.revisions) ? data.revisions : []);
+    } catch (cause) { setRevisionsError(cause instanceof Error ? cause.message : 'Falha ao carregar revisões'); }
+    finally { setBusy(null); setRevisionsLoading(false); }
+  }
+
+  async function rollback(sceneId: string, rev: number) {
+    setBusy(sceneId); setRevisionsError(null);
+    try {
+      await request(`/api/v1/scenes/${sceneId}/revisions/${rev}/rollback`, token, { method: 'POST' });
+      setViewingRevisions(null); setRevisions([]); await loadScenes();
+    } catch (cause) { setRevisionsError(cause instanceof Error ? cause.message : 'Falha ao reverter revisão'); }
+    finally { setBusy(null); }
+  }
+
   async function duplicate(id: string, sceneName: string) {
     setBusy(id); setError(null);
     try {
@@ -496,10 +519,21 @@ function ScenePanel({ token }: { token: string }) {
       <label><span className="muted">Configuração JSON</span><textarea aria-label="Configuração da cena" value={configText} onChange={(e) => setConfigText(e.target.value)} rows={8} required /></label>
       <div className="row"><button type="submit" disabled={busy !== null}>Salvar revisão</button><button type="button" className="secondary" disabled={busy !== null} onClick={() => { editGeneration.current += 1; setEditing(null); setConfigText(''); }}>Cancelar</button></div>
     </form>}
+    {viewingRevisions && <div className="card" style={{ marginTop: '1rem' }}>
+      <h3>Revisões da cena</h3>
+      {revisionsError && <p className="error" role="alert">{revisionsError}</p>}
+      {revisionsLoading && <p className="muted">Carregando revisões...</p>}
+      {!revisionsLoading && revisions.length === 0 && !revisionsError && <p className="muted">Nenhuma revisão encontrada.</p>}
+      {revisions.map((r) => <div className="row" key={r.revision} style={{ marginBottom: '0.25rem' }}>
+        <span>Revisão {r.revision} — {new Date(r.created_at * 1000).toLocaleString('pt-BR')}</span>
+        <button aria-label={`Reverter para revisão ${r.revision}`} disabled={busy !== null} onClick={() => void rollback(viewingRevisions, r.revision)}>Reverter</button>
+      </div>)}
+      <button className="secondary" style={{ marginTop: '0.5rem' }} onClick={() => { setViewingRevisions(null); setRevisions([]); setRevisionsError(null); setRevisionsLoading(false); }}>Fechar</button>
+    </div>}
     {!loading && scenes.length === 0 && <p className="muted">Nenhuma cena cadastrada.</p>}
     {scenes.map((scene) => { const active = activeScene?.id === scene.id; return <div className="row" key={scene.id}>
       <div><strong>{scene.name}</strong><br /><span className="muted">Revisão {scene.active_revision} · {new Date(scene.created_at * 1000).toLocaleDateString('pt-BR')}</span></div>
-      <div className="row" style={{ gap: '0.5rem' }}><button aria-label={`Editar cena ${scene.name}`} disabled={busy !== null} onClick={() => void editScene(scene.id)}>Editar</button><button aria-label={`Recuperar cena ${scene.name}`} disabled={busy !== null} onClick={() => void mutate(scene.id, 'POST', '/recall')}>Recuperar</button><button aria-label={`Duplicar cena ${scene.name}`} disabled={busy !== null} onClick={() => void duplicate(scene.id, scene.name)}>Duplicar</button><button className="danger" aria-label={`Deletar cena ${scene.name}`} disabled={active || busy !== null} onClick={() => void mutate(scene.id, 'DELETE', '')}>Deletar</button></div>
+      <div className="row" style={{ gap: '0.5rem' }}><button aria-label={`Editar cena ${scene.name}`} disabled={busy !== null} onClick={() => void editScene(scene.id)}>Editar</button><button aria-label={`Recuperar cena ${scene.name}`} disabled={busy !== null} onClick={() => void mutate(scene.id, 'POST', '/recall')}>Recuperar</button><button aria-label={`Duplicar cena ${scene.name}`} disabled={busy !== null} onClick={() => void duplicate(scene.id, scene.name)}>Duplicar</button><button aria-label={`Histórico de revisões da cena ${scene.name}`} disabled={busy !== null} onClick={() => void loadRevisions(scene.id)}>Histórico</button><button className="danger" aria-label={`Deletar cena ${scene.name}`} disabled={active || busy !== null} onClick={() => void mutate(scene.id, 'DELETE', '')}>Deletar</button></div>
     </div>; })}
   </>;
 }

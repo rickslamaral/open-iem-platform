@@ -1,3 +1,1396 @@
+## 2026-09-30 — CI remoto confirmado no HEAD `13facee`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `13facee599c55e68fac7504bf39ad0d0a2c9edac`; working tree limpa.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36794695805` e `Software Package Lifecycle Gates` run `36794695898`; todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `bdfe9ef`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `bdfe9ef29d6327960ede4d8dd2a0ffa0438fc13c`; working tree está limpa.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36792229875` e `Software Package Lifecycle Gates` run `36792229870`; todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `b238390`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `b2383906d63417a697d07077379d3ff8b5cefea6`; working tree estava limpa antes desta atualização documental.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36791476101` e `Software Package Lifecycle Gates` run `36791476110`; todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `bf6b01e`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `bf6b01ebb48404d30e3d3ba7f8de1d5c2fe0d7bd`; working tree limpa.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36790395490` e `Software Package Lifecycle Gates` run `36790395528`; todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `2fac447b2021e46127b97e392d9206ee831348be`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `2fac447b2021e46127b97e392d9206ee831348be`; working tree limpa antes desta atualização.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36788901698` e `Software Package Lifecycle Gates` run `36788901666`; todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `2efc3778af582319506266722e7d40a4750b53dc`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `2efc3778af582319506266722e7d40a4750b53dc`; estado verificado antes desta atualização.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36782168144` e `Software Package Lifecycle Gates` run `36782167989`; todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — estado verificado no HEAD `19093492911e9ae7fa7b3ee1b52bbffbed6903dd`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `19093492911e9ae7fa7b3ee1b52bbffbed6903dd`; working tree limpa.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36776907046` e `Software Package Lifecycle Gates` run `36776906993`; todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `3505eb05e2baf6515815c5134854590e370d552a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `3505eb05e2baf6515815c5134854590e370d552a`; working tree limpa.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36773191604` (13 jobs) e `Software Package Lifecycle Gates` run `36773191475` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `ccea1201501e627ea5cfba29588fa9ab8778ba9c`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `ccea1201501e627ea5cfba29588fa9ab8778ba9c`; working tree limpa.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36770008849` (13 jobs) e `Software Package Lifecycle Gates` run `36770008852` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `357c460da41a5190821342a087f990eacff63162`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `357c460da41a5190821342a087f990eacff63162`; working tree limpa.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36767883998` (13 jobs) e `Software Package Lifecycle Gates` run `36767884082` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `6c13d3381306e81631d0b38183dabf16ed6cb394`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `6c13d3381306e81631d0b38183dabf16ed6cb394`; working tree estava limpa antes desta atualização documental.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36764206324` (13 jobs) e `Software Package Lifecycle Gates` run `36764206316` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `6f48262ab6d35047ea816ea4ffff56f5e72f80f5`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `6f48262ab6d35047ea816ea4ffff56f5e72f80f5`; working tree limpa.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36763128781` (13 jobs) e `Software Package Lifecycle Gates` run `36763128694` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `a4e66a545a493ff5e6e36600c73157a8c3d8f16b`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `a4e66a545a493ff5e6e36600c73157a8c3d8f16b`; working tree limpa.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36760855396` (13 jobs) e `Software Package Lifecycle Gates` run `36760855353` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `3c171ea3ed03b7f2656c5e36c9cc4d405c3b9e93`
+
+- `develop` está no HEAD `3c171ea3ed03b7f2656c5e36c9cc4d405c3b9e93`; working tree limpa.
+- CI remoto real no SHA exato: **16/16 SUCCESS** — `CI` run `36754671669` (13 jobs) e `Software Package Lifecycle Gates` run `36754671574` (3 jobs).
+- PR #340 está aberta contra `main`; sem merge neste ciclo.
+- Backlog CODE executável esgotado. WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `e838dd8ef90565f71582828132912af5aeed145f`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `e838dd8ef90565f71582828132912af5aeed145f`; working tree limpa antes desta atualização documental.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36751772420` (13 jobs) e `Software Package Lifecycle Gates` run `36751772158` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `9f9bde45a99dd761247f307b029b1f1e077db920`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `9f9bde45a99dd761247f307b029b1f1e077db920`; working tree estava limpa antes desta atualização documental.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36748920232` (13 jobs) e `Software Package Lifecycle Gates` run `36748920166` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `fbdf33bbbdee022ee10def152e971e1744b404c1`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `fbdf33bbbdee022ee10def152e971e1744b404c1`; working tree limpa.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36745119580` (13 jobs) e `Software Package Lifecycle Gates` run `36745119649` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `a9aa8032a1ab636e7e0bce6562e8ba7e583edd35`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `a9aa8032a1ab636e7e0bce6562e8ba7e583edd35`; working tree limpa.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36743414956` (13 jobs) e `Software Package Lifecycle Gates` run `36743415232` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Nenhuma tarefa CODE executável nova identificada. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `22d1bcdc2c5453cb91286dc3b7eeefb7795b0fab`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `22d1bcdc2c5453cb91286dc3b7eeefb7795b0fab`; working tree limpa antes desta atualização.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36740765109` (13 jobs) e `Software Package Lifecycle Gates` run `36740765115` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Nenhuma tarefa CODE executável nova identificada. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `6c1316191b23a9818f29f040a4e2dc04859a1c04`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `6c1316191b23a9818f29f040a4e2dc04859a1c04`; working tree limpa antes desta atualização.
+- CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36738655715` (13 jobs) e `Software Package Lifecycle Gates` run `36738655794` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Nenhuma tarefa CODE executável nova identificada. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `4caf92e`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `4caf92e3c0df9be5084a3e1db275deb661c00599`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36733283283` (13 jobs) e `Software Package Lifecycle Gates` run `36733283294` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `9e8256b`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `9e8256b92a923388980efe86c09140a6b9c2f2d5`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36729216696` (13 jobs) e `Software Package Lifecycle Gates` run `36729216718` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `77823a1`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `77823a1dec3fe51af8137ba4fc6cadaa87c2cb11`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36719137628` (13 jobs) e `Software Package Lifecycle Gates` run `36719137686` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência de runtime `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `4cc09d9`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `4cc09d9c869deea770530bb556e415e0d711f2a2`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36717891413` (13 jobs) e `Software Package Lifecycle Gates` run `36717891381` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `45eb53c`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `45eb53ccb656361782deb2774e0a25caa7c31772`; HEAD foi verificado com working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36716024052` (13 jobs) e `Software Package Lifecycle Gates` run `36716024117` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `d9164a7`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `d9164a7de7417c4fd8bfe412014845943355740b`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36714972963` (13 jobs) e `Software Package Lifecycle Gates` run `36714972886` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `b62f243`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `b62f2437606076635c42b1a5f49850bf88072bd2`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36712843001` (13 jobs) e `Software Package Lifecycle Gates` run `36712843016` (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `22002af`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `22002afb50ec8a991eb75e0c54358aff0a2fb2e5`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36705369604` (13 jobs) e `Software Package Lifecycle Gates` run `36705369840` (3 jobs); jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `1b2864b`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `1b2864b4f9bdc17adabadbef650a6b6e0c107748`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36704161364` (13 jobs) e `Software Package Lifecycle Gates` run `36704161450` (3 jobs); jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `5580f6e`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `5580f6edfa0cb21e3f65842f897b538b36d3fa41`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36701578330` (13 jobs) e `Software Package Lifecycle Gates` run `36701578560` (3 jobs); jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `6c36616`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `6c366168c92b374ac86ebd7fabb73cada8981248`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36697433918` (13 jobs) e `Software Package Lifecycle Gates` run `36697433884` (3 jobs); jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `026738f`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `026738f53220d2ab14e8d4fadced5c729e5330e7`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36696343042` (13 jobs) e `Software Package Lifecycle Gates` run `36696343044` (3 jobs); jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `0310e3b`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `0310e3ba4a99cd35ca9094a0bd087a4d44f083e3`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36695290596` (13 jobs) e `Software Package Lifecycle Gates` run `36695290573` (3 jobs); jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `77a9dbe`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `77a9dbe82b36491dec87e9b1085635a971c07b98`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36692064179` (13 jobs) e `Software Package Lifecycle Gates` run `36692064155` (3 jobs); jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `24456b1`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `24456b1329cbaf1a49b5bbe58c2d113f588d1726`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: CI run 36690119153 (13 jobs) e Software Package Lifecycle Gates run 36690119128 (3 jobs); todos os jobs executaram steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência CODE/CI/SIMULATED; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release v0.3.1 seguem PENDING/BLOCKED. PHYSICAL: USER-APPROVED / NOT EXECUTED.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `e3930bc`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `e3930bcb795b38bca600c7c85590fb10012a8746`; working tree estava limpa antes deste registro.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36688938121` (13 jobs) e `Software Package Lifecycle Gates` run `36688938125` (3 jobs), todos com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `88b6365`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `88b6365d38ebd62ce97fb8068ef77ae70f4c658b`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36687921583` (13 jobs) e `Software Package Lifecycle Gates` run `36687921587` (3 jobs), todos com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `dfe3560`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `dfe3560c6455508191f3cd564e83e5cd2e23b525`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36686793467` (13 jobs) e `Software Package Lifecycle Gates` run `36686793322` (3 jobs), todos com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `4609d19`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `4609d193d66e933dc477fabd5673ea3247968d2a`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36683769135` (13 jobs) e `Software Package Lifecycle Gates` run `36683769107` (3 jobs), todos com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `13f3db1`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `13f3db10aaf4c587663e7ff3d93a9e55236b3faf`; working tree limpa antes deste registro.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: workflow `CI` run `36683056715` (13 jobs) e `Software Package Lifecycle Gates` run `36683056760` (3 jobs), todos com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `34cc6a2`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `34cc6a26d1ee8ac1566343aeac3bbbe215ef0c94`; working tree limpa antes deste registro.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: workflow `CI` run `36679572505` (13 jobs) e `Software Package Lifecycle Gates` run `36679572511` (3 jobs), todos com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `6daf7f9`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `6daf7f9ad78a5007f9ce0de3978b423010c60922`; working tree limpa antes deste registro.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36678431305` e `Software Package Lifecycle Gates` run `36678431423`; jobs executaram com steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `cd90b76`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `cd90b764578ceec43498c3044789e94141e67391`; working tree limpa antes deste registro.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36676506145` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36676506116` (3 jobs, steps reais).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `73dc1d1`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `73dc1d1c325b84119e1f8584c3b27c275cbc4875`; working tree limpa antes deste registro.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36675866427` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36675866656` (3 jobs, steps reais).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `97b2e67`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `97b2e6752b839b2be221764a4b54ad4fa7643c93`; working tree estava limpa antes deste registro documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36669539949` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36669539947` (3 jobs, steps reais).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `6ce433b`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `6ce433b7653d5a00f74d0445d252b84bd651d766`; working tree estava limpa antes deste registro documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36668703381` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36668703369` (3 jobs, steps reais).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `6eca06f`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `6eca06fbacec09c48711abe29b4f101ef5a9dcf0`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36668137918` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36668137921` (3 jobs, steps reais).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `0f25f8c`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `0f25f8c1a8e75b3a6999f1db041e9fcad9b277d7`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36666714223` e `Software Package Lifecycle Gates` run `36666714289`; jobs executaram com steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem pendentes. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `1ba60a4`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `1ba60a46cc1a1574a7bfc63c23021538e00a4953`; working tree limpa.
+- CI real no SHA exato: 16/16 SUCCESS (`36666055113`, `36666055110`), com steps executados.
+- PR #340 continua aberta contra `main`; não fazer merge neste ciclo.
+- Nenhuma tarefa CODE executável nova identificada. Próximo ciclo deve revalidar CI e backlog; manter `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `5e2576e`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `5e2576e42312eb6a4c43b2464c318c3fc8e016ff`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36664429808` e `Software Package Lifecycle Gates` run `36664429806`; jobs executaram com steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — handoff no HEAD `39a3cd3`
+
+- `develop` e `origin/develop` sincronizadas em `39a3cd3d64f2ac98db865ae7bfeb45a673dd81a9`.
+- CI real no SHA exato: 16/16 SUCCESS (`36663771217`, `36663771233`), com steps executados.
+- PR #340 continua aberta contra `main`; não fazer merge neste ciclo.
+- Nenhuma tarefa CODE executável nova identificada. Próximo ciclo deve revalidar CI e backlog; manter `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `7a28e4b`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `7a28e4b9a5472ae50113887089105b4d43406991`; working tree limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36661932592` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36661932581` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `b4b3d79`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `b4b3d79be85e1c3e245708510e9f47f5d10baba5`; working tree limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36659977995` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36659977873` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `69b821c`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `69b821c0c766138a2c657db62627988bac42e0cb`; working tree limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36658828354` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36658828360` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `3a9eee4`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `3a9eee432a26a1a6ca6ed5bf38c1a43a46f45e25`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: workflows `CI` e `Software Package Lifecycle Gates`, runs `36657428068` e `36657428060`, com steps reais.
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `f1bce0c`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `f1bce0cfff8a9ae73c2146d4a4828cd983e2667d`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36656546110` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36656546106` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`.
+- [x] Evidência deste registro: `CODE/CI/SIMULATED`; validação física não executada.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `49b73a3`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `49b73a37aaef19c55b9fb2e79abf9579c5df72a5`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36655834425` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36655834457` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `0418045`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `04180454a5df75aa359ce189381381a3c10f7a1f`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36654832435` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36654832458` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `85884fc`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `85884fcc6fcd3eaac1e219dbe35fb75c274754d4`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36654123420` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36654123423` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `626d2da`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `626d2daebf78c2b62e7829aa360b6555a04e6f35`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36653444253` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36653444235` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `57cd50b`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `57cd50bbb997e224f41d5dc04dc903e99a267bc3`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36652421690` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36652421688` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `b58a320`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `b58a3208a06060b631d7e82b72d0bde85f36b9b7`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36650433417` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36650433289` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI remoto confirmado no HEAD `afdecd9`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `afdecd9b1db93174a1211783dbf942ede9e3542b`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36649747511` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36649747586` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI remoto confirmado no HEAD `efb8f7d`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `efb8f7d4c3d0e5ddd396c6fe776d7533cdd88954`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36647163825` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36647163834` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+
+## 2026-09-29 — CI remoto confirmado no HEAD `2fd29a0`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `2fd29a0594c67147a60f75bf5d6a1e20fc495e73`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36646172629` e `Software Package Lifecycle Gates` run `36646172698`; conclusão `success` em ambos, SHA exato confirmado.
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI remoto confirmado no HEAD `5c9791f`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `5c9791f` (HEAD exato desta execução); working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36644410144` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36644410034` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `4a02867`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `4a028675656c007fa1ea94cc9ac785191e218749`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36642427156` e `Software Package Lifecycle Gates` run `36642427160`; 132 steps com `conclusion: success`; runner real executado.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `14cfc04`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `14cfc04e7caf58753b4df16677b7c029ced8d7b1`.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36634051382` e `Software Package Lifecycle Gates` run `36634051343`.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `99158e8`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `99158e84e728ad74b884d6d11fb316f225fe1852`.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36632986351` e `Software Package Lifecycle Gates` run `36632986342`.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `19f0d5b`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `19f0d5b4f76ffd5cafe4ee25d584de8db9b9176e`.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36629568576` e `Software Package Lifecycle Gates` run `36629568577`.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `669d92e`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `669d92e8e6bf892086e951847eab5935bcd600c0`; working tree limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36627255761` e `Software Package Lifecycle Gates` run `36627255762`; jobs executaram com steps reais.
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `6c16b9a`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `6c16b9a84b7b6c0ac5da8a4acd2b998ab490b86c`; working tree limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: **16/16 SUCCESS**; `CI` run `36626104265` e `Software Package Lifecycle Gates` run `36626104238`; todos os jobs executaram com steps reais.
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `14138c1`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `14138c10276819a2f116e801b32f4dd50c599f12`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: **16/16 SUCCESS**; `CI` run `36624874034` e `Software Package Lifecycle Gates` run `36624873796`; todos os jobs executaram com steps reais.
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `14138c1`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `14138c10276819a2f116e801b32f4dd50c599f12`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: **16/16 SUCCESS**; `CI` run `36624874034` e `Software Package Lifecycle Gates` run `36624873796`; todos os jobs executaram com steps reais.
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `99a6ea0`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `99a6ea07956b666631489652f0abb4bd1d25b59b`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: **16/16 SUCCESS**; `CI` run `36623600962` e `Software Package Lifecycle Gates` run `36623601124`; jobs executaram com steps reais.
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `230a8a9`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `230a8a960d3e8350658db5d4e549fe6bb784855a`.
+- [x] CI remoto real do HEAD exato: workflows `CI` (run `36619190140`) e `Software Package Lifecycle Gates` (run `36619190297`) concluídos com SUCCESS; jobs executaram de verdade.
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `d69575f`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `d69575f9a399d383b8092438ad75df2ffc55e001`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36606583755` e `Software Package Lifecycle Gates` run `36606583864`; todos os jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `67d4e70`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `67d4e705d96260a1e9ff61968d12498dfc1581bb`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36605322748` e `Software Package Lifecycle Gates` run `36605322763`; todos os jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — fix: audio-engine clippy commit `2ed9b76`
+
+- Commit `2ed9b76` pushed to `develop`: removed unused imports (`ProcessStats`, `BackendKind`), redundant `as u32` casts, refactored `match→if let`, fixed frame count source to `ps.n_frames()`, downgraded `unsafe_code` lint from `forbid` to `deny` with scoped `#[allow]` on JACK shutdown impl.
+- Gates: `cargo fmt` clean, `cargo clippy --all-targets -D warnings` clean, `cargo test` all pass.
+- Independent review: PASS (no security concerns, no logic errors).
+- CI run queued for new HEAD; previous HEAD `e29064b` had 16/16 SUCCESS (runs `36600862643`, `36600862872`).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE: esgotado. Itens restantes exigem hardware físico (RPi5/PipeWire/ALSA), confirmação de release ou secrets externos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+
+## 2026-09-29 — CI confirmado no HEAD `376b246`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `376b246c62d67b5b7266535eefd9ff7aa749e816`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36599812694` e `Software Package Lifecycle Gates` run `36599812736`; todos os jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `3f9f9e9`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `3f9f9e94cbcbb458f0c0654939781bb953f0c30f`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36597991052` e `Software Package Lifecycle Gates` run `36597991136`; todos os jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `3252912`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `32529121e4ddf1a2925a1e7fa67481e97e6ab60a`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36596703953` e `Software Package Lifecycle Gates` run `36596704071`; todos os jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `fbcb0e8`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `fbcb0e8082570ff371a84919990e880c3f521346`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36593765424` e `Software Package Lifecycle Gates` run `36593765378`; todos os jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `40e3ebc`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `40e3ebcdd9ab2b09fee599a93fc030b92298f86d`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36591501597` e `Software Package Lifecycle Gates` run `36591501681`; todos os jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `55c6f2d`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `55c6f2dbd98cef90314e5235838387d6c3aa3850`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36589360831` e `Software Package Lifecycle Gates` run `36589360867`; todos os jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `952b026`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `952b0267f206774b4e16363b52816b58d493c0b9`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato: **16/16 SUCCESS**; `CI` run `36587133694` e `Software Package Lifecycle Gates` run `36587133676`; todos os jobs concluídos com steps executados.
+- PR #340 permanece aberta contra `main`; sem merge conforme política vigente.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `0b9a935`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `0b9a9359cc4b79a6f9a7cfaab56b75a607a54578`; working tree limpa antes desta atualização documental.
+- CI do commit documental anterior `02dc563` foi confirmado em 16/16 SUCCESS; os jobs executaram com steps reais. Novo commit aguarda execução própria no GitHub Actions.
+- PR #340 permanece aberta contra `main`; sem merge conforme política vigente.
+- Backlog CODE executável permanece esgotado; itens bloqueados restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `02dc563`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `02dc563a17b1414e674e4bde4a71cd4b615f4638`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato: **16/16 SUCCESS**; workflow `CI` run `36582858603` e `Software Package Lifecycle Gates` run `36582858673`; todos os jobs concluídos com steps executados.
+- PR #340 permanece aberta contra `main`; sem merge conforme política vigente.
+- Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `df88779`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `df88779e0242551457cfc6f9fd85e431a7154aad`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato: **16/16 SUCCESS**; workflow `CI` run `36579169488` e `Software Package Lifecycle Gates` run `36579169776`; todos os jobs concluídos com steps executados.
+- PR #340 permanece aberta contra `main`; sem merge conforme política vigente.
+- Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `c3fee09`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `c3fee09e414787487d697ba0f056abae21bc85b7`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato: **16/16 SUCCESS** no agregado dos workflows `CI` (run `36577850285`, 13 jobs) e `Software Package Lifecycle Gates` (run `36577850606`, 3 jobs), todos com steps executados.
+- PR #340 permanece aberta contra `main`; sem merge conforme política vigente.
+- Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `8ac3b75`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `8ac3b75b054b233869d38e430c945c53a232b668`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato: **16/16 SUCCESS**; `CI` run `36576723055` e `Software Package Lifecycle Gates` run `36576723527`, com steps executados de verdade.
+- PR #340 permanece aberta contra `main`; sem merge conforme política vigente.
+- Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `b344608`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `b3446083a2b2959d49426a5c375ca4b98a49518a`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato: **16/16 SUCCESS**; `CI` run `36574791124` e `Software Package Lifecycle Gates` run `36574790490`, com steps executados de verdade.
+- PR #340 permanece aberta contra `main`; sem merge conforme política vigente.
+- Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `eea380e`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `eea380e88c4aa22c9107f90102af33f4aaf7047c`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato: **16/16 SUCCESS**; `CI` run `36573712374` e `Software Package Lifecycle Gates` run `36573711789`, com steps executados de verdade.
+- PR #340 permanece aberta contra `main`; sem merge conforme política vigente.
+- Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `3c54bf1`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `3c54bf139aa16ca14420a47873501fbb2870498b`; working tree estava limpa antes desta atualização documental.
+- CI remoto real observado no HEAD exato: `CI` run `36558323618` e `Software Package Lifecycle Gates` run `36558323619`; 16/16 jobs SUCCESS, todos com steps executados.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `ad36828`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `ad3682873d3f75a2cc93875c75ff9d02b7c74073`; working tree estava limpa antes desta atualização documental.
+- CI remoto real observado no HEAD exato: `CI` run `36556297666` (https://github.com/rickslamaral/open-iem-platform/actions/runs/36556297666) e `Software Package Lifecycle Gates` run `36556297592` (https://github.com/rickslamaral/open-iem-platform/actions/runs/36556297592); 16/16 jobs SUCCESS, todos com steps executados. `CODE/CI/SIMULATED` qualifica somente evidência de runtime/hardware, não esses jobs CI.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `6328125`
+
+- [x] `develop` e `origin/develop` sincronizadas em `6328125c9db271bf927de20502fbd012ae551864`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36554183253`, `Software Package Lifecycle Gates` run `36554183273`; todos os jobs com steps reais.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `c80a94a`
+
+- [x] `develop` e `origin/develop` sincronizadas em `c80a94a7a2d73bdd644258de14d5e5b0df98dcc6`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36551997611`, `Software Package Lifecycle Gates` run `36551997563`; todos os jobs com steps reais.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `67a1f6c`
+
+- [x] `develop` e `origin/develop` sincronizadas em `67a1f6c419c9e1bbe3f17436bcb08b74922329fe`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36550099659`, `Software Package Lifecycle Gates` run `36550099688`; todos os jobs com steps reais.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `5a04104`
+
+- [x] `develop` e `origin/develop` sincronizadas em `5a04104ee764f6a6174bee1110b7662156cd4177`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36549126838`, `Software Package Lifecycle Gates` run `36549126835`; todos os jobs com steps reais.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `c4c3f2b`
+
+- [x] `develop` e `origin/develop` sincronizadas em `c4c3f2bc89f68414ec9e4b85026b795d0bbc97be`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36545735036`, `Software Package Lifecycle Gates` run `36545735092`; todos os jobs com steps reais.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `1711b99`
+
+- [x] `develop` e `origin/develop` sincronizadas em `1711b99`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36544456280`, `Software Package Lifecycle Gates` run `36544456439`; todos os jobs com steps reais.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `16ed89a`
+
+- [x] `develop` e `origin/develop` sincronizadas em `16ed89a`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36542229270`, `Software Package Lifecycle Gates` run `36542229281`; todos os jobs com steps reais.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] 1288 testes totais passando localmente.
+- [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `058c1ed`
+
+- [x] `develop` e `origin/develop` sincronizadas em `058c1ed`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: 13/13 SUCCESS; `CI` run `36541377652`, `Software Package Lifecycle Gates` run `36541377443`; todos os jobs com steps reais.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] 1288 testes totais passando localmente.
+- [x] Backlog CODE esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `f52024b`
+
+- [x] `develop` e `origin/develop` sincronizadas em `f52024b`; working tree estava limpa antes desta atualização documental.
+- [x] Dois commits novos neste ciclo:
+  - `03e8949` `[verified] feat(scene-manager): cap revision history at MAX_REVISIONS_PER_SCENE=32` — adiciona constante e prune atômico na transação de save.
+  - `f52024b` `[verified] test(scene-manager): rollback_rejects_pruned_revision regression guard` — testa que rollback para revisão prunada retorna NotFound.
+- [x] Gates locais: fmt/clippy limpos; 38/38 testes scene-manager; 1246 testes totais todos verdes; revisão independente PASS em ambos os commits.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Backlog CODE: itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `bceb956`
+
+- [x] `develop` e `origin/develop` sincronizadas no commit `bceb956d203a1ff9893869b5278cd1df87b15042`; working tree estava limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato: 16/16 SUCCESS; `CI` run `36532903638`, `Software Package Lifecycle Gates` run `36532903586`.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `2d2a881`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `2d2a8817393b641a4de5d124b719e008f78fbfcb`; working tree limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36532133000`) e `Software Package Lifecycle Gates` (run `36532132948`); jobs executaram de verdade.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `62ae159`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `62ae1591914608c11740f25221669d0304afacec`; working tree limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36531203193`) e `Software Package Lifecycle Gates` (run `36531203234`); jobs executaram de verdade.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `3e27e6b`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `3e27e6bb78103a733e0633e93300928262b56425`; working tree limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36530436464`) e `Software Package Lifecycle Gates` (run `36530436491`); jobs executaram de verdade.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `1890236`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `18902360032ee6f9d9a38d9697cc9e1c0ebaa60a`; working tree limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36529561013`) e `Software Package Lifecycle Gates` (run `36529561141`); jobs executaram de verdade.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `bbb215f`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `bbb215f7d38bbe53ecc1171c460da3529b910e45`; working tree limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36528577866`) e `Software Package Lifecycle Gates` (run `36528577872`); jobs executaram de verdade.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE permanece esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `d690bed`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `d690bed7f5eaeb7456a95fb1121e9ff78c8d8cd9`; working tree limpa antes desta atualização documental.
+- [x] CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36527543644`) e `Software Package Lifecycle Gates` (run `36527543648`); jobs executaram de verdade.
+- [x] PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- [x] Backlog CODE permanece esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `13b9774`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `13b9774ad9afc65c4d6fbcece7fe0f296dabdb79`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36526687479`) e `Software Package Lifecycle Gates` (run `36526687490`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `ede9d6b`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `ede9d6bf4e4d3df89eb06a77cad33ee21364c938`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36525886850`) e `Software Package Lifecycle Gates` (run `36525886848`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Backlog CODE permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `c64da5a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `c64da5a82773b1586093fe1583898a79ad62bb57`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36524518048`) e `Software Package Lifecycle Gates` (run `36524518066`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `dfc1c48`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `dfc1c4839501434908b37441848401620e95ba03`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36523648478`) e `Software Package Lifecycle Gates` (run `36523648482`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `950688a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `950688a`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36522500913`) e `Software Package Lifecycle Gates` (run `36522500931`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `c2e50d3`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `c2e50d39c9c3b37d62cd704fe78d79e626be53fd`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36521676478`) e `Software Package Lifecycle Gates` (run `36521676570`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `1acd16e`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `1acd16e0af5b680fd4085ae4c631420ef1156d46`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36520573617`) e `Software Package Lifecycle Gates` (run `36520573736`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `02465c8`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `02465c88cc23d3b225c549143704db494802a032`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36519913375`) e `Software Package Lifecycle Gates` (run `36519913419`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `0532b89`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `0532b899ea075bdb7fa14466f13f5e7824a23bcf`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36518727837`) e `Software Package Lifecycle Gates` (run `36518727814`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `a936f00`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `a936f007d...`; working tree estava limpa antes desta atualização documental.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- CI remoto real observado no HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36510287026`) e `Software Package Lifecycle Gates` (run `36510286970`); jobs executaram de verdade.
+- Backlog CODE esgotado: nenhum item `[ ]` executável sem hardware físico, confirmação de release ou secret externo. Não há tarefa CODE segura a implementar.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `2540829`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `25408293f6cccda807e839564fc2ec3b76d16ee1`.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- CI remoto real observado no HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36509715462` e `36509715460`); jobs executaram de verdade.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN e Raspberry Pi 5 permanecem não validados. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `8542bdb`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `8542bdb`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- CI remoto real observado no HEAD exato concluiu 16/16 SUCCESS; jobs executaram de verdade.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI reconciliado no HEAD `26cd74a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `26cd74ac704a61b03f3bee2fdba1fef49ad26e04`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`, conforme política vigente; nenhum merge ou nova PR foi executado.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36505523140` e `36505523135`); jobs executaram de verdade.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — admin API test key isolation
+
+- Corrigido `routes/admin.rs::test_keys()` para usar UUID v4 nos caminhos temporários, eliminando colisões entre testes paralelos. Geração e exportação OpenSSL agora exigem exit status bem-sucedido antes da leitura dos arquivos.
+- Evidência: `cargo test --manifest-path server/Cargo.toml` PASS; revisão independente PASS.
+
+## 2026-09-28 — session drive fairness review correction
+
+- Independent review found two fairness defects in `SessionRegistry::drive_once`: RTC polling still followed unordered `HashMap` order, and draining a batch could discard frames beyond shared output budget.
+- Corrected implementation rotates one deterministic session order across RTC polling and media processing; media drains one frame per bounded iteration, preserving queued FIFO frames across calls. Encode failure with one remaining output slot stops session processing without consuming later queued frames.
+- Cursor now records RTC events from both polling stages, so every budget-consuming session advances round-robin state.
+- Verification: Rust fmt, clippy, full server suite (all tests PASS), streaming focused suite (27 PASS), Musician frontend typecheck/tests/build (61 tests PASS), Engineer frontend typecheck/tests/build (57 tests PASS). Evidence `CODE`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, LAN and Raspberry Pi 5 remain unvalidated. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — SessionRegistry round-robin fairness
+
+- `SessionRegistry::drive_once` rotates session processing after each bounded pass, preserving initial lexicographic order and FIFO while preventing repeated `output_budget=1` calls from starving later negotiated sessions. Focused CODE regression and local fmt/test/clippy gates pass; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-28 — CI reconciliado no HEAD `bd37895`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `bd37895080bd2fc0c577b32e2dc7de8e9f97d2d3`; working tree estava limpa antes desta atualização documental.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente. CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos runs `36496946116` e `36496946074`; jobs executaram de verdade.
+- Este ciclo somente reconcilia estado documental; não introduz comportamento novo nem claim de runtime ou hardware.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — CI reconciliado no HEAD `97461d4`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `97461d4a5d1384edfe541791b11f01459877d8e1`; working tree estava limpa antes desta atualização documental.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente. CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos runs `36495914226` e `36495914179`; jobs executaram de verdade.
+- Este ciclo somente reconcilia estado documental; não introduz comportamento novo nem claim de runtime ou hardware.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — CI reconciliado no HEAD `d3bc73a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `d3bc73ac1916558dc730d8b8fa688b64973ae0c0`; working tree estava limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente. CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos runs `36493681853` e `36493681855`; jobs executaram de verdade.
+- Cobertura recente valida rotas REST de login/logout/refresh: 8 testes novos, 160 testes no conjunto auth/API. Evidência `CODE/CI/SIMULATED`.
+- Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — estado verificado no HEAD `25638d8`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `25638d8ae87863d26a740e02a6a07943051e583d`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`, conforme política vigente; CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos runs `36478830258` e `36478830252`, com jobs executados de verdade.
+- Última mudança CODE preserva FIFO de mídia negociada quando `SessionRegistry::drive_once` não tem writer utilizável; nenhum comportamento novo foi implementado neste ciclo.
+- Evidência: `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem pendentes.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — estado verificado no HEAD `9c720aa`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `9c720aa611f22ce526f63e1046b7ad9c5fe55d0e`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`; CI remoto real do HEAD exato concluiu 16/16 SUCCESS, com jobs executados de verdade (runs `36474267795` e `36474267843`).
+- Inventário atual não contém nova tarefa CODE executável segura sem fabricar escopo; release `v0.3.1`, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN e Raspberry Pi 5 seguem pendentes.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — estado verificado no HEAD `bd7cf7b`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `bd7cf7b548e08fbe1d47f215fa3f14027580fcd2`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`; ponta coincide com HEAD local e CI remoto real concluiu 16/16 SUCCESS, com jobs executados de verdade (runs `36471892420` e `36471892342`).
+- Inventário atual não contém nova tarefa CODE executável segura sem fabricar escopo; release `v0.3.1`, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN e Raspberry Pi 5 seguem pendentes.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+
+## 2026-09-28 — estado verificado no HEAD `124b7a2`
+
+- `develop` e `origin/develop` sincronizadas no HEAD `124b7a221dfaf383fe6de222200361bbc0a3cf29`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`; CI remoto real do HEAD exato concluiu 16/16 SUCCESS, com jobs executados de verdade.
+- Última mudança CODE contabiliza falha de `MediaWriter` ausente antes de `write`; nenhuma validação de runtime ou hardware foi feita.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, LAN, Raspberry Pi 5 e release `v0.3.1` permanecem pendentes.
+
+## 2026-09-28 — reconciliação documental no HEAD `5672029`
+
+- `develop` e `origin/develop` estão sincronizadas no HEAD `52b312c`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`; CI remoto real do HEAD exato concluiu 16/16 SUCCESS.
+- Este ciclo confirma estado remoto e não introduz comportamento novo nem claim de runtime.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real, Raspberry Pi 5 e release `v0.3.1` permanecem pendentes.
+
+## 2026-09-28 — reconciliação documental no HEAD `fd6b6c8`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `fd6b6c8f823151a25f63b11db4ce8a31568c6bd1`; working tree estava limpa antes desta atualização documental.
+- PR #340 permanece aberta contra `main`; CI remoto real do HEAD exato concluiu 16/16 SUCCESS.
+- O commit atual somente aplica rustfmt aos testes das rotas de configuração. Não altera comportamento nem escopo de validação.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real, Raspberry Pi 5 e release `v0.3.1` permanecem pendentes.
+
+## 2026-09-28 — verificação local do HEAD `b1ac4d6`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `b1ac4d61e8c8e97a7e39767bb889dd168696fd35`; working tree estava limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- CI real do HEAD exato: **16/16 SUCCESS**. Gates incluem Rust, frontends, segurança, documentação, pacotes `.deb` amd64/arm64 e áudio `SIMULATED`.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` continuam pendentes.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — audio signaling bounds verification
+
+- Focused integration tests `oversized_offer_sdp_returns_400_before_negotiation` and `oversized_ice_candidate_returns_400_before_session_lookup` both PASS in this verification run.
+- The previous note that focused execution remained pending is obsolete; both focused commands now have recorded PASS evidence.
+- Evidence remains `CODE`; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real LAN, Raspberry Pi 5 and physical hardware remain unvalidated.
+
+## 2026-09-28 — estado verificado no HEAD `e2928d4`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `e2928d4a2faf352a90df5566ac78d456eb7c12f9`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu com sucesso: `CI` e `Software Package Lifecycle Gates`, 16 jobs executados de verdade (runs `36435434719` e `36435434716`).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge e abertura de novas PRs neste ciclo.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime e hardware permanecem não validados.
+- Próxima ação válida: validação física/release autorizada ou novo backlog explícito; não fabricar tarefa CODE.
+
+## 2026-09-28 — estado verificado no HEAD `3cdecc5`
+
+- `develop` e `origin/develop` permanecem sincronizadas antes desta atualização documental; estado observado no início do ciclo: `git status --short --branch` e `git rev-parse HEAD origin/develop`.
+- CI remoto do HEAD exato: 16/16 SUCCESS ([run 36433546639](https://github.com/rickslamaral/open-iem-platform/actions/runs/36433546639)); PR #340 segue aberta contra `main` ([PR #340](https://github.com/rickslamaral/open-iem-platform/pull/340)) por política vigente.
+- Última mudança CODE: `SessionRegistry::drive_once` preserva frames quando sessão negociada ainda não tem `MediaWriter` utilizável; `cargo test --manifest-path server/Cargo.toml -p streaming --lib drive_once_preserves_frames_when_media_writer_is_unavailable` PASS no commit `3cdecc5`.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime e hardware permanecem não validados.
+- Próxima ação válida: validação física/release autorizada ou novo backlog explicitamente definido; não fabricar tarefa CODE.
+
+## 2026-09-28 — estado verificado no HEAD `7ec16c5`
+
+- Reconciliado após commit documental `7ec16c5`: `develop` e `origin/develop` permanecem sincronizadas; working tree estava limpa antes desta atualização documental.
+- CI remoto do HEAD exato: 16/16 SUCCESS; PR #340 segue aberta contra `main` por política vigente.
+- Auditoria local: `cargo audit` instalado, mas invocação com `--manifest-path` é incompatível nesta versão; baseline RUSTSEC permanece registrado, sem novo finding confirmado.
+- Gates locais Rust e frontends PASS; revisão independente PASS.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime e hardware permanecem não validados.
+
+## 2026-09-28 — deterministic API test key generation
+
+- Corrigidos helpers `test_keys()` de `routes/auth.rs` e `routes/channels.rs`: UUID v4 elimina colisões de nomes temporários em testes paralelos; comandos OpenSSL agora falham explicitamente quando retornam status não-zero.
+- Verificação: `cargo fmt`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml` (todos os testes PASS), frontends Musician/Engineer typecheck, testes e build PASS.
+- Revisão independente: PASS, sem concerns de segurança ou lógica. Evidência `CODE`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-28 — estado CI reconciliado no HEAD `331f4d7`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `331f4d779799d48fd94bf7d521b903bb94871828`; working tree limpa antes desta atualização.
+- PR #340 permanece aberta contra `main`, sem merge conforme política deste ciclo.
+- CI real do HEAD exato concluiu **16/16 SUCCESS**, com jobs executados de verdade.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem pendentes.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — estado CI reconciliado no HEAD `95a0c81`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `95a0c81943e5832af4cbcf2f09ff4665435a9600`; sem mudanças não staged; alterações deste registro estão staged.
+- PR #340 permanece aberta contra `main`, sem merge conforme política deste ciclo.
+- CI real do HEAD exato concluiu **16/16 SUCCESS**, com jobs executados de verdade.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem pendentes.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — estado CI reconciliado no HEAD `100a908`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `100a9085efee2c11027d4447a0f34a436c262569`; HEAD e origin/develop alinhados.
+- PR #340 permanece aberta contra `main`; CI real do HEAD exato concluiu 16/16 SUCCESS, com jobs executados de verdade.
+- Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem pendentes.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — estado CI reconciliado no HEAD `47bd53b`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `47bd53bd96b9dcc2ce2041d722b8f433283ed812`; HEAD e origin/develop alinhados.
+- PR #340 permanece aberta contra `main`, sem merge conforme política do ciclo.
+- CI real do HEAD exato concluiu 16/16 SUCCESS; os 16 jobs completaram com `pass`.
+- Evidência permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — channels route RBAC and input-validation tests
+
+- Added 10 integration tests in `server/api-server/src/routes/channels.rs` covering:
+  - `get_state` authenticated (Musician OK) and unauthenticated (401)
+  - `list_channels` authenticated (Musician OK) and unauthenticated (401)
+  - `set_channel_gain` Engineer OK, Musician forbidden, out-of-range 400, non-finite 4xx
+  - `set_channel_mute` Engineer OK, Musician forbidden
+- `api-server` lib test count: 67 → 77 PASS; full server test suite PASS; frontends PASS.
+- Independent review: PASS.
+- Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-28 — estado CI reconciliado no HEAD `139ae8d`
+
+- `develop` e `origin/develop` estão sincronizadas em `139ae8dc2ed7a9609d4e9e0faf5e9ee58783dbb1`; HEAD e origin/develop alinhados.
+- PR #340 permanece aberta contra `main`, sem merge conforme política do ciclo.
+- CI real do HEAD exato concluiu 16/16 SUCCESS; workflows `CI` e `Software Package Lifecycle Gates` concluíram com jobs executados de verdade.
+- Evidência permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — estado CI reconciliado no HEAD `d109055`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `d109055d2bd3c4f6dee23113e0bc53449f835b9f`; HEAD e origin/develop alinhados.
+- PR #340 permanece aberta contra `main`, sem merge conforme política do ciclo.
+- CI real do HEAD exato concluiu 16/16 SUCCESS; os 16 jobs completaram com `SUCCESS`.
+- Evidência permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — short software release gate profile
+
+- Corrigido `scripts/ci/run-software-release-gates.sh`: perfil `OPENIEM_SOAK_SECONDS=1` agora executa ao menos uma iteração completa de áudio+mídia, em vez de encerrar antes do loop e reportar `no complete audio-media iteration`.
+- Verificação real: `bash -n scripts/ci/run-software-release-gates.sh` PASS; `OPENIEM_SOAK_SECONDS=1 bash scripts/ci/run-software-release-gates.sh dist/open-iem_0.3.1_amd64.deb` PASS, incluindo pacote, maintainer scripts, ALSA Loopback virtual 48 kHz/440 Hz e 533 testes `streaming`.
+- Evidência: `CODE/SOFTWARE/SIMULATED`; ALSA Loopback é proxy virtual, não USB/PipeWire físico. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — config backup invalid snapshot atomicity coverage
+
+- Added API integration regression proving Engineer restore rejects unsupported snapshot version with `400 Bad Request` and preserves existing control state.
+- Verification: focused api-server test PASS; clippy and frontend gates PASS. `cargo fmt --all -- --check` must target `server/Cargo.toml`; archive validator path is absent on this checkout.
+- Evidência: `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — Engineer revision history failure-state coverage
+
+- Engineer Console revision history now opens before fetch completion and keeps panel/error visible when revision loading fails; stale revision rows clear before each load.
+- Added frontend regressions for revision listing, empty history, rollback POST, close action, revision-load failure and rollback failure.
+- Verification: `npm run typecheck`, `npm run test -- --run` (57 tests) and `npm run build` PASS; Rust fmt/clippy/full test suite PASS.
+- Evidência: `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — GAP-018 DTLS fingerprint integration test fix
+
+- Fixed 3 DTLS fingerprint integration tests that were failing 403 due to incorrect
+  pairing setup: tests used `musician_id: "musician-1"` (a non-existent user) and
+  offered with a different musician token without mix assignment.
+- Fix: use actual test musician username in pairing `musician_id` field and call
+  `state.db.assign_mix(0, musician_id)` before the offer.
+- Tests now pass: `offer_with_matching_dtls_fingerprint_succeeds`,
+  `offer_with_mismatched_dtls_fingerprint_returns_400`,
+  `offer_with_paired_device_no_fingerprint_registered_accepts_any_sdp_fingerprint`.
+- GAP-018 api-server integration test coverage: match/mismatch/no-pin scenarios complete.
+- Commit `67d450f` pushed to `origin/develop`. Full gate: fmt/clippy/tests PASS (all suites).
+- Evidência: `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+- PHYSICAL: USER-APPROVED / NOT EXECUTED.
+
+## Estado atual — 2026-09-27 — documentação reconciliada
+
+- branches `develop` e `origin/develop` estavam sincronizadas no momento deste registro; working tree estava limpa antes desta atualização.
+- PR #340 aponta para este estado documental em `develop` contra `main`; CI registrado na PR #340: 16/16 SUCCESS, todos os jobs executados.
+- Evidência: `CODE/CI`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Release `v0.3.1` e validações físicas permanecem bloqueadas.
+
+## 2026-09-27 — failed bound replacement preserves capacity state
+
+- Added CODE regression `phase553_failed_bound_replacement_at_capacity_preserves_session`: malformed SDP during replacement at full capacity leaves all existing session metadata unchanged. Focused test and streaming clippy PASS. Evidence `CODE` local; WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## Histórico — 2026-09-27 — local verification and dependency audit
+
+- Gates locais do HEAD `89ffd33`: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, `npm run typecheck` em ambos frontends, `npm run test -- --run` (musician: 61; engineer: 50) e `npm run build` em ambos — PASS.
+- O comando legado `npm test -- --watchAll=false` falha nos dois frontends com `Unknown option --watchAll`; Vitest passou com `npm run test -- --run`.
+- `cargo audit` em `server/`: BLOQUEIO baseline `RUSTSEC-2023-0071` em `rsa 0.9.10`, sem upgrade fix disponível; não introduzido neste ciclo. `scan_patterns.py` indisponível neste host; tentativa de scanner inline falhou por quoting e não produziu resultado.
+- Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
+
+- HEAD atual: `f3deabd` (`develop`), sincronizado com `origin/develop`.
+- CI real do HEAD exato `f3deabd` concluiu com sucesso nos workflows `CI` e `Software Package Lifecycle Gates`, com 16 jobs executados de verdade.
+- Gates locais deste ciclo ainda pendentes; PR #340 permanece aberta contra `main` e não será alterada por esta política.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+
+## 2026-09-27 — output budget excludes bridge drain
+
+- Corrigido `SessionRegistry::drive_once`: `output_budget` conta somente outputs RTC polled e pacotes de mídia codificados; frames drenados do bridge não consomem orçamento. Regressão cobre entrega de um frame com `output_budget=1`. Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+## 2026-09-27 — latched output failure ingress isolation
+
+- `OpusReceiver::playout` rejeita ingress pendente após falha latched de saída antes de processar jitter; drops são contabilizados e reconnect continua necessário para recuperação. Teste `playout_discards_ingress_after_latched_output_failure` PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — Decoded PCM validation helper
+
+- `OpusReceiver::playout` agora usa `decoded_pcm_is_valid` em caminhos de decode normal e PLC, mantendo validação fail-closed sem duplicação de regra. Testes locais focados e clippy do crate `streaming` PASS. Evidência CODE; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — reconnect recovery after output failure
+
+- Added CODE regression proving `OpusReceiver` recovers from an output failure after explicit reconnect: stale failure state clears, new-generation Opus frame plays, and receiver returns to `Playing`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — Bounded PCM exact maximum frame boundary
+
+- Added CODE regression `bounded_pcm_output_accepts_exact_maximum_frame_size`, proving `BoundedPcmOutput` accepts and preserves exactly `MAX_OUTPUT_SAMPLES` stereo samples at the upper valid boundary.
+- Focused verification pending; PipeWire/ALSA, runtime WebRTC/DTLS-SRTP, real network and Raspberry Pi 5 remain unvalidated.
+
+
+## 2026-09-27 — Bounded PCM finite-sample boundary
+
+- `BoundedPcmOutput::write` rejeita `NaN`, `+∞` e `-∞` antes de mutar a fila; regressão cobre preservação de frame válido. Evidência CODE local; PipeWire/ALSA, runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — Bounded PCM receiver output boundary
+
+- `streaming::BoundedPcmOutput` fornece fila de frames PCM estéreo limitada a 256 frames, rejeita overflow e entradas inválidas sem mutação e limpa frames pendentes em `mute`.
+- Evidência CODE local; saída PipeWire/ALSA, runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+## 2026-09-27 — TransportAdapter SslTcp rejection
+
+- Added CODE regression proving `Protocol::SslTcp` fails closed before UDP I/O and preserves the full registry FIFO queue. Runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
+## 2026-09-27 — TransportAdapter protocol validation
+
+- `TransportAdapter::send` e `send_from_registry` agora rejeitam `Protocol::Tcp` e `Protocol::SslTcp` antes de I/O; adapter suporta somente `Protocol::Udp`. Regressões cobrem rejeição e preservação da fila. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real, PipeWire/ALSA e Raspberry Pi permanecem não validados.
+
+## 2026-09-27 — TransportAdapter generic send budget boundary
+
+- Added CODE regression `send_caps_budget_without_consuming_beyond_limit`, proving generic `TransportAdapter::send` caps one pass at `TRANSPORT_SEND_BUDGET` and emits only bounded FIFO prefix. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## 2026-09-27 — TransportAdapter send budget boundary
+
+- Added CODE regression `send_from_registry_caps_budget_and_preserves_pending_suffix`, proving `TRANSPORT_SEND_BUDGET` caps one adapter pass and leaves FIFO suffix queued for later delivery. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+
+## 2026-09-27 — MediaBridge non-finite frame ordering
+
+- Added CODE regression proving `MediaBridge::drain_to` consumes a non-finite frame without delivering it, then preserves delivery of the following valid frame and its revision/sequence metadata.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming --lib drain_rejects_non_finite_frame_before_following_valid_frame` — PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaBridge partial fan-out overflow
+
+- Added CODE regression `drain_partial_destination_overflow_preserves_available_fanout`. Full destination queue drops one delivery; available destination receives frame; bridge queue consumes source once. Focused test and streaming clippy PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
+
+- HEAD atual: `0e5fa48` (`develop`), sincronizado com `origin/develop`.
+- CI real do HEAD exato `0e5fa48` concluiu com sucesso nos workflows `CI` e `Software Package Lifecycle Gates`, com 16 jobs executados de verdade.
+- Gates locais executados: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, clippy e `cargo test --manifest-path server/Cargo.toml` PASS (461 testes streaming; suíte total PASS).
+- PR #340 permanece aberta; política deste ciclo proíbe merge e abertura de novas PRs.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-27 — MediaPlane exact removal isolation
+
+- Added CODE regression proving removing one user ID deletes only that exact session and its queued frames while preserving another session and its frame. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi remain unvalidated.
+
+## 2026-09-27 — MediaPlane fan-out verification status
+
+- Current `develop` HEAD: `c3d8cc9`; streaming crate local suite: 459 tests PASS.
+- PR #340 CI for the current HEAD is in progress; do not declare green until all jobs finish with real evidence.
+- Evidence remains `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-27 — MediaPlane validation precedence
+
+- Added `invalid_mix_precedes_invalid_user_without_mutation`, proving mix validation remains first and registry state stays unchanged. Focused test PASS. Evidence `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-27 — MediaPlane oversized identity precedence
+
+- Added `oversized_user_id_precedes_capacity_rejection_without_mutation`, proving byte-over-limit user IDs fail before capacity checks and preserve the full registry. Focused test PASS. Evidence `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-27 — MediaPlane removal and re-registration state boundary
+
+- Added regression proving removal followed by re-registration creates clean queue/sequence/drop state without rewriting aggregate `MediaPlane` drop history. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — MediaPlane validation precedence at capacity
+
+- Added `invalid_mix_index_precedes_capacity_rejection_without_mutation`: full capacity does not mask invalid mix selection; registry remains unchanged.
+
+- Added `invalid_user_id_precedes_capacity_rejection_without_mutation`: full capacity does not mask malformed user identity; registry remains unchanged.
+- Focused test PASS. Evidence `CODE` local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## Histórico — 2026-09-27 — develop HEAD/CI status reconciliation
+
+- HEAD atual: `c3d8cc9` (`develop`). Gates locais do streaming: 459 testes PASS, fmt e clippy PASS.
+- Registro histórico: CI do HEAD daquele lote estava em execução. Estado corrente: `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`, exact HEAD CI 16/16 SUCCESS.
+- PR #340 permanece aberta e sem merge por política do ciclo.
+- Próximo trabalho: selecionar próxima fronteira CODE concreta de streaming/mídia; não reivindicar runtime físico.
+- Evidência física: `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-27 — software WebRTC/Opus multi-frame round trip
+
+- Expanded `two_peer_webrtc_opus_media_round_trip` to send and decode two Opus frames through two str0m peers, asserting frame count and 3,840 decoded samples.
+- Verification: focused `opus_roundtrip` test PASS; physical WebRTC/DTLS-SRTP, network, PipeWire/ALSA and Raspberry Pi remain unvalidated.
+
+## 2026-09-27 — software WebRTC/Opus evidence scope reconciliation
+
+- Escopo reconciliado: `two_peer_webrtc_opus_media_round_trip` cobre protocolo WebRTC/DTLS-SRTP/Opus em transporte UDP Sans-IO. Evidência `SOFTWARE/SIMULATED`; item de E2E runtime continua pendente conforme política que não fecha item por simulação.
+
+## 2026-09-27 — software two-peer WebRTC/DTLS-SRTP/Opus evidence
+
+- Adicionado teste `two_peer_webrtc_opus_media_round_trip` com dois peers `str0m`, ICE host virtual, handshake DTLS/SRTP, transporte UDP Sans-IO e decode Opus não silencioso no receiver.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --test opus_roundtrip two_peer_webrtc_opus_media_round_trip -- --nocapture` — PASS.
+- Evidência `SOFTWARE/SIMULATED`; não declarar rede física, PipeWire/ALSA ou Raspberry Pi. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-27 — Software Opus output proxy evidence
+
+- `scripts/ci/run-pipewire-software-e2e.sh` PASS: virtual sink/source enumeration; evidence label `SOFTWARE/SIMULATED`, not hardware or WebRTC.
+- `cargo test --manifest-path server/Cargo.toml -p streaming --test opus_roundtrip -- --nocapture` PASS: 7 tests. Full two-peer WebRTC/DTLS-SRTP remains pending.
+
+## 2026-09-27 — JitterBuffer maximum unambiguous distance after ordered suffix
+
+- Added CODE regression proving sequence `2^63 - 1` is accepted after ordered suffix `0`, preserving FIFO at maximum unambiguous serial distance.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming jitter_accepts_maximum_unambiguous_distance -- --nocapture` — 2 tests PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — JitterBuffer half-range rejection before ordered suffix
+
+- Added regression proving an ambiguous `2^63 + 1` sequence inserted before an ordered suffix is rejected without mutating FIFO contents.
+- Focused gate: `cargo fmt --manifest-path server/Cargo.toml --all -- --check` and `cargo test --manifest-path server/Cargo.toml -p streaming jitter_rejects_half_range -- --nocapture` — 3 tests PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — PLC failure drop-accounting regressions
+
+- Deterministic cfg(test)-only coverage now exercises PLC decoder failure and invalid PLC sample-count failure. Both branches preserve fail-safe mute and count drops in local and observability metrics.
+- Verification: focused tests and streaming clippy PASS. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — Non-finite MediaWriter sample boundary
+
+- `MediaWriter::encode` rejeita amostras `NaN` e infinitas antes de alocar PCM ou chamar Opus, retornando `NonFiniteSample`; falha preserva `next_rtp_timestamp`.
+- Testes CODE locais cobrem `NaN` e infinito; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 576 status
+
+- Adicionada regressão multi-frame do caminho `MediaBridge` → `MediaPlane` → `MediaWriter` → `OpusReceiver`; dois frames preservam ordem, `sequence`, `revision`, timestamps RTP consecutivos e energia estéreo após decode.
+- Verificação: teste focado e suíte `opus_roundtrip` — 6 testes PASS; `cargo clippy --manifest-path server/Cargo.toml -p streaming --all-targets -- -D warnings` PASS.
+- Evidência CODE/SIMULATED local; runtime WebRTC/DTLS-SRTP, rede real, PipeWire/ALSA e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 570 status
+
+- Adicionada regressão `playout_drains_stale_prefix_across_sequence_rollover`, combinando dreno de múltiplos pacotes stale com rollover `u64::MAX` → `0`; métricas e estado `Playing` permanecem corretos.
+- Verificação focada: `cargo test --manifest-path server/Cargo.toml -p streaming --lib playout_drains_stale_prefix_across_sequence_rollover` — 1 PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
+
+- `OpusReceiver::playout` agora remove todo prefixo stale/ambiguous do `JitterBuffer` em uma chamada, preservando `late_packets` para stale e `packets_dropped` para sequência ambígua.
+- Regressões cobrem dois pacotes stale seguidos por pacote esperado e pacotes ambíguos preservando reprodução válida.
+- Verificação: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo clippy --manifest-path server/Cargo.toml -p streaming --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 424 testes PASS.
+- Revisão independente: PASS; sugestões não bloqueantes sobre cobertura de limite já garantido pela capacidade bounded do `JitterBuffer`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 568 status
+
+- Corrigido isolamento de sessão em `OpusReceiver::reconnect`: pacotes já admitidos no `JitterBuffer` agora são descartados e contabilizados antes de aceitar mídia da nova geração.
+- Regressão renomeada e ampliada para provar que pacote pré-reconnect não toca a saída; novo pacote pós-reconnect recupera reprodução.
+- Verificação: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 421 testes PASS; `cargo clippy --manifest-path server/Cargo.toml -p streaming --all-targets -- -D warnings` PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 567 status
+
+- `JitterBuffer::push` agora rejeita uma inserção que faria o intervalo entre primeiro e último pacote deixar de ser uma relação serial ordenável; regressão cobre a janela não transitiva em torno de `2^63`.
+- Verificação: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 421 testes PASS; `cargo clippy --manifest-path server/Cargo.toml -p streaming --all-targets -- -D warnings` PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 566 follow-up status
+
+- Corrigida lacuna de `OpusReceiver::playout`: sequência ambígua após `next_sequence` estabelecido agora é descarte métrico fail-closed, não pacote atrasado.
+- Regressão cobre pacote `0`, playout para estabelecer expectativa, depois `2^63 + 1`; teste focado PASS.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 566 status
+
+- Adicionada regressão no caminho `OpusReceiver::playout` para sequência ambígua exatamente a meia faixa (`0` → `1_u64 << 63`).
+- O pacote ambíguo é contado como `packets_dropped`, não como `late_packets`; receiver permanece `Playing` e pacote válido anterior permanece recebido.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 565 status
+
+- Adicionada regressão para duplicata `u64::MAX` após rollover para `0` com ambos pacotes ainda na fila; `JitterBuffer` retorna `DuplicateSequence` e preserva FIFO.
+- Verificação focada PASS; evidência CODE local. Runtime WebRTC/DTLS-SRTP, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 564 status
+
+- `JitterBuffer::push` agora valida ordenação serial antes de aplicar capacidade; sequência ambígua em fila cheia retorna `InvalidPacket` e preserva FIFO.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 563 status
+
+- Adicionada regressão `jitter_invalid_packet_precedes_duplicate`, confirmando que payload Opus excedente com sequência já presente retorna `InvalidPacket` antes da deduplicação e preserva a fila.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 562 status
+
+- `JitterBuffer` agora tem regressão explícita para payload inválido com fila cheia: retorna `InvalidPacket` antes de avaliar capacidade e preserva estado da fila.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 561 status
+
+- `JitterBuffer` agora tem cobertura explícita para duplicata na fronteira de capacidade: retorna `DuplicateSequence`, preserva dois pacotes e mantém FIFO. Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 560 status
+
+- Added regression proving `JitterBuffer` clamps requested capacity above `MAX_JITTER_CAPACITY` and rejects the next packet without mutation. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — Phase 559 status
+
+- Adicionada regressão para duplicata Opus em `u64::MAX` após rollover para `0`; o pacote é classificado como `late_packets`, não como descarte, e o receiver permanece `Playing`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 558 status
+
+- `OpusReceiver` agora ordena sequências com aritmética serial wrap-aware e avança `next_sequence` com `wrapping_add`; rollover `u64::MAX` → `0` coberto por regressões CODE.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 557 status
+
+- `MediaSession::push_frame` agora usa incremento wrapping para `frame_sequence`; regressão cobre `u64::MAX` seguido de `0` sem panic e com ordem preservada.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 556 status
+
+- Adicionada regressão para confirmar que rejeição de frame antes da codificação não consome `next_rtp_timestamp`; os dois frames válidos seguintes mantêm timestamps `0` e `960`.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 553 status
+
+- Adicionada regressão para falha de envio UDP em `TransportAdapter::send_from_registry`; todos os datagrams não enviados retornam à fila em ordem FIFO quando há capacidade.
+- Verificação focada PASS; evidência CODE local. Runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 552 status
+
+- Adicionada regressão para oferta bound contendo fingerprints DTLS conflitantes; `negotiate_offer_bound` rejeita antes da substituição e preserva sessão existente.
+- Verificação: 403 testes `streaming` PASS localmente; evidência CODE local. Runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 550 — unsupported DTLS fingerprint algorithm boundary
+
+- Phase 550 adiciona regressão para rejeição explícita de algoritmo DTLS fingerprint diferente de `sha-256`, sem alterar estado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
+
+## 2026-09-26 — Phase 549 status
+
+- Adicionada regressão para fingerprint DTLS persistida malformada: `negotiate_offer_bound` rejeita antes da substituição e preserva sessão existente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 548 status
+
+- Corrigida comparação de fingerprint DTLS em `negotiate_offer_bound`: valor persistido agora passa pela mesma canonicalização do SDP, rejeitando formato inválido e aceitando apenas igualdade semântica.
+- Teste de identidade com fingerprint em maiúsculas adicionado. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — Phase 547 status
+
+- Added regression for `SessionRegistry::drive_once` with `frame_budget == 0`, confirming pre-existing transport output remains available for later bounded drain.
+- Focused verification: `cargo test --manifest-path server/Cargo.toml -p streaming --lib phase547_zero_frame_budget_preserves_pending_transport_outputs` — 1 test PASS. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — Phase 546 status
+
+- Added regression for `SessionRegistry::drive_once` with `frame_budget == 0`, confirming queued `MediaBridge` frames remain available to a later bounded call.
+- Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-26 — Phase 545 status
+
+- Added regression for `TransportAdapter::send_from_registry` with zero budget, confirming no transport output is consumed.
+- Verification: focused test and 395 `streaming` tests PASS locally; evidence CODE local only. Runtime WebRTC/DTLS-SRTP, real network and hardware remain unvalidated.
+
+## 2026-09-26 — Phase 544 status
+
+- Adicionada regressão para `drive_once` com orçamento de saída zero, confirmando preservação de saída de transporte pendente.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, rede real e hardware permanecem não validados.
+
+## 2026-09-26 — Phase 543 status
+
+- Added transport requeue overflow and internal-whitespace media identity regression coverage in `server/streaming`.
+- Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
 ## 2026-09-25 — Batch Phase 523–532 status
 
 - Dez regressões cobrem whitespace em user IDs de ICE, remoção literal de sessões/dispositivos, budgets zero/parciais, FIFO da fila e falhas sem mutação.
@@ -482,6 +1875,45 @@
 - Testes unitários cobrem snapshot com contadores populated e serialização dos nomes estáveis (`schema_version`, `packets_received`, `packets_dropped`, `reconnect_count`, `plc_frames_total`, `plc_consecutive_max`). Evidência CODE local; integração com binário headless, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA e hardware continuam pendentes.
 
 # Open IEM Platform — Development Handoff
+
+## Estado atual canônico — 2026-09-27
+
+- Branch: `develop`; HEAD local/remoto: `5df6047b7ef89c22e15ccb0cd680cb3035e9133a`; HEAD e origin/develop alinhados.
+- PR #340: aberta contra `main`, sem merge conforme política ativa.
+- CI exato do HEAD: **16/16 jobs SUCCESS**, incluindo Rust, frontends, segurança, packages amd64/arm64, ARM64 userspace smoke, Audio Lab/ALSA simulados, skills e documentação.
+- Suíte local registrada: **531 testes `streaming` PASS**; workspace Rust, frontends e gates documentais PASS nos ciclos recentes.
+- CODE/CI/SIMULATED cobre media plane, receiver, pairing, bounded SessionRegistry, replacement serialization, failure accounting e output-budget fairness.
+- Nenhum resultado acima prova runtime WebRTC/DTLS-SRTP real, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, térmica/energia ou Raspberry Pi 5.
+- Release `v0.3.1` permanece bloqueada por gates de release, autorização explícita e validação física requerida.
+
+## Estado histórico do lote — 2026-09-26
+
+- HEAD histórico `c3d8cc9` e CI pendente permanecem registrados somente como histórico; não representam estado atual.
+- CODE/CI/SIMULATED concluído até Phase 577. Isso não constitui validação física, runtime real, LAN real ou hardware.
+
+### Matriz compacta de evidência das 16 pendências
+
+| ID | Pendência | Evidência disponível | Estado |
+|---|---|---|---|
+| T01 | WebRTC E2E real | CODE/CI/SIMULATED; sem dois peers/runtime real | PENDING/BLOCKED |
+| T02 | DTLS-SRTP real | CODE/CI/SIMULATED; handshake/captura real ausentes | PENDING/BLOCKED |
+| T03 | PipeWire físico | Smoke virtual/CODE/CI; host físico ausente | PENDING/BLOCKED |
+| T04 | ALSA/USB físico | CODE/CI/SIMULATED; USB físico ausente | PENDING/BLOCKED |
+| T05 | LAN real | Perfis determinísticos CODE/CI/SIMULATED; LAN real ausente | PENDING/BLOCKED |
+| T06 | Raspberry Pi 5 | Cross-build/smoke não equivalem a Pi físico | PENDING/BLOCKED |
+| T07 | Hot-plug | Máquina de estados CODE/CI; inserção/remoção física ausente | PENDING/BLOCKED |
+| T08 | XRUN físico/recovery | Cobertura CODE/SIMULATED; XRUN físico ausente | PENDING/BLOCKED |
+| T09 | Latência E2E p99 | Critério documentado; medição física p99 ausente | PENDING/BLOCKED |
+| T10 | Soak real 5/15/60 min | Gates determinísticos; soak físico ausente | PENDING/BLOCKED |
+| T11 | Reboot/recovery | Código/gates; reboot e recuperação em host alvo ausentes | PENDING/BLOCKED |
+| T12 | Térmica/energia | Sem medição física | PENDING/BLOCKED |
+| T13 | Release v0.3.1 | Preparação/artefatos em gates; release validada não disponível | PENDING/BLOCKED |
+| T14 | Lifecycle host install/upgrade/remove/rollback | Gates de pacote não substituem lifecycle em host alvo | PENDING/BLOCKED |
+| T15 | Checksums/SBOM/Ed25519 | Código/gates; assinatura verificável publicada independentemente ausente | PENDING/BLOCKED |
+| T16 | Backend Windows/decisão de escopo | ADR-015 exclui WASAPI/ASIO do MVP; backend nativo permanece backlog futuro | NOT_APPLICABLE |
+
+Nenhum item acima é fechado por simulação, CI, cross-build, loopback ou ausência de erro. Não há claim novo de validação física.
+
 ## Phase 145 status — reconnect after bandwidth receiver path
 
 - `network-fault/tests/headless_receiver.rs` compõe `BandwidthProfile` e `ReconnectProfile` antes do `OpusReceiver`, validando oito frames reproduzidos, recuperação de mix, um reconnect, estado `Playing`, zero PLC e zero falhas de saída.
@@ -589,10 +2021,10 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 |---|---|---|---|---|---|---|---|---|---|
 | P0-001 | P0 | RT boundary | Replace blocking JACK/audio callback path with bounded SPSC/ring boundary and separate control queue | RT safety precedes hardware/media | ADR-007 | No mutex/I/O/filesystem/unbounded allocation in callback; overflow policy documented | Rust unit/stress/lock scan | CODE + CI + L1 | Complete in HEAD; runtime/hardware pending |
 | P0-002 | P0 | Audio Lab | Create L1 Docker/PipeWire and L2 ALSA virtual harness | Reproducible audio validation | ADR-010 | Profiles run deterministically and emit metrics | CI lab tests | CI + HEADLESS/EMULATED | Complete in HEAD; target runtime/hardware pending |
-| P0-003 | P0 | Media Plane | Connect MixEngine frames to WebRTC media session and drive output | Current signaling has no media | ADR-001/002/007 | Real frames leave MixEngine; versioned stream metadata; bounded path | Integration/media tests | L1 first | Yes |
-| P0-004 | P0 | Receiver | Implemented receiver core: bounded ingress/jitter, Opus decode, fail-safe mute and reconnect (SIMULATED); OS output/hardware pending with output, jitter and reconnect | No receiver exists | ADR-002/003/004/006 | Decode, playout, mute-on-failure, pairing and reconnect | Receiver integration/fault tests | L1 then L3 | Yes |
-| P0-005 | P0 | Clock | Implement sample timestamps, sequence, drift estimator and adaptive resampling | 48 kHz is not sync | ADR-004 | Long-run bounded drift and no unbounded buffer | Simulation/soak tests | L1/L2 | Yes |
-| P0-006 | P0 | Security | Implement pairing, receiver identity, revocation and DTLS-SRTP session binding | Unknown receivers must be blocked | ADR-006 | Rogue/revoked receiver cannot receive/control audio | Negative/replay/revoke tests | L1 then runtime | Yes |
+| P0-003 | P0 | Media Plane | Connect MixEngine frames to WebRTC media session and drive output | Bounded media path and deterministic two-peer Sans-IO coverage exist | ADR-001/002/007 | Real frames leave MixEngine; versioned stream metadata; bounded path | Integration/media tests | CODE/CI/SIMULATED; runtime pending | Runtime validation required |
+| P0-004 | P0 | Receiver | Receiver core implemented: bounded ingress/jitter, Opus decode, fail-safe mute, metrics and reconnect | OS output/runtime target evidence absent | ADR-002/003/004/006 | Decode, playout, mute-on-failure, pairing and reconnect | Receiver integration/fault tests | CODE/CI/SIMULATED | Runtime/hardware validation required |
+| P0-005 | P0 | Clock | Sample timestamps, sequence, drift estimator and adaptive resampling implemented | Physical clock/long-run evidence absent | ADR-004 | Long-run bounded drift and no unbounded buffer | Simulation/soak tests | CODE/CI/SIMULATED | Runtime validation required |
+| P0-006 | P0 | Security | Pairing, receiver identity, revocation and DTLS-SRTP fingerprint binding implemented in CODE | Runtime media-key/session evidence absent | ADR-006 | Rogue/revoked receiver cannot receive/control audio | Negative/replay/revoke tests | CODE/CI/SIMULATED | Runtime validation required |
 | P0-007 | P0 | Auth/DB | Add idempotent `soundtech` bootstrap and versioned migration boundary | Explicit product contract absent | ADR-009 | Fresh/repeat/changed password/concurrent startup pass | DB/auth integration tests | CODE + CI | Yes |
 | P0-008 | P0 | Backend | ALSA explicit fallback backend (CODE+CI, PR #63); PipeWire native backend and device discovery remain pending | Explicit ALSA path needed before PipeWire | ADR-008 | Device discovery, callback safety, fail-safe mute | Backend tests | CODE+CI; HARDWARE pending | P1-001 |
 | P0-009 | P0 | Latency | Instrument capture→IEM and publish p50/p95/p99 report | No E2E evidence | ADR-005 | p95≤50ms/p99≤75ms under MVP test conditions, or reopen ADR | Loopback/latency tests | L3 required | Yes |
@@ -608,7 +2040,7 @@ Critical remaining gaps: GAP-001, GAP-003, GAP-004, GAP-005, GAP-006, GAP-007, G
 | P1-004 | Recovery | COMPLETE: RecoveryRegistry in AppState and Musician WebSocket lifecycle; duplicate ownership guard and DB assignment conflict handling | P0-004/P1-002 | Other musician survives client failure; reconnect restores assigned mix |
 | P1-005 | Network Tests | Loss/jitter/reorder/outage/reconnect fault profiles | P0-003/P0-004 | Automated profiles and thresholds |
 | P1-006 | Release | Install, artifact, checksum and v0.3.1 release validation | P0 gates | No release claim before evidence |
-| P1-007 | Backup | COMPLETE: config-backup crate and local `iem config backup/restore` CLI serialize/restore channel, mix, EQ, compressor, limiter and sends without secrets | P0-007/P1-004 | CLI CODE evidence; clean-environment restore and API/operational deployment validation remain pending |
+| P1-007 | Backup | COMPLETE: config-backup crate and local `iem config backup/restore` CLI serialize/restore channel, mix, EQ, compressor, limiter and sends without secrets; populated snapshot test now exercises restore into fresh state | P0-007/P1-004 | CLI CODE evidence; deployed operational validation remains pending |
 | P1-008 | API/UI | COMPLETE: EQ UI via #74; domain routes `GET /api/v1/system` + `GET /api/v1/channels` via #75; Musician scene/preset read-only catalogs and Engineer scene/preset controls are implemented in code/CI; runtime remains pending | P0 contracts | Contract/typecheck/frontend tests |
 
 ## P2 Queue
@@ -726,8 +2158,8 @@ Each task: read START and this handoff → implement smallest unit → test → 
 
 - No physical Pi/audio/interface evidence in this handoff.
 - No measured E2E latency.
-- No production media or receiver.
-- Headless audio evidence: deterministic DSP, Docker ALSA userspace and host ALSA Loopback passed; classified `HEADLESS/EMULATED`. CI run `35176577755` passed its Audio Lab job; target PipeWire/ALSA and physical validation remain pending.
+- No production hardware/runtime media or receiver deployment evidence.
+- Media plane and receiver cores are implemented and covered at CODE/CI/SIMULATED level; headless audio evidence is deterministic DSP, Docker ALSA userspace and host ALSA Loopback, classified `HEADLESS/EMULATED`. Target PipeWire/ALSA and physical validation remain pending.
 - Windows native backend absent.
 - v0.3.1 release not validated/published.
 - Architecture decisions can be reopened only on contradictory evidence: stop implementation, document evidence, assess impact, update ADR/GAP, then resume.
@@ -759,9 +2191,9 @@ smallest safe task
 test → review → docs/GAP update → PR/CI
 ```
 
-**Current status (Phase 275):** P1-002 Device Manager, P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI, Phase 116 metrics reset, Phases 117 and 134-215 deterministic network-fault receiver coverage, and Phases 224-225 session-removal/revocation coverage are complete at their recorded evidence levels. P1-002 evidence: CODE + CI; `GET /api/v1/devices` exposes protected snapshots, while backend hot-plug/runtime integration remains pending. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi hardware remain unvalidated. These are `PENDING` or `HARDWARE_CERTIFICATION`, not automatic software-release blockers. P1-006 software/package release proceeds when `SOFTWARE_RELEASE_GATE` and `PACKAGE_RELEASE_GATE` pass; publication still requires explicit confirmation.
+**Historical status (Phase 275):** P1-002 Device Manager, P1-003 observability, P1-004 recovery (PR #81), P1-005 network, P1-007 backup library (PR #73), P1-008 API/UI, Phase 116 metrics reset, Phases 117 and 134-215 deterministic network-fault receiver coverage, and Phases 224-225 session-removal/revocation coverage were complete at their recorded evidence levels. P1-002 evidence: CODE + CI; `GET /api/v1/devices` exposes protected snapshots, while backend hot-plug/runtime integration remains pending. P1-004 evidence: CODE + CI run `35055191463` (13/13), plus local fmt, clippy, tests and documentation gates PASS. Runtime, PipeWire/ALSA, WebRTC/Opus and Raspberry Pi hardware remain unvalidated. These are `PENDING` or `HARDWARE_CERTIFICATION`, not automatic software-release blockers. P1-006 software/package release proceeds when `SOFTWARE_RELEASE_GATE` and `PACKAGE_RELEASE_GATE` pass; publication still requires explicit confirmation.
 
-**Current next step:** Continue receiver/media work only where a concrete CODE boundary exists; Phases 117 and 134-215 cover deterministic loss/PLC/reorder/duplicate/reconnect receiver behavior in CODE/local, and Phases 224-225 cover session-removal/revocation boundaries, Phase 230 covers the exact maximum trickle ICE user ID boundary, and Phase 275 is complete for negotiated MediaBridge zero-output preservation; select the next independent streaming/media CODE boundary or P2 product slice. Phase 105 receiver packet metrics are CODE-only and require headless receiver integration before runtime claims; amd64 and arm64 `.deb` lifecycle are now CODE + PACKAGE_RELEASE_GATE PASS in CI run `35533396414`; local `iem config backup/restore` CLI is implemented with bounded input and symlink rejection; clean-environment restore and deployment validation remain pending. Built-in channel preset application is implemented for Engineer/Admin via `POST /api/v1/presets/{id}/apply`, with fail-closed channel bounds, payload validation and locked-channel protection before mutation; preset creation, editing, persistence and mix-preset application remain unimplemented. P0-002 Audio Lab L1/L2 is implemented in CI as deterministic CODE/SIMULATED coverage. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.
+**Historical next step:** Continue receiver/media work only where a concrete CODE boundary exists; Phases 117 and 134-215 cover deterministic loss/PLC/reorder/duplicate/reconnect receiver behavior in CODE/local, and Phases 224-225 cover session-removal/revocation boundaries, Phase 230 covers the exact maximum trickle ICE user ID boundary, and Phase 275 is complete for negotiated MediaBridge zero-output preservation; select the next independent streaming/media CODE boundary or P2 product slice. Phase 105 receiver packet metrics are CODE-only and require headless receiver integration before runtime claims; amd64 and arm64 `.deb` lifecycle are now CODE + PACKAGE_RELEASE_GATE PASS in CI run `35533396414`; local `iem config backup/restore` CLI is implemented with bounded input and symlink rejection; clean-environment restore and deployment validation remain pending. Built-in channel preset application is implemented for Engineer/Admin via `POST /api/v1/presets/{id}/apply`, with fail-closed channel bounds, payload validation and locked-channel protection before mutation; preset creation, editing, persistence and mix-preset application remain unimplemented. P0-002 Audio Lab L1/L2 is implemented in CI as deterministic CODE/SIMULATED coverage. PR #125 merged with an explicit bounded `TransportAdapter` owning UDP socket I/O; `SessionRegistry` remains Sans-IO and requeues failed sends within bounded capacity. P0-003 remains CODE/SIMULATED: no runtime, PipeWire/ALSA, WebRTC/Opus deployment or Raspberry Pi 5 hardware claim. SceneStore persistence remains covered by fresh `AppState` reconstruction over an explicit SQLite path. P1-006 release remains blocked by explicit confirmation and physical validation.
 
 ## Phase 143 status — reconnect after jitter receiver path
 
@@ -804,3 +2236,378 @@ test → review → docs/GAP update → PR/CI
 - Dez regressões CODE cobrem preservação de fila com budget zero, requeue antes do prefixo existente, overflow bounded, remoções exatas/não mutantes, metadados bound/unbound e ordenação determinística após replacement.
 - `cargo test --manifest-path server/Cargo.toml -p streaming --lib`: 350 testes PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 continuam não validados.
 - Próximo: gates completos, revisão independente e PR consolidada somente após batch mínimo de 10 fases.
+
+## 2026-09-25 — Batch Phase 533–542 status
+
+- Ten streaming regressions cover candidate validation before lookup, multibyte user-ID byte boundary, unknown-session non-mutation, bounded oversized transport drain and FIFO preservation after zero-budget drain.
+- Focused gate: 380 streaming tests PASS locally. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+- Next: run full local gates, independent review, commit and push on `develop`; continue next concrete CODE boundary.
+
+## 2026-09-26 — Shared Opus packet-size boundary
+
+- `streaming::OPUS_MAX_PACKET_BYTES` is now the single 1500-byte limit for `MediaWriter` packet storage and `OpusReceiver` ingress/jitter buffers.
+- `opus_roundtrip` adds shared-limit coverage; focused streaming gate: 405 tests PASS (395 unit + 10 integration tests).
+- Evidence remains CODE/CI/SIMULATED. WebRTC/DTLS-SRTP runtime, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+
+## 2026-09-26 — Phase 554 status
+
+- `JitterBuffer` agora tem regressão explícita para o limite compartilhado `OPUS_MAX_PACKET_BYTES`: payload exato é aceito, payload excedente é rejeitado e a fila preserva estado sem mutação.
+- `cargo fmt --manifest-path server/Cargo.toml --all -- --check` e `cargo test --manifest-path server/Cargo.toml -p streaming --lib` passaram; 405 testes. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-26 — RTP timestamp wrap boundary
+
+- `MediaWriter` now has explicit regression coverage for `u32::MAX` RTP timestamp wrap, preserving the 960-sample increment across zero.
+- Focused streaming gate: 406 tests PASS; evidence remains CODE/CI/SIMULATED. Runtime WebRTC/DTLS-SRTP, real network, PipeWire/ALSA and Raspberry Pi 5 remain unvalidated.
+
+
+## 2026-09-26 — PLC failure drop accounting
+
+- `OpusReceiver::playout` now counts PLC decoder failure and invalid PLC sample-count failure in both local `dropped_packets` and `ReceiverMetrics::packets_dropped`, matching normal decoder-failure accounting.
+- No regression test added because existing APIs cannot deterministically reach those PLC failure variants without an invented test seam.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi hardware remain unvalidated.
+## 2026-09-27 — JitterBuffer half-range rejection after ordered prefix
+
+- Added CODE regression proving an ambiguous `2^63` sequence is rejected after an ordered prefix without mutating FIFO contents. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — JitterBuffer half-range rejection before ordered prefix
+
+- Added CODE regression proving an ambiguous `2^63 + 1` sequence inserted before an ordered prefix is rejected without mutating FIFO contents.
+- Focused gate: `cargo test --manifest-path server/Cargo.toml -p streaming jitter_rejects_half_range -- --nocapture` — 2 tests PASS. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — Bounded MediaPlane session capacity
+
+- Added `MAX_MEDIA_SESSIONS` (64), capacity rejection, boundary/recovery async regressions. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane capacity precedence
+
+- Added CODE regression proving duplicate session registration returns `SessionAlreadyExists` before bounded capacity rejection and preserves the existing mix binding.
+- Evidence remains CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane repeated overflow recovery boundary
+
+- Added regression for repeated bounded queue overflow through `MediaPlane`, aggregate drop accounting, queue drain and post-recovery frame metadata. Evidence CODE local: cargo fmt, focused test, full streaming tests and streaming clippy PASS; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane saturating drop counters
+
+- Per-session and aggregate drop counters now use saturating arithmetic, preventing telemetry wraparound under sustained overflow. Regression coverage passes locally. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-27 — MediaPlane non-finite frame rejection
+
+- Added regression proving non-finite `FrameOutput` samples fail closed without mutating queue, drop counters or sequence state.
+- Local evidence: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`, `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 462 PASS — and streaming clippy PASS. Runtime and hardware remain unvalidated.
+
+## 2026-09-27 — MediaPlane non-finite recovery and partial fan-out
+
+- Regressões CODE confirmam que frame válido posterior a frame não-finito preserva sequência inicial e que fan-out parcial entrega a sessão disponível enquanto sessão cheia registra descarte sem mutar sua fila.
+- Gate local: `cargo test --manifest-path server/Cargo.toml -p streaming --lib` — 464 testes PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — MediaPlane per-mix finiteness isolation
+
+- `push_frame_output` valida samples não finitos por mix inscrito. Mix inválido sem sessão não bloqueia fan-out válido. Regressão CODE local PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — MediaSession sequence rollover boundary
+
+- Adicionada regressão CODE para `MediaSession::frame_sequence` em `u64::MAX`; sequência do frame limite, rollover para zero e ordem FIFO permanecem corretos. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-27 — MediaPlane invalid mix saturated queue boundary
+
+- Added CODE regression `push_frame_output_invalid_mix_preserves_full_queue_and_drop_accounting`, proving an externally invalid mix index neither consumes a full queue nor increments sequence/drop counters; restoring valid routing preserves normal overflow accounting.
+- Evidence remains CODE/local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — invalid Opus ingress local drop accounting
+
+- HEAD de desenvolvimento recebeu correção de contagem local para ingress Opus inválido; `cargo fmt`, clippy streaming e 508 testes `streaming` passaram localmente. CI da PR #340 continua em execução; política do ciclo mantém sem merge/PR. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-27 — SessionRegistry encode-failure discard accounting
+
+- `SessionRegistry::drive_once` does not requeue frames after `MediaWriter::encode` failure because writer state may have advanced; `DriveReport::encode_errors` explicitly counts each bounded encode discard; `DriveReport::encode_discards()` exposes that accounting without changing public struct literals.
+- Regression confirms one invalid frame is counted as discarded and following valid frame still encodes. Evidence CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — DriftEstimator local baseline preservation
+
+- Added CODE regression proving local-counter regression does not replace accepted `DriftEstimator` baseline. Focused test passes; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-27 — MediaWriter frame-duration rejection preserves RTP clock
+
+- Added CODE regression proving invalid `frame_duration_ms` is rejected before state mutation; subsequent valid packets retain RTP timestamps `0` and `960`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+
+## 2026-09-28 — MediaWriter realtime allocation boundary
+
+- `MediaWriter::encode` monta frame PCM estéreo de 20 ms em array fixo na stack, removendo alocação `Vec` do buffer PCM por frame; a cópia bounded do payload Opus permanece. Sem mudança de formato, timestamps RTP ou limite de pacote.
+- Gates locais: Rust fmt, clippy e `cargo test --manifest-path server/Cargo.toml` PASS; frontend Musician 61 testes/build PASS; Engineer 50 testes/build PASS. Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+- Segurança: `cargo audit` bloqueado por `rsa 0.9.10` / `RUSTSEC-2023-0071`, sem upgrade fix disponível; `tests/validate_archive.py` ausente neste checkout.
+
+## 2026-09-28 — MediaWriter zero-channel metadata boundary
+
+- Added CODE regression proving `MediaWriter::encode` rejects `channels == 0` before RTP timestamp mutation; valid packets afterward retain timestamps `0` and `960`. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-28 — revision history loading state
+
+- Engineer Console agora distingue carregamento de histórico de cena de histórico vazio; estado transitório não exibe falso `Nenhuma revisão encontrada.`. Verificação: typecheck, 57 testes Vitest e build do Engineer, gates Rust e frontend Musician PASS. Evidência CODE local; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — CI em execução no HEAD `e629e73`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `e629e73c09d99799b13a78c3978e18358b0527be`; HEAD e origin/develop alinhados.
+- PR #340 permanece aberta contra `main`, sem merge conforme política do ciclo.
+- CI real do HEAD exato está em execução; jobs concluídos até agora incluem frontends, validação de skills, segurança npm/Python, documentação e simulações de áudio. Não declarar PASS antes da conclusão de todos os jobs.
+- Evidência permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-28 — Opus encode-failure timestamp boundary
+
+- Added `MediaWriter` regression forcing bounded packet-buffer encode failure, asserting `next_rtp_timestamp` remains zero and the following valid packet starts at RTP timestamp zero.
+- Local gates: Rust fmt, clippy, full server tests (533 streaming unit tests plus integration suites), frontend typecheck/tests/build and documentation validation PASS. `npm test -- --watchAll=false` remains incompatible with Vitest; direct `npm test` passed (Musician 61, Engineer 57).
+- Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-28 — SessionRegistry frames-drained accounting
+
+- `SessionRegistry::drive_once` agora contabiliza em `DriveReport::frames_drained` tanto frames drenados da `MediaBridge` quanto frames removidos das filas do `MediaPlane`; contador permanece saturante e zero quando nenhum frame é consumido.
+- Regressão `drive_once_counts_bridge_and_session_frames_drained` cobre fan-out bridge + frame já enfileirado e confirma ausência de frames na chamada seguinte.
+- Evidência `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+
+## 2026-09-28 — SessionRegistry write-failure drain accounting
+
+- Regressão `drive_once_accounts_media_write_failure_after_frame_drain` confirma `frames_drained == 2` junto com dois erros de escrita e zero pacotes codificados quando a fila do writer está cheia.
+- Evidência CODE local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+## 2026-09-28 — SessionRegistry unavailable-writer preservation
+
+- Regressão CODE adicionada para `drive_once` quando `media_mid` não resolve writer Opus: frame permanece na fila e nenhum contador de drenagem, escrita ou pacote codificado é incrementado.
+- Gate focado PASS. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, rede real e Raspberry Pi 5 permanecem não validados.
+## 2026-09-28 — unavailable media writer preserves bounded FIFO
+
+- Regression expanded `drive_once_preserves_frames_when_media_writer_is_unavailable` to enqueue two frames and run with `frame_budget = 2`; missing Opus writer leaves both frames FIFO, with zero drain/write/encode counters.
+- Focused streaming test and streaming clippy pass. Evidence `CODE` local; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA, real network and Raspberry Pi 5 remain unvalidated.
+## 2026-09-29 — estado verificado no HEAD `a58506a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `a58506adf539b25995a0c4f6d319e5a510e46577`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36525103904`) e `Software Package Lifecycle Gates` (run `36525103914`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `a58506a`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `edbc75f`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `edbc75f81743c78064eab546d115c857b9008d56`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36553099983`) e `Software Package Lifecycle Gates` (run `36553099948`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `edbc75f`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-29 — estado verificado no HEAD `5931d39`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `5931d3969953b8ed51c42f3b481eed5cc64e4b37`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36557211865`) e `Software Package Lifecycle Gates` (run `36557211850`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `5931d39`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — estado verificado no HEAD `13d23ca`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `13d23cafc30482688e12b4d576a70de38a32fddb`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36559393188`) e `Software Package Lifecycle Gates` (run `36559393129`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `13d23ca`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-29 — estado verificado no HEAD `a552587`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `a5525876b60a798b4bf40690ba13403c827b065f`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos workflows `CI` (run `36565113281`) e `Software Package Lifecycle Gates` (run `36565113286`); jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `a552587`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-29 — estado verificado no HEAD `37107be`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `37107be103e8088c741424f2cbecec70ec2698dd`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS: `CI` run `36581080377` e `Software Package Lifecycle Gates` run `36581080457`; jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `37107be`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `e77c95f`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `e77c95f3438f666b545cbbce612947ce99da6d54`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS: `CI` run `36595095246` e `Software Package Lifecycle Gates` run `36595095128`; jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `e77c95f`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-29 — CI confirmado no HEAD `2bce00f`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `2bce00f`; working tree estava limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36603462538` e `Software Package Lifecycle Gates` run `36603462530`; todos os jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `834d44a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `834d44a5dcd144c0fe4bc0a6f2b0eba9175718a3`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36608129644` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36608129654` (3 jobs, steps reais).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `8a9272e`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `8a9272efb552232888a74dbcc1339125c77a3b75`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS: `CI` run `36620846134` e `Software Package Lifecycle Gates` run `36620845524`; jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `8a9272e`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `95de067`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `95de067730f7724f050b23d89f9cbdf850b346d7`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu 16/16 SUCCESS: `CI` run `36622496423` e `Software Package Lifecycle Gates` run `36622496449`; jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, com HEAD exato `95de067`, sem merge conforme política vigente.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `faa728d`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `faa728d8b6f16d45751889a282bdf78462be0be8`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36628466615` e `Software Package Lifecycle Gates` run `36628466815`; todos os jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `093fe08`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `093fe0842afcb9a181633424ad51c71f0ef72cbd`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36637099291` e `Software Package Lifecycle Gates` run `36637099239`; jobs executaram de verdade.
+- PR #340 permanece aberta contra `main`, sem merge conforme política vigente.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `5a1c1ce`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `5a1c1ceffea6231e2142a700e631e999a0b45100`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36637947759` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36637947756` (3 jobs, steps reais).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `c1b5817`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `c1b58175cb9a7c4bc600439aed555a2db6d21944`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36639685197` e `Software Package Lifecycle Gates` run `36639685235`; jobs executaram com steps reais no SHA exato.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `9ab106c`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `9ab106cbff5d14f380d644c6913e5c0ef669b634`.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36640383707` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36640383709` (3 jobs, steps reais).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo (Ed25519). Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `6979d7b`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `6979d7b00c526c875ee15abed0b3f6c280d36c24`; working tree limpa antes desta atualização documental.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36641709176` (13 jobs) e `Software Package Lifecycle Gates` run `36641709015` (3 jobs); todos os jobs executaram com steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-29 — CI confirmado no HEAD `63cf41d`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `63cf41dcfa23d9be0a791509063ded7970ac57da`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36643428190` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36643428149` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-30 — CI confirmado no HEAD `95e8f52`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `95e8f52c5f8e48537a32b5bf878e068fff861ebb`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36649192504` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36649192512` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `7e82a14`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `7e82a14cca72c011405b280f94ee1fb515649a98`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36651010614` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36651010617` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `9b18a67`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `9b18a67793fb91c0d0a477221200159909eac8e8`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36651761231` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36651761206` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `c5ae59a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `c5ae59a16d641a797830fe2c2d7d608304c39b8d`; working tree limpa.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36663050816` e `Software Package Lifecycle Gates` run `36663050815`; jobs executaram com steps reais.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `cd3ccfe`
+
+- [x] `develop` e `origin/develop` estavam sincronizadas no commit `cd3ccfe036119d64b56b04460a9c08882e6847aa` antes desta atualização documental; working tree estava limpa naquele ponto.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36665308529` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36665308527` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-30 — CI remoto confirmado no HEAD `8411753`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `8411753a61c37b19d08381790849c1562e64486e`; working tree limpa antes desta atualização.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36667417183` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36667417192` (3 jobs, steps reais).
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `efe0ab5`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `efe0ab5acbbebf63df6c3b906c65b005e5c2473a`; working tree limpa antes desta atualização.
+- CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36670991703` (13 jobs) e `Software Package Lifecycle Gates` run `36670991712` (3 jobs); jobs concluíram com steps executados.
+- PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- Nenhuma tarefa CODE executável nova identificada. Próximo ciclo deve revalidar CI e backlog; manter `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `7d1cd19`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `7d1cd19701bc94c2430107d771a5dfbfab8ff436`; working tree limpa antes desta atualização.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36671597438` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36671597453` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `f3c2494`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `f3c249409851646be6bd369d174e3f52dc63f1e2`; working tree limpa antes desta atualização.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36672966796` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36672966714` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `28c360d`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `28c360dca601625732abd6722daff2249f12b89f`; working tree limpa antes desta atualização.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36674292183` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36674292179` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `4df3997`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `4df3997df7ad16a0173b656fc05a9a379c9aea33`; working tree limpa antes desta atualização.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36675131661` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36675131697` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `b234b1b`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `b234b1b145c06116a08c02cf1f33178410d73bf9`; working tree limpa antes desta atualização.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36677580323` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36677580330` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `a3626a5`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `a3626a5e85a93af136143dd1bae31ef11905b77c`; working tree limpa antes desta atualização.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36680256784` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36680256806` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `84034e4`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `84034e4edebb578284219c0e6bd28f94b60a254c`; working tree limpa antes desta atualização.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36681547495` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36681547488` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-30 — CI remoto confirmado no HEAD `542bab4`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `542bab4`; working tree limpa antes desta atualização.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36709992618` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36709992634` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+## 2026-09-30 — CI remoto confirmado no HEAD `b671d53`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `b671d53`; working tree limpa antes desta atualização.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36710710630` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36710710719` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
+- [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — estado verificado no HEAD `9fc7523`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `9fc7523fbcb196d43ef569c3eb5a51961d915d91`; working tree limpa.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36756681341` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36756681440` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
+- [x] Nenhuma tarefa CODE executável nova identificada. Itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-09-30 — CI remoto confirmado no HEAD `b0377510f0cd0f4f73f0a00496d35dddae35471f`
+
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `b0377510f0cd0f4f73f0a00496d35dddae35471f`; working tree estava limpa antes desta atualização.
+- [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36775470267` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36775470249` (3 jobs, steps reais).
+- [x] PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
+- [x] Nenhuma tarefa CODE executável nova identificada. Itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.

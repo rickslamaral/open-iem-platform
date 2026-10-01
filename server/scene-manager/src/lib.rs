@@ -3,7 +3,7 @@
 #![deny(unsafe_code)]
 
 mod store;
-pub use store::{SceneStore, SceneSummary, StoreError};
+pub use store::{RevisionSummary, SceneStore, SceneSummary, StoreError};
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -20,6 +20,9 @@ pub const GAIN_DB_MIN: f32 = -144.0;
 pub const GAIN_DB_MAX: f32 = 12.0;
 /// Maximum serialized payload size.
 pub const MAX_PAYLOAD_BYTES: usize = 512 * 1024;
+/// Maximum revision rows retained per scene. Oldest non-active revisions are
+/// pruned atomically after each save. Active revision is never pruned.
+pub const MAX_REVISIONS_PER_SCENE: usize = 32;
 
 /// Versioned export containing durable scene state only.
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
