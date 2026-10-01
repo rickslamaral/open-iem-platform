@@ -49,7 +49,7 @@ IEM              IEM
 
 ## Current Status
 
-**Estado atual: `develop` em `13facee`, com 531 testes `streaming` PASS e cobertura Engineer Console de 57 testes PASS e CI da PR #340 verde em 16/16 jobs. A cobertura CODE/CI/SIMULATED inclui media plane, receiver, métricas de falha, limites de sessão, serialização de replacement e justiça de budget. PR #340 permanece aberta, sem merge. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, rede real, Raspberry Pi 5, latência e release `v0.3.1` continuam pendentes. Fila canônica: `docs/DEVELOPMENT-HANDOFF.md`.**
+**Estado atual: `develop` sincronizada com `origin/develop`; gates locais Rust/frontend e validação documental PASS. Evidência de produto permanece CODE/CI/SIMULATED; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, rede real, Raspberry Pi 5, latência e release `v0.3.1` continuam pendentes. Fila canônica: `docs/DEVELOPMENT-HANDOFF.md`.**
 
 **Fases concluídas e mescladas em `main`:**
 
