@@ -410,7 +410,7 @@ impl OpusReceiver {
             .try_send((generation, sequence, payload, packet.len()))
             .map_err(|e| match e {
                 TrySendError::Full(_) => {
-                    let _ = self.ingress_queue_dropped_packets.fetch_update(
+                    let _ = self.ingress_queue_dropped_packets.try_update(
                         Ordering::Relaxed,
                         Ordering::Relaxed,
                         |value| Some(value.saturating_add(1)),
