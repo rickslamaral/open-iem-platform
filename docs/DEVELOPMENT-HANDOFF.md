@@ -1,8 +1,8 @@
-## 2026-10-01 — estado verificado no HEAD `46e1c179174a2760d46d90006f0ce1cb20003c1a`
+## 2026-10-01 — estado verificado no HEAD `f328a1d26531ac84659accf99bbe1efcc78b801b`
 
-- `develop` e `origin/develop` apontam para `46e1c179174a2760d46d90006f0ce1cb20003c1a`; working tree limpa.
-- Último commit implementa bloqueio de primeiro acesso do Engineer no frontend: troca obrigatória de senha, bloqueio de dashboard/WebSocket e novo login após revogação.
-- Gates locais do commit anterior foram registrados no plano; CI remoto ainda não executou neste HEAD. Não declarar CI verde.
+- `develop` e `origin/develop` apontam para `f328a1d26531ac84659accf99bbe1efcc78b`; working tree estava limpa antes desta atualização documental.
+- Esta atualização reconcilia o estado documental atual de `develop`; não introduz comportamento novo nem claim de runtime/hardware.
+- CI remoto real mais recente concluiu sucesso em `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não neste HEAD; não declarar CI verde para `f328a1d`.
 - PRs Dependabot #347 e #348 permanecem abertas contra `main`, ambas `UNSTABLE` com falhas nos gates Rust; política vigente não autoriza merge/correção fora de `develop`.
 - Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
