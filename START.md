@@ -2826,6 +2826,17 @@ Local hosts with `snd-dummy` may run `hw:0,0`. Raspberry Pi USB validation remai
 
 ### 147.4 Musician + simulated audio tests
 
+### 147.5 Musician profile onboarding and QR access
+
+- Musician não precisa de senha para criar ou acessar seu perfil operacional. Fluxo futuro deve coletar nome e instrumento a partir de catálogo controlado, criar perfil individual e manter sessão persistente por refresh token revogável; não usar senha vazia, senha fixa, usuário compartilhado, JWT permanente ou token em URL.
+- Admin ou Engineer autorizado pode ativar o modo QR no servidor. O QR deve carregar convite temporário, de alta entropia, armazenado somente como hash, com expiração, uso limitado ou single-use, rotação, revogação, rate limit e auditoria sem segredo. QR estático sem TTL é proibido.
+- Musician lê QR, confirma servidor/projeto, informa nome e instrumento, cria somente seu próprio perfil e permanece na sessão até logout, expiração ou revogação. Autorização de mix, assignment e comandos WebSocket permanece server-authoritative.
+- Implementação exige ADR e plano antes do código: separar usuário, perfil, convite QR, sessão, assignment e revogação; adicionar testes de replay, expiração, concorrência, escopo RBAC, perda de dispositivo, CSRF/Origin e HTTPS. Estado atual: requisito definido; implementação `PENDING`.
+
+### 147.6 Engineer first-access password change
+
+- Login bootstrap retorna `must_change_password=true`. Engineer Console deve bloquear dashboard e WebSocket, mostrar troca obrigatória via `PUT /api/v1/auth/password`, limpar o token revogado e exigir novo login após sucesso. Estado atual: frontend implementado e validado localmente; CI/runtime externo permanecem pendentes.
+
 Integration tests must cover:
 
 - Engineer assigns mix to musician;
