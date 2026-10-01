@@ -1,6 +1,6 @@
-## 2026-10-01 — estado verificado no HEAD `dab8030`
+## 2026-10-01 — estado verificado no HEAD `6f72d7a`
 
-- `develop` e `origin/develop` apontam para `dab803006b0ffa730f586d4f7e611af94b8e7f0c`; `main` e `origin/main` permanecem em `83af911849a6145d5c8c7c81d72b6003a2beb80e`; working tree limpa.
+- `develop` e `origin/develop` apontam para `6f72d7a11a50ccbc7e79ba268743805e8eb35fd7`; `main` e `origin/main` permanecem em `83af911849a6145d5c8c7c81d72b6003a2beb80e`; working tree limpa.
 - CI remoto real confirmou sucesso nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36795546987` e `36795546985`, respectivamente) em commits recentes de `develop`; essas runs não são evidência do commit documental atual; não há tarefa CODE segura nova no backlog.
 - PRs Dependabot #347 e #348 estão abertas contra `main`, mas ambas falham em `Rust Code Coverage`/`Rust Format + Clippy + Tests`; política vigente não autoriza merge ou correção fora de `develop`.
 - Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
