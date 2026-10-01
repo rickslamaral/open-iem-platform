@@ -224,15 +224,40 @@ impl Db {
                     0,
                 ),
             ];
-            let foreign_keys: Vec<(String, String, String)> = tx
-                .prepare("SELECT \"table\", \"from\", \"to\" FROM pragma_foreign_key_list('musician_profiles')")
+            let foreign_keys: Vec<(String, String, String, String)> = tx
+                .prepare("SELECT \"table\", \"from\", \"to\", on_delete FROM pragma_foreign_key_list('musician_profiles')")
                 .map_err(|e| ApiError::Internal(e.to_string()))?
-                .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))
+                .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
                 .map_err(|e| ApiError::Internal(e.to_string()))?
                 .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
                 .collect::<Result<_, _>>()?;
+            let table_sql: String = tx
+                .query_row(
+                    "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'musician_profiles'",
+                    [],
+                    |row| row.get(0),
+                )
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+            let status_index: i64 = tx
+                .query_row(
+                    "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = 'musician_profiles_status_idx'",
+                    [],
+                    |row| row.get(0),
+                )
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+            let normalized_sql = table_sql.to_ascii_uppercase().replace(' ', "");
             if columns != expected_columns
-                || foreign_keys != vec![("users".to_owned(), "user_id".to_owned(), "id".to_owned())]
+                || foreign_keys
+                    != vec![(
+                        "users".to_owned(),
+                        "user_id".to_owned(),
+                        "id".to_owned(),
+                        "CASCADE".to_owned(),
+                    )]
+                || status_index != 1
+                || !normalized_sql.contains("AUTOINCREMENT")
+                || !normalized_sql.contains("USER_IDINTEGERNOTNULLUNIQUE")
+                || !normalized_sql.contains("STATUS TEXT NOT NULL CHECK".replace(' ', "").as_str())
             {
                 return Err(ApiError::Internal(
                     "migration M002 recorded but musician_profiles schema is missing or invalid"
