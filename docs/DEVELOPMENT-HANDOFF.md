@@ -1,6 +1,6 @@
 ## 2026-10-01 19:36 -0300 — verificação operacional no HEAD `f794edfef61dae4ba4cc314415c1a1ab32c4c04b`
 
-- `develop` e `origin/develop` sincronizadas no commit `f794edfef61dae4ba4cc314415c1a1ab32c4c04b`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` sincronizadas no commit `f794edfef61dae4ba4cc314415c1a1ab32c4c04b`; working tree limpa.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - `scripts/validate-docs.sh` PASS (`documentation validation passed (version 0.3.1)`); scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - Nenhum CI remoto foi executado no HEAD atual `f794edfef61dae4ba4cc314415c1a1ab32c4c04b`; último CI SUCCESS observado em `develop` foi nos runs `36897066547` e `36897066543`, commit anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
@@ -122,7 +122,7 @@
 
 ## 2026-10-01 15:33 -0300 — verificação operacional no HEAD `e4eea70`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `e4eea704ec747319aa44845da2681e9e0b12d477`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `e4eea704ec747319aa44845da2681e9e0b12d477`; working tree limpa.
 - `scripts/validate-docs.sh` PASS (`documentation validation passed (version 0.3.1)`).
 - CI remoto mais recente listado para `develop` é SUCCESS nos runs `36629568576` (`CI`) e `36629568577` (`Software Package Lifecycle Gates`), mas ambos cobrem `19f0d5b4f76ffd5cafe4ee25d584de8db9b9176e`, não o HEAD atual; CI do HEAD atual não foi confirmado.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo.
@@ -139,7 +139,7 @@
 
 ## 2026-10-01 15:20 -0300 — verificação operacional no HEAD `e78bc60`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `e78bc60b04df1cfb39a26086cee9da3a49c6b2fe`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `e78bc60b04df1cfb39a26086cee9da3a49c6b2fe`; working tree limpa.
 - CI remoto mais recente em `develop` concluiu **16/16 SUCCESS** nos runs `36897066547` (`CI`) e `36897066543` (`Software Package Lifecycle Gates`), cobrindo `56a17fc87b004c104e730e36741ba75ad22796b4`, não o HEAD atual; CI do HEAD atual ainda não foi confirmado.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -147,7 +147,7 @@
 
 ## 2026-10-01 15:16 -0300 — verificação operacional no HEAD `8ed5572e`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `8ed5572eacbdc89c046fe64d3cc62f3fb4ef0834`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `8ed5572eacbdc89c046fe64d3cc62f3fb4ef0834`; working tree limpa.
 - CI remoto mais recente em `develop` concluiu **16/16 SUCCESS** nos runs `36897066547` (`CI`) e `36897066543` (`Software Package Lifecycle Gates`), mas ambos cobrem `56a17fc87b004c104e730e36741ba75ad22796b4`, não o HEAD atual.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -179,14 +179,14 @@
 
 ## 2026-10-01 14:46 -0300 — verificação operacional no HEAD `dc28639`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `dc2863919b7ca38abfcbee58d6bb0d38b9418660`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `dc2863919b7ca38abfcbee58d6bb0d38b9418660`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36897066547` e `Software Package Lifecycle Gates` run `36897066543`, ambos com jobs executados.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; fora da branch autorizada e não alteradas.
 - `scripts/validate-docs.sh` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 ## 2026-10-01 14:36 -0300 — verificação operacional no HEAD `56a17fc`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `56a17fc87b004c104e730e36741ba75ad22796b4`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `56a17fc87b004c104e730e36741ba75ad22796b4`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36897066547` e `Software Package Lifecycle Gates` run `36897066543`, ambos com jobs executados.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; fora da branch autorizada e não alteradas.
@@ -194,7 +194,7 @@
 
 ## 2026-10-01 09:26 -0300 — verificação operacional no HEAD `8a88e1a`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `8a88e1ad416742bdfe34fa898982f7bd6bffaef0`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `8a88e1ad416742bdfe34fa898982f7bd6bffaef0`; working tree limpa.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto listado para `develop` ainda não cobre o HEAD atual; últimos runs SUCCESS (`36795546987` e `36795546985`) estão no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não neste HEAD.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -202,7 +202,7 @@
 
 ## 2026-10-01 09:16 -0300 — verificação operacional no HEAD `a32ad85`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `a32ad85` (`a32ad85710960e98c6a8df0d757638b540c198b`); working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `a32ad85` (`a32ad85710960e98c6a8df0d757638b540c198b`); working tree limpa.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto listado para `develop` ainda não cobre o HEAD atual; runs recentes `36795546987` e `36795546985` são SUCCESS no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não neste HEAD.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -243,7 +243,7 @@
 
 ## 2026-10-01 08:10 -0300 — verificação operacional no HEAD `c8c83d7`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `c8c83d71e9c3a18756badf8e8a6961b4d875cec4`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `c8c83d71e9c3a18756badf8e8a6961b4d875cec4`; working tree limpa.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto mais recente em `develop` permanece SUCCESS nos runs `36795546987` (`CI`) e `36795546985` (`Software Package Lifecycle Gates`), ambos no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -259,7 +259,7 @@
 
 ## 2026-10-01 06:11 -0300 — verificação operacional no HEAD `85f410e`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `85f410e35f048b4a18c9242c04f9b1da36c64798`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `85f410e35f048b4a18c9242c04f9b1da36c64798`; working tree limpa.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto mais recente em `develop` permanece SUCCESS nos runs `36795546987` (`CI`) e `36795546985` (`Software Package Lifecycle Gates`), ambos no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -267,7 +267,7 @@
 
 ## 2026-10-01 06:08 -0300 — verificação operacional no HEAD `ae6d62d`
 
-- Antes desta atualização, `develop` e `origin/develop` estavam sincronizadas no commit `ae6d62de641d305345621b4ffa2ab7873520f946`; working tree estava limpa antes desta atualização documental.
+- Antes desta atualização, `develop` e `origin/develop` estavam sincronizadas no commit `ae6d62de641d305345621b4ffa2ab7873520f946`; working tree limpa.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto mais recente em `develop`: `CI` run `36777931225` e `Software Package Lifecycle Gates` run `36777931370`, ambos SUCCESS em `8fce7d845e75e66e03a46b7513e98a8e164eb90a`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -275,7 +275,7 @@
 
 ## 2026-10-01 06:02 -0300 — verificação operacional no HEAD `c4d4286`
 
-- No instante da verificação, antes deste commit documental, `develop` e `origin/develop` estavam sincronizadas no commit `c4d42861fc69d5b46e5968385adbc815c1fc7e0d`; working tree estava limpa antes desta atualização documental.
+- No instante da verificação, antes deste commit documental, `develop` e `origin/develop` estavam sincronizadas no commit `c4d42861fc69d5b46e5968385adbc815c1fc7e0d`; working tree limpa.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto disponível em `develop` não cobre HEAD atual; últimos runs listados são SUCCESS em `c3b25fe2e46d613a5de6b70510ba2974cddac899`, não neste commit.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; branches externas fora da política vigente.
@@ -283,7 +283,7 @@
 
 ## 2026-10-01 05:35 -0300 — verificação operacional no HEAD `64d4887`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `64d4887b35003d59240f01e6d4779e0780b8fb07`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `64d4887b35003d59240f01e6d4779e0780b8fb07`; working tree limpa.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo foi identificado. Itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto mais recente em `develop`: runs `36683056715` (`CI`) e `36683056760` (`Software Package Lifecycle Gates`), ambos SUCCESS em `13f3db10aaf4c587663e7ff3d93a9e55236b3faf`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas UNSTABLE, falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -291,7 +291,7 @@
 
 ## 2026-10-01 05:26 -0300 — verificação operacional no HEAD `14b28c6`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `14b28c68d17e0cb9aa3e16663cc2fc78d74b1eb2`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `14b28c68d17e0cb9aa3e16663cc2fc78d74b1eb2`; working tree limpa.
 - Backlog CODE executável permanece esgotado; nenhum código de produto foi alterado. Itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto real mais recente em `develop`: runs `36795546987` e `36795546985`, ambos SUCCESS em `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -299,7 +299,7 @@
 
 ## 2026-10-01 05:06 -0300 — verificação operacional no HEAD `1c54796`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `1c54796d771097c5052812536b6e84339180e74b`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `1c54796d771097c5052812536b6e84339180e74b`; working tree limpa.
 - Nenhuma tarefa CODE executável nova identificada; backlog executável permanece esgotado. Nenhum código de produto foi alterado.
 - CI remoto real mais recente em `develop`: runs `36795546987` e `36795546985`, ambos SUCCESS em `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política desta execução não altera essas branches.
@@ -338,7 +338,7 @@
 
 ## 2026-10-01 03:31 -03 — verificação operacional no HEAD `71be6e31912a`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `71be6e31912aa1bb5ee1f270ad72629f91633a07`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `71be6e31912aa1bb5ee1f270ad72629f91633a07`; working tree limpa.
 - Backlog CODE executável permanece esgotado; itens restantes exigem validação física, confirmação de release ou secret externo. Nenhuma tarefa nova foi inventada.
 - CI remoto real mais recente em `develop`: workflows `CI` e `Software Package Lifecycle Gates`, runs `36795546987` e `36795546985`, SUCCESS no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`; não são evidência deste HEAD.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`, fora da branch autorizada.
@@ -346,7 +346,7 @@
 
 ## 2026-10-01 — verificação operacional no HEAD `8cfb87f`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `8cfb87fb0c89404fc0f0627ebade4295b8df1748`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `8cfb87fb0c89404fc0f0627ebade4295b8df1748`; working tree limpa.
 - Backlog CODE executável permanece esgotado; itens restantes exigem validação física, confirmação de release ou secret externo. Nenhuma tarefa nova foi inventada.
 - CI remoto real mais recente em `develop`: workflows `CI` e `Software Package Lifecycle Gates`, runs `36795546987` e `36795546985`, SUCCESS no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`; não são evidência deste HEAD.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`, fora da branch autorizada.
@@ -369,7 +369,7 @@
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falham em gates Rust/coverage; política vigente proíbe alteração nessas branches. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 
-- `develop` e `origin/develop` estão sincronizadas no commit `bfa2dd8065a9fe1120dbdaad9ea26d70936d5526`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `bfa2dd8065a9fe1120dbdaad9ea26d70936d5526`; working tree limpa.
 - Backlog CODE executável permanece esgotado; nenhum item seguro novo pode ser inventado. Itens restantes exigem hardware físico, confirmação de release ou provisionamento externo de secret.
 - Não há CI remoto executado no HEAD atual; últimos runs SUCCESS em `develop` (`36795546987` e `36795546985`) pertencem a `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não são evidência deste commit.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`. Política vigente proíbe alterar essas branches.
@@ -404,7 +404,7 @@
 
 ## 2026-10-01 — estado verificado no HEAD `29edfd51268815953bbc380330882efa361cc270`
 
-- `develop` e `origin/develop` apontam para `29edfd51268815953bbc380330882efa361cc270`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` apontam para `29edfd51268815953bbc380330882efa361cc270`; working tree limpa.
 - Nenhuma tarefa CODE executável nova identificada no backlog; este ciclo reconcilia estado operacional real.
 - CI remoto real mais recente em `develop`: `CI` run `36795546987` e `Software Package Lifecycle Gates` run `36795546985`, ambos SUCCESS em `be8c3691ea891fc84728f7ca5fe7021878bf1651`; ainda não há run no HEAD atual.
 - PRs Dependabot #347 e #348 permanecem abertas contra `main`, ambas com falhas nos gates Rust; política local proíbe alterações nessas branches.
@@ -418,7 +418,7 @@
 
 ## 2026-10-01 — estado verificado no HEAD `7b4cbe0b56f7568a9dd9fd387ebbd8e38ea6982b`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `7b4cbe0b56f7568a9dd9fd387ebbd8e38ea6982b`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `7b4cbe0b56f7568a9dd9fd387ebbd8e38ea6982b`; working tree limpa.
 - Gates locais reais: `cargo fmt` e `cargo clippy` com `--manifest-path server/Cargo.toml` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (todos os testes). Frontends musician e engineer: typecheck, 61/61 e 59/59 testes, builds PASS.
 - CI remoto mais recente PASS nos commits anteriores `be8c369`/`13facee`; não corresponde ao HEAD atual. PRs Dependabot #347 e #348 permanecem abertas contra `main`, com falhas Rust/coverage.
 - Backlog CODE executável permanece esgotado. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -433,7 +433,7 @@
 
 ## 2026-10-01 — estado verificado no HEAD `93e993d2cf6f9d38e39ba5bc4aa75d6a2b0a3b3a`
 
-- `develop` e `origin/develop` apontam para `93e993d2cf6f9d38e39ba5bc4aa75d6a2b0a3b3a`; `main` e `origin/main` permanecem em `83af911849a6145d5c8c7c81d72b6003a2beb80e`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` apontam para `93e993d2cf6f9d38e39ba5bc4aa75d6a2b0a3b3a`; `main` e `origin/main` permanecem em `83af911849a6145d5c8c7c81d72b6003a2beb80e`; working tree limpa.
 - Não há tarefa CODE segura nova no backlog; mudança deste ciclo atualiza somente estado documental no HEAD atual.
 - CI remoto real mais recente concluiu sucesso em commits anteriores (`be8c369`), não no HEAD atual; não declarar CI verde para este commit.
 - PRs Dependabot #347 e #348 permanecem abertas contra `main`; falhas atuais em gates Rust continuam fora da política de alteração em `develop`.
@@ -455,14 +455,14 @@
 
 ## 2026-10-01 — estado verificado no HEAD `679068a`
 
-- `develop` e `origin/develop` apontam para `679068a7027e651e4a4d1fc2cf2d9b3de9631128`; `main` e `origin/main` permanecem em `83af911849a6145d5c8c7c81d72b6003a2beb80e`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` apontam para `679068a7027e651e4a4d1fc2cf2d9b3de9631128`; `main` e `origin/main` permanecem em `83af911849a6145d5c8c7c81d72b6003a2beb80e`; working tree limpa.
 - CI remoto real confirmou sucesso nos workflows `CI` e `Software Package Lifecycle Gates` (runs `36795546987` e `36795546985`, respectivamente) em commits recentes de `develop`; essas runs não são evidência do commit documental atual; não há tarefa CODE segura nova no backlog.
 - PRs Dependabot #347 e #348 estão abertas contra `main`, mas ambas falham em `Rust Code Coverage`/`Rust Format + Clippy + Tests`; política vigente não autoriza merge ou correção fora de `develop`.
 - Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `13facee`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `13facee599c55e68fac7504bf39ad0d0a2c9edac`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `13facee599c55e68fac7504bf39ad0d0a2c9edac`; working tree limpa.
 - CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36794695805` e `Software Package Lifecycle Gates` run `36794695898`; todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -483,7 +483,7 @@
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `bf6b01e`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `bf6b01ebb48404d30e3d3ba7f8de1d5c2fe0d7bd`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `bf6b01ebb48404d30e3d3ba7f8de1d5c2fe0d7bd`; working tree limpa.
 - CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36790395490` e `Software Package Lifecycle Gates` run `36790395528`; todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -504,27 +504,27 @@
 
 ## 2026-09-30 — estado verificado no HEAD `19093492911e9ae7fa7b3ee1b52bbffbed6903dd`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `19093492911e9ae7fa7b3ee1b52bbffbed6903dd`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `19093492911e9ae7fa7b3ee1b52bbffbed6903dd`; working tree limpa.
 - CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36776907046` e `Software Package Lifecycle Gates` run `36776906993`; todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `3505eb05e2baf6515815c5134854590e370d552a`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `3505eb05e2baf6515815c5134854590e370d552a`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `3505eb05e2baf6515815c5134854590e370d552a`; working tree limpa.
 - CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36773191604` (13 jobs) e `Software Package Lifecycle Gates` run `36773191475` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `ccea1201501e627ea5cfba29588fa9ab8778ba9c`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `ccea1201501e627ea5cfba29588fa9ab8778ba9c`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `ccea1201501e627ea5cfba29588fa9ab8778ba9c`; working tree limpa.
 - CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36770008849` (13 jobs) e `Software Package Lifecycle Gates` run `36770008852` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `357c460da41a5190821342a087f990eacff63162`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `357c460da41a5190821342a087f990eacff63162`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `357c460da41a5190821342a087f990eacff63162`; working tree limpa.
 - CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36767883998` (13 jobs) e `Software Package Lifecycle Gates` run `36767884082` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -538,21 +538,21 @@
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `6f48262ab6d35047ea816ea4ffff56f5e72f80f5`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `6f48262ab6d35047ea816ea4ffff56f5e72f80f5`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `6f48262ab6d35047ea816ea4ffff56f5e72f80f5`; working tree limpa.
 - CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36763128781` (13 jobs) e `Software Package Lifecycle Gates` run `36763128694` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `a4e66a545a493ff5e6e36600c73157a8c3d8f16b`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `a4e66a545a493ff5e6e36600c73157a8c3d8f16b`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `a4e66a545a493ff5e6e36600c73157a8c3d8f16b`; working tree limpa.
 - CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36760855396` (13 jobs) e `Software Package Lifecycle Gates` run `36760855353` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `3c171ea3ed03b7f2656c5e36c9cc4d405c3b9e93`
 
-- `develop` está no HEAD `3c171ea3ed03b7f2656c5e36c9cc4d405c3b9e93`; working tree estava limpa antes desta atualização documental.
+- `develop` está no HEAD `3c171ea3ed03b7f2656c5e36c9cc4d405c3b9e93`; working tree limpa.
 - CI remoto real no SHA exato: **16/16 SUCCESS** — `CI` run `36754671669` (13 jobs) e `Software Package Lifecycle Gates` run `36754671574` (3 jobs).
 - PR #340 está aberta contra `main`; sem merge neste ciclo.
 - Backlog CODE executável esgotado. WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -573,14 +573,14 @@
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `fbdf33bbbdee022ee10def152e971e1744b404c1`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `fbdf33bbbdee022ee10def152e971e1744b404c1`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `fbdf33bbbdee022ee10def152e971e1744b404c1`; working tree limpa.
 - CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36745119580` (13 jobs) e `Software Package Lifecycle Gates` run `36745119649` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `a9aa8032a1ab636e7e0bce6562e8ba7e583edd35`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `a9aa8032a1ab636e7e0bce6562e8ba7e583edd35`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `a9aa8032a1ab636e7e0bce6562e8ba7e583edd35`; working tree limpa.
 - CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36743414956` (13 jobs) e `Software Package Lifecycle Gates` run `36743415232` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Nenhuma tarefa CODE executável nova identificada. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -601,14 +601,14 @@
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `4caf92e`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `4caf92e3c0df9be5084a3e1db275deb661c00599`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `4caf92e3c0df9be5084a3e1db275deb661c00599`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36733283283` (13 jobs) e `Software Package Lifecycle Gates` run `36733283294` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `9e8256b`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `9e8256b92a923388980efe86c09140a6b9c2f2d5`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `9e8256b92a923388980efe86c09140a6b9c2f2d5`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36729216696` (13 jobs) e `Software Package Lifecycle Gates` run `36729216718` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -636,70 +636,70 @@
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `d9164a7`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `d9164a7de7417c4fd8bfe412014845943355740b`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `d9164a7de7417c4fd8bfe412014845943355740b`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36714972963` (13 jobs) e `Software Package Lifecycle Gates` run `36714972886` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `b62f243`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `b62f2437606076635c42b1a5f49850bf88072bd2`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `b62f2437606076635c42b1a5f49850bf88072bd2`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36712843001` (13 jobs) e `Software Package Lifecycle Gates` run `36712843016` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `22002af`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `22002afb50ec8a991eb75e0c54358aff0a2fb2e5`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `22002afb50ec8a991eb75e0c54358aff0a2fb2e5`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36705369604` (13 jobs) e `Software Package Lifecycle Gates` run `36705369840` (3 jobs); jobs concluíram com steps executados.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `1b2864b`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `1b2864b4f9bdc17adabadbef650a6b6e0c107748`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `1b2864b4f9bdc17adabadbef650a6b6e0c107748`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36704161364` (13 jobs) e `Software Package Lifecycle Gates` run `36704161450` (3 jobs); jobs concluíram com steps executados.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `5580f6e`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `5580f6edfa0cb21e3f65842f897b538b36d3fa41`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `5580f6edfa0cb21e3f65842f897b538b36d3fa41`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36701578330` (13 jobs) e `Software Package Lifecycle Gates` run `36701578560` (3 jobs); jobs concluíram com steps executados.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `6c36616`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `6c366168c92b374ac86ebd7fabb73cada8981248`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `6c366168c92b374ac86ebd7fabb73cada8981248`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36697433918` (13 jobs) e `Software Package Lifecycle Gates` run `36697433884` (3 jobs); jobs concluíram com steps executados.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `026738f`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `026738f53220d2ab14e8d4fadced5c729e5330e7`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `026738f53220d2ab14e8d4fadced5c729e5330e7`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36696343042` (13 jobs) e `Software Package Lifecycle Gates` run `36696343044` (3 jobs); jobs concluíram com steps executados.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `0310e3b`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `0310e3ba4a99cd35ca9094a0bd087a4d44f083e3`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `0310e3ba4a99cd35ca9094a0bd087a4d44f083e3`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36695290596` (13 jobs) e `Software Package Lifecycle Gates` run `36695290573` (3 jobs); jobs concluíram com steps executados.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `77a9dbe`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `77a9dbe82b36491dec87e9b1085635a971c07b98`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `77a9dbe82b36491dec87e9b1085635a971c07b98`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36692064179` (13 jobs) e `Software Package Lifecycle Gates` run `36692064155` (3 jobs); jobs concluíram com steps executados.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `24456b1`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `24456b1329cbaf1a49b5bbe58c2d113f588d1726`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `24456b1329cbaf1a49b5bbe58c2d113f588d1726`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: CI run 36690119153 (13 jobs) e Software Package Lifecycle Gates run 36690119128 (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência CODE/CI/SIMULATED; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release v0.3.1 seguem PENDING/BLOCKED. PHYSICAL: USER-APPROVED / NOT EXECUTED.
@@ -713,21 +713,21 @@
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `88b6365`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `88b6365d38ebd62ce97fb8068ef77ae70f4c658b`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `88b6365d38ebd62ce97fb8068ef77ae70f4c658b`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36687921583` (13 jobs) e `Software Package Lifecycle Gates` run `36687921587` (3 jobs), todos com steps executados.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `dfe3560`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `dfe3560c6455508191f3cd564e83e5cd2e23b525`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `dfe3560c6455508191f3cd564e83e5cd2e23b525`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36686793467` (13 jobs) e `Software Package Lifecycle Gates` run `36686793322` (3 jobs), todos com steps executados.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `4609d19`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `4609d193d66e933dc477fabd5673ea3247968d2a`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `4609d193d66e933dc477fabd5673ea3247968d2a`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36683769135` (13 jobs) e `Software Package Lifecycle Gates` run `36683769107` (3 jobs), todos com steps executados.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -783,28 +783,28 @@
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `6eca06f`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `6eca06fbacec09c48711abe29b4f101ef5a9dcf0`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `6eca06fbacec09c48711abe29b4f101ef5a9dcf0`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36668137918` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36668137921` (3 jobs, steps reais).
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `0f25f8c`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `0f25f8c1a8e75b3a6999f1db041e9fcad9b277d7`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `0f25f8c1a8e75b3a6999f1db041e9fcad9b277d7`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36666714223` e `Software Package Lifecycle Gates` run `36666714289`; jobs executaram com steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem pendentes. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `1ba60a4`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `1ba60a46cc1a1574a7bfc63c23021538e00a4953`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `1ba60a46cc1a1574a7bfc63c23021538e00a4953`; working tree limpa.
 - CI real no SHA exato: 16/16 SUCCESS (`36666055113`, `36666055110`), com steps executados.
 - PR #340 continua aberta contra `main`; não fazer merge neste ciclo.
 - Nenhuma tarefa CODE executável nova identificada. Próximo ciclo deve revalidar CI e backlog; manter `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `5e2576e`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `5e2576e42312eb6a4c43b2464c318c3fc8e016ff`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `5e2576e42312eb6a4c43b2464c318c3fc8e016ff`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36664429808` e `Software Package Lifecycle Gates` run `36664429806`; jobs executaram com steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -853,56 +853,56 @@
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `49b73a3`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `49b73a37aaef19c55b9fb2e79abf9579c5df72a5`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `49b73a37aaef19c55b9fb2e79abf9579c5df72a5`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36655834425` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36655834457` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `0418045`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `04180454a5df75aa359ce189381381a3c10f7a1f`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `04180454a5df75aa359ce189381381a3c10f7a1f`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36654832435` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36654832458` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `85884fc`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `85884fcc6fcd3eaac1e219dbe35fb75c274754d4`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `85884fcc6fcd3eaac1e219dbe35fb75c274754d4`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36654123420` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36654123423` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `626d2da`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `626d2daebf78c2b62e7829aa360b6555a04e6f35`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `626d2daebf78c2b62e7829aa360b6555a04e6f35`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36653444253` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36653444235` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `57cd50b`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `57cd50bbb997e224f41d5dc04dc903e99a267bc3`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `57cd50bbb997e224f41d5dc04dc903e99a267bc3`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36652421690` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36652421688` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `b58a320`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `b58a3208a06060b631d7e82b72d0bde85f36b9b7`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `b58a3208a06060b631d7e82b72d0bde85f36b9b7`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36650433417` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36650433289` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — CI remoto confirmado no HEAD `afdecd9`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `afdecd9b1db93174a1211783dbf942ede9e3542b`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `afdecd9b1db93174a1211783dbf942ede9e3542b`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36649747511` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36649747586` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — CI remoto confirmado no HEAD `efb8f7d`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `efb8f7d4c3d0e5ddd396c6fe776d7533cdd88954`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `efb8f7d4c3d0e5ddd396c6fe776d7533cdd88954`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36647163825` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36647163834` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -910,21 +910,21 @@
 
 ## 2026-09-29 — CI remoto confirmado no HEAD `2fd29a0`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `2fd29a0594c67147a60f75bf5d6a1e20fc495e73`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `2fd29a0594c67147a60f75bf5d6a1e20fc495e73`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36646172629` e `Software Package Lifecycle Gates` run `36646172698`; conclusão `success` em ambos, SHA exato confirmado.
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — CI remoto confirmado no HEAD `5c9791f`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `5c9791f` (HEAD exato desta execução); working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `5c9791f` (HEAD exato desta execução); working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36644410144` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36644410034` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-29 — CI confirmado no HEAD `4a02867`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `4a028675656c007fa1ea94cc9ac785191e218749`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `4a028675656c007fa1ea94cc9ac785191e218749`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36642427156` e `Software Package Lifecycle Gates` run `36642427160`; 132 steps com `conclusion: success`; runner real executado.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -2947,34 +2947,34 @@ test → review → docs/GAP update → PR/CI
 
 ## 2026-09-29 — CI confirmado no HEAD `63cf41d`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `63cf41dcfa23d9be0a791509063ded7970ac57da`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `63cf41dcfa23d9be0a791509063ded7970ac57da`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36643428190` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36643428149` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 ## 2026-09-30 — CI confirmado no HEAD `95e8f52`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `95e8f52c5f8e48537a32b5bf878e068fff861ebb`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `95e8f52c5f8e48537a32b5bf878e068fff861ebb`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36649192504` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36649192512` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `7e82a14`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `7e82a14cca72c011405b280f94ee1fb515649a98`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `7e82a14cca72c011405b280f94ee1fb515649a98`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36651010614` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36651010617` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `9b18a67`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `9b18a67793fb91c0d0a477221200159909eac8e8`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `9b18a67793fb91c0d0a477221200159909eac8e8`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36651761231` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36651761206` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `c5ae59a`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `c5ae59a16d641a797830fe2c2d7d608304c39b8d`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` estão sincronizadas no commit `c5ae59a16d641a797830fe2c2d7d608304c39b8d`; working tree limpa.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36663050816` e `Software Package Lifecycle Gates` run `36663050815`; jobs executaram com steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico (RPi5), confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -3062,7 +3062,7 @@ test → review → docs/GAP update → PR/CI
 
 ## 2026-09-30 — estado verificado no HEAD `9fc7523`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `9fc7523fbcb196d43ef569c3eb5a51961d915d91`; working tree estava limpa antes desta atualização documental.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `9fc7523fbcb196d43ef569c3eb5a51961d915d91`; working tree limpa.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36756681341` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36756681440` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
 - [x] Nenhuma tarefa CODE executável nova identificada. Itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
