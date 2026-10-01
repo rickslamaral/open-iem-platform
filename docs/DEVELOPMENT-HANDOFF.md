@@ -1,3 +1,11 @@
+## 2026-10-01 06:08 -0300 — verificação operacional no HEAD `ae6d62d`
+
+- Antes desta atualização, `develop` e `origin/develop` estavam sincronizadas no commit `ae6d62de641d305345621b4ffa2ab7873520f946`; working tree limpa.
+- Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
+- CI remoto mais recente em `develop`: `CI` run `36777931225` e `Software Package Lifecycle Gates` run `36777931370`, ambos SUCCESS em `8fce7d845e75e66e03a46b7513e98a8e164eb90a`, não no HEAD atual.
+- PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
+- Validação documental e gates locais permanecem evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-01 06:02 -0300 — verificação operacional no HEAD `c4d4286`
 
 - No instante da verificação, antes deste commit documental, `develop` e `origin/develop` estavam sincronizadas no commit `c4d42861fc69d5b46e5968385adbc815c1fc7e0d`; working tree limpa.
