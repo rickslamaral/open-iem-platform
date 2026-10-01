@@ -1,3 +1,5 @@
+#![cfg_attr(test, allow(unknown_lints, clippy::assert_is_empty))]
+
 //! WebRTC audio-plane signaling and session lifecycle.
 //!
 //! Phase 5 scope: SDP/ICE signaling and session bookkeeping. Audio frames remain
