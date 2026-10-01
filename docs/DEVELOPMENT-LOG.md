@@ -1,3 +1,13 @@
+## 2026-10-01 — verificação local no HEAD `a5774a3`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `a5774a3d88226411b29c2c92f50381d9e06a14e3`; working tree limpa antes desta atualização.
+- Gates locais reais PASS: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (todos os testes); frontend musician typecheck, 61/61 testes e build; frontend engineer typecheck, 59/59 testes e build.
+- Primeiro comando Rust sem `--manifest-path` falhou por inexistência de `Cargo.toml` na raiz; comando canônico executado depois PASS. Primeiro comando frontend usou `--watchAll`, opção inválida no Vitest 5; `npm test` canônico executado depois PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado de scanner inventado. Diff permanece vazio; nenhum commit de código criado.
+- CI remoto não tem run no HEAD atual; último sucesso registrado (`36795546987`/`36795546985`) pertence a `be8c3691ea891fc84728f7ca5fe7021878bf1651`.
+- PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em gates Rust; fora da branch autorizada.
+- Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-01 — estado verificado no HEAD `3152f44b3b76086e7bc97c09b2e091f1aba20df9`
 
 - `develop` e `origin/develop` apontam para `3152f44b3b76086e7bc97c09b2e091f1aba20df9`; working tree limpa antes desta atualização.
