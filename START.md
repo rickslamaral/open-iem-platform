@@ -1,3 +1,11 @@
+## 2026-10-01 04:12 -03 — verificação operacional no HEAD `5520490`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `5520490f80eddf57c709b14192bd04f2a006b79d`; working tree limpa antes desta atualização.
+- Gates locais reais PASS: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes + doctests); frontends musician e engineer typecheck, testes (61/61 e 59/59) e builds PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. CI remoto mais recente em `develop` (runs `36795546987` e `36795546985`) é SUCCESS em `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não neste HEAD.
+- PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; fora da branch autorizada.
+- Backlog CODE executável permanece esgotado; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-01 03:31 -03 — verificação operacional no HEAD `71be6e31912a`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `71be6e31912aa1bb5ee1f270ad72629f91633a07`; working tree limpa.
