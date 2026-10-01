@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Documentation
+- Reconciliado snapshot documental com `develop` HEAD `09fc520` em 2026-09-30; CI remoto do SHA atual ainda não confirmado.
+
+
 ### Changed
 - Reconciled current CI evidence for `develop` HEAD `13facee` (16/16 SUCCESS).
 

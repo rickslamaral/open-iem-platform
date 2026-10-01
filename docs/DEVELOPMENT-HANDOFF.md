@@ -1,3 +1,10 @@
+## 2026-09-30 — estado verificado no HEAD `09fc520`
+
+- `develop` e `origin/develop` apontam para `09fc5203d87dc7389a513d5f284cf8e267f8e6fa`; working tree estava limpa antes desta atualização documental.
+- CI remoto real disponível concluiu sucesso em commits anteriores de `develop`, mas não há run no SHA documental atual; não declarar CI verde para este HEAD.
+- PRs Dependabot #347 e #348 permanecem abertas contra `main`; política vigente não autoriza merge ou correção fora de `develop`.
+- Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-01 — estado verificado no HEAD `679068a`
 
 - `develop` e `origin/develop` apontam para `679068a7027e651e4a4d1fc2cf2d9b3de9631128`; `main` e `origin/main` permanecem em `83af911849a6145d5c8c7c81d72b6003a2beb80e`; working tree limpa.
