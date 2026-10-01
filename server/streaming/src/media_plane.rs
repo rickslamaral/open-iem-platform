@@ -289,7 +289,7 @@ impl MediaPlane {
             if let Err(MediaSessionError::QueueFull) =
                 session.push_frame(samples, engine_revision, capture_timestamp)
             {
-                let _ = self.dropped_total.fetch_update(
+                let _ = self.dropped_total.try_update(
                     Ordering::Relaxed,
                     Ordering::Relaxed,
                     |current| Some(current.saturating_add(1)),

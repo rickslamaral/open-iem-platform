@@ -135,6 +135,6 @@ mod tests {
         let profile = OutageProfile::new(0, 5).unwrap();
         let result = profile.apply(&[]);
         assert_eq!(result.dropped, 0);
-        assert!(result.delivered.is_empty());
+        assert_eq!(result.delivered.len(), 0);
     }
 }

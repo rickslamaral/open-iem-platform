@@ -172,7 +172,7 @@ mod tests {
     fn empty_input_ok() {
         let profile = JitterProfile::new(3, 1).unwrap();
         let result = profile.apply(&[]);
-        assert!(result.delivered.is_empty());
+        assert_eq!(result.delivered.len(), 0);
         assert_eq!(result.jitter_events, 0);
     }
 

@@ -998,7 +998,7 @@ mod tests {
         let snapshot: crate::SceneStoreSnapshot =
             serde_json::from_str(&store.export_snapshot().unwrap()).unwrap();
         assert_eq!(snapshot.version, SCHEMA_VERSION);
-        assert!(snapshot.scenes.is_empty());
+        assert_eq!(snapshot.scenes.len(), 0);
         assert_eq!(snapshot.active_scene_id, None);
     }
 

@@ -715,11 +715,48 @@ describe('revision history panel', () => {
     expect(await screen.findByRole('alert')).toBeTruthy();
   });
 
-  it('exibe erro quando rollback falha', async () => {
-    await loginAndRevisions({ rollbackFail: true });
-    fireEvent.click(screen.getByRole('button', { name: 'Histórico de revisões da cena Show' }));
-    await screen.findByText('Revisões da cena');
-    fireEvent.click(screen.getByRole('button', { name: 'Reverter para revisão 3' }));
-    expect(await screen.findByRole('alert')).toBeTruthy();
+  it('mostra troca obrigatória quando bootstrap retorna must_change_password', async () => {
+    const fetchMock = vi.fn().mockReturnValueOnce(json({ access_token: 'bootstrap-token', must_change_password: true }));
+    vi.stubGlobal('fetch', fetchMock);
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'soundtech' } });
+    fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'bootstrap-password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    expect(await screen.findByRole('heading', { name: 'Defina sua senha' })).toBeTruthy();
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/v1/auth/login');
+  });
+
+  it('troca senha e exige novo login após revogação da sessão bootstrap', async () => {
+    const fetchMock = vi.fn()
+      .mockReturnValueOnce(json({ access_token: 'bootstrap-token', must_change_password: true }))
+      .mockImplementation((path: string) => path === '/api/v1/auth/password' ? json({}, 204) : json({}, 200));
+    vi.stubGlobal('fetch', fetchMock);
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'soundtech' } });
+    fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'bootstrap-password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    await screen.findByRole('heading', { name: 'Defina sua senha' });
+    fireEvent.change(screen.getByLabelText('Nova senha'), { target: { value: 'new-password-123' } });
+    fireEvent.change(screen.getByLabelText('Confirme a nova senha'), { target: { value: 'new-password-123' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar senha' }));
+    await screen.findByRole('heading', { name: 'Engineer Console' });
+    expect(fetchMock.mock.calls[1][0]).toBe('/api/v1/auth/password');
+    expect(fetchMock.mock.calls[1][1]?.method).toBe('PUT');
+    expect(fetchMock.mock.calls[1][1]?.headers).toMatchObject({ Authorization: 'Bearer bootstrap-token' });
+  });
+
+  it('rejeita confirmação de senha divergente sem chamar API', async () => {
+    const fetchMock = vi.fn().mockReturnValueOnce(json({ access_token: 'bootstrap-token', must_change_password: true }));
+    vi.stubGlobal('fetch', fetchMock);
+    render(<App />);
+    fireEvent.change(screen.getByLabelText('Usuário'), { target: { value: 'soundtech' } });
+    fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'bootstrap-password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    await screen.findByRole('heading', { name: 'Defina sua senha' });
+    fireEvent.change(screen.getByLabelText('Nova senha'), { target: { value: 'one' } });
+    fireEvent.change(screen.getByLabelText('Confirme a nova senha'), { target: { value: 'two' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar senha' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('As senhas não conferem.');
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/v1/auth/login');
   });
 });

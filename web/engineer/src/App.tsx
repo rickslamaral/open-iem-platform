@@ -73,6 +73,11 @@ async function request<T>(path: string, token: string, init: RequestInit = {}): 
   return response.json() as Promise<T>;
 }
 
+type LoginResponse = {
+  access_token: string;
+  must_change_password: boolean;
+};
+
 function Login({ onSubmit, error }: { onSubmit: (username: string, password: string) => Promise<void>; error: string | null }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -89,6 +94,33 @@ function Login({ onSubmit, error }: { onSubmit: (username: string, password: str
     <label>Senha<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required /></label>
     {error && <p className="error" role="alert">{error}</p>}
     <button disabled={busy}>{busy ? 'Entrando…' : 'Entrar'}</button>
+  </form></main>;
+}
+
+function ChangePassword({ token, onComplete, error }: { token: string; onComplete: () => void; error: string | null }) {
+  const [password, setPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (password !== confirmation) { setFormError('As senhas não conferem.'); return; }
+    setBusy(true);
+    setFormError(null);
+    try {
+      await request('/api/v1/auth/password', token, { method: 'PUT', body: JSON.stringify({ new_password: password }) });
+      onComplete();
+    } catch (cause) {
+      setFormError(cause instanceof Error ? cause.message : 'Falha ao alterar senha');
+    } finally { setBusy(false); }
+  };
+  return <main className="login-shell"><form className="card login-card" onSubmit={submit}>
+    <p className="eyebrow">OPEN IEM / PRIMEIRO ACESSO</p><h1>Defina sua senha</h1>
+    <p className="muted">Troca obrigatória antes de acessar Engineer Console.</p>
+    <label>Nova senha<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" minLength={8} required /></label>
+    <label>Confirme a nova senha<input type="password" value={confirmation} onChange={(e) => setConfirmation(e.target.value)} autoComplete="new-password" minLength={8} required /></label>
+    {(formError || error) && <p className="error" role="alert">{formError || error}</p>}
+    <button disabled={busy}>{busy ? 'Salvando…' : 'Salvar senha'}</button>
   </form></main>;
 }
 
@@ -540,6 +572,7 @@ function ScenePanel({ token }: { token: string }) {
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null);
+  const [pendingPasswordChange, setPendingPasswordChange] = useState(false);
   const [data, setData] = useState<Dashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -561,10 +594,10 @@ export default function App() {
     channelMutationIds.current = {};
   }, []);
 
-  const ws = useEngineerWs(token);
+  const ws = useEngineerWs(pendingPasswordChange ? null : token);
 
   const load = useCallback(async () => {
-    if (!token) return;
+    if (!token || pendingPasswordChange) return;
     const generation = ++loadGeneration.current;
     setLoading(true); setError(null);
     try {
@@ -630,7 +663,7 @@ export default function App() {
     } finally {
       if (generation === loadGeneration.current) setLoading(false);
     }
-  }, [token]);
+  }, [pendingPasswordChange, token]);
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => {
@@ -650,9 +683,16 @@ export default function App() {
   async function login(username: string, password: string) {
     setError(null);
     try {
-      const result = await request<{ access_token: string }>('/api/v1/auth/login', '', { method: 'POST', body: JSON.stringify({ username, password }) });
+      const result = await request<LoginResponse>('/api/v1/auth/login', '', { method: 'POST', body: JSON.stringify({ username, password }) });
+      setPendingPasswordChange(result.must_change_password);
       setToken(result.access_token);
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Falha de autenticação'); }
+  }
+  async function completePasswordChange() {
+    setPendingPasswordChange(false);
+    setToken(null);
+    setData(null);
+    setError('Senha alterada. Entre novamente com a nova senha.');
   }
   async function logout() {
     if (token) { try { await request('/api/v1/auth/logout', token, { method: 'POST' }); } catch { /* local logout still required */ } }
@@ -743,6 +783,7 @@ export default function App() {
   }
 
   if (!token) return <Login onSubmit={login} error={error} />;
+  if (pendingPasswordChange) return <ChangePassword token={token} onComplete={() => void completePasswordChange()} error={error} />;
   const channels = resolvedChannels();
   return <main className="app-shell">
     <header>

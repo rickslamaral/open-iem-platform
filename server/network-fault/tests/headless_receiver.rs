@@ -567,7 +567,7 @@ fn deterministic_bandwidth_profile_drives_opus_receiver_plc() {
     )])
     .unwrap();
     let delivered = profile.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
     assert!(delivered.len() < encoded.len());
 
     let metrics = Arc::new(ReceiverMetrics::default());
@@ -2640,7 +2640,7 @@ fn reconnect_after_reorder_resumes_opus_receiver() {
         .apply(&reordered.delivered);
     assert_eq!(reconnect.pre_disconnect.len(), 4);
     assert_eq!(reconnect.lost_at_disconnect, 1);
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.post_reconnect.len(), 0);
     assert_eq!(reconnect.recovered_mix_id, Some(1));
 
     let metrics = Arc::new(ReceiverMetrics::default());
@@ -2670,7 +2670,7 @@ fn reconnect_after_reorder_resumes_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -2699,7 +2699,7 @@ fn reconnect_after_duplicate_resumes_opus_receiver() {
         .apply(&encoded);
     assert_eq!(reconnect.pre_disconnect.len(), 4);
     assert_eq!(reconnect.lost_at_disconnect, 1);
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     // Apply DuplicateProfile(4) to pre_disconnect only: duplicates seq4 (pos4)
     let pre_with_dups = DuplicateProfile::new(4)
@@ -2738,7 +2738,7 @@ fn reconnect_after_duplicate_resumes_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -2771,7 +2771,7 @@ fn reconnect_after_combined_jitter_loss_resumes_opus_receiver() {
     .unwrap();
 
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
     assert!(
         delivered.len() < encoded.len(),
         "jitter+loss must drop some packets"
@@ -2782,7 +2782,7 @@ fn reconnect_after_combined_jitter_loss_resumes_opus_receiver() {
         .apply(&delivered);
     assert_eq!(reconnect.pre_disconnect.len(), 3);
     assert_eq!(reconnect.lost_at_disconnect, 1);
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.post_reconnect.len(), 0);
     assert_eq!(reconnect.recovered_mix_id, Some(2));
 
     let metrics = Arc::new(ReceiverMetrics::default());
@@ -2812,7 +2812,7 @@ fn reconnect_after_combined_jitter_loss_resumes_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -2841,14 +2841,14 @@ fn reconnect_after_combined_reorder_duplicate_resumes_opus_receiver() {
     .unwrap();
 
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let reconnect = ReconnectProfile::new(5, 1, "musician-reorder-dup", 1)
         .unwrap()
         .apply(&delivered);
     assert_eq!(reconnect.pre_disconnect.len(), 5);
     assert_eq!(reconnect.lost_at_disconnect, 1);
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     // Count unique sequences in each segment for correct playout call count.
     let pre_unique: std::collections::HashSet<u64> = reconnect
@@ -2891,7 +2891,7 @@ fn reconnect_after_combined_reorder_duplicate_resumes_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -2920,14 +2920,14 @@ fn reconnect_after_combined_jitter_duplicate_resumes_opus_receiver() {
     .unwrap();
 
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let reconnect = ReconnectProfile::new(5, 1, "musician-jitter-dup", 0)
         .unwrap()
         .apply(&delivered);
     assert_eq!(reconnect.pre_disconnect.len(), 5);
     assert_eq!(reconnect.lost_at_disconnect, 1);
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     // Count unique sequences in each segment for correct playout call count.
     let pre_unique: std::collections::HashSet<u64> = reconnect
@@ -2968,7 +2968,7 @@ fn reconnect_after_combined_jitter_duplicate_resumes_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -2997,14 +2997,14 @@ fn reconnect_after_combined_loss_duplicate_resumes_opus_receiver() {
     .unwrap();
 
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let reconnect = ReconnectProfile::new(4, 1, "musician-loss-dup", 2)
         .unwrap()
         .apply(&delivered);
     assert_eq!(reconnect.pre_disconnect.len(), 4);
     assert_eq!(reconnect.lost_at_disconnect, 1);
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     // Count unique sequences in each segment for correct playout call count.
     let pre_unique: std::collections::HashSet<u64> = reconnect
@@ -3046,7 +3046,7 @@ fn reconnect_after_combined_loss_duplicate_resumes_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -3083,7 +3083,7 @@ fn combined_bandwidth_outage_loss_drives_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -3102,7 +3102,7 @@ fn combined_bandwidth_outage_loss_drives_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.output_failures, 0);
     assert!(snapshot.plc_frames_total > 0);
@@ -3130,7 +3130,7 @@ fn combined_bandwidth_outage_jitter_drives_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -3149,7 +3149,7 @@ fn combined_bandwidth_outage_jitter_drives_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.output_failures, 0);
     assert!(snapshot.plc_frames_total > 0);
@@ -3177,7 +3177,7 @@ fn combined_bandwidth_outage_reorder_drives_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -3196,7 +3196,7 @@ fn combined_bandwidth_outage_reorder_drives_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.output_failures, 0);
     assert!(snapshot.plc_frames_total > 0);
@@ -3224,7 +3224,7 @@ fn combined_bandwidth_outage_duplicate_drives_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let unique: std::collections::HashSet<u64> = delivered.iter().map(|p| p.sequence).collect();
 
@@ -3245,7 +3245,7 @@ fn combined_bandwidth_outage_duplicate_drives_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.output_failures, 0);
     assert!(snapshot.late_packets > 0);
@@ -3273,7 +3273,7 @@ fn combined_bandwidth_loss_jitter_drives_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -3292,7 +3292,7 @@ fn combined_bandwidth_loss_jitter_drives_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.output_failures, 0);
     assert!(snapshot.plc_frames_total > 0);
@@ -3320,7 +3320,7 @@ fn combined_bandwidth_loss_reorder_drives_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -3339,7 +3339,7 @@ fn combined_bandwidth_loss_reorder_drives_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.output_failures, 0);
     assert!(snapshot.plc_frames_total > 0);
@@ -3367,7 +3367,7 @@ fn combined_bandwidth_loss_duplicate_drives_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let unique: std::collections::HashSet<u64> = delivered.iter().map(|p| p.sequence).collect();
 
@@ -3388,7 +3388,7 @@ fn combined_bandwidth_loss_duplicate_drives_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.output_failures, 0);
     assert!(snapshot.late_packets > 0);
@@ -3416,7 +3416,7 @@ fn combined_bandwidth_jitter_reorder_drives_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -3435,7 +3435,7 @@ fn combined_bandwidth_jitter_reorder_drives_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.output_failures, 0);
 }
@@ -3462,7 +3462,7 @@ fn combined_bandwidth_jitter_duplicate_drives_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let unique: std::collections::HashSet<u64> = delivered.iter().map(|p| p.sequence).collect();
 
@@ -3483,7 +3483,7 @@ fn combined_bandwidth_jitter_duplicate_drives_opus_receiver() {
     }
 
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.output_failures, 0);
     assert!(snapshot.late_packets > 0);
@@ -3511,14 +3511,14 @@ fn reconnect_after_combined_bandwidth_outage_loss_resumes_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let split_at = std::cmp::max(2, delivered.len() / 2);
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-bw-outage-loss", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -3544,7 +3544,7 @@ fn reconnect_after_combined_bandwidth_outage_loss_resumes_opus_receiver() {
         receiver.playout(&mut output).unwrap();
     }
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -3573,14 +3573,14 @@ fn reconnect_after_combined_bandwidth_outage_jitter_resumes_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let split_at = std::cmp::max(2, delivered.len() / 2);
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-bw-outage-jitter", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -3604,7 +3604,7 @@ fn reconnect_after_combined_bandwidth_outage_jitter_resumes_opus_receiver() {
         receiver.playout(&mut output).unwrap();
     }
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -3633,14 +3633,14 @@ fn reconnect_after_combined_bandwidth_outage_reorder_resumes_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let split_at = std::cmp::max(2, delivered.len() / 2);
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-bw-outage-reorder", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -3664,7 +3664,7 @@ fn reconnect_after_combined_bandwidth_outage_reorder_resumes_opus_receiver() {
         receiver.playout(&mut output).unwrap();
     }
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -3693,14 +3693,14 @@ fn reconnect_after_combined_bandwidth_outage_duplicate_resumes_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let split_at = std::cmp::max(2, delivered.len() / 2);
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-bw-outage-dup", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let pre_unique: std::collections::HashSet<u64> = reconnect
         .pre_disconnect
@@ -3735,7 +3735,7 @@ fn reconnect_after_combined_bandwidth_outage_duplicate_resumes_opus_receiver() {
         receiver.playout(&mut output).unwrap();
     }
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -3764,14 +3764,14 @@ fn reconnect_after_combined_bandwidth_loss_jitter_resumes_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let split_at = std::cmp::max(2, delivered.len() / 2);
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-bw-loss-jitter", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -3795,7 +3795,7 @@ fn reconnect_after_combined_bandwidth_loss_jitter_resumes_opus_receiver() {
         receiver.playout(&mut output).unwrap();
     }
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -3824,14 +3824,14 @@ fn reconnect_after_combined_bandwidth_loss_reorder_resumes_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let split_at = std::cmp::max(2, delivered.len() / 2);
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-bw-loss-reorder", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -3855,7 +3855,7 @@ fn reconnect_after_combined_bandwidth_loss_reorder_resumes_opus_receiver() {
         receiver.playout(&mut output).unwrap();
     }
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -3884,14 +3884,14 @@ fn reconnect_after_combined_bandwidth_loss_duplicate_resumes_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let split_at = std::cmp::max(2, delivered.len() / 2);
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-bw-loss-dup", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let pre_unique: std::collections::HashSet<u64> = reconnect
         .pre_disconnect
@@ -3926,7 +3926,7 @@ fn reconnect_after_combined_bandwidth_loss_duplicate_resumes_opus_receiver() {
         receiver.playout(&mut output).unwrap();
     }
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -3955,14 +3955,14 @@ fn reconnect_after_combined_bandwidth_jitter_reorder_resumes_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let split_at = std::cmp::max(2, delivered.len() / 2);
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-bw-jitter-reorder", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -3986,7 +3986,7 @@ fn reconnect_after_combined_bandwidth_jitter_reorder_resumes_opus_receiver() {
         receiver.playout(&mut output).unwrap();
     }
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -4015,14 +4015,14 @@ fn reconnect_after_combined_bandwidth_jitter_duplicate_resumes_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let split_at = std::cmp::max(2, delivered.len() / 2);
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-bw-jitter-dup", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let pre_unique: std::collections::HashSet<u64> = reconnect
         .pre_disconnect
@@ -4057,7 +4057,7 @@ fn reconnect_after_combined_bandwidth_jitter_duplicate_resumes_opus_receiver() {
         receiver.playout(&mut output).unwrap();
     }
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -4092,8 +4092,8 @@ fn reconnect_after_combined_outage_loss_jitter_resumes_opus_receiver() {
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-outage-loss-jitter", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -4153,8 +4153,8 @@ fn reconnect_after_combined_outage_loss_reorder_resumes_opus_receiver() {
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-outage-loss-reorder", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -4229,8 +4229,8 @@ fn reconnect_after_combined_outage_loss_duplicate_resumes_opus_receiver() {
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-outage-loss-duplicate", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
     let post_unique: std::collections::HashSet<u64> = reconnect
         .post_reconnect
         .iter()
@@ -4315,8 +4315,8 @@ fn reconnect_after_combined_outage_jitter_duplicate_resumes_opus_receiver() {
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-outage-jitter-duplicate", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
     let post_unique: std::collections::HashSet<u64> = reconnect
         .post_reconnect
         .iter()
@@ -4401,8 +4401,8 @@ fn reconnect_after_combined_outage_reorder_duplicate_resumes_opus_receiver() {
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-outage-reorder-duplicate", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
     let post_unique: std::collections::HashSet<u64> = reconnect
         .post_reconnect
         .iter()
@@ -4545,14 +4545,14 @@ fn reconnect_after_combined_bandwidth_reorder_duplicate_resumes_opus_receiver() 
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let split_at = std::cmp::max(2, delivered.len() / 2);
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-bandwidth-reorder-duplicate", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let pre_unique: std::collections::HashSet<u64> = reconnect
         .pre_disconnect
@@ -4587,7 +4587,7 @@ fn reconnect_after_combined_bandwidth_reorder_duplicate_resumes_opus_receiver() 
         receiver.playout(&mut output).unwrap();
     }
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -4622,8 +4622,8 @@ fn reconnect_after_combined_loss_jitter_reorder_resumes_opus_receiver() {
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-loss-jitter-reorder", 0)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -4698,8 +4698,8 @@ fn reconnect_after_combined_loss_jitter_duplicate_resumes_opus_receiver() {
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-loss-jitter-duplicate", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
     let post_unique: std::collections::HashSet<u64> = reconnect
         .post_reconnect
         .iter()
@@ -4784,8 +4784,8 @@ fn reconnect_after_combined_loss_reorder_duplicate_resumes_opus_receiver() {
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-loss-reorder-duplicate", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
     let post_unique: std::collections::HashSet<u64> = reconnect
         .post_reconnect
         .iter()
@@ -4861,14 +4861,14 @@ fn reconnect_after_combined_jitter_reorder_duplicate_resumes_opus_receiver() {
     ])
     .unwrap();
     let delivered = combined.apply(&encoded);
-    assert!(!delivered.is_empty());
+    assert_ne!(delivered.len(), 0);
 
     let split_at = std::cmp::max(2, delivered.len() / 2);
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-jitter-reorder-duplicate", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let pre_unique: std::collections::HashSet<u64> = reconnect
         .pre_disconnect
@@ -4903,7 +4903,7 @@ fn reconnect_after_combined_jitter_reorder_duplicate_resumes_opus_receiver() {
         receiver.playout(&mut output).unwrap();
     }
     let snapshot = metrics.snapshot();
-    assert!(!output.frames.is_empty());
+    assert_ne!(output.frames.len(), 0);
     assert_eq!(output.muted, 1);
     assert_eq!(receiver.state(), ReceiverState::Playing);
     assert_eq!(snapshot.reconnect_count, 1);
@@ -4939,8 +4939,8 @@ fn reconnect_after_combined_outage_loss_jitter_reorder_resumes_opus_receiver() {
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-outage-loss-jitter-reorder", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -5000,8 +5000,8 @@ fn reconnect_after_combined_outage_loss_jitter_duplicate_resumes_opus_receiver()
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-outage-loss-jitter-duplicate", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -5061,8 +5061,8 @@ fn reconnect_after_combined_outage_loss_reorder_duplicate_resumes_opus_receiver(
     let reconnect = ReconnectProfile::new(split_at, 1, "musician-outage-loss-reorder-duplicate", 2)
         .unwrap()
         .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -5123,8 +5123,8 @@ fn reconnect_after_combined_outage_jitter_reorder_duplicate_resumes_opus_receive
         ReconnectProfile::new(split_at, 1, "musician-outage-jitter-reorder-duplicate", 2)
             .unwrap()
             .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -5185,8 +5185,8 @@ fn reconnect_after_combined_bandwidth_outage_jitter_reorder_resumes_opus_receive
         ReconnectProfile::new(split_at, 1, "musician-bandwidth-outage-jitter-reorder", 2)
             .unwrap()
             .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -5247,8 +5247,8 @@ fn reconnect_after_combined_bandwidth_outage_loss_duplicate_resumes_opus_receive
         ReconnectProfile::new(split_at, 1, "musician-bandwidth-outage-loss-duplicate", 2)
             .unwrap()
             .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -5314,8 +5314,8 @@ fn reconnect_after_combined_bandwidth_outage_loss_jitter_reorder_resumes_opus_re
     )
     .unwrap()
     .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -5381,8 +5381,8 @@ fn reconnect_after_combined_bandwidth_outage_loss_jitter_duplicate_resumes_opus_
     )
     .unwrap()
     .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -5448,8 +5448,8 @@ fn reconnect_after_combined_bandwidth_loss_jitter_reorder_duplicate_resumes_opus
     )
     .unwrap()
     .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -5515,8 +5515,8 @@ fn reconnect_after_combined_bandwidth_outage_loss_reorder_duplicate_resumes_opus
     )
     .unwrap()
     .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
 
     let metrics = Arc::new(ReceiverMetrics::default());
     let mut receiver = OpusReceiver::new()
@@ -5588,8 +5588,8 @@ fn reconnect_after_combined_bandwidth_outage_loss_jitter_reorder_duplicate_resum
     )
     .unwrap()
     .apply(&delivered);
-    assert!(!reconnect.pre_disconnect.is_empty());
-    assert!(!reconnect.post_reconnect.is_empty());
+    assert_ne!(reconnect.pre_disconnect.len(), 0);
+    assert_ne!(reconnect.post_reconnect.len(), 0);
     assert_eq!(reconnect.lost_at_disconnect, 1);
     assert_eq!(reconnect.recovered_mix_id, Some(2));
     let metrics = Arc::new(ReceiverMetrics::default());

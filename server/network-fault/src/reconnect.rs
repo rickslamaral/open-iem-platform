@@ -158,7 +158,7 @@ mod tests {
         let result = profile.apply(&burst(5));
         assert_eq!(result.pre_disconnect.len(), 3);
         assert_eq!(result.lost_at_disconnect, 2); // only 2 remain
-        assert!(result.post_reconnect.is_empty());
+        assert_eq!(result.post_reconnect.len(), 0);
     }
 
     #[test]
@@ -166,7 +166,7 @@ mod tests {
         let profile = ReconnectProfile::new(100, 0, "eve", 5).unwrap();
         let result = profile.apply(&burst(5));
         assert_eq!(result.pre_disconnect.len(), 5);
-        assert!(result.post_reconnect.is_empty());
+        assert_eq!(result.post_reconnect.len(), 0);
         // Recovery still works even with clamped split.
         assert_eq!(result.recovered_mix_id, Some(5));
     }
@@ -175,7 +175,7 @@ mod tests {
     fn zero_split_delivers_all_post() {
         let profile = ReconnectProfile::new(0, 0, "frank", 2).unwrap();
         let result = profile.apply(&burst(8));
-        assert!(result.pre_disconnect.is_empty());
+        assert_eq!(result.pre_disconnect.len(), 0);
         assert_eq!(result.post_reconnect.len(), 8);
         assert_eq!(result.recovered_mix_id, Some(2));
     }
@@ -184,8 +184,8 @@ mod tests {
     fn empty_stream_ok() {
         let profile = ReconnectProfile::new(3, 2, "grace", 0).unwrap();
         let result = profile.apply(&[]);
-        assert!(result.pre_disconnect.is_empty());
-        assert!(result.post_reconnect.is_empty());
+        assert_eq!(result.pre_disconnect.len(), 0);
+        assert_eq!(result.post_reconnect.len(), 0);
         assert_eq!(result.lost_at_disconnect, 0);
         // Registry still records and recovers.
         assert_eq!(result.recovered_mix_id, Some(0));
