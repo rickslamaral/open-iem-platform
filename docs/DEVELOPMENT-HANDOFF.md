@@ -1,3 +1,12 @@
+## 2026-10-01 16:18 -0300 — verificação operacional no HEAD `b8a6852`
+
+- `develop` e `origin/develop` sincronizadas no commit `b8a6852f68ba0fa4ff047d0d30e6b4387236b217`; working tree limpa antes desta atualização.
+- Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado.
+- Gates locais reais PASS: Rust fmt, clippy, `cargo test --manifest-path server/Cargo.toml` (537 testes + doctests); musician typecheck, 61 testes e build; engineer typecheck, 59 testes e build.
+- `scripts/validate-docs.sh` PASS. Frontend exigiu `npm test -- --run`; `--watchAll=false` é inválido para Vitest e não representa falha de código.
+- CI remoto SUCCESS mais recente em `develop`: runs `36897066547` e `36897066543`, ambos cobrem `56a17fc87b004c104e730e36741ba75ad22796b4`, não o HEAD atual. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em Rust/coverage; política vigente não altera essas branches. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-01 16:11 -0300 — verificação operacional no HEAD `f33cc6b`
 
 - `develop` e `origin/develop` estavam sincronizadas no commit `f33cc6b8bd5c7641fc02d49198f04de13c39d312` antes desta atualização documental; working tree estava limpa naquele ponto.
