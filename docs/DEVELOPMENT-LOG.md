@@ -1,6 +1,6 @@
-## 2026-10-01 07:55 -0300 — verificação operacional no HEAD `0b45ec5`
+## 2026-10-01 08:05 -0300 — verificação operacional no HEAD `0b45ec5`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `0b45ec573afbe3aebf2bf4aedbf4aa47c156fbe0`; working tree limpa.
+- `develop` e `origin/develop` estão sincronizadas no commit `35988ee171686c718f191ccafa7f448991e318fd`; working tree limpa.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto mais recente em `develop` permanece SUCCESS nos runs `36795546987` (`CI`) e `36795546985` (`Software Package Lifecycle Gates`), ambos no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
