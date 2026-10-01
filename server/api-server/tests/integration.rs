@@ -2355,7 +2355,7 @@ async fn system_info_returns_200() {
     let response = server.get("/api/v1/system").await;
     response.assert_status_ok();
     let body: Value = response.json();
-    assert!(!body["version"].as_str().unwrap_or_default().is_empty());
+    assert_ne!(body["version"].as_str().unwrap_or_default(), "");
     assert_eq!(body["backend_status"], "SIMULATED");
 }
 
@@ -2890,7 +2890,7 @@ async fn offer_without_pairing_fields_is_backward_compatible() {
         .await;
     resp.assert_status_ok();
     let body: Value = resp.json();
-    assert!(!body["sdp"].as_str().unwrap_or_default().is_empty());
+    assert_ne!(body["sdp"].as_str().unwrap_or_default(), "");
 }
 
 #[tokio::test]
@@ -3026,7 +3026,7 @@ async fn offer_with_matching_dtls_fingerprint_succeeds() {
         .await;
     resp.assert_status_ok();
     let body: Value = resp.json();
-    assert!(!body["sdp"].as_str().unwrap_or_default().is_empty());
+    assert_ne!(body["sdp"].as_str().unwrap_or_default(), "");
 }
 
 #[tokio::test]
