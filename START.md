@@ -4,7 +4,7 @@
 
 ## Estado canônico atual
 
-As 13 fases canônicas permanecem fixas. O snapshot operacional atual está em branch `develop`, HEAD verificado `93e993d2cf6f9d38e39ba5bc4aa75d6a2b0a3b3a`; `main` e `origin/main` permanecem em `83af911849a6145d5c8c7c81d72b6003a2beb80e`. As fases incrementais não substituem nem renumeram as fases canônicas. Evidência atual: `CODE/CI/SIMULATED`; PRs Dependabot #347 e #348 permanecem abertas contra `main`, com falhas atuais em gates Rust; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam pendentes. CI verde mais recente não corresponde ao HEAD atual.
+As 13 fases canônicas permanecem fixas. O snapshot operacional atual está em branch `develop`, HEAD verificado `46e1c179174a2760d46d90006f0ce1cb20003c1a`; `main` e `origin/main` permanecem em `83af911849a6145d5c8c7c81d72b6003a2beb80e`. As fases incrementais não substituem nem renumeram as fases canônicas. Evidência atual: `CODE/CI/SIMULATED`; PRs Dependabot #347 e #348 permanecem abertas contra `main`, com falhas atuais em gates Rust; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam pendentes. CI verde mais recente não corresponde ao HEAD atual.
 
 
 ```text
