@@ -1,3 +1,10 @@
+## 2026-10-01 — estado verificado no HEAD `7b4cbe0b56f7568a9dd9fd387ebbd8e38ea6982b`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `7b4cbe0b56f7568a9dd9fd387ebbd8e38ea6982b`; working tree limpa.
+- Gates locais reais: `cargo fmt` e `cargo clippy` com `--manifest-path server/Cargo.toml` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (todos os testes). Frontends musician e engineer: typecheck, 61/61 e 59/59 testes, builds PASS.
+- CI remoto mais recente PASS nos commits anteriores `be8c369`/`13facee`; não corresponde ao HEAD atual. PRs Dependabot #347 e #348 permanecem abertas contra `main`, com falhas Rust/coverage.
+- Backlog CODE executável permanece esgotado. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-01 — estado verificado no HEAD `f328a1d26531ac84659accf99bbe1efcc78b801b`
 
 - `develop` e `origin/develop` apontam para `f328a1d26531ac84659accf99bbe1efcc78b`; working tree estava limpa antes desta atualização documental.
