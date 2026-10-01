@@ -238,14 +238,18 @@ impl Db {
                     |row| row.get(0),
                 )
                 .map_err(|e| ApiError::Internal(e.to_string()))?;
-            let status_index: i64 = tx
-                .query_row(
-                    "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = 'musician_profiles_status_idx'",
-                    [],
-                    |row| row.get(0),
-                )
-                .map_err(|e| ApiError::Internal(e.to_string()))?;
-            let normalized_sql = table_sql.to_ascii_uppercase().replace(' ', "");
+            let status_index_columns: Vec<(i64, String)> = tx
+                .prepare("PRAGMA index_info('musician_profiles_status_idx')")
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| Ok((row.get(0)?, row.get(2)?)))
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect::<Result<_, _>>()?;
+            let normalized_sql: String = table_sql
+                .to_ascii_uppercase()
+                .chars()
+                .filter(|character| !character.is_ascii_whitespace())
+                .collect();
             if columns != expected_columns
                 || foreign_keys
                     != vec![(
@@ -254,10 +258,12 @@ impl Db {
                         "id".to_owned(),
                         "CASCADE".to_owned(),
                     )]
-                || status_index != 1
-                || !normalized_sql.contains("AUTOINCREMENT")
-                || !normalized_sql.contains("USER_IDINTEGERNOTNULLUNIQUE")
-                || !normalized_sql.contains("STATUS TEXT NOT NULL CHECK".replace(' ', "").as_str())
+                || status_index_columns != vec![(0, "status".to_owned())]
+                || !normalized_sql.contains("PROFILE_IDINTEGERPRIMARYKEYAUTOINCREMENT")
+                || !normalized_sql
+                    .contains("USER_IDINTEGERNOTNULLUNIQUEREFERENCESUSERS(ID)ONDELETECASCADE")
+                || !normalized_sql
+                    .contains("STATUSTEXTNOTNULLCHECK(STATUSIN('PENDING','ACTIVE','BLOCKED'))")
             {
                 return Err(ApiError::Internal(
                     "migration M002 recorded but musician_profiles schema is missing or invalid"
