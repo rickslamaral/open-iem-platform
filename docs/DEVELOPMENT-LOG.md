@@ -1,3 +1,10 @@
+## 2026-10-01 — estado verificado no HEAD `679068a`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `679068a7027e651e4a4d1fc2cf2d9b3de9631128`; working tree limpa.
+- Não há tarefa CODE segura nova no backlog. CI remoto disponível refere-se a commits anteriores, não ao HEAD documental atual.
+- PRs Dependabot #347 e #348 permanecem abertas contra `main` com falhas em gates Rust; política vigente não autoriza merge ou correção fora de `develop`.
+- Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-01 — streaming test aligned with drive ordering
 
 - Corrigido teste `drive_once_polls_queued_media_before_frame_writes`: `drive_once` drena saídas RTC pendentes antes de escrever frames de mídia, portanto a fila previamente preenchida é consumida e os dois frames codificam sem `media_write_errors`.
