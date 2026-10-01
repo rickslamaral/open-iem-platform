@@ -1,6 +1,6 @@
-## 2026-10-01 — estado verificado no HEAD `17c6e9a3957ee41a75b762a0f27e90710a0ef82c`
+## 2026-10-01 — estado verificado no HEAD `3152f44b3b76086e7bc97c09b2e091f1aba20df9`
 
-- `develop` e `origin/develop` apontam para `17c6e9a3957ee41a75b762a0f27e90710a0ef82c`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` apontam para `3152f44b3b76086e7bc97c09b2e091f1aba20df9`; working tree limpa antes desta atualização.
 - Nenhuma tarefa CODE executável nova identificada no backlog; atualização reconcilia estado operacional real.
 - CI remoto real mais recente em `develop`: `CI` run `36795546987` e `Software Package Lifecycle Gates` run `36795546985`, ambos SUCCESS em `be8c3691ea891fc84728f7ca5fe7021878bf1651`; ainda não há run no HEAD atual.
 - PRs Dependabot #347 e #348 permanecem abertas contra `main`, com falhas nos gates Rust; política local proíbe alterações nessas branches.
