@@ -194,14 +194,46 @@ impl Db {
             )
             .map_err(|e| ApiError::Internal(e.to_string()))?;
         } else {
-            let profile_table_columns: i64 = tx
-                .query_row(
-                    "SELECT COUNT(*) FROM pragma_table_info('musician_profiles')",
-                    [],
-                    |row| row.get(0),
-                )
-                .map_err(|e| ApiError::Internal(e.to_string()))?;
-            if profile_table_columns != 7 {
+            let columns: Vec<(String, String, i64, Option<String>, i64)> = tx
+                .prepare("SELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('musician_profiles') ORDER BY cid")
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| {
+                    Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?))
+                })
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect::<Result<_, _>>()?;
+            let expected_columns = vec![
+                ("profile_id".to_owned(), "INTEGER".to_owned(), 0, None, 1),
+                ("user_id".to_owned(), "INTEGER".to_owned(), 1, None, 0),
+                ("display_name".to_owned(), "TEXT".to_owned(), 1, None, 0),
+                ("instrument_id".to_owned(), "TEXT".to_owned(), 1, None, 0),
+                ("status".to_owned(), "TEXT".to_owned(), 1, None, 0),
+                (
+                    "created_at".to_owned(),
+                    "INTEGER".to_owned(),
+                    1,
+                    Some("unixepoch()".to_owned()),
+                    0,
+                ),
+                (
+                    "updated_at".to_owned(),
+                    "INTEGER".to_owned(),
+                    1,
+                    Some("unixepoch()".to_owned()),
+                    0,
+                ),
+            ];
+            let foreign_keys: Vec<(String, String, String)> = tx
+                .prepare("SELECT \"table\", \"from\", \"to\" FROM pragma_foreign_key_list('musician_profiles')")
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect::<Result<_, _>>()?;
+            if columns != expected_columns
+                || foreign_keys != vec![("users".to_owned(), "user_id".to_owned(), "id".to_owned())]
+            {
                 return Err(ApiError::Internal(
                     "migration M002 recorded but musician_profiles schema is missing or invalid"
                         .to_owned(),
