@@ -243,7 +243,12 @@ fn seed_user_and_login(state: &AppState, username: &str, password: &str, role: R
 #[tokio::test]
 async fn config_backup_restore_round_trip_through_api() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "config_backup_engineer", "pw", Role::Engineer);
+    let token = seed_user_and_login(
+        &state,
+        "config_backup_engineer",
+        "password1",
+        Role::Engineer,
+    );
     {
         let mut control = state.control.lock().expect("control lock");
         control
@@ -297,7 +302,12 @@ async fn config_backup_restore_round_trip_through_api() {
 #[tokio::test]
 async fn config_backup_restore_rejects_musician() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "config_backup_musician", "pw", Role::Musician);
+    let token = seed_user_and_login(
+        &state,
+        "config_backup_musician",
+        "password1",
+        Role::Musician,
+    );
     let snapshot = json!({
         "version": 1,
         "created_at_utc_secs": 0,
@@ -323,7 +333,7 @@ async fn config_backup_restore_rejects_musician() {
 #[tokio::test]
 async fn config_backup_restore_rejects_invalid_snapshot_without_mutation() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "config_backup_invalid", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "config_backup_invalid", "password1", Role::Engineer);
     {
         let mut control = state.control.lock().expect("control lock");
         control
@@ -370,7 +380,7 @@ async fn health_returns_ok() {
 #[tokio::test]
 async fn login_with_valid_credentials_returns_200() {
     let (server, state) = build_test_app();
-    let pw_hash = hash_password("pass123").expect("hash");
+    let pw_hash = hash_password("password123").expect("hash");
     state
         .db
         .create_user("alice", &pw_hash, Role::Musician)
@@ -379,7 +389,7 @@ async fn login_with_valid_credentials_returns_200() {
     let resp = server
         .post("/api/v1/auth/login")
         .add_header("Origin", "http://localhost")
-        .json(&json!({"username": "alice", "password": "pass123"}))
+        .json(&json!({"username": "alice", "password": "password123"}))
         .await;
     resp.assert_status_ok();
     let body: Value = resp.json();
@@ -389,7 +399,7 @@ async fn login_with_valid_credentials_returns_200() {
 #[tokio::test]
 async fn refresh_replay_revokes_replacement_access_token() {
     let (server, state) = build_test_app();
-    let pw_hash = hash_password("pass123").expect("hash");
+    let pw_hash = hash_password("password123").expect("hash");
     state
         .db
         .create_user("refresh_replay", &pw_hash, Role::Musician)
@@ -398,7 +408,7 @@ async fn refresh_replay_revokes_replacement_access_token() {
     let login_response = server
         .post("/api/v1/auth/login")
         .add_header("Origin", "http://localhost")
-        .json(&json!({"username": "refresh_replay", "password": "pass123"}))
+        .json(&json!({"username": "refresh_replay", "password": "password123"}))
         .await;
     login_response.assert_status_ok();
     let cookie = login_response
@@ -442,7 +452,7 @@ async fn refresh_replay_revokes_replacement_access_token() {
 #[tokio::test]
 async fn login_with_wrong_password_returns_401() {
     let (server, state) = build_test_app();
-    let pw_hash = hash_password("correct").expect("hash");
+    let pw_hash = hash_password("correctpw").expect("hash");
     state
         .db
         .create_user("bob", &pw_hash, Role::Musician)
@@ -451,7 +461,7 @@ async fn login_with_wrong_password_returns_401() {
     let resp = server
         .post("/api/v1/auth/login")
         .add_header("Origin", "http://localhost")
-        .json(&json!({"username": "bob", "password": "wrong"}))
+        .json(&json!({"username": "bob", "password": "wrongpass"}))
         .await;
     resp.assert_status(axum::http::StatusCode::UNAUTHORIZED);
 }
@@ -462,7 +472,7 @@ async fn login_unknown_user_returns_401() {
     let resp = server
         .post("/api/v1/auth/login")
         .add_header("Origin", "http://localhost")
-        .json(&json!({"username": "nobody", "password": "x"}))
+        .json(&json!({"username": "nobody", "password": "unknownpw"}))
         .await;
     resp.assert_status(axum::http::StatusCode::UNAUTHORIZED);
 }
@@ -497,7 +507,7 @@ async fn audio_sessions_requires_auth() {
 #[tokio::test]
 async fn musician_negotiates_offer_and_trickles_ice_candidate_over_http() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "audio_musician", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "audio_musician", "password1", Role::Musician);
 
     let offer_response = server
         .post("/api/v1/audio/offer")
@@ -527,7 +537,7 @@ async fn musician_negotiates_offer_and_trickles_ice_candidate_over_http() {
 #[tokio::test]
 async fn musician_cannot_list_audio_sessions() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "mus1", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus1", "password1", Role::Musician);
     let resp = server
         .get("/api/v1/audio/sessions")
         .authorization_bearer(token)
@@ -538,7 +548,7 @@ async fn musician_cannot_list_audio_sessions() {
 #[tokio::test]
 async fn engineer_can_list_audio_sessions() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "eng1", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng1", "password1", Role::Engineer);
     let resp = server
         .get("/api/v1/audio/sessions")
         .authorization_bearer(token)
@@ -551,7 +561,7 @@ async fn engineer_can_list_audio_sessions() {
 #[tokio::test]
 async fn musician_can_access_state() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "mus2", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus2", "password1", Role::Musician);
     let resp = server
         .get("/api/v1/state")
         .authorization_bearer(token)
@@ -567,14 +577,14 @@ async fn musician_can_access_state() {
 #[tokio::test]
 async fn telemetry_requires_engineer_and_reports_simulated_backend() {
     let (server, state) = build_test_app();
-    let musician = seed_user_and_login(&state, "telemetry_mus", "pw", Role::Musician);
+    let musician = seed_user_and_login(&state, "telemetry_mus", "password1", Role::Musician);
     server
         .get("/api/v1/telemetry")
         .authorization_bearer(musician)
         .await
         .assert_status(axum::http::StatusCode::FORBIDDEN);
 
-    let engineer = seed_user_and_login(&state, "telemetry_eng", "pw", Role::Engineer);
+    let engineer = seed_user_and_login(&state, "telemetry_eng", "password1", Role::Engineer);
     let response = server
         .get("/api/v1/telemetry")
         .authorization_bearer(engineer)
@@ -592,12 +602,12 @@ async fn telemetry_requires_engineer_and_reports_simulated_backend() {
 #[tokio::test]
 async fn musician_cannot_create_user() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "mus3", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus3", "password1", Role::Musician);
     let resp = server
         .post("/api/v1/admin/users")
         .add_header("Origin", "http://localhost")
         .authorization_bearer(token)
-        .json(&json!({"username": "x", "password": "pw2", "role": "MUSICIAN"}))
+        .json(&json!({"username": "x", "password": "password2", "role": "MUSICIAN"}))
         .await;
     resp.assert_status(axum::http::StatusCode::FORBIDDEN);
 }
@@ -605,12 +615,12 @@ async fn musician_cannot_create_user() {
 #[tokio::test]
 async fn admin_can_create_user() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "adm1", "pw", Role::Admin);
+    let token = seed_user_and_login(&state, "adm1", "password1", Role::Admin);
     let resp = server
         .post("/api/v1/admin/users")
         .add_header("Origin", "http://localhost")
         .authorization_bearer(token)
-        .json(&json!({"username": "newuser", "password": "pw2", "role": "MUSICIAN"}))
+        .json(&json!({"username": "newuser", "password": "password2", "role": "MUSICIAN"}))
         .await;
     resp.assert_status(axum::http::StatusCode::CREATED);
 }
@@ -620,8 +630,8 @@ async fn admin_can_create_user() {
 #[tokio::test]
 async fn engineer_assigns_mix_and_musician_controls_owned_send() {
     let (server, state) = build_test_app();
-    let engineer = seed_user_and_login(&state, "eng_mix", "pw", Role::Engineer);
-    let musician = seed_user_and_login(&state, "mus_mix", "pw", Role::Musician);
+    let engineer = seed_user_and_login(&state, "eng_mix", "password1", Role::Engineer);
+    let musician = seed_user_and_login(&state, "mus_mix", "password1", Role::Musician);
     let (musician_id, _, _, _) = state.db.find_user("mus_mix").unwrap();
 
     let assigned = server
@@ -646,7 +656,7 @@ async fn engineer_assigns_mix_and_musician_controls_owned_send() {
 #[tokio::test]
 async fn musician_cannot_control_unassigned_mix() {
     let (server, state) = build_test_app();
-    let musician = seed_user_and_login(&state, "mus_other", "pw", Role::Musician);
+    let musician = seed_user_and_login(&state, "mus_other", "password1", Role::Musician);
     let response = server
         .get("/api/v1/mixes/1/sends/0")
         .authorization_bearer(&musician)
@@ -657,8 +667,8 @@ async fn musician_cannot_control_unassigned_mix() {
 #[tokio::test]
 async fn musician_send_rejects_invalid_gain() {
     let (server, state) = build_test_app();
-    let engineer = seed_user_and_login(&state, "eng_invalid", "pw", Role::Engineer);
-    let musician = seed_user_and_login(&state, "mus_invalid", "pw", Role::Musician);
+    let engineer = seed_user_and_login(&state, "eng_invalid", "password1", Role::Engineer);
+    let musician = seed_user_and_login(&state, "mus_invalid", "password1", Role::Musician);
     let (id, _, _, _) = state.db.find_user("mus_invalid").unwrap();
     server
         .post("/api/v1/mixes/0/assign")
@@ -702,7 +712,7 @@ async fn get_without_origin_is_allowed() {
 #[tokio::test]
 async fn musician_cannot_offer_unassigned_mix() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "mus7", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus7", "password1", Role::Musician);
     let resp = server
         .post("/api/v1/audio/offer")
         .add_header("Origin", "http://localhost")
@@ -717,7 +727,7 @@ async fn musician_cannot_offer_unassigned_mix() {
 #[tokio::test]
 async fn oversized_offer_sdp_returns_400_before_negotiation() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "mus_oversized_sdp", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus_oversized_sdp", "password1", Role::Musician);
     let resp = server
         .post("/api/v1/audio/offer")
         .add_header("Origin", "http://localhost")
@@ -730,7 +740,7 @@ async fn oversized_offer_sdp_returns_400_before_negotiation() {
 #[tokio::test]
 async fn offer_with_bad_sdp_returns_400() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "mus4", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus4", "password1", Role::Musician);
     let resp = server
         .post("/api/v1/audio/offer")
         .add_header("Origin", "http://localhost")
@@ -745,7 +755,12 @@ async fn offer_with_bad_sdp_returns_400() {
 #[tokio::test]
 async fn oversized_ice_candidate_returns_400_before_session_lookup() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "mus_oversized_candidate", "pw", Role::Musician);
+    let token = seed_user_and_login(
+        &state,
+        "mus_oversized_candidate",
+        "password1",
+        Role::Musician,
+    );
     let resp = server
         .post("/api/v1/audio/ice-candidate")
         .add_header("Origin", "http://localhost")
@@ -758,7 +773,7 @@ async fn oversized_ice_candidate_returns_400_before_session_lookup() {
 #[tokio::test]
 async fn ice_candidate_without_session_returns_400() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "mus5", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus5", "password1", Role::Musician);
     // No offer was made first, so no session exists.
     let resp = server
         .post("/api/v1/audio/ice-candidate")
@@ -772,7 +787,7 @@ async fn ice_candidate_without_session_returns_400() {
 #[tokio::test]
 async fn ice_candidate_with_malformed_string_returns_400() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "mus6", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus6", "password1", Role::Musician);
     let resp = server
         .post("/api/v1/audio/ice-candidate")
         .add_header("Origin", "http://localhost")
@@ -785,7 +800,7 @@ async fn ice_candidate_with_malformed_string_returns_400() {
 #[tokio::test]
 async fn engineer_applies_builtin_preset_to_channel() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "preset_eng", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "preset_eng", "password1", Role::Engineer);
     let response = server
         .post("/api/v1/presets/default-vocal/apply")
         .add_header("Origin", "http://localhost")
@@ -805,7 +820,7 @@ async fn engineer_applies_builtin_preset_to_channel() {
 #[tokio::test]
 async fn admin_applies_builtin_preset_to_channel() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "preset_admin", "pw", Role::Admin);
+    let token = seed_user_and_login(&state, "preset_admin", "password1", Role::Admin);
     let response = server
         .post("/api/v1/presets/default-vocal/apply")
         .add_header("Origin", "http://localhost")
@@ -826,7 +841,7 @@ async fn admin_applies_builtin_preset_to_channel() {
 #[tokio::test]
 async fn engineer_rejects_out_of_range_preset_channel_without_mutation() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "preset_eng_range", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "preset_eng_range", "password1", Role::Engineer);
     let revision_before = state.control.lock().unwrap().revision();
     server
         .post("/api/v1/presets/default-vocal/apply")
@@ -841,7 +856,7 @@ async fn engineer_rejects_out_of_range_preset_channel_without_mutation() {
 #[tokio::test]
 async fn engineer_rejects_preset_on_locked_channel_without_mutation() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "preset_eng_locked", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "preset_eng_locked", "password1", Role::Engineer);
     let mut locked = control_server::ControlState::new();
     let mut channel = mix_engine::Channel::new(2, "Locked");
     channel.set_gain_db(7.0);
@@ -869,7 +884,7 @@ async fn engineer_rejects_preset_on_locked_channel_without_mutation() {
 #[tokio::test]
 async fn engineer_rejects_unknown_preset_fields_without_mutation() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "preset_eng_payload", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "preset_eng_payload", "password1", Role::Engineer);
     let revision_before = state.control.lock().unwrap().revision();
     server
         .post("/api/v1/presets/default-vocal/apply")
@@ -884,14 +899,14 @@ async fn engineer_rejects_unknown_preset_fields_without_mutation() {
 #[tokio::test]
 async fn musician_cannot_apply_preset_and_invalid_input_does_not_mutate() {
     let (server, state) = build_test_app();
-    let musician = seed_user_and_login(&state, "preset_mus", "pw", Role::Musician);
+    let musician = seed_user_and_login(&state, "preset_mus", "password1", Role::Musician);
     server
         .post("/api/v1/presets/default-vocal/apply")
         .authorization_bearer(musician)
         .json(&json!({"channel_index": 2}))
         .await
         .assert_status(axum::http::StatusCode::FORBIDDEN);
-    let engineer = seed_user_and_login(&state, "preset_eng_bad", "pw", Role::Engineer);
+    let engineer = seed_user_and_login(&state, "preset_eng_bad", "password1", Role::Engineer);
     server
         .post("/api/v1/presets/unknown/apply")
         .authorization_bearer(engineer)
@@ -906,7 +921,7 @@ async fn musician_cannot_apply_preset_and_invalid_input_does_not_mutate() {
 #[tokio::test]
 async fn set_gain_out_of_range_returns_400() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "eng2", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng2", "password1", Role::Engineer);
     let resp = server
         .put("/api/v1/channels/0/gain")
         .add_header("Origin", "http://localhost")
@@ -919,7 +934,7 @@ async fn set_gain_out_of_range_returns_400() {
 #[tokio::test]
 async fn set_mute_with_valid_payload_returns_200() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "eng3", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng3", "password1", Role::Engineer);
     let resp = server
         .put("/api/v1/channels/0/mute")
         .add_header("Origin", "http://localhost")
@@ -934,8 +949,8 @@ async fn set_mute_with_valid_payload_returns_200() {
 #[tokio::test]
 async fn admin_list_users_returns_all_users() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "admin_lu1", "pw", Role::Admin);
-    let pw_hash = hash_password("pw2").unwrap();
+    let token = seed_user_and_login(&state, "admin_lu1", "password1", Role::Admin);
+    let pw_hash = hash_password("password2").unwrap();
     state
         .db
         .create_user("musician_lu1", &pw_hash, Role::Musician)
@@ -957,7 +972,7 @@ async fn admin_list_users_returns_all_users() {
 #[tokio::test]
 async fn admin_list_users_rejected_for_non_admin() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "eng_lu1", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_lu1", "password1", Role::Engineer);
     let resp = server
         .get("/api/v1/admin/users")
         .add_header("Origin", "http://localhost")
@@ -971,8 +986,8 @@ async fn admin_list_users_rejected_for_non_admin() {
 #[tokio::test]
 async fn admin_delete_user_returns_204() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "admin_du1", "pw", Role::Admin);
-    let pw_hash = hash_password("pw").unwrap();
+    let token = seed_user_and_login(&state, "admin_du1", "password1", Role::Admin);
+    let pw_hash = hash_password("password1").unwrap();
     state
         .db
         .create_user("todelete1", &pw_hash, Role::Musician)
@@ -990,7 +1005,7 @@ async fn admin_delete_user_returns_204() {
 #[tokio::test]
 async fn admin_delete_nonexistent_user_returns_404() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "admin_du2", "pw", Role::Admin);
+    let token = seed_user_and_login(&state, "admin_du2", "password1", Role::Admin);
     let resp = server
         .delete("/api/v1/admin/users/99999")
         .add_header("Origin", "http://localhost")
@@ -1004,7 +1019,7 @@ async fn admin_delete_nonexistent_user_returns_404() {
 #[tokio::test]
 async fn admin_cannot_delete_own_account() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "admin_self", "pw", Role::Admin);
+    let token = seed_user_and_login(&state, "admin_self", "password1", Role::Admin);
     let (caller_id, _, _, _) = state.db.find_user("admin_self").unwrap();
     let resp = server
         .delete(&format!("/api/v1/admin/users/{caller_id}"))
@@ -1019,7 +1034,7 @@ async fn admin_cannot_delete_own_account() {
 #[tokio::test]
 async fn admin_list_sessions_returns_active_sessions() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "admin_sl1", "pw", Role::Admin);
+    let token = seed_user_and_login(&state, "admin_sl1", "password1", Role::Admin);
     let resp = server
         .get("/api/v1/admin/sessions")
         .add_header("Origin", "http://localhost")
@@ -1033,7 +1048,7 @@ async fn admin_list_sessions_returns_active_sessions() {
 #[tokio::test]
 async fn admin_list_sessions_rejected_for_musician() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "mus_sl1", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus_sl1", "password1", Role::Musician);
     let resp = server
         .get("/api/v1/admin/sessions")
         .add_header("Origin", "http://localhost")
@@ -1047,7 +1062,7 @@ async fn admin_list_sessions_rejected_for_musician() {
 #[tokio::test]
 async fn admin_revoke_nonexistent_session_returns_404() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "admin_sr1", "pw", Role::Admin);
+    let token = seed_user_and_login(&state, "admin_sr1", "password1", Role::Admin);
     let resp = server
         .delete("/api/v1/admin/sessions/99999")
         .add_header("Origin", "http://localhost")
@@ -1059,7 +1074,7 @@ async fn admin_revoke_nonexistent_session_returns_404() {
 #[tokio::test]
 async fn admin_revoke_session_by_id_returns_204() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "admin_sr2", "pw", Role::Admin);
+    let token = seed_user_and_login(&state, "admin_sr2", "password1", Role::Admin);
     // Directly store a refresh token so we have a known session ID to revoke.
     let (user_id, _, _, _) = state.db.find_user("admin_sr2").unwrap();
     let now = std::time::SystemTime::now()
@@ -1093,7 +1108,7 @@ async fn admin_revoke_session_by_id_returns_204() {
 #[tokio::test]
 async fn refresh_rotation_invalidates_old_access_mapping() {
     let (_server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "phase31_rotation", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "phase31_rotation", "password1", Role::Engineer);
     let old_claims = state.jwt.verify(&token).expect("old token must verify");
     let old_refresh = generate_refresh_token();
     let old_hash = token_to_storage_key(&old_refresh);
@@ -1146,7 +1161,7 @@ async fn refresh_rotation_invalidates_old_access_mapping() {
 #[tokio::test]
 async fn session_revoke_invalidates_access_middleware_mapping() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "phase31_session", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "phase31_session", "password1", Role::Engineer);
     let claims = state.jwt.verify(&token).unwrap();
     state
         .db
@@ -1164,7 +1179,7 @@ async fn session_revoke_invalidates_access_middleware_mapping() {
 #[tokio::test]
 async fn user_deletion_invalidates_access_middleware_mapping() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "phase31_deleted", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "phase31_deleted", "password1", Role::Engineer);
     let claims = state.jwt.verify(&token).unwrap();
     state.db.delete_user_with_sessions(claims.user_id).unwrap();
 
@@ -1179,7 +1194,7 @@ async fn user_deletion_invalidates_access_middleware_mapping() {
 #[tokio::test]
 async fn established_websocket_rejects_message_after_session_revocation() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "phase31_ws", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "phase31_ws", "password1", Role::Engineer);
     let claims = state.jwt.verify(&token).unwrap();
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1315,7 +1330,7 @@ fn ws_envelope(msg_type: &str, data: Value) -> String {
 #[tokio::test]
 async fn ws_binary_frame_returns_protocol_error_and_closes() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "eng_ws_binary", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_ws_binary", "password1", Role::Engineer);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1338,7 +1353,7 @@ async fn ws_binary_frame_returns_protocol_error_and_closes() {
 #[tokio::test]
 async fn ws_oversized_text_message_is_rejected_by_upgrade_limit() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "eng_ws_oversized", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_ws_oversized", "password1", Role::Engineer);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1374,7 +1389,7 @@ async fn ws_oversized_text_message_is_rejected_by_upgrade_limit() {
 #[tokio::test]
 async fn ws_client_ping_receives_matching_pong() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "eng_ws_ping", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_ws_ping", "password1", Role::Engineer);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1398,7 +1413,7 @@ async fn ws_client_ping_receives_matching_pong() {
 #[tokio::test]
 async fn ws_engineer_set_send_gain_returns_send_ack() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "eng_ws1", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_ws1", "password1", Role::Engineer);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1429,7 +1444,7 @@ async fn ws_engineer_set_send_gain_returns_send_ack() {
 #[tokio::test]
 async fn ws_engineer_set_send_pan_returns_send_ack() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "eng_ws2", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_ws2", "password1", Role::Engineer);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1457,7 +1472,7 @@ async fn ws_engineer_set_send_pan_returns_send_ack() {
 #[tokio::test]
 async fn ws_engineer_set_send_muted_returns_send_ack() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "eng_ws3", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_ws3", "password1", Role::Engineer);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1484,7 +1499,7 @@ async fn ws_engineer_set_send_muted_returns_send_ack() {
 #[tokio::test]
 async fn ws_musician_db_failure_denies_set_send_gain() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "mus_ws_db_failure", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus_ws_db_failure", "password1", Role::Musician);
     // Drop ownership table after authentication. Lookup now returns DB error;
     // authorization must fail closed rather than allowing the mutation.
     state.db.drop_mix_assignments_table_for_test().unwrap();
@@ -1514,7 +1529,7 @@ async fn ws_musician_db_failure_denies_set_send_gain() {
 #[tokio::test]
 async fn ws_musician_denied_set_send_gain_on_unassigned_mix() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "mus_ws1", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus_ws1", "password1", Role::Musician);
     // Musician has NO mix assignment — any send mutation must be rejected.
 
     let mut ws = server
@@ -1543,7 +1558,7 @@ async fn ws_musician_denied_set_send_gain_on_unassigned_mix() {
 #[tokio::test]
 async fn ws_musician_allowed_set_send_gain_on_assigned_mix() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "mus_ws2", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus_ws2", "password1", Role::Musician);
     // Assign mix 1 to the musician.
     let (user_id, _, _, _) = state.db.find_user("mus_ws2").unwrap();
     state.db.assign_mix(1, user_id).unwrap();
@@ -1574,7 +1589,7 @@ async fn ws_musician_allowed_set_send_gain_on_assigned_mix() {
 #[tokio::test]
 async fn ws_musician_denied_channel_gain_mutation() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "mus_ws3", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus_ws3", "password1", Role::Musician);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1607,7 +1622,7 @@ async fn ws_musician_denied_channel_gain_mutation() {
 #[tokio::test]
 async fn ws_invalid_gain_nan_returns_error() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "eng_ws4", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_ws4", "password1", Role::Engineer);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1641,8 +1656,10 @@ async fn ws_invalid_gain_nan_returns_error() {
 #[tokio::test]
 async fn ws_send_mutation_broadcasts_to_other_sessions() {
     let (server, state) = build_ws_app();
-    let mutator_token = seed_user_and_login(&state, "eng_broadcast_mut", "pw", Role::Engineer);
-    let observer_token = seed_user_and_login(&state, "eng_broadcast_obs", "pw", Role::Engineer);
+    let mutator_token =
+        seed_user_and_login(&state, "eng_broadcast_mut", "password1", Role::Engineer);
+    let observer_token =
+        seed_user_and_login(&state, "eng_broadcast_obs", "password1", Role::Engineer);
 
     let mut mutator = server
         .get_websocket("/ws/v1")
@@ -1707,7 +1724,7 @@ async fn ws_send_mutation_broadcasts_to_other_sessions() {
 #[tokio::test]
 async fn ws_engineer_set_master_gain_returns_master_ack() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "eng_mg1", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_mg1", "password1", Role::Engineer);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1738,7 +1755,7 @@ async fn ws_engineer_set_master_gain_returns_master_ack() {
 #[tokio::test]
 async fn ws_engineer_set_master_mute_returns_master_ack() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "eng_mm1", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_mm1", "password1", Role::Engineer);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1765,7 +1782,7 @@ async fn ws_engineer_set_master_mute_returns_master_ack() {
 #[tokio::test]
 async fn ws_musician_denied_set_master_gain() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "mus_mg1", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus_mg1", "password1", Role::Musician);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1792,7 +1809,7 @@ async fn ws_musician_denied_set_master_gain() {
 #[tokio::test]
 async fn ws_musician_denied_set_master_mute() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "mus_mm1", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus_mm1", "password1", Role::Musician);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1819,7 +1836,7 @@ async fn ws_musician_denied_set_master_mute() {
 #[tokio::test]
 async fn ws_engineer_set_master_gain_invalid_gain_returns_error() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "eng_mg_inv", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_mg_inv", "password1", Role::Engineer);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -1846,8 +1863,8 @@ async fn ws_engineer_set_master_gain_invalid_gain_returns_error() {
 #[tokio::test]
 async fn ws_master_mutation_broadcasts_to_other_sessions() {
     let (server, state) = build_ws_app();
-    let mutator_token = seed_user_and_login(&state, "eng_master_mut", "pw", Role::Engineer);
-    let observer_token = seed_user_and_login(&state, "eng_master_obs", "pw", Role::Engineer);
+    let mutator_token = seed_user_and_login(&state, "eng_master_mut", "password1", Role::Engineer);
+    let observer_token = seed_user_and_login(&state, "eng_master_obs", "password1", Role::Engineer);
 
     let mut mutator = server
         .get_websocket("/ws/v1")
@@ -1911,9 +1928,9 @@ async fn ws_master_mutation_broadcasts_to_other_sessions() {
 #[tokio::test]
 async fn ws_master_broadcast_filtered_by_musician_assignment() {
     let (server, state) = build_ws_app();
-    let eng_token = seed_user_and_login(&state, "eng_mf_mut", "pw", Role::Engineer);
-    let mus0_token = seed_user_and_login(&state, "mus_mf_0", "pw", Role::Musician);
-    let mus1_token = seed_user_and_login(&state, "mus_mf_1", "pw", Role::Musician);
+    let eng_token = seed_user_and_login(&state, "eng_mf_mut", "password1", Role::Engineer);
+    let mus0_token = seed_user_and_login(&state, "mus_mf_0", "password1", Role::Musician);
+    let mus1_token = seed_user_and_login(&state, "mus_mf_1", "password1", Role::Musician);
 
     let (mus0_id, _, _, _) = state.db.find_user("mus_mf_0").unwrap();
     let (mus1_id, _, _, _) = state.db.find_user("mus_mf_1").unwrap();
@@ -1987,7 +2004,7 @@ async fn ws_master_broadcast_filtered_by_musician_assignment() {
 #[tokio::test]
 async fn ws_engineer_set_eq_band_returns_eq_band_ack() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "eng_eq1", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_eq1", "password1", Role::Engineer);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -2027,7 +2044,7 @@ async fn ws_engineer_set_eq_band_returns_eq_band_ack() {
 #[tokio::test]
 async fn ws_musician_denied_set_eq_band() {
     let (server, state) = build_ws_app();
-    let token = seed_user_and_login(&state, "mus_eq1", "pw", Role::Musician);
+    let token = seed_user_and_login(&state, "mus_eq1", "password1", Role::Musician);
 
     let mut ws = server
         .get_websocket("/ws/v1")
@@ -2061,8 +2078,8 @@ async fn ws_musician_denied_set_eq_band() {
 #[tokio::test]
 async fn ws_eq_band_mutation_broadcasts_to_other_engineer_sessions() {
     let (server, state) = build_ws_app();
-    let mutator_token = seed_user_and_login(&state, "eng_eq_mut", "pw", Role::Engineer);
-    let observer_token = seed_user_and_login(&state, "eng_eq_obs", "pw", Role::Engineer);
+    let mutator_token = seed_user_and_login(&state, "eng_eq_mut", "password1", Role::Engineer);
+    let observer_token = seed_user_and_login(&state, "eng_eq_obs", "password1", Role::Engineer);
 
     let mut mutator = server
         .get_websocket("/ws/v1")
@@ -2133,8 +2150,8 @@ async fn ws_eq_band_mutation_broadcasts_to_other_engineer_sessions() {
 #[tokio::test]
 async fn ws_eq_band_broadcast_not_forwarded_to_musician() {
     let (server, state) = build_ws_app();
-    let eng_token = seed_user_and_login(&state, "eng_eq_flt", "pw", Role::Engineer);
-    let mus_token = seed_user_and_login(&state, "mus_eq_flt", "pw", Role::Musician);
+    let eng_token = seed_user_and_login(&state, "eng_eq_flt", "password1", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_eq_flt", "password1", Role::Musician);
 
     {
         let (user_id, _, _, _) = state.db.find_user("mus_eq_flt").unwrap();
@@ -2206,8 +2223,8 @@ async fn ws_eq_band_broadcast_not_forwarded_to_musician() {
 #[tokio::test]
 async fn musician_audio_simulation_full_http_cycle() {
     let (server, state) = build_test_app();
-    let engineer = seed_user_and_login(&state, "eng_audio_cycle", "pw", Role::Engineer);
-    let musician = seed_user_and_login(&state, "mus_audio_cycle", "pw", Role::Musician);
+    let engineer = seed_user_and_login(&state, "eng_audio_cycle", "password1", Role::Engineer);
+    let musician = seed_user_and_login(&state, "mus_audio_cycle", "password1", Role::Musician);
     let (musician_id, _, _, _) = state.db.find_user("mus_audio_cycle").unwrap();
 
     server
@@ -2248,8 +2265,8 @@ async fn musician_audio_simulation_full_http_cycle() {
 #[tokio::test]
 async fn musician_audio_simulation_webrtc_and_telemetry_contract() {
     let (server, state) = build_test_app();
-    let engineer = seed_user_and_login(&state, "eng_audio_contract", "pw", Role::Engineer);
-    let musician = seed_user_and_login(&state, "mus_audio_contract", "pw", Role::Musician);
+    let engineer = seed_user_and_login(&state, "eng_audio_contract", "password1", Role::Engineer);
+    let musician = seed_user_and_login(&state, "mus_audio_contract", "password1", Role::Musician);
     let (musician_id, _, _, _) = state.db.find_user("mus_audio_contract").unwrap();
 
     server
@@ -2289,7 +2306,7 @@ async fn musician_audio_simulation_webrtc_and_telemetry_contract() {
 #[tokio::test]
 async fn musician_audio_simulation_ws_ownership_is_enforced() {
     let (server, state) = build_ws_app();
-    let musician = seed_user_and_login(&state, "mus_audio_ws", "pw", Role::Musician);
+    let musician = seed_user_and_login(&state, "mus_audio_ws", "password1", Role::Musician);
     let (musician_id, _, _, _) = state.db.find_user("mus_audio_ws").unwrap();
     state.db.assign_mix(0, musician_id).unwrap();
 
@@ -2336,7 +2353,7 @@ async fn channels_list_returns_configured_channels() {
             .set_channel(1, Channel::new(2, "VOC 2"))
             .expect("channel 1 must configure");
     }
-    let auth_credential = seed_user_and_login(&state, "eng_channels", "pw", Role::Engineer);
+    let auth_credential = seed_user_and_login(&state, "eng_channels", "password1", Role::Engineer);
     let response = server
         .get("/api/v1/channels")
         .add_header("Origin", "http://localhost")
@@ -2374,7 +2391,8 @@ async fn channels_list_requires_auth() {
 #[tokio::test]
 async fn presets_requires_authenticated_musician_role() {
     let (server, state) = build_test_app();
-    let musician_token = seed_user_and_login(&state, "mus_presets_role", "pw", Role::Musician);
+    let musician_token =
+        seed_user_and_login(&state, "mus_presets_role", "password1", Role::Musician);
     server
         .get("/api/v1/presets")
         .add_header("Origin", "http://localhost")
@@ -2392,7 +2410,8 @@ async fn presets_requires_authenticated_musician_role() {
 #[tokio::test]
 async fn engineer_can_list_read_only_presets() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_presets_catalog", "pw", Role::Engineer);
+    let engineer_token =
+        seed_user_and_login(&state, "eng_presets_catalog", "password1", Role::Engineer);
     let response = server
         .get("/api/v1/presets")
         .add_header("Origin", "http://localhost")
@@ -2419,7 +2438,8 @@ async fn engineer_can_list_read_only_presets() {
 #[tokio::test]
 async fn admin_can_list_read_only_presets() {
     let (server, state) = build_test_app();
-    let admin_token = seed_user_and_login(&state, "admin_presets_catalog", "pw", Role::Admin);
+    let admin_token =
+        seed_user_and_login(&state, "admin_presets_catalog", "password1", Role::Admin);
     server
         .get("/api/v1/presets")
         .add_header("Origin", "http://localhost")
@@ -2433,7 +2453,8 @@ async fn admin_can_list_read_only_presets() {
 #[tokio::test]
 async fn metrics_requires_engineer_role() {
     let (server, state) = build_test_app();
-    let musician_token = seed_user_and_login(&state, "mus_metrics_role", "pw", Role::Musician);
+    let musician_token =
+        seed_user_and_login(&state, "mus_metrics_role", "password1", Role::Musician);
     server
         .get("/api/v1/metrics")
         .add_header("Origin", "http://localhost")
@@ -2445,7 +2466,8 @@ async fn metrics_requires_engineer_role() {
 #[tokio::test]
 async fn metrics_returns_schema_version_one() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_metrics_schema", "pw", Role::Engineer);
+    let engineer_token =
+        seed_user_and_login(&state, "eng_metrics_schema", "password1", Role::Engineer);
     let resp = server
         .get("/api/v1/metrics")
         .add_header("Origin", "http://localhost")
@@ -2466,7 +2488,8 @@ async fn metrics_exposes_receiver_counters() {
     state.metrics.receiver.record_output_failure();
     state.metrics.receiver.record_late();
 
-    let engineer_token = seed_user_and_login(&state, "eng_metrics_receiver", "pw", Role::Engineer);
+    let engineer_token =
+        seed_user_and_login(&state, "eng_metrics_receiver", "password1", Role::Engineer);
     let resp = server
         .get("/api/v1/metrics")
         .add_header("Origin", "http://localhost")
@@ -2488,7 +2511,7 @@ async fn metrics_reset_requires_engineer_and_clears_counters() {
     let (server, state) = build_test_app();
     state.metrics.audio.record_xrun();
     state.metrics.network.record_late();
-    let engineer = seed_user_and_login(&state, "eng_metrics_reset", "pw", Role::Engineer);
+    let engineer = seed_user_and_login(&state, "eng_metrics_reset", "password1", Role::Engineer);
     server
         .post("/api/v1/metrics/reset")
         .add_header("Origin", "http://localhost")
@@ -2497,7 +2520,7 @@ async fn metrics_reset_requires_engineer_and_clears_counters() {
         .assert_status(axum::http::StatusCode::NO_CONTENT);
     assert_eq!(state.metrics.snapshot().audio.xrun_count, 0);
     assert_eq!(state.metrics.snapshot().network.late_packets, 0);
-    let musician = seed_user_and_login(&state, "mus_metrics_reset", "pw", Role::Musician);
+    let musician = seed_user_and_login(&state, "mus_metrics_reset", "password1", Role::Musician);
     server
         .post("/api/v1/metrics/reset")
         .add_header("Origin", "http://localhost")
@@ -2509,7 +2532,8 @@ async fn metrics_reset_requires_engineer_and_clears_counters() {
 #[tokio::test]
 async fn metrics_counters_start_at_zero() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_metrics_zero", "pw", Role::Engineer);
+    let engineer_token =
+        seed_user_and_login(&state, "eng_metrics_zero", "password1", Role::Engineer);
     let resp = server
         .get("/api/v1/metrics")
         .add_header("Origin", "http://localhost")
@@ -2540,7 +2564,7 @@ fn make_credential(raw: &str) -> String {
 #[tokio::test]
 async fn pair_device_requires_engineer_role() {
     let (server, state) = build_test_app();
-    let musician_token = seed_user_and_login(&state, "mus_pair_role", "pw", Role::Musician);
+    let musician_token = seed_user_and_login(&state, "mus_pair_role", "password1", Role::Musician);
     let resp = server
         .post("/api/v1/audio/pairing")
         .add_header("Origin", "http://localhost")
@@ -2558,7 +2582,7 @@ async fn pair_device_requires_engineer_role() {
 #[tokio::test]
 async fn pair_device_engineer_succeeds() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_pair_ok", "pw", Role::Engineer);
+    let engineer_token = seed_user_and_login(&state, "eng_pair_ok", "password1", Role::Engineer);
     let resp = server
         .post("/api/v1/audio/pairing")
         .add_header("Origin", "http://localhost")
@@ -2579,7 +2603,7 @@ async fn pair_device_engineer_succeeds() {
 #[tokio::test]
 async fn revoke_device_succeeds() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_revoke_ok", "pw", Role::Engineer);
+    let engineer_token = seed_user_and_login(&state, "eng_revoke_ok", "password1", Role::Engineer);
     // First pair the device.
     server
         .post("/api/v1/audio/pairing")
@@ -2607,7 +2631,7 @@ async fn revoke_device_succeeds() {
 #[tokio::test]
 async fn revoke_nonexistent_device_returns_404() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_revoke_404", "pw", Role::Engineer);
+    let engineer_token = seed_user_and_login(&state, "eng_revoke_404", "password1", Role::Engineer);
     let resp = server
         .delete("/api/v1/audio/pairing/no-such-device")
         .add_header("Origin", "http://localhost")
@@ -2619,7 +2643,8 @@ async fn revoke_nonexistent_device_returns_404() {
 #[tokio::test]
 async fn revoke_nonexistent_device_preserves_active_sessions() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_revoke_preserve", "pw", Role::Engineer);
+    let engineer_token =
+        seed_user_and_login(&state, "eng_revoke_preserve", "password1", Role::Engineer);
     state
         .streaming
         .negotiate_offer("active-musician", VALID_AUDIO_OFFER, None)
@@ -2637,10 +2662,11 @@ async fn revoke_nonexistent_device_preserves_active_sessions() {
 #[tokio::test]
 async fn revoke_device_removes_bound_session_preserves_unbound_session() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_revoke_bound", "pw", Role::Engineer);
-    let bound_musician = seed_user_and_login(&state, "bound_musician", "pw", Role::Musician);
+    let engineer_token =
+        seed_user_and_login(&state, "eng_revoke_bound", "password1", Role::Engineer);
+    let bound_musician = seed_user_and_login(&state, "bound_musician", "password1", Role::Musician);
     let preserved_musician =
-        seed_user_and_login(&state, "preserved_musician", "pw", Role::Musician);
+        seed_user_and_login(&state, "preserved_musician", "password1", Role::Musician);
     let first_credential = make_credential("first-pairing-secret-1234");
     let second_credential = make_credential("second-pairing-secret-1234");
     let (bound_musician_id, _, _, _) = state.db.find_user("bound_musician").unwrap();
@@ -2733,7 +2759,7 @@ async fn revoke_device_removes_bound_session_preserves_unbound_session() {
 #[tokio::test]
 async fn repair_device_succeeds_after_revoke() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_repair_ok", "pw", Role::Engineer);
+    let engineer_token = seed_user_and_login(&state, "eng_repair_ok", "password1", Role::Engineer);
     let credential = make_credential("repair-secret-1234");
 
     // Pair
@@ -2779,7 +2805,7 @@ async fn repair_device_succeeds_after_revoke() {
 #[tokio::test]
 async fn repair_device_returns_404_for_unknown_device() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_repair_404", "pw", Role::Engineer);
+    let engineer_token = seed_user_and_login(&state, "eng_repair_404", "password1", Role::Engineer);
     let resp = server
         .put("/api/v1/audio/pairing/no-such-rx")
         .add_header("Origin", "http://localhost")
@@ -2795,7 +2821,7 @@ async fn repair_device_returns_404_for_unknown_device() {
 #[tokio::test]
 async fn repair_device_returns_409_when_device_is_active() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_repair_409", "pw", Role::Engineer);
+    let engineer_token = seed_user_and_login(&state, "eng_repair_409", "password1", Role::Engineer);
     let credential = make_credential("repair-active-secret-1234");
 
     // Pair without revoking
@@ -2827,7 +2853,7 @@ async fn repair_device_returns_409_when_device_is_active() {
 #[tokio::test]
 async fn repair_device_returns_401_for_bad_old_credential() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_repair_401", "pw", Role::Engineer);
+    let engineer_token = seed_user_and_login(&state, "eng_repair_401", "password1", Role::Engineer);
     let credential = make_credential("repair-secret-auth-1234");
 
     // Pair + revoke
@@ -2865,7 +2891,7 @@ async fn repair_device_returns_401_for_bad_old_credential() {
 #[tokio::test]
 async fn repair_device_returns_403_for_musician_role() {
     let (server, state) = build_test_app();
-    let musician_token = seed_user_and_login(&state, "mus_repair_403", "pw", Role::Musician);
+    let musician_token = seed_user_and_login(&state, "mus_repair_403", "password1", Role::Musician);
     let resp = server
         .put("/api/v1/audio/pairing/rx-any")
         .add_header("Origin", "http://localhost")
@@ -2881,7 +2907,7 @@ async fn repair_device_returns_403_for_musician_role() {
 #[tokio::test]
 async fn offer_without_pairing_fields_is_backward_compatible() {
     let (server, state) = build_test_app();
-    let musician_token = seed_user_and_login(&state, "mus_compat", "pw", Role::Musician);
+    let musician_token = seed_user_and_login(&state, "mus_compat", "password1", Role::Musician);
     let resp = server
         .post("/api/v1/audio/offer")
         .add_header("Origin", "http://localhost")
@@ -2896,7 +2922,8 @@ async fn offer_without_pairing_fields_is_backward_compatible() {
 #[tokio::test]
 async fn offer_rejects_partial_pairing_fields() {
     let (server, state) = build_test_app();
-    let musician_token = seed_user_and_login(&state, "mus_partial_pairing", "pw", Role::Musician);
+    let musician_token =
+        seed_user_and_login(&state, "mus_partial_pairing", "password1", Role::Musician);
 
     for payload in [
         json!({"sdp": VALID_AUDIO_OFFER, "mix_id": null, "device_id": "rx-partial"}),
@@ -2915,8 +2942,8 @@ async fn offer_rejects_partial_pairing_fields() {
 #[tokio::test]
 async fn offer_with_invalid_credential_returns_401() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_cred_401", "pw", Role::Engineer);
-    let musician_token = seed_user_and_login(&state, "mus_cred_401", "pw", Role::Musician);
+    let engineer_token = seed_user_and_login(&state, "eng_cred_401", "password1", Role::Engineer);
+    let musician_token = seed_user_and_login(&state, "mus_cred_401", "password1", Role::Musician);
     // Pair the device with a known credential.
     server
         .post("/api/v1/audio/pairing")
@@ -2948,8 +2975,8 @@ async fn offer_with_invalid_credential_returns_401() {
 #[tokio::test]
 async fn offer_with_revoked_device_returns_403() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_revoke_403", "pw", Role::Engineer);
-    let musician_token = seed_user_and_login(&state, "mus_revoke_403", "pw", Role::Musician);
+    let engineer_token = seed_user_and_login(&state, "eng_revoke_403", "password1", Role::Engineer);
+    let musician_token = seed_user_and_login(&state, "mus_revoke_403", "password1", Role::Musician);
     let cred = make_credential("pairing-secret-1234");
     // Pair device.
     server
@@ -2991,8 +3018,8 @@ async fn offer_with_revoked_device_returns_403() {
 #[tokio::test]
 async fn offer_with_matching_dtls_fingerprint_succeeds() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_fp_ok", "pw", Role::Engineer);
-    let musician_token = seed_user_and_login(&state, "mus_fp_ok", "pw", Role::Musician);
+    let engineer_token = seed_user_and_login(&state, "eng_fp_ok", "password1", Role::Engineer);
+    let musician_token = seed_user_and_login(&state, "mus_fp_ok", "password1", Role::Musician);
     let (mus_fp_ok_id, _, _, _) = state.db.find_user("mus_fp_ok").unwrap();
     state.db.assign_mix(0, mus_fp_ok_id).unwrap();
     // Pair device and register the fingerprint present in VALID_AUDIO_OFFER.
@@ -3032,8 +3059,10 @@ async fn offer_with_matching_dtls_fingerprint_succeeds() {
 #[tokio::test]
 async fn offer_with_mismatched_dtls_fingerprint_returns_400() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_fp_mismatch", "pw", Role::Engineer);
-    let musician_token = seed_user_and_login(&state, "mus_fp_mismatch", "pw", Role::Musician);
+    let engineer_token =
+        seed_user_and_login(&state, "eng_fp_mismatch", "password1", Role::Engineer);
+    let musician_token =
+        seed_user_and_login(&state, "mus_fp_mismatch", "password1", Role::Musician);
     let (mus_fp_mismatch_id, _, _, _) = state.db.find_user("mus_fp_mismatch").unwrap();
     state.db.assign_mix(0, mus_fp_mismatch_id).unwrap();
     // Register a fingerprint that differs from what VALID_AUDIO_OFFER contains.
@@ -3071,8 +3100,8 @@ async fn offer_with_mismatched_dtls_fingerprint_returns_400() {
 #[tokio::test]
 async fn offer_with_paired_device_no_fingerprint_registered_accepts_any_sdp_fingerprint() {
     let (server, state) = build_test_app();
-    let engineer_token = seed_user_and_login(&state, "eng_fp_none", "pw", Role::Engineer);
-    let musician_token = seed_user_and_login(&state, "mus_fp_none", "pw", Role::Musician);
+    let engineer_token = seed_user_and_login(&state, "eng_fp_none", "password1", Role::Engineer);
+    let musician_token = seed_user_and_login(&state, "mus_fp_none", "password1", Role::Musician);
     let (mus_fp_none_id, _, _, _) = state.db.find_user("mus_fp_none").unwrap();
     state.db.assign_mix(0, mus_fp_none_id).unwrap();
     // Pair device WITHOUT registering a dtls_fingerprint (legacy / no-pin path).
@@ -3108,7 +3137,7 @@ async fn offer_with_paired_device_no_fingerprint_registered_accepts_any_sdp_fing
 #[tokio::test]
 async fn set_send_pan_engineer_ok() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "eng_pan_ok", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_pan_ok", "password1", Role::Engineer);
     let resp = server
         .put("/api/v1/mixes/0/sends/0/pan")
         .add_header("Origin", "http://localhost")
@@ -3125,8 +3154,8 @@ async fn set_send_pan_engineer_ok() {
 #[tokio::test]
 async fn set_send_pan_musician_owns_mix_ok() {
     let (server, state) = build_test_app();
-    let eng_token = seed_user_and_login(&state, "eng_pan_assign", "pw", Role::Engineer);
-    let mus_token = seed_user_and_login(&state, "mus_pan_own", "pw", Role::Musician);
+    let eng_token = seed_user_and_login(&state, "eng_pan_assign", "password1", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_pan_own", "password1", Role::Musician);
     let (mus_id, _, _, _) = state.db.find_user("mus_pan_own").unwrap();
     // Engineer assigns musician to mix 0.
     server
@@ -3151,8 +3180,8 @@ async fn set_send_pan_musician_owns_mix_ok() {
 #[tokio::test]
 async fn set_send_pan_musician_wrong_mix_forbidden() {
     let (server, state) = build_test_app();
-    let eng_token = seed_user_and_login(&state, "eng_pan_wrong", "pw", Role::Engineer);
-    let mus_token = seed_user_and_login(&state, "mus_pan_wrong", "pw", Role::Musician);
+    let eng_token = seed_user_and_login(&state, "eng_pan_wrong", "password1", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_pan_wrong", "password1", Role::Musician);
     let (mus_id, _, _, _) = state.db.find_user("mus_pan_wrong").unwrap();
     // Assign to mix 0; musician tries to set pan on mix 1.
     server
@@ -3185,7 +3214,7 @@ async fn set_send_pan_requires_authentication() {
 #[tokio::test]
 async fn set_send_pan_out_of_range_returns_400() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "eng_pan_range", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_pan_range", "password1", Role::Engineer);
     let resp = server
         .put("/api/v1/mixes/0/sends/0/pan")
         .add_header("Origin", "http://localhost")
@@ -3200,7 +3229,7 @@ async fn set_send_pan_out_of_range_returns_400() {
 #[tokio::test]
 async fn set_send_muted_engineer_ok() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "eng_mute_ok", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_mute_ok", "password1", Role::Engineer);
     let resp = server
         .put("/api/v1/mixes/0/sends/0/mute")
         .add_header("Origin", "http://localhost")
@@ -3216,8 +3245,8 @@ async fn set_send_muted_engineer_ok() {
 #[tokio::test]
 async fn set_send_muted_musician_owns_mix_ok() {
     let (server, state) = build_test_app();
-    let eng_token = seed_user_and_login(&state, "eng_mute_assign", "pw", Role::Engineer);
-    let mus_token = seed_user_and_login(&state, "mus_mute_own", "pw", Role::Musician);
+    let eng_token = seed_user_and_login(&state, "eng_mute_assign", "password1", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_mute_own", "password1", Role::Musician);
     let (mus_id, _, _, _) = state.db.find_user("mus_mute_own").unwrap();
     server
         .post("/api/v1/mixes/0/assign")
@@ -3240,8 +3269,8 @@ async fn set_send_muted_musician_owns_mix_ok() {
 #[tokio::test]
 async fn set_send_muted_musician_wrong_mix_forbidden() {
     let (server, state) = build_test_app();
-    let eng_token = seed_user_and_login(&state, "eng_mute_wrong", "pw", Role::Engineer);
-    let mus_token = seed_user_and_login(&state, "mus_mute_wrong", "pw", Role::Musician);
+    let eng_token = seed_user_and_login(&state, "eng_mute_wrong", "password1", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_mute_wrong", "password1", Role::Musician);
     let (mus_id, _, _, _) = state.db.find_user("mus_mute_wrong").unwrap();
     server
         .post("/api/v1/mixes/0/assign")
@@ -3275,7 +3304,7 @@ async fn set_send_muted_requires_authentication() {
 #[tokio::test]
 async fn set_send_gain_engineer_rbac_ok() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "eng_gain_ok", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_gain_ok", "password1", Role::Engineer);
     let resp = server
         .put("/api/v1/mixes/0/sends/0/gain")
         .add_header("Origin", "http://localhost")
@@ -3294,8 +3323,8 @@ async fn set_send_gain_engineer_rbac_ok() {
 #[tokio::test]
 async fn set_send_gain_musician_owns_mix_ok() {
     let (server, state) = build_test_app();
-    let eng_token = seed_user_and_login(&state, "eng_gain_assign", "pw", Role::Engineer);
-    let mus_token = seed_user_and_login(&state, "mus_gain_own", "pw", Role::Musician);
+    let eng_token = seed_user_and_login(&state, "eng_gain_assign", "password1", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_gain_own", "password1", Role::Musician);
     let (mus_id, _, _, _) = state.db.find_user("mus_gain_own").unwrap();
     server
         .post("/api/v1/mixes/0/assign")
@@ -3321,8 +3350,8 @@ async fn set_send_gain_musician_owns_mix_ok() {
 #[tokio::test]
 async fn set_send_gain_musician_wrong_mix_forbidden() {
     let (server, state) = build_test_app();
-    let eng_token = seed_user_and_login(&state, "eng_gain_wrong", "pw", Role::Engineer);
-    let mus_token = seed_user_and_login(&state, "mus_gain_wrong", "pw", Role::Musician);
+    let eng_token = seed_user_and_login(&state, "eng_gain_wrong", "password1", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_gain_wrong", "password1", Role::Musician);
     let (mus_id, _, _, _) = state.db.find_user("mus_gain_wrong").unwrap();
     // Assign to mix 0; musician tries to set gain on mix 1.
     server
@@ -3355,7 +3384,7 @@ async fn set_send_gain_requires_authentication() {
 #[tokio::test]
 async fn set_send_gain_out_of_range_returns_400() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "eng_gain_range", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_gain_range", "password1", Role::Engineer);
     let resp = server
         .put("/api/v1/mixes/0/sends/0/gain")
         .add_header("Origin", "http://localhost")
@@ -3368,7 +3397,7 @@ async fn set_send_gain_out_of_range_returns_400() {
 #[tokio::test]
 async fn set_send_gain_non_finite_returns_400() {
     let (server, state) = build_test_app();
-    let token = seed_user_and_login(&state, "eng_gain_nan", "pw", Role::Engineer);
+    let token = seed_user_and_login(&state, "eng_gain_nan", "password1", Role::Engineer);
     // JSON cannot encode NaN/Inf — send a string to trigger deserialization error.
     let resp = server
         .put("/api/v1/mixes/0/sends/0/gain")
@@ -3388,8 +3417,8 @@ async fn set_send_gain_non_finite_returns_400() {
 #[tokio::test]
 async fn unassign_mix_engineer_ok() {
     let (server, state) = build_test_app();
-    let eng_token = seed_user_and_login(&state, "eng_unas_ok", "pw", Role::Engineer);
-    let mus_token = seed_user_and_login(&state, "mus_unas_ok", "pw", Role::Musician);
+    let eng_token = seed_user_and_login(&state, "eng_unas_ok", "password1", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_unas_ok", "password1", Role::Musician);
     let (mus_id, _, _, _) = state.db.find_user("mus_unas_ok").unwrap();
     // Assign first.
     server
@@ -3418,8 +3447,8 @@ async fn unassign_mix_engineer_ok() {
 #[tokio::test]
 async fn unassign_mix_musician_forbidden() {
     let (server, state) = build_test_app();
-    let eng_token = seed_user_and_login(&state, "eng_unas_forbid", "pw", Role::Engineer);
-    let mus_token = seed_user_and_login(&state, "mus_unas_forbid", "pw", Role::Musician);
+    let eng_token = seed_user_and_login(&state, "eng_unas_forbid", "password1", Role::Engineer);
+    let mus_token = seed_user_and_login(&state, "mus_unas_forbid", "password1", Role::Musician);
     let (mus_id, _, _, _) = state.db.find_user("mus_unas_forbid").unwrap();
     server
         .post("/api/v1/mixes/0/assign")
@@ -3450,7 +3479,7 @@ async fn unassign_mix_requires_authentication() {
 async fn unassign_mix_unassigned_returns_not_found() {
     // Unassigning a mix that has no assignment returns 404.
     let (server, state) = build_test_app();
-    let eng_token = seed_user_and_login(&state, "eng_unas_idem", "pw", Role::Engineer);
+    let eng_token = seed_user_and_login(&state, "eng_unas_idem", "password1", Role::Engineer);
     let resp = server
         .delete("/api/v1/mixes/0/assign")
         .add_header("Origin", "http://localhost")

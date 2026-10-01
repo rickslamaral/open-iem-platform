@@ -23,6 +23,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use uuid::Uuid;
 
 const MAX_USERNAME_BYTES: usize = 128;
+const MIN_PASSWORD_BYTES: usize = 8;
 const MAX_PASSWORD_BYTES: usize = 1024;
 
 fn validate_credentials(username: &str, password: &str) -> Result<(), ApiError> {
@@ -31,7 +32,7 @@ fn validate_credentials(username: &str, password: &str) -> Result<(), ApiError> 
             "username length is invalid".to_owned(),
         ));
     }
-    if password.is_empty() || password.len() > MAX_PASSWORD_BYTES {
+    if password.len() < MIN_PASSWORD_BYTES || password.len() > MAX_PASSWORD_BYTES {
         return Err(ApiError::BadRequest(
             "password length is invalid".to_owned(),
         ));
@@ -459,15 +460,15 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn change_password_empty_password_rejected() {
+    async fn change_password_short_password_rejected() {
         let (server, state) = build_test_app();
-        // validate_credentials runs before db.change_password — empty password fails with 400
+        // validate_credentials runs before db.change_password — short password fails with 400
         // regardless of must_change_password flag; use any authenticated user
         let (_id, token) = seed_user_token(&state, "user2", Role::Musician);
         let resp = server
             .put("/api/v1/auth/password")
             .authorization_bearer(token)
-            .json(&json!({"new_password": ""}))
+            .json(&json!({"new_password": "short"}))
             .await;
         resp.assert_status_bad_request();
     }
@@ -571,7 +572,7 @@ mod tests {
         let resp = server
             .post("/api/v1/auth/login")
             .add_header("Origin", "http://localhost")
-            .json(&json!({"username": "nobody_here", "password": "any_pw"}))
+            .json(&json!({"username": "nobody_here", "password": "any_pass"}))
             .await;
         // find_user returns NotFound which maps to 404
         assert!(
@@ -589,6 +590,18 @@ mod tests {
             .post("/api/v1/auth/login")
             .add_header("Origin", "http://localhost")
             .json(&json!({"username": "", "password": "some_pw"}))
+            .await;
+        resp.assert_status_bad_request();
+    }
+
+    #[tokio::test]
+    async fn login_short_password_returns_bad_request() {
+        let (server, _state) = build_test_app();
+
+        let resp = server
+            .post("/api/v1/auth/login")
+            .add_header("Origin", "http://localhost")
+            .json(&json!({"username": "someone", "password": "short"}))
             .await;
         resp.assert_status_bad_request();
     }

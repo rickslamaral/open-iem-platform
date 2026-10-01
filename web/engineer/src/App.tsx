@@ -117,8 +117,8 @@ function ChangePassword({ token, onComplete, error }: { token: string; onComplet
   return <main className="login-shell"><form className="card login-card" onSubmit={submit}>
     <p className="eyebrow">OPEN IEM / PRIMEIRO ACESSO</p><h1>Defina sua senha</h1>
     <p className="muted">Troca obrigatória antes de acessar Engineer Console.</p>
-    <label>Nova senha<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" minLength={1} required /></label>
-    <label>Confirme a nova senha<input type="password" value={confirmation} onChange={(e) => setConfirmation(e.target.value)} autoComplete="new-password" minLength={1} required /></label>
+    <label>Nova senha<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" minLength={8} required /></label>
+    <label>Confirme a nova senha<input type="password" value={confirmation} onChange={(e) => setConfirmation(e.target.value)} autoComplete="new-password" minLength={8} required /></label>
     {(formError || error) && <p className="error" role="alert">{formError || error}</p>}
     <button disabled={busy}>{busy ? 'Salvando…' : 'Salvar senha'}</button>
   </form></main>;
