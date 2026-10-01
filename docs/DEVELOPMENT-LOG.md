@@ -1,3 +1,8 @@
+## 2026-10-01 — streaming test aligned with drive ordering
+
+- Corrigido teste `drive_once_polls_queued_media_before_frame_writes`: `drive_once` drena saídas RTC pendentes antes de escrever frames de mídia, portanto a fila previamente preenchida é consumida e os dois frames codificam sem `media_write_errors`.
+- Evidência local: teste Rust direcionado, gates Rust e frontends. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` permanecem não validados.
+
 ## 2026-10-01 — estado verificado no HEAD `83af911`
 
 - `develop`, `origin/develop`, `main` e `origin/main` apontam para `83af911849a6145d5c8c7c81d72b6003a2beb80e`; working tree limpa.
