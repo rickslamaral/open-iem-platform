@@ -1,3 +1,9 @@
+## 2026-10-01 — commit de reconciliação `d859ef406a63ca1ce8bbf5b3efe25e5a9472d60e`
+
+- `develop` e `origin/develop` apontam para `d859ef406a63ca1ce8bbf5b3efe25e5a9472d60e`; working tree limpa após commit verificado.
+- Commit contém somente reconciliação documental; gates locais já registrados no estado anterior permanecem PASS.
+- CI remoto ainda não executou neste SHA; runtime/hardware e release continuam `PENDING/BLOCKED`.
+
 ## 2026-10-01 — estado verificado no HEAD `7b4cbe0b56f7568a9dd9fd387ebbd8e38ea6982b`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `7b4cbe0b56f7568a9dd9fd387ebbd8e38ea6982b`; working tree limpa.
