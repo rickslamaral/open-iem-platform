@@ -29,6 +29,7 @@ use api_server::{
             unassign_mix,
         },
         presets::{apply_preset, list_presets},
+        profile::{get_profile, list_musicians, put_profile},
         scenes::{
             backup_scenes, create_scene, delete_scene, duplicate_scene, get_active_scene,
             get_scene, list_scene_revisions, list_scenes, recall_scene, restore_scenes,
@@ -162,6 +163,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/channels/{index}/gain", put(set_channel_gain))
         .route("/api/v1/channels/{index}/mute", put(set_channel_mute))
         .route("/api/v1/mixes", get(list_mixes))
+        .route("/api/v1/me/profile", get(get_profile).put(put_profile))
+        .route("/api/v1/admin/musicians", get(list_musicians))
         .route(
             "/api/v1/mixes/{index}/assign",
             post(assign_mix).delete(unassign_mix),

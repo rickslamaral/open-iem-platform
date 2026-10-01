@@ -24,6 +24,11 @@ pub struct Db {
     conn: Arc<Mutex<Connection>>,
 }
 
+/// Stored musician profile fields.
+pub type MusicianProfileRow = (i64, i64, String, String, String, i64, i64);
+/// Stored musician profile fields plus owning username.
+pub type MusicianProfileListRow = (i64, i64, String, String, String, i64, i64, String);
+
 impl Db {
     /// Open (or create) the SQLite database at `path`.
     ///
@@ -53,6 +58,7 @@ impl Db {
         Ok(db)
     }
 
+    #[allow(clippy::too_many_lines)]
     fn migrate(&self) -> Result<(), ApiError> {
         let mut conn = self
             .conn
@@ -156,6 +162,49 @@ impl Db {
             if !has_column {
                 return Err(ApiError::Internal(
                     "migration M001 recorded but must_change_password column is missing".to_owned(),
+                ));
+            }
+        }
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+
+        // M002 adds durable musician profiles without coupling profile identity to
+        // credentials or mix assignment. It is recorded only after schema succeeds.
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let applied: Option<i64> = tx
+            .query_row("SELECT id FROM migrations WHERE name = 'M002'", [], |row| {
+                row.get(0)
+            })
+            .optional()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if applied.is_none() {
+            tx.execute_batch(
+                "CREATE TABLE musician_profiles (
+                    profile_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+                    display_name TEXT NOT NULL,
+                    instrument_id TEXT NOT NULL,
+                    status TEXT NOT NULL CHECK(status IN ('PENDING', 'ACTIVE', 'BLOCKED')),
+                    created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+                    updated_at INTEGER NOT NULL DEFAULT (unixepoch())
+                );
+                CREATE INDEX musician_profiles_status_idx ON musician_profiles(status);
+                INSERT INTO migrations (id, name) VALUES (2, 'M002');",
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        } else {
+            let profile_table_columns: i64 = tx
+                .query_row(
+                    "SELECT COUNT(*) FROM pragma_table_info('musician_profiles')",
+                    [],
+                    |row| row.get(0),
+                )
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+            if profile_table_columns != 7 {
+                return Err(ApiError::Internal(
+                    "migration M002 recorded but musician_profiles schema is missing or invalid"
+                        .to_owned(),
                 ));
             }
         }
@@ -878,6 +927,58 @@ impl Db {
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
     }
 
+    /// Read musician profile for user, if one exists.
+    pub fn get_musician_profile(
+        &self,
+        user_id: i64,
+    ) -> Result<Option<MusicianProfileRow>, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.query_row("SELECT profile_id, user_id, display_name, instrument_id, status, created_at, updated_at FROM musician_profiles WHERE user_id = ?1", params![user_id], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?, row.get(5)?, row.get(6)?))).optional().map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Insert or update a musician's own profile.
+    pub fn upsert_musician_profile(
+        &self,
+        user_id: i64,
+        display_name: &str,
+        instrument_id: &str,
+    ) -> Result<(), ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute("INSERT INTO musician_profiles (user_id, display_name, instrument_id, status) VALUES (?1, ?2, ?3, 'PENDING') ON CONFLICT(user_id) DO UPDATE SET display_name = excluded.display_name, instrument_id = excluded.instrument_id, updated_at = unixepoch()", params![user_id, display_name, instrument_id]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok(())
+    }
+
+    /// List profiles with owning usernames for Admin/Engineer management.
+    pub fn list_musician_profiles(&self) -> Result<Vec<MusicianProfileListRow>, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let mut stmt = conn.prepare("SELECT p.profile_id, p.user_id, p.display_name, p.instrument_id, p.status, p.created_at, p.updated_at, u.username FROM musician_profiles p JOIN users u ON u.id = p.user_id ORDER BY p.profile_id").map_err(|e| ApiError::Internal(e.to_string()))?;
+        let rows = stmt
+            .query_map([], |row| {
+                Ok((
+                    row.get(0)?,
+                    row.get(1)?,
+                    row.get(2)?,
+                    row.get(3)?,
+                    row.get(4)?,
+                    row.get(5)?,
+                    row.get(6)?,
+                    row.get(7)?,
+                ))
+            })
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        rows.map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+            .collect()
+    }
+
     /// List all users ordered by ID.
     ///
     /// # Errors
@@ -1170,7 +1271,7 @@ mod tests {
     }
 
     #[test]
-    fn fresh_database_records_m001_once() {
+    fn fresh_database_records_migrations_once() {
         let db = setup();
         let conn = db.conn.lock().unwrap();
         let rows: Vec<(i64, String)> = conn
@@ -1180,7 +1281,7 @@ mod tests {
             .unwrap()
             .map(Result::unwrap)
             .collect();
-        assert_eq!(rows, vec![(1, "M001".to_owned())]);
+        assert_eq!(rows, vec![(1, "M001".to_owned()), (2, "M002".to_owned())]);
     }
 
     #[test]
