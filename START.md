@@ -1,3 +1,12 @@
+## 2026-10-01 — verificação local no HEAD `43955b9`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `43955b9d95102c5821593fb40260ad1d0db4ebd1`; working tree limpa antes desta atualização.
+- Gates locais reais PASS: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (todos os testes: 537 unit/integration e doctests PASS); frontends musician e engineer typecheck, `npm test` (61/61 e 59/59) e build PASS.
+- Primeiro comando frontend com `--watchAll=false` falhou porque Vitest 5 não aceita essa opção; comando canônico `npm test` executado depois PASS. Nenhum código foi alterado.
+- Scanner `/root/scan_patterns.py` não está disponível neste host; nenhum resultado de scanner inventado. PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas Rust/coverage; fora da branch autorizada.
+- CI remoto mais recente em `develop`: runs `36795546987` e `36795546985`, ambos SUCCESS no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`; não é evidência do HEAD atual.
+- Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-01 — verificação local no HEAD `a5774a3`
 
 - `develop` e `origin/develop` estão sincronizadas no commit `a5774a3d88226411b29c2c92f50381d9e06a14e3`; working tree limpa antes desta atualização.
