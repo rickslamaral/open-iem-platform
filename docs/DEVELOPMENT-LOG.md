@@ -1,4 +1,11 @@
 ## 2026-10-01 — estado operacional verificado no HEAD `bfa2dd8`
+## 2026-10-01 — verificação local no HEAD `9377ed0`
+
+- `develop` e `origin/develop` estão sincronizadas no commit `9377ed020c595125a975315e1f10ed7c91594bb1`; working tree limpa antes desta atualização.
+- Gates locais reais PASS: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes); frontends musician e engineer typecheck, testes (61/61 e 59/59) e builds PASS.
+- CI remoto não executou neste HEAD; últimos SUCCESS em `develop` (`36795546987` e `36795546985`) pertencem a `be8c3691ea891fc84728f7ca5fe7021878bf1651`. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falham em gates Rust/coverage; política vigente proíbe alteração nessas branches. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 
 - `develop` e `origin/develop` estão sincronizadas no commit `bfa2dd8065a9fe1120dbdaad9ea26d70936d5526`; working tree limpa.
 - Backlog CODE executável permanece esgotado; nenhum item seguro novo pode ser inventado. Itens restantes exigem hardware físico, confirmação de release ou provisionamento externo de secret.
