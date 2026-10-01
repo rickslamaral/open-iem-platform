@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 ### Documentation
+- Reconciliado snapshot operacional com `develop` HEAD `f5710d8`; PRs Dependabot #347/#348 seguem UNSTABLE com falhas Rust.
 - Reconciliado snapshot operacional com `develop` HEAD `3234c7f`; CI remoto ainda não executou neste SHA.
 - Reconciliado snapshot documental com `develop` HEAD `09fc520` em 2026-09-30; CI remoto do SHA atual ainda não confirmado.
 
