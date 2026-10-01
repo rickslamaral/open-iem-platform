@@ -1,6 +1,6 @@
-## 2026-10-01 — estado verificado no HEAD `4037c52c699da3995b8d40012547261d7781acc7`
+## 2026-10-01 — estado verificado no HEAD `ac3a6cecb3043f5dc898a7ad34cdba4a02876f7e`
 
-- `develop` e `origin/develop` apontam para `4037c52c699da3995b8d40012547261d7781acc7`; working tree estava limpa antes desta atualização documental.
+- `develop` e `origin/develop` apontam para `ac3a6cecb3043f5dc898a7ad34cdba4a02876f7e`; working tree estava limpa antes desta atualização documental.
 - Não há tarefa CODE segura nova no backlog.
 - CI remoto real mais recente concluiu sucesso em commits anteriores; não há run no SHA documental atual.
 - PRs Dependabot #347 e #348 permanecem abertas contra `main`, ambas `UNSTABLE`; falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`. Política vigente não autoriza merge ou correção fora de `develop`.
