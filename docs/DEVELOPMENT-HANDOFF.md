@@ -1,4 +1,4 @@
-## 2026-10-01 — verificação operacional no HEAD `af4318e`
+## 2026-10-01 — verificação operacional registrada no commit `d39b916`
 
 - Antes desta atualização, `develop` e `origin/develop` estavam sincronizadas no commit `af4318e22c3f0eacfd9bb89ff6eb8f46addcabd2`; working tree estava limpa.
 - Backlog CODE executável permanece esgotado; itens restantes exigem validação física, confirmação de release ou secret externo. Nenhuma tarefa nova foi inventada.
