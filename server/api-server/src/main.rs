@@ -30,6 +30,10 @@ use api_server::{
         },
         presets::{apply_preset, list_presets},
         profile::{get_profile, list_musicians, put_profile},
+        qr::{
+            activate as qr_activate, deactivate as qr_deactivate, exchange as qr_exchange,
+            rotate as qr_rotate, status as qr_status,
+        },
         scenes::{
             backup_scenes, create_scene, delete_scene, duplicate_scene, get_active_scene,
             get_scene, list_scene_revisions, list_scenes, recall_scene, restore_scenes,
@@ -165,6 +169,10 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/mixes", get(list_mixes))
         .route("/api/v1/me/profile", get(get_profile).put(put_profile))
         .route("/api/v1/admin/musicians", get(list_musicians))
+        .route("/api/v1/admin/qr/status", get(qr_status))
+        .route("/api/v1/admin/qr/activate", post(qr_activate))
+        .route("/api/v1/admin/qr/rotate", post(qr_rotate))
+        .route("/api/v1/admin/qr/deactivate", post(qr_deactivate))
         .route(
             "/api/v1/mixes/{index}/assign",
             post(assign_mix).delete(unassign_mix),
@@ -207,7 +215,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/health", get(health))
         .route("/api/v1/system", get(get_system_info))
         .route("/api/v1/auth/login", post(login))
-        .route("/api/v1/auth/refresh", post(refresh));
+        .route("/api/v1/auth/refresh", post(refresh))
+        .route("/api/v1/onboarding/qr/exchange", post(qr_exchange));
 
     let app = Router::new()
         .merge(protected)

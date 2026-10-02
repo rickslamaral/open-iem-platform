@@ -1,0 +1,348 @@
+//! Secure QR musician onboarding endpoints.
+//!
+//! RBAC policy: QR status, activation, rotation, and deactivation require
+//! `Engineer` minimum role; `Admin` inherits access through role hierarchy.
+//! QR exchange is public by design and grants only `Musician` credentials.
+#![allow(
+    missing_docs,
+    clippy::format_collect,
+    clippy::missing_errors_doc,
+    clippy::unused_async
+)]
+use crate::{
+    auth::{generate_refresh_token, token_to_storage_key, JwtClaims},
+    error::ApiError,
+    middleware::require_min_role,
+    state::AppState,
+};
+use axum::{
+    extract::State,
+    http::{header, StatusCode},
+    response::IntoResponse,
+    Extension, Json,
+};
+use control_protocol::Role;
+use rand::RngExt;
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+use std::time::{SystemTime, UNIX_EPOCH};
+use uuid::Uuid;
+
+const QR_TTL: u64 = 10 * 60;
+const MAX_NAME: usize = 80;
+const QR_SECRET_HEX_LEN: usize = 64;
+const INSTRUMENTS: &[&str] = &[
+    "vocals",
+    "guitar",
+    "bass",
+    "drums",
+    "keys",
+    "acoustic-guitar",
+    "brass",
+    "strings",
+];
+
+fn now() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs()
+}
+fn qr_secret() -> String {
+    let mut b = [0u8; 32];
+    rand::rng().fill(&mut b);
+    b.iter().map(|x| format!("{x:02x}")).collect()
+}
+fn validate_secret(secret: &str) -> Result<(), ApiError> {
+    if secret.len() != QR_SECRET_HEX_LEN || !secret.bytes().all(|byte| byte.is_ascii_hexdigit()) {
+        return Err(ApiError::BadRequest(
+            "qr_secret format is invalid".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+fn validate(name: &str, instrument: &str) -> Result<(), ApiError> {
+    if name.trim().is_empty()
+        || name.chars().count() > MAX_NAME
+        || name.chars().any(char::is_control)
+    {
+        return Err(ApiError::BadRequest(
+            "display_name must contain 1-80 Unicode characters and no control characters"
+                .to_owned(),
+        ));
+    }
+    if !INSTRUMENTS.contains(&instrument) {
+        return Err(ApiError::BadRequest(
+            "instrument_id is not in controlled catalog".to_owned(),
+        ));
+    }
+    Ok(())
+}
+fn unix_hash(secret: &str) -> String {
+    let mut h = Sha256::new();
+    h.update(secret.as_bytes());
+    h.finalize().iter().map(|x| format!("{x:02x}")).collect()
+}
+
+#[derive(Deserialize)]
+pub struct QrConfigure {
+    pub expires_in_seconds: Option<u64>,
+}
+#[derive(Serialize)]
+pub struct QrStatus {
+    pub active: bool,
+    pub expires_at: u64,
+    pub remaining_uses: u64,
+    pub generation: u64,
+}
+#[derive(Deserialize)]
+pub struct Exchange {
+    pub qr_secret: String,
+    pub display_name: String,
+    pub instrument_id: String,
+}
+#[derive(Serialize)]
+pub struct ExchangeResponse {
+    pub access_token: String,
+    pub role: Role,
+}
+
+pub async fn status(
+    State(state): State<AppState>,
+    Extension(claims): Extension<JwtClaims>,
+) -> Result<Json<QrStatus>, ApiError> {
+    require_min_role(&claims, Role::Engineer)?;
+    let (active, expires, remaining, generation) = state.db.qr_status(now())?;
+    Ok(Json(QrStatus {
+        active,
+        expires_at: expires,
+        remaining_uses: remaining,
+        generation,
+    }))
+}
+pub async fn activate(
+    State(state): State<AppState>,
+    Extension(claims): Extension<JwtClaims>,
+    Json(body): Json<QrConfigure>,
+) -> Result<impl IntoResponse, ApiError> {
+    require_min_role(&claims, Role::Engineer)?;
+    let secret = qr_secret();
+    let expires = now() + body.expires_in_seconds.unwrap_or(QR_TTL).min(QR_TTL);
+    state
+        .db
+        .configure_qr(Some(&unix_hash(&secret)), expires, true)?;
+    Ok((
+        StatusCode::CREATED,
+        Json(serde_json::json!({"qr_secret": secret, "expires_at": expires})),
+    ))
+}
+pub async fn rotate(
+    State(state): State<AppState>,
+    Extension(claims): Extension<JwtClaims>,
+    Json(body): Json<QrConfigure>,
+) -> Result<impl IntoResponse, ApiError> {
+    activate(State(state), Extension(claims), Json(body)).await
+}
+pub async fn deactivate(
+    State(state): State<AppState>,
+    Extension(claims): Extension<JwtClaims>,
+) -> Result<StatusCode, ApiError> {
+    require_min_role(&claims, Role::Engineer)?;
+    state.db.configure_qr(None, 0, false)?;
+    Ok(StatusCode::NO_CONTENT)
+}
+pub async fn exchange(
+    State(state): State<AppState>,
+    Json(body): Json<Exchange>,
+) -> Result<impl IntoResponse, ApiError> {
+    validate_secret(&body.qr_secret)?;
+    validate(&body.display_name, &body.instrument_id)?;
+    let raw_refresh = generate_refresh_token();
+    let jti = Uuid::new_v4().to_string();
+    let now = now();
+    let (user_id, session_id, username, generation) = state.db.exchange_qr(
+        &unix_hash(&body.qr_secret),
+        &body.display_name,
+        &body.instrument_id,
+        now,
+        &token_to_storage_key(&raw_refresh),
+        now + crate::auth::REFRESH_TOKEN_TTL_S,
+        &Uuid::new_v4().to_string(),
+        &jti,
+        now + crate::auth::ACCESS_TOKEN_TTL_S,
+    )?;
+    let role = Role::Musician;
+    let access =
+        match state
+            .jwt
+            .issue_with_session(&username, user_id, role, &jti, Some(session_id))
+        {
+            Ok(access) => access,
+            Err(error) => {
+                // DB exchange commits before JWT signing. Remove all newly-created rows and
+                // restore invitation capacity when signing fails, otherwise QR use leaks.
+                state.db.cleanup_qr_exchange(
+                    &token_to_storage_key(&raw_refresh),
+                    &jti,
+                    user_id,
+                    generation,
+                )?;
+                return Err(error);
+            }
+        };
+    Ok((StatusCode::CREATED, [(header::SET_COOKIE, format!("refresh_token={raw_refresh}; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age={}", crate::auth::REFRESH_TOKEN_TTL_S))], Json(ExchangeResponse { access_token: access, role })))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::auth::JwtClaims;
+    use control_protocol::Role;
+
+    fn claims(role: Role) -> JwtClaims {
+        JwtClaims {
+            sub: "test".to_owned(),
+            user_id: 1,
+            role,
+            jti: "jti".to_owned(),
+            session_id: None,
+            iss: crate::auth::JWT_ISSUER.to_owned(),
+            aud: crate::auth::JWT_AUDIENCE.to_owned(),
+            iat: 1,
+            exp: u64::MAX,
+        }
+    }
+
+    #[test]
+    fn validation_accepts_unicode_limit_and_rejects_bad_input() {
+        assert!(validate(&"é".repeat(MAX_NAME), "guitar").is_ok());
+        assert!(validate(&"é".repeat(MAX_NAME + 1), "guitar").is_err());
+        assert!(validate("name\n", "guitar").is_err());
+        assert!(validate("name", "mandolin").is_err());
+        assert!(validate("   ", "guitar").is_err());
+    }
+
+    #[test]
+    fn qr_management_requires_engineer_for_all_operations() {
+        assert!(require_min_role(&claims(Role::Musician), Role::Engineer).is_err());
+        for role in [Role::Engineer, Role::Admin] {
+            assert!(require_min_role(&claims(role), Role::Engineer).is_ok());
+        }
+    }
+
+    #[test]
+    fn qr_secret_hash_is_one_way_and_deterministic() {
+        let secret = qr_secret();
+        assert_eq!(unix_hash(&secret), unix_hash(&secret));
+        assert_ne!(secret, unix_hash(&secret));
+        assert_eq!(unix_hash(&secret).len(), 64);
+    }
+
+    #[test]
+    fn ttl_is_capped_at_ten_minutes() {
+        assert_eq!(QR_TTL, 600);
+    }
+
+    #[tokio::test]
+    async fn exchange_validation_runs_before_database_use() {
+        let result = validate("bad\u{0000}name", "guitar");
+        assert!(matches!(result, Err(ApiError::BadRequest(_))));
+    }
+
+    #[test]
+    fn expiry_replay_and_rotation_rules_are_explicit() {
+        let db = crate::db::Db::open_in_memory().expect("db");
+        let first = qr_secret();
+        db.configure_qr(Some(&unix_hash(&first)), 100, true)
+            .expect("activate");
+        let expired = db.exchange_qr(
+            &unix_hash(&first),
+            "Ana",
+            "guitar",
+            100,
+            "r1",
+            200,
+            "f1",
+            "j1",
+            200,
+        );
+        assert!(expired.is_err());
+        db.configure_qr(Some(&unix_hash(&first)), 1_000, true)
+            .expect("rotate");
+        let ok = db
+            .exchange_qr(
+                &unix_hash(&first),
+                "Ana",
+                "guitar",
+                101,
+                "r2",
+                200,
+                "f2",
+                "j2",
+                200,
+            )
+            .expect("first use");
+        assert!(ok.2.starts_with("musician-"));
+        let replay = db.exchange_qr(
+            &unix_hash(&first),
+            "Ana",
+            "guitar",
+            101,
+            "r3",
+            200,
+            "f3",
+            "j3",
+            200,
+        );
+        assert!(replay.is_err());
+    }
+
+    #[test]
+    fn status_and_deactivation_expire_active_qr() {
+        let db = crate::db::Db::open_in_memory().expect("db");
+        let secret = qr_secret();
+        db.configure_qr(Some(&unix_hash(&secret)), 200, true)
+            .expect("activate");
+        assert!(db.qr_status(100).expect("status").0);
+        db.configure_qr(None, 0, false).expect("deactivate");
+        assert!(!db.qr_status(100).expect("status").0);
+    }
+
+    #[test]
+    fn concurrent_exchange_consumes_single_use() {
+        let db = crate::db::Db::open_in_memory().expect("db");
+        let secret = qr_secret();
+        db.configure_qr(Some(&unix_hash(&secret)), 1_000, true)
+            .expect("activate");
+        let db = std::sync::Arc::new(db);
+        let results = std::thread::scope(|scope| {
+            (0..8)
+                .map(|i| {
+                    let db = std::sync::Arc::clone(&db);
+                    let hash = unix_hash(&secret);
+                    scope.spawn(move || {
+                        db.exchange_qr(
+                            &hash,
+                            "Ana",
+                            "guitar",
+                            1,
+                            &format!("r{i}"),
+                            200,
+                            &format!("f{i}"),
+                            &format!("j{i}"),
+                            200,
+                        )
+                        .is_ok()
+                    })
+                })
+                .collect::<Vec<_>>()
+                .into_iter()
+                .map(|h| h.join().expect("thread"))
+                .filter(|ok| *ok)
+                .count()
+        });
+        assert_eq!(results, 1);
+        assert_eq!(db.qr_status(1).expect("status").2, 0);
+    }
+}
