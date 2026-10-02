@@ -3791,3 +3791,11 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - No remote CI SUCCESS covers current HEAD; latest real SUCCESS runs `36897066547` and `36897066543` cover prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
 - Open Dependabot PRs #347 and #348 target `main`; Rust/coverage checks fail. User policy leaves them untouched.
 - Static scanner `/root/scan_patterns.py` unavailable; no fabricated result. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, physical PipeWire/ALSA, LAN, Raspberry Pi 5 and release `v0.3.1` remain `PENDING/BLOCKED`. Evidence: `CODE/CI/SIMULATED`.
+## 2026-10-02 14:17 -0300 — verificação operacional no HEAD `f9666af`
+
+- `develop` e `origin/develop` sincronizadas no commit `f9666af7ead9391e3cde903c410f3aa96392438e`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã; branches Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em Rust/coverage; política vigente não altera essas branches.
+- `scripts/validate-docs.sh` e `git diff --check` PASS nesta atualização. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- CI remoto não tem SUCCESS no HEAD atual; runs `36897066547` e `36897066543` cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4` e não contam para este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
