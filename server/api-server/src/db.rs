@@ -30,6 +30,169 @@ pub type MusicianProfileRow = (i64, i64, String, String, String, i64, i64);
 /// Stored musician profile fields plus owning username.
 pub type MusicianProfileListRow = (i64, i64, String, String, String, i64, i64, String);
 
+#[allow(clippy::too_many_lines, clippy::type_complexity)]
+fn validate_m003_schema(tx: &rusqlite::Transaction<'_>) -> Result<(), ApiError> {
+    let table_sql = |name: &str| -> Result<String, ApiError> {
+        tx.query_row(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?1",
+            [name],
+            |row| row.get(0),
+        )
+        .map_err(|_| {
+            ApiError::Internal(
+                "migration M003 recorded but QR onboarding schema is incomplete".to_owned(),
+            )
+        })
+    };
+    let columns =
+        |name: &str| -> Result<Vec<(String, String, i64, Option<String>, i64)>, ApiError> {
+            tx.prepare(&format!("SELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('{name}') ORDER BY cid"))
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| {
+                    let default: Option<String> = row.get(3)?;
+                    let default = default.map(|value| {
+                        let mut value = value;
+                        while value.starts_with('(') && value.ends_with(')') {
+                            value = value[1..value.len() - 1].to_owned();
+                        }
+                        value
+                    });
+                    Ok((row.get(0)?, row.get(1)?, row.get(2)?, default, row.get(4)?))
+                })
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect()
+        };
+    let foreign_keys = |name: &str| -> Result<Vec<(String, String, String, String)>, ApiError> {
+        tx.prepare(&format!("SELECT \"table\", \"from\", \"to\", on_delete FROM pragma_foreign_key_list('{name}') ORDER BY id, seq"))
+            .map_err(|e| ApiError::Internal(e.to_string()))?
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
+            .map_err(|e| ApiError::Internal(e.to_string()))?
+            .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+            .collect()
+    };
+    let qr_expected = vec![
+        ("id".to_owned(), "INTEGER".to_owned(), 0, None, 1),
+        ("secret_hash".to_owned(), "TEXT".to_owned(), 1, None, 0),
+        (
+            "active".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("0".to_owned()),
+            0,
+        ),
+        (
+            "expires_at".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("0".to_owned()),
+            0,
+        ),
+        (
+            "max_uses".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("1".to_owned()),
+            0,
+        ),
+        (
+            "used_count".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("0".to_owned()),
+            0,
+        ),
+        (
+            "generation".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("1".to_owned()),
+            0,
+        ),
+        (
+            "updated_at".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("unixepoch()".to_owned()),
+            0,
+        ),
+    ];
+    let session_expected = vec![
+        ("session_id".to_owned(), "INTEGER".to_owned(), 0, None, 1),
+        ("user_id".to_owned(), "INTEGER".to_owned(), 1, None, 0),
+        (
+            "state".to_owned(),
+            "TEXT".to_owned(),
+            1,
+            Some("'ACTIVE'".to_owned()),
+            0,
+        ),
+        (
+            "created_at".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("unixepoch()".to_owned()),
+            0,
+        ),
+    ];
+    let normalize = |sql: String| {
+        sql.to_ascii_uppercase()
+            .chars()
+            .filter(|c| !c.is_ascii_whitespace())
+            .collect::<String>()
+    };
+    let qr_sql = normalize(table_sql("qr_onboarding")?);
+    let session_sql = normalize(table_sql("musician_onboarding_sessions")?);
+    let mut session_foreign_keys = foreign_keys("musician_onboarding_sessions")?;
+    session_foreign_keys.sort();
+    let mut expected_foreign_keys = vec![
+        (
+            "refresh_tokens".to_owned(),
+            "session_id".to_owned(),
+            "id".to_owned(),
+            "CASCADE".to_owned(),
+        ),
+        (
+            "users".to_owned(),
+            "user_id".to_owned(),
+            "id".to_owned(),
+            "CASCADE".to_owned(),
+        ),
+    ];
+    expected_foreign_keys.sort();
+    let valid = columns("qr_onboarding")? == qr_expected
+        && columns("musician_onboarding_sessions")? == session_expected
+        && foreign_keys("qr_onboarding")?.is_empty()
+        && session_foreign_keys == expected_foreign_keys
+        && qr_sql.contains("IDINTEGERPRIMARYKEYCHECK(ID=1)")
+        && qr_sql.contains("SECRET_HASHTEXTNOTNULL")
+        && qr_sql.contains("ACTIVEINTEGERNOTNULLDEFAULT0")
+        && qr_sql.contains("EXPIRES_ATINTEGERNOTNULLDEFAULT0")
+        && qr_sql.contains("MAX_USESINTEGERNOTNULLDEFAULT1")
+        && qr_sql.contains("USED_COUNTINTEGERNOTNULLDEFAULT0")
+        && qr_sql.contains("GENERATIONINTEGERNOTNULLDEFAULT1")
+        && qr_sql.contains("UPDATED_ATINTEGERNOTNULLDEFAULT(UNIXEPOCH())")
+        && session_sql
+            .contains("SESSION_IDINTEGERPRIMARYKEYREFERENCESREFRESH_TOKENS(ID)ONDELETECASCADE")
+        && session_sql.contains("USER_IDINTEGERNOTNULLREFERENCESUSERS(ID)ONDELETECASCADE")
+        && session_sql
+            .contains("STATETEXTNOTNULLCHECK(STATEIN('ACTIVE','REVOKED'))DEFAULT'ACTIVE'")
+        && session_sql.contains("CREATED_ATINTEGERNOTNULLDEFAULT(UNIXEPOCH())");
+    let seed: i64 = tx
+        .query_row(
+            "SELECT COUNT(*) FROM qr_onboarding WHERE id = 1",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+    if !valid || seed != 1 {
+        return Err(ApiError::Internal(
+            "migration M003 recorded but QR onboarding schema is incomplete".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
 impl Db {
     /// Open (or create) the SQLite database at `path`.
     ///
@@ -285,24 +448,7 @@ impl Db {
         if applied.is_none() {
             tx.execute_batch("CREATE TABLE qr_onboarding (id INTEGER PRIMARY KEY CHECK(id = 1), secret_hash TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 0, expires_at INTEGER NOT NULL DEFAULT 0, max_uses INTEGER NOT NULL DEFAULT 1, used_count INTEGER NOT NULL DEFAULT 0, generation INTEGER NOT NULL DEFAULT 1, updated_at INTEGER NOT NULL DEFAULT (unixepoch())); CREATE TABLE musician_onboarding_sessions (session_id INTEGER PRIMARY KEY REFERENCES refresh_tokens(id) ON DELETE CASCADE, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, state TEXT NOT NULL CHECK(state IN ('ACTIVE', 'REVOKED')) DEFAULT 'ACTIVE', created_at INTEGER NOT NULL DEFAULT (unixepoch())); INSERT INTO qr_onboarding (id, secret_hash) VALUES (1, 'disabled'); INSERT INTO migrations (id, name) VALUES (3, 'M003');").map_err(|e| ApiError::Internal(e.to_string()))?;
         } else {
-            let qr_columns: i64 = tx.query_row(
-                "SELECT COUNT(*) FROM pragma_table_info('qr_onboarding') WHERE name IN ('id','secret_hash','active','expires_at','max_uses','used_count','generation','updated_at')",
-                [], |row| row.get(0),
-            ).map_err(|e| ApiError::Internal(e.to_string()))?;
-            let session_columns: i64 = tx.query_row(
-                "SELECT COUNT(*) FROM pragma_table_info('musician_onboarding_sessions') WHERE name IN ('session_id','user_id','state','created_at')",
-                [], |row| row.get(0),
-            ).map_err(|e| ApiError::Internal(e.to_string()))?;
-            let seed: i64 = tx
-                .query_row("SELECT COUNT(*) FROM qr_onboarding WHERE id=1", [], |row| {
-                    row.get(0)
-                })
-                .map_err(|e| ApiError::Internal(e.to_string()))?;
-            if qr_columns != 8 || session_columns != 4 || seed != 1 {
-                return Err(ApiError::Internal(
-                    "migration M003 recorded but QR onboarding schema is incomplete".to_owned(),
-                ));
-            }
+            validate_m003_schema(&tx)?;
         }
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
         Ok(())

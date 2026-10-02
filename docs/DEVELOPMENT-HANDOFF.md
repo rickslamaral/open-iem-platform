@@ -1,3 +1,11 @@
+## 2026-10-02 — secure musician QR onboarding status (implementation commit `8fc8cdf`)
+
+- Backend implementation exists in `server/api-server/src/routes/qr.rs`; schema migration `M003` and session lifecycle support exist in `server/api-server/src/db.rs`; router wiring is in `server/api-server/src/main.rs`.
+- Endpoints: `GET /api/v1/admin/qr/status`, `POST /api/v1/admin/qr/activate`, `POST /api/v1/admin/qr/rotate`, `POST /api/v1/admin/qr/deactivate`, public `POST /api/v1/onboarding/qr/exchange`.
+- RBAC: QR management requires `Engineer` minimum; `Admin` inherits; `Musician` cannot manage QR. Exchange issues only `Musician`, creates profile `PENDING`, and creates revocable refresh/access session.
+- Security: hash-only QR secret, 32-byte random secret, 10-minute maximum TTL, single-use atomic consumption, generation rotation, controlled instrument catalog, Unicode/control-character validation, `HttpOnly; Secure; SameSite=Strict` refresh cookie, Origin middleware, non-loopback HTTP guard, and rotation/deactivation revocation of QR sessions plus refresh/access state.
+- Status: Musician frontend QR paste/exchange and cookie-backed session restore are implemented; camera scanning remains `PENDING`; mix preferences/assignment UI remains `PENDING`. Dedicated QR rate limiting and QR audit events remain unimplemented. WebRTC/PipeWire/ALSA/Raspberry Pi 5 and release remain `PENDING/BLOCKED`; evidence remains `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 01:16 -0300 — verificação operacional no HEAD `ec2aab695dd70e9015de60c0d37204716bcfed56`
 
 - `develop` e `origin/develop` permanecem sincronizadas no commit `ec2aab695dd70e9015de60c0d37204716bcfed56`; working tree estava limpa antes desta atualização.
