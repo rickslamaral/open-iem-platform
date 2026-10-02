@@ -1,3 +1,13 @@
+## 2026-10-02 08:01  — operational verification at `becd28e`
+
+- `develop` and `origin/develop` synchronized at `becd28eb8811b3bd830a800797e09d2a25b909a4`; working tree clean before this update.
+- Repository lease: no lease/lock mechanism exists in workspace; branch and remote synchronization validated.
+- Backlog CODE executable remains exhausted. Remaining unchecked items require physical hardware, release confirmation, external secret, or remote runner access; no product task selected.
+- Local gates PASS: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (all reported tests passed).
+- No remote CI SUCCESS exists for current HEAD. Latest real SUCCESS runs `36897066547` and `36897066543` target prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- Open Dependabot PRs #347 and #348 target `main`; Rust/coverage checks fail. Policy leaves them untouched.
+- Static scanner `/root/scan_patterns.py` unavailable; no fabricated result. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, physical PipeWire/ALSA, LAN, Raspberry Pi 5 and release `v0.3.1` remain `PENDING/BLOCKED`. Evidence: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 07:50 -0300 — operational verification at `228b2e0`
 
 - `develop` and `origin/develop` synchronized at `228b2e071efffaf5038e97200d8fb68f79e83e34`; working tree clean.
