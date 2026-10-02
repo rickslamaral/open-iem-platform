@@ -1,3 +1,12 @@
+## 2026-10-01 21:26 -0300 — verificação operacional no HEAD `06a038b27f4c6d4fa23d7b6f2d8a82f69b62d6b6`
+
+- `develop` e `origin/develop` sincronizadas no commit `06a038b27f4c6d4fa23d7b6f2d8a82f69b62d6b6`; working tree limpa antes desta atualização documental.
+- Backlog CODE executável permanece esgotado; nenhuma tarefa CODE segura nova identificada. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
+- `gh run list --branch develop --limit 5` confirma runs SUCCESS `36897066547` (13/13 jobs) e `36897066543` (3/3 jobs), ambos no commit `56a17fc87b004c104e730e36741ba75ad22796b4`, não no HEAD atual.
+- `scripts/validate-docs.sh` e gates locais anteriores permanecem registrados como PASS; scanner `/root/scan_patterns.py` permanece indisponível, sem resultado inventado.
+- PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
+- Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-01 20:47 -0300 — verificação operacional no HEAD `e2e74fb87e212317b9c8bfe4529678742b181064`
 
 - `develop` e `origin/develop` sincronizadas no commit `e2e74fb87e212317b9c8bfe4529678742b181064`; working tree limpa antes desta atualização documental.
@@ -20,7 +29,7 @@
 
 - `develop` e `origin/develop` sincronizadas no commit `35ce318de7c678bf18ea77a7f1f67d84d23aef6c`; working tree limpa antes desta atualização documental.
 - Backlog CODE executável permanece esgotado; nenhuma tarefa CODE segura nova identificada. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
-- `gh run list --branch develop --limit 5` confirma último CI remoto SUCCESS nos runs `36897066547` e `36897066543`, ambos **16/16 SUCCESS** no commit `56a17fc87b004c104e730e36741ba75ad22796b4`, não no HEAD atual.
+- `gh run list --branch develop --limit 5` confirma runs SUCCESS `36897066547` (13/13 jobs) e `36897066543` (3/3 jobs), ambos no commit `56a17fc87b004c104e730e36741ba75ad22796b4`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
