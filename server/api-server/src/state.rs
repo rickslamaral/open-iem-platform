@@ -106,6 +106,8 @@ pub struct AppState {
     pub websocket_connections: crate::quota::WebSocketQuota,
     /// Bounded failed-authentication limiter for WebSocket upgrades.
     pub websocket_auth_failures: crate::quota::WebSocketAuthFailureLimiter,
+    /// Bounded rate limiter for public QR onboarding exchanges.
+    pub qr_exchange_limiter: crate::quota::QrExchangeLimiter,
     /// Observability metrics counters.
     pub metrics: Arc<Metrics>,
     /// Bounded audio device registry.
@@ -172,6 +174,7 @@ impl AppState {
             eq_band_event_tx,
             websocket_connections: crate::quota::WebSocketQuota::default(),
             websocket_auth_failures: crate::quota::WebSocketAuthFailureLimiter::default(),
+            qr_exchange_limiter: crate::quota::QrExchangeLimiter::default(),
             metrics: Arc::new(Metrics::new()),
             devices: Arc::new(Mutex::new(DeviceManager::new())),
             recovery: Arc::new(Mutex::new(RecoveryRegistry::new())),

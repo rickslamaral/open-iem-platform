@@ -16,7 +16,7 @@ use crate::{
     state::AppState,
 };
 use axum::{
-    extract::State,
+    extract::{connect_info::ConnectInfo, State},
     http::{header, StatusCode},
     response::IntoResponse,
     Extension, Json,
@@ -25,7 +25,10 @@ use control_protocol::Role;
 use rand::RngExt;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{
+    net::SocketAddr,
+    time::{Instant, SystemTime, UNIX_EPOCH},
+};
 use uuid::Uuid;
 
 const QR_TTL: u64 = 10 * 60;
@@ -160,8 +163,12 @@ pub async fn deactivate(
 }
 pub async fn exchange(
     State(state): State<AppState>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
     Json(body): Json<Exchange>,
 ) -> Result<impl IntoResponse, ApiError> {
+    if !state.qr_exchange_limiter.allow(peer.ip(), Instant::now()) {
+        return Err(ApiError::TooManyRequests);
+    }
     validate_secret(&body.qr_secret)?;
     validate(&body.display_name, &body.instrument_id)?;
     let raw_refresh = generate_refresh_token();

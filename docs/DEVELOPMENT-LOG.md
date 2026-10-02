@@ -1,3 +1,9 @@
+## 2026-10-02 — bounded QR exchange rate limiting
+
+- Added bounded per-IP limiter for public `POST /api/v1/onboarding/qr/exchange`: 10 attempts per 60 seconds, 4096 tracked IPs, synchronized admission, and oldest-entry eviction.
+- Route obtains peer IP from Axum `ConnectInfo`; denied attempts return `429 Too Many Requests` before input validation or DB work.
+- Tests: limiter block/reset and bounded-table behavior; independent review PASS. Evidence `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 — secure musician QR onboarding backend
 
 - Current working tree contains `server/api-server/src/routes/qr.rs`, router wiring in `server/api-server/src/main.rs`, and `M003` persistence/session schema in `server/api-server/src/db.rs`.
