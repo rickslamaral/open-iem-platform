@@ -1,3 +1,11 @@
+## 2026-10-02 11:46 -0300 — verificação operacional no HEAD ef9b491
+
+- develop e origin/develop sincronizadas no HEAD ef9b491; working tree limpa antes desta atualização. O lease `.git/hermes-dev.lock` existe; execução atual mantém esse lease ativo.
+- Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- PRs Dependabot #347 e #348 continuam abertas contra main, ambas com falhas em Rust Format + Clippy + Tests e Rust Code Coverage; política vigente não altera essas branches.
+- Gates desta atualização: scripts/validate-docs.sh PASS e git diff --check PASS; scanner /root/scan_patterns.py permanece indisponível neste host.
+- CI remoto não tem SUCCESS no HEAD atual; não foi inventada evidência. PHYSICAL: USER-APPROVED / NOT EXECUTED; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release v0.3.1 seguem PENDING/BLOCKED. Evidência CODE/CI/SIMULATED.
+
 ## 2026-10-02 11:31 -0300 — verificação operacional no HEAD `bd02cca`
 
 - `develop` e `origin/develop` sincronizadas no HEAD `bd02cca` (`bd02cca1c681ef89e0794121d2ac9bdbe8879489`); working tree limpa antes desta atualização. Nenhum arquivo de lease/lock foi encontrado na inspeção do workspace.
