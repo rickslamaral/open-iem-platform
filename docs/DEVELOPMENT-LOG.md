@@ -1,3 +1,12 @@
+## 2026-10-02 04:15 -0300 — verificação operacional no HEAD `719f5e0eff02c167e99d64a5af3ece7394504a00`
+
+- `develop` e `origin/develop` estão sincronizadas no HEAD atual; working tree limpa antes desta atualização.
+- Backlog CODE executável permanece esgotado. Nenhuma tarefa de produto segura nova identificada; itens restantes exigem hardware físico, confirmação de release ou secret externo.
+- `scripts/validate-docs.sh` PASS e `git diff --check` PASS.
+- Último CI remoto SUCCESS em `develop`: runs `36897066547` e `36897066543`, ambos no commit anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; nenhum CI SUCCESS foi confirmado no HEAD atual.
+- PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 — bounded QR exchange rate limiting
 
 - Added bounded per-IP limiter for public `POST /api/v1/onboarding/qr/exchange`: 10 attempts per 60 seconds, 4096 tracked IPs, synchronized admission, and oldest-entry eviction.
