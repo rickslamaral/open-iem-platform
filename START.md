@@ -3588,3 +3588,12 @@ Current evidence: 3 dedicated integration tests pass locally. Full suite must re
 ### 147.5 Release and change discipline
 
 Do not move or recreate an existing release tag without explicit confirmation. Verify current tags, remote tags, HEAD, CI and release metadata before publishing. Keep simulation changes and musician-flow tests in separate commits when practical; preserve branch and worktree state until merge status is verified.
+
+## 2026-10-02 08:06 -0300 — operational verification at `f697d67`
+
+- `develop` and `origin/develop` synchronized at `f697d67`; working tree clean before this update.
+- Backlog CODE executable remains exhausted; remaining unchecked items require physical hardware, release confirmation, external secret, or remote runner access. No product task selected.
+- Open Dependabot PRs #347 and #348 target `main`; both remain open and fail Rust/coverage checks. User policy leaves them untouched.
+- Remote CI has no SUCCESS for current HEAD; latest real SUCCESS runs `36897066547` and `36897066543` target prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- `scripts/validate-docs.sh` and `git diff --check` will run before commit. Static scanner `/root/scan_patterns.py` unavailable; no fabricated result.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime WebRTC/DTLS-SRTP, physical PipeWire/ALSA, LAN, Raspberry Pi 5 and release `v0.3.1` remain `PENDING/BLOCKED`. Evidence: `CODE/CI/SIMULATED`.

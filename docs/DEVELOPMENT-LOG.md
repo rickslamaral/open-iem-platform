@@ -8001,3 +8001,12 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - CI remoto SUCCESS mais recente em `develop`: runs `36897066547` e `36897066543`, ambos **16/16 SUCCESS** no commit `56a17fc87b004c104e730e36741ba75ad22796b4`, não no HEAD atual; CI do HEAD atual permanece não confirmado.
 - PR #340 está MERGED. PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-10-02 08:06 -0300 — operational verification at `f697d67`
+
+- `develop` and `origin/develop` synchronized at `f697d67`; working tree clean before this update.
+- Backlog CODE executable remains exhausted; remaining unchecked items require physical hardware, release confirmation, external secret, or remote runner access. No product task selected.
+- Open Dependabot PRs #347 and #348 target `main`; both remain open and fail Rust/coverage checks. User policy leaves them untouched.
+- Remote CI has no SUCCESS for current HEAD; latest real SUCCESS runs `36897066547` and `36897066543` target prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- `scripts/validate-docs.sh` and `git diff --check` will run before commit. Static scanner `/root/scan_patterns.py` unavailable; no fabricated result.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime WebRTC/DTLS-SRTP, physical PipeWire/ALSA, LAN, Raspberry Pi 5 and release `v0.3.1` remain `PENDING/BLOCKED`. Evidence: `CODE/CI/SIMULATED`.
