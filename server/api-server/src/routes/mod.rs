@@ -11,6 +11,7 @@ pub mod metrics;
 pub mod mixes;
 pub mod presets;
 pub mod profile;
+pub mod qr;
 pub mod scenes;
 pub mod system;
 pub mod telemetry;

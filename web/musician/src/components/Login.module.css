@@ -90,3 +90,19 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.secondaryButton {
+  background: transparent;
+  border: 1px solid #7c3aed;
+  border-radius: 8px;
+  color: #c4b5fd;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.camera {
+  border-radius: 8px;
+  max-height: 220px;
+  object-fit: cover;
+  width: 100%;
+}

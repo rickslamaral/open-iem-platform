@@ -4,19 +4,19 @@ import { Login } from './Login';
 
 describe('Login', () => {
   it('renders username and password fields', () => {
-    render(<Login onLogin={vi.fn()} error={null} />);
+    render(<Login onLogin={vi.fn()} onQrExchange={vi.fn()} error={null} />);
     expect(screen.getByLabelText(/username/i)).toBeTruthy();
     expect(screen.getByLabelText(/password/i)).toBeTruthy();
   });
 
   it('renders submit button', () => {
-    render(<Login onLogin={vi.fn()} error={null} />);
+    render(<Login onLogin={vi.fn()} onQrExchange={vi.fn()} error={null} />);
     expect(screen.getByRole('button', { name: /sign in/i })).toBeTruthy();
   });
 
   it('calls onLogin with credentials on submit', async () => {
     const onLogin = vi.fn().mockResolvedValue(undefined);
-    render(<Login onLogin={onLogin} error={null} />);
+    render(<Login onLogin={onLogin} onQrExchange={vi.fn()} error={null} />);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
     fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'secret' } });
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
@@ -24,8 +24,15 @@ describe('Login', () => {
   });
 
   it('displays error message when error prop is set', () => {
-    render(<Login onLogin={vi.fn()} error="Invalid credentials" />);
+    render(<Login onLogin={vi.fn()} onQrExchange={vi.fn()} error="Invalid credentials" />);
     expect(screen.getByRole('alert')).toBeTruthy();
     expect(screen.getByText(/invalid credentials/i)).toBeTruthy();
   });
+  it('offers camera scanning and reports unsupported browser', async () => {
+    render(<Login onLogin={vi.fn()} onQrExchange={vi.fn()} error={null} />);
+    fireEvent.click(screen.getByRole('button', { name: /QR onboarding/i }));
+    fireEvent.click(screen.getByRole('button', { name: /scan with camera/i }));
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent(/not supported/i));
+  });
+
 });

@@ -3,7 +3,7 @@ import { Login } from './components/Login';
 import { MixControl } from './components/MixControl';
 import { ConnectionStatus } from './components/ConnectionStatus';
 import { useWebSocket } from './hooks/useWebSocket';
-import { login as apiLogin, logout as apiLogout } from './api/auth';
+import { exchangeQr, login as apiLogin, logout as apiLogout, refresh as apiRefresh } from './api/auth';
 import styles from './App.module.css';
 import { fetchChannelMetadata } from './api/channels';
 import { fetchActiveSceneId, fetchScenes } from './api/scenes';
@@ -29,6 +29,7 @@ export default function App() {
   // Token de acesso armazenado apenas em estado React — nunca em localStorage
   const [token, setToken] = useState<string | null>(null);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [restoring, setRestoring] = useState(true);
   const [channels, setChannels] = useState<ChannelState[]>(defaultChannels);
   // masterGainDb é read-only para músico — derivado do snapshot, não de estado local
 
@@ -68,14 +69,22 @@ export default function App() {
     // master_gain_db derivado diretamente de ws.snapshot — sem estado local
   }, [ws.snapshot]);
 
+  useEffect(() => {
+    let active = true;
+    void apiRefresh().then((res) => { if (active) setToken(res.access_token); }).catch(() => undefined).finally(() => { if (active) setRestoring(false); });
+    return () => { active = false; };
+  }, []);
+
   const handleLogin = useCallback(async (username: string, password: string) => {
     setLoginError(null);
-    try {
-      const res = await apiLogin({ username, password });
-      setToken(res.access_token);
-    } catch (err) {
-      setLoginError(err instanceof Error ? err.message : 'Login failed');
-    }
+    try { setToken((await apiLogin({ username, password })).access_token); }
+    catch (err) { setLoginError(err instanceof Error ? err.message : 'Login failed'); }
+  }, []);
+
+  const handleQrExchange = useCallback(async (qrSecret: string, displayName: string, instrumentId: string) => {
+    setLoginError(null);
+    try { setToken((await exchangeQr({ qr_secret: qrSecret, display_name: displayName, instrument_id: instrumentId })).access_token); }
+    catch (err) { setLoginError(err instanceof Error ? err.message : 'QR onboarding failed'); }
   }, []);
 
   useEffect(() => {
@@ -140,6 +149,7 @@ export default function App() {
     ++scenesRequestRef.current;
     ++presetsRequestRef.current;
     ws.disconnect();
+    const currentToken = token;
     setToken(null);
     setChannels(defaultChannels());
     setPanByChannel(defaultPan());
@@ -149,8 +159,8 @@ export default function App() {
     setPresets([]);
     setPresetsLoading(false);
     setPresetsError(null);
-    await apiLogout().catch(() => undefined);
-  }, [ws]);
+    if (currentToken) await apiLogout(currentToken).catch(() => undefined);
+  }, [token, ws]);
 
   const handleChannelGain = useCallback(
     (ch: number, gainDb: number) => {
@@ -186,8 +196,9 @@ export default function App() {
     [ws],
   );
 
+  if (restoring) return <div role="status">Restoring session…</div>;
   if (!token) {
-    return <Login onLogin={handleLogin} error={loginError} />;
+    return <Login onLogin={handleLogin} onQrExchange={handleQrExchange} error={loginError} />;
   }
 
   return (

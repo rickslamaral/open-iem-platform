@@ -17,6 +17,7 @@ use crate::error::ApiError;
 use control_protocol::Role;
 use rusqlite::{params, Connection, OptionalExtension};
 use std::sync::{Arc, Mutex};
+use uuid::Uuid;
 
 /// Thread-safe SQLite connection wrapper.
 #[derive(Clone, Debug)]
@@ -28,6 +29,171 @@ pub struct Db {
 pub type MusicianProfileRow = (i64, i64, String, String, String, i64, i64);
 /// Stored musician profile fields plus owning username.
 pub type MusicianProfileListRow = (i64, i64, String, String, String, i64, i64, String);
+
+const QR_AUDIT_ACTIONS: &[&str] = &["ACTIVATE", "ROTATE", "DEACTIVATE", "EXCHANGE"];
+
+#[allow(clippy::too_many_lines, clippy::type_complexity)]
+fn validate_m003_schema(tx: &rusqlite::Transaction<'_>) -> Result<(), ApiError> {
+    let table_sql = |name: &str| -> Result<String, ApiError> {
+        tx.query_row(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?1",
+            [name],
+            |row| row.get(0),
+        )
+        .map_err(|_| {
+            ApiError::Internal(
+                "migration M003 recorded but QR onboarding schema is incomplete".to_owned(),
+            )
+        })
+    };
+    let columns =
+        |name: &str| -> Result<Vec<(String, String, i64, Option<String>, i64)>, ApiError> {
+            tx.prepare(&format!("SELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('{name}') ORDER BY cid"))
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| {
+                    let default: Option<String> = row.get(3)?;
+                    let default = default.map(|value| {
+                        let mut value = value;
+                        while value.starts_with('(') && value.ends_with(')') {
+                            value = value[1..value.len() - 1].to_owned();
+                        }
+                        value
+                    });
+                    Ok((row.get(0)?, row.get(1)?, row.get(2)?, default, row.get(4)?))
+                })
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect()
+        };
+    let foreign_keys = |name: &str| -> Result<Vec<(String, String, String, String)>, ApiError> {
+        tx.prepare(&format!("SELECT \"table\", \"from\", \"to\", on_delete FROM pragma_foreign_key_list('{name}') ORDER BY id, seq"))
+            .map_err(|e| ApiError::Internal(e.to_string()))?
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
+            .map_err(|e| ApiError::Internal(e.to_string()))?
+            .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+            .collect()
+    };
+    let qr_expected = vec![
+        ("id".to_owned(), "INTEGER".to_owned(), 0, None, 1),
+        ("secret_hash".to_owned(), "TEXT".to_owned(), 1, None, 0),
+        (
+            "active".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("0".to_owned()),
+            0,
+        ),
+        (
+            "expires_at".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("0".to_owned()),
+            0,
+        ),
+        (
+            "max_uses".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("1".to_owned()),
+            0,
+        ),
+        (
+            "used_count".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("0".to_owned()),
+            0,
+        ),
+        (
+            "generation".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("1".to_owned()),
+            0,
+        ),
+        (
+            "updated_at".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("unixepoch()".to_owned()),
+            0,
+        ),
+    ];
+    let session_expected = vec![
+        ("session_id".to_owned(), "INTEGER".to_owned(), 0, None, 1),
+        ("user_id".to_owned(), "INTEGER".to_owned(), 1, None, 0),
+        (
+            "state".to_owned(),
+            "TEXT".to_owned(),
+            1,
+            Some("'ACTIVE'".to_owned()),
+            0,
+        ),
+        (
+            "created_at".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("unixepoch()".to_owned()),
+            0,
+        ),
+    ];
+    let normalize = |sql: String| {
+        sql.to_ascii_uppercase()
+            .chars()
+            .filter(|c| !c.is_ascii_whitespace())
+            .collect::<String>()
+    };
+    let qr_sql = normalize(table_sql("qr_onboarding")?);
+    let session_sql = normalize(table_sql("musician_onboarding_sessions")?);
+    let mut session_foreign_keys = foreign_keys("musician_onboarding_sessions")?;
+    session_foreign_keys.sort();
+    let mut expected_foreign_keys = vec![
+        (
+            "refresh_tokens".to_owned(),
+            "session_id".to_owned(),
+            "id".to_owned(),
+            "CASCADE".to_owned(),
+        ),
+        (
+            "users".to_owned(),
+            "user_id".to_owned(),
+            "id".to_owned(),
+            "CASCADE".to_owned(),
+        ),
+    ];
+    expected_foreign_keys.sort();
+    let valid = columns("qr_onboarding")? == qr_expected
+        && columns("musician_onboarding_sessions")? == session_expected
+        && foreign_keys("qr_onboarding")?.is_empty()
+        && session_foreign_keys == expected_foreign_keys
+        && qr_sql.contains("IDINTEGERPRIMARYKEYCHECK(ID=1)")
+        && qr_sql.contains("SECRET_HASHTEXTNOTNULL")
+        && qr_sql.contains("ACTIVEINTEGERNOTNULLDEFAULT0")
+        && qr_sql.contains("EXPIRES_ATINTEGERNOTNULLDEFAULT0")
+        && qr_sql.contains("MAX_USESINTEGERNOTNULLDEFAULT1")
+        && qr_sql.contains("USED_COUNTINTEGERNOTNULLDEFAULT0")
+        && qr_sql.contains("GENERATIONINTEGERNOTNULLDEFAULT1")
+        && qr_sql.contains("UPDATED_ATINTEGERNOTNULLDEFAULT(UNIXEPOCH())")
+        && session_sql
+            .contains("SESSION_IDINTEGERPRIMARYKEYREFERENCESREFRESH_TOKENS(ID)ONDELETECASCADE")
+        && session_sql.contains("USER_IDINTEGERNOTNULLREFERENCESUSERS(ID)ONDELETECASCADE")
+        && session_sql
+            .contains("STATETEXTNOTNULLCHECK(STATEIN('ACTIVE','REVOKED'))DEFAULT'ACTIVE'")
+        && session_sql.contains("CREATED_ATINTEGERNOTNULLDEFAULT(UNIXEPOCH())");
+    let seed: i64 = tx
+        .query_row(
+            "SELECT COUNT(*) FROM qr_onboarding WHERE id = 1",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+    if !valid || seed != 1 {
+        return Err(ApiError::Internal(
+            "migration M003 recorded but QR onboarding schema is incomplete".to_owned(),
+        ));
+    }
+    Ok(())
+}
 
 impl Db {
     /// Open (or create) the SQLite database at `path`.
@@ -272,7 +438,57 @@ impl Db {
             }
         }
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
-
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let applied: Option<i64> = tx
+            .query_row("SELECT id FROM migrations WHERE name = 'M003'", [], |row| {
+                row.get(0)
+            })
+            .optional()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if applied.is_none() {
+            tx.execute_batch("CREATE TABLE qr_onboarding (id INTEGER PRIMARY KEY CHECK(id = 1), secret_hash TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 0, expires_at INTEGER NOT NULL DEFAULT 0, max_uses INTEGER NOT NULL DEFAULT 1, used_count INTEGER NOT NULL DEFAULT 0, generation INTEGER NOT NULL DEFAULT 1, updated_at INTEGER NOT NULL DEFAULT (unixepoch())); CREATE TABLE musician_onboarding_sessions (session_id INTEGER PRIMARY KEY REFERENCES refresh_tokens(id) ON DELETE CASCADE, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, state TEXT NOT NULL CHECK(state IN ('ACTIVE', 'REVOKED')) DEFAULT 'ACTIVE', created_at INTEGER NOT NULL DEFAULT (unixepoch())); INSERT INTO qr_onboarding (id, secret_hash) VALUES (1, 'disabled'); INSERT INTO migrations (id, name) VALUES (3, 'M003');").map_err(|e| ApiError::Internal(e.to_string()))?;
+        } else {
+            validate_m003_schema(&tx)?;
+        }
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let applied: Option<i64> = tx
+            .query_row("SELECT id FROM migrations WHERE name = 'M004'", [], |row| {
+                row.get(0)
+            })
+            .optional()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if applied.is_none() {
+            tx.execute_batch("CREATE TABLE qr_audit_events (id INTEGER PRIMARY KEY AUTOINCREMENT, actor_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, action TEXT NOT NULL CHECK(action IN ('ACTIVATE', 'ROTATE', 'DEACTIVATE', 'EXCHANGE')), generation INTEGER NOT NULL, accepted INTEGER NOT NULL CHECK(accepted IN (0, 1)), created_at INTEGER NOT NULL DEFAULT (unixepoch())); CREATE INDEX qr_audit_events_created_idx ON qr_audit_events(created_at); INSERT INTO migrations (id, name) VALUES (4, 'M004');")
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+        } else {
+            let columns: Vec<String> = tx
+                .prepare("SELECT name FROM pragma_table_info('qr_audit_events') ORDER BY cid")
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| row.get(0))
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect::<Result<_, _>>()?;
+            if columns
+                != [
+                    "id",
+                    "actor_user_id",
+                    "action",
+                    "generation",
+                    "accepted",
+                    "created_at",
+                ]
+            {
+                return Err(ApiError::Internal(
+                    "migration M004 recorded but QR audit schema is incomplete".to_owned(),
+                ));
+            }
+        }
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
         Ok(())
     }
 
@@ -574,7 +790,7 @@ impl Db {
             .conn
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
-        conn.query_row("SELECT EXISTS(SELECT 1 FROM access_sessions a JOIN refresh_tokens r ON r.id = a.session_id JOIN users u ON u.id = a.user_id WHERE a.jti = ?1 AND a.user_id = ?2 AND a.session_id = ?3 AND a.revoked = 0 AND a.expires_at > ?4 AND r.revoked = 0 AND r.expires_at > ?4)", params![jti, user_id, session_id, now_unix.cast_signed()], |row| row.get(0)).map_err(|e| ApiError::Internal(e.to_string()))
+        conn.query_row("SELECT EXISTS(SELECT 1 FROM access_sessions a JOIN refresh_tokens r ON r.id = a.session_id JOIN users u ON u.id = a.user_id LEFT JOIN musician_onboarding_sessions m ON m.session_id = r.id WHERE a.jti = ?1 AND a.user_id = ?2 AND a.session_id = ?3 AND a.revoked = 0 AND a.expires_at > ?4 AND r.revoked = 0 AND r.expires_at > ?4 AND (m.state IS NULL OR m.state = 'ACTIVE'))", params![jti, user_id, session_id, now_unix.cast_signed()], |row| row.get(0)).map_err(|e| ApiError::Internal(e.to_string()))
     }
 
     /// Revoke access mappings associated with refresh sessions.
@@ -770,14 +986,263 @@ impl Db {
             )
             .map_err(|e| ApiError::Internal(e.to_string()))?;
         }
+        tx.execute(
+            "INSERT INTO musician_onboarding_sessions(session_id, user_id, state) SELECT ?1, ?2, 'ACTIVE' WHERE EXISTS (SELECT 1 FROM musician_onboarding_sessions WHERE session_id = ?3)",
+            params![new_session_id, user_id, tok_id],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
         Ok((user_id, family, new_session_id))
     }
 
-    /// Find a user by numeric ID. Returns `(username, role)`.
+    /// Return QR onboarding status.
+    pub fn qr_status(&self, now: u64) -> Result<(bool, u64, u64, u64), ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.query_row("SELECT active, expires_at, CASE WHEN active=1 AND expires_at > ?1 AND max_uses > used_count THEN max_uses - used_count ELSE 0 END, generation FROM qr_onboarding WHERE id=1", params![now as i64], |r| Ok((r.get::<_, i64>(0)? != 0 && r.get::<_, i64>(1)? > now as i64, r.get::<_, i64>(1)?.max(0) as u64, r.get::<_, i64>(2)?.max(0) as u64, r.get::<_, i64>(3)?.max(0) as u64))).map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Configure QR onboarding activation or rotation.
+    pub fn configure_qr(
+        &self,
+        hash: Option<&str>,
+        expires: u64,
+        active: bool,
+    ) -> Result<(), ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("UPDATE qr_onboarding SET secret_hash=COALESCE(?1,secret_hash), expires_at=?2, active=?3, used_count=CASE WHEN ?1 IS NULL THEN used_count ELSE 0 END, generation=generation+CASE WHEN ?1 IS NULL THEN 0 ELSE 1 END WHERE id=1", params![hash, expires as i64, i64::from(active)])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if tx.changes() != 1 {
+            return Err(ApiError::Internal(
+                "QR onboarding singleton row missing".to_owned(),
+            ));
+        }
+        // QR-created sessions are bounded by current QR generation. Rotation
+        // and deactivation revoke both refresh and access state atomically.
+        if hash.is_some() || !active {
+            tx.execute(
+                "UPDATE musician_onboarding_sessions SET state = 'REVOKED'",
+                [],
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+            tx.execute("UPDATE refresh_tokens SET revoked = 1 WHERE id IN (SELECT session_id FROM musician_onboarding_sessions)", [])
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+            tx.execute("UPDATE access_sessions SET revoked = 1 WHERE session_id IN (SELECT session_id FROM musician_onboarding_sessions)", [])
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+        }
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok(())
+    }
+
+    /// Deactivate QR, revoke QR sessions, and audit atomically.
+    pub fn deactivate_qr_audited(&self, actor_user_id: i64) -> Result<(), ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE qr_onboarding SET expires_at=0, active=0 WHERE id=1",
+            [],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let generation: i64 = tx
+            .query_row(
+                "SELECT generation FROM qr_onboarding WHERE id=1",
+                [],
+                |row| row.get(0),
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE musician_onboarding_sessions SET state = 'REVOKED'",
+            [],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("UPDATE refresh_tokens SET revoked = 1 WHERE id IN (SELECT session_id FROM musician_onboarding_sessions)", [])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("UPDATE access_sessions SET revoked = 1 WHERE session_id IN (SELECT session_id FROM musician_onboarding_sessions)", [])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("INSERT INTO qr_audit_events(actor_user_id, action, generation, accepted) VALUES(?1, 'DEACTIVATE', ?2, 1)", params![actor_user_id, generation])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Record QR lifecycle activity without storing secrets or submitted profile data.
+    pub fn record_qr_audit(
+        &self,
+        actor_user_id: Option<i64>,
+        action: &str,
+        generation: u64,
+        accepted: bool,
+    ) -> Result<(), ApiError> {
+        if !QR_AUDIT_ACTIONS.contains(&action) {
+            return Err(ApiError::Internal("invalid QR audit action".to_owned()));
+        }
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute(
+            "INSERT INTO qr_audit_events(actor_user_id, action, generation, accepted) VALUES(?1, ?2, ?3, ?4)",
+            params![actor_user_id, action, generation as i64, i64::from(accepted)],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok(())
+    }
+
+    /// Configure QR state and append lifecycle audit in one transaction.
+    pub fn configure_qr_audited(
+        &self,
+        hash: &str,
+        expires: u64,
+        actor_user_id: i64,
+        action: &str,
+    ) -> Result<(), ApiError> {
+        if !QR_AUDIT_ACTIONS.contains(&action) || action == "EXCHANGE" {
+            return Err(ApiError::Internal(
+                "invalid QR configuration audit action".to_owned(),
+            ));
+        }
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE qr_onboarding SET secret_hash=?1, expires_at=?2, active=1, used_count=0, generation=generation+1 WHERE id=1",
+            params![hash, expires as i64],
+        ).map_err(|e| ApiError::Internal(e.to_string()))?;
+        let generation: i64 = tx
+            .query_row(
+                "SELECT generation FROM qr_onboarding WHERE id=1",
+                [],
+                |row| row.get(0),
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE musician_onboarding_sessions SET state = 'REVOKED'",
+            [],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("UPDATE refresh_tokens SET revoked = 1 WHERE id IN (SELECT session_id FROM musician_onboarding_sessions)", [])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("UPDATE access_sessions SET revoked = 1 WHERE session_id IN (SELECT session_id FROM musician_onboarding_sessions)", [])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "INSERT INTO qr_audit_events(actor_user_id, action, generation, accepted) VALUES(?1, ?2, ?3, 1)",
+            params![actor_user_id, action, generation],
+        ).map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Atomically consume QR invitation and create musician session.
+    #[allow(clippy::too_many_arguments)]
+    pub fn exchange_qr(
+        &self,
+        hash: &str,
+        name: &str,
+        instrument: &str,
+        now: u64,
+        refresh: &str,
+        refresh_exp: u64,
+        family: &str,
+        jti: &str,
+        access_exp: u64,
+    ) -> Result<(i64, i64, String), ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("UPDATE qr_onboarding SET used_count=used_count+1 WHERE id=1 AND active=1 AND secret_hash=?1 AND expires_at>?2 AND used_count<max_uses", params![hash, now as i64]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        if tx.changes() != 1 {
+            return Err(ApiError::Unauthorized("invalid or expired QR invitation"));
+        }
+        let username = format!("musician-{}", Uuid::new_v4());
+        tx.execute("INSERT INTO users(username,pw_hash,role,must_change_password) VALUES(?1,'!', 'MUSICIAN',0)", params![username]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        let uid = tx.last_insert_rowid();
+        tx.execute("INSERT INTO musician_profiles(user_id,display_name,instrument_id,status) VALUES(?1,?2,?3,'PENDING')", params![uid,name,instrument]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "INSERT INTO refresh_tokens(user_id,token_hash,expires_at,family) VALUES(?1,?2,?3,?4)",
+            params![uid, refresh, refresh_exp as i64, family],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let sid = tx.last_insert_rowid();
+        tx.execute(
+            "INSERT INTO access_sessions(jti,user_id,session_id,expires_at) VALUES(?1,?2,?3,?4)",
+            params![jti, uid, sid, access_exp as i64],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "INSERT INTO musician_onboarding_sessions(session_id,user_id) VALUES(?1,?2)",
+            params![sid, uid],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok((uid, sid, username))
+    }
+
+    /// Remove QR exchange rows when access-token signing fails.
     ///
-    /// # Errors
-    /// Returns `ApiError::Unauthorized` if user not found.
+    /// Consumed capacity stays consumed to prevent concurrent over-issuance.
+    pub fn cleanup_qr_exchange(
+        &self,
+        refresh_hash: &str,
+        jti: &str,
+        user_id: i64,
+        session_id: i64,
+    ) -> Result<(), ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let deleted_refresh = tx
+            .execute(
+                "DELETE FROM refresh_tokens WHERE id = ?1 AND token_hash = ?2 AND user_id = ?3",
+                params![session_id, refresh_hash, user_id],
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if deleted_refresh != 1 {
+            return Ok(());
+        }
+        tx.execute(
+            "DELETE FROM access_sessions WHERE jti = ?1 AND user_id = ?2 AND session_id = ?3",
+            params![jti, user_id, session_id],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "DELETE FROM musician_onboarding_sessions WHERE session_id = ?1 AND user_id = ?2",
+            params![session_id, user_id],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "DELETE FROM musician_profiles WHERE user_id = ?1",
+            params![user_id],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("DELETE FROM users WHERE id = ?1", params![user_id])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Find user username and role by ID.
     pub fn find_user_by_id(&self, user_id: i64) -> Result<(String, Role), ApiError> {
         let conn = self
             .conn
@@ -1344,7 +1809,15 @@ mod tests {
             .unwrap()
             .map(Result::unwrap)
             .collect();
-        assert_eq!(rows, vec![(1, "M001".to_owned()), (2, "M002".to_owned())]);
+        assert_eq!(
+            rows,
+            vec![
+                (1, "M001".to_owned()),
+                (2, "M002".to_owned()),
+                (3, "M003".to_owned()),
+                (4, "M004".to_owned())
+            ]
+        );
     }
 
     #[test]

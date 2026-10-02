@@ -21,6 +21,72 @@ pub const WEBSOCKET_AUTH_FAILURE_WINDOW: Duration = Duration::from_secs(60);
 /// Maximum number of peer IP entries retained by authentication limiter.
 pub const MAX_WEBSOCKET_AUTH_FAILURE_IPS: usize = 4096;
 
+/// Maximum QR exchange attempts per peer IP in one window.
+pub const MAX_QR_EXCHANGE_ATTEMPTS_PER_IP: u32 = 10;
+/// Duration over which QR exchange attempts are counted.
+pub const QR_EXCHANGE_WINDOW: Duration = Duration::from_secs(60);
+/// Maximum peer IP entries retained by QR exchange limiter.
+pub const MAX_QR_EXCHANGE_IPS: usize = 4096;
+
+#[derive(Debug)]
+struct QrExchangeEntry {
+    attempts: u32,
+    window_start: Instant,
+    last_seen: Instant,
+}
+
+/// Bounded in-memory limiter for public QR exchange attempts.
+#[derive(Clone, Debug, Default)]
+pub struct QrExchangeLimiter {
+    state: Arc<Mutex<HashMap<IpAddr, QrExchangeEntry>>>,
+}
+
+impl QrExchangeLimiter {
+    /// Atomically admit one QR exchange attempt, or reject at the threshold.
+    ///
+    /// # Panics
+    /// Panics if limiter mutex was poisoned by a prior panic.
+    #[must_use]
+    pub fn allow(&self, ip: IpAddr, now: Instant) -> bool {
+        let mut state = self
+            .state
+            .lock()
+            .expect("QR exchange limiter lock poisoned");
+        if let Some(entry) = state.get_mut(&ip) {
+            if now.duration_since(entry.window_start) >= QR_EXCHANGE_WINDOW {
+                entry.attempts = 0;
+                entry.window_start = now;
+            }
+            if entry.attempts >= MAX_QR_EXCHANGE_ATTEMPTS_PER_IP {
+                entry.last_seen = now;
+                return false;
+            }
+            entry.attempts += 1;
+            entry.last_seen = now;
+            return true;
+        }
+        if state.len() >= MAX_QR_EXCHANGE_IPS {
+            let Some(oldest) = state
+                .iter()
+                .min_by_key(|(address, entry)| (entry.last_seen, **address))
+                .map(|(address, _)| *address)
+            else {
+                return false;
+            };
+            state.remove(&oldest);
+        }
+        state.insert(
+            ip,
+            QrExchangeEntry {
+                attempts: 1,
+                window_start: now,
+                last_seen: now,
+            },
+        );
+        true
+    }
+}
+
 #[derive(Debug, Default)]
 struct FailedAuthEntry {
     failures: u32,
@@ -241,6 +307,33 @@ mod tests {
 
     fn ip() -> IpAddr {
         IpAddr::V4(Ipv4Addr::new(192, 0, 2, 1))
+    }
+
+    #[test]
+    fn qr_exchange_limiter_blocks_and_resets() {
+        let limiter = QrExchangeLimiter::default();
+        let start = Instant::now();
+        for _ in 0..MAX_QR_EXCHANGE_ATTEMPTS_PER_IP {
+            assert!(limiter.allow(ip(), start));
+        }
+        assert!(!limiter.allow(ip(), start));
+        assert!(limiter.allow(ip(), start + QR_EXCHANGE_WINDOW));
+    }
+
+    #[test]
+    fn qr_exchange_limiter_bounds_ip_table() {
+        let limiter = QrExchangeLimiter::default();
+        let start = Instant::now();
+        for value in 0..MAX_QR_EXCHANGE_IPS {
+            assert!(limiter.allow(
+                IpAddr::V4(Ipv4Addr::new(198, 51, (value / 256) as u8, value as u8)),
+                start + Duration::from_secs(value as u64),
+            ));
+        }
+        assert!(limiter.allow(
+            IpAddr::V4(Ipv4Addr::new(203, 0, 113, 1)),
+            start + Duration::from_secs(10_000)
+        ));
     }
 
     #[test]

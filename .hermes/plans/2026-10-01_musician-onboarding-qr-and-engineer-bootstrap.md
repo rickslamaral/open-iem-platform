@@ -106,7 +106,7 @@ npm run build
 
 **Files:**
 - Modify: `server/api-server/src/db.rs`
-- Create/modify: `server/api-server/src/routes/onboarding.rs`
+- Create/modify: `server/api-server/src/routes/qr.rs`
 - Modify: router/middleware/rate-limit modules
 - Tests: API integration and concurrency
 
