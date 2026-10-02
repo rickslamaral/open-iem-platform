@@ -1,3 +1,12 @@
+## 2026-10-02 20:17 -0300 — verificação operacional no HEAD `97857d9`
+
+- `develop` e `origin/develop` sincronizadas no HEAD `97857d9b044c1e4323eaf3fad790629f062f7703`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente, vazio, modo 0644; exclusividade validada nesta execução com `flock -n`.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- Limpeza após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; nenhuma PR aberta contra `main` foi listada nesta execução.
+- Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`; Rust executou 874 testes, 0 falhas. Musician: typecheck, 67 testes e build PASS. Engineer: typecheck, 59 testes e build PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. CI remoto não tem SUCCESS para este HEAD; últimos SUCCESS reais (`36897066547`, `36897066543`) cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4` e não contam.
+- Validação física não executada: WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-02 19:32 -0300 — verificação operacional no HEAD `2e23d8d`
 
 - `develop` e `origin/develop` sincronizadas no HEAD `2e23d8dee02783e8c89f85ddd475bb5565955c97`; working tree limpa antes desta atualização.
