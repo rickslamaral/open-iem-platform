@@ -1,3 +1,12 @@
+## 2026-10-02 09:51 -0300 — operational verification at `cb5f294`
+
+- `develop` and `origin/develop` synchronized at current HEAD; working tree clean before this documentation update. Repository lease: no lease/lock mechanism exists.
+- Backlog CODE executable remains exhausted. Remaining unchecked items require physical hardware, release confirmation, external secret, or remote runner access; no product task selected.
+- Local checks PASS: `scripts/validate-docs.sh`; `git diff --check`.
+- No remote CI SUCCESS covers current HEAD; latest real SUCCESS runs `36897066547` and `36897066543` cover prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- Open Dependabot PRs #347 and #348 target `main`; Rust/coverage checks fail. User policy leaves them untouched.
+- Static scanner `/root/scan_patterns.py` unavailable; no fabricated result. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, physical PipeWire/ALSA, LAN, Raspberry Pi 5 and release `v0.3.1` remain `PENDING/BLOCKED`. Evidence: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 09:43 -0300 — operational verification at `4114e5e`
 
 - `develop` and `origin/develop` synchronized at `4114e5eb38fdc33a3c57e87cfb42d33d5f499108`; working tree clean before this documentation update. Repository lease: no lease/lock mechanism exists.
@@ -4402,7 +4411,7 @@ CI remoto falha antes dos steps por runner/permissões. Raspberry Pi 5, PipeWire
 
 ### Implementado
 
-- Validador rejeita separador `\\` e caracteres de controle em nomes de archive antes da validação estrutural.
+- Validador rejeita separador `\` e caracteres de controle em nomes de archive antes da validação estrutural.
 - Testes offline cobrem separador Windows e newline; mensagens de nomes de controle usam representação segura.
 - README, CHANGELOG, TODO e review da Phase 67 atualizados.
 
