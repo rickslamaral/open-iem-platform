@@ -1,3 +1,12 @@
+## 2026-10-02 11:31 -0300 — verificação operacional no HEAD `bd02cca`
+
+- `develop` e `origin/develop` sincronizadas no HEAD `bd02cca` (`bd02cca1c681ef89e0794121d2ac9bdbe8879489`); working tree limpa antes desta atualização. Nenhum arquivo de lease/lock foi encontrado na inspeção do workspace.
+- Limpeza observada: referências remotas listadas não incluem branches órfãs além de `origin/HEAD`; nenhum branch local adicional aparece mergeado em `main`; PRs Dependabot #347 e #348 continuam abertas contra `main`, com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
+- Backlog consultado: itens `[ ]` restantes estão documentados como dependentes de hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa CODE executável foi selecionada neste ciclo.
+- Gates desta atualização: `scripts/validate-docs.sh` PASS (`documentation validation passed (version 0.3.1)`), `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS reais `36897066547` e `36897066543` cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 11:26 -0300 — verificação operacional no HEAD `0660889`
 
 - `develop` e `origin/develop` sincronizadas no HEAD `0660889`; working tree limpa antes desta atualização. Lease do repositório: nenhum mecanismo de lock existe.
