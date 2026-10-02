@@ -1,3 +1,12 @@
+## 2026-10-02 10:40 -0300 — operational verification at `25de394`
+
+- `develop` e `origin/develop` sincronizadas no commit `25de394`; working tree limpa antes desta atualização. Lease do repositório: nenhum mecanismo de lock existe.
+- Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi identificada.
+- Limpeza validada: branches remotas órfãs inexistentes; nenhum branch local mergeado pendente. PRs Dependabot #347 e #348 continuam abertas contra `main`, com falhas Rust/coverage; política vigente não altera essas branches.
+- `scripts/validate-docs.sh` e `git diff --check` foram executados como gates desta atualização documental. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS reais `36897066547` e `36897066543` cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 10:36 -0300 — operational verification at `045833d`
 
 - `develop` e `origin/develop` sincronizadas no commit `045833d9be8659387fee006e57020773ae04385d`; working tree limpa antes desta atualização. Lease do repositório: nenhum mecanismo de lock existe.
