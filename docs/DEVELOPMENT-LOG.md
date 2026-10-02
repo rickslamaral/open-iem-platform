@@ -1,3 +1,12 @@
+## 2026-10-02 07:30 -0300 — operational verification at `c8d35bc`
+
+- `develop` and `origin/develop` synchronized at `c8d35bcf457226e4f2e69aaa12d9761468c4e3d3`; working tree clean before this update.
+- Backlog CODE executable remains exhausted; unchecked items require physical hardware, release confirmation, external secret, or remote runner access. No product task selected.
+- Repository lease: no lease/lock mechanism exists in workspace; branch and remote synchronization validated before work.
+- Open Dependabot PRs #347 and #348 target `main`; both fail Rust/coverage checks. Policy leaves them untouched.
+- `gh run list --branch develop --limit 5` shows no CI SUCCESS for current HEAD; latest real SUCCESS runs `36897066547` and `36897066543` target prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- Static scanner `/root/scan_patterns.py` unavailable; no fabricated result. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime WebRTC/DTLS-SRTP, physical PipeWire/ALSA, LAN, Raspberry Pi 5 and release `v0.3.1` remain `PENDING/BLOCKED`. Evidence: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 07:15 -0300 — operational verification at `35b3bbf`
 
 - `develop` and `origin/develop` synchronized at `35b3bbfe22c5b4bac84315f9ce15b2ea995c57b5`; working tree clean before this update.
