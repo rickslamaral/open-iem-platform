@@ -128,7 +128,13 @@ pub async fn activate(
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
     let secret = qr_secret();
-    let expires = now() + body.expires_in_seconds.unwrap_or(QR_TTL).min(QR_TTL);
+    let lifetime = body.expires_in_seconds.unwrap_or(QR_TTL).min(QR_TTL);
+    if lifetime == 0 {
+        return Err(ApiError::BadRequest(
+            "expires_in_seconds must be greater than zero".to_owned(),
+        ));
+    }
+    let expires = now() + lifetime;
     state
         .db
         .configure_qr(Some(&unix_hash(&secret)), expires, true)?;
@@ -161,7 +167,7 @@ pub async fn exchange(
     let raw_refresh = generate_refresh_token();
     let jti = Uuid::new_v4().to_string();
     let now = now();
-    let (user_id, session_id, username, generation) = state.db.exchange_qr(
+    let (user_id, session_id, username) = state.db.exchange_qr(
         &unix_hash(&body.qr_secret),
         &body.display_name,
         &body.instrument_id,
@@ -186,7 +192,7 @@ pub async fn exchange(
                     &token_to_storage_key(&raw_refresh),
                     &jti,
                     user_id,
-                    generation,
+                    session_id,
                 )?;
                 return Err(error);
             }

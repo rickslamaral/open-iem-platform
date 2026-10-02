@@ -817,7 +817,7 @@ impl Db {
             .conn
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
-        conn.query_row("SELECT active, expires_at, CASE WHEN max_uses > used_count THEN max_uses - used_count ELSE 0 END, generation FROM qr_onboarding WHERE id=1", [], |r| Ok((r.get::<_, i64>(0)? != 0 && r.get::<_, i64>(1)? > now as i64, r.get::<_, i64>(1)?.max(0) as u64, r.get::<_, i64>(2)?.max(0) as u64, r.get::<_, i64>(3)?.max(0) as u64))).map_err(|e| ApiError::Internal(e.to_string()))
+        conn.query_row("SELECT active, expires_at, CASE WHEN active=1 AND expires_at > ?1 AND max_uses > used_count THEN max_uses - used_count ELSE 0 END, generation FROM qr_onboarding WHERE id=1", params![now as i64], |r| Ok((r.get::<_, i64>(0)? != 0 && r.get::<_, i64>(1)? > now as i64, r.get::<_, i64>(1)?.max(0) as u64, r.get::<_, i64>(2)?.max(0) as u64, r.get::<_, i64>(3)?.max(0) as u64))).map_err(|e| ApiError::Internal(e.to_string()))
     }
 
     /// Configure QR onboarding activation or rotation.
@@ -871,7 +871,7 @@ impl Db {
         family: &str,
         jti: &str,
         access_exp: u64,
-    ) -> Result<(i64, i64, String, u64), ApiError> {
+    ) -> Result<(i64, i64, String), ApiError> {
         let mut conn = self
             .conn
             .lock()
@@ -883,13 +883,6 @@ impl Db {
         if tx.changes() != 1 {
             return Err(ApiError::Unauthorized("invalid or expired QR invitation"));
         }
-        let generation: u64 = tx
-            .query_row(
-                "SELECT generation FROM qr_onboarding WHERE id=1",
-                [],
-                |row| row.get::<_, i64>(0),
-            )
-            .map_err(|e| ApiError::Internal(e.to_string()))? as u64;
         let username = format!("musician-{}", Uuid::new_v4());
         tx.execute("INSERT INTO users(username,pw_hash,role,must_change_password) VALUES(?1,'!', 'MUSICIAN',0)", params![username]).map_err(|e| ApiError::Internal(e.to_string()))?;
         let uid = tx.last_insert_rowid();
@@ -911,16 +904,18 @@ impl Db {
         )
         .map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
-        Ok((uid, sid, username, generation))
+        Ok((uid, sid, username))
     }
 
-    /// Remove QR exchange rows when access-token signing fails and restore one use.
+    /// Remove QR exchange rows when access-token signing fails.
+    ///
+    /// Consumed capacity stays consumed to prevent concurrent over-issuance.
     pub fn cleanup_qr_exchange(
         &self,
         refresh_hash: &str,
         jti: &str,
         user_id: i64,
-        generation: u64,
+        session_id: i64,
     ) -> Result<(), ApiError> {
         let mut conn = self
             .conn
@@ -929,16 +924,23 @@ impl Db {
         let tx = conn
             .transaction()
             .map_err(|e| ApiError::Internal(e.to_string()))?;
-        tx.execute("DELETE FROM access_sessions WHERE jti = ?1", params![jti])
+        let deleted_refresh = tx
+            .execute(
+                "DELETE FROM refresh_tokens WHERE id = ?1 AND token_hash = ?2 AND user_id = ?3",
+                params![session_id, refresh_hash, user_id],
+            )
             .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if deleted_refresh != 1 {
+            return Ok(());
+        }
         tx.execute(
-            "DELETE FROM musician_onboarding_sessions WHERE user_id = ?1",
-            params![user_id],
+            "DELETE FROM access_sessions WHERE jti = ?1 AND user_id = ?2 AND session_id = ?3",
+            params![jti, user_id, session_id],
         )
         .map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.execute(
-            "DELETE FROM refresh_tokens WHERE token_hash = ?1 AND user_id = ?2",
-            params![refresh_hash, user_id],
+            "DELETE FROM musician_onboarding_sessions WHERE session_id = ?1 AND user_id = ?2",
+            params![session_id, user_id],
         )
         .map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.execute(
@@ -948,11 +950,6 @@ impl Db {
         .map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.execute("DELETE FROM users WHERE id = ?1", params![user_id])
             .map_err(|e| ApiError::Internal(e.to_string()))?;
-        tx.execute(
-            "UPDATE qr_onboarding SET used_count = used_count - 1 WHERE id = 1 AND generation = ?1 AND used_count > 0",
-            params![generation as i64],
-        )
-        .map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
     }
 
