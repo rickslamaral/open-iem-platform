@@ -28,4 +28,11 @@ describe('Login', () => {
     expect(screen.getByRole('alert')).toBeTruthy();
     expect(screen.getByText(/invalid credentials/i)).toBeTruthy();
   });
+  it('offers camera scanning and reports unsupported browser', async () => {
+    render(<Login onLogin={vi.fn()} onQrExchange={vi.fn()} error={null} />);
+    fireEvent.click(screen.getByRole('button', { name: /QR onboarding/i }));
+    fireEvent.click(screen.getByRole('button', { name: /scan with camera/i }));
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent(/not supported/i));
+  });
+
 });

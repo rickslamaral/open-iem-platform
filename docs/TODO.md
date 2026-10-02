@@ -1,3 +1,9 @@
+## 2026-10-02 — QR camera scanning
+
+- Musician QR onboarding now offers browser camera scanning via `BarcodeDetector` and `getUserMedia`, with paste fallback, bounded scan loop, stream cleanup and generation guards for unmount/stop/concurrent attempts.
+- Unsupported browser, unavailable camera and scanner failures remain explicit fallback states; QR secret is held only in component state and sent through existing exchange flow.
+- Evidence: CODE; `npm run typecheck`, `npm test` (67 tests), `npm run build` PASS. Physical validation remains `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-02 04:26 -0300 — verificação operacional no HEAD `09ef9c6cccdd8c63a8c9c8857dd151fa53c9dd07`
 
 - `develop` e `origin/develop` sincronizadas; working tree limpa.
