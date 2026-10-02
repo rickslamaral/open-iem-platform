@@ -1,3 +1,11 @@
+## 2026-10-02 06:25 -0300 — operational verification at `db12d2a`
+
+- `develop` and `origin/develop` synchronized at `db12d2a`; working tree clean before this documentation update.
+- Backlog CODE executable remains exhausted; no new safe product task identified. Remaining items require physical hardware, release confirmation or external secret.
+- `scripts/validate-docs.sh` and `git diff --check` will be run before commit.
+- Current-head CI status checked separately; prior SUCCESS does not count for this SHA.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, physical PipeWire/ALSA, LAN, Raspberry Pi 5 and release `v0.3.1` remain `PENDING/BLOCKED`. Evidence: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 — operational verification at `cf2c1f9`
 
 - `develop` and `origin/develop` synchronized at `cf2c1f9`; working tree clean.
