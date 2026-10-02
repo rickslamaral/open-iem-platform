@@ -1,3 +1,12 @@
+## 2026-10-02 17:36 -0300 — verificação operacional no HEAD `ae863cd`
+
+- `develop` e `origin/develop` sincronizadas no HEAD `ae863cd`; working tree limpa. Lease `.git/hermes-dev.lock` adquirido via `flock`; arquivo permanece vazio.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- Limpeza após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em Rust/coverage; política vigente não altera essas branches.
+- `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- CI remoto não tem SUCCESS para este HEAD; últimos SUCCESS reais (`36897066547`, `36897066543`) cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; não contam para este HEAD.
+- Validação física não executada; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-02 16:41 -0300 — verificação operacional no HEAD `7fd460f`
 
 - `develop` e `origin/develop` sincronizadas no HEAD `7fd460f567a80021b729cdd4773060ee7c0aa79a`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente e vazio; validade não inferida.
