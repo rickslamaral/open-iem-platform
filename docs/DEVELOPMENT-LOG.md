@@ -1,3 +1,12 @@
+## 2026-10-02 04:45 -0300 — QR onboarding status reconciliation
+
+- `develop` e `origin/develop` sincronizadas no HEAD `a70c3784b39569878e874269f8d7a647bc2a5357`; working tree limpa antes desta atualização.
+- Rate limiting bounded por IP para `POST /api/v1/onboarding/qr/exchange` está implementado e coberto por testes; documentação histórica que o marca como pendente fica obsoleta.
+- QR audit events continuam pendentes; próximo item CODE delimitado. Não registrar QR secret, hash, refresh token, JWT, nome ou corpo bruto.
+- `scripts/validate-docs.sh` PASS e `git diff --check` PASS antes desta alteração.
+- CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS em `develop`: `36897066547` e `36897066543`, ambos no commit anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 04:26 -0300 — verificação operacional no HEAD `09ef9c6cccdd8c63a8c9c8857dd151fa53c9dd07`
 
 - `develop` e `origin/develop` sincronizadas; working tree limpa.
