@@ -1,3 +1,13 @@
+## 2026-10-02 07:15 -0300 — operational verification at `35b3bbf`
+
+- `develop` and `origin/develop` synchronized at `35b3bbfe22c5b4bac84315f9ce15b2ea995c57b5`; working tree clean before this update.
+- Backlog CODE executable remains exhausted; remaining unchecked items require physical hardware, release confirmation, external secret, or remote runner access.
+- `scripts/validate-docs.sh` PASS (`documentation validation passed (version 0.3.1)`); `git diff --check` PASS.
+- `cargo fmt --manifest-path server/Cargo.toml -- --check` cannot select targets on this repository; the valid gate is `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, to be run before commit.
+- Current `develop` HEAD has no remote CI SUCCESS; latest real SUCCESS runs `36897066547` and `36897066543` target prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- Open Dependabot PRs #347 and #348 target `main`; both fail Rust/coverage checks. Policy leaves them untouched.
+- Static scanner `/root/scan_patterns.py` unavailable; no fabricated result. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime WebRTC/DTLS-SRTP, physical PipeWire/ALSA, LAN, Raspberry Pi 5 and release `v0.3.1` remain `PENDING/BLOCKED`. Evidence: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 06:56 -0300 — operational verification at `e2899bb`
 
 - `develop` and `origin/develop` synchronized at `e2899bb79bacb0277280eae0a0ca0b448f2c4473`; working tree clean before this update.
