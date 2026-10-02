@@ -43,10 +43,13 @@ export default function App() {
   const [presets, setPresets] = useState<import('./api/presets').PresetSummary[]>([]);
   const [presetsLoading, setPresetsLoading] = useState(false);
   const [presetsError, setPresetsError] = useState<string | null>(null);
+  const tokenRef = useRef<string | null>(null);
   const presetsRequestRef = useRef(0);
   const scenesRequestRef = useRef(0);
 
   const ws = useWebSocket(token);
+
+  tokenRef.current = token;
 
   // Leitura somente: master_gain_db e master_muted vêm do servidor (Músico não pode mutar master)
   const masterGainDb = ws.snapshot?.mixes[0]?.master_gain_db ?? 0;
@@ -149,7 +152,7 @@ export default function App() {
     ++scenesRequestRef.current;
     ++presetsRequestRef.current;
     ws.disconnect();
-    const currentToken = token;
+    const currentToken = tokenRef.current;
     setToken(null);
     setChannels(defaultChannels());
     setPanByChannel(defaultPan());
@@ -160,7 +163,7 @@ export default function App() {
     setPresetsLoading(false);
     setPresetsError(null);
     if (currentToken) await apiLogout(currentToken).catch(() => undefined);
-  }, [token, ws]);
+  }, [ws]);
 
   const handleChannelGain = useCallback(
     (ch: number, gainDb: number) => {
