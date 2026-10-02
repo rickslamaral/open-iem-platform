@@ -3808,3 +3808,5 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - `scripts/validate-docs.sh` e `git diff --check` PASS nesta atualização. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - CI remoto não tem SUCCESS no HEAD atual; runs `36897066547` e `36897066543` cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4` e não contam para este HEAD.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
+- [x] Verificação operacional 2026-10-02 14:41: develop/origin-develop sincronizadas em `0097bd5`; working tree limpa; `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. CODE/CI/SIMULATED; validação física e release `v0.3.1` permanecem PENDING/BLOCKED.
