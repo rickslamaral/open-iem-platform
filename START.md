@@ -1,3 +1,12 @@
+## 2026-10-02 06:50 -0300 — operational verification at `4aa1683`
+
+- `develop` and `origin/develop` synchronized at `4aa16836d33e65ba770fc2c38861f2ee3537a6d0`; working tree clean before this update.
+- Backlog CODE executable remains exhausted; no safe product task identified. Remaining items require physical hardware, release confirmation or external secret.
+- `scripts/validate-docs.sh` PASS; `git diff --check` PASS before this documentation update.
+- Remote CI has no SUCCESS for current HEAD. Latest real SUCCESS runs `36897066547` and `36897066543` target prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- Open Dependabot PRs #347 and #348 target `main`; Rust format/clippy/tests and coverage checks fail. Policy leaves them untouched.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, physical PipeWire/ALSA, LAN, Raspberry Pi 5 and release `v0.3.1` remain `PENDING/BLOCKED`. Evidence: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 — operational verification at `cf2c1f9`
 
 - `develop` and `origin/develop` synchronized at `cf2c1f9`; working tree clean.
