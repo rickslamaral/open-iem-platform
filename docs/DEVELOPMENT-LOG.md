@@ -1,3 +1,12 @@
+## 2026-10-02 — operational verification at `cf2c1f9`
+
+- `develop` and `origin/develop` synchronized at `cf2c1f9`; working tree clean.
+- QR camera scanning is implemented in musician onboarding; latest verified commit adds browser camera fallback.
+- `scripts/validate-docs.sh` PASS; `git diff --check` PASS.
+- Remote CI has no SUCCESS at current HEAD; latest real SUCCESS runs are `36897066547` and `36897066543` on prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- Open Dependabot PRs #347 and #348 target `main` and fail Rust format/clippy/tests plus coverage; policy leaves them untouched.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA physical, LAN, Raspberry Pi 5 and release `v0.3.1` remain pending. Evidence: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 — QR camera scanning
 
 - Musician QR onboarding now offers browser camera scanning via `BarcodeDetector` and `getUserMedia`, with paste fallback, bounded scan loop, stream cleanup and generation guards for unmount/stop/concurrent attempts.
