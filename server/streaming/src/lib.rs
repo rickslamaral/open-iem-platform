@@ -876,7 +876,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn drive_once_accounts_media_write_failure_after_frame_drain() {
+    async fn drive_once_polls_queued_media_before_frame_writes() {
         let registry = SessionRegistry::new();
         registry
             .negotiate_offer("alice", VALID_OFFER, None)
@@ -900,7 +900,7 @@ mod tests {
             .media_mid = Some(mid);
 
         {
-            // str0m's writer queue holds 100 entries; one more makes next drive fail.
+            // str0m's writer queue is drained during the poll phase before frame writes.
             const STR0M_WRITER_QUEUE_CAPACITY_PLUS_ONE: usize = 100 + 1;
             let mut sessions = registry.sessions.lock().await;
             let peer = sessions.get_mut("alice").unwrap();
@@ -949,8 +949,8 @@ mod tests {
 
         let first = registry.drive_once(&bridge, &plane, 2, 1_000).await;
         assert_eq!(first.frames_drained, 2);
-        assert_eq!(first.media_write_errors, 2);
-        assert_eq!(first.packets_encoded, 0);
+        assert_eq!(first.media_write_errors, 0);
+        assert_eq!(first.packets_encoded, 2);
         let sessions = plane.sessions.lock().await;
         assert!(sessions["alice"].drain_frames().is_empty());
         drop(sessions);
