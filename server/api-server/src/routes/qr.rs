@@ -10,7 +10,7 @@
     clippy::unused_async
 )]
 use crate::{
-    auth::{generate_refresh_token, token_to_storage_key, JwtClaims},
+    auth::{generate_refresh_token, hash_password, token_to_storage_key, JwtClaims},
     error::ApiError,
     middleware::require_min_role,
     state::AppState,
@@ -65,6 +65,28 @@ fn validate_secret(secret: &str) -> Result<(), ApiError> {
     Ok(())
 }
 
+fn validate_account(username: &str, password: &str) -> Result<(), ApiError> {
+    if username.len() < 3
+        || username.len() > 64
+        || !username
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.'))
+    {
+        return Err(ApiError::BadRequest(
+            "username format is invalid".to_owned(),
+        ));
+    }
+    if password.chars().count() < 12
+        || password.chars().count() > 128
+        || password.chars().any(char::is_control)
+    {
+        return Err(ApiError::BadRequest(
+            "password must contain 12-128 characters and no control characters".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
 fn validate(name: &str, instrument: &str) -> Result<(), ApiError> {
     if name.trim().is_empty()
         || name.chars().count() > MAX_NAME
@@ -102,8 +124,11 @@ pub struct QrStatus {
 #[derive(Deserialize)]
 pub struct Exchange {
     pub qr_secret: String,
+    pub username: String,
+    pub password: String,
     pub display_name: String,
     pub instrument_id: String,
+    pub band_id: Option<i64>,
 }
 #[derive(Serialize)]
 pub struct ExchangeResponse {
@@ -179,14 +204,19 @@ pub async fn exchange(
         return Err(ApiError::TooManyRequests);
     }
     validate_secret(&body.qr_secret)?;
+    validate_account(&body.username, &body.password)?;
     validate(&body.display_name, &body.instrument_id)?;
+    let password_hash = hash_password(&body.password)?;
     let raw_refresh = generate_refresh_token();
     let jti = Uuid::new_v4().to_string();
     let now = now();
-    let (user_id, session_id, username) = match state.db.exchange_qr(
+    let (user_id, session_id, username) = match state.db.exchange_qr_account(
         &unix_hash(&body.qr_secret),
+        &body.username,
+        &password_hash,
         &body.display_name,
         &body.instrument_id,
+        body.band_id,
         now,
         &token_to_storage_key(&raw_refresh),
         now + crate::auth::REFRESH_TOKEN_TTL_S,
@@ -257,6 +287,14 @@ mod tests {
             iat: 1,
             exp: u64::MAX,
         }
+    }
+
+    #[test]
+    fn account_validation_enforces_username_and_password_policy() {
+        assert!(validate_account("ana_1", "a-secure-password").is_ok());
+        assert!(validate_account("ab", "a-secure-password").is_err());
+        assert!(validate_account("ana", "short").is_err());
+        assert!(validate_account("ana!", "a-secure-password").is_err());
     }
 
     #[test]

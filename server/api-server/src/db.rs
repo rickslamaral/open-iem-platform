@@ -489,6 +489,71 @@ impl Db {
             }
         }
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+
+        // M005 adds server-authoritative bands and optional musician scope.
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let applied: Option<i64> = tx
+            .query_row("SELECT id FROM migrations WHERE name = 'M005'", [], |row| {
+                row.get(0)
+            })
+            .optional()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if applied.is_none() {
+            tx.execute_batch("CREATE TABLE bands (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, normalized_name TEXT NOT NULL UNIQUE, active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0, 1)), created_at INTEGER NOT NULL DEFAULT (unixepoch())); ALTER TABLE musician_profiles ADD COLUMN band_id INTEGER REFERENCES bands(id) ON DELETE SET NULL; CREATE INDEX musician_profiles_band_roster_idx ON musician_profiles(band_id, status, user_id); INSERT INTO migrations (id, name) VALUES (5, 'M005');")
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+        } else {
+            let bands_columns: Vec<String> = tx
+                .prepare("SELECT name FROM pragma_table_info('bands') ORDER BY cid")
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| row.get(0))
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect::<Result<_, _>>()?;
+            let profile_columns: Vec<String> = tx
+                .prepare("SELECT name FROM pragma_table_info('musician_profiles') ORDER BY cid")
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| row.get(0))
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect::<Result<_, _>>()?;
+            let bands_sql: String = tx
+                .query_row(
+                    "SELECT sql FROM sqlite_master WHERE type='table' AND name='bands'",
+                    [],
+                    |row| row.get(0),
+                )
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+            let profile_sql: String = tx
+                .query_row(
+                    "SELECT sql FROM sqlite_master WHERE type='table' AND name='musician_profiles'",
+                    [],
+                    |row| row.get(0),
+                )
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+            let normalize = |s: &str| {
+                s.to_ascii_uppercase()
+                    .chars()
+                    .filter(|c| !c.is_ascii_whitespace())
+                    .collect::<String>()
+            };
+            let normalized_bands_sql = normalize(&bands_sql);
+            let normalized_profile_sql = normalize(&profile_sql);
+            if bands_columns != ["id", "name", "normalized_name", "active", "created_at"]
+                || profile_columns.last().map(String::as_str) != Some("band_id")
+                || !normalized_bands_sql.contains("NORMALIZED_NAMETEXTNOTNULLUNIQUE")
+                || !normalized_bands_sql
+                    .contains("ACTIVEINTEGERNOTNULLDEFAULT1CHECK(ACTIVEIN(0,1))")
+                || !normalized_profile_sql
+                    .contains("BAND_IDINTEGERREFERENCESBANDS(ID)ONDELETESETNULL")
+            {
+                return Err(ApiError::Internal(
+                    "migration M005 recorded but band schema is incomplete".to_owned(),
+                ));
+            }
+        }
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
         Ok(())
     }
 
@@ -1147,13 +1212,16 @@ impl Db {
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
     }
 
-    /// Atomically consume QR invitation and create musician session.
+    /// Atomically consume QR invitation and create musician account/session.
     #[allow(clippy::too_many_arguments)]
-    pub fn exchange_qr(
+    pub fn exchange_qr_account(
         &self,
         hash: &str,
+        username: &str,
+        password_hash: &str,
         name: &str,
         instrument: &str,
+        band_id: Option<i64>,
         now: u64,
         refresh: &str,
         refresh_exp: u64,
@@ -1172,10 +1240,26 @@ impl Db {
         if tx.changes() != 1 {
             return Err(ApiError::Unauthorized("invalid or expired QR invitation"));
         }
-        let username = format!("musician-{}", Uuid::new_v4());
-        tx.execute("INSERT INTO users(username,pw_hash,role,must_change_password) VALUES(?1,'!', 'MUSICIAN',0)", params![username]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("INSERT INTO users(username,pw_hash,role,must_change_password) VALUES(?1,?2, 'MUSICIAN',0)", params![username, password_hash]).map_err(|e| {
+            if e.to_string().contains("UNIQUE") { ApiError::BadRequest("username is unavailable".to_owned()) } else { ApiError::Internal(e.to_string()) }
+        })?;
         let uid = tx.last_insert_rowid();
-        tx.execute("INSERT INTO musician_profiles(user_id,display_name,instrument_id,status) VALUES(?1,?2,?3,'PENDING')", params![uid,name,instrument]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        if let Some(band_id) = band_id {
+            let active: Option<i64> = tx
+                .query_row(
+                    "SELECT id FROM bands WHERE id = ?1 AND active = 1",
+                    params![band_id],
+                    |row| row.get(0),
+                )
+                .optional()
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+            if active.is_none() {
+                return Err(ApiError::BadRequest(
+                    "band_id must reference an active band".to_owned(),
+                ));
+            }
+        }
+        tx.execute("INSERT INTO musician_profiles(user_id,display_name,instrument_id,status,band_id) VALUES(?1,?2,?3,'PENDING',?4)", params![uid,name,instrument,band_id]).map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.execute(
             "INSERT INTO refresh_tokens(user_id,token_hash,expires_at,family) VALUES(?1,?2,?3,?4)",
             params![uid, refresh, refresh_exp as i64, family],
@@ -1193,7 +1277,38 @@ impl Db {
         )
         .map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
-        Ok((uid, sid, username))
+        Ok((uid, sid, username.to_owned()))
+    }
+
+    /// Backward-compatible test/helper exchange using generated identity.
+    #[allow(clippy::too_many_arguments)]
+    pub fn exchange_qr(
+        &self,
+        hash: &str,
+        name: &str,
+        instrument: &str,
+        now: u64,
+        refresh: &str,
+        refresh_exp: u64,
+        family: &str,
+        jti: &str,
+        access_exp: u64,
+    ) -> Result<(i64, i64, String), ApiError> {
+        let username = format!("musician-{}", Uuid::new_v4());
+        self.exchange_qr_account(
+            hash,
+            &username,
+            "!",
+            name,
+            instrument,
+            None,
+            now,
+            refresh,
+            refresh_exp,
+            family,
+            jti,
+            access_exp,
+        )
     }
 
     /// Remove QR exchange rows when access-token signing fails.
