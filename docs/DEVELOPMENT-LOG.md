@@ -8307,3 +8307,12 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS reais em `develop`: runs `36897066547` e `36897066543`, ambos no SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em Rust/coverage; política vigente não altera essas branches.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` permanecem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
+## 2026-10-02 12:47 -0300 — verificação operacional no HEAD `ffe53d0`
+
+- `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização documental. Lease `.git/hermes-dev.lock` presente.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- Limpeza validada: branches remotas órfãs inexistentes; PRs Dependabot #347 e #348 continuam abertas contra `main`; política vigente não altera essas branches.
+- `scripts/validate-docs.sh` e `git diff --check` serão executados nesta atualização. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- CI remoto: últimos SUCCESS reais em `develop` são runs `36897066547` e `36897066543`, cobrindo SHA anterior; não contam como SUCCESS para este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
