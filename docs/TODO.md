@@ -1,3 +1,12 @@
+## 2026-10-02 20:31 -0300 — verificação operacional no HEAD `fb48d80`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no commit `fb48d80153985920a703729df519f6782e0a37d6`; working tree limpa antes desta atualização.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- Limpeza após `git fetch --prune`: somente referências canônicas `origin/develop` e `origin/main`; nenhuma PR aberta listada nesta execução.
+- Gates completos anteriores no HEAD recente permanecem registrados: documentação, diff, Rust fmt/clippy/testes e frontends musician/engineer PASS. Esta atualização executará validação documental, diff e Rust fmt novamente.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. CI remoto não tem SUCCESS para este HEAD; últimos SUCCESS reais (`36897066547`, `36897066543`) cobrem SHA anterior e não contam.
+- Validação física não executada: WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-02 19:32 -0300 — verificação operacional no HEAD `2e23d8d`
 
 - `develop` e `origin/develop` sincronizadas no HEAD `2e23d8dee02783e8c89f85ddd475bb5565955c97`; working tree limpa antes desta atualização.
