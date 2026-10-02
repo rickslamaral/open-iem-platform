@@ -1,3 +1,12 @@
+## 2026-10-02 09:20 -0300 — operational verification at current `develop`
+
+- `develop` and `origin/develop` synchronized at current HEAD; working tree clean before this documentation update. Repository lease: no lease/lock mechanism exists.
+- Backlog CODE executable remains exhausted. Remaining unchecked items require physical hardware, release confirmation, external secret, or remote runner access; no product task selected.
+- `scripts/validate-docs.sh` PASS; `git diff --check` PASS. Full Rust/frontend gates not rerun in this cycle; prior recorded results remain historical evidence only.
+- No remote CI SUCCESS covers current HEAD; latest real SUCCESS runs `36897066547` and `36897066543` cover prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- Open Dependabot PRs #347 and #348 target `main`; both have failed `Rust Format + Clippy + Tests` and `Rust Code Coverage` checks. User policy leaves them untouched.
+- Static scanner `/root/scan_patterns.py` unavailable; no fabricated result. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, physical PipeWire/ALSA, LAN, Raspberry Pi 5 and release `v0.3.1` remain `PENDING/BLOCKED`. Evidence: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 09:15 -0300 — operational verification at `32dd688`
 
 - `develop` and `origin/develop` synchronized at `32dd688283dd1442876bef88c8185716aa7c9f68`; working tree clean before this documentation update. Repository lease: no lease/lock mechanism exists.
