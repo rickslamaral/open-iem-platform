@@ -3941,3 +3941,13 @@ Do not move or recreate an existing release tag without explicit confirmation. V
 - Gates locais: `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
 - CI remoto não tem SUCCESS para este HEAD; últimos SUCCESS reais (`36897066547`, `36897066543`) cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; não contam para este HEAD.
 - Validação física não executada; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-10-02 19:56 -0300 — verificação operacional no HEAD `1a3cd174ae3bb9f2be917d4d624a04aa166cb1f3`
+
+- `develop` e `origin/develop` sincronizadas no HEAD `1a3cd174ae3bb9f2be917d4d624a04aa166cb1f3`; working tree limpa antes desta atualização. Lease validado com `flock -n .git/hermes-dev.lock`.
+- Backlog CODE executável permanece esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. Nenhuma tarefa segura de produto foi selecionada.
+- Gates documentais PASS: `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check`.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- CI remoto não tem SUCCESS para este HEAD; últimos SUCCESS reais (`36897066547`, `36897066543`) cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; não contam para este HEAD.
+- PRs Dependabot #347 e #348 continuam abertas contra `main`, com falhas em Rust/coverage; política vigente não altera essas branches.
+- Validação física não executada: WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
