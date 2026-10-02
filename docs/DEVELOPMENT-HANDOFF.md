@@ -1,4 +1,4 @@
-## 2026-10-02 — secure musician QR onboarding status (implementation commit `8fc8cdf`)
+## 2026-10-02 — secure musician QR onboarding status (implementation present in current working tree (HEAD `2374b59`; uncommitted changes present))
 
 - Backend implementation exists in `server/api-server/src/routes/qr.rs`; schema migration `M003` and session lifecycle support exist in `server/api-server/src/db.rs`; router wiring is in `server/api-server/src/main.rs`.
 - Endpoints: `GET /api/v1/admin/qr/status`, `POST /api/v1/admin/qr/activate`, `POST /api/v1/admin/qr/rotate`, `POST /api/v1/admin/qr/deactivate`, public `POST /api/v1/onboarding/qr/exchange`.

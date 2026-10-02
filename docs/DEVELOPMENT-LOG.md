@@ -1,6 +1,6 @@
 ## 2026-10-02 — secure musician QR onboarding backend
 
-- Commit `8fc8cdf` adds `server/api-server/src/routes/qr.rs`, router wiring in `server/api-server/src/main.rs`, and `M003` persistence/session schema in `server/api-server/src/db.rs`.
+- Current working tree contains `server/api-server/src/routes/qr.rs`, router wiring in `server/api-server/src/main.rs`, and `M003` persistence/session schema in `server/api-server/src/db.rs`.
 - Management endpoints: `GET /api/v1/admin/qr/status`, `POST /api/v1/admin/qr/activate`, `POST /api/v1/admin/qr/rotate`, `POST /api/v1/admin/qr/deactivate`; public exchange: `POST /api/v1/onboarding/qr/exchange`.
 - RBAC and lifecycle: Engineer minimum for management, Admin inherited, Musician denied management; exchange creates Musician-only credential/profile and revocable refresh/access session; rotation/deactivation revoke QR-created sessions atomically.
 - Controls: random 32-byte secret, SHA-256 hash persistence, maximum 10-minute TTL, single-use atomic consumption, rotation generation, controlled instrument catalog, Unicode/control validation, strict refresh cookie, Origin guard, and non-loopback HTTP refusal without explicit development override.
