@@ -1,3 +1,13 @@
+## 2026-10-02 19:38 -0300 — verificação operacional no HEAD `f235ab8`
+
+- `develop` e `origin/develop` sincronizadas no HEAD `f235ab8ea9b5cfa3bf9833ffb0e2778ce3c0caef`; working tree limpa antes desta atualização.
+- Backlog CODE executável permanece esgotado: itens `[ ]` atuais exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhum item seguro de produto selecionado.
+- Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml`; Rust: 874 testes, 0 falhas.
+- Frontend musician PASS: typecheck, 67 testes e build. Frontend engineer PASS: typecheck, 59 testes e build.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- CI remoto: últimos SUCCESS reais (`36897066547`, `36897066543`) cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; não contam para este HEAD `f235ab8ea9b5cfa3bf9833ffb0e2778ce3c0caef`.
+- Validação física não executada: WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-02 19:32 -0300 — verificação operacional no HEAD `2e23d8d`
 
 - `develop` e `origin/develop` sincronizadas no HEAD `2e23d8dee02783e8c89f85ddd475bb5565955c97`; working tree limpa antes desta atualização.
