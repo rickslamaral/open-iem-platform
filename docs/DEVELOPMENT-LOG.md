@@ -1,3 +1,13 @@
+
+## 2026-10-02 20:12 -0300 — verificação operacional no HEAD `e19ade0`
+
+- Lease adquirido com `flock`; branch `develop` e `origin/develop` sincronizadas no commit `e19ade035c7914233e2967184b8b4e36ea964612`; working tree limpa antes e depois da verificação.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, desbloqueio de runner/token externo ou confirmação de release; nenhuma tarefa de produto segura disponível.
+- Limpeza após `git fetch --prune`: somente `origin/develop` e `origin/main`; nenhum branch local mergeado pendente; nenhuma PR aberta contra `main`.
+- Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml` (874 testes Rust, 0 falhas), musician (`typecheck`, 67 testes, build) e engineer (`typecheck`, 59 testes, build).
+- Segurança: `/root/scan_patterns.py` indisponível; nenhum resultado inventado. `cargo audit --manifest-path` não é suportado pela versão instalada; `npm audit --audit-level=high` reportou 0 vulnerabilidades em musician e engineer.
+- CI remoto: últimos SUCCESS reais (`36897066547`, `36897066543`) cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; não contam para HEAD atual.
+- Validação física não executada: WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 ## 2026-10-02 20:07 -0300 — verificação operacional no HEAD `82a44db`
 
 - `develop` e `origin/develop` sincronizadas no HEAD `82a44db`; working tree limpa antes desta atualização.
