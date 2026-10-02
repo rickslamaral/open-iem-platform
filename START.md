@@ -1,3 +1,10 @@
+## 2026-10-02 — QR audit events
+
+- QR lifecycle audit implemented in SQLite `M004`: activate, rotate, deactivate, exchange accepted/rejected; records actor, action, generation and outcome only.
+- QR secret, secret hash, refresh token, access token, JWT, profile name and request body never enter audit rows.
+- Activation/rotation/deactivation state changes, QR-session revocation and audit insertion are transactional. Rotation revokes prior QR sessions.
+- Evidence: `CODE`; full Rust gates passed; physical validation remains `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-02 04:45 -0300 — QR onboarding status reconciliation
 
 - `develop` e `origin/develop` sincronizadas no HEAD `a70c3784b39569878e874269f8d7a647bc2a5357`; working tree limpa antes desta atualização.

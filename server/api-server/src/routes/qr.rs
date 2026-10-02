@@ -124,10 +124,11 @@ pub async fn status(
         generation,
     }))
 }
-pub async fn activate(
-    State(state): State<AppState>,
-    Extension(claims): Extension<JwtClaims>,
-    Json(body): Json<QrConfigure>,
+async fn configure(
+    state: AppState,
+    claims: JwtClaims,
+    body: QrConfigure,
+    action: &'static str,
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
     let secret = qr_secret();
@@ -140,25 +141,33 @@ pub async fn activate(
     let expires = now() + lifetime;
     state
         .db
-        .configure_qr(Some(&unix_hash(&secret)), expires, true)?;
+        .configure_qr_audited(&unix_hash(&secret), expires, claims.user_id, action)?;
     Ok((
         StatusCode::CREATED,
         Json(serde_json::json!({"qr_secret": secret, "expires_at": expires})),
     ))
 }
+pub async fn activate(
+    State(state): State<AppState>,
+    Extension(claims): Extension<JwtClaims>,
+    Json(body): Json<QrConfigure>,
+) -> Result<impl IntoResponse, ApiError> {
+    configure(state, claims, body, "ACTIVATE").await
+}
+
 pub async fn rotate(
     State(state): State<AppState>,
     Extension(claims): Extension<JwtClaims>,
     Json(body): Json<QrConfigure>,
 ) -> Result<impl IntoResponse, ApiError> {
-    activate(State(state), Extension(claims), Json(body)).await
+    configure(state, claims, body, "ROTATE").await
 }
 pub async fn deactivate(
     State(state): State<AppState>,
     Extension(claims): Extension<JwtClaims>,
 ) -> Result<StatusCode, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
-    state.db.configure_qr(None, 0, false)?;
+    state.db.deactivate_qr_audited(claims.user_id)?;
     Ok(StatusCode::NO_CONTENT)
 }
 pub async fn exchange(
@@ -174,7 +183,7 @@ pub async fn exchange(
     let raw_refresh = generate_refresh_token();
     let jti = Uuid::new_v4().to_string();
     let now = now();
-    let (user_id, session_id, username) = state.db.exchange_qr(
+    let (user_id, session_id, username) = match state.db.exchange_qr(
         &unix_hash(&body.qr_secret),
         &body.display_name,
         &body.instrument_id,
@@ -184,7 +193,20 @@ pub async fn exchange(
         &Uuid::new_v4().to_string(),
         &jti,
         now + crate::auth::ACCESS_TOKEN_TTL_S,
-    )?;
+    ) {
+        Ok(value) => value,
+        Err(error) => {
+            let generation = state
+                .db
+                .qr_status(now)
+                .map(|status| status.3)
+                .unwrap_or_default();
+            let _ = state
+                .db
+                .record_qr_audit(None, "EXCHANGE", generation, false);
+            return Err(error);
+        }
+    };
     let role = Role::Musician;
     let access =
         match state
@@ -204,6 +226,16 @@ pub async fn exchange(
                 return Err(error);
             }
         };
+    let generation = state.db.qr_status(now)?.3;
+    if let Err(error) = state.db.record_qr_audit(None, "EXCHANGE", generation, true) {
+        state.db.cleanup_qr_exchange(
+            &token_to_storage_key(&raw_refresh),
+            &jti,
+            user_id,
+            session_id,
+        )?;
+        return Err(error);
+    }
     Ok((StatusCode::CREATED, [(header::SET_COOKIE, format!("refresh_token={raw_refresh}; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age={}", crate::auth::REFRESH_TOKEN_TTL_S))], Json(ExchangeResponse { access_token: access, role })))
 }
 
