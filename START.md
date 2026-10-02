@@ -1,3 +1,11 @@
+## 2026-10-02 00:32 -0300 — verificação operacional no HEAD `08bdd104eb49ce3ae33d2c7121907dd8a54fc91b`
+
+- `develop` e `origin/develop` permanecem sincronizadas no commit `08bdd104eb49ce3ae33d2c7121907dd8a54fc91b`; working tree limpa antes desta atualização.
+- Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo.
+- `gh run list --branch develop --limit 5` não mostra CI SUCCESS no HEAD exato; últimos runs SUCCESS (`36897066547` e `36897066543`) cobrem o commit anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência atual: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 00:26 -0300 — verificação operacional no HEAD `06c2f12fcdb155c45bbec8772fc85ea23aa65dbd`
 
 - `develop` e `origin/develop` permanecem sincronizadas no commit `06c2f12fcdb155c45bbec8772fc85ea23aa65dbd`; working tree limpa antes desta atualização.
