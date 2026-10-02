@@ -3794,6 +3794,7 @@ test → review → docs/GAP update → PR/CI
 - Gates desta atualização: `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS reais (`36897066547`, `36897066543`) cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; não contam para este HEAD.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+- Evidência reproduzível: `git status --short --branch` retornou `develop...origin/develop` sem alterações; `git rev-parse HEAD` retornou `33deaa2753168df1150eb6d714e2d1a7ac5563a2`; `gh run list --branch develop` mostrou últimos SUCCESS em `36897066547`/`36897066543` para SHA anterior; `gh pr list --base main --state open` mostrou #347/#348 com falhas Rust/coverage.
 
 ## 2026-10-02 15:58 -0300 — verificação operacional no HEAD `71374e225f64cd46602e36b15802d48bb95c2e24`
 
@@ -3811,3 +3812,11 @@ test → review → docs/GAP update → PR/CI
 - Gates: `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
 - CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS reais (`36897066547`, `36897066543`) cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; não contam para este HEAD.
 - Validação física não executada; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência disponível: `CODE/CI/SIMULATED`.
+
+## 2026-10-02 16:56 -0300 — verificação operacional no HEAD `33deaa2`
+
+- `develop` e `origin/develop` sincronizadas no HEAD `33deaa2753168df1150eb6d714e2d1a7ac5563a2`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente e vazio; validade não inferida.
+- Backlog CODE executável permanece esgotado; nenhuma tarefa de produto segura selecionada. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Limpeza após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, com falhas em Rust/coverage.
+- Gates locais: `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- CI remoto não tem SUCCESS para este HEAD. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` permanecem `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.

@@ -3864,3 +3864,12 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
 
 - [x] Verificação operacional 2026-10-02 14:41: develop/origin-develop sincronizadas em `0097bd5`; working tree limpa; `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. CODE/CI/SIMULATED; validação física e release `v0.3.1` permanecem PENDING/BLOCKED.
+
+## 2026-10-02 16:56 -0300 — verificação operacional no HEAD `33deaa2`
+
+- [x] `develop` e `origin/develop` sincronizadas no HEAD `33deaa2753168df1150eb6d714e2d1a7ac5563a2`; working tree limpa.
+- [x] Backlog CODE executável esgotado nesta revisão; itens `[ ]` restantes dependem de hardware físico, confirmação de release, secret externo ou runner remoto.
+- [x] `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- [x] CI remoto sem SUCCESS no HEAD atual; runs `36897066547` e `36897066543` cobrem SHA anterior. PRs Dependabot #347 e #348 abertas contra `main`, com falhas Rust/coverage; política vigente não altera.
+- [x] Validação física e release `v0.3.1` permanecem `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+- [x] Evidência reproduzível: `git status --short --branch` retornou `develop...origin/develop` sem alterações; `git rev-parse HEAD` retornou `33deaa2753168df1150eb6d714e2d1a7ac5563a2`; `gh run list --branch develop` mostrou últimos SUCCESS em `36897066547`/`36897066543` para SHA anterior; `gh pr list --base main --state open` mostrou #347/#348 com falhas Rust/coverage.
