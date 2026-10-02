@@ -1,3 +1,12 @@
+## 2026-10-02 14:51 -0300 — verificação operacional no HEAD `f84265f`
+
+- `develop` e `origin/develop` sincronizadas no HEAD `f84265f487c70a1e9b1fe4eb17f4da9221e2d088`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã além de referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
+- Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` (7 + 2 + 174 + 124 + 537 + 6 + 8 + 11 testes; todos passaram).
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. CI remoto não tem SUCCESS no HEAD atual; jobs verdes antigos não contam para este SHA.
+- `PHYSICAL: USER-APPROVED BY POLICY / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
 ## 2026-10-02 14:01 -0300 — verificação operacional no HEAD `5273b47`
 
 - `develop` e `origin/develop` sincronizadas no HEAD `5273b4766d27201155c503cd950f79a938d86401`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
