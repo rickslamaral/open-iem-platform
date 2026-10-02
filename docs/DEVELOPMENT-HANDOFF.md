@@ -3649,3 +3649,13 @@ test → review → docs/GAP update → PR/CI
 - `scripts/validate-docs.sh` e `git diff --check` serão executados nesta atualização. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - CI remoto: últimos SUCCESS reais em `develop` são runs `36897066547` e `36897066543`, cobrindo SHA anterior; não contam como SUCCESS para este HEAD.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
+
+## 2026-10-02 12:56 -0300 — verificação operacional no HEAD `a1946e7`
+
+- `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização documental. Lease `.git/hermes-dev.lock` presente.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- Limpeza validada: branches remotas órfãs inexistentes; PRs Dependabot #347 e #348 continuam abertas contra `main`, com falhas em Rust/coverage; política vigente não altera essas branches.
+- `scripts/validate-docs.sh` e `git diff --check` serão executados nesta atualização. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS reais em `develop` (runs `36897066547` e `36897066543`) cobrem SHA anterior e não contam para este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
