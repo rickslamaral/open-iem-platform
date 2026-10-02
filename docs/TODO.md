@@ -3694,3 +3694,12 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - CI remoto SUCCESS mais recente em `develop`: runs `36897066547` e `36897066543`, ambos **16/16 SUCCESS** no commit `56a17fc87b004c104e730e36741ba75ad22796b4`, não no HEAD atual; CI do HEAD atual não foi confirmado.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-10-02 09:10 -0300 — operational verification at `3200b52`
+
+- `develop` and `origin/develop` synchronized at `3200b52fd5305449ca06969d1fc2986948dca4ef`; working tree clean before this verification. Repository lease: no lease/lock mechanism exists.
+- Backlog CODE executable remains exhausted. Remaining unchecked items require physical hardware, release confirmation, external secret, or remote runner access; no product task selected.
+- `scripts/validate-docs.sh` and `git diff --check` PASS. Full Rust/frontend gates not rerun in this cycle; prior results remain historical evidence only.
+- No remote CI SUCCESS covers current HEAD; latest real SUCCESS runs `36897066547` and `36897066543` cover prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
+- Open Dependabot PRs #347 and #348 target `main`; Rust/coverage checks fail. User policy leaves them untouched.
+- Static scanner `/root/scan_patterns.py` unavailable; no fabricated result. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, physical PipeWire/ALSA, LAN, Raspberry Pi 5 and release `v0.3.1` remain `PENDING/BLOCKED`. Evidence: `CODE/CI/SIMULATED`.
