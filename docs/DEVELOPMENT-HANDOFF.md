@@ -3977,3 +3977,11 @@ test → review → docs/GAP update → PR/CI
 - Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes (874 testes), musician (typecheck, 67 testes, build, `npm audit --audit-level=high` com 0 vulnerabilidades) e engineer (typecheck, 59 testes, build, `npm audit --audit-level=high` com 0 vulnerabilidades).
 - PR #352 permanece aberta contra `main`, sem checks reportados; CI SUCCESS existente cobre SHA anterior e não conta para este HEAD.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 01:32 -0300 — verificação operacional no HEAD `f3c526ace4ebcd97edeaf03d1ff143e0923e77aa`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `f3c526ace4ebcd97edeaf03d1ff143e0923e77aa`; working tree limpa antes desta atualização.
+- Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes (874 testes), musician e engineer typecheck/build, e `npm audit --audit-level=high` (0 vulnerabilidades em ambos).
+- Testes frontend executados com `npm test -- --watchAll=false` falharam porque Vitest rejeita opção Jest `--watchAll`; comando correto `npm test` executado separadamente para musician e engineer: 67 e 59 testes PASS.
+- Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. CI remoto SUCCESS existente cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`, não este HEAD. PR #352 segue aberta contra `main`, sem checks reportados.
+- Backlog CODE executável permanece esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
