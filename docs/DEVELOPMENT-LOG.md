@@ -8831,3 +8831,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - CI remoto SUCCESS existente em `develop` cobre SHA anterior (`2f4b8146e577ae5724e058499bead060181e3f27`), não HEAD atual. PR #352 permanece aberta contra `main`, sem checks reportados; política vigente não abre PR nova, não faz merge e não altera `main`.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+
+## 2026-10-03 06:22 -0300 — verificação operacional no HEAD `06a6660`
+
+- Lease adquirido com diretório exclusivo `/tmp/open-iem-development.lock.d`; PID ativo confirmado; branch `develop` e `origin/develop` sincronizadas no HEAD `06a666054a6659696adde4a64d6de6ef0bbdf7a7`; working tree limpa antes desta atualização.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual deste registro sem segredos ou padrões perigosos.
+- Backlog CODE executável permanece esgotado. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente não abre PR nova, não faz merge e não altera `main`. CI SUCCESS existente cobre SHA anterior, não este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
