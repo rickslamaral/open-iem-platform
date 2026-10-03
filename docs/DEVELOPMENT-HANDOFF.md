@@ -1,3 +1,11 @@
+## 2026-10-02 20:45 -0300 — verificação operacional no HEAD `1e407c6`
+
+- `flock -n .git/hermes-dev.lock` adquiriu lease; `git status --short --branch` retornou `develop...origin/develop` sem alterações; `HEAD` e `origin/develop` são `1e407c67e3cbfeea12c88d0e97971c5d5bf3a507`.
+- `gh pr view 352` confirmou PR #352 aberta, base `main`, head `develop`; `gh pr checks 352` retornou `no checks reported on the 'develop' branch`.
+- `scripts/validate-docs.sh` PASS (`documentation validation passed (version 0.3.1)`); `git diff --check` PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host. Nenhum resultado de scanner foi inventado.
+- Últimos SUCCESS remotos listados para `develop` apontam SHA `2f4b8146e577ae5724e058499bead060181e3f27`, não o HEAD atual; CI do HEAD atual não foi confirmado.
+
 ## 2026-10-02 20:31 -0300 — verificação operacional no HEAD `fb48d80`
 
 - Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no commit `fb48d80153985920a703729df519f6782e0a37d6`; working tree limpa antes desta atualização.
