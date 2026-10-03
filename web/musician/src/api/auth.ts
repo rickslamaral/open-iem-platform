@@ -19,6 +19,9 @@ export interface QrExchangeRequest {
   qr_secret: string;
   display_name: string;
   instrument_id: string;
+  username?: string;
+  password?: string;
+  band_id?: number;
 }
 
 export interface QrExchangeResponse {

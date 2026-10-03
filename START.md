@@ -4011,8 +4011,8 @@ QR é convite temporário de bootstrap. Não é senha, token permanente, autoriz
 
 #### API/backend
 
-- [ ] Catálogo de bandas para onboarding.
-- [ ] CRUD de bandas para Engineer/Admin.
+- [x] Catálogo público de bandas ativas para onboarding (`GET /api/v1/onboarding/bands`).
+- [x] CRUD/lista de bandas para Engineer/Admin (`/api/v1/admin/bands`).
 - [ ] Roster online por banda e `Default/Padrão`.
 - [ ] Presença/heartbeat server-authoritative.
 - [ ] Usuários com perfil, banda, status e última atividade.

@@ -3,6 +3,7 @@
 pub mod admin;
 pub mod audio;
 pub mod auth;
+pub mod bands;
 pub mod channels;
 pub mod config;
 pub mod devices;

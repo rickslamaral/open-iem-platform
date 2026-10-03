@@ -416,20 +416,22 @@ impl Db {
                 .chars()
                 .filter(|character| !character.is_ascii_whitespace())
                 .collect();
-            if columns != expected_columns
-                || foreign_keys
-                    != vec![(
-                        "users".to_owned(),
-                        "user_id".to_owned(),
-                        "id".to_owned(),
-                        "CASCADE".to_owned(),
-                    )]
-                || status_index_columns != vec![(0, "status".to_owned())]
-                || !normalized_sql.contains("PROFILE_IDINTEGERPRIMARYKEYAUTOINCREMENT")
-                || !normalized_sql
-                    .contains("USER_IDINTEGERNOTNULLUNIQUEREFERENCESUSERS(ID)ONDELETECASCADE")
-                || !normalized_sql
-                    .contains("STATUSTEXTNOTNULLCHECK(STATUSIN('PENDING','ACTIVE','BLOCKED'))")
+            let has_band_id = columns.iter().any(|(name, _, _, _, _)| name == "band_id");
+            if !has_band_id
+                && (columns != expected_columns
+                    || foreign_keys
+                        != vec![(
+                            "users".to_owned(),
+                            "user_id".to_owned(),
+                            "id".to_owned(),
+                            "CASCADE".to_owned(),
+                        )]
+                    || status_index_columns != vec![(0, "status".to_owned())]
+                    || !normalized_sql.contains("PROFILE_IDINTEGERPRIMARYKEYAUTOINCREMENT")
+                    || !normalized_sql
+                        .contains("USER_IDINTEGERNOTNULLUNIQUEREFERENCESUSERS(ID)ONDELETECASCADE")
+                    || !normalized_sql
+                        .contains("STATUSTEXTNOTNULLCHECK(STATUSIN('PENDING','ACTIVE','BLOCKED'))"))
             {
                 return Err(ApiError::Internal(
                     "migration M002 recorded but musician_profiles schema is missing or invalid"
@@ -1357,6 +1359,110 @@ impl Db {
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
     }
 
+    /// List active bands for public onboarding catalog.
+    pub fn list_active_bands(&self) -> Result<Vec<(i64, String)>, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let mut stmt = conn
+            .prepare("SELECT id, name FROM bands WHERE active = 1 ORDER BY name, id")
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let rows = stmt
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// List all bands for Engineer/Admin management.
+    pub fn list_bands(&self) -> Result<Vec<(i64, String, bool)>, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let mut stmt = conn
+            .prepare("SELECT id, name, active FROM bands ORDER BY name, id")
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let rows = stmt
+            .query_map([], |row| {
+                Ok((row.get(0)?, row.get(1)?, row.get::<_, i64>(2)? != 0))
+            })
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Create band with normalized unique name.
+    pub fn create_band(&self, name: &str, active: bool) -> Result<i64, ApiError> {
+        let name = name.trim();
+        if name.is_empty() || name.len() > 120 {
+            return Err(ApiError::BadRequest(
+                "name must be 1-120 characters".to_owned(),
+            ));
+        }
+        let normalized = name.to_lowercase();
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute(
+            "INSERT INTO bands(name, normalized_name, active) VALUES(?1, ?2, ?3)",
+            rusqlite::params![name, normalized, i64::from(active)],
+        )
+        .map_err(|e| {
+            if e.to_string().contains("UNIQUE") {
+                ApiError::Conflict("band name already exists".to_owned())
+            } else {
+                ApiError::Internal(e.to_string())
+            }
+        })?;
+        Ok(conn.last_insert_rowid())
+    }
+
+    /// Update band metadata.
+    pub fn update_band(&self, id: i64, name: &str, active: bool) -> Result<(), ApiError> {
+        let name = name.trim();
+        if name.is_empty() || name.len() > 120 {
+            return Err(ApiError::BadRequest(
+                "name must be 1-120 characters".to_owned(),
+            ));
+        }
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute(
+            "UPDATE bands SET name=?1, normalized_name=?2, active=?3 WHERE id=?4",
+            rusqlite::params![name, name.to_lowercase(), i64::from(active), id],
+        )
+        .map_err(|e| {
+            if e.to_string().contains("UNIQUE") {
+                ApiError::Conflict("band name already exists".to_owned())
+            } else {
+                ApiError::Internal(e.to_string())
+            }
+        })?;
+        if conn.changes() == 0 {
+            return Err(ApiError::NotFound("band not found".to_owned()));
+        }
+        Ok(())
+    }
+
+    /// Delete band when no musician profile references it.
+    pub fn delete_band(&self, id: i64) -> Result<(), ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute("DELETE FROM bands WHERE id=?1", rusqlite::params![id])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if conn.changes() == 0 {
+            return Err(ApiError::NotFound("band not found".to_owned()));
+        }
+        Ok(())
+    }
+
     /// Find user username and role by ID.
     pub fn find_user_by_id(&self, user_id: i64) -> Result<(String, Role), ApiError> {
         let conn = self
@@ -1930,7 +2036,8 @@ mod tests {
                 (1, "M001".to_owned()),
                 (2, "M002".to_owned()),
                 (3, "M003".to_owned()),
-                (4, "M004".to_owned())
+                (4, "M004".to_owned()),
+                (5, "M005".to_owned())
             ]
         );
     }
