@@ -3985,3 +3985,11 @@ test → review → docs/GAP update → PR/CI
 - Testes frontend executados com `npm test -- --watchAll=false` falharam porque Vitest rejeita opção Jest `--watchAll`; comando correto `npm test` executado separadamente para musician e engineer: 67 e 59 testes PASS.
 - Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. CI remoto SUCCESS existente cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`, não este HEAD. PR #352 segue aberta contra `main`, sem checks reportados.
 - Backlog CODE executável permanece esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 01:48 -0300 — verificação operacional no HEAD `3e514ac`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `3e514acfacc12e5aa0bdf208fd49c6a37aa24b85`; working tree limpa antes desta atualização.
+- Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes (874 testes), musician (typecheck, 67 testes, build) e engineer (typecheck, 59 testes, build).
+- Segurança: `npm audit --audit-level=high` reportou 0 vulnerabilidades nos dois frontends; scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- CI remoto SUCCESS real mais recente em `develop`: runs `37078296183` e `37078296148`, ambos cobrindo SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`; CI do HEAD atual não foi confirmado. PR #352 permanece aberta contra `main`, sem checks reportados e `mergeStateStatus=DIRTY`; política vigente não abre PR nova nem faz merge.
+- Backlog CODE executável permanece esgotado; pendências exigem hardware físico, confirmação de release, secret externo ou runner remoto. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
