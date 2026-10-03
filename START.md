@@ -3963,3 +3963,160 @@ Do not move or recreate an existing release tag without explicit confirmation. V
 - CI remoto não tem SUCCESS para este HEAD; últimos SUCCESS reais (`36897066547`, `36897066543`) cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; não contam para este HEAD.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, com falhas em Rust/coverage; política vigente não altera essas branches.
 - Validação física não executada: WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## Plano de evolução: QR, contas, bandas e Engineer/Admin Console
+
+### Objetivo
+
+Permitir que músico chegue ao local, veja QR exibido pelo Musician UI em `http://<host>:5173` — porta configurável — leia convite, crie username e senha próprios, informe nome/instrumento e entre em sessão de banda ou `Default/Padrão`.
+
+QR é convite temporário de bootstrap. Não é senha, token permanente, autorização de mix nem identidade compartilhada.
+
+### Fluxo músico
+
+1. Engineer/Admin ativa QR temporário e Musician UI exibe QR.
+2. Músico lê QR por câmera ou fallback manual.
+3. Músico informa username, senha, nome, instrumento e banda opcional.
+4. Servidor valida convite, credenciais, perfil e banda na mesma transação.
+5. Servidor cria usuário `Musician`, armazena senha somente como Argon2id, cria perfil e sessão revogável.
+6. Banda selecionada define escopo e roster.
+7. Sem banda, músico entra em `Default/Padrão`.
+8. Roster mostra somente músicos autenticados, ativos, não expirados e não revogados no mesmo escopo.
+9. Logout, expiração, revogação ou perda de heartbeat removem músico do roster.
+
+### Segurança
+
+- QR: alta entropia, hash-only, TTL máximo de 10 minutos, uso limitado, replay protection, rotação, revogação, rate limit e auditoria sem segredo.
+- QR nunca aparece em URL, logs, localStorage, auditoria ou resposta após ativação.
+- Username único e normalizado. Senha usa Argon2id.
+- Exchange não sobrescreve usuário existente.
+- Banda inexistente/inativa rejeita operação.
+- Falha em qualquer etapa faz rollback completo de usuário, perfil e sessão.
+- Banda define escopo; não concede canais, mix ou permissões.
+- Toda rota, mensagem WebSocket, roster e assignment é autorizada no servidor.
+- Engineer/Admin nunca visualizam senha, hash, refresh token ou access token de terceiros.
+
+### Estado implementado
+
+- PR #351: `https://github.com/rickslamaral/open-iem-platform/pull/351`.
+- Plano: `.hermes/plans/2026-10-02_musician-qr-account-band-session.md`.
+- M005 em `server/api-server/src/db.rs`: tabela `bands`, vínculo opcional `musician_profiles.band_id`, schema fail-closed e índice de roster.
+- QR exchange em `server/api-server/src/routes/qr.rs`: username, senha, `band_id` opcional, Argon2id, username duplicado rejeitado e banda ativa validada.
+- Consumo QR, sessão, auditoria e rollback preservados.
+- Slice Rust validado: `cargo fmt`, `cargo clippy` e 11 testes QR PASS.
+- Proxy Docker/Vite corrigido localmente: `web/engineer/vite.config.ts` e `web/musician/vite.config.ts` usam `VITE_API_BASE_URL`.
+- Erro de proxy caiu de `502` para `401`, confirmando caminho UI → proxy → API. `401` restante significa credencial inválida.
+
+### Gaps a fechar
+
+#### API/backend
+
+- [ ] Catálogo de bandas para onboarding.
+- [ ] CRUD de bandas para Engineer/Admin.
+- [ ] Roster online por banda e `Default/Padrão`.
+- [ ] Presença/heartbeat server-authoritative.
+- [ ] Usuários com perfil, banda, status e última atividade.
+- [ ] Bloqueio/desbloqueio de músico.
+- [ ] Revogação por usuário/dispositivo.
+- [ ] Soft-delete de usuário.
+- [ ] Auditoria de alterações de banda, usuário, sessão e assignment.
+- [ ] RBAC granular.
+- [ ] Assignment de mix e limites de canais.
+- [ ] Autorização WebSocket por sessão, banda e mix.
+
+Rotas alvo:
+
+```text
+GET    /api/v1/onboarding/bands
+GET    /api/v1/me/session
+GET    /api/v1/me/roster
+GET    /api/v1/admin/users
+GET    /api/v1/admin/users/{id}
+POST   /api/v1/admin/users/{id}/revoke-sessions
+POST   /api/v1/admin/users/{id}/block
+DELETE /api/v1/admin/users/{id}
+GET    /api/v1/admin/bands
+POST   /api/v1/admin/bands
+PATCH  /api/v1/admin/bands/{id}
+DELETE /api/v1/admin/bands/{id}
+GET    /api/v1/admin/bands/{id}/members
+PUT    /api/v1/admin/bands/{id}/members/{user_id}
+DELETE /api/v1/admin/bands/{id}/members/{user_id}
+GET    /api/v1/admin/sessions/online
+GET    /api/v1/admin/sessions/default
+POST   /api/v1/admin/sessions/{id}/revoke
+```
+
+#### Musician UI (`:5173`)
+
+- [ ] Exibir QR temporário com TTL, estado e usos restantes.
+- [ ] Câmera/fallback sem persistir segredo.
+- [ ] Formulário username, senha, nome, instrumento e banda.
+- [ ] Catálogo de bandas vindo do servidor.
+- [ ] Sessão atual: banda ou `Default/Padrão`.
+- [ ] Roster somente do escopo autorizado.
+- [ ] Presença baseada no servidor.
+- [ ] Preferências de mix dentro dos limites atribuídos.
+- [ ] Logout, refresh e reconexão limpando presença.
+
+#### Engineer/Admin UI (`:5174`)
+
+- [ ] Login via proxy configurável; erro de credencial deve aparecer como `401`, não `502`.
+- [ ] Painel QR: ativar, exibir, rotacionar, revogar e acompanhar TTL/usos.
+- [ ] Usuários: listar, pesquisar, ver status, banda e última atividade.
+- [ ] Sessões: ver online, revogar sessão/dispositivo e desconectar usuário.
+- [ ] Bandas: criar, renomear, ativar/desativar e gerenciar membros.
+- [ ] `Default/Padrão`: ver músicos sem banda e presença ativa.
+- [ ] Mix: atribuir, limitar, revogar e visualizar estado.
+- [ ] Auditoria sem segredos.
+- [ ] Confirmação para operações destrutivas; preferir bloqueio/soft-delete.
+
+### RBAC planejado
+
+```text
+users.read              Engineer/Admin
+users.revoke            Engineer/Admin
+users.block             Engineer/Admin
+bands.read              Engineer/Admin/Musician: catálogo permitido
+bands.write             Engineer/Admin
+bands.members.write     Engineer/Admin
+qr.manage               Engineer/Admin
+sessions.read           Engineer/Admin; Musician: própria sessão
+sessions.revoke         Engineer/Admin; Musician: própria sessão
+mix.assign              Engineer/Admin
+mix.control             Musician: somente mix atribuído
+audit.read              Admin; Engineer conforme escopo
+```
+
+Cada operação exige permission check explícito no servidor. Banda nunca concede autorização de mix.
+
+### Critérios de aceite
+
+- Login Engineer/Admin via Docker retorna API, nunca `502` por destino loopback incorreto.
+- QR expira e não reutiliza além do limite.
+- Músico cria username/senha próprios; senha não aparece em logs, QR ou URL.
+- Banda ativa entra no roster correto; sem banda entra em `Default/Padrão`.
+- Roster não mostra offline, expirado, revogado ou outra banda.
+- Engineer/Admin executam pela UI ações disponíveis na API/CLI.
+- Musician não lista usuários globais, muda banda de terceiros, acessa outro mix ou envia WebSocket fora do assignment.
+- Revogação remove sessão e presença.
+- Testes cobrem RBAC, concorrência QR, username duplicado, banda inativa, logout, expiração, reconexão e corrida de revogação.
+
+### Validação antes de merge
+
+```bash
+scripts/validate-docs.sh
+git diff --check
+cargo fmt --all --manifest-path server/Cargo.toml -- --check
+cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings
+cargo test --manifest-path server/Cargo.toml
+cd web/musician && npm run typecheck && npm test -- --run && npm run build
+cd ../engineer && npm run typecheck && npm test -- --run && npm run build
+cd ../..
+docker compose --env-file .env.local -f docker-compose.public.yml ps
+curl -fsS http://127.0.0.1:3000/api/v1/health
+curl -fsS http://127.0.0.1:5173/
+curl -fsS http://127.0.0.1:5174/
+```
+
+Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRTP, PipeWire/ALSA, LAN, Raspberry Pi 5, instalação física e publicação `v0.3.1` continuam `PENDING/BLOCKED`.
