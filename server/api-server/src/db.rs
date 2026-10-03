@@ -223,6 +223,210 @@ fn validate_band_name(name: &str) -> Result<&str, ApiError> {
     Ok(trimmed)
 }
 
+#[allow(clippy::too_many_lines)]
+fn validate_musician_schema(
+    tx: &rusqlite::Transaction<'_>,
+    m005_applied: bool,
+) -> Result<(), ApiError> {
+    type Column = (String, String, i64, Option<String>, i64);
+    type ForeignKey = (String, String, String, String);
+    type Index = (String, i64, String, i64, Vec<String>);
+    let columns = |table: &str| -> Result<Vec<Column>, ApiError> {
+        tx.prepare(&format!(
+            "SELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('{table}') ORDER BY cid"
+        ))
+        .map_err(|e| ApiError::Internal(e.to_string()))?
+        .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?)))
+        .map_err(|e| ApiError::Internal(e.to_string()))?
+        .collect::<Result<_, _>>()
+        .map_err(|e| ApiError::Internal(e.to_string()))
+    };
+    let foreign_keys = |table: &str| -> Result<Vec<ForeignKey>, ApiError> {
+        tx.prepare(&format!(
+            "SELECT \"table\", \"from\", \"to\", on_delete FROM pragma_foreign_key_list('{table}') ORDER BY id, seq"
+        ))
+        .map_err(|e| ApiError::Internal(e.to_string()))?
+        .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
+        .map_err(|e| ApiError::Internal(e.to_string()))?
+        .collect::<Result<_, _>>()
+        .map_err(|e| ApiError::Internal(e.to_string()))
+    };
+    let indexes = |table: &str| -> Result<Vec<Index>, ApiError> {
+        let rows: Vec<(String, i64, String, i64)> = tx
+            .prepare(&format!(
+                "SELECT name, \"unique\", origin, partial FROM pragma_index_list('{table}') ORDER BY name"
+            ))
+            .map_err(|e| ApiError::Internal(e.to_string()))?
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
+            .map_err(|e| ApiError::Internal(e.to_string()))?
+            .collect::<Result<_, _>>()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        rows.into_iter()
+            .map(|(name, unique, origin, partial)| {
+                let columns = tx
+                    .prepare(&format!(
+                        "PRAGMA index_info('{}')",
+                        name.replace('\'', "''")
+                    ))
+                    .map_err(|e| ApiError::Internal(e.to_string()))?
+                    .query_map([], |row| row.get(2))
+                    .map_err(|e| ApiError::Internal(e.to_string()))?
+                    .collect::<Result<Vec<String>, _>>()
+                    .map_err(|e| ApiError::Internal(e.to_string()))?;
+                Ok((name, unique, origin, partial, columns))
+            })
+            .collect()
+    };
+    let expected_base = vec![
+        ("profile_id".to_owned(), "INTEGER".to_owned(), 0, None, 1),
+        ("user_id".to_owned(), "INTEGER".to_owned(), 1, None, 0),
+        ("display_name".to_owned(), "TEXT".to_owned(), 1, None, 0),
+        ("instrument_id".to_owned(), "TEXT".to_owned(), 1, None, 0),
+        ("status".to_owned(), "TEXT".to_owned(), 1, None, 0),
+        (
+            "created_at".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("unixepoch()".to_owned()),
+            0,
+        ),
+        (
+            "updated_at".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("unixepoch()".to_owned()),
+            0,
+        ),
+    ];
+    let mut expected_profile = expected_base;
+    if m005_applied {
+        expected_profile.push(("band_id".to_owned(), "INTEGER".to_owned(), 0, None, 0));
+    }
+    let mut expected_fks = vec![(
+        "users".to_owned(),
+        "user_id".to_owned(),
+        "id".to_owned(),
+        "CASCADE".to_owned(),
+    )];
+    if m005_applied {
+        expected_fks.push((
+            "bands".to_owned(),
+            "band_id".to_owned(),
+            "id".to_owned(),
+            "SET NULL".to_owned(),
+        ));
+    }
+    let mut actual_fks = foreign_keys("musician_profiles")?;
+    actual_fks.sort();
+    expected_fks.sort();
+    let profile_indexes = indexes("musician_profiles")?;
+    let expected_index_count = if m005_applied { 3 } else { 2 };
+    let valid_profile_indexes = profile_indexes.len() == expected_index_count
+        && profile_indexes
+            .iter()
+            .any(|(name, unique, origin, partial, cols)| {
+                name == "musician_profiles_status_idx"
+                    && *unique == 0
+                    && origin == "c"
+                    && *partial == 0
+                    && cols == &["status"]
+            })
+        && (!m005_applied
+            || profile_indexes
+                .iter()
+                .any(|(name, unique, origin, partial, cols)| {
+                    name == "musician_profiles_band_roster_idx"
+                        && *unique == 0
+                        && origin == "c"
+                        && *partial == 0
+                        && cols == &["band_id", "status", "user_id"]
+                }))
+        && profile_indexes
+            .iter()
+            .filter(|(_, unique, origin, partial, cols)| {
+                *unique == 1 && origin == "u" && *partial == 0 && cols == &["user_id"]
+            })
+            .count()
+            == 1;
+    let profile_sql: String = tx
+        .query_row(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name='musician_profiles'",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+    let normalize = |sql: &str| {
+        sql.to_ascii_uppercase()
+            .chars()
+            .filter(|c| !c.is_ascii_whitespace())
+            .collect::<String>()
+    };
+    let profile_sql = normalize(&profile_sql);
+    let profile_constraints = profile_sql.contains("PROFILE_IDINTEGERPRIMARYKEYAUTOINCREMENT")
+        && profile_sql.contains("STATUSTEXTNOTNULLCHECK(STATUSIN('PENDING','ACTIVE','BLOCKED'))");
+    #[allow(clippy::if_not_else)]
+    let bands_valid = if !m005_applied {
+        tx.query_row(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='bands'",
+            [],
+            |row| row.get::<_, i64>(0),
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?
+            == 0
+    } else {
+        let bands_columns = columns("bands")?;
+        let expected_bands = vec![
+            ("id".to_owned(), "INTEGER".to_owned(), 0, None, 1),
+            ("name".to_owned(), "TEXT".to_owned(), 1, None, 0),
+            ("normalized_name".to_owned(), "TEXT".to_owned(), 1, None, 0),
+            (
+                "active".to_owned(),
+                "INTEGER".to_owned(),
+                1,
+                Some("1".to_owned()),
+                0,
+            ),
+            (
+                "created_at".to_owned(),
+                "INTEGER".to_owned(),
+                1,
+                Some("unixepoch()".to_owned()),
+                0,
+            ),
+        ];
+        let bands_indexes = indexes("bands")?;
+        let bands_sql: String = tx
+            .query_row(
+                "SELECT sql FROM sqlite_master WHERE type='table' AND name='bands'",
+                [],
+                |row| row.get(0),
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let bands_sql = normalize(&bands_sql);
+        bands_columns == expected_bands
+            && foreign_keys("bands")?.is_empty()
+            && bands_indexes.len() == 1
+            && bands_indexes
+                .iter()
+                .any(|(_, unique, origin, partial, cols)| {
+                    *unique == 1 && origin == "u" && *partial == 0 && cols == &["normalized_name"]
+                })
+            && bands_sql.contains("IDINTEGERPRIMARYKEYAUTOINCREMENT")
+            && bands_sql.contains("ACTIVEINTEGERNOTNULLDEFAULT1CHECK(ACTIVEIN(0,1))")
+    };
+    if columns("musician_profiles")? != expected_profile
+        || actual_fks != expected_fks
+        || !valid_profile_indexes
+        || !profile_constraints
+        || !bands_valid
+    {
+        return Err(ApiError::Internal(
+            "migration schema is missing or invalid".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
 impl Db {
     /// Open (or create) the SQLite database at `path`.
     ///
@@ -388,86 +592,6 @@ impl Db {
             )
             .map_err(|e| ApiError::Internal(e.to_string()))?;
         } else {
-            let columns: Vec<(String, String, i64, Option<String>, i64)> = tx
-                .prepare("SELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('musician_profiles') ORDER BY cid")
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .query_map([], |row| {
-                    Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?))
-                })
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
-                .collect::<Result<_, _>>()?;
-            let expected_columns = vec![
-                ("profile_id".to_owned(), "INTEGER".to_owned(), 0, None, 1),
-                ("user_id".to_owned(), "INTEGER".to_owned(), 1, None, 0),
-                ("display_name".to_owned(), "TEXT".to_owned(), 1, None, 0),
-                ("instrument_id".to_owned(), "TEXT".to_owned(), 1, None, 0),
-                ("status".to_owned(), "TEXT".to_owned(), 1, None, 0),
-                (
-                    "created_at".to_owned(),
-                    "INTEGER".to_owned(),
-                    1,
-                    Some("unixepoch()".to_owned()),
-                    0,
-                ),
-                (
-                    "updated_at".to_owned(),
-                    "INTEGER".to_owned(),
-                    1,
-                    Some("unixepoch()".to_owned()),
-                    0,
-                ),
-            ];
-            let foreign_keys: Vec<(String, String, String, String)> = tx
-                .prepare("SELECT \"table\", \"from\", \"to\", on_delete FROM pragma_foreign_key_list('musician_profiles')")
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
-                .collect::<Result<_, _>>()?;
-            let table_sql: String = tx
-                .query_row(
-                    "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'musician_profiles'",
-                    [],
-                    |row| row.get(0),
-                )
-                .map_err(|e| ApiError::Internal(e.to_string()))?;
-            let status_index_columns: Vec<(i64, String)> = tx
-                .prepare("PRAGMA index_info('musician_profiles_status_idx')")
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .query_map([], |row| Ok((row.get(0)?, row.get(2)?)))
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
-                .collect::<Result<_, _>>()?;
-            let user_unique_indexes: Vec<(String, i64, i64)> = tx
-                .prepare("PRAGMA index_list('musician_profiles')")
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .query_map([], |row| Ok((row.get(1)?, row.get(2)?, row.get(4)?)))
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
-                .collect::<Result<Vec<(String, i64, i64)>, _>>()?
-                .into_iter()
-                .filter(|(_, unique, partial)| *unique == 1 && *partial == 0)
-                .filter(|(name, _, _)| {
-                    let columns: Result<Vec<String>, _> = tx
-                        .prepare(&format!(
-                            "PRAGMA index_info('{}')",
-                            name.replace('\'', "''")
-                        ))
-                        .and_then(|mut statement| {
-                            statement
-                                .query_map([], |row| row.get(2))
-                                .map(|rows| rows.filter_map(Result::ok).collect())
-                        });
-                    columns.is_ok_and(|columns| columns == vec!["user_id".to_owned()])
-                })
-                .collect();
-            let user_id_unique = !user_unique_indexes.is_empty();
-            let normalized_sql: String = table_sql
-                .to_ascii_uppercase()
-                .chars()
-                .filter(|character| !character.is_ascii_whitespace())
-                .collect();
             let m005_applied: bool = tx
                 .query_row(
                     "SELECT EXISTS(SELECT 1 FROM migrations WHERE name = 'M005')",
@@ -475,56 +599,7 @@ impl Db {
                     |row| row.get(0),
                 )
                 .map_err(|e| ApiError::Internal(e.to_string()))?;
-            let mut expected_current_columns = expected_columns.clone();
-            let expected_foreign_keys = if m005_applied {
-                expected_current_columns.push((
-                    "band_id".to_owned(),
-                    "INTEGER".to_owned(),
-                    0,
-                    None,
-                    0,
-                ));
-                vec![
-                    (
-                        "users".to_owned(),
-                        "user_id".to_owned(),
-                        "id".to_owned(),
-                        "CASCADE".to_owned(),
-                    ),
-                    (
-                        "bands".to_owned(),
-                        "band_id".to_owned(),
-                        "id".to_owned(),
-                        "SET NULL".to_owned(),
-                    ),
-                ]
-            } else {
-                vec![(
-                    "users".to_owned(),
-                    "user_id".to_owned(),
-                    "id".to_owned(),
-                    "CASCADE".to_owned(),
-                )]
-            };
-            let mut actual_foreign_keys = foreign_keys.clone();
-            let mut expected_foreign_keys = expected_foreign_keys;
-            actual_foreign_keys.sort();
-            expected_foreign_keys.sort();
-            if columns != expected_current_columns
-                || actual_foreign_keys != expected_foreign_keys
-                || status_index_columns != vec![(0, "status".to_owned())]
-                || !user_id_unique
-                || !normalized_sql.contains("PROFILE_IDINTEGERPRIMARYKEYAUTOINCREMENT")
-                || !normalized_sql.contains("USER_IDINTEGERNOTNULLUNIQUE")
-                || !normalized_sql.contains("REFERENCESUSERS(ID)ONDELETECASCADE")
-                || !normalized_sql
-                    .contains("STATUSTEXTNOTNULLCHECK(STATUSIN('PENDING','ACTIVE','BLOCKED'))")
-            {
-                return Err(ApiError::Internal(
-                    "migration M002 recorded but musician_profiles schema is missing or invalid"
-                        .to_owned(),
-                ));
-            }
+            validate_musician_schema(&tx, m005_applied)?;
         }
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
         let tx = conn
@@ -593,54 +668,7 @@ impl Db {
             tx.execute_batch("CREATE TABLE bands (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, normalized_name TEXT NOT NULL UNIQUE, active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0, 1)), created_at INTEGER NOT NULL DEFAULT (unixepoch())); ALTER TABLE musician_profiles ADD COLUMN band_id INTEGER REFERENCES bands(id) ON DELETE SET NULL; CREATE INDEX musician_profiles_band_roster_idx ON musician_profiles(band_id, status, user_id); INSERT INTO migrations (id, name) VALUES (5, 'M005');")
                 .map_err(|e| ApiError::Internal(e.to_string()))?;
         } else {
-            let bands_columns: Vec<String> = tx
-                .prepare("SELECT name FROM pragma_table_info('bands') ORDER BY cid")
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .query_map([], |row| row.get(0))
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
-                .collect::<Result<_, _>>()?;
-            let profile_columns: Vec<String> = tx
-                .prepare("SELECT name FROM pragma_table_info('musician_profiles') ORDER BY cid")
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .query_map([], |row| row.get(0))
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
-                .collect::<Result<_, _>>()?;
-            let bands_sql: String = tx
-                .query_row(
-                    "SELECT sql FROM sqlite_master WHERE type='table' AND name='bands'",
-                    [],
-                    |row| row.get(0),
-                )
-                .map_err(|e| ApiError::Internal(e.to_string()))?;
-            let profile_sql: String = tx
-                .query_row(
-                    "SELECT sql FROM sqlite_master WHERE type='table' AND name='musician_profiles'",
-                    [],
-                    |row| row.get(0),
-                )
-                .map_err(|e| ApiError::Internal(e.to_string()))?;
-            let normalize = |s: &str| {
-                s.to_ascii_uppercase()
-                    .chars()
-                    .filter(|c| !c.is_ascii_whitespace())
-                    .collect::<String>()
-            };
-            let normalized_bands_sql = normalize(&bands_sql);
-            let normalized_profile_sql = normalize(&profile_sql);
-            if bands_columns != ["id", "name", "normalized_name", "active", "created_at"]
-                || profile_columns.last().map(String::as_str) != Some("band_id")
-                || !normalized_bands_sql.contains("NORMALIZED_NAMETEXTNOTNULLUNIQUE")
-                || !normalized_bands_sql
-                    .contains("ACTIVEINTEGERNOTNULLDEFAULT1CHECK(ACTIVEIN(0,1))")
-                || !normalized_profile_sql
-                    .contains("BAND_IDINTEGERREFERENCESBANDS(ID)ONDELETESETNULL")
-            {
-                return Err(ApiError::Internal(
-                    "migration M005 recorded but band schema is incomplete".to_owned(),
-                ));
-            }
+            validate_musician_schema(&tx, true)?;
         }
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
 
