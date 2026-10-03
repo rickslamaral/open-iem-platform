@@ -1,3 +1,5 @@
+- [x] Verificação operacional 2026-10-03 08:46 -0300: `develop`/`origin/develop` sincronizadas em `5817448751caffb107e2b02ddf412e4badb0bce3`; gates documentais, fmt e proxy PipeWire software PASS; scanner indisponível sem resultado inventado; CODE executável esgotado; validação física/release seguem PENDING/BLOCKED.
+
 ## 2026-10-03 08:02 -0300 — verificação operacional no HEAD `63024a8`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `63024a81f5daa60ea28828f013f071bea8538f25`; working tree limpa antes desta atualização.
