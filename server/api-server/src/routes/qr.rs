@@ -113,6 +113,7 @@ fn unix_hash(secret: &str) -> String {
 #[derive(Deserialize)]
 pub struct QrConfigure {
     pub expires_in_seconds: Option<u64>,
+    pub band_id: Option<i64>,
 }
 #[derive(Serialize)]
 pub struct QrStatus {
@@ -120,6 +121,7 @@ pub struct QrStatus {
     pub expires_at: u64,
     pub remaining_uses: u64,
     pub generation: u64,
+    pub band_id: Option<i64>,
 }
 #[derive(Deserialize)]
 pub struct Exchange {
@@ -128,7 +130,6 @@ pub struct Exchange {
     pub password: String,
     pub display_name: String,
     pub instrument_id: String,
-    pub band_id: Option<i64>,
 }
 #[derive(Serialize)]
 pub struct ExchangeResponse {
@@ -141,12 +142,13 @@ pub async fn status(
     Extension(claims): Extension<JwtClaims>,
 ) -> Result<Json<QrStatus>, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
-    let (active, expires, remaining, generation) = state.db.qr_status(now())?;
+    let (active, expires, remaining, generation, band_id) = state.db.qr_status(now())?;
     Ok(Json(QrStatus {
         active,
         expires_at: expires,
         remaining_uses: remaining,
         generation,
+        band_id,
     }))
 }
 async fn configure(
@@ -164,12 +166,18 @@ async fn configure(
         ));
     }
     let expires = now() + lifetime;
-    state
-        .db
-        .configure_qr_audited(&unix_hash(&secret), expires, claims.user_id, action)?;
+    state.db.configure_qr_audited(
+        &unix_hash(&secret),
+        expires,
+        body.band_id,
+        claims.user_id,
+        action,
+    )?;
     Ok((
         StatusCode::CREATED,
-        Json(serde_json::json!({"qr_secret": secret, "expires_at": expires})),
+        Json(
+            serde_json::json!({"qr_secret": secret, "expires_at": expires, "band_id": body.band_id}),
+        ),
     ))
 }
 pub async fn activate(
@@ -216,7 +224,6 @@ pub async fn exchange(
         &password_hash,
         &body.display_name,
         &body.instrument_id,
-        body.band_id,
         now,
         &token_to_storage_key(&raw_refresh),
         now + crate::auth::REFRESH_TOKEN_TTL_S,

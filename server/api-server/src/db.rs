@@ -162,9 +162,21 @@ fn validate_m003_schema(tx: &rusqlite::Transaction<'_>) -> Result<(), ApiError> 
         ),
     ];
     expected_foreign_keys.sort();
-    let valid = columns("qr_onboarding")? == qr_expected
+    let qr_columns = columns("qr_onboarding")?;
+    let qr_columns_valid = qr_columns == qr_expected
+        || (qr_columns.len() == qr_expected.len() + 1
+            && qr_columns[..qr_expected.len()] == qr_expected[..]
+            && qr_columns.last().map(|column| column.0.as_str()) == Some("band_id"));
+    let valid = qr_columns_valid
         && columns("musician_onboarding_sessions")? == session_expected
-        && foreign_keys("qr_onboarding")?.is_empty()
+        && (foreign_keys("qr_onboarding")?.is_empty()
+            || foreign_keys("qr_onboarding")?
+                == vec![(
+                    "bands".to_owned(),
+                    "band_id".to_owned(),
+                    "id".to_owned(),
+                    "SET NULL".to_owned(),
+                )])
         && session_foreign_keys == expected_foreign_keys
         && qr_sql.contains("IDINTEGERPRIMARYKEYCHECK(ID=1)")
         && qr_sql.contains("SECRET_HASHTEXTNOTNULL")
@@ -552,6 +564,46 @@ impl Db {
             {
                 return Err(ApiError::Internal(
                     "migration M005 recorded but band schema is incomplete".to_owned(),
+                ));
+            }
+        }
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+
+        // M006 binds QR onboarding scope to the server-side band row.
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let applied: Option<i64> = tx
+            .query_row("SELECT id FROM migrations WHERE name = 'M006'", [], |row| {
+                row.get(0)
+            })
+            .optional()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if applied.is_none() {
+            tx.execute_batch("ALTER TABLE qr_onboarding ADD COLUMN band_id INTEGER REFERENCES bands(id) ON DELETE SET NULL; INSERT INTO migrations (id, name) VALUES (6, 'M006');")
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+        } else {
+            let columns: Vec<String> = tx
+                .prepare("SELECT name FROM pragma_table_info('qr_onboarding') ORDER BY cid")
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| row.get(0))
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect::<Result<_, _>>()?;
+            let foreign_keys: Vec<(String, String, String, String)> = tx
+                .prepare("SELECT \"table\", \"from\", \"to\", on_delete FROM pragma_foreign_key_list('qr_onboarding')")
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect::<Result<_, _>>()?;
+            if columns.last().map(String::as_str) != Some("band_id")
+                || !foreign_keys.iter().any(|(table, from, to, delete)| {
+                    table == "bands" && from == "band_id" && to == "id" && delete == "SET NULL"
+                })
+            {
+                return Err(ApiError::Internal(
+                    "migration M006 recorded but QR band schema is incomplete".to_owned(),
                 ));
             }
         }
@@ -1063,12 +1115,12 @@ impl Db {
     }
 
     /// Return QR onboarding status.
-    pub fn qr_status(&self, now: u64) -> Result<(bool, u64, u64, u64), ApiError> {
+    pub fn qr_status(&self, now: u64) -> Result<(bool, u64, u64, u64, Option<i64>), ApiError> {
         let conn = self
             .conn
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
-        conn.query_row("SELECT active, expires_at, CASE WHEN active=1 AND expires_at > ?1 AND max_uses > used_count THEN max_uses - used_count ELSE 0 END, generation FROM qr_onboarding WHERE id=1", params![now as i64], |r| Ok((r.get::<_, i64>(0)? != 0 && r.get::<_, i64>(1)? > now as i64, r.get::<_, i64>(1)?.max(0) as u64, r.get::<_, i64>(2)?.max(0) as u64, r.get::<_, i64>(3)?.max(0) as u64))).map_err(|e| ApiError::Internal(e.to_string()))
+        conn.query_row("SELECT active, expires_at, CASE WHEN active=1 AND expires_at > ?1 AND max_uses > used_count THEN max_uses - used_count ELSE 0 END, generation, band_id FROM qr_onboarding WHERE id=1", params![now as i64], |r| Ok((r.get::<_, i64>(0)? != 0 && r.get::<_, i64>(1)? > now as i64, r.get::<_, i64>(1)?.max(0) as u64, r.get::<_, i64>(2)?.max(0) as u64, r.get::<_, i64>(3)?.max(0) as u64, r.get(4)?))).map_err(|e| ApiError::Internal(e.to_string()))
     }
 
     /// Configure QR onboarding activation or rotation.
@@ -1172,6 +1224,7 @@ impl Db {
         &self,
         hash: &str,
         expires: u64,
+        band_id: Option<i64>,
         actor_user_id: i64,
         action: &str,
     ) -> Result<(), ApiError> {
@@ -1187,9 +1240,24 @@ impl Db {
         let tx = conn
             .transaction()
             .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if let Some(band_id) = band_id {
+            let active: Option<i64> = tx
+                .query_row(
+                    "SELECT id FROM bands WHERE id = ?1 AND active = 1",
+                    params![band_id],
+                    |row| row.get(0),
+                )
+                .optional()
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+            if active.is_none() {
+                return Err(ApiError::BadRequest(
+                    "band_id must reference an active band".to_owned(),
+                ));
+            }
+        }
         tx.execute(
-            "UPDATE qr_onboarding SET secret_hash=?1, expires_at=?2, active=1, used_count=0, generation=generation+1 WHERE id=1",
-            params![hash, expires as i64],
+            "UPDATE qr_onboarding SET secret_hash=?1, band_id=?2, expires_at=?3, active=1, used_count=0, generation=generation+1 WHERE id=1",
+            params![hash, band_id, expires as i64],
         ).map_err(|e| ApiError::Internal(e.to_string()))?;
         let generation: i64 = tx
             .query_row(
@@ -1223,7 +1291,6 @@ impl Db {
         password_hash: &str,
         name: &str,
         instrument: &str,
-        band_id: Option<i64>,
         now: u64,
         refresh: &str,
         refresh_exp: u64,
@@ -1246,21 +1313,13 @@ impl Db {
             if e.to_string().contains("UNIQUE") { ApiError::BadRequest("username is unavailable".to_owned()) } else { ApiError::Internal(e.to_string()) }
         })?;
         let uid = tx.last_insert_rowid();
-        if let Some(band_id) = band_id {
-            let active: Option<i64> = tx
-                .query_row(
-                    "SELECT id FROM bands WHERE id = ?1 AND active = 1",
-                    params![band_id],
-                    |row| row.get(0),
-                )
-                .optional()
-                .map_err(|e| ApiError::Internal(e.to_string()))?;
-            if active.is_none() {
-                return Err(ApiError::BadRequest(
-                    "band_id must reference an active band".to_owned(),
-                ));
-            }
-        }
+        let band_id: Option<i64> = tx
+            .query_row(
+                "SELECT band_id FROM qr_onboarding WHERE id = 1",
+                [],
+                |row| row.get(0),
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.execute("INSERT INTO musician_profiles(user_id,display_name,instrument_id,status,band_id) VALUES(?1,?2,?3,'PENDING',?4)", params![uid,name,instrument,band_id]).map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.execute(
             "INSERT INTO refresh_tokens(user_id,token_hash,expires_at,family) VALUES(?1,?2,?3,?4)",
@@ -1303,7 +1362,6 @@ impl Db {
             "!",
             name,
             instrument,
-            None,
             now,
             refresh,
             refresh_exp,
@@ -2037,7 +2095,8 @@ mod tests {
                 (2, "M002".to_owned()),
                 (3, "M003".to_owned()),
                 (4, "M004".to_owned()),
-                (5, "M005".to_owned())
+                (5, "M005".to_owned()),
+                (6, "M006".to_owned())
             ]
         );
     }
