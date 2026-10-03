@@ -2,7 +2,7 @@
 
 - [x] Engineer/Admin QR invite controls: generate, rotate, revoke, render QR, copy/share session URL.
 - [x] Test environment URL configured through `OPENIEM_SESSION_PUBLIC_BASE`; fragment carries invitation token only, never access/refresh bearer tokens.
-- [x] Musician URL bootstrap consumes token in memory and removes URL token with `history.replaceState`; musician still supplies onboarding profile and credentials; server binds band or Default/Padrão and issues session only after one-time/limited token consumption.
+- [x] Musician URL bootstrap consumes token in memory and removes URL token with `history.replaceState`; musician supplies onboarding profile plus new-account credentials; server validates fields, hashes the password with Argon2id, then atomically creates account/profile/session and consumes one-time/limited QR usage, binding band or Default/Padrão.
 - [x] Security contract documented: hashed-at-rest token, 10-minute TTL, single use, rotation/revocation, no logs/localStorage/JWT claims.
 
 ## 2026-10-03 09:35 -0300 — reconciliação operacional no HEAD `ea4af2f`

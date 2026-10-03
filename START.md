@@ -584,7 +584,7 @@
 
 ## Current PR #353 — shareable QR invitation URL
 
-Environment target: test only. Engineer/Admin QR controls generate, rotate, revoke, display, copy, and share a separate invitation URL. Musician opens URL or scans QR, reaches session entry, then supplies display name, instrument, username and password before exchange.
+Environment target: test only. Engineer/Admin QR controls generate, rotate, revoke, display, copy, and share a separate invitation URL. Musician opens URL or scans QR, reaches session entry, then supplies display name, instrument, username and password for new Musician-account onboarding before exchange. Server validates fields, hashes the password with Argon2id, and creates account, profile, session, and QR usage atomically.
 
 Invitation contract:
 
@@ -598,7 +598,7 @@ Invitation contract:
 - Revoking or rotating invitation must invalidate access derived from previous generation.
 - Configure `OPENIEM_SESSION_PUBLIC_BASE` for test-environment URL generation.
 
-Security boundary: anyone holding currently valid QR/URL can start onboarding, but entry requires the onboarding profile and credential exchange described above; the invitation remains valid only until TTL, usage limit, rotation, or explicit revocation/deactivation invalidates it. This invitation-assisted flow is not production authentication. Production requires account approval, device authorization or equivalent stronger control.
+Security boundary: anyone holding currently valid QR/URL can start onboarding, but entry requires the onboarding profile and credential exchange described above; a failed database exchange rolls back account, profile, session, and QR usage; a later session-signing failure removes created rows while keeping QR usage consumed. The invitation remains valid only until TTL, usage limit, rotation, or explicit revocation/deactivation invalidates it. This invitation-assisted account-creation flow is not production authentication. Production requires account approval, device authorization or equivalent stronger control.
 
 ## 2026-10-02 — Secure musician session URL/QR onboarding
 
