@@ -4209,3 +4209,12 @@ curl -fsS http://127.0.0.1:5174/
 ```
 
 Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRTP, PipeWire/ALSA, LAN, Raspberry Pi 5, instalação física e publicação `v0.3.1` continuam `PENDING/BLOCKED`.
+
+
+## 2026-10-03 03:47 -0300 — verificação operacional no HEAD `170b37b`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `170b37b`; working tree limpa antes desta atualização.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
+- CI SUCCESS existente cobre SHA anterior, não HEAD atual. PR #352 aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks; política proíbe PR nova, merge ou alteração em `main`.
+- Backlog CODE executável esgotado. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
