@@ -1,4 +1,5 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import QRCode from 'qrcode';
 import './style.css';
 import { useEngineerWs } from './useEngineerWs';
 
@@ -58,6 +59,10 @@ type Dashboard = {
 /** Gain constants matching server/mix-engine (GAIN_DB_MIN / GAIN_DB_MAX). */
 const GAIN_DB_MIN = -144;
 const GAIN_DB_MAX = 12;
+
+type QrStatus = { active: boolean; expires_at: number; remaining_uses: number; generation: number; band_id: number | null };
+type Band = { id: number; name: string; active: boolean };
+type QrInvite = { session_url: string; expires_at: number; band_id: number | null };
 
 async function request<T>(path: string, token: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(path, {
@@ -570,6 +575,51 @@ function ScenePanel({ token }: { token: string }) {
   </>;
 }
 
+function QrInvitePanel({ token }: { token: string }) {
+  const [status, setStatus] = useState<QrStatus | null>(null);
+  const [bands, setBands] = useState<Band[]>([]);
+  const [bandId, setBandId] = useState('');
+  const [invite, setInvite] = useState<QrInvite | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
+  const [qrImage, setQrImage] = useState('');
+  const load = async () => {
+    const [rawStatus, nextBands] = await Promise.all([
+      request<QrStatus>('/api/v1/admin/qr/status', token),
+      request<Band[]>('/api/v1/admin/bands', token),
+    ]);
+    const nextStatus = rawStatus ?? { active: false, expires_at: 0, remaining_uses: 0, generation: 0, band_id: null };
+    setStatus(nextStatus);
+    setBands(Array.isArray(nextBands) ? nextBands : []);
+    if (nextStatus.band_id !== null) setBandId(String(nextStatus.band_id));
+  };
+  const configure = async (path: string) => {
+    setBusy(true); setMessage('');
+    try { const next = await request<QrInvite>(path, token, { method: 'POST', body: JSON.stringify({ band_id: bandId ? Number(bandId) : null }) }); setInvite(next); await load(); }
+    catch (cause) { setMessage(cause instanceof Error ? cause.message : 'Falha ao gerar convite'); }
+    finally { setBusy(false); }
+  };
+  const url = invite?.session_url ?? '';
+  useEffect(() => {
+    let active = true;
+    if (!url) { setQrImage(''); return () => { active = false; }; }
+    void QRCode.toDataURL(url, { errorCorrectionLevel: 'M', margin: 2, width: 240 })
+      .then((image) => { if (active) setQrImage(image); })
+      .catch(() => { if (active) setQrImage(''); });
+    return () => { active = false; };
+  }, [url]);
+  const copy = async () => { if (!url) return; await navigator.clipboard.writeText(url); setMessage('URL copiada'); };
+  return <section className="card" aria-labelledby="qr-invite-title">
+    <h2 id="qr-invite-title">Convite de sessão</h2>
+    <p className="muted">Convite protegido por QR, válido por até 10 minutos. Rotacionar invalida convite anterior.</p>
+    <label>Banda autorizada<select aria-label="Banda do convite" value={bandId} onChange={(event) => setBandId(event.target.value)} disabled={busy}><option value="">Default / Padrão</option>{bands.filter((band) => band.active).map((band) => <option key={band.id} value={band.id}>{band.name}</option>)}</select></label>
+    <div className="row"><button type="button" className="secondary" onClick={() => void load().catch(() => setMessage('Falha ao carregar convite'))} disabled={busy}>Atualizar status</button><button type="button" onClick={() => void configure('/api/v1/admin/qr/activate')} disabled={busy}>{busy ? 'Gerando…' : 'Gerar convite'}</button><button type="button" className="secondary" onClick={() => void configure('/api/v1/admin/qr/rotate')} disabled={busy}>Rotacionar</button><button type="button" className="danger" onClick={async () => { setBusy(true); try { await request('/api/v1/admin/qr/deactivate', token, { method: 'POST' }); setInvite(null); await load(); setMessage('Convite desativado'); } catch (cause) { setMessage(cause instanceof Error ? cause.message : 'Falha ao desativar'); } finally { setBusy(false); } }} disabled={busy}>Desativar</button></div>
+    {status && <p className="muted" role="status">{status.active ? `Ativo · geração ${status.generation} · usos restantes ${status.remaining_uses}` : 'Inativo'}</p>}
+    {url && <div><label htmlFor="session-invite-url">URL do convite</label><input id="session-invite-url" readOnly value={url} />{qrImage && <img src={qrImage} alt="QR code do convite de sessão" width="240" height="240" />}<div className="row"><button type="button" onClick={() => void copy()}>Copiar URL</button><a className="button secondary" href={`https://wa.me/?text=${encodeURIComponent(`Convite Open IEM: ${url}`)}`} target="_blank" rel="noreferrer">Compartilhar via WhatsApp</a></div></div>}
+    {message && <p role="status" className="muted">{message}</p>}
+  </section>;
+}
+
 export default function App() {
   const [token, setToken] = useState<string | null>(null);
   const [pendingPasswordChange, setPendingPasswordChange] = useState(false);
@@ -842,6 +892,7 @@ export default function App() {
         </div>
       </section>
     )}
+    <QrInvitePanel token={token} />
     <section className="grid">
       <div className="card">
         <h2>Controles de Master</h2>

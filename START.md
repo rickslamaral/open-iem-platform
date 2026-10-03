@@ -1,3 +1,11 @@
+## 2026-10-03 09:35 -0300 — reconciliação operacional no HEAD `ea4af2f`
+
+- Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch local `develop` está no HEAD `ea4af2f857130624af65f6da2c25fce43fe8620a`; working tree limpa antes desta atualização.
+- PR #352 foi MERGED contra `main`; não está aberta. CI remoto real do HEAD exato: workflows `CI` (run `37121650586`) e `Software Package Lifecycle Gates` (run `37121650560`) SUCCESS, com 16 checks concluídos e steps reais.
+- `gh pr list --base main --state open`: nenhuma PR aberta. Backlog CODE executável permanece esgotado; pendências exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, clippy e testes Rust foram PASS em verificação anterior deste ciclo; scanner `/root/scan_patterns.py` indisponível neste host, sem resultado inventado.
+- `PIPEWIRE_SOFTWARE_E2E: PASS` é evidência `SOFTWARE/SIMULATED`; não valida Raspberry Pi 5, PipeWire/ALSA físico ou WebRTC/DTLS-SRTP. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; release `v0.3.1` continua `PENDING/BLOCKED`.
+
 ## 2026-10-03 09:00 -0300 — verificação operacional no HEAD `8f88da8`
 
 - Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `8f88da8b50a10cf5ec281499650722d34dffb65a`; working tree limpa.
@@ -573,6 +581,24 @@
 - Remote CI has no SUCCESS at current HEAD; latest real SUCCESS runs are `36897066547` and `36897066543` on prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
 - Open Dependabot PRs #347 and #348 target `main` and fail Rust format/clippy/tests plus coverage; policy leaves them untouched.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA physical, LAN, Raspberry Pi 5 and release `v0.3.1` remain pending. Evidence: `CODE/CI/SIMULATED`.
+
+## Current PR #353 — shareable QR invitation URL
+
+Environment target: test only. Engineer/Admin QR controls generate, rotate, revoke, display, copy, and share a separate invitation URL. Musician opens URL or scans QR, reaches session entry, and can register/enter without typing a password when invitation is valid.
+
+Invitation contract:
+
+- URL carries only a short-lived invitation token; never access or refresh bearer tokens.
+- Server stores SHA-256 hash, validates TTL, usage, generation and revocation before creating musician session.
+- Automatic rotation target: every 1 hour; manual `Generate new QR` revokes previous generation immediately.
+- Current invitation remains visible in Engineer/Admin UI for QR reading, copy and WhatsApp sharing.
+- Token is accepted only through the onboarding exchange, then kept in memory and removed from browser URL with `history.replaceState`.
+- Token is never stored in `localStorage`, JWT claims, application logs or documentation.
+- Session scope comes from QR server-side configuration: selected band or `Default/Padrão`; client cannot choose `band_id`.
+- Revoking or rotating invitation must invalidate access derived from previous generation.
+- Configure `OPENIEM_SESSION_PUBLIC_BASE` for test-environment URL generation.
+
+Security boundary: anyone holding currently valid QR/URL can enter test session until TTL, usage limit or rotation revokes it. This passwordless flow is not production authentication. Production requires account approval, device authorization or equivalent stronger control.
 
 ## 2026-10-02 — Secure musician session URL/QR onboarding
 
