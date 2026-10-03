@@ -207,6 +207,22 @@ fn validate_m003_schema(tx: &rusqlite::Transaction<'_>) -> Result<(), ApiError> 
     Ok(())
 }
 
+fn validate_band_name(name: &str) -> Result<&str, ApiError> {
+    if name.chars().any(char::is_control) {
+        return Err(ApiError::BadRequest(
+            "name must be 1-120 characters and contain no control characters".to_owned(),
+        ));
+    }
+    let trimmed = name.trim();
+    let count = trimmed.chars().count();
+    if trimmed.is_empty() || count > 120 {
+        return Err(ApiError::BadRequest(
+            "name must be 1-120 characters and contain no control characters".to_owned(),
+        ));
+    }
+    Ok(trimmed)
+}
+
 impl Db {
     /// Open (or create) the SQLite database at `path`.
     ///
@@ -428,22 +444,30 @@ impl Db {
                 .chars()
                 .filter(|character| !character.is_ascii_whitespace())
                 .collect();
-            let has_band_id = columns.iter().any(|(name, _, _, _, _)| name == "band_id");
-            if !has_band_id
-                && (columns != expected_columns
-                    || foreign_keys
-                        != vec![(
-                            "users".to_owned(),
-                            "user_id".to_owned(),
-                            "id".to_owned(),
-                            "CASCADE".to_owned(),
-                        )]
-                    || status_index_columns != vec![(0, "status".to_owned())]
-                    || !normalized_sql.contains("PROFILE_IDINTEGERPRIMARYKEYAUTOINCREMENT")
-                    || !normalized_sql
-                        .contains("USER_IDINTEGERNOTNULLUNIQUEREFERENCESUSERS(ID)ONDELETECASCADE")
-                    || !normalized_sql
-                        .contains("STATUSTEXTNOTNULLCHECK(STATUSIN('PENDING','ACTIVE','BLOCKED'))"))
+            let base_columns: Vec<_> = columns
+                .iter()
+                .filter(|(name, _, _, _, _)| name != "band_id")
+                .cloned()
+                .collect();
+            let base_foreign_keys: Vec<_> = foreign_keys
+                .iter()
+                .filter(|(table, _, _, _)| table == "users")
+                .cloned()
+                .collect();
+            if base_columns != expected_columns
+                || base_foreign_keys
+                    != vec![(
+                        "users".to_owned(),
+                        "user_id".to_owned(),
+                        "id".to_owned(),
+                        "CASCADE".to_owned(),
+                    )]
+                || status_index_columns != vec![(0, "status".to_owned())]
+                || !normalized_sql.contains("PROFILE_IDINTEGERPRIMARYKEYAUTOINCREMENT")
+                || !normalized_sql
+                    .contains("USER_IDINTEGERNOTNULLUNIQUEREFERENCESUSERS(ID)ONDELETECASCADE")
+                || !normalized_sql
+                    .contains("STATUSTEXTNOTNULLCHECK(STATUSIN('PENDING','ACTIVE','BLOCKED'))")
             {
                 return Err(ApiError::Internal(
                     "migration M002 recorded but musician_profiles schema is missing or invalid"
@@ -1453,12 +1477,7 @@ impl Db {
 
     /// Create band with normalized unique name.
     pub fn create_band(&self, name: &str, active: bool) -> Result<i64, ApiError> {
-        let name = name.trim();
-        if name.is_empty() || name.len() > 120 {
-            return Err(ApiError::BadRequest(
-                "name must be 1-120 characters".to_owned(),
-            ));
-        }
+        let name = validate_band_name(name)?;
         let normalized = name.to_lowercase();
         let conn = self
             .conn
@@ -1480,12 +1499,7 @@ impl Db {
 
     /// Update band metadata.
     pub fn update_band(&self, id: i64, name: &str, active: bool) -> Result<(), ApiError> {
-        let name = name.trim();
-        if name.is_empty() || name.len() > 120 {
-            return Err(ApiError::BadRequest(
-                "name must be 1-120 characters".to_owned(),
-            ));
-        }
+        let name = validate_band_name(name)?;
         let conn = self
             .conn
             .lock()
@@ -1513,6 +1527,18 @@ impl Db {
             .conn
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let references: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM musician_profiles WHERE band_id = ?1",
+                rusqlite::params![id],
+                |row| row.get(0),
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if references > 0 {
+            return Err(ApiError::Conflict(
+                "band is referenced by musician profiles".to_owned(),
+            ));
+        }
         conn.execute("DELETE FROM bands WHERE id=?1", rusqlite::params![id])
             .map_err(|e| ApiError::Internal(e.to_string()))?;
         if conn.changes() == 0 {
