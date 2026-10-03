@@ -598,7 +598,7 @@ Invitation contract:
 - Revoking or rotating invitation must invalidate access derived from previous generation.
 - Configure `OPENIEM_SESSION_PUBLIC_BASE` for test-environment URL generation.
 
-Security boundary: anyone holding currently valid QR/URL can start onboarding, but entry requires the onboarding profile and credential exchange described above; the invitation remains valid only until TTL, usage limit or rotation revokes it. This invitation-assisted flow is not production authentication. Production requires account approval, device authorization or equivalent stronger control.
+Security boundary: anyone holding currently valid QR/URL can start onboarding, but entry requires the onboarding profile and credential exchange described above; the invitation remains valid only until TTL, usage limit, rotation, or explicit revocation/deactivation invalidates it. This invitation-assisted flow is not production authentication. Production requires account approval, device authorization or equivalent stronger control.
 
 ## 2026-10-02 — Secure musician session URL/QR onboarding
 
