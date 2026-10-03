@@ -22,11 +22,15 @@ export function Login({ onLogin, onQrExchange, error }: Props) {
   const scanGenerationRef = useRef(0);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const invitation = params.get('invitation');
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const invitation = params.get('invitation') ?? hashParams.get('invitation');
     if (invitation) {
       setQrSecret(invitationToken(invitation));
       setQrMode(true);
-      window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.hash}`);
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete('invitation');
+      cleanUrl.hash = '';
+      window.history.replaceState({}, document.title, `${cleanUrl.pathname}${cleanUrl.search}`);
     }
   }, []);
   useEffect(() => {

@@ -176,7 +176,7 @@ async fn configure(
     let session_base = std::env::var("OPENIEM_SESSION_PUBLIC_BASE")
         .unwrap_or_else(|_| "http://localhost:5173".to_owned());
     let session_url = format!(
-        "{}/?invitation={secret}",
+        "{}/#invitation={secret}",
         session_base.trim_end_matches('/')
     );
     Ok((
