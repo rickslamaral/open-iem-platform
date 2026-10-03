@@ -3539,7 +3539,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Audio engine crate with simulated backend and feature-gated JACK/PipeWire bridge
 - [x] Phase 1 review completed: PASS WITH CONDITIONS
-- [ ] Validate real PipeWire graph on a supported Linux host (`RUNTIME_VALIDATED`); physical Pi graph remains `HARDWARE_CERTIFICATION`.
+- [x] Validate real PipeWire graph on a supported Linux host (`RUNTIME_VALIDATED`) via `scripts/ci/run-pipewire-software-e2e.sh`; result `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration), physical Pi graph remains `HARDWARE_CERTIFICATION`.
 
 ## PHASE 21 STATUS
 

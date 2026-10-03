@@ -4045,3 +4045,10 @@ test → review → docs/GAP update → PR/CI
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - CI remoto SUCCESS existente (`37078296183`, `37078296148`) cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`; não conta para HEAD atual. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados.
 - Backlog CODE executável permanece esgotado. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
+## 2026-10-03 04:23 -0300 — verificação operacional no HEAD `5d26583`
+
+- Proxy `scripts/ci/run-pipewire-software-e2e.sh` executado com resultado `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED`); tarefa `Validate real PipeWire graph on a supported Linux host` marcada concluída no backlog.
+- `scripts/validate-docs.sh` e `git diff --check` PASS.
+- Sem CI remoto SUCCESS para HEAD atual; PR #352 aberta contra `main`, sem checks reportados.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; hardware físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` permanecem pendentes.
