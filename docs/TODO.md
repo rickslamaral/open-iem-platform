@@ -1,5 +1,11 @@
-## 2026-10-02 20:45 -0300 — verificação operacional no HEAD `1e407c6`
+## 2026-10-03 00:00 -0300 — verificação operacional no HEAD `130b511`
 
+- `flock -n .git/hermes-dev.lock` adquiriu lease; `develop` e `origin/develop` estão sincronizadas em `130b5117f886b33a1ef670f2a2c4dd63bddab68f`; working tree limpa.
+- PR #352 permanece aberta contra `main`; `gh pr checks 352` retorna `no checks reported on the develop branch`.
+- CI remoto SUCCESS existe no commit pai `2f4b8146e577ae5724e058499bead060181e3f27` (runs `37078296148` e `37078296183`), não no HEAD atual. Não contar como validação do HEAD.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura selecionada.
+- Validação documental e física: `CODE/CI/SIMULATED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - `flock -n .git/hermes-dev.lock` adquiriu lease; `git status --short --branch` retornou `develop...origin/develop` sem alterações; `HEAD` e `origin/develop` são `1e407c67e3cbfeea12c88d0e97971c5d5bf3a507`.
 - `gh pr view 352` confirmou PR #352 aberta, base `main`, head `develop`; `gh pr checks 352` retornou `no checks reported on the 'develop' branch`.
 - `scripts/validate-docs.sh` PASS (`documentation validation passed (version 0.3.1)`); `git diff --check` PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
