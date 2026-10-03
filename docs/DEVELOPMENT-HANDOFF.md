@@ -1,3 +1,14 @@
+## 2026-10-03 08:52 -0300 — verificação operacional no HEAD `56de8d0`
+
+- Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `56de8d0f2d78d399f60729a7900bf63a19ad2f7c`; working tree limpa.
+- `scripts/validate-docs.sh`: PASS (`version 0.3.1`); `git diff --check`: PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`: PASS.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI remoto SUCCESS existente cobre SHA anterior, não este HEAD.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-03 08:32 -0300 — verificação operacional no HEAD `1b60f4d`
 
 - Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `1b60f4d4e0fb68976bf5e7990be54910618dc3c3`; working tree limpa.
