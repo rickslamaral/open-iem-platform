@@ -3341,6 +3341,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## READY / CURRENT PHASE
 
+- [x] Verificação operacional no HEAD `0340af8` — gates locais CODE e frontends PASS; CI remoto/validação física permanecem pendentes.
+
+
 - [x] P1 — Tornar `make up` reconstruível por padrão — Phase 40 — `docker compose up -d --build`; evita imagens obsoletas no desenvolvimento.
 - [x] P1 — Validar Musician Guide PDF de forma reproduzível — Phase 42 — `make docs` extrai texto e renderiza PDF; `mutool` cobre ambiente sem `pdftotext`.
 - [x] P1 — JWT pós-emissão revogável — Phase 31 — access-session mappings checked by middleware and WebSocket message/keepalive loops; local verification passes, CI remains blocked.
