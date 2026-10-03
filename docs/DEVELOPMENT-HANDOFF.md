@@ -4036,3 +4036,12 @@ test → review → docs/GAP update → PR/CI
 - Segurança: `npm audit --audit-level=high` reportou 0 vulnerabilidades nos dois frontends; scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
 - CI remoto SUCCESS real mais recente em `develop`: runs `37078296183` e `37078296148`, ambos cobrindo SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`; CI do HEAD atual não foi confirmado. PR #352 permanece aberta contra `main`, sem checks reportados e `mergeStateStatus=DIRTY`; política vigente não abre PR nova nem faz merge.
 - Backlog CODE executável permanece esgotado; pendências exigem hardware físico, confirmação de release, secret externo ou runner remoto. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
+## 2026-10-03 04:18 -0300 — verificação operacional no HEAD `3c3eaf9`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `3c3eaf9`; working tree limpa antes desta atualização.
+- Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt, clippy e `cargo test --manifest-path server/Cargo.toml` (537 testes de integração/unitários e demais suites PASS).
+- Frontends PASS: musician typecheck, 67 testes, build, `npm audit --audit-level=high` (0 vulnerabilidades); engineer typecheck, 59 testes, build, `npm audit --audit-level=high` (0 vulnerabilidades).
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- CI remoto SUCCESS existente (`37078296183`, `37078296148`) cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`; não conta para HEAD atual. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados.
+- Backlog CODE executável permanece esgotado. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.

@@ -8771,3 +8771,12 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
 - CI SUCCESS existente cobre SHA anterior, não HEAD atual. PR #352 aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks; política proíbe PR nova, merge ou alteração em `main`.
 - Backlog CODE executável esgotado. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 04:18 -0300 — verificação operacional no HEAD `3c3eaf9`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `3c3eaf9`; working tree limpa antes desta atualização.
+- Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt, clippy e `cargo test --manifest-path server/Cargo.toml` (537 testes de integração/unitários e demais suites PASS).
+- Frontends PASS: musician typecheck, 67 testes, build, `npm audit --audit-level=high` (0 vulnerabilidades); engineer typecheck, 59 testes, build, `npm audit --audit-level=high` (0 vulnerabilidades).
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- CI remoto SUCCESS existente (`37078296183`, `37078296148`) cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`; não conta para HEAD atual. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados.
+- Backlog CODE executável permanece esgotado. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
