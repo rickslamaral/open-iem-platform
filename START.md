@@ -1,3 +1,216 @@
+## 2026-10-03 09:00 -0300 — verificação operacional no HEAD `8f88da8`
+
+- Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `8f88da8b50a10cf5ec281499650722d34dffb65a`; working tree limpa.
+- `scripts/validate-docs.sh`: PASS (`version 0.3.1`); `git diff --check`: PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`: PASS.
+- `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`: PASS; `cargo test --manifest-path server/Cargo.toml`: PASS (874 testes, 0 falhas).
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI remoto SUCCESS existente cobre SHA anterior (`2f4b8146e577ae5724e058499bead060181e3f27`), não este HEAD; scanner `/root/scan_patterns.py` indisponível neste host, sem resultado inventado. Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 08:52 -0300 — verificação operacional no HEAD `56de8d0`
+
+- Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `56de8d0f2d78d399f60729a7900bf63a19ad2f7c`; working tree limpa.
+- `scripts/validate-docs.sh`: PASS (`version 0.3.1`); `git diff --check`: PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`: PASS.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI remoto SUCCESS existente cobre SHA anterior, não este HEAD.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 08:46 -0300 — verificação operacional no HEAD `5817448`
+
+- Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `5817448751caffb107e2b02ddf412e4badb0bce3`; working tree limpa.
+- `scripts/validate-docs.sh`: PASS (`version 0.3.1`); `git diff --check`: PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`: PASS.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual desta alteração documental não encontrou segredos ou padrões perigosos.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI remoto SUCCESS existente cobre SHA anterior, não este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 08:32 -0300 — verificação operacional no HEAD `1b60f4d`
+
+- Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `1b60f4d4e0fb68976bf5e7990be54910618dc3c3`; working tree limpa.
+- `scripts/validate-docs.sh`: PASS (`version 0.3.1`); `git diff --check`: PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`: PASS.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual desta alteração documental não encontrou segredos ou padrões perigosos.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI SUCCESS existente cobre SHA anterior (`2f4b8146e577ae5724e058499bead060181e3f27`), não este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 08:27 -0300 — verificação operacional no HEAD `0da1ded`
+
+- Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `0da1dedbb8eef5dc2cc65cad2878e8c4674870d3`; working tree limpa.
+- `scripts/validate-docs.sh`: PASS (`version 0.3.1`); `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check`: PASS.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI SUCCESS existente cobre SHA anterior (`2f4b8146e577ae5724e058499bead060181e3f27`), não este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 08:22 -0300 — verificação operacional no HEAD `0e2333f`
+
+- Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `0e2333f561b55e739a6005c1c96bdadeeb844dcc`; working tree limpa.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI SUCCESS existente cobre SHA anterior (`2f4b8146e577ae5724e058499bead060181e3f27`), não este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 08:02 -0300 — verificação operacional no HEAD `63024a8`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `63024a81f5daa60ea28828f013f071bea8538f25`; working tree limpa antes desta atualização.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt`, `cargo clippy` e `cargo test` PASS; Rust executou 874 testes, 0 falhas.
+- Musician e engineer: typecheck, 67 + 59 testes, builds e `npm audit --audit-level=high` PASS; ambos reportaram 0 vulnerabilidades.
+- Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das linhas adicionadas será exigida antes do commit; nenhum resultado inventado.
+- Backlog CODE executável permanece esgotado. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI remoto SUCCESS existente cobre SHA anterior, não este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 07:47 -0300 — verificação operacional no HEAD `008cbcb`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `008cbcb5b4538118909c6af1d322285eed4e1b96`; working tree limpa antes desta atualização.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check`: PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das linhas adicionadas será exigida antes do commit; nenhum resultado inventado.
+- Backlog CODE executável permanece esgotado. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI remoto SUCCESS existente cobre SHA anterior, não este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 07:32 -0300 — verificação operacional no HEAD `e25bee5`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e25bee58700df9eb39a38721bb870162461c2137`; working tree limpa antes desta atualização.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check`: PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- Backlog CODE executável permanece esgotado. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI remoto SUCCESS existente cobre SHA anterior, não este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 06:51 -0300 — verificação operacional no HEAD `f1ce266`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f1ce26694299c34392349897c6cb1af49acccfb8`; working tree limpa antes desta atualização.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh`: PASS (`version 0.3.1`); `cargo fmt --all --manifest-path server/Cargo.toml -- --check`: PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- Backlog CODE executável permanece esgotado. PR #352 segue aberta contra `main`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI remoto SUCCESS existente cobre SHA anterior, não este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 06:36 -0300 — verificação operacional no HEAD `bf39638`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `bf396383eacdcbb883c4c2c4b1393b5d62c191d2`; working tree limpa antes desta atualização.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh` e `git diff --check`: PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada.
+- Backlog CODE executável permanece esgotado. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI remoto SUCCESS existente cobre SHA anterior, não este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 05:06 -0300 — verificação operacional no HEAD `3b5a6eb`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `3b5a6eb`; working tree limpa antes desta atualização.
+- Tarefa documentada `Validate real PipeWire graph on a supported Linux host` executada por `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- Backlog CODE executável permanece esgotado. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI remoto SUCCESS listado cobre SHA anterior, não este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 05:01 -0300 — verificação operacional no HEAD `a6aeb84`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `a6aeb84288b8f25a3baf29a6cb5a6fbe89a477cd`; working tree limpa antes desta atualização.
+- Tarefa documentada `Validate real PipeWire graph on a supported Linux host` executada por `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual não encontrou segredos ou padrões perigosos.
+- Backlog CODE executável permanece esgotado. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- CI remoto SUCCESS listado cobre SHA anterior, não este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 03:42 -0300 — verificação operacional no HEAD `568b3d2`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `568b3d2fbe42e36e0721a54fe2d328c4d9066af6`; working tree limpa antes desta atualização.
+- `git fetch --prune` confirmou somente referências canônicas `origin/main` e `origin/develop`; PR #352 permanece aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados. Política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- Tarefa documentada `Validate real PipeWire graph on a supported Linux host` executada por `scripts/ci/run-pipewire-software-e2e.sh`: resultado real `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual sem segredos ou padrões perigosos.
+- CI remoto SUCCESS listado cobre SHA anterior (`2f4b8146e577ae5724e058499bead060181e3f27`), não HEAD atual.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` continuam `PENDING/BLOCKED`.
+
+## 2026-10-03 03:36 -0300 — verificação operacional no HEAD `ff0119a`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `ff0119a262d1e8f6260b5b0aa17abe66890993df`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; referências canônicas observadas: `origin/main` e `origin/develop`. PR #352 permanece aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- Tarefa documentada `Validate real PipeWire graph on a supported Linux host` executada por `scripts/ci/run-pipewire-software-e2e.sh`: resultado real `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh` PASS; `git diff --check` PASS; scanner `/root/scan_patterns.py` indisponível neste host. Revisão manual sem segredos ou padrões perigosos.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` continuam `PENDING/BLOCKED`.
+
+## 2026-10-03 03:36 -0300 — verificação operacional no HEAD 30cf15b
+
+- Lease adquirido com flock; develop e origin/develop sincronizadas no HEAD 30cf15b0b88e0a5825e50267b919261073ed3122; working tree limpa antes desta atualização.
+- git fetch --prune foi executado; referências observadas: origin/main e origin/develop; PR #352 permanece aberta contra main, sem checks reportados. Política vigente proíbe abrir PR nova, fazer merge ou alterar main.
+- Tarefa documentada Validate real PipeWire graph on a supported Linux host foi executada pelo proxy existente scripts/ci/run-pipewire-software-e2e.sh: resultado real PIPEWIRE_SOFTWARE_E2E: PASS (SOFTWARE/SIMULATED virtual sink/source enumeration; no hardware/WebRTC claim).
+- scripts/validate-docs.sh e git diff --check PASS nesta atualização. Scanner /root/scan_patterns.py indisponível neste host; revisão manual obrigatória, sem resultado inventado.
+- PHYSICAL: USER-APPROVED / NOT EXECUTED; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release v0.3.1 continuam PENDING/BLOCKED. Evidência desta tarefa: SOFTWARE/SIMULATED.
+
+## 2026-10-03 03:26 -0300 — verificação operacional no HEAD `a605913`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `a605913d627aba6a6f41d0963c08b5e3230ddcfd`; working tree limpa antes desta atualização.
+- `git fetch --prune` confirmou somente referências remotas canônicas: `origin/main` e `origin/develop`.
+- PR #352 permanece aberta contra `main`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- `gh run list --branch develop` confirmou últimos SUCCESS reais nos commits anteriores (`37078296183`, `37078296148`, SHA `2f4b8146e577ae5724e058499bead060181e3f27`); nenhum CI remoto SUCCESS cobre HEAD atual.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- `scripts/validate-docs.sh` e `git diff --check` PASS nesta atualização.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência disponível: `CODE/CI/SIMULATED`.
+
+## 2026-10-03 03:22 -0300 — verificação operacional no HEAD `116e055`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `116e055234b1d9e54e6f44a1c8268e59df7e6b23`; working tree limpa antes desta atualização.
+- `git fetch --prune` confirmou somente referências canônicas `origin/main` e `origin/develop`; nenhuma branch remota órfã.
+- PR #352 permanece aberta contra `main`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- `gh run list --branch develop` confirmou últimos SUCCESS reais nos commits anteriores (`37078296183`, `37078296148`, SHA `2f4b8146e577ae5724e058499bead060181e3f27`); nenhum CI remoto SUCCESS cobre HEAD atual.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- `scripts/validate-docs.sh` e `git diff --check` PASS nesta atualização.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual das linhas adicionadas exigida antes do commit.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência disponível: `CODE/CI/SIMULATED`.
+
+## 2026-10-03 03:11 -0300 — verificação operacional no HEAD `2743a16`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `2743a16f45fb1148b7da1bb272263ed6c55227ff`; working tree limpa antes desta atualização.
+- `git fetch --prune` confirmou somente referências canônicas `origin/main` e `origin/develop`; nenhuma branch remota órfã.
+- PR #352 permanece aberta contra `main`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
+- `gh run list --branch develop` confirmou últimos SUCCESS nos commits anteriores; nenhum CI remoto SUCCESS cobre HEAD `2743a16f45fb1148b7da1bb272263ed6c55227ff`. Não contar CI antigo como validação deste HEAD.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- `scripts/validate-docs.sh` PASS e `git diff --check` PASS nesta atualização.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual das linhas adicionadas exigida antes do commit.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência disponível: `CODE/CI/SIMULATED`.
+
+## 2026-10-03 03:01 -0300 — verificação operacional no HEAD `abdb18b`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `abdb18b3c0c5347968048b71a3c421864974eeb9`; working tree limpa antes desta atualização.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- `scripts/validate-docs.sh` e `git diff --check` PASS nesta atualização; gates completos anteriores permanecem evidência histórica, não são atribuídos novamente sem execução.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- PR #352 permanece aberta contra `main`, sem checks reportados. CI SUCCESS existente cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`, não o HEAD atual.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`.
+
+## 2026-10-03 02:52 -0300 — verificação operacional no HEAD `e2db110`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `e2db11065381863d762954b8a54fb98eb41b7a67`; working tree limpa antes desta atualização.
+- Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes (874 testes), musician (typecheck, 67 testes, build) e engineer (typecheck, 59 testes, build).
+- Segurança: `npm audit --audit-level=high` reportou 0 vulnerabilidades em ambos os frontends. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- PR #352 permanece aberta contra `main`, sem checks reportados. CI remoto do HEAD atual não foi confirmado; SUCCESS anterior não conta para este SHA.
+- Backlog CODE executável permanece esgotado; pendências exigem hardware físico, confirmação de release, secret externo ou runner remoto. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`.
+## 2026-10-02 20:45 -0300 — verificação operacional no HEAD `1e407c6`
+
+- `flock -n .git/hermes-dev.lock` adquiriu lease; `git status --short --branch` retornou `develop...origin/develop` sem alterações; `HEAD` e `origin/develop` são `1e407c67e3cbfeea12c88d0e97971c5d5bf3a507`.
+- `gh pr view 352` confirmou PR #352 aberta, base `main`, head `develop`; `gh pr checks 352` retornou `no checks reported on the 'develop' branch`.
+- `scripts/validate-docs.sh` PASS (`documentation validation passed (version 0.3.1)`); `git diff --check` PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host. Nenhum resultado de scanner foi inventado.
+- Últimos SUCCESS remotos listados para `develop` apontam SHA `2f4b8146e577ae5724e058499bead060181e3f27`, não o HEAD atual; CI do HEAD atual não foi confirmado.
+
 ## 2026-10-02 20:17 -0300 — verificação operacional no HEAD `97857d9`
 
 - `develop` e `origin/develop` sincronizadas no HEAD `97857d9b044c1e4323eaf3fad790629f062f7703`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente, vazio, modo 0644; exclusividade validada nesta execução com `flock -n`.
@@ -360,6 +573,13 @@
 - Remote CI has no SUCCESS at current HEAD; latest real SUCCESS runs are `36897066547` and `36897066543` on prior SHA `56a17fc87b004c104e730e36741ba75ad22796b4`.
 - Open Dependabot PRs #347 and #348 target `main` and fail Rust format/clippy/tests plus coverage; policy leaves them untouched.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA physical, LAN, Raspberry Pi 5 and release `v0.3.1` remain pending. Evidence: `CODE/CI/SIMULATED`.
+
+## 2026-10-02 — Secure musician session URL/QR onboarding
+
+- Engineer/Admin activation and rotation create short-lived QR invitations. Server stores only hash, enforces expiry/use limit, and revokes prior generation.
+- QR response supplies configurable `OPENIEM_SESSION_PUBLIC_BASE` URL (default `http://localhost:5173`) with invitation in memory-only onboarding flow; no access/refresh token enters URL or storage. Musician UI removes invitation query from history immediately.
+- Musician exchange sends no `band_id`. Server derives band only from persisted QR row; absent band uses Default/Padrão. Public band catalog and selection are removed; Engineer/Admin band APIs remain protected.
+- Username conflicts return generic `unable to create musician account`. QR secret, username, password, profile fields, and camera stream clear after success or failure.
 
 ## 2026-10-02 — QR camera scanning
 
@@ -3858,14 +4078,17 @@ Local hosts with `snd-dummy` may run `hw:0,0`. Raspberry Pi USB validation remai
 
 ### 147.5 Musician profile onboarding and QR access
 
-- Musician não precisa de senha para criar ou acessar seu perfil operacional. Fluxo futuro deve coletar nome e instrumento a partir de catálogo controlado, criar perfil individual e manter sessão persistente por refresh token revogável; não usar senha vazia, senha fixa, usuário compartilhado, JWT permanente ou token em URL.
-- Admin ou Engineer autorizado pode ativar o modo QR no servidor. O QR deve carregar convite temporário, de alta entropia, armazenado somente como hash, com expiração, uso limitado ou single-use, rotação, revogação, rate limit e auditoria sem segredo. QR estático sem TTL é proibido.
-- Musician lê QR, confirma servidor/projeto, informa nome e instrumento, cria somente seu próprio perfil e permanece na sessão até logout, expiração ou revogação. Autorização de mix, assignment e comandos WebSocket permanece server-authoritative.
-- Backend QR seguro implementado no estado atual do working tree (HEAD `2374b59`; alterações não commitadas) em `server/api-server/src/routes/qr.rs`, com persistência `M003` em `server/api-server/src/db.rs`. Rotas: `GET /api/v1/admin/qr/status`, `POST /api/v1/admin/qr/activate`, `POST /api/v1/admin/qr/rotate`, `POST /api/v1/admin/qr/deactivate` e público `POST /api/v1/onboarding/qr/exchange`.
-- Política efetiva: gestão QR exige `Engineer` mínimo; `Admin` herda acesso; `Musician` não gerencia QR. Exchange cria somente papel `Musician`, perfil `PENDING` e sessão com refresh cookie `HttpOnly; Secure; SameSite=Strict`; assignment de mix permanece operação separada e server-authoritative.
-- Controles implementados: segredo aleatório de 32 bytes, somente hash SHA-256 persistido, TTL máximo de 10 minutos, uso único, rotação, validação de nome/instrumento, consumo atômico concorrente, Origin middleware e bloqueio de HTTP não-loopback sem override explícito. Rotação/desativação revoga sessões QR, refresh tokens e access sessions; refresh/access checks respeitam revogação.
-- Status: frontend Musician QR paste/exchange e session restore via cookie implementados; camera scanning permanece `PENDING`; mix preferences/assignment UI permanece `PENDING`. Rate limit específico e auditoria QR ainda não implementados. Não declarar runtime WebRTC/PipeWire/ALSA/Raspberry Pi 5 ou release validado; esses itens seguem `PENDING/BLOCKED`. Evidência backend: `CODE/CI/SIMULATED`.
-- Estado atual: backend implementado; frontend, assignment/preferences e validação física/release permanecem pendentes.
+- A tela do Musician exibe QR temporário para entrada na sessão. Endereço padrão: `http://<host>:5173`; a porta é configurável conforme deployment. O QR não contém credencial permanente.
+- Fluxo no local: músico abre a tela em `:5173`, lê o QR com a câmera do navegador ou usa fallback de entrada manual, informa nome, instrumento, cria suas credenciais individuais e escolhe uma banda opcional.
+- Se escolher uma banda, entra na sessão daquela banda e recebe somente músicos ativos associados à mesma banda. Se não escolher banda, entra na sessão `Default/Padrão`, formada somente por músicos ativos sem banda.
+- “Ativo” significa sessão autenticada e não revogada/expirada. Usuários offline, expirados, revogados ou desconectados não aparecem na lista da sessão. A lista é server-authoritative; o cliente não pode adicionar usuário, banda ou canal.
+- Músico pode criar e acessar somente seu próprio perfil. Não usar senha vazia, senha fixa, usuário compartilhado, JWT permanente ou token em URL. Sessão permanece até logout, expiração ou revogação.
+- Admin ou Engineer autorizado pode ativar, rotacionar e desativar o QR. O convite é temporário, de alta entropia, armazenado somente como hash, com TTL, uso limitado/single-use, rate limit, rotação, revogação e auditoria sem segredo. QR estático sem TTL é proibido.
+- Backend QR seguro implementado em `server/api-server/src/routes/qr.rs`, com persistência `M003` em `server/api-server/src/db.rs`. Rotas: `GET /api/v1/admin/qr/status`, `POST /api/v1/admin/qr/activate`, `POST /api/v1/admin/qr/rotate`, `POST /api/v1/admin/qr/deactivate` e público `POST /api/v1/onboarding/qr/exchange`.
+- Política efetiva: gestão QR exige `Engineer` mínimo; `Admin` herda acesso; `Musician` não gerencia QR. Exchange cria papel `Musician`, perfil e sessão com refresh cookie `HttpOnly; Secure; SameSite=Strict`; banda, usuários visíveis, assignment de mix e comandos WebSocket permanecem server-authoritative.
+- Controles implementados: segredo aleatório de 32 bytes, somente hash SHA-256 persistido, TTL máximo de 10 minutos, uso limitado, replay protection, rotação, validação de nome/instrumento, consumo atômico concorrente, rate limit e auditoria sem segredo. Rotação/desativação revoga sessões QR, refresh tokens e access sessions; refresh/access checks respeitam revogação.
+- Status: frontend Musician QR com câmera, fallback manual, exchange, session restore via cookie e logout implementado. Mix preferences/assignment UI detalhada permanece pendente. Não declarar runtime WebRTC/PipeWire/ALSA/Raspberry Pi 5 ou release validado; esses itens seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+- Estado atual: onboarding QR e sessão básica implementados; seleção de banda, roster ativo por sessão e assignment/preferences detalhados exigem implementação server-authoritative antes de serem declarados funcionais.
 
 ### 147.6 Engineer first-access password change
 
@@ -3960,3 +4183,186 @@ Do not move or recreate an existing release tag without explicit confirmation. V
 - CI remoto não tem SUCCESS para este HEAD; últimos SUCCESS reais (`36897066547`, `36897066543`) cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; não contam para este HEAD.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, com falhas em Rust/coverage; política vigente não altera essas branches.
 - Validação física não executada: WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## Plano de evolução: QR, contas, bandas e Engineer/Admin Console
+
+### Objetivo
+
+Permitir que músico chegue ao local, veja QR exibido pelo Musician UI em `http://<host>:5173` — porta configurável — leia convite, crie username e senha próprios, informe nome/instrumento e entre em sessão de banda ou `Default/Padrão`.
+
+QR é convite temporário de bootstrap. Não é senha, token permanente, autorização de mix nem identidade compartilhada.
+
+### Fluxo músico
+
+1. Engineer/Admin ativa QR temporário e Musician UI exibe QR.
+2. Músico lê QR por câmera ou fallback manual.
+3. Músico informa username, senha, nome, instrumento e banda opcional.
+4. Servidor valida convite, credenciais, perfil e banda na mesma transação.
+5. Servidor cria usuário `Musician`, armazena senha somente como Argon2id, cria perfil e sessão revogável.
+6. Banda selecionada define escopo e roster.
+7. Sem banda, músico entra em `Default/Padrão`.
+8. Roster mostra somente músicos autenticados, ativos, não expirados e não revogados no mesmo escopo.
+9. Logout, expiração, revogação ou perda de heartbeat removem músico do roster.
+
+### Segurança
+
+- QR: alta entropia, hash-only, TTL máximo de 10 minutos, uso limitado, replay protection, rotação, revogação, rate limit e auditoria sem segredo.
+- QR nunca aparece em URL, logs, localStorage, auditoria ou resposta após ativação.
+- Username único e normalizado. Senha usa Argon2id.
+- Exchange não sobrescreve usuário existente.
+- Banda inexistente/inativa rejeita operação.
+- Falha em qualquer etapa faz rollback completo de usuário, perfil e sessão.
+- Banda define escopo; não concede canais, mix ou permissões.
+- Toda rota, mensagem WebSocket, roster e assignment é autorizada no servidor.
+- Engineer/Admin nunca visualizam senha, hash, refresh token ou access token de terceiros.
+
+### Estado implementado
+
+- PR #351: `https://github.com/rickslamaral/open-iem-platform/pull/351`.
+- Plano: `.hermes/plans/2026-10-02_musician-qr-account-band-session.md`.
+- M005 em `server/api-server/src/db.rs`: tabela `bands`, vínculo opcional `musician_profiles.band_id`, schema fail-closed e índice de roster.
+- QR exchange em `server/api-server/src/routes/qr.rs`: username, senha, `band_id` opcional, Argon2id, username duplicado rejeitado e banda ativa validada.
+- Consumo QR, sessão, auditoria e rollback preservados.
+- Slice Rust validado: `cargo fmt`, `cargo clippy` e 11 testes QR PASS.
+- Proxy Docker/Vite corrigido localmente: `web/engineer/vite.config.ts` e `web/musician/vite.config.ts` usam `VITE_API_BASE_URL`.
+- Erro de proxy caiu de `502` para `401`, confirmando caminho UI → proxy → API. `401` restante significa credencial inválida.
+
+### Gaps a fechar
+
+#### API/backend
+
+- [x] Catálogo público de bandas ativas para onboarding (`GET /api/v1/onboarding/bands`).
+- [x] CRUD/lista de bandas para Engineer/Admin (`/api/v1/admin/bands`).
+- [ ] Roster online por banda e `Default/Padrão`.
+- [ ] Presença/heartbeat server-authoritative.
+- [ ] Usuários com perfil, banda, status e última atividade.
+- [ ] Bloqueio/desbloqueio de músico.
+- [ ] Revogação por usuário/dispositivo.
+- [ ] Soft-delete de usuário.
+- [ ] Auditoria de alterações de banda, usuário, sessão e assignment.
+- [ ] RBAC granular.
+- [ ] Assignment de mix e limites de canais.
+- [ ] Autorização WebSocket por sessão, banda e mix.
+
+Rotas alvo:
+
+```text
+GET    /api/v1/onboarding/bands
+GET    /api/v1/me/session
+GET    /api/v1/me/roster
+GET    /api/v1/admin/users
+GET    /api/v1/admin/users/{id}
+POST   /api/v1/admin/users/{id}/revoke-sessions
+POST   /api/v1/admin/users/{id}/block
+DELETE /api/v1/admin/users/{id}
+GET    /api/v1/admin/bands
+POST   /api/v1/admin/bands
+PATCH  /api/v1/admin/bands/{id}
+DELETE /api/v1/admin/bands/{id}
+GET    /api/v1/admin/bands/{id}/members
+PUT    /api/v1/admin/bands/{id}/members/{user_id}
+DELETE /api/v1/admin/bands/{id}/members/{user_id}
+GET    /api/v1/admin/sessions/online
+GET    /api/v1/admin/sessions/default
+POST   /api/v1/admin/sessions/{id}/revoke
+```
+
+#### Musician UI (`:5173`)
+
+- [ ] Exibir QR temporário com TTL, estado e usos restantes.
+- [ ] Câmera/fallback sem persistir segredo.
+- [ ] Formulário username, senha, nome, instrumento e banda.
+- [ ] Catálogo de bandas vindo do servidor.
+- [ ] Sessão atual: banda ou `Default/Padrão`.
+- [ ] Roster somente do escopo autorizado.
+- [ ] Presença baseada no servidor.
+- [ ] Preferências de mix dentro dos limites atribuídos.
+- [ ] Logout, refresh e reconexão limpando presença.
+
+#### Engineer/Admin UI (`:5174`)
+
+- [ ] Login via proxy configurável; erro de credencial deve aparecer como `401`, não `502`.
+- [ ] Painel QR: ativar, exibir, rotacionar, revogar e acompanhar TTL/usos.
+- [ ] Usuários: listar, pesquisar, ver status, banda e última atividade.
+- [ ] Sessões: ver online, revogar sessão/dispositivo e desconectar usuário.
+- [ ] Bandas: criar, renomear, ativar/desativar e gerenciar membros.
+- [ ] `Default/Padrão`: ver músicos sem banda e presença ativa.
+- [ ] Mix: atribuir, limitar, revogar e visualizar estado.
+- [ ] Auditoria sem segredos.
+- [ ] Confirmação para operações destrutivas; preferir bloqueio/soft-delete.
+
+### RBAC planejado
+
+```text
+users.read              Engineer/Admin
+users.revoke            Engineer/Admin
+users.block             Engineer/Admin
+bands.read              Engineer/Admin/Musician: catálogo permitido
+bands.write             Engineer/Admin
+bands.members.write     Engineer/Admin
+qr.manage               Engineer/Admin
+sessions.read           Engineer/Admin; Musician: própria sessão
+sessions.revoke         Engineer/Admin; Musician: própria sessão
+mix.assign              Engineer/Admin
+mix.control             Musician: somente mix atribuído
+audit.read              Admin; Engineer conforme escopo
+```
+
+Cada operação exige permission check explícito no servidor. Banda nunca concede autorização de mix.
+
+### Critérios de aceite
+
+- Login Engineer/Admin via Docker retorna API, nunca `502` por destino loopback incorreto.
+- QR expira e não reutiliza além do limite.
+- Músico cria username/senha próprios; senha não aparece em logs, QR ou URL.
+- Banda ativa entra no roster correto; sem banda entra em `Default/Padrão`.
+- Roster não mostra offline, expirado, revogado ou outra banda.
+- Engineer/Admin executam pela UI ações disponíveis na API/CLI.
+- Musician não lista usuários globais, muda banda de terceiros, acessa outro mix ou envia WebSocket fora do assignment.
+- Revogação remove sessão e presença.
+- Testes cobrem RBAC, concorrência QR, username duplicado, banda inativa, logout, expiração, reconexão e corrida de revogação.
+
+### Validação antes de merge
+
+```bash
+scripts/validate-docs.sh
+git diff --check
+cargo fmt --all --manifest-path server/Cargo.toml -- --check
+cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings
+cargo test --manifest-path server/Cargo.toml
+cd web/musician && npm run typecheck && npm test -- --run && npm run build
+cd ../engineer && npm run typecheck && npm test -- --run && npm run build
+cd ../..
+docker compose --env-file .env.local -f docker-compose.public.yml ps
+curl -fsS http://127.0.0.1:3000/api/v1/health
+curl -fsS http://127.0.0.1:5173/
+curl -fsS http://127.0.0.1:5174/
+```
+
+Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRTP, PipeWire/ALSA, LAN, Raspberry Pi 5, instalação física e publicação `v0.3.1` continuam `PENDING/BLOCKED`.
+
+
+## 2026-10-03 03:47 -0300 — verificação operacional no HEAD `170b37b`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `170b37b`; working tree limpa antes desta atualização.
+- `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
+- CI SUCCESS existente cobre SHA anterior, não HEAD atual. PR #352 aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks; política proíbe PR nova, merge ou alteração em `main`.
+- Backlog CODE executável esgotado. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 07:03 -0300 — verificação operacional no HEAD `c24ea75`
+
+- Lease adquirido com diretório exclusivo `/tmp/open-iem-development.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `c24ea75044ec7f00a750f2c3248a96fd88810a1a`; working tree limpa antes desta atualização.
+- Gates locais PASS: `scripts/ci/run-pipewire-software-e2e.sh` (`PIPEWIRE_SOFTWARE_E2E: PASS`, `SOFTWARE/SIMULATED`), `scripts/validate-docs.sh`, `git diff --check`, Rust fmt, clippy e `cargo test --manifest-path server/Cargo.toml` (537 testes), musician typecheck/testes (67)/build e engineer typecheck/testes (59)/build.
+- Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das alterações documentais não encontrou segredos ou padrões perigosos.
+- CI remoto SUCCESS existente (`37078296183`, `37078296148`) cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`, não este HEAD. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente não abre PR nova, não faz merge e não altera `main`.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 07:16 -0300 — verificação operacional no HEAD `6c73054`
+
+- Lease adquirido com diretório exclusivo `/tmp/open-iem-development.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `6c7305426514ec1395d6272d08a88ea7113a59cd`; working tree limpa.
+- Evidência executada: `scripts/ci/run-pipewire-software-e2e.sh` retornou `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh` retornou `documentation validation passed (version 0.3.1)`; `git diff --check` PASS.
+- CI remoto SUCCESS disponível (`37078296183`, `37078296148`) cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`, não este HEAD. PR #352 permanece aberta contra `main`, sem checks reportados; política vigente não abre PR nova, não faz merge e não altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das alterações documentais não encontrou segredos ou padrões perigosos.
+- Backlog CODE executável permanece esgotado; pendências exigem hardware físico, confirmação de release, secret externo ou runner remoto. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.

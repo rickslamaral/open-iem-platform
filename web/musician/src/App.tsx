@@ -43,10 +43,13 @@ export default function App() {
   const [presets, setPresets] = useState<import('./api/presets').PresetSummary[]>([]);
   const [presetsLoading, setPresetsLoading] = useState(false);
   const [presetsError, setPresetsError] = useState<string | null>(null);
+  const tokenRef = useRef<string | null>(null);
   const presetsRequestRef = useRef(0);
   const scenesRequestRef = useRef(0);
 
   const ws = useWebSocket(token);
+
+  tokenRef.current = token;
 
   // Leitura somente: master_gain_db e master_muted vêm do servidor (Músico não pode mutar master)
   const masterGainDb = ws.snapshot?.mixes[0]?.master_gain_db ?? 0;
@@ -81,9 +84,9 @@ export default function App() {
     catch (err) { setLoginError(err instanceof Error ? err.message : 'Login failed'); }
   }, []);
 
-  const handleQrExchange = useCallback(async (qrSecret: string, displayName: string, instrumentId: string) => {
+  const handleQrExchange = useCallback(async (qrSecret: string, displayName: string, instrumentId: string, username: string, password: string) => {
     setLoginError(null);
-    try { setToken((await exchangeQr({ qr_secret: qrSecret, display_name: displayName, instrument_id: instrumentId })).access_token); }
+    try { setToken((await exchangeQr({ qr_secret: qrSecret, display_name: displayName, instrument_id: instrumentId, username, password })).access_token); }
     catch (err) { setLoginError(err instanceof Error ? err.message : 'QR onboarding failed'); }
   }, []);
 
@@ -149,7 +152,7 @@ export default function App() {
     ++scenesRequestRef.current;
     ++presetsRequestRef.current;
     ws.disconnect();
-    const currentToken = token;
+    const currentToken = tokenRef.current;
     setToken(null);
     setChannels(defaultChannels());
     setPanByChannel(defaultPan());
@@ -160,7 +163,7 @@ export default function App() {
     setPresetsLoading(false);
     setPresetsError(null);
     if (currentToken) await apiLogout(currentToken).catch(() => undefined);
-  }, [token, ws]);
+  }, [ws]);
 
   const handleChannelGain = useCallback(
     (ch: number, gainDb: number) => {

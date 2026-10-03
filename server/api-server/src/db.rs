@@ -162,9 +162,21 @@ fn validate_m003_schema(tx: &rusqlite::Transaction<'_>) -> Result<(), ApiError> 
         ),
     ];
     expected_foreign_keys.sort();
-    let valid = columns("qr_onboarding")? == qr_expected
+    let qr_columns = columns("qr_onboarding")?;
+    let qr_columns_valid = qr_columns == qr_expected
+        || (qr_columns.len() == qr_expected.len() + 1
+            && qr_columns[..qr_expected.len()] == qr_expected[..]
+            && qr_columns.last().map(|column| column.0.as_str()) == Some("band_id"));
+    let valid = qr_columns_valid
         && columns("musician_onboarding_sessions")? == session_expected
-        && foreign_keys("qr_onboarding")?.is_empty()
+        && (foreign_keys("qr_onboarding")?.is_empty()
+            || foreign_keys("qr_onboarding")?
+                == vec![(
+                    "bands".to_owned(),
+                    "band_id".to_owned(),
+                    "id".to_owned(),
+                    "SET NULL".to_owned(),
+                )])
         && session_foreign_keys == expected_foreign_keys
         && qr_sql.contains("IDINTEGERPRIMARYKEYCHECK(ID=1)")
         && qr_sql.contains("SECRET_HASHTEXTNOTNULL")
@@ -190,6 +202,226 @@ fn validate_m003_schema(tx: &rusqlite::Transaction<'_>) -> Result<(), ApiError> 
     if !valid || seed != 1 {
         return Err(ApiError::Internal(
             "migration M003 recorded but QR onboarding schema is incomplete".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+fn validate_band_name(name: &str) -> Result<&str, ApiError> {
+    if name.chars().any(char::is_control) {
+        return Err(ApiError::BadRequest(
+            "name must be 1-120 characters and contain no control characters".to_owned(),
+        ));
+    }
+    let trimmed = name.trim();
+    let count = trimmed.chars().count();
+    if trimmed.is_empty() || count > 120 {
+        return Err(ApiError::BadRequest(
+            "name must be 1-120 characters and contain no control characters".to_owned(),
+        ));
+    }
+    Ok(trimmed)
+}
+
+#[allow(clippy::too_many_lines)]
+fn validate_musician_schema(
+    tx: &rusqlite::Transaction<'_>,
+    m005_applied: bool,
+) -> Result<(), ApiError> {
+    type Column = (String, String, i64, Option<String>, i64);
+    type ForeignKey = (String, String, String, String);
+    type Index = (String, i64, String, i64, Vec<String>);
+    let columns = |table: &str| -> Result<Vec<Column>, ApiError> {
+        tx.prepare(&format!(
+            "SELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('{table}') ORDER BY cid"
+        ))
+        .map_err(|e| ApiError::Internal(e.to_string()))?
+        .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?)))
+        .map_err(|e| ApiError::Internal(e.to_string()))?
+        .collect::<Result<_, _>>()
+        .map_err(|e| ApiError::Internal(e.to_string()))
+    };
+    let foreign_keys = |table: &str| -> Result<Vec<ForeignKey>, ApiError> {
+        tx.prepare(&format!(
+            "SELECT \"table\", \"from\", \"to\", on_delete FROM pragma_foreign_key_list('{table}') ORDER BY id, seq"
+        ))
+        .map_err(|e| ApiError::Internal(e.to_string()))?
+        .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
+        .map_err(|e| ApiError::Internal(e.to_string()))?
+        .collect::<Result<_, _>>()
+        .map_err(|e| ApiError::Internal(e.to_string()))
+    };
+    let indexes = |table: &str| -> Result<Vec<Index>, ApiError> {
+        let rows: Vec<(String, i64, String, i64)> = tx
+            .prepare(&format!(
+                "SELECT name, \"unique\", origin, partial FROM pragma_index_list('{table}') ORDER BY name"
+            ))
+            .map_err(|e| ApiError::Internal(e.to_string()))?
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
+            .map_err(|e| ApiError::Internal(e.to_string()))?
+            .collect::<Result<_, _>>()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        rows.into_iter()
+            .map(|(name, unique, origin, partial)| {
+                let columns = tx
+                    .prepare(&format!(
+                        "PRAGMA index_info('{}')",
+                        name.replace('\'', "''")
+                    ))
+                    .map_err(|e| ApiError::Internal(e.to_string()))?
+                    .query_map([], |row| row.get(2))
+                    .map_err(|e| ApiError::Internal(e.to_string()))?
+                    .collect::<Result<Vec<String>, _>>()
+                    .map_err(|e| ApiError::Internal(e.to_string()))?;
+                Ok((name, unique, origin, partial, columns))
+            })
+            .collect()
+    };
+    let expected_base = vec![
+        ("profile_id".to_owned(), "INTEGER".to_owned(), 0, None, 1),
+        ("user_id".to_owned(), "INTEGER".to_owned(), 1, None, 0),
+        ("display_name".to_owned(), "TEXT".to_owned(), 1, None, 0),
+        ("instrument_id".to_owned(), "TEXT".to_owned(), 1, None, 0),
+        ("status".to_owned(), "TEXT".to_owned(), 1, None, 0),
+        (
+            "created_at".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("unixepoch()".to_owned()),
+            0,
+        ),
+        (
+            "updated_at".to_owned(),
+            "INTEGER".to_owned(),
+            1,
+            Some("unixepoch()".to_owned()),
+            0,
+        ),
+    ];
+    let mut expected_profile = expected_base;
+    if m005_applied {
+        expected_profile.push(("band_id".to_owned(), "INTEGER".to_owned(), 0, None, 0));
+    }
+    let mut expected_fks = vec![(
+        "users".to_owned(),
+        "user_id".to_owned(),
+        "id".to_owned(),
+        "CASCADE".to_owned(),
+    )];
+    if m005_applied {
+        expected_fks.push((
+            "bands".to_owned(),
+            "band_id".to_owned(),
+            "id".to_owned(),
+            "SET NULL".to_owned(),
+        ));
+    }
+    let mut actual_fks = foreign_keys("musician_profiles")?;
+    actual_fks.sort();
+    expected_fks.sort();
+    let profile_indexes = indexes("musician_profiles")?;
+    let expected_index_count = if m005_applied { 3 } else { 2 };
+    let valid_profile_indexes = profile_indexes.len() == expected_index_count
+        && profile_indexes
+            .iter()
+            .any(|(name, unique, origin, partial, cols)| {
+                name == "musician_profiles_status_idx"
+                    && *unique == 0
+                    && origin == "c"
+                    && *partial == 0
+                    && cols == &["status"]
+            })
+        && (!m005_applied
+            || profile_indexes
+                .iter()
+                .any(|(name, unique, origin, partial, cols)| {
+                    name == "musician_profiles_band_roster_idx"
+                        && *unique == 0
+                        && origin == "c"
+                        && *partial == 0
+                        && cols == &["band_id", "status", "user_id"]
+                }))
+        && profile_indexes
+            .iter()
+            .filter(|(_, unique, origin, partial, cols)| {
+                *unique == 1 && origin == "u" && *partial == 0 && cols == &["user_id"]
+            })
+            .count()
+            == 1;
+    let profile_sql: String = tx
+        .query_row(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name='musician_profiles'",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+    let normalize = |sql: &str| {
+        sql.to_ascii_uppercase()
+            .chars()
+            .filter(|c| !c.is_ascii_whitespace())
+            .collect::<String>()
+    };
+    let profile_sql = normalize(&profile_sql);
+    let profile_constraints = profile_sql.contains("PROFILE_IDINTEGERPRIMARYKEYAUTOINCREMENT")
+        && profile_sql.contains("STATUSTEXTNOTNULLCHECK(STATUSIN('PENDING','ACTIVE','BLOCKED'))");
+    #[allow(clippy::if_not_else)]
+    let bands_valid = if !m005_applied {
+        tx.query_row(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='bands'",
+            [],
+            |row| row.get::<_, i64>(0),
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?
+            == 0
+    } else {
+        let bands_columns = columns("bands")?;
+        let expected_bands = vec![
+            ("id".to_owned(), "INTEGER".to_owned(), 0, None, 1),
+            ("name".to_owned(), "TEXT".to_owned(), 1, None, 0),
+            ("normalized_name".to_owned(), "TEXT".to_owned(), 1, None, 0),
+            (
+                "active".to_owned(),
+                "INTEGER".to_owned(),
+                1,
+                Some("1".to_owned()),
+                0,
+            ),
+            (
+                "created_at".to_owned(),
+                "INTEGER".to_owned(),
+                1,
+                Some("unixepoch()".to_owned()),
+                0,
+            ),
+        ];
+        let bands_indexes = indexes("bands")?;
+        let bands_sql: String = tx
+            .query_row(
+                "SELECT sql FROM sqlite_master WHERE type='table' AND name='bands'",
+                [],
+                |row| row.get(0),
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let bands_sql = normalize(&bands_sql);
+        bands_columns == expected_bands
+            && foreign_keys("bands")?.is_empty()
+            && bands_indexes.len() == 1
+            && bands_indexes
+                .iter()
+                .any(|(_, unique, origin, partial, cols)| {
+                    *unique == 1 && origin == "u" && *partial == 0 && cols == &["normalized_name"]
+                })
+            && bands_sql.contains("IDINTEGERPRIMARYKEYAUTOINCREMENT")
+            && bands_sql.contains("ACTIVEINTEGERNOTNULLDEFAULT1CHECK(ACTIVEIN(0,1))")
+    };
+    if columns("musician_profiles")? != expected_profile
+        || actual_fks != expected_fks
+        || !valid_profile_indexes
+        || !profile_constraints
+        || !bands_valid
+    {
+        return Err(ApiError::Internal(
+            "migration schema is missing or invalid".to_owned(),
         ));
     }
     Ok(())
@@ -360,82 +592,14 @@ impl Db {
             )
             .map_err(|e| ApiError::Internal(e.to_string()))?;
         } else {
-            let columns: Vec<(String, String, i64, Option<String>, i64)> = tx
-                .prepare("SELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('musician_profiles') ORDER BY cid")
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .query_map([], |row| {
-                    Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?))
-                })
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
-                .collect::<Result<_, _>>()?;
-            let expected_columns = vec![
-                ("profile_id".to_owned(), "INTEGER".to_owned(), 0, None, 1),
-                ("user_id".to_owned(), "INTEGER".to_owned(), 1, None, 0),
-                ("display_name".to_owned(), "TEXT".to_owned(), 1, None, 0),
-                ("instrument_id".to_owned(), "TEXT".to_owned(), 1, None, 0),
-                ("status".to_owned(), "TEXT".to_owned(), 1, None, 0),
-                (
-                    "created_at".to_owned(),
-                    "INTEGER".to_owned(),
-                    1,
-                    Some("unixepoch()".to_owned()),
-                    0,
-                ),
-                (
-                    "updated_at".to_owned(),
-                    "INTEGER".to_owned(),
-                    1,
-                    Some("unixepoch()".to_owned()),
-                    0,
-                ),
-            ];
-            let foreign_keys: Vec<(String, String, String, String)> = tx
-                .prepare("SELECT \"table\", \"from\", \"to\", on_delete FROM pragma_foreign_key_list('musician_profiles')")
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
-                .collect::<Result<_, _>>()?;
-            let table_sql: String = tx
+            let m005_applied: bool = tx
                 .query_row(
-                    "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'musician_profiles'",
+                    "SELECT EXISTS(SELECT 1 FROM migrations WHERE name = 'M005')",
                     [],
                     |row| row.get(0),
                 )
                 .map_err(|e| ApiError::Internal(e.to_string()))?;
-            let status_index_columns: Vec<(i64, String)> = tx
-                .prepare("PRAGMA index_info('musician_profiles_status_idx')")
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .query_map([], |row| Ok((row.get(0)?, row.get(2)?)))
-                .map_err(|e| ApiError::Internal(e.to_string()))?
-                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
-                .collect::<Result<_, _>>()?;
-            let normalized_sql: String = table_sql
-                .to_ascii_uppercase()
-                .chars()
-                .filter(|character| !character.is_ascii_whitespace())
-                .collect();
-            if columns != expected_columns
-                || foreign_keys
-                    != vec![(
-                        "users".to_owned(),
-                        "user_id".to_owned(),
-                        "id".to_owned(),
-                        "CASCADE".to_owned(),
-                    )]
-                || status_index_columns != vec![(0, "status".to_owned())]
-                || !normalized_sql.contains("PROFILE_IDINTEGERPRIMARYKEYAUTOINCREMENT")
-                || !normalized_sql
-                    .contains("USER_IDINTEGERNOTNULLUNIQUEREFERENCESUSERS(ID)ONDELETECASCADE")
-                || !normalized_sql
-                    .contains("STATUSTEXTNOTNULLCHECK(STATUSIN('PENDING','ACTIVE','BLOCKED'))")
-            {
-                return Err(ApiError::Internal(
-                    "migration M002 recorded but musician_profiles schema is missing or invalid"
-                        .to_owned(),
-                ));
-            }
+            validate_musician_schema(&tx, m005_applied)?;
         }
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
         let tx = conn
@@ -485,6 +649,64 @@ impl Db {
             {
                 return Err(ApiError::Internal(
                     "migration M004 recorded but QR audit schema is incomplete".to_owned(),
+                ));
+            }
+        }
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+
+        // M005 adds server-authoritative bands and optional musician scope.
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let applied: Option<i64> = tx
+            .query_row("SELECT id FROM migrations WHERE name = 'M005'", [], |row| {
+                row.get(0)
+            })
+            .optional()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if applied.is_none() {
+            tx.execute_batch("CREATE TABLE bands (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, normalized_name TEXT NOT NULL UNIQUE, active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0, 1)), created_at INTEGER NOT NULL DEFAULT (unixepoch())); ALTER TABLE musician_profiles ADD COLUMN band_id INTEGER REFERENCES bands(id) ON DELETE SET NULL; CREATE INDEX musician_profiles_band_roster_idx ON musician_profiles(band_id, status, user_id); INSERT INTO migrations (id, name) VALUES (5, 'M005');")
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+        } else {
+            validate_musician_schema(&tx, true)?;
+        }
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+
+        // M006 binds QR onboarding scope to the server-side band row.
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let applied: Option<i64> = tx
+            .query_row("SELECT id FROM migrations WHERE name = 'M006'", [], |row| {
+                row.get(0)
+            })
+            .optional()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if applied.is_none() {
+            tx.execute_batch("ALTER TABLE qr_onboarding ADD COLUMN band_id INTEGER REFERENCES bands(id) ON DELETE SET NULL; INSERT INTO migrations (id, name) VALUES (6, 'M006');")
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+        } else {
+            let columns: Vec<String> = tx
+                .prepare("SELECT name FROM pragma_table_info('qr_onboarding') ORDER BY cid")
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| row.get(0))
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect::<Result<_, _>>()?;
+            let foreign_keys: Vec<(String, String, String, String)> = tx
+                .prepare("SELECT \"table\", \"from\", \"to\", on_delete FROM pragma_foreign_key_list('qr_onboarding')")
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect::<Result<_, _>>()?;
+            if columns.last().map(String::as_str) != Some("band_id")
+                || !foreign_keys.iter().any(|(table, from, to, delete)| {
+                    table == "bands" && from == "band_id" && to == "id" && delete == "SET NULL"
+                })
+            {
+                return Err(ApiError::Internal(
+                    "migration M006 recorded but QR band schema is incomplete".to_owned(),
                 ));
             }
         }
@@ -996,12 +1218,12 @@ impl Db {
     }
 
     /// Return QR onboarding status.
-    pub fn qr_status(&self, now: u64) -> Result<(bool, u64, u64, u64), ApiError> {
+    pub fn qr_status(&self, now: u64) -> Result<(bool, u64, u64, u64, Option<i64>), ApiError> {
         let conn = self
             .conn
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
-        conn.query_row("SELECT active, expires_at, CASE WHEN active=1 AND expires_at > ?1 AND max_uses > used_count THEN max_uses - used_count ELSE 0 END, generation FROM qr_onboarding WHERE id=1", params![now as i64], |r| Ok((r.get::<_, i64>(0)? != 0 && r.get::<_, i64>(1)? > now as i64, r.get::<_, i64>(1)?.max(0) as u64, r.get::<_, i64>(2)?.max(0) as u64, r.get::<_, i64>(3)?.max(0) as u64))).map_err(|e| ApiError::Internal(e.to_string()))
+        conn.query_row("SELECT active, expires_at, CASE WHEN active=1 AND expires_at > ?1 AND max_uses > used_count THEN max_uses - used_count ELSE 0 END, generation, band_id FROM qr_onboarding WHERE id=1", params![now as i64], |r| Ok((r.get::<_, i64>(0)? != 0 && r.get::<_, i64>(1)? > now as i64, r.get::<_, i64>(1)?.max(0) as u64, r.get::<_, i64>(2)?.max(0) as u64, r.get::<_, i64>(3)?.max(0) as u64, r.get(4)?))).map_err(|e| ApiError::Internal(e.to_string()))
     }
 
     /// Configure QR onboarding activation or rotation.
@@ -1105,6 +1327,7 @@ impl Db {
         &self,
         hash: &str,
         expires: u64,
+        band_id: Option<i64>,
         actor_user_id: i64,
         action: &str,
     ) -> Result<(), ApiError> {
@@ -1120,9 +1343,24 @@ impl Db {
         let tx = conn
             .transaction()
             .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if let Some(band_id) = band_id {
+            let active: Option<i64> = tx
+                .query_row(
+                    "SELECT id FROM bands WHERE id = ?1 AND active = 1",
+                    params![band_id],
+                    |row| row.get(0),
+                )
+                .optional()
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+            if active.is_none() {
+                return Err(ApiError::BadRequest(
+                    "band_id must reference an active band".to_owned(),
+                ));
+            }
+        }
         tx.execute(
-            "UPDATE qr_onboarding SET secret_hash=?1, expires_at=?2, active=1, used_count=0, generation=generation+1 WHERE id=1",
-            params![hash, expires as i64],
+            "UPDATE qr_onboarding SET secret_hash=?1, band_id=?2, expires_at=?3, active=1, used_count=0, generation=generation+1 WHERE id=1",
+            params![hash, band_id, expires as i64],
         ).map_err(|e| ApiError::Internal(e.to_string()))?;
         let generation: i64 = tx
             .query_row(
@@ -1147,11 +1385,13 @@ impl Db {
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
     }
 
-    /// Atomically consume QR invitation and create musician session.
+    /// Atomically consume QR invitation and create musician account/session.
     #[allow(clippy::too_many_arguments)]
-    pub fn exchange_qr(
+    pub fn exchange_qr_account(
         &self,
         hash: &str,
+        username: &str,
+        password_hash: &str,
         name: &str,
         instrument: &str,
         now: u64,
@@ -1172,10 +1412,18 @@ impl Db {
         if tx.changes() != 1 {
             return Err(ApiError::Unauthorized("invalid or expired QR invitation"));
         }
-        let username = format!("musician-{}", Uuid::new_v4());
-        tx.execute("INSERT INTO users(username,pw_hash,role,must_change_password) VALUES(?1,'!', 'MUSICIAN',0)", params![username]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("INSERT INTO users(username,pw_hash,role,must_change_password) VALUES(?1,?2, 'MUSICIAN',0)", params![username, password_hash]).map_err(|e| {
+            if e.to_string().contains("UNIQUE") { ApiError::Conflict("unable to create musician account".to_owned()) } else { ApiError::Internal(e.to_string()) }
+        })?;
         let uid = tx.last_insert_rowid();
-        tx.execute("INSERT INTO musician_profiles(user_id,display_name,instrument_id,status) VALUES(?1,?2,?3,'PENDING')", params![uid,name,instrument]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        let band_id: Option<i64> = tx
+            .query_row(
+                "SELECT band_id FROM qr_onboarding WHERE id = 1",
+                [],
+                |row| row.get(0),
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("INSERT INTO musician_profiles(user_id,display_name,instrument_id,status,band_id) VALUES(?1,?2,?3,'PENDING',?4)", params![uid,name,instrument,band_id]).map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.execute(
             "INSERT INTO refresh_tokens(user_id,token_hash,expires_at,family) VALUES(?1,?2,?3,?4)",
             params![uid, refresh, refresh_exp as i64, family],
@@ -1193,7 +1441,37 @@ impl Db {
         )
         .map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
-        Ok((uid, sid, username))
+        Ok((uid, sid, username.to_owned()))
+    }
+
+    /// Backward-compatible test/helper exchange using generated identity.
+    #[allow(clippy::too_many_arguments)]
+    pub fn exchange_qr(
+        &self,
+        hash: &str,
+        name: &str,
+        instrument: &str,
+        now: u64,
+        refresh: &str,
+        refresh_exp: u64,
+        family: &str,
+        jti: &str,
+        access_exp: u64,
+    ) -> Result<(i64, i64, String), ApiError> {
+        let username = format!("musician-{}", Uuid::new_v4());
+        self.exchange_qr_account(
+            hash,
+            &username,
+            "!",
+            name,
+            instrument,
+            now,
+            refresh,
+            refresh_exp,
+            family,
+            jti,
+            access_exp,
+        )
     }
 
     /// Remove QR exchange rows when access-token signing fails.
@@ -1240,6 +1518,112 @@ impl Db {
         tx.execute("DELETE FROM users WHERE id = ?1", params![user_id])
             .map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// List active bands for public onboarding catalog.
+    pub fn list_active_bands(&self) -> Result<Vec<(i64, String)>, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let mut stmt = conn
+            .prepare("SELECT id, name FROM bands WHERE active = 1 ORDER BY name, id")
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let rows = stmt
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// List all bands for Engineer/Admin management.
+    pub fn list_bands(&self) -> Result<Vec<(i64, String, bool)>, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let mut stmt = conn
+            .prepare("SELECT id, name, active FROM bands ORDER BY name, id")
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let rows = stmt
+            .query_map([], |row| {
+                Ok((row.get(0)?, row.get(1)?, row.get::<_, i64>(2)? != 0))
+            })
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
+    /// Create band with normalized unique name.
+    pub fn create_band(&self, name: &str, active: bool) -> Result<i64, ApiError> {
+        let name = validate_band_name(name)?;
+        let normalized = name.to_lowercase();
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute(
+            "INSERT INTO bands(name, normalized_name, active) VALUES(?1, ?2, ?3)",
+            rusqlite::params![name, normalized, i64::from(active)],
+        )
+        .map_err(|e| {
+            if e.to_string().contains("UNIQUE") {
+                ApiError::Conflict("band name already exists".to_owned())
+            } else {
+                ApiError::Internal(e.to_string())
+            }
+        })?;
+        Ok(conn.last_insert_rowid())
+    }
+
+    /// Update band metadata.
+    pub fn update_band(&self, id: i64, name: &str, active: bool) -> Result<(), ApiError> {
+        let name = validate_band_name(name)?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.execute(
+            "UPDATE bands SET name=?1, normalized_name=?2, active=?3 WHERE id=?4",
+            rusqlite::params![name, name.to_lowercase(), i64::from(active), id],
+        )
+        .map_err(|e| {
+            if e.to_string().contains("UNIQUE") {
+                ApiError::Conflict("band name already exists".to_owned())
+            } else {
+                ApiError::Internal(e.to_string())
+            }
+        })?;
+        if conn.changes() == 0 {
+            return Err(ApiError::NotFound("band not found".to_owned()));
+        }
+        Ok(())
+    }
+
+    /// Delete band when no musician profile references it.
+    pub fn delete_band(&self, id: i64) -> Result<(), ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let references: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM musician_profiles WHERE band_id = ?1",
+                rusqlite::params![id],
+                |row| row.get(0),
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if references > 0 {
+            return Err(ApiError::Conflict(
+                "band is referenced by musician profiles".to_owned(),
+            ));
+        }
+        conn.execute("DELETE FROM bands WHERE id=?1", rusqlite::params![id])
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if conn.changes() == 0 {
+            return Err(ApiError::NotFound("band not found".to_owned()));
+        }
+        Ok(())
     }
 
     /// Find user username and role by ID.
@@ -1815,7 +2199,9 @@ mod tests {
                 (1, "M001".to_owned()),
                 (2, "M002".to_owned()),
                 (3, "M003".to_owned()),
-                (4, "M004".to_owned())
+                (4, "M004".to_owned()),
+                (5, "M005".to_owned()),
+                (6, "M006".to_owned())
             ]
         );
     }

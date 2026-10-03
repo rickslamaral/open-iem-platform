@@ -19,6 +19,10 @@ use api_server::{
         },
         audio::{ice_candidate, offer, pair_device, repair_device, revoke_device, sessions},
         auth::{change_password, create_user, login, logout, refresh},
+        bands::{
+            create as create_band, delete as delete_band, list as list_bands,
+            list_public as list_public_bands, update as update_band,
+        },
         channels::{get_state, list_channels, set_channel_gain, set_channel_mute},
         config::{backup_config, restore_config},
         devices::get_devices,
@@ -169,6 +173,11 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/mixes", get(list_mixes))
         .route("/api/v1/me/profile", get(get_profile).put(put_profile))
         .route("/api/v1/admin/musicians", get(list_musicians))
+        .route("/api/v1/admin/bands", get(list_bands).post(create_band))
+        .route(
+            "/api/v1/admin/bands/{id}",
+            put(update_band).delete(delete_band),
+        )
         .route("/api/v1/admin/qr/status", get(qr_status))
         .route("/api/v1/admin/qr/activate", post(qr_activate))
         .route("/api/v1/admin/qr/rotate", post(qr_rotate))
@@ -216,6 +225,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/system", get(get_system_info))
         .route("/api/v1/auth/login", post(login))
         .route("/api/v1/auth/refresh", post(refresh))
+        .route("/api/v1/onboarding/bands", get(list_public_bands))
         .route("/api/v1/onboarding/qr/exchange", post(qr_exchange));
 
     let app = Router::new()

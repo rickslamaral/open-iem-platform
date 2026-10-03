@@ -10,7 +10,7 @@
     clippy::unused_async
 )]
 use crate::{
-    auth::{generate_refresh_token, token_to_storage_key, JwtClaims},
+    auth::{generate_refresh_token, hash_password, token_to_storage_key, JwtClaims},
     error::ApiError,
     middleware::require_min_role,
     state::AppState,
@@ -65,6 +65,28 @@ fn validate_secret(secret: &str) -> Result<(), ApiError> {
     Ok(())
 }
 
+fn validate_account(username: &str, password: &str) -> Result<(), ApiError> {
+    if username.len() < 3
+        || username.len() > 64
+        || !username
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.'))
+    {
+        return Err(ApiError::BadRequest(
+            "username format is invalid".to_owned(),
+        ));
+    }
+    if password.chars().count() < 12
+        || password.chars().count() > 128
+        || password.chars().any(char::is_control)
+    {
+        return Err(ApiError::BadRequest(
+            "password must contain 12-128 characters and no control characters".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
 fn validate(name: &str, instrument: &str) -> Result<(), ApiError> {
     if name.trim().is_empty()
         || name.chars().count() > MAX_NAME
@@ -91,6 +113,7 @@ fn unix_hash(secret: &str) -> String {
 #[derive(Deserialize)]
 pub struct QrConfigure {
     pub expires_in_seconds: Option<u64>,
+    pub band_id: Option<i64>,
 }
 #[derive(Serialize)]
 pub struct QrStatus {
@@ -98,10 +121,13 @@ pub struct QrStatus {
     pub expires_at: u64,
     pub remaining_uses: u64,
     pub generation: u64,
+    pub band_id: Option<i64>,
 }
 #[derive(Deserialize)]
 pub struct Exchange {
     pub qr_secret: String,
+    pub username: String,
+    pub password: String,
     pub display_name: String,
     pub instrument_id: String,
 }
@@ -116,12 +142,13 @@ pub async fn status(
     Extension(claims): Extension<JwtClaims>,
 ) -> Result<Json<QrStatus>, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
-    let (active, expires, remaining, generation) = state.db.qr_status(now())?;
+    let (active, expires, remaining, generation, band_id) = state.db.qr_status(now())?;
     Ok(Json(QrStatus {
         active,
         expires_at: expires,
         remaining_uses: remaining,
         generation,
+        band_id,
     }))
 }
 async fn configure(
@@ -139,12 +166,26 @@ async fn configure(
         ));
     }
     let expires = now() + lifetime;
-    state
-        .db
-        .configure_qr_audited(&unix_hash(&secret), expires, claims.user_id, action)?;
+    state.db.configure_qr_audited(
+        &unix_hash(&secret),
+        expires,
+        body.band_id,
+        claims.user_id,
+        action,
+    )?;
+    let session_base = std::env::var("OPENIEM_SESSION_PUBLIC_BASE")
+        .unwrap_or_else(|_| "http://localhost:5173".to_owned());
+    let session_url = format!(
+        "{}/#invitation={secret}",
+        session_base.trim_end_matches('/')
+    );
     Ok((
         StatusCode::CREATED,
-        Json(serde_json::json!({"qr_secret": secret, "expires_at": expires})),
+        Json(serde_json::json!({
+            "session_url": session_url,
+            "expires_at": expires,
+            "band_id": body.band_id
+        })),
     ))
 }
 pub async fn activate(
@@ -179,12 +220,16 @@ pub async fn exchange(
         return Err(ApiError::TooManyRequests);
     }
     validate_secret(&body.qr_secret)?;
+    validate_account(&body.username, &body.password)?;
     validate(&body.display_name, &body.instrument_id)?;
+    let password_hash = hash_password(&body.password)?;
     let raw_refresh = generate_refresh_token();
     let jti = Uuid::new_v4().to_string();
     let now = now();
-    let (user_id, session_id, username) = match state.db.exchange_qr(
+    let (user_id, session_id, username) = match state.db.exchange_qr_account(
         &unix_hash(&body.qr_secret),
+        &body.username,
+        &password_hash,
         &body.display_name,
         &body.instrument_id,
         now,
@@ -257,6 +302,14 @@ mod tests {
             iat: 1,
             exp: u64::MAX,
         }
+    }
+
+    #[test]
+    fn account_validation_enforces_username_and_password_policy() {
+        assert!(validate_account("ana_1", "a-secure-password").is_ok());
+        assert!(validate_account("ab", "a-secure-password").is_err());
+        assert!(validate_account("ana", "short").is_err());
+        assert!(validate_account("ana!", "a-secure-password").is_err());
     }
 
     #[test]
