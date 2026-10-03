@@ -4070,10 +4070,10 @@ test → review → docs/GAP update → PR/CI
 - Sem CI remoto SUCCESS para HEAD atual; PR #352 aberta contra `main`, sem checks reportados.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; hardware físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` permanecem pendentes.
 
-##  — verificação operacional no HEAD `f9e92bb`
+## 2026-10-03 06:03 -0300 — verificação operacional no HEAD `174afa8`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f9e92bbc430d6386e32e8cb1d451b4b95f6b99cf`; working tree estava limpa antes deste registro.
-- Tarefa documentada `Validate real PipeWire graph on a supported Linux host` executada por `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
-- `scripts/validate-docs.sh`, `git diff --check` e lease probe PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado; revisão manual das linhas documentais sem segredos ou padrões perigosos.
-- Backlog CODE executável permanece esgotado. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe PR nova, merge ou alteração em `main`. CI SUCCESS existente cobre SHA anterior, não este HEAD.
-- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `174afa8a135f191e5f6f7f070bda10cfe87e40b1`; working tree limpa antes desta atualização.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- CI remoto SUCCESS existente em `develop` cobre SHA anterior (`2f4b8146e577ae5724e058499bead060181e3f27`), não HEAD atual. PR #352 permanece aberta contra `main`, sem checks reportados; política vigente não abre PR nova, não faz merge e não altera `main`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
