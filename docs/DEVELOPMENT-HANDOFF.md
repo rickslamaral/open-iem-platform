@@ -3961,3 +3961,11 @@ test → review → docs/GAP update → PR/CI
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
 - CI remoto não tem SUCCESS no HEAD; últimos SUCCESS reais `36897066547`/`36897066543` cobrem SHA anterior. PRs #347/#348 seguem abertas contra `main` com falhas Rust/coverage.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 01:03 -0300 — verificação operacional no HEAD `dcd36912a7afaa0c15f46cce1bd24c816ec62ebf`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `dcd36912a7afaa0c15f46cce1bd24c816ec62ebf`; working tree limpa antes desta atualização.
+- Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes (874 testes), musician (typecheck, 67 testes, build) e engineer (typecheck, 59 testes, build).
+- Segurança: `npm audit --audit-level=high` reportou 0 vulnerabilidades nos dois frontends; scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- PR #352 permanece aberta contra `main`, sem checks reportados. Últimos CI SUCCESS reais cobrem SHA anterior, não `dcd36912a7afaa0c15f46cce1bd24c816ec62ebf`.
+- Backlog CODE executável permanece esgotado; pendências exigem hardware físico, confirmação de release, secret externo ou runner remoto. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; evidência `CODE/CI/SIMULATED`.
