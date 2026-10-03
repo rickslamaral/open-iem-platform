@@ -1,3 +1,11 @@
+## 2026-10-03 00:15 -0300 — verificação operacional no HEAD `cb49acf`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no commit `cb49acfce32f42fe49ece6d69f4aa239e078b1ed`; working tree limpa antes desta atualização.
+- PR #352 permanece aberta contra `main`, sem checks reportados; nenhum CI remoto SUCCESS cobre este HEAD. Últimos SUCCESS reais (`37078296148`, `37078296183`) cobrem apenas `2f4b8146e577ae5724e058499bead060181e3f27`.
+- Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes; Rust executou 874 testes, 0 falhas. Musician: typecheck, 67 testes e build. Engineer: typecheck, 59 testes e build.
+- Segurança: `npm audit --audit-level=high` reportou 0 vulnerabilidades em musician e engineer. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- Backlog CODE executável permanece esgotado. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; evidência disponível `CODE/CI/SIMULATED`.
+
 ## 2026-10-03 00:00 -0300 — verificação operacional no HEAD `130b511`
 
 - `flock -n .git/hermes-dev.lock` adquiriu lease; `develop` e `origin/develop` estão sincronizadas em `130b5117f886b33a1ef670f2a2c4dd63bddab68f`; working tree limpa.
