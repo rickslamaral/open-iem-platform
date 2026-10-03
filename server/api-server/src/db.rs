@@ -439,33 +439,84 @@ impl Db {
                 .map_err(|e| ApiError::Internal(e.to_string()))?
                 .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
                 .collect::<Result<_, _>>()?;
+            let user_unique_indexes: Vec<(String, i64, i64)> = tx
+                .prepare("PRAGMA index_list('musician_profiles')")
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .query_map([], |row| Ok((row.get(1)?, row.get(2)?, row.get(4)?)))
+                .map_err(|e| ApiError::Internal(e.to_string()))?
+                .map(|row| row.map_err(|e| ApiError::Internal(e.to_string())))
+                .collect::<Result<Vec<(String, i64, i64)>, _>>()?
+                .into_iter()
+                .filter(|(_, unique, partial)| *unique == 1 && *partial == 0)
+                .filter(|(name, _, _)| {
+                    let columns: Result<Vec<String>, _> = tx
+                        .prepare(&format!(
+                            "PRAGMA index_info('{}')",
+                            name.replace('\'', "''")
+                        ))
+                        .and_then(|mut statement| {
+                            statement
+                                .query_map([], |row| row.get(2))
+                                .map(|rows| rows.filter_map(Result::ok).collect())
+                        });
+                    columns.is_ok_and(|columns| columns == vec!["user_id".to_owned()])
+                })
+                .collect();
+            let user_id_unique = !user_unique_indexes.is_empty();
             let normalized_sql: String = table_sql
                 .to_ascii_uppercase()
                 .chars()
                 .filter(|character| !character.is_ascii_whitespace())
                 .collect();
-            let base_columns: Vec<_> = columns
-                .iter()
-                .filter(|(name, _, _, _, _)| name != "band_id")
-                .cloned()
-                .collect();
-            let base_foreign_keys: Vec<_> = foreign_keys
-                .iter()
-                .filter(|(table, _, _, _)| table == "users")
-                .cloned()
-                .collect();
-            if base_columns != expected_columns
-                || base_foreign_keys
-                    != vec![(
+            let m005_applied: bool = tx
+                .query_row(
+                    "SELECT EXISTS(SELECT 1 FROM migrations WHERE name = 'M005')",
+                    [],
+                    |row| row.get(0),
+                )
+                .map_err(|e| ApiError::Internal(e.to_string()))?;
+            let mut expected_current_columns = expected_columns.clone();
+            let expected_foreign_keys = if m005_applied {
+                expected_current_columns.push((
+                    "band_id".to_owned(),
+                    "INTEGER".to_owned(),
+                    0,
+                    None,
+                    0,
+                ));
+                vec![
+                    (
                         "users".to_owned(),
                         "user_id".to_owned(),
                         "id".to_owned(),
                         "CASCADE".to_owned(),
-                    )]
+                    ),
+                    (
+                        "bands".to_owned(),
+                        "band_id".to_owned(),
+                        "id".to_owned(),
+                        "SET NULL".to_owned(),
+                    ),
+                ]
+            } else {
+                vec![(
+                    "users".to_owned(),
+                    "user_id".to_owned(),
+                    "id".to_owned(),
+                    "CASCADE".to_owned(),
+                )]
+            };
+            let mut actual_foreign_keys = foreign_keys.clone();
+            let mut expected_foreign_keys = expected_foreign_keys;
+            actual_foreign_keys.sort();
+            expected_foreign_keys.sort();
+            if columns != expected_current_columns
+                || actual_foreign_keys != expected_foreign_keys
                 || status_index_columns != vec![(0, "status".to_owned())]
+                || !user_id_unique
                 || !normalized_sql.contains("PROFILE_IDINTEGERPRIMARYKEYAUTOINCREMENT")
-                || !normalized_sql
-                    .contains("USER_IDINTEGERNOTNULLUNIQUEREFERENCESUSERS(ID)ONDELETECASCADE")
+                || !normalized_sql.contains("USER_IDINTEGERNOTNULLUNIQUE")
+                || !normalized_sql.contains("REFERENCESUSERS(ID)ONDELETECASCADE")
                 || !normalized_sql
                     .contains("STATUSTEXTNOTNULLCHECK(STATUSIN('PENDING','ACTIVE','BLOCKED'))")
             {
