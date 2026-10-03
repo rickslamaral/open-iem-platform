@@ -4,7 +4,13 @@ const instruments = [['vocals', 'Vocals'], ['guitar', 'Guitar'], ['bass', 'Bass'
 const invitationToken = (value: string): string => {
   try {
     const url = new URL(value);
-    return url.searchParams.get('qr_secret')?.trim() ?? value.trim();
+    const queryValues = ['qr_secret', 'invitation']
+      .flatMap((key) => url.searchParams.getAll(key));
+    const fragmentValues = new URLSearchParams(url.hash.replace(/^#/, '')).getAll('invitation');
+    const recognizedValues = [...queryValues, ...fragmentValues].map((candidate) => candidate.trim());
+    if (recognizedValues.length === 0) return value.trim();
+    if (recognizedValues.some((candidate) => !candidate) || new Set(recognizedValues).size > 1) return '';
+    return recognizedValues[0];
   } catch { return value.trim(); }
 };
 interface Props { onLogin: (username: string, password: string) => Promise<void>; onQrExchange: (qrSecret: string, displayName: string, instrumentId: string, username: string, password: string) => Promise<void>; error: string | null; }
@@ -23,9 +29,15 @@ export function Login({ onLogin, onQrExchange, error }: Props) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-    const invitation = params.get('invitation') ?? hashParams.get('invitation');
-    if (invitation) {
-      setQrSecret(invitationToken(invitation));
+    const invitations = [...params.getAll('invitation'), ...hashParams.getAll('invitation')]
+      .map((candidate) => candidate.trim());
+    const invitation = invitations.length === 0
+      ? undefined
+      : invitations.some((candidate) => !candidate) || new Set(invitations).size > 1
+        ? ''
+        : invitations[0];
+    if (invitation !== undefined) {
+      setQrSecret(invitation ? invitationToken(invitation) : '');
       setQrMode(true);
       const cleanUrl = new URL(window.location.href);
       cleanUrl.searchParams.delete('invitation');
