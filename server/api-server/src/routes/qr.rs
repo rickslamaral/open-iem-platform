@@ -173,11 +173,19 @@ async fn configure(
         claims.user_id,
         action,
     )?;
+    let session_base = std::env::var("OPENIEM_SESSION_PUBLIC_BASE")
+        .unwrap_or_else(|_| "http://localhost:5173".to_owned());
+    let session_url = format!(
+        "{}/?invitation={secret}",
+        session_base.trim_end_matches('/')
+    );
     Ok((
         StatusCode::CREATED,
-        Json(
-            serde_json::json!({"qr_secret": secret, "expires_at": expires, "band_id": body.band_id}),
-        ),
+        Json(serde_json::json!({
+            "session_url": session_url,
+            "expires_at": expires,
+            "band_id": body.band_id
+        })),
     ))
 }
 pub async fn activate(

@@ -1413,7 +1413,7 @@ impl Db {
             return Err(ApiError::Unauthorized("invalid or expired QR invitation"));
         }
         tx.execute("INSERT INTO users(username,pw_hash,role,must_change_password) VALUES(?1,?2, 'MUSICIAN',0)", params![username, password_hash]).map_err(|e| {
-            if e.to_string().contains("UNIQUE") { ApiError::BadRequest("username is unavailable".to_owned()) } else { ApiError::Internal(e.to_string()) }
+            if e.to_string().contains("UNIQUE") { ApiError::Conflict("unable to create musician account".to_owned()) } else { ApiError::Internal(e.to_string()) }
         })?;
         let uid = tx.last_insert_rowid();
         let band_id: Option<i64> = tx

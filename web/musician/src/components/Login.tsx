@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import styles from './Login.module.css';
-import { fetchActiveBands, type BandOption } from '../api/bands';
-
 const instruments = [['vocals', 'Vocals'], ['guitar', 'Guitar'], ['bass', 'Bass'], ['drums', 'Drums'], ['keys', 'Keys'], ['acoustic-guitar', 'Acoustic guitar'], ['brass', 'Brass'], ['strings', 'Strings']] as const;
-interface Props { onLogin: (username: string, password: string) => Promise<void>; onQrExchange: (qrSecret: string, displayName: string, instrumentId: string, username: string, password: string, bandId?: number) => Promise<void>; error: string | null; }
+const invitationToken = (value: string): string => {
+  try {
+    const url = new URL(value);
+    return url.searchParams.get('qr_secret')?.trim() ?? value.trim();
+  } catch { return value.trim(); }
+};
+interface Props { onLogin: (username: string, password: string) => Promise<void>; onQrExchange: (qrSecret: string, displayName: string, instrumentId: string, username: string, password: string) => Promise<void>; error: string | null; }
 
 interface BarcodeDetectorLike { detect(source: ImageBitmapSource): Promise<Array<{ rawValue?: string }>>; }
 declare global { interface Window { BarcodeDetector?: new (options?: { formats?: string[] }) => BarcodeDetectorLike; } }
@@ -11,11 +15,20 @@ declare global { interface Window { BarcodeDetector?: new (options?: { formats?:
 export function Login({ onLogin, onQrExchange, error }: Props) {
   const [username, setUsername] = useState(''); const [password, setPassword] = useState('');
   const [qrSecret, setQrSecret] = useState(''); const [displayName, setDisplayName] = useState(''); const [instrumentId, setInstrumentId] = useState('vocals');
-  const [qrUsername, setQrUsername] = useState(''); const [qrPassword, setQrPassword] = useState(''); const [bandId, setBandId] = useState(''); const [bands, setBands] = useState<BandOption[]>([]);
+  const [qrUsername, setQrUsername] = useState(''); const [qrPassword, setQrPassword] = useState('');
   const [loading, setLoading] = useState(false); const [qrMode, setQrMode] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false); const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null); const streamRef = useRef<MediaStream | null>(null);
   const scanGenerationRef = useRef(0);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const invitation = params.get('invitation');
+    if (invitation) {
+      setQrSecret(invitationToken(invitation));
+      setQrMode(true);
+      window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.hash}`);
+    }
+  }, []);
   useEffect(() => {
     if (!qrMode) {
       scanGenerationRef.current += 1;
@@ -58,8 +71,13 @@ export function Login({ onLogin, onQrExchange, error }: Props) {
       if (scanGenerationRef.current === generation) { stopCamera(); setCameraError('Camera scanner failed. Paste QR secret or try again.'); }
     }
   };
-  useEffect(() => { if (qrMode) void fetchActiveBands().then(setBands).catch(() => setBands([])); }, [qrMode]);
-  const handleQrSubmit = async (e: React.FormEvent) => { e.preventDefault(); setLoading(true); try { await onQrExchange(qrSecret.trim(), displayName, instrumentId, qrUsername, qrPassword, bandId ? Number(bandId) : undefined); } finally { setLoading(false); } };
+  const handleQrSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); setLoading(true);
+    try { await onQrExchange(qrSecret.trim(), displayName, instrumentId, qrUsername, qrPassword); }
+    finally {
+      setLoading(false); setQrSecret(''); setQrUsername(''); setQrPassword(''); setDisplayName(''); setInstrumentId('vocals'); stopCamera();
+    }
+  };
   const handlePasswordSubmit = async (e: React.FormEvent) => { e.preventDefault(); setLoading(true); try { await onLogin(username, password); } finally { setLoading(false); } };
   return <div className={styles.container}><div className={styles.card}>
     <h1 className={styles.title}>Open IEM</h1><p className={styles.subtitle}>Musician Monitor Control</p>
@@ -74,7 +92,6 @@ export function Login({ onLogin, onQrExchange, error }: Props) {
       <label htmlFor="instrument-id" className={styles.label}>Instrument</label><select id="instrument-id" value={instrumentId} onChange={(e) => setInstrumentId(e.target.value)} className={styles.input} disabled={loading}>{instruments.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select>
       <label htmlFor="qr-username" className={styles.label}>Username</label><input id="qr-username" value={qrUsername} onChange={(e) => setQrUsername(e.target.value)} className={styles.input} required disabled={loading} autoComplete="username" />
       <label htmlFor="qr-password" className={styles.label}>Password</label><input id="qr-password" type="password" value={qrPassword} onChange={(e) => setQrPassword(e.target.value)} className={styles.input} required disabled={loading} autoComplete="new-password" />
-      <label htmlFor="band-id" className={styles.label}>Band (optional)</label><select id="band-id" value={bandId} onChange={(e) => setBandId(e.target.value)} className={styles.input} disabled={loading}><option value="">No band</option>{bands.map((band) => <option key={band.id} value={band.id}>{band.name}</option>)}</select>
       {error && <p role="alert" className={styles.error}>{error}</p>}<button type="submit" className={styles.button} disabled={loading}>{loading ? 'Joining…' : 'Join with QR secret'}</button>
     </form> : <form onSubmit={handlePasswordSubmit} className={styles.form}>
       <label htmlFor="username" className={styles.label}>Username</label><input id="username" type="text" autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} className={styles.input} required disabled={loading} />

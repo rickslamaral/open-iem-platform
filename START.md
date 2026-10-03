@@ -361,6 +361,13 @@
 - Open Dependabot PRs #347 and #348 target `main` and fail Rust format/clippy/tests plus coverage; policy leaves them untouched.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA physical, LAN, Raspberry Pi 5 and release `v0.3.1` remain pending. Evidence: `CODE/CI/SIMULATED`.
 
+## 2026-10-02 — Secure musician session URL/QR onboarding
+
+- Engineer/Admin activation and rotation create short-lived QR invitations. Server stores only hash, enforces expiry/use limit, and revokes prior generation.
+- QR response supplies configurable `OPENIEM_SESSION_PUBLIC_BASE` URL (default `http://localhost:5173`) with invitation in memory-only onboarding flow; no access/refresh token enters URL or storage. Musician UI removes invitation query from history immediately.
+- Musician exchange sends no `band_id`. Server derives band only from persisted QR row; absent band uses Default/Padrão. Public band catalog and selection are removed; Engineer/Admin band APIs remain protected.
+- Username conflicts return generic `unable to create musician account`. QR secret, username, password, profile fields, and camera stream clear after success or failure.
+
 ## 2026-10-02 — QR camera scanning
 
 - Musician QR onboarding now offers browser camera scanning via `BarcodeDetector` and `getUserMedia`, with paste fallback, bounded scan loop, stream cleanup and generation guards for unmount/stop/concurrent attempts.

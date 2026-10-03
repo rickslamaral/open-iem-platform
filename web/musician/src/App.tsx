@@ -84,9 +84,9 @@ export default function App() {
     catch (err) { setLoginError(err instanceof Error ? err.message : 'Login failed'); }
   }, []);
 
-  const handleQrExchange = useCallback(async (qrSecret: string, displayName: string, instrumentId: string, username: string, password: string, bandId?: number) => {
+  const handleQrExchange = useCallback(async (qrSecret: string, displayName: string, instrumentId: string, username: string, password: string) => {
     setLoginError(null);
-    try { setToken((await exchangeQr({ qr_secret: qrSecret, display_name: displayName, instrument_id: instrumentId, username, password, band_id: bandId })).access_token); }
+    try { setToken((await exchangeQr({ qr_secret: qrSecret, display_name: displayName, instrument_id: instrumentId, username, password })).access_token); }
     catch (err) { setLoginError(err instanceof Error ? err.message : 'QR onboarding failed'); }
   }, []);
 
