@@ -584,7 +584,7 @@
 
 ## Current PR #353 — shareable QR invitation URL
 
-Environment target: test only. Engineer/Admin QR controls generate, rotate, revoke, display, copy, and share a separate invitation URL. Musician opens URL or scans QR, reaches session entry, and can register/enter without typing a password when invitation is valid.
+Environment target: test only. Engineer/Admin QR controls generate, rotate, revoke, display, copy, and share a separate invitation URL. Musician opens URL or scans QR, reaches session entry, then supplies display name, instrument, username and password before exchange.
 
 Invitation contract:
 
@@ -598,7 +598,7 @@ Invitation contract:
 - Revoking or rotating invitation must invalidate access derived from previous generation.
 - Configure `OPENIEM_SESSION_PUBLIC_BASE` for test-environment URL generation.
 
-Security boundary: anyone holding currently valid QR/URL can enter test session until TTL, usage limit or rotation revokes it. This passwordless flow is not production authentication. Production requires account approval, device authorization or equivalent stronger control.
+Security boundary: anyone holding currently valid QR/URL can enter test session until TTL, usage limit or rotation revokes it. This invitation-assisted flow is not production authentication. Production requires account approval, device authorization or equivalent stronger control.
 
 ## 2026-10-02 — Secure musician session URL/QR onboarding
 
