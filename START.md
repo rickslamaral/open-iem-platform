@@ -1,3 +1,12 @@
+## 2026-10-03 03:01 -0300 — verificação operacional no HEAD `abdb18b`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `abdb18b3c0c5347968048b71a3c421864974eeb9`; working tree limpa antes desta atualização.
+- Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
+- `scripts/validate-docs.sh` e `git diff --check` PASS nesta atualização; gates completos anteriores permanecem evidência histórica, não são atribuídos novamente sem execução.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- PR #352 permanece aberta contra `main`, sem checks reportados. CI SUCCESS existente cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`, não o HEAD atual.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`.
+
 ## 2026-10-03 02:52 -0300 — verificação operacional no HEAD `e2db110`
 
 - Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `e2db11065381863d762954b8a54fb98eb41b7a67`; working tree limpa antes desta atualização.
