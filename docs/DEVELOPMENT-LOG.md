@@ -8878,3 +8878,12 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das alterações documentais não encontrou segredos ou padrões perigosos.
 - CI remoto SUCCESS existente (`37078296183`, `37078296148`) cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`, não este HEAD. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente não abre PR nova, não faz merge e não altera `main`.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 07:16 -0300 — verificação operacional no HEAD `6c73054`
+
+- Lease adquirido com diretório exclusivo `/tmp/open-iem-development.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `6c7305426514ec1395d6272d08a88ea7113a59cd`; working tree limpa.
+- Evidência executada: `scripts/ci/run-pipewire-software-e2e.sh` retornou `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh` retornou `documentation validation passed (version 0.3.1)`; `git diff --check` PASS.
+- CI remoto SUCCESS disponível (`37078296183`, `37078296148`) cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`, não este HEAD. PR #352 permanece aberta contra `main`, sem checks reportados; política vigente não abre PR nova, não faz merge e não altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das alterações documentais não encontrou segredos ou padrões perigosos.
+- Backlog CODE executável permanece esgotado; pendências exigem hardware físico, confirmação de release, secret externo ou runner remoto. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
