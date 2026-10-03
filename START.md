@@ -4256,3 +4256,11 @@ Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRT
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
 - CI SUCCESS existente cobre SHA anterior, não HEAD atual. PR #352 aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks; política proíbe PR nova, merge ou alteração em `main`.
 - Backlog CODE executável esgotado. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-03 07:03 -0300 — verificação operacional no HEAD `c24ea75`
+
+- Lease adquirido com diretório exclusivo `/tmp/open-iem-development.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `c24ea75044ec7f00a750f2c3248a96fd88810a1a`; working tree limpa antes desta atualização.
+- Gates locais PASS: `scripts/ci/run-pipewire-software-e2e.sh` (`PIPEWIRE_SOFTWARE_E2E: PASS`, `SOFTWARE/SIMULATED`), `scripts/validate-docs.sh`, `git diff --check`, Rust fmt, clippy e `cargo test --manifest-path server/Cargo.toml` (537 testes), musician typecheck/testes (67)/build e engineer typecheck/testes (59)/build.
+- Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das alterações documentais não encontrou segredos ou padrões perigosos.
+- CI remoto SUCCESS existente (`37078296183`, `37078296148`) cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`, não este HEAD. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente não abre PR nova, não faz merge e não altera `main`.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
