@@ -1,4 +1,5 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import QRCode from 'qrcode';
 import './style.css';
 import { useEngineerWs } from './useEngineerWs';
 
@@ -581,6 +582,7 @@ function QrInvitePanel({ token }: { token: string }) {
   const [invite, setInvite] = useState<QrInvite | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
+  const [qrImage, setQrImage] = useState('');
   const load = async () => {
     const [rawStatus, nextBands] = await Promise.all([
       request<QrStatus>('/api/v1/admin/qr/status', token),
@@ -598,6 +600,14 @@ function QrInvitePanel({ token }: { token: string }) {
     finally { setBusy(false); }
   };
   const url = invite?.session_url ?? '';
+  useEffect(() => {
+    let active = true;
+    if (!url) { setQrImage(''); return () => { active = false; }; }
+    void QRCode.toDataURL(url, { errorCorrectionLevel: 'M', margin: 2, width: 240 })
+      .then((image) => { if (active) setQrImage(image); })
+      .catch(() => { if (active) setQrImage(''); });
+    return () => { active = false; };
+  }, [url]);
   const copy = async () => { if (!url) return; await navigator.clipboard.writeText(url); setMessage('URL copiada'); };
   return <section className="card" aria-labelledby="qr-invite-title">
     <h2 id="qr-invite-title">Convite de sessão</h2>
@@ -605,7 +615,7 @@ function QrInvitePanel({ token }: { token: string }) {
     <label>Banda autorizada<select aria-label="Banda do convite" value={bandId} onChange={(event) => setBandId(event.target.value)} disabled={busy}><option value="">Default / Padrão</option>{bands.filter((band) => band.active).map((band) => <option key={band.id} value={band.id}>{band.name}</option>)}</select></label>
     <div className="row"><button type="button" className="secondary" onClick={() => void load().catch(() => setMessage('Falha ao carregar convite'))} disabled={busy}>Atualizar status</button><button type="button" onClick={() => void configure('/api/v1/admin/qr/activate')} disabled={busy}>{busy ? 'Gerando…' : 'Gerar convite'}</button><button type="button" className="secondary" onClick={() => void configure('/api/v1/admin/qr/rotate')} disabled={busy}>Rotacionar</button><button type="button" className="danger" onClick={async () => { setBusy(true); try { await request('/api/v1/admin/qr/deactivate', token, { method: 'POST' }); setInvite(null); await load(); setMessage('Convite desativado'); } catch (cause) { setMessage(cause instanceof Error ? cause.message : 'Falha ao desativar'); } finally { setBusy(false); } }} disabled={busy}>Desativar</button></div>
     {status && <p className="muted" role="status">{status.active ? `Ativo · geração ${status.generation} · usos restantes ${status.remaining_uses}` : 'Inativo'}</p>}
-    {url && <div><label htmlFor="session-invite-url">URL do convite</label><input id="session-invite-url" readOnly value={url} /><div className="row"><button type="button" onClick={() => void copy()}>Copiar URL</button><a className="button secondary" href={`https://wa.me/?text=${encodeURIComponent(`Convite Open IEM: ${url}`)}`} target="_blank" rel="noreferrer">Compartilhar via WhatsApp</a></div></div>}
+    {url && <div><label htmlFor="session-invite-url">URL do convite</label><input id="session-invite-url" readOnly value={url} />{qrImage && <img src={qrImage} alt="QR code do convite de sessão" width="240" height="240" />}<div className="row"><button type="button" onClick={() => void copy()}>Copiar URL</button><a className="button secondary" href={`https://wa.me/?text=${encodeURIComponent(`Convite Open IEM: ${url}`)}`} target="_blank" rel="noreferrer">Compartilhar via WhatsApp</a></div></div>}
     {message && <p role="status" className="muted">{message}</p>}
   </section>;
 }

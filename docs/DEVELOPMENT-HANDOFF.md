@@ -1,3 +1,11 @@
+## Current PR #353 — shareable QR invitation URL
+
+- Engineer/Admin UI now renders QR image and supports generate, rotate, revoke, copy, and share URL controls.
+- API returns session URL using `OPENIEM_SESSION_PUBLIC_BASE` with short-lived invitation token in URL fragment. Access and refresh bearer tokens never enter URL.
+- Existing server flow stores token hash only, enforces 10-minute TTL/single use, rotates and revokes, consumes token before access/refresh issuance, and derives band server-side or Default/Padrão.
+- Musician UI parses invitation in memory and immediately cleans address bar with `history.replaceState`; token is not persisted in localStorage, JWT claims, or logs.
+- Gates: engineer typecheck/tests/build/audit PASS (59 tests, 0 vulnerabilities); musician typecheck/tests/build/audit PASS (67 tests, 0 vulnerabilities); Rust fmt/clippy/tests PASS (all suites, 0 failures); diff check PASS. Physical hardware validation not executed.
+
 ## 2026-10-03 09:35 -0300 — reconciliação operacional no HEAD `ea4af2f`
 
 - Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch local `develop` está no HEAD `ea4af2f857130624af65f6da2c25fce43fe8620a`; working tree limpa antes desta atualização.

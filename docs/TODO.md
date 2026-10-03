@@ -1,3 +1,10 @@
+## Current PR #353 — shareable QR invitation URL
+
+- [x] Engineer/Admin QR invite controls: generate, rotate, revoke, render QR, copy/share session URL.
+- [x] Test environment URL configured through `OPENIEM_SESSION_PUBLIC_BASE`; fragment carries invitation token only, never access/refresh bearer tokens.
+- [x] Musician URL bootstrap consumes token in memory and removes URL token with `history.replaceState`; server binds band or Default/Padrão and issues session only after one-time/limited token consumption.
+- [x] Security contract documented: hashed-at-rest token, 10-minute TTL, single use, rotation/revocation, no logs/localStorage/JWT claims.
+
 ## 2026-10-03 09:35 -0300 — reconciliação operacional no HEAD `ea4af2f`
 
 - Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch local `develop` está no HEAD `ea4af2f857130624af65f6da2c25fce43fe8620a`; working tree limpa antes desta atualização.

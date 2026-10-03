@@ -582,6 +582,24 @@
 - Open Dependabot PRs #347 and #348 target `main` and fail Rust format/clippy/tests plus coverage; policy leaves them untouched.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA physical, LAN, Raspberry Pi 5 and release `v0.3.1` remain pending. Evidence: `CODE/CI/SIMULATED`.
 
+## Current PR #353 — shareable QR invitation URL
+
+Environment target: test only. Engineer/Admin QR controls generate, rotate, revoke, display, copy, and share a separate invitation URL. Musician opens URL or scans QR, reaches session entry, and can register/enter without typing a password when invitation is valid.
+
+Invitation contract:
+
+- URL carries only a short-lived invitation token; never access or refresh bearer tokens.
+- Server stores SHA-256 hash, validates TTL, usage, generation and revocation before creating musician session.
+- Automatic rotation target: every 1 hour; manual `Generate new QR` revokes previous generation immediately.
+- Current invitation remains visible in Engineer/Admin UI for QR reading, copy and WhatsApp sharing.
+- Token is accepted only through the onboarding exchange, then kept in memory and removed from browser URL with `history.replaceState`.
+- Token is never stored in `localStorage`, JWT claims, application logs or documentation.
+- Session scope comes from QR server-side configuration: selected band or `Default/Padrão`; client cannot choose `band_id`.
+- Revoking or rotating invitation must invalidate access derived from previous generation.
+- Configure `OPENIEM_SESSION_PUBLIC_BASE` for test-environment URL generation.
+
+Security boundary: anyone holding currently valid QR/URL can enter test session until TTL, usage limit or rotation revokes it. This passwordless flow is not production authentication. Production requires account approval, device authorization or equivalent stronger control.
+
 ## 2026-10-02 — Secure musician session URL/QR onboarding
 
 - Engineer/Admin activation and rotation create short-lived QR invitations. Server stores only hash, enforces expiry/use limit, and revokes prior generation.
