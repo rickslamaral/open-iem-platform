@@ -36,7 +36,7 @@ use api_server::{
         profile::{get_profile, list_musicians, put_profile},
         qr::{
             activate as qr_activate, deactivate as qr_deactivate, exchange as qr_exchange,
-            rotate as qr_rotate, status as qr_status,
+            rotate as qr_rotate, session_bootstrap as qr_session_bootstrap, status as qr_status,
         },
         scenes::{
             backup_scenes, create_scene, delete_scene, duplicate_scene, get_active_scene,
@@ -226,7 +226,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/auth/login", post(login))
         .route("/api/v1/auth/refresh", post(refresh))
         .route("/api/v1/onboarding/bands", get(list_public_bands))
-        .route("/api/v1/onboarding/qr/exchange", post(qr_exchange));
+        .route("/api/v1/onboarding/qr/exchange", post(qr_exchange))
+        .route("/api/v1/onboarding/qr/session", post(qr_session_bootstrap));
 
     let app = Router::new()
         .merge(protected)

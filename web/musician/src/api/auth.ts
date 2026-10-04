@@ -28,6 +28,26 @@ export interface QrExchangeResponse {
   role: 'Musician';
 }
 
+export interface QrSessionRequest {
+  qr_secret: string;
+  display_name: string;
+  instrument_id: string;
+}
+
+export type QrSessionResponse = QrExchangeResponse;
+
+export async function bootstrapQrSession(req: QrSessionRequest): Promise<QrSessionResponse> {
+  const res = await fetch('/api/v1/onboarding/qr/session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(req),
+  });
+  if (!res.ok) throw await errorMessage(res, 'QR session bootstrap failed');
+  return res.json() as Promise<QrSessionResponse>;
+}
+
+
 const errorMessage = async (res: Response, operation: string): Promise<Error> => {
   let detail = '';
   try {
