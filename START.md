@@ -1,6 +1,6 @@
-## 2026-10-04 19:18 -0300 — verificação operacional no HEAD `5a67bf7`
+## 2026-10-04 19:18 -0300 — verificação operacional no HEAD `2e8011e`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `5a67bf7`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `2e8011e`; working tree limpa antes desta atualização.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS e `scripts/ci/run-pipewire-software-e2e.sh` PASS (`SOFTWARE/SIMULATED`).
