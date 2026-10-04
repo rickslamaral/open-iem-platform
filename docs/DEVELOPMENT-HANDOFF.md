@@ -1,3 +1,16 @@
+## 2026-10-04 09:35 -0300 — verificação operacional no HEAD `100d29d`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates reais: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; Rust fmt/clippy PASS; `cargo test --manifest-path server/Cargo.toml` PASS (537 testes, 0 falhas).
+- Frontend musician PASS: typecheck, 67 testes, build. Frontend engineer PASS: typecheck, 59 testes, build.
+- Proxy software PASS: `scripts/ci/run-pipewire-software-e2e.sh` retornou `PIPEWIRE_SOFTWARE_E2E: PASS` somente `SOFTWARE/SIMULATED`; sem claim de hardware ou WebRTC.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão independente pendente para esta atualização documental.
+- Evidência reproduzível deste ciclo: `scripts/validate-docs.sh`; `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 passed); `cd web/musician && npm run typecheck && npm test -- --run && npm run build`; `cd web/engineer && npm run typecheck && npm test -- --run && npm run build`; `scripts/ci/run-pipewire-software-e2e.sh`.
+- Evidência remota: PR #354 checks CI `https://github.com/rickslamaral/open-iem-platform/actions/runs/37176122122` e package gates `https://github.com/rickslamaral/open-iem-platform/actions/runs/37176122086`, ambos SUCCESS; scanner falhou por arquivo ausente, não por resultado limpo.
+- PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não faz merge, squash, delete ou altera `main`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
+
 ## 2026-10-04 09:03 -0300 — verificação operacional no HEAD `cb444b5`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `cb444b5`; working tree limpa antes desta atualização.
