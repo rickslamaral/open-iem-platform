@@ -1264,6 +1264,57 @@ impl Db {
         Ok(())
     }
 
+    /// Expire an active QR generation after its server-authoritative rotation band.
+    ///
+    /// This is idempotent and revokes every session created from the generation.
+    /// It does not create or return a secret; callers must explicitly configure a
+    /// new invitation before exposing another capability token.
+    pub fn expire_qr_generation_if_due(
+        &self,
+        now: u64,
+        rotation_interval: u64,
+    ) -> Result<bool, ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let due: bool = tx
+            .query_row(
+                "SELECT active = 1 AND updated_at + ?1 <= ?2 FROM qr_onboarding WHERE id = 1",
+                params![rotation_interval as i64, now as i64],
+                |row| row.get(0),
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if !due {
+            return Ok(false);
+        }
+        tx.execute(
+            "UPDATE qr_onboarding SET active = 0, expires_at = 0, generation = generation + 1, updated_at = ?1 WHERE id = 1",
+            params![now as i64],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE musician_onboarding_sessions SET state = 'REVOKED' WHERE state = 'ACTIVE'",
+            [],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE refresh_tokens SET revoked = 1 WHERE id IN (SELECT session_id FROM musician_onboarding_sessions)",
+            [],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE access_sessions SET revoked = 1 WHERE session_id IN (SELECT session_id FROM musician_onboarding_sessions)",
+            [],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok(true)
+    }
+
     /// Deactivate QR, revoke QR sessions, and audit atomically.
     pub fn deactivate_qr_audited(&self, actor_user_id: i64) -> Result<(), ApiError> {
         let mut conn = self
@@ -1359,7 +1410,7 @@ impl Db {
             }
         }
         tx.execute(
-            "UPDATE qr_onboarding SET secret_hash=?1, band_id=?2, expires_at=?3, active=1, used_count=0, generation=generation+1 WHERE id=1",
+            "UPDATE qr_onboarding SET secret_hash=?1, band_id=?2, expires_at=?3, active=1, used_count=0, generation=generation+1, updated_at=unixepoch() WHERE id=1",
             params![hash, band_id, expires as i64],
         ).map_err(|e| ApiError::Internal(e.to_string()))?;
         let generation: i64 = tx

@@ -32,6 +32,8 @@ use std::{
 use uuid::Uuid;
 
 const QR_TTL: u64 = 10 * 60;
+/// Maximum lifetime of one active generation in test mode.
+const QR_ROTATION_INTERVAL: u64 = 60 * 60;
 const MAX_NAME: usize = 80;
 const QR_SECRET_HEX_LEN: usize = 64;
 const INSTRUMENTS: &[&str] = &[
@@ -142,7 +144,11 @@ pub async fn status(
     Extension(claims): Extension<JwtClaims>,
 ) -> Result<Json<QrStatus>, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
-    let (active, expires, remaining, generation, band_id) = state.db.qr_status(now())?;
+    let current = now();
+    let _ = state
+        .db
+        .expire_qr_generation_if_due(current, QR_ROTATION_INTERVAL)?;
+    let (active, expires, remaining, generation, band_id) = state.db.qr_status(current)?;
     Ok(Json(QrStatus {
         active,
         expires_at: expires,
@@ -219,6 +225,10 @@ pub async fn exchange(
     if !state.qr_exchange_limiter.allow(peer.ip(), Instant::now()) {
         return Err(ApiError::TooManyRequests);
     }
+    let current = now();
+    let _ = state
+        .db
+        .expire_qr_generation_if_due(current, QR_ROTATION_INTERVAL)?;
     validate_secret(&body.qr_secret)?;
     validate_account(&body.username, &body.password)?;
     validate(&body.display_name, &body.instrument_id)?;
@@ -405,6 +415,24 @@ mod tests {
         assert!(db.qr_status(100).expect("status").0);
         db.configure_qr(None, 0, false).expect("deactivate");
         assert!(!db.qr_status(100).expect("status").0);
+    }
+
+    #[test]
+    fn hourly_expiry_revokes_generation_and_is_idempotent() {
+        let db = crate::db::Db::open_in_memory().expect("db");
+        let secret = qr_secret();
+        db.configure_qr(Some(&unix_hash(&secret)), 4_000_000_000, true)
+            .expect("activate");
+        let before = db.qr_status(4_000_000_000).expect("status").3;
+        assert!(db
+            .expire_qr_generation_if_due(4_000_000_000, QR_ROTATION_INTERVAL)
+            .expect("expire"));
+        let after = db.qr_status(4_000_000_000).expect("status");
+        assert!(!after.0);
+        assert_eq!(after.3, before + 1);
+        assert!(!db
+            .expire_qr_generation_if_due(4_000_000_001, QR_ROTATION_INTERVAL)
+            .expect("expire again"));
     }
 
     #[test]
