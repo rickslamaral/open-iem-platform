@@ -4185,3 +4185,12 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - Gates locais: `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
 - CI remoto não tem SUCCESS para este HEAD; últimos SUCCESS reais (`36897066547`, `36897066543`) cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; não contam para este HEAD.
 - Validação física não executada; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-10-04 06:35 -0300 — verificação operacional no HEAD `aaef6fa`
+
+- Lease do repositório validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `aaef6fa39a89b3dce8f4fa442ea20d707fc6a348`; working tree limpa antes desta atualização.
+- `scripts/ci/run-pipewire-software-e2e.sh` retornou `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
+- `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
+- PR #354 contra `main` está `CLEAN`, com 16 checks reais SUCCESS; política vigente não abre PR, não faz merge, squash ou delete de branch.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada. Backlog CODE executável permanece esgotado.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
