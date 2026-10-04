@@ -9382,3 +9382,12 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - CI remoto real do HEAD: runs `37121650586` (CI) e `37121650560` (Software Package Lifecycle Gates), ambos SUCCESS no SHA exato; PR #354 contra `main` permanece aberta, CLEAN, com 16 checks reais SUCCESS. Política vigente não abre PR, não faz merge, squash ou delete de branch.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão de alterações documentais sem segredos ou padrões perigosos.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
+
+## 2026-10-04 11:43 -0300 — verificação operacional no HEAD `279a066`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `279a066`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; PR #354 permanece única PR aberta relevante, branch remota vinculada, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates executados: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; `cargo fmt --manifest-path server/Cargo.toml --all -- --check` PASS; `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
+- Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`, arquivo ausente); nenhum resultado inventado. Revisão manual desta atualização documental não encontrou segredos ou padrões perigosos.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
