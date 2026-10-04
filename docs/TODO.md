@@ -5,12 +5,12 @@
 - [x] Musician URL bootstrap consumes token in memory and removes URL token with `history.replaceState`; musician supplies onboarding profile plus new-account credentials; server validates fields, hashes the password with Argon2id, then atomically creates account/profile/session and consumes one-time/limited QR usage, binding band or Default/Padrão.
 - [x] Security contract documented: hashed-at-rest token, 10-minute TTL, single use, rotation/revocation, no logs/localStorage/JWT claims.
 
-## 2026-10-03 09:35 -0300 — reconciliação operacional no HEAD `ea4af2f`
+## 2026-10-03 14:05 -0300 — verificação operacional no HEAD `34c597b`
 
-- Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch local `develop` está no HEAD `ea4af2f857130624af65f6da2c25fce43fe8620a`; working tree limpa antes desta atualização.
-- PR #352 foi MERGED contra `main`; não está aberta. CI remoto real do HEAD exato: workflows `CI` (run `37121650586`) e `Software Package Lifecycle Gates` (run `37121650560`) SUCCESS, com 16 checks concluídos e steps reais.
+- Lease adquirido com diretório exclusivo `.git/hermes-dev.lock.d`; branch local `develop` e `origin/develop` estão no HEAD `34c597bf9d4f694f3fa447d2cea73850466fed73`; working tree limpa.
+- PRs abertas: nenhuma. CI remoto SUCCESS mais recente (`37121650586`/`37121650560`) cobre SHA `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`, não o HEAD atual `34c597b`.
 - `gh pr list --base main --state open`: nenhuma PR aberta. Backlog CODE executável permanece esgotado; pendências exigem hardware físico, confirmação de release, secret externo ou runner remoto.
-- `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, clippy e testes Rust foram PASS em verificação anterior deste ciclo; scanner `/root/scan_patterns.py` indisponível neste host, sem resultado inventado.
+- `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, clippy e testes Rust PASS no HEAD atual; typecheck frontend PASS. Vitest correto ainda pendente: comando prescrito com `--watchAll=false` falha por opção desconhecida. Scanner `/root/scan_patterns.py` indisponível neste host, sem resultado inventado.
 - `PIPEWIRE_SOFTWARE_E2E: PASS` é evidência `SOFTWARE/SIMULATED`; não valida Raspberry Pi 5, PipeWire/ALSA físico ou WebRTC/DTLS-SRTP. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; release `v0.3.1` continua `PENDING/BLOCKED`.
 
 - [x] Verificação operacional 2026-10-03 08:46 -0300: `develop`/`origin/develop` sincronizadas em `5817448751caffb107e2b02ddf412e4badb0bce3`; gates documentais, fmt e proxy PipeWire software PASS; scanner indisponível sem resultado inventado; CODE executável esgotado; validação física/release seguem PENDING/BLOCKED.
