@@ -1,3 +1,13 @@
+## 2026-10-04 12:46 -0300 — verificação operacional no HEAD `4685713e18ac9f1de1853051728ceadba0a90fab`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `4685713e18ac9f1de1853051728ceadba0a90fab`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; PR #354 permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como únicas branches remotas não fundidas; nenhuma branch local mergeada pendente.
+- Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates executados: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
+- Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`, arquivo ausente); nenhum resultado inventado. Revisão manual desta atualização documental não encontrou segredos ou padrões perigosos.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
+
 ## 2026-10-04 12:31 -0300 — verificação operacional no HEAD `bee312585e6869d25090c78564992a571c2e4e5c`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `bee312585e6869d25090c78564992a571c2e4e5c`; working tree limpa antes desta atualização.
