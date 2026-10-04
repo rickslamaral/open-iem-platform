@@ -1,3 +1,12 @@
+
+## 2026-10-04 09:26 -0300 — verificação operacional no HEAD `5029859`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `502985968dcf03e5a34d8a04d455e0cd9ba9c64a`; working tree limpa antes desta atualização.
+- Backlog CODE executável permanece esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. Nenhuma tarefa de produto segura disponível.
+- PR #354 contra `main` permanece aberta, `MERGEABLE`, com 16 checks remotos reais `SUCCESS` no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash ou delete de branch.
+- Gates deste ciclo: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS e Rust fmt PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual do registro sem segredos ou padrões perigosos.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
 ## 2026-10-04 09:12 -0300 — verificação operacional no HEAD `f33a6a9`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f33a6a9`; working tree limpa antes desta atualização.
