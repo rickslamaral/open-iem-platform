@@ -9790,3 +9790,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Gates desta atualização: `scripts/validate-docs.sh` PASS, `git diff --check` PASS e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS; produto não foi alterado.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
+
+## 2026-10-04 17:15 -0300 — verificação operacional no HEAD `87a7065`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `87a706551e4a15e2e77207807e007669c9ecda55`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates executados: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS e `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
+- Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhuma saída inventada.
+- `develop` não tem CI SUCCESS remoto no HEAD exato; últimos SUCCESS cobrem SHA anterior `21d88c9bb3cffef3d5c12690acb64b4663ce22e0` e não contam para este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
