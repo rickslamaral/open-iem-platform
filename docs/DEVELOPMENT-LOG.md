@@ -1,3 +1,14 @@
+## 2026-10-04 09:03 -0300 — verificação operacional no HEAD `cb444b5`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `cb444b5`; working tree limpa antes desta atualização.
+- Backlog CODE consultado: nenhuma tarefa de produto executável nova; pendências `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates reais: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; Rust fmt PASS; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (537 testes do servidor, demais suites PASS).
+- Frontend musician PASS: typecheck, 67 testes, build. Frontend engineer PASS: typecheck, 59 testes, build.
+- Proxy software PASS: `scripts/ci/run-pipewire-software-e2e.sh` retornou `PIPEWIRE_SOFTWARE_E2E: PASS` somente `SOFTWARE/SIMULATED`; sem claim de hardware, WebRTC ou DTLS-SRTP.
+- Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`, arquivo ausente); nenhum resultado inventado. Revisão manual do estado sem alterações de código não encontrou segredos ou padrões perigosos.
+- PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não faz merge, squash, delete ou altera `main`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-04 08:51 -0300 — verificação operacional no HEAD `90621fbeb2c46ff59a7776f191d492f9b50823e2`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `90621fbeb2c46ff59a7776f191d492f9b50823e2`; working tree limpa antes desta atualização.
