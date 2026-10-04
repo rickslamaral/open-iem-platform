@@ -1,6 +1,6 @@
-## 2026-10-03 23:06 -0300 — verificação operacional no HEAD `d981afd`
+## 2026-10-03 23:13 -0300 — verificação operacional no HEAD `faf7926`
 
-- Lease validado: branch local `develop` e `origin/develop` sincronizadas no HEAD `d981afdbb08e4684458323bc281a209ab9c97db7`; working tree limpa.
+- Lease validado: branch local `develop` e `origin/develop` sincronizadas no HEAD `faf7926334074d9b0df3e39cf189f7c4d5cfb1bc`; working tree limpa antes deste registro.
 - `gh pr list --base main --state open`: nenhuma PR aberta. Backlog CODE executável permanece esgotado; pendências exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates executados neste ciclo: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
 - `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
