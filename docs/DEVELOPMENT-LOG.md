@@ -1,3 +1,15 @@
+## 2026-10-04 18:47 -0300 — verificação operacional no HEAD `6132d39`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `6132d39c7a8b998b087bd9c7596bfa43a5e92915`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; `gh pr list --state open` retornou nenhuma PR aberta; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates documentais: `scripts/validate-docs.sh` PASS (`version 0.3.1`) e `git diff --check` PASS.
+- Gates Rust: fmt, clippy `-D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS (`537` testes do servidor, demais suites PASS).
+- Frontends: musician typecheck, 68 testes e build PASS; engineer typecheck, 59 testes e build PASS. Comando genérico `--watchAll=false` falhou por opção inválida do Vitest; rerun correto `npm test -- --run` PASS.
+- Proxy PipeWire: `PIPEWIRE_SOFTWARE_E2E: PASS`; evidência `SOFTWARE/SIMULATED`, sem claim de hardware/WebRTC. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- CI remoto não cobre o HEAD exato `6132d39c7a8b998b087bd9c7596bfa43a5e92915`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-04 18:40 -0300 — verificação operacional no HEAD `08872727fd7a95e5ba04f5971338ddc336c154d7`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `08872727fd7a95e5ba04f5971338ddc336c154d7`; working tree limpa antes desta atualização.
