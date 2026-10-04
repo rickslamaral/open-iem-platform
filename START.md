@@ -1,9 +1,20 @@
+## 2026-10-04 20:50 -0300 — verificação operacional no HEAD `1cb6ce5cfd47c06e21cc5f27e9073926e97888e9`
+
+- Lease validado com diretório exclusivo `/tmp/open-iem-development.lock.d`; `git status --short --branch` mostrou `develop...origin/develop` sem alterações antes da edição; `git rev-parse` confirmou HEAD e `origin/develop` no mesmo commit `1cb6ce5cfd47c06e21cc5f27e9073926e97888e9`.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- `docs/TODO.md` consultado; grep das pendências mostrou itens restantes sobre hardware físico, confirmação de release, secret externo ou runner remoto. Nenhuma tarefa de produto foi alterada nesta rodada.
+- Gates desta rodada: `scripts/validate-docs.sh`, `git diff --check`, `git status --short --branch` e lease PASS; produto não foi alterado.
+- Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado.
+- Nenhum SUCCESS listado por `gh run list --branch develop --limit 5` cobre o HEAD exato `1cb6ce5cfd47c06e21cc5f27e9073926e97888e9`; último SUCCESS listado cobre SHA anterior `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`.
+- Auditoria: `mkdir /tmp/open-iem-development.lock.d` retornou `LEASE_ACQUIRED` (exit 0); `grep -n -B3 -A8 \"\[ \\]\" docs/TODO.md` confirmou apenas pendências de hardware/release/secret/runner; `scripts/validate-docs.sh` retornou `documentation validation passed (version 0.3.1)` (exit 0); `git diff --check` (exit 0); `git fetch --prune` (exit 0); `gh pr list --base main --state open` sem saída (exit 0); `git rev-parse HEAD` retornou `1cb6ce5cfd47c06e21cc5f27e9073926e97888e9`; `git rev-parse origin/develop` retornou `1cb6ce5cfd47c06e21cc5f27e9073926e97888e9`. CI: `gh run list --branch develop --limit 5`; latest SUCCESS SHA `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`.
+
 ## 2026-10-04 20:46 -0300 — verificação operacional no HEAD `71192d1d2ad90a751cccbd6231b878a0e3911792`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `71192d1d2ad90a751cccbd6231b878a0e3911792`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
-- Gates desta rodada: `scripts/validate-docs.sh`, `git diff --check` e lease PASS; produto não foi alterado.
+- Gates desta rodada: `scripts/validate-docs.sh`, `git diff --check`, `git status --short --branch` e lease PASS; produto não foi alterado.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - CI remoto não cobre o HEAD exato `71192d1d2ad90a751cccbd6231b878a0e3911792`; `gh run list --branch develop` mostrou últimos SUCCESS nos SHAs anteriores `21d88c9bb3cffef3d5c12690acb64b4663ce22e0` e `2f4b8146e577ae5724e058499bead060181e3f27`, que não contam para este HEAD.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência permanece `CODE/CI/SIMULATED`.
