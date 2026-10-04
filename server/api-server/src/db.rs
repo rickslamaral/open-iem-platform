@@ -1517,6 +1517,7 @@ impl Db {
 
     /// Atomically consume invitation and create a temporary musician session identity.
     /// No password is accepted or persisted; temporary identities cannot use login.
+    #[allow(clippy::too_many_arguments)]
     pub fn exchange_qr_session(
         &self,
         hash: &str,
@@ -2340,7 +2341,8 @@ mod tests {
                 (3, "M003".to_owned()),
                 (4, "M004".to_owned()),
                 (5, "M005".to_owned()),
-                (6, "M006".to_owned())
+                (6, "M006".to_owned()),
+                (7, "M007".to_owned())
             ]
         );
     }
