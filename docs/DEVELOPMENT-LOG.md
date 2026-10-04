@@ -1,3 +1,11 @@
+## 2026-10-03 23:31 -0300 — verificação operacional no HEAD `5d8a6c2`
+
+- Lease adquirido em `.git/hermes-dev.lock.d`; `develop` e `origin/develop` sincronizadas, working tree limpa antes deste registro.
+- `git rev-parse HEAD` confirmou `5d8a6c2d24966573c42035030c494d32ce7da59a`; `gh pr list --base main --state open` retornou vazio.
+- Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates desta atualização: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes e `PIPEWIRE_SOFTWARE_E2E: PASS` somente `SOFTWARE/SIMULATED`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-03 23:21 -0300 — verificação operacional no HEAD `e1e85c1`
 
 - Lease validado: `git status --short --branch` retornou `## develop...origin/develop`; `git rev-list --left-right --count develop...origin/develop` retornou `0 0`; working tree limpa antes deste registro.
