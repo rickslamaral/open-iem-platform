@@ -1,3 +1,13 @@
+## 2026-10-04 20:55 -0300 — verificação operacional no HEAD `75ce6e82c0e42302a5546ff589428cca8c3e662e`
+
+- Lease validado com diretório exclusivo `/tmp/open-iem-development.lock.d`; `git status --short --branch` mostrou `develop...origin/develop` sem alterações antes da edição; HEAD e `origin/develop` sincronizadas.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- `docs/TODO.md` consultado; backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates desta rodada: `scripts/validate-docs.sh`, `git diff --check`, `git status --short --branch` e lease PASS; produto não foi alterado.
+- Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado.
+- CI remoto não cobre o HEAD exato `75ce6e82c0e42302a5546ff589428cca8c3e662e`; últimos SUCCESS cobrem SHA anterior `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`, não contam para este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`.
+
 ## 2026-10-04 20:50 -0300 — verificação operacional no HEAD `1cb6ce5cfd47c06e21cc5f27e9073926e97888e9`
 
 - Lease validado com diretório exclusivo `/tmp/open-iem-development.lock.d`; `git status --short --branch` mostrou `develop...origin/develop` sem alterações antes da edição; `git rev-parse` confirmou HEAD e `origin/develop` no mesmo commit `1cb6ce5cfd47c06e21cc5f27e9073926e97888e9`.
