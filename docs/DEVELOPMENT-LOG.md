@@ -9487,3 +9487,11 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Gates executados: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
 - Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`, arquivo ausente); nenhum resultado inventado. Revisão manual desta atualização documental não encontrou segredos ou padrões perigosos.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
+
+## 2026-10-04 13:37 -0300 — verificação operacional no HEAD `027a8ce`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `027a8ce9d593174b04db12397950aea3096f30c6`; working tree limpa antes desta atualização.
+- `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` e `scripts/ci/run-pipewire-software-e2e.sh` executados; proxy PipeWire retornou `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED`).
+- Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`); nenhuma saída inventada.
+- CI remoto SUCCESS disponível em `develop` cobre SHA anterior `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`, não este HEAD. PR #354 contra `main` permanece aberta, `CLEAN`, com 16 checks reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE executável permanece esgotado. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
