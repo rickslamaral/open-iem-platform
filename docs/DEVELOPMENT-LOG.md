@@ -1,3 +1,11 @@
+## 2026-10-04 02:14 -0300 — verificação operacional no HEAD `c209cb8`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `c209cb8196fa1d919f02f2bb9634d886c3f76578`; working tree limpa antes desta atualização.
+- PR #354 (`feat: expire QR generations hourly`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; 16/16 checks reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
+- Gates documentais: `scripts/validate-docs.sh`, `git diff --check` e Rust fmt PASS. Scanner `/root/scan_patterns.py` indisponível neste host (`SCANNER_UNAVAILABLE`); nenhum resultado inventado.
+- Backlog CODE executável permanece esgotado; pendências exigem hardware físico, confirmação de release ou runner/secret externo.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-04 02:07 -0300 — verificação operacional no HEAD `c4ea80a`
 
 - Lease adquirido em `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `c4ea80aae75fadcc3cf7c41dfc0fd12bce4d36e3`; working tree limpa.
