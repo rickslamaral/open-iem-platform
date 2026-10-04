@@ -9175,3 +9175,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - PR #354 contra `main` está `CLEAN`, com 16 checks reais SUCCESS; política vigente não abre PR, não faz merge, squash ou delete de branch.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada. Backlog CODE executável permanece esgotado.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
+
+## 2026-10-04 07:48 -0300 — verificação operacional no HEAD `5ad7405`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `5ad74059ec1ac5c2f7a5bd0e66a39f4a12d31820`; working tree limpa antes desta atualização.
+- Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt`, `cargo clippy --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` (todos os testes, incluindo 537 testes do servidor, PASS).
+- Frontends PASS: musician typecheck, 67 testes e build; engineer typecheck, 59 testes e build. `npm audit --audit-level=high` retornou 0 vulnerabilidades nos dois frontends.
+- Proxy software PASS: `scripts/ci/run-pipewire-software-e2e.sh` retornou `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED`; sem claim de hardware/WebRTC).
+- CI remoto real do HEAD: runs `37121650586` (CI) e `37121650560` (Software Package Lifecycle Gates), ambos SUCCESS no SHA exato; PR #354 contra `main` permanece aberta, CLEAN, com 16 checks reais SUCCESS. Política vigente não abre PR, não faz merge, squash ou delete de branch.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão de alterações documentais sem segredos ou padrões perigosos.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
