@@ -32,6 +32,8 @@ use std::{
 use uuid::Uuid;
 
 const QR_TTL: u64 = 10 * 60;
+/// Maximum lifetime of one active generation in test mode.
+const QR_ROTATION_INTERVAL: u64 = 60 * 60;
 const MAX_NAME: usize = 80;
 const QR_SECRET_HEX_LEN: usize = 64;
 const INSTRUMENTS: &[&str] = &[
@@ -137,12 +139,25 @@ pub struct ExchangeResponse {
     pub role: Role,
 }
 
+/// Passwordless invitation-only session bootstrap. This never creates a
+/// credential-bearing account and derives band scope from the QR generation.
+#[derive(Deserialize)]
+pub struct SessionBootstrap {
+    pub qr_secret: String,
+    pub display_name: String,
+    pub instrument_id: String,
+}
+
 pub async fn status(
     State(state): State<AppState>,
     Extension(claims): Extension<JwtClaims>,
 ) -> Result<Json<QrStatus>, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
-    let (active, expires, remaining, generation, band_id) = state.db.qr_status(now())?;
+    let current = now();
+    let _ = state
+        .db
+        .expire_qr_generation_if_due(current, QR_ROTATION_INTERVAL)?;
+    let (active, expires, remaining, generation, band_id) = state.db.qr_status(current)?;
     Ok(Json(QrStatus {
         active,
         expires_at: expires,
@@ -211,6 +226,71 @@ pub async fn deactivate(
     state.db.deactivate_qr_audited(claims.user_id)?;
     Ok(StatusCode::NO_CONTENT)
 }
+pub async fn session_bootstrap(
+    State(state): State<AppState>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    Json(body): Json<SessionBootstrap>,
+) -> Result<impl IntoResponse, ApiError> {
+    if !state.qr_exchange_limiter.allow(peer.ip(), Instant::now()) {
+        return Err(ApiError::TooManyRequests);
+    }
+    validate_secret(&body.qr_secret)?;
+    validate(&body.display_name, &body.instrument_id)?;
+    let current = now();
+    state
+        .db
+        .expire_qr_generation_if_due(current, QR_ROTATION_INTERVAL)?;
+    let (_, expires, _, generation, _) = state.db.qr_status(current)?;
+    if expires <= current {
+        return Err(ApiError::Unauthorized("invalid or expired QR invitation"));
+    }
+    let raw_refresh = generate_refresh_token();
+    let jti = Uuid::new_v4().to_string();
+    let refresh_exp = (current + crate::auth::REFRESH_TOKEN_TTL_S).min(expires);
+    let access_exp = (current + crate::auth::ACCESS_TOKEN_TTL_S).min(expires);
+    let (user_id, session_id, username) = match state.db.exchange_qr_session(
+        &unix_hash(&body.qr_secret),
+        &body.display_name,
+        &body.instrument_id,
+        current,
+        &token_to_storage_key(&raw_refresh),
+        refresh_exp,
+        &Uuid::new_v4().to_string(),
+        &jti,
+        access_exp,
+    ) {
+        Ok(value) => value,
+        Err(error) => {
+            let _ = state
+                .db
+                .record_qr_audit(None, "EXCHANGE", generation, false);
+            return Err(error);
+        }
+    };
+    let access = match state.jwt.issue_with_session(
+        &username,
+        user_id,
+        Role::Musician,
+        &jti,
+        Some(session_id),
+    ) {
+        Ok(value) => value,
+        Err(error) => {
+            state.db.cleanup_qr_exchange(
+                &token_to_storage_key(&raw_refresh),
+                &jti,
+                user_id,
+                session_id,
+            )?;
+            return Err(error);
+        }
+    };
+    state
+        .db
+        .record_qr_audit(None, "EXCHANGE", generation, true)?;
+    Ok((StatusCode::CREATED, [(header::SET_COOKIE, format!("refresh_token={raw_refresh}; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age={}", refresh_exp.saturating_sub(current)))], Json(ExchangeResponse { access_token: access, role: Role::Musician })))
+}
+
 pub async fn exchange(
     State(state): State<AppState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
@@ -219,6 +299,10 @@ pub async fn exchange(
     if !state.qr_exchange_limiter.allow(peer.ip(), Instant::now()) {
         return Err(ApiError::TooManyRequests);
     }
+    let current = now();
+    let _ = state
+        .db
+        .expire_qr_generation_if_due(current, QR_ROTATION_INTERVAL)?;
     validate_secret(&body.qr_secret)?;
     validate_account(&body.username, &body.password)?;
     validate(&body.display_name, &body.instrument_id)?;
@@ -405,6 +489,24 @@ mod tests {
         assert!(db.qr_status(100).expect("status").0);
         db.configure_qr(None, 0, false).expect("deactivate");
         assert!(!db.qr_status(100).expect("status").0);
+    }
+
+    #[test]
+    fn hourly_expiry_revokes_generation_and_is_idempotent() {
+        let db = crate::db::Db::open_in_memory().expect("db");
+        let secret = qr_secret();
+        db.configure_qr(Some(&unix_hash(&secret)), 4_000_000_000, true)
+            .expect("activate");
+        let before = db.qr_status(4_000_000_000).expect("status").3;
+        assert!(db
+            .expire_qr_generation_if_due(4_000_000_000, QR_ROTATION_INTERVAL)
+            .expect("expire"));
+        let after = db.qr_status(4_000_000_000).expect("status");
+        assert!(!after.0);
+        assert_eq!(after.3, before + 1);
+        assert!(!db
+            .expire_qr_generation_if_due(4_000_000_001, QR_ROTATION_INTERVAL)
+            .expect("expire again"));
     }
 
     #[test]

@@ -13,16 +13,16 @@ const invitationToken = (value: string): string => {
     return recognizedValues[0];
   } catch { return value.trim(); }
 };
-interface Props { onLogin: (username: string, password: string) => Promise<void>; onQrExchange: (qrSecret: string, displayName: string, instrumentId: string, username: string, password: string) => Promise<void>; error: string | null; }
+interface Props { onLogin: (username: string, password: string) => Promise<void>; onQrExchange: (qrSecret: string, displayName: string, instrumentId: string, username: string, password: string) => Promise<void>; onQrSession?: (qrSecret: string, displayName: string, instrumentId: string) => Promise<void>; error: string | null; }
 
 interface BarcodeDetectorLike { detect(source: ImageBitmapSource): Promise<Array<{ rawValue?: string }>>; }
 declare global { interface Window { BarcodeDetector?: new (options?: { formats?: string[] }) => BarcodeDetectorLike; } }
 
-export function Login({ onLogin, onQrExchange, error }: Props) {
+export function Login({ onLogin, onQrExchange, onQrSession, error }: Props) {
   const [username, setUsername] = useState(''); const [password, setPassword] = useState('');
   const [qrSecret, setQrSecret] = useState(''); const [displayName, setDisplayName] = useState(''); const [instrumentId, setInstrumentId] = useState('vocals');
   const [qrUsername, setQrUsername] = useState(''); const [qrPassword, setQrPassword] = useState('');
-  const [loading, setLoading] = useState(false); const [qrMode, setQrMode] = useState(false);
+  const [loading, setLoading] = useState(false); const [qrMode, setQrMode] = useState(false); const [passwordless, setPasswordless] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false); const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null); const streamRef = useRef<MediaStream | null>(null);
   const scanGenerationRef = useRef(0);
@@ -89,7 +89,10 @@ export function Login({ onLogin, onQrExchange, error }: Props) {
   };
   const handleQrSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setLoading(true);
-    try { await onQrExchange(qrSecret.trim(), displayName, instrumentId, qrUsername, qrPassword); }
+    try {
+      if (passwordless && onQrSession) await onQrSession(qrSecret.trim(), displayName, instrumentId);
+      else await onQrExchange(qrSecret.trim(), displayName, instrumentId, qrUsername, qrPassword);
+    }
     finally {
       setLoading(false); setQrSecret(''); setQrUsername(''); setQrPassword(''); setDisplayName(''); setInstrumentId('vocals'); stopCamera();
     }
@@ -99,15 +102,15 @@ export function Login({ onLogin, onQrExchange, error }: Props) {
     <h1 className={styles.title}>Open IEM</h1><p className={styles.subtitle}>Musician Monitor Control</p>
     <div role="tablist" aria-label="Sign-in methods"><button type="button" onClick={() => setQrMode(true)} aria-selected={qrMode}>QR onboarding</button><button type="button" onClick={() => setQrMode(false)} aria-selected={!qrMode}>Username login</button></div>
     {qrMode ? <form onSubmit={handleQrSubmit} className={styles.form}>
-      <p>Scan QR code with camera or paste QR secret.</p>
+      <p>Scan QR code with camera or paste QR secret.</p><label><input type="checkbox" checked={passwordless} onChange={(e) => setPasswordless(e.target.checked)} disabled={loading || !onQrSession} /> Test-mode passwordless session</label>
       {cameraOpen && <><video ref={videoRef} className={styles.camera} muted playsInline aria-label="QR camera preview" /><button type="button" className={styles.secondaryButton} onClick={stopCamera}>Stop camera</button></>}
       {!cameraOpen && <button type="button" className={styles.secondaryButton} onClick={() => void scanCamera()} disabled={loading}>Scan with camera</button>}
       {cameraError && <p role="status" className={styles.error}>{cameraError}</p>}
       <label htmlFor="qr-secret" className={styles.label}>QR secret</label><input id="qr-secret" type="text" value={qrSecret} onChange={(e) => setQrSecret(e.target.value)} className={styles.input} required disabled={loading} autoComplete="off" />
       <label htmlFor="display-name" className={styles.label}>Display name</label><input id="display-name" type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} className={styles.input} required disabled={loading} />
       <label htmlFor="instrument-id" className={styles.label}>Instrument</label><select id="instrument-id" value={instrumentId} onChange={(e) => setInstrumentId(e.target.value)} className={styles.input} disabled={loading}>{instruments.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select>
-      <label htmlFor="qr-username" className={styles.label}>Username</label><input id="qr-username" value={qrUsername} onChange={(e) => setQrUsername(e.target.value)} className={styles.input} required disabled={loading} autoComplete="username" />
-      <label htmlFor="qr-password" className={styles.label}>Password</label><input id="qr-password" type="password" value={qrPassword} onChange={(e) => setQrPassword(e.target.value)} className={styles.input} required disabled={loading} autoComplete="new-password" />
+      {!passwordless && <><label htmlFor="qr-username" className={styles.label}>Username</label><input id="qr-username" value={qrUsername} onChange={(e) => setQrUsername(e.target.value)} className={styles.input} required disabled={loading} autoComplete="username" />
+      <label htmlFor="qr-password" className={styles.label}>Password</label><input id="qr-password" type="password" value={qrPassword} onChange={(e) => setQrPassword(e.target.value)} className={styles.input} required disabled={loading} autoComplete="new-password" /></>}
       {error && <p role="alert" className={styles.error}>{error}</p>}<button type="submit" className={styles.button} disabled={loading}>{loading ? 'Joining…' : 'Join with QR secret'}</button>
     </form> : <form onSubmit={handlePasswordSubmit} className={styles.form}>
       <label htmlFor="username" className={styles.label}>Username</label><input id="username" type="text" autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} className={styles.input} required disabled={loading} />

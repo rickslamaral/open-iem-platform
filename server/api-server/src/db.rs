@@ -711,6 +711,22 @@ impl Db {
             }
         }
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+
+        // M007 marks invitation-only session identities as temporary. They are
+        // deleted with their QR session on rotation or deactivation.
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let applied: Option<i64> = tx
+            .query_row("SELECT id FROM migrations WHERE name = 'M007'", [], |row| {
+                row.get(0)
+            })
+            .optional()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if applied.is_none() {
+            tx.execute_batch("ALTER TABLE users ADD COLUMN temporary INTEGER NOT NULL DEFAULT 0 CHECK(temporary IN (0, 1)); INSERT INTO migrations (id, name) VALUES (7, 'M007');").map_err(|e| ApiError::Internal(e.to_string()))?;
+        }
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
         Ok(())
     }
 
@@ -748,18 +764,22 @@ impl Db {
             .lock()
             .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
         conn.query_row(
-            "SELECT id, pw_hash, role, must_change_password FROM users WHERE username = ?1",
+            "SELECT id, pw_hash, role, must_change_password, temporary FROM users WHERE username = ?1",
             params![username],
             |row| {
                 let id: i64 = row.get(0)?;
                 let pw_hash: String = row.get(1)?;
                 let role_str: String = row.get(2)?;
                 let mcp: i64 = row.get(3)?;
-                Ok((id, pw_hash, role_str, mcp))
+                let temporary: i64 = row.get(4)?;
+                Ok((id, pw_hash, role_str, mcp, temporary))
             },
         )
         .map_err(|_| ApiError::Unauthorized("invalid credentials"))
-        .and_then(|(id, hash, role_str, mcp)| {
+        .and_then(|(id, hash, role_str, mcp, temporary)| {
+            if temporary != 0 {
+                return Err(ApiError::Unauthorized("invalid credentials"));
+            }
             let role = str_to_role(&role_str)?;
             Ok((id, hash, role, mcp != 0))
         })
@@ -1264,6 +1284,57 @@ impl Db {
         Ok(())
     }
 
+    /// Expire an active QR generation after its server-authoritative rotation band.
+    ///
+    /// This is idempotent and revokes every session created from the generation.
+    /// It does not create or return a secret; callers must explicitly configure a
+    /// new invitation before exposing another capability token.
+    pub fn expire_qr_generation_if_due(
+        &self,
+        now: u64,
+        rotation_interval: u64,
+    ) -> Result<bool, ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let due: bool = tx
+            .query_row(
+                "SELECT active = 1 AND updated_at + ?1 <= ?2 FROM qr_onboarding WHERE id = 1",
+                params![rotation_interval as i64, now as i64],
+                |row| row.get(0),
+            )
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        if !due {
+            return Ok(false);
+        }
+        tx.execute(
+            "UPDATE qr_onboarding SET active = 0, expires_at = 0, generation = generation + 1, updated_at = ?1 WHERE id = 1",
+            params![now as i64],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE musician_onboarding_sessions SET state = 'REVOKED' WHERE state = 'ACTIVE'",
+            [],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE refresh_tokens SET revoked = 1 WHERE id IN (SELECT session_id FROM musician_onboarding_sessions)",
+            [],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE access_sessions SET revoked = 1 WHERE session_id IN (SELECT session_id FROM musician_onboarding_sessions)",
+            [],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok(true)
+    }
+
     /// Deactivate QR, revoke QR sessions, and audit atomically.
     pub fn deactivate_qr_audited(&self, actor_user_id: i64) -> Result<(), ApiError> {
         let mut conn = self
@@ -1359,7 +1430,7 @@ impl Db {
             }
         }
         tx.execute(
-            "UPDATE qr_onboarding SET secret_hash=?1, band_id=?2, expires_at=?3, active=1, used_count=0, generation=generation+1 WHERE id=1",
+            "UPDATE qr_onboarding SET secret_hash=?1, band_id=?2, expires_at=?3, active=1, used_count=0, generation=generation+1, updated_at=unixepoch() WHERE id=1",
             params![hash, band_id, expires as i64],
         ).map_err(|e| ApiError::Internal(e.to_string()))?;
         let generation: i64 = tx
@@ -1442,6 +1513,75 @@ impl Db {
         .map_err(|e| ApiError::Internal(e.to_string()))?;
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
         Ok((uid, sid, username.to_owned()))
+    }
+
+    /// Atomically consume invitation and create a temporary musician session identity.
+    /// No password is accepted or persisted; temporary identities cannot use login.
+    #[allow(clippy::too_many_arguments)]
+    pub fn exchange_qr_session(
+        &self,
+        hash: &str,
+        name: &str,
+        instrument: &str,
+        now: u64,
+        refresh: &str,
+        refresh_exp: u64,
+        family: &str,
+        jti: &str,
+        access_exp: u64,
+    ) -> Result<(i64, i64, String), ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("UPDATE qr_onboarding SET used_count=used_count+1 WHERE id=1 AND active=1 AND secret_hash=?1 AND expires_at>?2 AND used_count<max_uses", params![hash, now as i64]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        if tx.changes() != 1 {
+            return Err(ApiError::Unauthorized("invalid or expired QR invitation"));
+        }
+        let username = format!("invited-musician-{}", Uuid::new_v4());
+        tx.execute("INSERT INTO users(username,pw_hash,role,must_change_password,temporary) VALUES(?1,'__no_password__','MUSICIAN',0,1)", params![username]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        let uid = tx.last_insert_rowid();
+        let band_id: Option<i64> = tx
+            .query_row("SELECT band_id FROM qr_onboarding WHERE id=1", [], |row| {
+                row.get(0)
+            })
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("INSERT INTO musician_profiles(user_id,display_name,instrument_id,status,band_id) VALUES(?1,?2,?3,'PENDING',?4)", params![uid,name,instrument,band_id]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "INSERT INTO refresh_tokens(user_id,token_hash,expires_at,family) VALUES(?1,?2,?3,?4)",
+            params![uid, refresh, refresh_exp as i64, family],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        let sid = tx.last_insert_rowid();
+        tx.execute(
+            "INSERT INTO access_sessions(jti,user_id,session_id,expires_at) VALUES(?1,?2,?3,?4)",
+            params![jti, uid, sid, access_exp as i64],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "INSERT INTO musician_onboarding_sessions(session_id,user_id) VALUES(?1,?2)",
+            params![sid, uid],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))?;
+        Ok((uid, sid, username))
+    }
+
+    /// Whether user is invitation-only temporary identity.
+    pub fn is_temporary_user(&self, user_id: i64) -> Result<bool, ApiError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        conn.query_row(
+            "SELECT temporary != 0 FROM users WHERE id=?1",
+            params![user_id],
+            |row| row.get(0),
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))
     }
 
     /// Backward-compatible test/helper exchange using generated identity.
@@ -2201,7 +2341,8 @@ mod tests {
                 (3, "M003".to_owned()),
                 (4, "M004".to_owned()),
                 (5, "M005".to_owned()),
-                (6, "M006".to_owned())
+                (6, "M006".to_owned()),
+                (7, "M007".to_owned())
             ]
         );
     }
