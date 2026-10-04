@@ -1,10 +1,10 @@
 # Open IEM — Release Gates
 
-## Current gate status — 2026-09-30
+## Current gate status — 2026-10-04
 
-- `develop` HEAD: `3bd76f7e080ac5a86dad197de4670dbb1fdc0ab7`.
-- PR #340: open, no merge.
-- CI exact HEAD: 16/16 jobs SUCCESS.
+- `develop` HEAD: `220f5f25b44f4b2b7d9f26589b81b9e2871526d7`; `origin/develop` synchronized.
+- PR #354 (`feat: expire QR generations hourly`) remains open against `main`; policy forbids merge from this job.
+- PR #354 exact HEAD: 16/16 real CI jobs SUCCESS.
 - Software evidence: CODE/CI/SIMULATED. Hardware certification and `v0.3.1` release remain pending.
 
 ## Evidence classes
