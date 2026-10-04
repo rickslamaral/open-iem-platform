@@ -1,3 +1,13 @@
+## 2026-10-04 09:07 -0300 — verificação operacional no HEAD `cab46a4`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `cab46a4`; working tree limpa antes desta atualização.
+- Backlog CODE consultado: nenhuma tarefa de produto executável nova; pendências `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates reais: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; Rust fmt PASS.
+- Proxy software PASS: `scripts/ci/run-pipewire-software-e2e.sh` retornou `PIPEWIRE_SOFTWARE_E2E: PASS` somente `SOFTWARE/SIMULATED`; sem claim de hardware, WebRTC ou DTLS-SRTP.
+- Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`, arquivo ausente); nenhum resultado inventado. Revisão manual do estado sem alterações de código não encontrou segredos ou padrões perigosos.
+- PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não faz merge, squash, delete ou altera `main`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 
 ## 2026-10-04 07:58 -0300 — verificação operacional no HEAD `bce8fcf`
 
