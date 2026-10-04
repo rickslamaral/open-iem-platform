@@ -4682,3 +4682,13 @@ test → review → docs/GAP update → PR/CI
 - Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`); nenhuma saída inventada.
 - CI remoto SUCCESS em `develop` ainda cobre SHA anterior `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`, não este HEAD. PR #354 contra `main` permanece aberta, `CLEAN`, com 16 checks reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE executável permanece esgotado. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
+
+## 2026-10-04 15:06 -0300 — verificação operacional no HEAD `08f7c60`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `08f7c608721a6a54dcc7558f3004bb216532b56b`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
+- Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates locais deste ciclo: `scripts/validate-docs.sh` PASS, `git diff --check` PASS e `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
+- Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre o diff exato desta atualização.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
