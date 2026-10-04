@@ -1,3 +1,11 @@
+## 2026-10-03 23:21 -0300 — verificação operacional no HEAD `e1e85c1`
+
+- Lease validado: `git status --short --branch` retornou `## develop...origin/develop`; `git rev-list --left-right --count develop...origin/develop` retornou `0 0`; working tree limpa antes deste registro.
+- `git rev-parse HEAD` confirmou `e1e85c142d05569129739a9bab0ab1f852971dc5`; `gh pr list --base main --state open` retornou vazio.
+- Inspeção de `docs/TODO.md` não encontrou tarefa CODE executável nova; itens restantes estão documentados como dependentes de hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; Rust fmt/clippy/testes PASS; `PIPEWIRE_SOFTWARE_E2E: PASS` somente `SOFTWARE/SIMULATED`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-03 23:16 -0300 — verificação operacional no HEAD `6e795d2`
 
 - Lease validado: branch local `develop` e `origin/develop` sincronizadas no HEAD `6e795d26846158fad7b612f6b7148865d55cf732`; working tree limpa antes deste registro.
