@@ -1,3 +1,11 @@
+## 2026-10-04 00:01 -0300 — verificação operacional no HEAD `f376f30`
+
+- Lease adquirido em `.git/hermes-dev.lock.d`; `develop` e `origin/develop` sincronizadas, working tree limpa antes desta atualização.
+- `gh pr list --state open` retornou vazio; backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates reais deste ciclo: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; Rust fmt/clippy PASS; `cargo test --manifest-path server/Cargo.toml` PASS (todos os testes); `PIPEWIRE_SOFTWARE_E2E: PASS` somente `SOFTWARE/SIMULATED`.
+- Scanner `/root/scan_patterns.py` indisponível neste host (`SCANNER_UNAVAILABLE`); nenhum resultado inventado.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-03 23:57 -0300 — verificação operacional no HEAD `26bba44`
 
 - Lease adquirido em `.git/hermes-dev.lock.d`; `develop` e `origin/develop` sincronizadas no HEAD `26bba44a7d7e363ee6572ea4c1af9e7036155cbf`; working tree limpa.
@@ -42,7 +50,7 @@
 - CI remoto SUCCESS mais recente (`37121650586`/`37121650560`) cobre SHA `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`, não o HEAD atual.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
 
-## Current PR #353 — shareable QR invitation URL
+## Historical PR #353 — shareable QR invitation URL
 
 - Engineer/Admin UI now renders QR image and supports generate, rotate, revoke, copy, and share URL controls.
 - API returns session URL using `OPENIEM_SESSION_PUBLIC_BASE` with short-lived invitation token in URL fragment. Access and refresh bearer tokens never enter URL.
