@@ -9903,3 +9903,14 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Gates locais desta atualização: `scripts/validate-docs.sh` PASS e `git diff --check` PASS. `gh run list --branch develop` não mostra CI SUCCESS no HEAD atual; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
 - Scanner de padrões indisponível neste host; nenhum resultado inventado.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
+
+
+## 2026-10-04 19:00 -0300 — verificação operacional no HEAD `096e687`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `096e6872384a63e320ce2b807b5ffc190ebced4f`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; nenhuma PR aberta; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado: nenhuma tarefa de produto executável nova; item `[ ]` restante exige confirmação de release/tag.
+- Gates locais: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (`870` testes de Rust, incluindo doc-tests).
+- Proxy `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`; nenhuma alegação de hardware físico, WebRTC/DTLS-SRTP ou PipeWire/ALSA físico.
+- Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão manual da alteração documental não encontrou segredos ou padrões perigosos.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
