@@ -1,3 +1,13 @@
+## 2026-10-04 10:11 -0300 — verificação operacional no HEAD `b53f8ce`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `b53f8ce`; working tree limpa antes desta atualização.
+- Limpeza executada após `git fetch --prune`: PR #354 permanece única PR aberta relevante, com branch remota vinculada; nenhuma branch remota órfã nova. Política vigente não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates de produto já executados permanecem evidência válida porque este ciclo altera somente documentação operacional; scanner `/root/scan_patterns.py` continua indisponível (`SCANNER_UNAVAILABLE`, arquivo ausente), sem resultado inventado.
+- Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; checks pertencem à branch da PR, não ao HEAD `develop`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
+
 ## 2026-10-04 09:57 -0300 — verificação operacional no HEAD `5658a2f`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `5658a2f`; working tree limpa antes desta atualização.
