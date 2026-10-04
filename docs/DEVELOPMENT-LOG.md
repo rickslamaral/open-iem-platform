@@ -1,8 +1,18 @@
+## 2026-10-04 20:46 -0300 — verificação operacional no HEAD `71192d1d2ad90a751cccbd6231b878a0e3911792`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `71192d1d2ad90a751cccbd6231b878a0e3911792`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates desta rodada: `scripts/validate-docs.sh`, `git diff --check` e lease PASS; produto não foi alterado.
+- Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
+- CI remoto não cobre o HEAD exato `71192d1d2ad90a751cccbd6231b878a0e3911792`; `gh run list --branch develop` mostrou últimos SUCCESS nos SHAs anteriores `21d88c9bb3cffef3d5c12690acb64b4663ce22e0` e `2f4b8146e577ae5724e058499bead060181e3f27`, que não contam para este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência permanece `CODE/CI/SIMULATED`.
+
 ## 2026-10-04 20:35 -0300 — verificação operacional no HEAD `35623de8e5c57c71305ce8642df7eca608899f5f`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `35623de8e5c57c71305ce8642df7eca608899f5f`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `35623de8e5c57c71305ce8642df7eca608899f5f`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS e `git diff --check` PASS; produto não foi alterado.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - CI remoto não cobre o HEAD exato `35623de8e5c57c71305ce8642df7eca608899f5f`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
@@ -10,9 +20,9 @@
 
 ## 2026-10-04 20:30 -0300 — verificação operacional no HEAD `b10dbac4fd1f54edc58f0348b2c4c28fab3303c6`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `b10dbac4fd1f54edc58f0348b2c4c28fab3303c6`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `b10dbac4fd1f54edc58f0348b2c4c28fab3303c6`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS, `git diff --check` PASS e lease PASS.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - CI remoto não cobre o HEAD exato `b10dbac4fd1f54edc58f0348b2c4c28fab3303c6`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
@@ -20,9 +30,9 @@
 
 ## 2026-10-04 20:20 -0300 — verificação operacional no HEAD `02277b87402f1cf48f2e89d5d2b3ebb223a15b38`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `02277b87402f1cf48f2e89d5d2b3ebb223a15b38`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `02277b87402f1cf48f2e89d5d2b3ebb223a15b38`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: lease, sincronização Git, `git status`, inspeção de skills e revisão do backlog executados; produto não foi alterado.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - CI remoto não cobre o HEAD exato `02277b87402f1cf48f2e89d5d2b3ebb223a15b38`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
@@ -30,9 +40,9 @@
 
 ## 2026-10-04 20:16 -0300 — verificação operacional no HEAD `2433ba47a3447e01cb6e06030ceb9982868ffba8`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `2433ba47a3447e01cb6e06030ceb9982868ffba8`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `2433ba47a3447e01cb6e06030ceb9982868ffba8`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS e `scripts/ci/run-pipewire-software-e2e.sh` PASS (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Diff desta atualização documental será revisado independentemente antes do commit.
 - CI remoto não cobre o HEAD exato `2433ba47a3447e01cb6e06030ceb9982868ffba8`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
@@ -40,9 +50,9 @@
 
 ## 2026-10-04 20:01 -0300 — verificação operacional no HEAD `edf82fe4633cfdb60f88c78ca7e674212985660b`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `edf82fe4633cfdb60f88c78ca7e674212985660b`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `edf82fe4633cfdb60f88c78ca7e674212985660b`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS e `scripts/ci/run-pipewire-software-e2e.sh` PASS (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Diff desta atualização documental será revisado independentemente antes do commit.
 - CI remoto não cobre o HEAD exato `edf82fe4633cfdb60f88c78ca7e674212985660b`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
@@ -50,9 +60,9 @@
 
 ## 2026-10-04 19:46 -0300 — verificação operacional no HEAD `af6a79f60fe0277a73d63c0133f4e6a2675a9255`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `af6a79f60fe0277a73d63c0133f4e6a2675a9255`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `af6a79f60fe0277a73d63c0133f4e6a2675a9255`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS e `scripts/ci/run-pipewire-software-e2e.sh` PASS (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - CI remoto não cobre o HEAD exato `af6a79f60fe0277a73d63c0133f4e6a2675a9255`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
@@ -60,9 +70,9 @@
 
 ## 2026-10-04 19:18 -0300 — verificação operacional no HEAD `2e8011e`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `2e8011e`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `2e8011e`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS e `scripts/ci/run-pipewire-software-e2e.sh` PASS (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - CI remoto não cobre o HEAD exato `5a67bf7`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
@@ -70,7 +80,7 @@
 
 ## 2026-10-04 19:12 -0300 — verificação operacional no HEAD `e8a54d3`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e8a54d38482292d5528b0bcf6e1b55e71acc9a70`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e8a54d38482292d5528b0bcf6e1b55e71acc9a70`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; nenhuma PR aberta; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa de produto executável nova; item `[ ]` restante exige confirmação de release/tag.
 - Gates anteriores permanecem evidência histórica válida; esta rodada executará validação documental, diff e revisão independente somente desta atualização.
@@ -80,7 +90,7 @@
 
 ## 2026-10-04 19:06 -0300 — verificação operacional no HEAD `011458bd0cf5a50830824090fb687eef4097404f`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `011458bd0cf5a50830824090fb687eef4097404f`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `011458bd0cf5a50830824090fb687eef4097404f`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa de produto executável nova; pendências `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; Rust fmt PASS; clippy `--all-targets -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (`537` testes do servidor + demais suites PASS).
@@ -90,7 +100,7 @@
 
 ## 2026-10-04 19:05 -0300 — verificação operacional no HEAD `94a8025a7e9ee256b2a98a82f985a276fee918d7`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `94a8025a7e9ee256b2a98a82f985a276fee918d7`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `94a8025a7e9ee256b2a98a82f985a276fee918d7`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa de produto executável nova; pendências `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; Rust fmt PASS; clippy `--all-targets -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (`537` servidor + demais suites PASS).
@@ -100,9 +110,9 @@
 
 ## 2026-10-04 18:51 -0300 — verificação operacional no HEAD `462cf02`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `462cf0238d1ee6658b1c7c38b05f743d7c614986`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `462cf0238d1ee6658b1c7c38b05f743d7c614986`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --state open` retornou nenhuma PR aberta; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates documentais: `scripts/validate-docs.sh` PASS (`version 0.3.1`) e `git diff --check` PASS.
 - CI remoto não cobre o HEAD exato `462cf0238d1ee6658b1c7c38b05f743d7c614986`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado.
@@ -110,9 +120,9 @@
 
 ## 2026-10-04 18:47 -0300 — verificação operacional no HEAD `6132d39`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `6132d39c7a8b998b087bd9c7596bfa43a5e92915`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `6132d39c7a8b998b087bd9c7596bfa43a5e92915`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --state open` retornou nenhuma PR aberta; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates documentais: `scripts/validate-docs.sh` PASS (`version 0.3.1`) e `git diff --check` PASS.
 - Gates Rust: fmt, clippy `-D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS (`537` testes do servidor, demais suites PASS).
 - Frontends: musician typecheck, 68 testes e build PASS; engineer typecheck, 59 testes e build PASS. Comando genérico `--watchAll=false` falhou por opção inválida do Vitest; rerun correto `npm test -- --run` PASS.
@@ -122,9 +132,9 @@
 
 ## 2026-10-04 18:40 -0300 — verificação operacional no HEAD `08872727fd7a95e5ba04f5971338ddc336c154d7`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `08872727fd7a95e5ba04f5971338ddc336c154d7`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `08872727fd7a95e5ba04f5971338ddc336c154d7`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates documentais e de código desta verificação foram executados com PASS; produto não foi alterado.
 - CI remoto não cobre o HEAD exato `08872727fd7a95e5ba04f5971338ddc336c154d7`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado.
@@ -132,9 +142,9 @@
 
 ## 2026-10-04 18:11 -0300 — verificação operacional no HEAD `cf392e149691d9e77fb7f0bee4b262e46cd64198`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `cf392e149691d9e77fb7f0bee4b262e46cd64198`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `cf392e149691d9e77fb7f0bee4b262e46cd64198`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. PR #354 está MERGED; não houve merge, squash, delete ou alteração direta em `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates documentais: `scripts/validate-docs.sh` PASS e `git diff --check` PASS antes desta atualização.
 - CI remoto não cobre HEAD `cf392e149691d9e77fb7f0bee4b262e46cd64198`; últimos SUCCESS registrados cobrem SHAs anteriores e não contam para este HEAD.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato.
@@ -142,9 +152,9 @@
 
 ## 2026-10-04 17:56 -0300 — verificação operacional no HEAD `6f035f3f21bb8409534ce97a8c16b280fe835011`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `6f035f3f21bb8409534ce97a8c16b280fe835011`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `6f035f3f21bb8409534ce97a8c16b280fe835011`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta atualização documental: `scripts/validate-docs.sh` e `git diff --check` serão executados antes do commit; produto não foi alterado.
 - `develop` não tem CI SUCCESS remoto no HEAD exato `6f035f3f21bb8409534ce97a8c16b280fe835011`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
@@ -152,9 +162,9 @@
 
 ## 2026-10-04 17:50 -0300 — verificação operacional no HEAD `e405796d70984e1712e65cde9d940d9191f6dfd7`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e405796d70984e1712e65cde9d940d9191f6dfd7`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e405796d70984e1712e65cde9d940d9191f6dfd7`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta atualização: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt e proxy PipeWire executados antes do commit; proxy permanece evidência `SOFTWARE/SIMULATED`.
 - `develop` não tem CI SUCCESS remoto no HEAD exato; últimos SUCCESS cobrem SHA anterior e não contam para este HEAD.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
@@ -162,9 +172,9 @@
 
 ## 2026-10-04 17:45 -0300 — verificação operacional no HEAD `dc2caa7472be6e85adc35b53424b402f8a01b79a`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `dc2caa7472be6e85adc35b53424b402f8a01b79a`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `dc2caa7472be6e85adc35b53424b402f8a01b79a`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta atualização: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS; produto não foi alterado.
 - `gh run list --branch develop` não mostra CI SUCCESS no HEAD atual; últimos SUCCESS cobrem SHA anterior e não contam para este HEAD.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado.
@@ -172,10 +182,10 @@
 
 ## 2026-10-04 17:36 -0300 — verificação operacional no HEAD `7046a1d0e50b917dd6c966fdc4cea3b3c4c1999f`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `7046a1d0e50b917dd6c966fdc4cea3b3c4c1999f`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `7046a1d0e50b917dd6c966fdc4cea3b3c4c1999f`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/main`, `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation`; nenhuma branch local mergeada pendente.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates locais: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS; produto não foi alterado.
 - `gh run list --branch develop` não mostra CI SUCCESS no HEAD atual; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado.
@@ -183,10 +193,10 @@
 
 ## 2026-10-04 17:26 -0300 — verificação operacional no HEAD `5dcfe8022a8bebe88b8d93faa1bf426d3747a7a6`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `5dcfe8022a8bebe88b8d93faa1bf426d3747a7a6`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `5dcfe8022a8bebe88b8d93faa1bf426d3747a7a6`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/main`, `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation`; nenhuma branch local mergeada pendente.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates locais: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS e `cargo test --manifest-path server/Cargo.toml` PASS (`537` testes de biblioteca/integração, demais suites também PASS).
 - `gh run list --branch develop` não mostra CI SUCCESS no HEAD atual; últimos SUCCESS cobrem SHA anterior e não contam para este HEAD.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Diff limitado a registro operacional documental.
@@ -194,7 +204,7 @@
 
 ## 2026-10-04 17:05 -0300 — verificação operacional no HEAD `d418c4330e2c9070da10c6238e9842cd3db5cfde`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `d418c4330e2c9070da10c6238e9842cd3db5cfde`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `d418c4330e2c9070da10c6238e9842cd3db5cfde`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop`, `origin/main` e `origin/feat/qr-passwordless-hourly-rotation`; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -205,7 +215,7 @@
 
 ## 2026-10-04 17:00 -0300 — verificação operacional no HEAD `153d983`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `153d9834a19c7169d7d1f2f97ee8fb6f5a703e45`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `153d9834a19c7169d7d1f2f97ee8fb6f5a703e45`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop`, `origin/main` e `origin/feat/qr-passwordless-hourly-rotation`; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -216,7 +226,7 @@
 
 ## 2026-10-04 16:55 -0300 — verificação operacional no HEAD `35979e8`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `35979e8036b7132f24d3a35a325859ffba302a07`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `35979e8036b7132f24d3a35a325859ffba302a07`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop`, `origin/main` e `origin/feat/qr-passwordless-hourly-rotation`; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -227,7 +237,7 @@
 
 ## 2026-10-04 16:50 -0300 — verificação operacional no HEAD `1f10e6c`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `1f10e6c3e17d57e0d583dc8c059d995e4ab792ed`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `1f10e6c3e17d57e0d583dc8c059d995e4ab792ed`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop`, `origin/main` e `origin/feat/qr-passwordless-hourly-rotation`; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -239,7 +249,7 @@
 
 ## 2026-10-04 16:45 -0300 — verificação operacional no HEAD `b4636ec`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `b4636ec8f6d74320097c8e18014e4bd454ab40f8`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `b4636ec8f6d74320097c8e18014e4bd454ab40f8`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop`, `origin/main` e `origin/feat/qr-passwordless-hourly-rotation`; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -248,7 +258,7 @@
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
 ## 2026-10-04 16:40 -0300 — verificação operacional no HEAD `8201567`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `8201567820287ba158552280cac3b4e46981085d`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `8201567820287ba158552280cac3b4e46981085d`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop`, `origin/main` e `origin/feat/qr-passwordless-hourly-rotation`; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -258,7 +268,7 @@
 
 ## 2026-10-04 16:01 -0300 — verificação operacional no HEAD `c8d3077`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `c8d3077`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `c8d3077`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou branches remotas canônicas e `origin/feat/qr-passwordless-hourly-rotation`; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -268,7 +278,7 @@
 
 ## 2026-10-04 15:55 -0300 — verificação operacional no HEAD `ef41a4c`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `ef41a4c303b412d1a49aa23125d86d900689416c`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `ef41a4c303b412d1a49aa23125d86d900689416c`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -278,7 +288,7 @@
 
 ## 2026-10-04 15:45 -0300 — verificação operacional no HEAD `bf26799`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `bf26799`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `bf26799`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -288,7 +298,7 @@
 
 ## 2026-10-04 15:40 -0300 — verificação operacional no HEAD `9738a1f`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `9738a1f`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `9738a1f`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -298,7 +308,7 @@
 
 ## 2026-10-04 15:30 -0300 — verificação operacional no HEAD `f997d85`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f997d85`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f997d85`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -308,7 +318,7 @@
 
 ## 2026-10-04 15:25 -0300 — verificação operacional no HEAD `5b29673`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `5b29673`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `5b29673`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -318,7 +328,7 @@
 
 ## 2026-10-04 15:01 -0300 — verificação operacional no HEAD `ca1c517`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `ca1c517`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `ca1c517`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -328,7 +338,7 @@
 
 ## 2026-10-04 14:56 -0300 — verificação operacional no HEAD `643ccbe`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `643ccbe`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `643ccbe`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -338,7 +348,7 @@
 
 ## 2026-10-04 14:50 -0300 — verificação operacional no HEAD `06fa9cb`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `06fa9cb`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `06fa9cb`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -348,7 +358,7 @@
 
 ## 2026-10-04 14:45 -0300 — verificação operacional no HEAD `1127a63`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `1127a63`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `1127a63`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -358,7 +368,7 @@
 
 ## 2026-10-04 14:36 -0300 — verificação operacional no HEAD `23e1f8f8e5760c4c1601b803aae9da2c71c9f5f7`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `23e1f8f8e5760c4c1601b803aae9da2c71c9f5f7`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `23e1f8f8e5760c4c1601b803aae9da2c71c9f5f7`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS (CI runs `37176122122` e `37176122086`); política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates locais: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; Rust fmt/clippy/test PASS (`870` testes executados); frontend musician typecheck/test/build PASS (`67` testes); frontend engineer typecheck/test/build PASS (`59` testes); `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
@@ -367,7 +377,7 @@
 
 ## 2026-10-04 14:31 -0300 — verificação operacional no HEAD `6090c16c5c3bfeae50b30611461333fe39155039`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -376,7 +386,7 @@
 
 ## 2026-10-04 14:20 -0300 — verificação operacional no HEAD `8b2a65d2d532427581fc819fcd388c904c8bdabd`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -385,7 +395,7 @@
 
 ## 2026-10-04 14:15 -0300 — verificação operacional no HEAD `527946c17f214684a809ca4e6e63860d1e97adc9`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -394,7 +404,7 @@
 
 ## 2026-10-04 14:05 -0300 — verificação operacional no HEAD `ed20b86e70cc3d836fd29bf6d21820feefdf82f7`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -404,7 +414,7 @@
 
 ## 2026-10-04 14:01 -0300 — verificação operacional no HEAD `ef6a4c876cf7954abf91ab1e315369ed25677c88`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -414,7 +424,7 @@
 
 ## 2026-10-04 14:00 -0300 — verificação operacional no HEAD `63b1adb3ad19ab86917ea16c37c419da97df6df8`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -424,7 +434,7 @@
 
 ## 2026-10-04 13:50 -0300 — verificação operacional no HEAD `f3d38ea690b8e4abcece1e8608b8f4a28c4b3c36`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -435,7 +445,7 @@
 
 ## 2026-10-04 13:31 -0300 — verificação operacional no HEAD `af957ce60ed0a741b554d1b10a49f63aaae4802b`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `af957ce60ed0a741b554d1b10a49f63aaae4802b`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `af957ce60ed0a741b554d1b10a49f63aaae4802b`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece aberta contra `main`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -444,7 +454,7 @@
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
 ## 2026-10-04 13:18 -0300 — verificação operacional no HEAD `fe36524`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `fe36524222657af0624627d67e1ea2edf2af6d35`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `fe36524222657af0624627d67e1ea2edf2af6d35`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -454,7 +464,7 @@
 
 ## 2026-10-04 13:12 -0300 — verificação operacional no HEAD `584952ca8aa5b5bd998672e9ade646055033423c`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `584952ca8aa5b5bd998672e9ade646055033423c`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `584952ca8aa5b5bd998672e9ade646055033423c`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -464,7 +474,7 @@
 
 ## 2026-10-04 13:06 -0300 — verificação operacional no HEAD `4274b0e085df3af4ec3b8d644c5abb83e242715`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `4274b0e085df3af4ec3b8d644c5abb83e242715`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `4274b0e085df3af4ec3b8d644c5abb83e242715`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -474,7 +484,7 @@
 
 ## 2026-10-04 12:56 -0300 — verificação operacional no HEAD `949e526a8d9e0b13f78fc09964c0f6435069ec0e`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `949e526a8d9e0b13f78fc09964c0f6435069ec0e`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `949e526a8d9e0b13f78fc09964c0f6435069ec0e`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates executados: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
@@ -483,7 +493,7 @@
 
 ## 2026-10-04 12:51 -0300 — verificação operacional no HEAD `8894b0ec9820c808bc0e75252e7a7eca9fbb39cb`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `8894b0ec9820c808bc0e75252e7a7eca9fbb39cb`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `8894b0ec9820c808bc0e75252e7a7eca9fbb39cb`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como únicas branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -493,7 +503,7 @@
 
 ## 2026-10-04 12:46 -0300 — verificação operacional no HEAD `4685713e18ac9f1de1853051728ceadba0a90fab`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `4685713e18ac9f1de1853051728ceadba0a90fab`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `4685713e18ac9f1de1853051728ceadba0a90fab`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como únicas branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -503,7 +513,7 @@
 
 ## 2026-10-04 12:31 -0300 — verificação operacional no HEAD `bee312585e6869d25090c78564992a571c2e4e5c`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `bee312585e6869d25090c78564992a571c2e4e5c`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `bee312585e6869d25090c78564992a571c2e4e5c`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates executados: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
@@ -512,7 +522,7 @@
 
 ## 2026-10-04 12:01 -0300 — verificação operacional no HEAD `af7bea7c74979018b853887092554de12e548ff4`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `af7bea7c74979018b853887092554de12e548ff4`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `af7bea7c74979018b853887092554de12e548ff4`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece única PR aberta relevante, branch remota vinculada, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA da PR; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates executados: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
@@ -521,7 +531,7 @@
 
 ## 2026-10-04 11:36 -0300 — verificação operacional no HEAD `f4aba6063095895e173725dae66bc40ca7a6d246`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f4aba6063095895e173725dae66bc40ca7a6d246`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f4aba6063095895e173725dae66bc40ca7a6d246`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece única PR aberta relevante, branch remota vinculada, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates executados: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
@@ -538,7 +548,7 @@
 
 ## 2026-10-04 11:16 -0300 — verificação operacional no HEAD `e69a3af`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e69a3af6232f42c169a0b382eff2bea2ea8e2793`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e69a3af6232f42c169a0b382eff2bea2ea8e2793`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece única PR aberta relevante, branch remota vinculada, com 16 checks reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como únicas branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -548,7 +558,7 @@
 
 ## 2026-10-04 11:11 -0300 — verificação operacional no HEAD `e011df9`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e011df9`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e011df9`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece única PR aberta relevante, branch remota vinculada, `CLEAN`, com 16 checks reais SUCCESS no SHA `15f7c89`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como únicas branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -565,18 +575,18 @@
 
 ## 2026-10-04 10:36 -0300 — verificação operacional no HEAD `e298cda`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e298cda`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e298cda`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece única PR aberta relevante, com branch remota vinculada; nenhuma branch remota órfã nova. Política vigente não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`, arquivo ausente); nenhum resultado inventado. Revisão manual desta atualização documental não encontrou segredos ou padrões perigosos.
 - CI remoto mais recente de `develop` cobre SHA anterior `21d88c9`; não há SUCCESS no HEAD atual `e298cda`. CI da PR #354 tem 16 checks reais SUCCESS, mas cobre SHA da branch da PR, não `develop`.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
 
 ## 2026-10-04 10:31 -0300 — verificação operacional no HEAD `a025f4b`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `a025f4b`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `a025f4b`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece única PR aberta relevante, com branch remota vinculada; nenhuma branch remota órfã nova e nenhuma branch local mergeada pendente. Política vigente não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates documentais deste ciclo: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS.
 - Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`, arquivo ausente); nenhum resultado inventado. Revisão manual desta atualização documental não encontrou segredos ou padrões perigosos.
 - PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; checks pertencem à branch da PR, não ao HEAD `develop`.
@@ -584,27 +594,27 @@
 
 ## 2026-10-04 10:22 -0300 — verificação operacional no HEAD `234f4f0`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `234f4f0`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `234f4f0`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Limpeza executada após `git fetch --prune`: PR #354 permanece única PR aberta relevante, com branch remota vinculada; nenhuma branch remota órfã nova. Política vigente não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates deste ciclo: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`, arquivo ausente); nenhum resultado inventado.
 - PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; checks pertencem à branch da PR, não ao HEAD `develop`.
 - Revisão manual desta atualização documental não encontrou segredos ou padrões perigosos. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
 
 ## 2026-10-04 10:16 -0300 — verificação operacional no HEAD `e3823c9`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e3823c901d14a6fd02614c8e4f6f7895cabce25f`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e3823c901d14a6fd02614c8e4f6f7895cabce25f`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Limpeza executada após `git fetch --prune`: PR #354 permanece única PR aberta relevante, com branch remota vinculada; nenhuma branch remota órfã nova. Política vigente não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates deste ciclo: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`, arquivo ausente); nenhum resultado inventado.
 - PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; checks pertencem à branch da PR, não ao HEAD `develop`.
 - Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
 
 ## 2026-10-04 10:11 -0300 — verificação operacional no HEAD `b53f8ce`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `b53f8ce`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `b53f8ce`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Limpeza executada após `git fetch --prune`: PR #354 permanece única PR aberta relevante, com branch remota vinculada; nenhuma branch remota órfã nova. Política vigente não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates de produto já executados permanecem evidência válida porque este ciclo altera somente documentação operacional; scanner `/root/scan_patterns.py` continua indisponível (`SCANNER_UNAVAILABLE`, arquivo ausente), sem resultado inventado.
 - Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
 - PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; checks pertencem à branch da PR, não ao HEAD `develop`.
@@ -612,9 +622,9 @@
 
 ## 2026-10-04 09:57 -0300 — verificação operacional no HEAD `5658a2f`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `5658a2f`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `5658a2f`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Limpeza verificada: PR #354 permanece única PR aberta relevante; nenhuma branch remota órfã nova; política vigente não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; checks pertencem à branch da PR, não ao HEAD `develop`.
 - Gates de produto já executados permanecem evidência válida porque este ciclo altera somente documentação operacional; scanner `/root/scan_patterns.py` continua indisponível (`SCANNER_UNAVAILABLE`, arquivo ausente), sem resultado inventado.
 - Revisão independente `cw-sonnet`: PASS; `security_concerns=[]`, `logic_errors=[]`. Sugestão aplicada: registrar HEAD atual explicitamente e separar evidência anterior de produto.
@@ -624,7 +634,7 @@
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e0e9e9f`; working tree estava limpa antes desta atualização; os três arquivos foram modificados por este registro.
 - Limpeza executada após `git fetch --prune`: nenhuma branch remota órfã; `origin/feat/qr-passwordless-hourly-rotation` permanece por estar vinculada à PR #354; nenhuma branch local mergeada pendente.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não faz merge, squash, delete ou altera `main`.
 - Gates previamente executados no HEAD anterior permanecem evidência válida: `scripts/validate-docs.sh`, Rust fmt/clippy/testes, frontends e proxy PipeWire software PASS; este ciclo não alterou código de produto.
 - Scanner `/root/scan_patterns.py` indisponível neste host (`SCANNER_UNAVAILABLE`, arquivo ausente); nenhum resultado inventado. Revisão manual desta atualização documental não encontrou segredos ou padrões perigosos.
@@ -632,8 +642,8 @@
 
 ## 2026-10-04 09:35 -0300 — verificação operacional no HEAD `100d29d`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; Rust fmt/clippy PASS; `cargo test --manifest-path server/Cargo.toml` PASS (537 testes, 0 falhas).
 - Frontend musician PASS: typecheck, 67 testes, build. Frontend engineer PASS: typecheck, 59 testes, build.
 - Proxy software PASS: `scripts/ci/run-pipewire-software-e2e.sh` retornou `PIPEWIRE_SOFTWARE_E2E: PASS` somente `SOFTWARE/SIMULATED`; sem claim de hardware ou WebRTC.
@@ -646,7 +656,7 @@
 
 ## 2026-10-04 09:26 -0300 — verificação operacional no HEAD `5029859`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `502985968dcf03e5a34d8a04d455e0cd9ba9c64a`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `502985968dcf03e5a34d8a04d455e0cd9ba9c64a`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. Nenhuma tarefa de produto segura disponível.
 - PR #354 contra `main` permanece aberta, `MERGEABLE`, com 16 checks remotos reais `SUCCESS` no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash ou delete de branch.
 - Gates deste ciclo: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS e Rust fmt PASS.
@@ -654,7 +664,7 @@
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
 ## 2026-10-04 09:12 -0300 — verificação operacional no HEAD `f33a6a9`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f33a6a9`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f33a6a9`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa de produto executável nova; pendências `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; Rust fmt PASS; clippy PASS; `cargo test --manifest-path server/Cargo.toml` PASS (537 testes do servidor; suites adicionais também PASS).
 - Frontend musician PASS: typecheck, 67 testes, build. Frontend engineer PASS: typecheck, 59 testes, build.
@@ -665,7 +675,7 @@
 
 ## 2026-10-04 09:07 -0300 — verificação operacional no HEAD `cab46a4`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `cab46a4`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `cab46a4`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa de produto executável nova; pendências `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; Rust fmt PASS.
 - Proxy software PASS: `scripts/ci/run-pipewire-software-e2e.sh` retornou `PIPEWIRE_SOFTWARE_E2E: PASS` somente `SOFTWARE/SIMULATED`; sem claim de hardware, WebRTC ou DTLS-SRTP.
@@ -675,7 +685,7 @@
 
 ## 2026-10-04 09:03 -0300 — verificação operacional no HEAD `cb444b5`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `cb444b5`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `cb444b5`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa de produto executável nova; pendências `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; Rust fmt PASS; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (537 testes do servidor, demais suites PASS).
 - Frontend musician PASS: typecheck, 67 testes, build. Frontend engineer PASS: typecheck, 59 testes, build.
@@ -686,7 +696,7 @@
 
 ## 2026-10-04 08:51 -0300 — verificação operacional no HEAD `90621fbeb2c46ff59a7776f191d492f9b50823e2`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `90621fbeb2c46ff59a7776f191d492f9b50823e2`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `90621fbeb2c46ff59a7776f191d492f9b50823e2`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa de produto executável nova; pendências `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não faz merge, squash, delete ou altera `main`.
 - Gates deste ciclo: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; Rust fmt PASS. Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`); nenhum resultado inventado.
@@ -694,16 +704,16 @@
 
 ## 2026-10-04 08:41 -0300 — verificação operacional no HEAD `d833348eb086fa31445920d6663bf10663c4d4ae`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `d833348eb086fa31445920d6663bf10663c4d4ae`; working tree limpa antes desta atualização.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `d833348eb086fa31445920d6663bf10663c4d4ae`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não faz merge, squash, delete ou altera `main`.
 - Gates deste ciclo: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; Rust fmt PASS. Scanner `/root/scan_patterns.py` indisponível neste host (`SCANNER_UNAVAILABLE`); nenhum resultado inventado.
 - Revisão manual do estado sem alterações de código não encontrou novo risco. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
 
 ## 2026-10-04 08:26 -0300 — verificação operacional no HEAD `0c2228c851f7268a9c009b87fdfa3dc5cb86494a`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `0c2228c851f7268a9c009b87fdfa3dc5cb86494a`; working tree limpa antes desta atualização.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `0c2228c851f7268a9c009b87fdfa3dc5cb86494a`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não faz merge, squash, delete ou altera `main`.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual do estado sem alterações de código não encontrou novo risco.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
@@ -719,7 +729,7 @@
 
 ## 2026-10-04 07:26 -0300 — verificação operacional no HEAD `45f413c`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `45f413ca66d9293cfeb28d78f2e36b2f04021040`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `45f413ca66d9293cfeb28d78f2e36b2f04021040`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa segura de produto disponível; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates deste ciclo: `scripts/validate-docs.sh` PASS (version 0.3.1); `git diff --check` PASS; Rust fmt PASS; `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
 - PR #354 contra `main` permanece aberta, mergeable, com 16 checks remotos reais SUCCESS; política vigente não faz merge, squash, delete ou altera `main`.
@@ -728,7 +738,7 @@
 
 ## 2026-10-04 06:16 -0300 — verificação operacional no HEAD `e517344`
 
-- Lease validado com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `e5173443e4b4032e07b707ac1e54b75d4d32d07c`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `e5173443e4b4032e07b707ac1e54b75d4d32d07c`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa segura de produto disponível; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #354 (`feat: expire QR generations hourly`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; CI remoto real 16/16 SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual do estado sem alterações de código não encontrou novo risco.
@@ -736,7 +746,7 @@
 
 ## 2026-10-04 05:47 -0300 — verificação operacional no HEAD 4ca5bb7
 
-- Lease validado com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `4ca5bb7`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `4ca5bb7`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa segura de produto disponível; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #354 (`feat: expire QR generations hourly`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; CI remoto real 16/16 SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
 - Gates deste ciclo: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt e `scripts/ci/run-pipewire-software-e2e.sh` PASS; proxy PipeWire somente `SOFTWARE/SIMULATED`.
@@ -745,7 +755,7 @@
 
 ## 2026-10-04 05:41 -0300 — verificação operacional no HEAD 200d9b5
 
-- Lease validado com flock -n .git/hermes-dev.lock.d; branch develop e origin/develop sincronizadas no HEAD 200d9b5d365ee88085b86699e22363d992dcaef5; working tree limpa antes desta atualização.
+- Lease validado com flock -n .git/hermes-dev.lock.d; branch develop e origin/develop sincronizadas no HEAD 200d9b5d365ee88085b86699e22363d992dcaef5; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa segura de produto disponível; itens [ ] restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #354 (feat: expire QR generations hourly) permanece aberta contra main, mergeStateStatus=CLEAN; CI remoto real 16/16 SUCCESS no SHA 15f7c89da7015853b90891b0e23d0e0fc5e44c8d. Política vigente não faz merge, squash, delete ou altera main.
 - Gates deste ciclo: scripts/validate-docs.sh PASS; git diff --check PASS; Rust fmt PASS; scripts/ci/run-pipewire-software-e2e.sh PASS somente SOFTWARE/SIMULATED.
@@ -754,7 +764,7 @@
 
 ## 2026-10-04 05:10 -0300 — verificação operacional no HEAD `61248d1`
 
-- Lease validado com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `61248d1e8a4a3be0325a23c2c710d61cfe76e895`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `61248d1e8a4a3be0325a23c2c710d61cfe76e895`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa segura de produto disponível; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #354 (`feat: expire QR generations`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; CI remoto real concluiu 16/16 SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual do estado sem alterações de código não encontrou novo risco.
@@ -762,7 +772,7 @@
 
 ## 2026-10-04 05:02 -0300 — verificação operacional no HEAD `e804d0e`
 
-- Lease validado com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `e804d0e728cbbe40c4b102994a0cf0c7f6909ac6`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `e804d0e728cbbe40c4b102994a0cf0c7f6909ac6`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa segura de produto disponível; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #354 (`feat: expire QR generations`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; CI remoto real 16/16 SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
 - Gates reais: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; `cargo fmt --manifest-path server/Cargo.toml --all -- --check` PASS; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (537 testes de integração e suites, 0 falhas); `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
@@ -771,7 +781,7 @@
 
 ## 2026-10-04 05:05 -0300 — verificação operacional no HEAD `91c8e2a`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `91c8e2ab7cc0f98ced2beece3a07a31802c71770`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `91c8e2ab7cc0f98ced2beece3a07a31802c71770`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa segura de produto disponível; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #354 (`feat: expire QR generations hourly`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; CI remoto real 16/16 SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
 - Verificação deste ciclo: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes e proxy `scripts/ci/run-pipewire-software-e2e.sh`; resultados registrados no relatório da execução.
@@ -780,7 +790,7 @@
 
 ## 2026-10-04 04:16 -0300 — verificação operacional no HEAD `04d3be5`
 
-- Lease validado com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `04d3be5`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `04d3be5`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa segura de produto disponível; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #354 (`feat: expire QR generations`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; CI remoto real 16/16 SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
 - `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -788,7 +798,7 @@
 
 ## 2026-10-04 04:45 -0300 — verificação operacional no HEAD `e73b47f`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `e73b47f`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `e73b47f`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE consultado: nenhuma tarefa segura de produto disponível; itens pendentes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS, Rust fmt/clippy/testes PASS (537 testes de integração e suites, 0 falhas), `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
 - Scanner `/root/scan_patterns.py` indisponível neste host (`SCANNER_UNAVAILABLE`, arquivo ausente); nenhum resultado inventado. Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
@@ -805,7 +815,7 @@
 
 ## 2026-10-04 02:36 -0300 — verificação operacional no HEAD `4f07539`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `4f075394f6c55e132be080b02e4bd7bec92ca6d8`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `4f075394f6c55e132be080b02e4bd7bec92ca6d8`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - PR #354 (`feat: expire QR generations hourly`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; CI remoto real concluiu 16/16 checks SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
 - Gates deste ciclo: `scripts/validate-docs.sh` PASS (`version 0.3.1`) e `git diff --check` PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host (`SCANNER_UNAVAILABLE`, arquivo ausente); nenhum resultado inventado.
@@ -814,7 +824,7 @@
 
 ## 2026-10-04 04:15 -0300 — verificação operacional no HEAD `b0b76ff`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `b0b76ff1287a6069b1e25078f15d6fc934ab1e4f`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `b0b76ff1287a6069b1e25078f15d6fc934ab1e4f`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - PR #354 (`feat: expire QR generations hourly`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; CI remoto real concluiu 16/16 checks SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Scanner `/root/scan_patterns.py` indisponível neste host (`SCANNER_UNAVAILABLE`); nenhum resultado inventado.
@@ -822,7 +832,7 @@
 
 ## 2026-10-04 02:14 -0300 — verificação operacional no HEAD `c209cb8`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `c209cb8196fa1d919f02f2bb9634d886c3f76578`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `c209cb8196fa1d919f02f2bb9634d886c3f76578`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - PR #354 (`feat: expire QR generations hourly`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; 16/16 checks reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
 - Gates documentais: `scripts/validate-docs.sh`, `git diff --check` e Rust fmt PASS. Scanner `/root/scan_patterns.py` indisponível neste host (`SCANNER_UNAVAILABLE`); nenhum resultado inventado.
 - Backlog CODE executável permanece esgotado; pendências exigem hardware físico, confirmação de release ou runner/secret externo.
@@ -839,7 +849,7 @@
 
 ## 2026-10-04 02:01 -0300 — verificação operacional no HEAD `d703e99`
 
-- Lease adquirido em `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `d703e99986470f1346d27b0c8f8bb5385c8c5d96`; working tree limpa antes desta atualização.
+- Lease adquirido em `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `d703e99986470f1346d27b0c8f8bb5385c8c5d96`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - PR #354 (`feat: expire QR generations hourly`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; CI real concluiu 16/16 checks SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
 - Backlog CODE executável permanece esgotado; pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
@@ -853,7 +863,7 @@
 
 ## 2026-10-04 00:01 -0300 — verificação operacional no HEAD `f376f30`
 
-- Lease adquirido em `.git/hermes-dev.lock.d`; `develop` e `origin/develop` sincronizadas, working tree limpa antes desta atualização.
+- Lease adquirido em `.git/hermes-dev.lock.d`; `develop` e `origin/develop` sincronizadas, nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `gh pr list --state open` retornou vazio; backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais deste ciclo: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; Rust fmt/clippy PASS; `cargo test --manifest-path server/Cargo.toml` PASS (todos os testes); `PIPEWIRE_SOFTWARE_E2E: PASS` somente `SOFTWARE/SIMULATED`.
 - Scanner `/root/scan_patterns.py` indisponível neste host (`SCANNER_UNAVAILABLE`); nenhum resultado inventado.
@@ -861,7 +871,7 @@
 
 ## 2026-10-03 23:41 -0300 — verificação operacional no HEAD `3f9a24e`
 
-- Lease adquirido em `.git/hermes-dev.lock.d`; `develop` e `origin/develop` sincronizadas, working tree limpa antes desta atualização.
+- Lease adquirido em `.git/hermes-dev.lock.d`; `develop` e `origin/develop` sincronizadas, nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git rev-parse HEAD` confirmou `3f9a24e9b1f52c7941717c0de790d5e3a235d6de`; `gh pr list --state open` retornou vazio.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta atualização: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes, frontends e `PIPEWIRE_SOFTWARE_E2E: PASS` somente `SOFTWARE/SIMULATED`.
@@ -966,7 +976,7 @@
 
 ## 2026-10-03 08:02 -0300 — verificação operacional no HEAD `63024a8`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `63024a81f5daa60ea28828f013f071bea8538f25`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `63024a81f5daa60ea28828f013f071bea8538f25`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt`, `cargo clippy` e `cargo test` PASS; Rust executou 874 testes, 0 falhas.
 - Musician e engineer: typecheck, 67 + 59 testes, builds e `npm audit --audit-level=high` PASS; ambos reportaram 0 vulnerabilidades.
@@ -977,7 +987,7 @@
 
 ## 2026-10-03 07:47 -0300 — verificação operacional no HEAD `008cbcb`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `008cbcb5b4538118909c6af1d322285eed4e1b96`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `008cbcb5b4538118909c6af1d322285eed4e1b96`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check`: PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das linhas adicionadas será exigida antes do commit; nenhum resultado inventado.
@@ -987,7 +997,7 @@
 
 ## 2026-10-03 07:32 -0300 — verificação operacional no HEAD `e25bee5`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e25bee58700df9eb39a38721bb870162461c2137`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e25bee58700df9eb39a38721bb870162461c2137`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check`: PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
@@ -997,7 +1007,7 @@
 
 ## 2026-10-03 06:51 -0300 — verificação operacional no HEAD `f1ce266`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f1ce26694299c34392349897c6cb1af49acccfb8`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f1ce26694299c34392349897c6cb1af49acccfb8`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`: PASS (`version 0.3.1`); `cargo fmt --all --manifest-path server/Cargo.toml -- --check`: PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
@@ -1007,7 +1017,7 @@
 
 ## 2026-10-03 06:36 -0300 — verificação operacional no HEAD `bf39638`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `bf396383eacdcbb883c4c2c4b1393b5d62c191d2`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `bf396383eacdcbb883c4c2c4b1393b5d62c191d2`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh` e `git diff --check`: PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada.
 - Backlog CODE executável permanece esgotado. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
@@ -1016,7 +1026,7 @@
 
 ## 2026-10-03 05:06 -0300 — verificação operacional no HEAD `3b5a6eb`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `3b5a6eb`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `3b5a6eb`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Tarefa documentada `Validate real PipeWire graph on a supported Linux host` executada por `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
@@ -1026,7 +1036,7 @@
 
 ## 2026-10-03 05:01 -0300 — verificação operacional no HEAD `a6aeb84`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `a6aeb84288b8f25a3baf29a6cb5a6fbe89a477cd`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `a6aeb84288b8f25a3baf29a6cb5a6fbe89a477cd`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Tarefa documentada `Validate real PipeWire graph on a supported Linux host` executada por `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual não encontrou segredos ou padrões perigosos.
 - Backlog CODE executável permanece esgotado. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
@@ -1035,7 +1045,7 @@
 
 ## 2026-10-03 04:51 -0300 — verificação operacional no HEAD `c2ab737`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `c2ab737e3712d4af4eb771f298d4c551b4fc0b7a`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `c2ab737e3712d4af4eb771f298d4c551b4fc0b7a`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Tarefa documentada `Validate real PipeWire graph on a supported Linux host` executada por `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
 - Backlog CODE executável permanece esgotado. CI remoto SUCCESS existente cobre SHA anterior, não este HEAD. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados.
@@ -1043,7 +1053,7 @@
 
 ## 2026-10-03 04:48 -0300 — verificação operacional no HEAD `a26710e`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `a26710eb7506ecc13864a647ae8626833a87d020`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `a26710eb7506ecc13864a647ae8626833a87d020`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Tarefa documentada `Validate real PipeWire graph on a supported Linux host` executada por `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
 - Backlog CODE executável permanece esgotado. CI remoto SUCCESS existente cobre SHA anterior, não este HEAD. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados.
@@ -1051,7 +1061,7 @@
 
 ## 2026-10-03 04:01 -0300 — verificação operacional no HEAD `d271747`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `d271747167162b888a2f144b84ce67838667574c`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `d271747167162b888a2f144b84ce67838667574c`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Tarefa documentada `Validate real PipeWire graph on a supported Linux host` executada por `scripts/ci/run-pipewire-software-e2e.sh`: resultado real `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada.
 - CI remoto SUCCESS listado cobre SHA anterior, não HEAD atual; PR #352 permanece aberta contra `main`, sem checks reportados. Política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
@@ -1059,7 +1069,7 @@
 
 ## 2026-10-03 03:42 -0300 — verificação operacional no HEAD `568b3d2`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `568b3d2fbe42e36e0721a54fe2d328c4d9066af6`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `568b3d2fbe42e36e0721a54fe2d328c4d9066af6`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` confirmou somente referências canônicas `origin/main` e `origin/develop`; PR #352 permanece aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados. Política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
 - Tarefa documentada `Validate real PipeWire graph on a supported Linux host` executada por `scripts/ci/run-pipewire-software-e2e.sh`: resultado real `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual sem segredos ou padrões perigosos.
@@ -1068,7 +1078,7 @@
 
 ## 2026-10-03 03:36 -0300 — verificação operacional no HEAD `ff0119a`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `ff0119a262d1e8f6260b5b0aa17abe66890993df`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `ff0119a262d1e8f6260b5b0aa17abe66890993df`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; referências canônicas observadas: `origin/main` e `origin/develop`. PR #352 permanece aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
 - Tarefa documentada `Validate real PipeWire graph on a supported Linux host` executada por `scripts/ci/run-pipewire-software-e2e.sh`: resultado real `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh` PASS; `git diff --check` PASS; scanner `/root/scan_patterns.py` indisponível neste host. Revisão manual sem segredos ou padrões perigosos.
@@ -1076,7 +1086,7 @@
 
 ## 2026-10-03 03:36 -0300 — verificação operacional no HEAD 30cf15b
 
-- Lease adquirido com flock; develop e origin/develop sincronizadas no HEAD 30cf15b0b88e0a5825e50267b919261073ed3122; working tree limpa antes desta atualização.
+- Lease adquirido com flock; develop e origin/develop sincronizadas no HEAD 30cf15b0b88e0a5825e50267b919261073ed3122; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - git fetch --prune foi executado; referências observadas: origin/main e origin/develop; PR #352 permanece aberta contra main, sem checks reportados. Política vigente proíbe abrir PR nova, fazer merge ou alterar main.
 - Tarefa documentada Validate real PipeWire graph on a supported Linux host foi executada pelo proxy existente scripts/ci/run-pipewire-software-e2e.sh: resultado real PIPEWIRE_SOFTWARE_E2E: PASS (SOFTWARE/SIMULATED virtual sink/source enumeration; no hardware/WebRTC claim).
 - scripts/validate-docs.sh e git diff --check PASS nesta atualização. Scanner /root/scan_patterns.py indisponível neste host; revisão manual obrigatória, sem resultado inventado.
@@ -1084,7 +1094,7 @@
 
 ## 2026-10-03 03:26 -0300 — verificação operacional no HEAD `a605913`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `a605913d627aba6a6f41d0963c08b5e3230ddcfd`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `a605913d627aba6a6f41d0963c08b5e3230ddcfd`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` confirmou somente referências remotas canônicas: `origin/main` e `origin/develop`.
 - PR #352 permanece aberta contra `main`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
 - `gh run list --branch develop` confirmou últimos SUCCESS reais nos commits anteriores (`37078296183`, `37078296148`, SHA `2f4b8146e577ae5724e058499bead060181e3f27`); nenhum CI remoto SUCCESS cobre HEAD atual.
@@ -1095,7 +1105,7 @@
 
 ## 2026-10-03 03:22 -0300 — verificação operacional no HEAD `116e055`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `116e055234b1d9e54e6f44a1c8268e59df7e6b23`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `116e055234b1d9e54e6f44a1c8268e59df7e6b23`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` confirmou somente referências canônicas `origin/main` e `origin/develop`; nenhuma branch remota órfã.
 - PR #352 permanece aberta contra `main`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
 - `gh run list --branch develop` confirmou últimos SUCCESS reais nos commits anteriores (`37078296183`, `37078296148`, SHA `2f4b8146e577ae5724e058499bead060181e3f27`); nenhum CI remoto SUCCESS cobre HEAD atual.
@@ -1106,7 +1116,7 @@
 
 ## 2026-10-03 03:11 -0300 — verificação operacional no HEAD `2743a16`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `2743a16f45fb1148b7da1bb272263ed6c55227ff`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `2743a16f45fb1148b7da1bb272263ed6c55227ff`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` confirmou somente referências canônicas `origin/main` e `origin/develop`; nenhuma branch remota órfã.
 - PR #352 permanece aberta contra `main`, sem checks reportados; política vigente proíbe abrir PR nova, fazer merge ou alterar `main`.
 - `gh run list --branch develop` confirmou últimos SUCCESS nos commits anteriores; nenhum CI remoto SUCCESS cobre HEAD `2743a16f45fb1148b7da1bb272263ed6c55227ff`. Não contar CI antigo como validação deste HEAD.
@@ -1117,7 +1127,7 @@
 
 ## 2026-10-03 03:01 -0300 — verificação operacional no HEAD `abdb18b`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `abdb18b3c0c5347968048b71a3c421864974eeb9`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `abdb18b3c0c5347968048b71a3c421864974eeb9`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - `scripts/validate-docs.sh` e `git diff --check` PASS nesta atualização; gates completos anteriores permanecem evidência histórica, não são atribuídos novamente sem execução.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
@@ -1126,7 +1136,7 @@
 
 ## 2026-10-03 02:52 -0300 — verificação operacional no HEAD `e2db110`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `e2db11065381863d762954b8a54fb98eb41b7a67`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `e2db11065381863d762954b8a54fb98eb41b7a67`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes (874 testes), musician (typecheck, 67 testes, build) e engineer (typecheck, 59 testes, build).
 - Segurança: `npm audit --audit-level=high` reportou 0 vulnerabilidades em ambos os frontends. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - PR #352 permanece aberta contra `main`, sem checks reportados. CI remoto do HEAD atual não foi confirmado; SUCCESS anterior não conta para este SHA.
@@ -1149,7 +1159,7 @@
 
 ## 2026-10-03 00:15 -0300 — verificação operacional no HEAD `cb49acf`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no commit `cb49acfce32f42fe49ece6d69f4aa239e078b1ed`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no commit `cb49acfce32f42fe49ece6d69f4aa239e078b1ed`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - PR #352 permanece aberta contra `main`, sem checks reportados; nenhum CI remoto SUCCESS cobre este HEAD. Últimos SUCCESS reais (`37078296148`, `37078296183`) cobrem apenas `2f4b8146e577ae5724e058499bead060181e3f27`.
 - Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes; Rust executou 874 testes, 0 falhas. Musician: typecheck, 67 testes e build. Engineer: typecheck, 59 testes e build.
 - Segurança: `npm audit --audit-level=high` reportou 0 vulnerabilidades em musician e engineer. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
@@ -1170,7 +1180,7 @@
 
 ## 2026-10-02 20:31 -0300 — verificação operacional no HEAD `fb48d80`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no commit `fb48d80153985920a703729df519f6782e0a37d6`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no commit `fb48d80153985920a703729df519f6782e0a37d6`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza após `git fetch --prune`: somente referências canônicas `origin/develop` e `origin/main`; nenhuma PR aberta listada nesta execução.
 - Gates completos anteriores no HEAD recente permanecem registrados: documentação, diff, Rust fmt/clippy/testes e frontends musician/engineer PASS. Esta atualização executará validação documental, diff e Rust fmt novamente.
@@ -1179,7 +1189,7 @@
 
 ## 2026-10-02 20:17 -0300 — verificação operacional no HEAD `97857d9`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `97857d9b044c1e4323eaf3fad790629f062f7703`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente, vazio, modo 0644; exclusividade validada nesta execução com `flock -n`.
+- `develop` e `origin/develop` sincronizadas no HEAD `97857d9b044c1e4323eaf3fad790629f062f7703`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente, vazio, modo 0644; exclusividade validada nesta execução com `flock -n`.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; nenhuma PR aberta contra `main` foi listada nesta execução.
 - Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`; Rust executou 874 testes, 0 falhas. Musician: typecheck, 67 testes e build PASS. Engineer: typecheck, 59 testes e build PASS.
@@ -1198,7 +1208,7 @@
 - Validação física não executada: WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 ## 2026-10-02 20:07 -0300 — verificação operacional no HEAD `82a44db`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `82a44db`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` sincronizadas no HEAD `82a44db`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhum item seguro de produto selecionado.
 - Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml`; Rust: 874 testes, 0 falhas.
 - Frontend musician PASS: typecheck, 67 testes e build. Frontend engineer PASS: typecheck, 59 testes e build.
@@ -1208,7 +1218,7 @@
 
 ## 2026-10-02 19:38 -0300 — verificação operacional no HEAD `f235ab8`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `f235ab8ea9b5cfa3bf9833ffb0e2778ce3c0caef`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` sincronizadas no HEAD `f235ab8ea9b5cfa3bf9833ffb0e2778ce3c0caef`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado: itens `[ ]` atuais exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhum item seguro de produto selecionado.
 - Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml`; Rust: 874 testes, 0 falhas.
 - Frontend musician PASS: typecheck, 67 testes e build. Frontend engineer PASS: typecheck, 59 testes e build.
@@ -1218,7 +1228,7 @@
 
 ## 2026-10-02 19:32 -0300 — verificação operacional no HEAD `2e23d8d`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `2e23d8dee02783e8c89f85ddd475bb5565955c97`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` sincronizadas no HEAD `2e23d8dee02783e8c89f85ddd475bb5565955c97`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Gates desta atualização: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, frontends musician e engineer (`typecheck`, `npm test -- --run`, `build`) PASS. Testes Rust: 7 + 2 + 174 + 124 + 537 + 6 + 8 + 11; musician 67; engineer 59.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1227,7 +1237,7 @@
 
 ## 2026-10-02 19:26 -0300 — verificação operacional no HEAD `efdbd87`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `efdbd874beb3e3c931ee7da063ed11918456b993`; working tree limpa antes desta atualização. `.git/hermes-dev.lock` existe, vazio, modo 0644; validade exclusiva não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `efdbd874beb3e3c931ee7da063ed11918456b993`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. `.git/hermes-dev.lock` existe, vazio, modo 0644; validade exclusiva não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Gates desta atualização: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS; Rust: 7 + 2 + 174 + 124 + 537 + 6 + 8 + 11 testes. Frontends musician e engineer: typecheck, `npm test -- --run` e build PASS; musician 67 testes, engineer 59 testes. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1236,7 +1246,7 @@
 
 ## 2026-10-02 19:11 -0300 — verificação operacional no HEAD `92512a7`
 
-- `develop` e `origin/develop` sincronizadas no commit `92512a75c4a9de118aa6cc68b6f6a0a3b2e40c94`; working tree limpa antes desta atualização. `.git/hermes-dev.lock` existe, vazio, modo 0644; validade exclusiva não inferida.
+- `develop` e `origin/develop` sincronizadas no commit `92512a75c4a9de118aa6cc68b6f6a0a3b2e40c94`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. `.git/hermes-dev.lock` existe, vazio, modo 0644; validade exclusiva não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas abertas com falhas nos checks; política vigente não altera essas branches.
 - Gates desta atualização: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS; Rust reportou 874 testes, 0 falhas. Frontends musician e engineer: typecheck, `npm test -- --run` e build PASS; musician 67 testes, engineer 59 testes.
@@ -1245,7 +1255,7 @@
 
 ## 2026-10-02 19:01 -0300 — verificação operacional no HEAD `7312831`
 
-- `develop` e `origin/develop` sincronizadas no commit `731283164833d3ca228edeba892db6ac09260988`; working tree limpa antes desta atualização. `.git/hermes-dev.lock` existe, vazio, modo 0644; validade exclusiva não inferida.
+- `develop` e `origin/develop` sincronizadas no commit `731283164833d3ca228edeba892db6ac09260988`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. `.git/hermes-dev.lock` existe, vazio, modo 0644; validade exclusiva não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em Rust/coverage; política vigente não altera essas branches.
 - Gates desta atualização: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e frontends músico/engenheiro: PASS; `cargo test --manifest-path server/Cargo.toml`: PASS, 874 testes Rust, 0 falhas. Frontend musician: typecheck PASS, 67 testes PASS, build PASS. Frontend engineer: typecheck PASS, 59 testes PASS, build PASS.
@@ -1272,7 +1282,7 @@
 
 ## 2026-10-02 16:41 -0300 — verificação operacional no HEAD `7fd460f`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `7fd460f567a80021b729cdd4773060ee7c0aa79a`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente e vazio; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `7fd460f567a80021b729cdd4773060ee7c0aa79a`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente e vazio; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1290,7 +1300,7 @@
 
 ## 2026-10-02 15:28 -0300 — verificação operacional no HEAD `877ecfb`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `877ecfbf2d492a89792916e5d4a9f93494913f68`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `877ecfbf2d492a89792916e5d4a9f93494913f68`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã além de referências canônicas; nenhum branch local mergeado pendente. PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Gates locais desta atualização: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml`, musician typecheck/test/build e engineer typecheck/test/build PASS. Rust: 7 + 2 + 174 + 124 + 537 + 6 + 8 + 11 testes; frontends: 67 + 59 testes.
@@ -1299,7 +1309,7 @@
 
 ## 2026-10-02 15:16 -0300 — verificação operacional no HEAD `8876577`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `8876577a0a4c714b5f3c4bef4d603a131a50f8da`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `8876577a0a4c714b5f3c4bef4d603a131a50f8da`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã além de referências canônicas; nenhum branch local mergeado pendente. PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Gates locais desta atualização: `git diff --check` PASS. Nenhum código novo foi alterado.
@@ -1308,7 +1318,7 @@
 
 ## 2026-10-02 14:51 -0300 — verificação operacional no HEAD `f84265f`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `f84265f487c70a1e9b1fe4eb17f4da9221e2d088`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `f84265f487c70a1e9b1fe4eb17f4da9221e2d088`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã além de referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` (7 + 2 + 174 + 124 + 537 + 6 + 8 + 11 testes; todos passaram).
@@ -1317,7 +1327,7 @@
 
 ## 2026-10-02 14:35 -0300 — verificação operacional no HEAD `31daba3`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `31daba3410dfeba1f9e2efd349b4f5684e091321`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `31daba3410dfeba1f9e2efd349b4f5684e091321`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã além de referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Gates desta atualização: `scripts/validate-docs.sh` PASS, `git diff --check` PASS e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS; scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1326,7 +1336,7 @@
 
 ## 2026-10-02 14:01 -0300 — verificação operacional no HEAD `5273b47`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `5273b4766d27201155c503cd950f79a938d86401`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `5273b4766d27201155c503cd950f79a938d86401`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã além de referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Gates desta atualização: `scripts/validate-docs.sh` PASS, `git diff --check` PASS e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1335,7 +1345,7 @@
 
 ## 2026-10-02 13:56 -0300 — verificação operacional no HEAD `1f8c863`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `1f8c863202aea0cebbe83c8543257dbbf6690926`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `1f8c863202aea0cebbe83c8543257dbbf6690926`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã além de referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Gates desta atualização: `scripts/validate-docs.sh` PASS, `git diff --check` PASS e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1344,7 +1354,7 @@
 
 ## 2026-10-02 13:36 -0300 — verificação operacional no HEAD `263ec74`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `263ec746be6cad0dca6e31e8bbf4b5623edc6e39`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `263ec746be6cad0dca6e31e8bbf4b5623edc6e39`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã além de referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Gates desta atualização: `scripts/validate-docs.sh` PASS e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1353,7 +1363,7 @@
 
 ## 2026-10-02 13:31 -0300 — verificação operacional no HEAD `5034a89`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `5034a8907a2ab37eae9b9db5e9438c014852d66e`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `5034a8907a2ab37eae9b9db5e9438c014852d66e`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã além de referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Gates desta atualização: `scripts/validate-docs.sh` PASS e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1362,7 +1372,7 @@
 
 ## 2026-10-02 13:26 -0300 — verificação operacional no HEAD `c3e6a11`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `c3e6a11`; working tree limpa antes desta atualização. Observado localmente. Arquivo `.git/hermes-dev.lock` presente; validade do lease não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `c3e6a11`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Observado localmente. Arquivo `.git/hermes-dev.lock` presente; validade do lease não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada: branches remotas órfãs inexistentes; nenhum branch local mergeado pendente. PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Gates desta atualização: `scripts/validate-docs.sh` PASS, `git diff --check` PASS e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1407,7 +1417,7 @@
 
 ## 2026-10-02 12:26 -0300 — verificação operacional no HEAD `f5c2520`
 
-- Lease `.git/hermes-dev.lock` existe; `develop` e `origin/develop` sincronizadas no HEAD `f5c2520`; working tree limpa antes desta atualização.
+- Lease `.git/hermes-dev.lock` existe; `develop` e `origin/develop` sincronizadas no HEAD `f5c2520`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada: branches remotas órfãs inexistentes; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - `scripts/validate-docs.sh` e `git diff --check` serão executados nesta atualização. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1416,7 +1426,7 @@
 
 ## 2026-10-02 12:21 -0300 — verificação operacional no HEAD `843ff73`
 
-- Lease `.git/hermes-dev.lock` existe; `develop` e `origin/develop` sincronizadas no HEAD `843ff73`; working tree limpa antes desta atualização.
+- Lease `.git/hermes-dev.lock` existe; `develop` e `origin/develop` sincronizadas no HEAD `843ff73`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada: branches remotas órfãs inexistentes; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - `scripts/validate-docs.sh` PASS; `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1425,7 +1435,7 @@
 
 ## 2026-10-02 12:16 -0300 — verificação operacional no HEAD `c25858c`
 
-- Lease `.git/hermes-dev.lock` existe; `develop` e `origin/develop` sincronizadas no commit `c25858c7777d978c82cb7262434ec9b90b83a5e9`; working tree limpa antes desta atualização.
+- Lease `.git/hermes-dev.lock` existe; `develop` e `origin/develop` sincronizadas no commit `c25858c7777d978c82cb7262434ec9b90b83a5e9`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada: branches remotas órfãs inexistentes; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - `scripts/validate-docs.sh` e `git diff --check` serão executados nesta atualização; scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1434,7 +1444,7 @@
 
 ## 2026-10-02 12:11 -0300 — verificação operacional no HEAD `4bef9f3`
 
-- Lease `.git/hermes-dev.lock` existe; `develop` e `origin/develop` sincronizadas no commit `4bef9f3cd50008bb318e19ba0bf2f76f8da73be9`; working tree limpa antes desta atualização.
+- Lease `.git/hermes-dev.lock` existe; `develop` e `origin/develop` sincronizadas no commit `4bef9f3cd50008bb318e19ba0bf2f76f8da73be9`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada: branches remotas órfãs inexistentes; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - `scripts/validate-docs.sh` e `git diff --check` PASS nesta atualização. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1461,7 +1471,7 @@
 
 ## 2026-10-02 11:46 -0300 — verificação operacional no HEAD ef9b491
 
-- develop e origin/develop sincronizadas no HEAD ef9b491; working tree limpa antes desta atualização. O lease `.git/hermes-dev.lock` existe; execução atual mantém esse lease ativo.
+- develop e origin/develop sincronizadas no HEAD ef9b491; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. O lease `.git/hermes-dev.lock` existe; execução atual mantém esse lease ativo.
 - Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - PRs Dependabot #347 e #348 continuam abertas contra main, ambas com falhas em Rust Format + Clippy + Tests e Rust Code Coverage; política vigente não altera essas branches.
 - Gates desta atualização: scripts/validate-docs.sh PASS e git diff --check PASS; scanner /root/scan_patterns.py permanece indisponível neste host.
@@ -1469,7 +1479,7 @@
 
 ## 2026-10-02 11:31 -0300 — verificação operacional no HEAD `bd02cca`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `bd02cca` (`bd02cca1c681ef89e0794121d2ac9bdbe8879489`); working tree limpa antes desta atualização. Nenhum arquivo de lease/lock foi encontrado na inspeção do workspace.
+- `develop` e `origin/develop` sincronizadas no HEAD `bd02cca` (`bd02cca1c681ef89e0794121d2ac9bdbe8879489`); nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Nenhum arquivo de lease/lock foi encontrado na inspeção do workspace.
 - Limpeza observada: referências remotas listadas não incluem branches órfãs além de `origin/HEAD`; nenhum branch local adicional aparece mergeado em `main`; PRs Dependabot #347 e #348 continuam abertas contra `main`, com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Backlog consultado: itens `[ ]` restantes estão documentados como dependentes de hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa CODE executável foi selecionada neste ciclo.
 - Gates desta atualização: `scripts/validate-docs.sh` PASS (`documentation validation passed (version 0.3.1)`), `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1478,7 +1488,7 @@
 
 ## 2026-10-02 11:26 -0300 — verificação operacional no HEAD `0660889`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `0660889`; working tree limpa antes desta atualização. Lease do repositório: nenhum mecanismo de lock existe.
+- `develop` e `origin/develop` sincronizadas no HEAD `0660889`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease do repositório: nenhum mecanismo de lock existe.
 - Limpeza validada: branches remotas órfãs inexistentes; nenhum branch local mergeado pendente. PRs Dependabot #347 e #348 continuam abertas contra `main`, com falhas em Rust/coverage; política vigente não altera essas branches.
 - Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura identificada.
 - Gates desta atualização: `scripts/validate-docs.sh` PASS e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1487,7 +1497,7 @@
 
 ## 2026-10-02 11:16 -0300 — verificação operacional no HEAD `a764b2b`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `a764b2b`; working tree limpa antes desta atualização. Lease do repositório: nenhum mecanismo de lock existe.
+- `develop` e `origin/develop` sincronizadas no HEAD `a764b2b`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease do repositório: nenhum mecanismo de lock existe.
 - Limpeza validada: branches remotas órfãs inexistentes; nenhum branch local mergeado pendente. PRs Dependabot #347 e #348 continuam abertas contra `main`; falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura identificada.
 - `git diff --check` PASS. `scripts/validate-docs.sh` e gates completos não foram rerun nesta atualização operacional; resultados anteriores permanecem evidência histórica, não validação nova. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -1496,7 +1506,7 @@
 
 ## 2026-10-02 11:01 -0300 — operational verification at `369cca1`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `369cca1f754e21188b131feca0bff643d862118d`; working tree limpa antes desta atualização. Lease do repositório: nenhum mecanismo de lock existe.
+- `develop` e `origin/develop` sincronizadas no HEAD `369cca1f754e21188b131feca0bff643d862118d`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease do repositório: nenhum mecanismo de lock existe.
 - Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi identificada.
 - `scripts/validate-docs.sh` PASS (`documentation validation passed (version 0.3.1)`); `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS reais `36897066547` e `36897066543` cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
@@ -1505,7 +1515,7 @@
 
 ## 2026-10-02 10:50 -0300 — operational verification at `bf86c6e`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `bf86c6e`; working tree limpa antes desta atualização. Lease do repositório: nenhum mecanismo de lock existe.
+- `develop` e `origin/develop` sincronizadas no HEAD `bf86c6e`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease do repositório: nenhum mecanismo de lock existe.
 - Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi identificada.
 - `scripts/validate-docs.sh` PASS; `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS reais `36897066547` e `36897066543` cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
@@ -1514,7 +1524,7 @@
 
 ## 2026-10-02 10:48 -0300 — operational verification at `6ecc3f0`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `6ecc3f0`; working tree limpa antes desta atualização. Lease do repositório: nenhum mecanismo de lock existe.
+- `develop` e `origin/develop` sincronizadas no HEAD `6ecc3f0`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease do repositório: nenhum mecanismo de lock existe.
 - Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi identificada.
 - Gates locais PASS: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (todos os testes passaram: 7 binários, 174 unitários, 124 integração, 537 streaming e doc-tests). Musician: typecheck, 67 testes, build. Engineer: typecheck, 59 testes, build.
 - Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS reais `36897066547` e `36897066543` cobrem SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
@@ -1523,7 +1533,7 @@
 
 ## 2026-10-02 10:40 -0300 — operational verification at `25de394`
 
-- `develop` e `origin/develop` sincronizadas no commit `25de394`; working tree limpa antes desta atualização. Lease do repositório: nenhum mecanismo de lock existe.
+- `develop` e `origin/develop` sincronizadas no commit `25de394`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease do repositório: nenhum mecanismo de lock existe.
 - Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi identificada.
 - Limpeza validada: branches remotas órfãs inexistentes; nenhum branch local mergeado pendente. PRs Dependabot #347 e #348 continuam abertas contra `main`, com falhas Rust/coverage; política vigente não altera essas branches.
 - `scripts/validate-docs.sh` e `git diff --check` foram executados como gates desta atualização documental. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
@@ -1532,7 +1542,7 @@
 
 ## 2026-10-02 10:36 -0300 — operational verification at `045833d`
 
-- `develop` e `origin/develop` sincronizadas no commit `045833d9be8659387fee006e57020773ae04385d`; working tree limpa antes desta atualização. Lease do repositório: nenhum mecanismo de lock existe.
+- `develop` e `origin/develop` sincronizadas no commit `045833d9be8659387fee006e57020773ae04385d`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease do repositório: nenhum mecanismo de lock existe.
 - Backlog CODE executável permanece esgotado. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi identificada.
 - `scripts/validate-docs.sh` PASS; `git diff --check` PASS. Scanner `/root/scan_patterns.py` permanece indisponível; nenhum resultado inventado.
 - CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS reais em `develop` são runs `36897066547` e `36897066543`, ambos no SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
@@ -1784,7 +1794,7 @@
 
 ## 2026-10-02 04:45 -0300 — QR onboarding status reconciliation
 
-- `develop` e `origin/develop` sincronizadas no HEAD `a70c3784b39569878e874269f8d7a647bc2a5357`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` sincronizadas no HEAD `a70c3784b39569878e874269f8d7a647bc2a5357`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Rate limiting bounded por IP para `POST /api/v1/onboarding/qr/exchange` está implementado e coberto por testes; documentação histórica que o marca como pendente fica obsoleta.
 - QR audit events continuam pendentes; próximo item CODE delimitado. Não registrar QR secret, hash, refresh token, JWT, nome ou corpo bruto.
 - `scripts/validate-docs.sh` PASS e `git diff --check` PASS antes desta alteração.
@@ -1802,7 +1812,7 @@
 
 ## 2026-10-02 04:15 -0300 — verificação operacional no HEAD `719f5e0eff02c167e99d64a5af3ece7394504a00`
 
-- `develop` e `origin/develop` estão sincronizadas no HEAD atual; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no HEAD atual; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado. Nenhuma tarefa de produto segura nova identificada; itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - `scripts/validate-docs.sh` PASS e `git diff --check` PASS.
 - Último CI remoto SUCCESS em `develop`: runs `36897066547` e `36897066543`, ambos no commit anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; nenhum CI SUCCESS foi confirmado no HEAD atual.
@@ -1842,7 +1852,7 @@
 
 ## 2026-10-02 00:57 -0300 — verificação operacional no HEAD `99fb4519b3369c5dd46b1faf8d32626612bc63fb`
 
-- `develop` e `origin/develop` permanecem sincronizadas no commit `99fb4519b3369c5dd46b1faf8d32626612bc63fb`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` permanecem sincronizadas no commit `99fb4519b3369c5dd46b1faf8d32626612bc63fb`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo.
 - `gh run list --branch develop --limit 5` não mostra CI SUCCESS no HEAD exato; últimos runs SUCCESS (`36897066547` e `36897066543`) cobrem o commit anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -1851,7 +1861,7 @@
 
 ## 2026-10-02 00:46 -0300 — verificação operacional no HEAD `ac1c9fa6e56fd4a06c082a5d0e88200f5df39f04`
 
-- `develop` e `origin/develop` permanecem sincronizadas no commit `ac1c9fa6e56fd4a06c082a5d0e88200f5df39f04`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` permanecem sincronizadas no commit `ac1c9fa6e56fd4a06c082a5d0e88200f5df39f04`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto SUCCESS mais recente em `develop`: runs `36897066547` e `36897066543`, ambos no commit `56a17fc87b004c104e730e36741ba75ad22796b4`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -1860,7 +1870,7 @@
 
 ## 2026-10-02 00:35 -0300 — verificação operacional no HEAD `3c0a1164a846eedb61e757bb8e7c7ec1df67c1bf`
 
-- `develop` e `origin/develop` permanecem sincronizadas no commit `3c0a1164a846eedb61e757bb8e7c7ec1df67c1bf`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` permanecem sincronizadas no commit `3c0a1164a846eedb61e757bb8e7c7ec1df67c1bf`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo.
 - `gh run list --branch develop --limit 8` não mostra CI SUCCESS no HEAD exato; últimos runs SUCCESS (`36897066547` e `36897066543`) cobrem o commit anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -1869,7 +1879,7 @@
 
 ## 2026-10-02 00:32 -0300 — verificação operacional no HEAD `08bdd104eb49ce3ae33d2c7121907dd8a54fc91b`
 
-- `develop` e `origin/develop` permanecem sincronizadas no commit `08bdd104eb49ce3ae33d2c7121907dd8a54fc91b`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` permanecem sincronizadas no commit `08bdd104eb49ce3ae33d2c7121907dd8a54fc91b`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo.
 - `gh run list --branch develop --limit 5` não mostra CI SUCCESS no HEAD exato; últimos runs SUCCESS (`36897066547` e `36897066543`) cobrem o commit anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -1877,7 +1887,7 @@
 
 ## 2026-10-02 00:26 -0300 — verificação operacional no HEAD `06c2f12fcdb155c45bbec8772fc85ea23aa65dbd`
 
-- `develop` e `origin/develop` permanecem sincronizadas no commit `06c2f12fcdb155c45bbec8772fc85ea23aa65dbd`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` permanecem sincronizadas no commit `06c2f12fcdb155c45bbec8772fc85ea23aa65dbd`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens `[ ]` restantes exigem hardware físico, confirmação de release ou secret externo.
 - `gh run list --branch develop --limit 8` não mostra CI SUCCESS no HEAD exato; últimos runs SUCCESS (`36897066547` e `36897066543`) cobrem commit anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -2107,7 +2117,7 @@
 
 ## 2026-10-01 16:46 -0300 — verificação operacional no HEAD `44f1109`
 
-- `develop` e `origin/develop` sincronizadas no commit `44f1109b1a9c2db47523abaaab495d7c0732c321`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` sincronizadas no commit `44f1109b1a9c2db47523abaaab495d7c0732c321`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado.
 - CI remoto mais recente em `develop`: runs `36897066547` e `36897066543`, ambos **16/16 SUCCESS** no commit `56a17fc87b004c104e730e36741ba75ad22796b4`, não no HEAD atual. CI do HEAD atual não foi confirmado.
 - Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em Rust/coverage; política vigente não altera essas branches.
@@ -2115,7 +2125,7 @@
 
 ## 2026-10-01 16:28 -0300 — verificação operacional no HEAD `ac480a4`
 
-- `develop` e `origin/develop` sincronizadas no commit `ac480a43c560e30fa8fbb44e812982ebbc2581f3`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` sincronizadas no commit `ac480a43c560e30fa8fbb44e812982ebbc2581f3`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado.
 - CI remoto mais recente em `develop`: runs `36897066547` e `36897066543`, ambos **16/16 SUCCESS** no commit `56a17fc87b004c104e730e36741ba75ad22796b4`, não no HEAD atual. CI do HEAD atual não foi confirmado.
 - Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em Rust/coverage; política vigente não altera essas branches.
@@ -2123,7 +2133,7 @@
 
 ## 2026-10-01 16:23 -0300 — verificação operacional no HEAD `8c09074`
 
-- `develop` e `origin/develop` sincronizadas no commit `8c090742dfb07d38533023f5f1115f39651a0c88`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` sincronizadas no commit `8c090742dfb07d38533023f5f1115f39651a0c88`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado.
 - CI remoto mais recente em `develop`: runs `36897066547` e `36897066543`, ambos **16/16 SUCCESS** no commit `56a17fc87b004c104e730e36741ba75ad22796b4`, não no HEAD atual. CI do HEAD atual não foi confirmado.
 - Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em Rust/coverage; política vigente não altera essas branches.
@@ -2131,7 +2141,7 @@
 
 ## 2026-10-01 16:18 -0300 — verificação operacional no HEAD `b8a6852`
 
-- `develop` e `origin/develop` sincronizadas no commit `b8a6852f68ba0fa4ff047d0d30e6b4387236b217`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` sincronizadas no commit `b8a6852f68ba0fa4ff047d0d30e6b4387236b217`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado.
 - Gates locais reais PASS: Rust fmt, clippy, `cargo test --manifest-path server/Cargo.toml` (537 testes + doctests); musician typecheck, 61 testes e build; engineer typecheck, 59 testes e build.
 - `scripts/validate-docs.sh` PASS. Frontend exigiu `npm test -- --run`; `--watchAll=false` é inválido para Vitest e não representa falha de código.
@@ -2173,7 +2183,7 @@
 
 ## 2026-10-01 15:28 -0300 — verificação operacional no HEAD `c3548e1`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `c3548e11631719b0bc9b54a952f496366de76ac4`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `c3548e11631719b0bc9b54a952f496366de76ac4`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto mais recente em `develop` concluiu **16/16 SUCCESS** nos runs `36897066547` (`CI`) e `36897066543` (`Software Package Lifecycle Gates`), cobrindo `56a17fc87b004c104e730e36741ba75ad22796b4`, não o HEAD atual; CI do HEAD atual ainda não foi confirmado.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -2197,7 +2207,7 @@
 
 ## 2026-10-01 15:06 -0300 — verificação operacional no HEAD `a2287d3`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `a2287d3bb49aa833fa2373ae37a6caf947aaef32`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `a2287d3bb49aa833fa2373ae37a6caf947aaef32`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto mais recente em `develop` concluiu **16/16 SUCCESS** nos runs `36897066547` (`CI`) e `36897066543` (`Software Package Lifecycle Gates`), mas ambos cobrem `56a17fc87b004c104e730e36741ba75ad22796b4`, não o HEAD atual.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; fora da branch autorizada e não alteradas.
@@ -2205,7 +2215,7 @@
 
 ## 2026-10-01 15:01 -0300 — verificação operacional no HEAD `3aeb4be`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `3aeb4be101dd1fae38f84096a1941799fc9a8987`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `3aeb4be101dd1fae38f84096a1941799fc9a8987`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto mais recente em `develop` concluiu **16/16 SUCCESS** nos runs `36897066547` (`CI`) e `36897066543` (`Software Package Lifecycle Gates`), mas ambos cobrem `56a17fc87b004c104e730e36741ba75ad22796b4`, não o HEAD atual.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; fora da branch autorizada e não alteradas.
@@ -2213,7 +2223,7 @@
 
 ## 2026-10-01 14:52 -0300 — verificação operacional no HEAD `c3f5481`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `c3f5481d51fdb010873b43187514c972f85c13a1`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `c3f5481d51fdb010873b43187514c972f85c13a1`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto mais recente em `develop` concluiu **16/16 SUCCESS** nos runs `36897066547` (`CI`) e `36897066543` (`Software Package Lifecycle Gates`), mas ambos cobrem `56a17fc87b004c104e730e36741ba75ad22796b4`, não o HEAD atual.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; fora da branch autorizada e não alteradas.
@@ -2236,7 +2246,7 @@
 
 ## 2026-10-01 09:56 -0300 — verificação operacional no HEAD `f2fe475`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `f2fe475f006f0e5f10ea618b0d1d31827a80c652`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `f2fe475f006f0e5f10ea618b0d1d31827a80c652`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto mais recente em `develop` (`36795546987` e `36795546985`) é SUCCESS no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -2244,7 +2254,7 @@
 
 ## 2026-10-01 09:51 -0300 — verificação operacional no HEAD `6eedcec`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `6eedcec51515cf5c48f8e09a350ad4482f097cc3`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `6eedcec51515cf5c48f8e09a350ad4482f097cc3`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto listado para `develop` não cobre o HEAD atual; últimos runs SUCCESS (`36795546987` e `36795546985`) estão no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não neste HEAD.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -2252,7 +2262,7 @@
 
 ## 2026-10-01 09:47 -0300 — verificação operacional no HEAD `9f2fdcb`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `9f2fdcbe1f77367d96c4bc85d230f4052bef305c`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `9f2fdcbe1f77367d96c4bc85d230f4052bef305c`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto listado para `develop` não cobre o HEAD atual; últimos runs SUCCESS (`36795546987` e `36795546985`) estão no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não neste HEAD.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -2276,7 +2286,7 @@
 
 ## 2026-10-01 09:06 -0300 — verificação operacional no HEAD `73ca4d4`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `73ca4d4`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `73ca4d4`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto listado para `develop` ainda não cobre o HEAD atual; runs recentes `36795546987` e `36795546985` são SUCCESS no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não neste HEAD.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -2309,7 +2319,7 @@
 
 ## 2026-10-01 08:16 -0300 — verificação operacional no HEAD `2b41635`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `2b41635681542330af48e735961ddaa92a2c10e2`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `2b41635681542330af48e735961ddaa92a2c10e2`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto mais recente em `develop` permanece SUCCESS nos runs `36795546987` (`CI`) e `36795546985` (`Software Package Lifecycle Gates`), ambos no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -2333,7 +2343,7 @@
 
 ## 2026-10-01 06:17 -0300 — verificação operacional no HEAD `470305a`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `470305a7b954d8320473eb46db63fa9b4e02ad95`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `470305a7b954d8320473eb46db63fa9b4e02ad95`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; nenhum código de produto novo identificado. Itens restantes exigem hardware físico, confirmação de release ou secret externo.
 - CI remoto mais recente em `develop` permanece SUCCESS nos runs `36795546987` (`CI`) e `36795546985` (`Software Package Lifecycle Gates`), ambos no commit anterior `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
@@ -2396,7 +2406,7 @@
 - Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 ## 2026-10-01 04:51 -03 — verificação operacional no HEAD `795b48e`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `795b48e`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `795b48e`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Nenhuma tarefa CODE executável nova identificada; backlog executável permanece esgotado. Nenhum código de produto foi alterado.
 - CI remoto real mais recente em `develop`: runs `36795546987` e `36795546985`, ambos SUCCESS em `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não no HEAD atual.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`; ambas falham em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política desta execução não altera essas branches.
@@ -2420,7 +2430,7 @@
 
 ## 2026-10-01 04:12 -03 — verificação operacional no HEAD `5520490`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `5520490f80eddf57c709b14192bd04f2a006b79d`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `5520490f80eddf57c709b14192bd04f2a006b79d`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Gates locais reais PASS: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes + doctests); frontends musician e engineer typecheck, testes (61/61 e 59/59) e builds PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. CI remoto mais recente em `develop` (runs `36795546987` e `36795546985`) é SUCCESS em `be8c3691ea891fc84728f7ca5fe7021878bf1651`, não neste HEAD.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; fora da branch autorizada.
@@ -2453,7 +2463,7 @@
 ## 2026-10-01 — estado operacional verificado no HEAD `bfa2dd8`
 ## 2026-10-01 — verificação local no HEAD `9377ed0`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `9377ed020c595125a975315e1f10ed7c91594bb1`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `9377ed020c595125a975315e1f10ed7c91594bb1`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Gates locais reais PASS: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes); frontends musician e engineer typecheck, testes (61/61 e 59/59) e builds PASS.
 - CI remoto não executou neste HEAD; últimos SUCCESS em `develop` (`36795546987` e `36795546985`) pertencem a `be8c3691ea891fc84728f7ca5fe7021878bf1651`. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
 - PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falham em gates Rust/coverage; política vigente proíbe alteração nessas branches. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -2467,7 +2477,7 @@
 
 ## 2026-10-01 — verificação local no HEAD `43955b9`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `43955b9d95102c5821593fb40260ad1d0db4ebd1`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `43955b9d95102c5821593fb40260ad1d0db4ebd1`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Gates locais reais PASS: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (todos os testes: 537 unit/integration e doctests PASS); frontends musician e engineer typecheck, `npm test` (61/61 e 59/59) e build PASS.
 - Primeiro comando frontend com `--watchAll=false` falhou porque Vitest 5 não aceita essa opção; comando canônico `npm test` executado depois PASS. Nenhum código foi alterado.
 - Scanner `/root/scan_patterns.py` não está disponível neste host; nenhum resultado de scanner inventado. PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas Rust/coverage; fora da branch autorizada.
@@ -2476,7 +2486,7 @@
 
 ## 2026-10-01 — verificação local no HEAD `a5774a3`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `a5774a3d88226411b29c2c92f50381d9e06a14e3`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `a5774a3d88226411b29c2c92f50381d9e06a14e3`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Gates locais reais PASS: `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (todos os testes); frontend musician typecheck, 61/61 testes e build; frontend engineer typecheck, 59/59 testes e build.
 - Primeiro comando Rust sem `--manifest-path` falhou por inexistência de `Cargo.toml` na raiz; comando canônico executado depois PASS. Primeiro comando frontend usou `--watchAll`, opção inválida no Vitest 5; `npm test` canônico executado depois PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado de scanner inventado. Diff permanece vazio; nenhum commit de código criado.
@@ -2486,7 +2496,7 @@
 
 ## 2026-10-01 — estado verificado no HEAD `3152f44b3b76086e7bc97c09b2e091f1aba20df9`
 
-- `develop` e `origin/develop` apontam para `3152f44b3b76086e7bc97c09b2e091f1aba20df9`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` apontam para `3152f44b3b76086e7bc97c09b2e091f1aba20df9`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Nenhuma tarefa CODE executável nova identificada no backlog; atualização reconcilia estado operacional real.
 - CI remoto real mais recente em `develop`: `CI` run `36795546987` e `Software Package Lifecycle Gates` run `36795546985`, ambos SUCCESS em `be8c3691ea891fc84728f7ca5fe7021878bf1651`; ainda não há run no HEAD atual.
 - PRs Dependabot #347 e #348 permanecem abertas contra `main`, com falhas nos gates Rust; política local proíbe alterações nessas branches.
@@ -2599,7 +2609,7 @@
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `2fac447b2021e46127b97e392d9206ee831348be`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `2fac447b2021e46127b97e392d9206ee831348be`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `2fac447b2021e46127b97e392d9206ee831348be`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36788901698` e `Software Package Lifecycle Gates` run `36788901666`; todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`, com `mergeStateStatus=CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -2703,14 +2713,14 @@
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `22d1bcdc2c5453cb91286dc3b7eeefb7795b0fab`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `22d1bcdc2c5453cb91286dc3b7eeefb7795b0fab`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `22d1bcdc2c5453cb91286dc3b7eeefb7795b0fab`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto real no SHA exato concluiu **16/16 SUCCESS**: `CI` run `36740765109` (13 jobs) e `Software Package Lifecycle Gates` run `36740765115` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Nenhuma tarefa CODE executável nova identificada. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `84c6205`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `84c6205f3ea326a4adb2e91e0ec6cc625b7bf0cf`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `84c6205f3ea326a4adb2e91e0ec6cc625b7bf0cf`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto real no SHA exato concluiu 16/16 SUCCESS: workflows `CI` e `Software Package Lifecycle Gates`, runs `36734807944` e `36734807645`, com steps reais.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Nenhuma tarefa CODE executável nova identificada. Runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -2857,7 +2867,7 @@
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `f1354b2`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `f1354b2252e07393ce2534958f40d69521d71afc`; working tree limpa antes desta atualização.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `f1354b2252e07393ce2534958f40d69521d71afc`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36685310529` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36685310493` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -3398,14 +3408,14 @@
 
 ## 2026-09-28 — verificação documental no HEAD `25638d8`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `25638d8ae87863d26a740e02a6a07943051e583d`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `25638d8ae87863d26a740e02a6a07943051e583d`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - PR #340 permanece aberta contra `main`; CI remoto real do HEAD exato concluiu 16/16 SUCCESS nos runs `36478830258` e `36478830252`.
 - Este ciclo somente reconcilia estado documental; não introduz comportamento novo nem claim de runtime ou hardware.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-28 — reconciliação documental no HEAD `9c720aa`
 
-- Confirmado `develop` e `origin/develop` no commit `9c720aa611f22ce526f63e1046b7ad9c5fe55d0e`, com working tree limpa antes desta atualização.
+- Confirmado `develop` e `origin/develop` no commit `9c720aa611f22ce526f63e1046b7ad9c5fe55d0e`, com nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - PR #340 continua aberta contra `main`; CI remoto real do HEAD exato concluiu 16/16 SUCCESS, com jobs executados de verdade (runs `36474267795` e `36474267843`).
 - Nenhum comportamento novo foi implementado. Release `v0.3.1`, runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN e Raspberry Pi 5 continuam pendentes.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -3426,7 +3436,7 @@
 
 ## 2026-09-28 — estado reconciliado no HEAD `5672029`
 
-- `develop` e `origin/develop` estão sincronizadas no HEAD `52b312c`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no HEAD `52b312c`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - PR #340 permanece aberta contra `main`; CI remoto real do HEAD exato concluiu 16/16 SUCCESS, com jobs executados de verdade.
 - Este ciclo confirma estado remoto e não introduz mudança funcional.
 - Evidência permanece `CODE/CI/SIMULATED`; validação física/runtime e release `v0.3.1` continuam pendentes.
@@ -3487,7 +3497,7 @@
 
 ## 2026-09-28 — estado CI reconciliado no HEAD `331f4d7`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `331f4d779799d48fd94bf7d521b903bb94871828`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `331f4d779799d48fd94bf7d521b903bb94871828`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - PR #340 permanece aberta contra `main`, sem merge conforme política deste ciclo.
 - CI real do HEAD exato concluiu **16/16 SUCCESS**, com jobs executados de verdade.
 - Evidência permanece `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, latência, XRUN, hot-plug, soak, reboot, Raspberry Pi 5 e release `v0.3.1` seguem pendentes.
@@ -9548,95 +9558,95 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 ## 2026-09-30 — CI remoto confirmado no HEAD `8411753`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `8411753a61c37b19d08381790849c1562e64486e`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `8411753a61c37b19d08381790849c1562e64486e`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36667417183` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36667417192` (3 jobs, steps reais).
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 ## 2026-09-30 — CI remoto confirmado no HEAD `6726fb6`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `6726fb6151e1e82c7ab1b404d18070612b494c1b`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `6726fb6151e1e82c7ab1b404d18070612b494c1b`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36670531501` (13 jobs) e `Software Package Lifecycle Gates` run `36670531526` (3 jobs); jobs concluíram com steps executados.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `efe0ab5`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `efe0ab5acbbebf63df6c3b906c65b005e5c2473a`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `efe0ab5acbbebf63df6c3b906c65b005e5c2473a`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36670991703` (13 jobs) e `Software Package Lifecycle Gates` run `36670991712` (3 jobs); jobs concluíram com steps executados.
 - PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - Nenhum comportamento novo ou claim de runtime/hardware foi introduzido. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `7d1cd19`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `7d1cd19701bc94c2430107d771a5dfbfab8ff436`; working tree limpa antes desta atualização.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `7d1cd19701bc94c2430107d771a5dfbfab8ff436`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36671597438` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36671597453` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `f3c2494`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `f3c249409851646be6bd369d174e3f52dc63f1e2`; working tree limpa antes desta atualização.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `f3c249409851646be6bd369d174e3f52dc63f1e2`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36672966796` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36672966714` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `28c360d`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `28c360dca601625732abd6722daff2249f12b89f`; working tree limpa antes desta atualização.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `28c360dca601625732abd6722daff2249f12b89f`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36674292183` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36674292179` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `4df3997`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `4df3997df7ad16a0173b656fc05a9a379c9aea33`; working tree limpa antes desta atualização.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `4df3997df7ad16a0173b656fc05a9a379c9aea33`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36675131661` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36675131697` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `b234b1b`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `b234b1b145c06116a08c02cf1f33178410d73bf9`; working tree limpa antes desta atualização.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `b234b1b145c06116a08c02cf1f33178410d73bf9`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36677580323` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36677580330` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `a3626a5`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `a3626a5e85a93af136143dd1bae31ef11905b77c`; working tree limpa antes desta atualização.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `a3626a5e85a93af136143dd1bae31ef11905b77c`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36680256784` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36680256806` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `84034e4`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `84034e4edebb578284219c0e6bd28f94b60a254c`; working tree limpa antes desta atualização.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `84034e4edebb578284219c0e6bd28f94b60a254c`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36681547495` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36681547488` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `e7b3bec`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `e7b3becf37f32ce34f126f8d483c47a2166ab225`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `e7b3becf37f32ce34f126f8d483c47a2166ab225`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36707774945` (13 jobs) e `Software Package Lifecycle Gates` run `36707774935` (3 jobs); jobs executaram com steps reais.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Nenhuma tarefa CODE executável nova identificada. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 ## 2026-09-30 — CI remoto confirmado no HEAD `542bab4`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `542bab4`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `542bab4`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36709992618` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36709992634` (3 jobs, steps reais).
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Nenhuma tarefa CODE executável nova identificada. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 ## 2026-09-30 — CI remoto confirmado no HEAD `b671d53`
 
-- [x] `develop` e `origin/develop` estão sincronizadas no commit `b671d53`; working tree limpa antes desta atualização.
+- [x] `develop` e `origin/develop` estão sincronizadas no commit `b671d53`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - [x] CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36710710630` (13 jobs, steps reais) e `Software Package Lifecycle Gates` run `36710710719` (3 jobs, steps reais).
 - [x] PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - [x] Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `619d5b6`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `619d5b67945e7fbbd3d3bcd9b028af3672693ab0`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` estão sincronizadas no commit `619d5b67945e7fbbd3d3bcd9b028af3672693ab0`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - CI remoto real do HEAD exato concluiu **16/16 SUCCESS**: `CI` run `36721725793` (13 jobs) e `Software Package Lifecycle Gates` run `36721725958` (3 jobs); todos os jobs executaram steps reais.
 - PR #340 permanece aberta contra `main`, com merge state `CLEAN`; política vigente proíbe merge neste ciclo.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release ou secret externo. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
@@ -9690,7 +9700,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Static scanner `/root/scan_patterns.py` unavailable; no fabricated result. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, physical PipeWire/ALSA, LAN, Raspberry Pi 5 and release `v0.3.1` remain `PENDING/BLOCKED`. Evidence: `CODE/CI/SIMULATED`.
 ## 2026-10-02 10:00 -0300 — operational verification at `e80b02a`
 
-- `develop` e `origin/develop` estão sincronizadas no commit `e80b02a`; working tree limpa antes desta atualização. Lease do repositório: nenhum mecanismo de lock existe.
+- `develop` e `origin/develop` estão sincronizadas no commit `e80b02a`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease do repositório: nenhum mecanismo de lock existe.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou acesso a runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - `scripts/validate-docs.sh` PASS; `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS reais em `develop`: runs `36897066547` e `36897066543`, ambos no SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`.
@@ -9718,7 +9728,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-02 14:06 -0300 — verificação operacional no HEAD `bc922a7`
 
-- `develop` e `origin/develop` sincronizadas no commit `bc922a7fb2788dfbf10e55aac92cd5566826493b`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; nenhum mecanismo adicional de lease existe.
+- `develop` e `origin/develop` sincronizadas no commit `bc922a7fb2788dfbf10e55aac92cd5566826493b`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente; nenhum mecanismo adicional de lease existe.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada: branches remotas órfãs inexistentes; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - `scripts/validate-docs.sh` PASS (`documentation validation passed (version 0.3.1)`); `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -9726,7 +9736,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
 ## 2026-10-02 14:17 -0300 — verificação operacional no HEAD `f9666af`
 
-- `develop` e `origin/develop` sincronizadas no commit `f9666af7ead9391e3cde903c410f3aa96392438e`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no commit `f9666af7ead9391e3cde903c410f3aa96392438e`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã; branches Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em Rust/coverage; política vigente não altera essas branches.
 - `scripts/validate-docs.sh` e `git diff --check` PASS nesta atualização. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -9735,7 +9745,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-02 14:26 -0300 — verificação operacional no HEAD `f66cadf`
 
-- `develop` e `origin/develop` sincronizadas no commit `f66cadf8fb00e5fbc2914fc7bd9bdbaa75544f1b`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no commit `f66cadf8fb00e5fbc2914fc7bd9bdbaa75544f1b`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em Rust/coverage; política vigente não altera essas branches.
 - `scripts/validate-docs.sh` PASS (`documentation validation passed (version 0.3.1)`); `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -9744,7 +9754,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-02 14:31 -0300 — verificação operacional no HEAD `0aaf828`
 
-- `develop` e `origin/develop` sincronizadas no commit `0aaf828bd3e753d494ddf679309700ab7d39752c`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no commit `0aaf828bd3e753d494ddf679309700ab7d39752c`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em Rust/coverage; política vigente não altera essas branches.
 - Gates desta atualização: `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -9753,7 +9763,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-02 14:41 -0300 — verificação operacional no HEAD `0097bd5`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `0097bd573ffd61316e0dc1748c9e4e0e1001a7d5`; working tree limpa antes desta atualização.
+- `develop` e `origin/develop` sincronizadas no HEAD `0097bd573ffd61316e0dc1748c9e4e0e1001a7d5`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. Nenhuma tarefa de produto segura foi selecionada.
 - `scripts/validate-docs.sh` PASS (`documentation validation passed (version 0.3.1)`); `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - CI remoto não tem SUCCESS no HEAD atual; últimos SUCCESS reais em `develop` são runs `36897066547` e `36897066543`, cobrindo SHA anterior `56a17fc87b004c104e730e36741ba75ad22796b4`; não contam para este HEAD.
@@ -9762,7 +9772,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-02 15:37 -0300 — verificação operacional no HEAD `e31d7ee`
 
-- `develop` e `origin/develop` sincronizadas no commit `e31d7eeecb0fd32fb880f3adc80401e1d9972c2e`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente, vazio, validade não inferida.
+- `develop` e `origin/develop` sincronizadas no commit `e31d7eeecb0fd32fb880f3adc80401e1d9972c2e`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente, vazio, validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza validada após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em Rust/coverage; política vigente não altera essas branches.
 - Gates desta atualização: `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -9781,7 +9791,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-02 16:05 -0300 — verificação operacional no HEAD `7ca815e`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `7ca815e2d27a01e11826a94c94de284b41e282ab`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente, vazio; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `7ca815e2d27a01e11826a94c94de284b41e282ab`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente, vazio; validade não inferida.
 - Inspeção de `docs/TODO.md` mostra que itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa CODE segura foi selecionada.
 - Limpeza após `git fetch --prune`: nenhuma branch remota órfã além de referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Gates: `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
@@ -9790,7 +9800,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-02 16:56 -0300 — verificação operacional no HEAD `33deaa2`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `33deaa2753168df1150eb6d714e2d1a7ac5563a2`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente e vazio; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `33deaa2753168df1150eb6d714e2d1a7ac5563a2`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente e vazio; validade não inferida.
 - Backlog CODE executável permanece esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. Nenhuma tarefa de produto segura selecionada.
 - Limpeza após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em Rust/coverage; política vigente não altera essas branches.
 - Gates: `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
@@ -9798,7 +9808,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-02 17:16 -0300 — verificação operacional no HEAD `b87492e`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `b87492e`; working tree limpa antes desta atualização. Lease `.git/hermes-dev.lock` presente e vazio; validade não inferida.
+- `develop` e `origin/develop` sincronizadas no HEAD `b87492e`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease `.git/hermes-dev.lock` presente e vazio; validade não inferida.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - Limpeza após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas falhando em Rust/coverage; política vigente não altera essas branches.
 - Gates locais: `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
@@ -9807,7 +9817,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-02 19:41 -0300 — verificação operacional no HEAD `19efd80`
 
-- `develop` e `origin/develop` sincronizadas no HEAD `19efd80e2fe3f8e3853da06b0d52fdca2b49cfad`; working tree limpa antes desta atualização. Lease validado com `flock -n .git/hermes-dev.lock`.
+- `develop` e `origin/develop` sincronizadas no HEAD `19efd80e2fe3f8e3853da06b0d52fdca2b49cfad`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição. Lease validado com `flock -n .git/hermes-dev.lock`.
 - Backlog CODE executável permanece esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa segura de produto foi selecionada.
 - Limpeza após `git fetch --prune`: nenhuma branch remota órfã além das referências canônicas; PRs Dependabot #347 e #348 continuam abertas contra `main`, ambas com falhas em `Rust Format + Clippy + Tests` e `Rust Code Coverage`; política vigente não altera essas branches.
 - Gates documentais PASS: `scripts/validate-docs.sh` (`documentation validation passed (version 0.3.1)`) e `git diff --check`. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -9817,7 +9827,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-03 03:47 -0300 — verificação operacional no HEAD `170b37b`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `170b37b`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `170b37b`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
 - CI SUCCESS existente cobre SHA anterior, não HEAD atual. PR #352 aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks; política proíbe PR nova, merge ou alteração em `main`.
@@ -9825,7 +9835,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-03 04:18 -0300 — verificação operacional no HEAD `3c3eaf9`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `3c3eaf9`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `3c3eaf9`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt, clippy e `cargo test --manifest-path server/Cargo.toml` (537 testes de integração/unitários e demais suites PASS).
 - Frontends PASS: musician typecheck, 67 testes, build, `npm audit --audit-level=high` (0 vulnerabilidades); engineer typecheck, 59 testes, build, `npm audit --audit-level=high` (0 vulnerabilidades).
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -9834,7 +9844,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-03 04:23 -0300 — verificação operacional no HEAD `5d26583`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `5d26583256eeff004ee7ab45f1e36891f05dce25`; working tree limpa antes desta atualização.
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `5d26583256eeff004ee7ab45f1e36891f05dce25`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Tarefa documentada `Validate real PipeWire graph on a supported Linux host` concluída pelo proxy executado `scripts/ci/run-pipewire-software-e2e.sh`: resultado real `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh` e `git diff --check` PASS; revisão manual sem segredos ou padrões perigosos. Scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada.
 - CI remoto SUCCESS disponível cobre SHA anterior (`2f4b8146e577ae5724e058499bead060181e3f27`), não HEAD atual. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política proíbe PR nova, merge ou alteração em `main`.
@@ -9842,7 +9852,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-03 06:03 -0300 — verificação operacional no HEAD `174afa8`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `174afa8a135f191e5f6f7f070bda10cfe87e40b1`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `174afa8a135f191e5f6f7f070bda10cfe87e40b1`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi selecionada.
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - CI remoto SUCCESS existente em `develop` cobre SHA anterior (`2f4b8146e577ae5724e058499bead060181e3f27`), não HEAD atual. PR #352 permanece aberta contra `main`, sem checks reportados; política vigente não abre PR nova, não faz merge e não altera `main`.
@@ -9851,7 +9861,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-03 06:22 -0300 — verificação operacional no HEAD `06a6660`
 
-- Lease adquirido com diretório exclusivo `/tmp/open-iem-development.lock.d`; PID ativo confirmado; branch `develop` e `origin/develop` sincronizadas no HEAD `06a666054a6659696adde4a64d6de6ef0bbdf7a7`; working tree limpa antes desta atualização.
+- Lease adquirido com diretório exclusivo `/tmp/open-iem-development.lock.d`; PID ativo confirmado; branch `develop` e `origin/develop` sincronizadas no HEAD `06a666054a6659696adde4a64d6de6ef0bbdf7a7`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual deste registro sem segredos ou padrões perigosos.
@@ -9861,7 +9871,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-03 06:29 -0300 — verificação operacional no HEAD `cb98a11`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `cb98a11086ec44173af7a1d8a83c2e0129fddc27`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `cb98a11086ec44173af7a1d8a83c2e0129fddc27`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual deste registro sem segredos ou padrões perigosos.
@@ -9870,7 +9880,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-03 07:03 -0300 — verificação operacional no HEAD `c24ea75`
 
-- Lease adquirido com diretório exclusivo `/tmp/open-iem-development.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `c24ea75044ec7f00a750f2c3248a96fd88810a1a`; working tree limpa antes desta atualização.
+- Lease adquirido com diretório exclusivo `/tmp/open-iem-development.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `c24ea75044ec7f00a750f2c3248a96fd88810a1a`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Gates locais PASS: `scripts/ci/run-pipewire-software-e2e.sh` (`PIPEWIRE_SOFTWARE_E2E: PASS`, `SOFTWARE/SIMULATED`), `scripts/validate-docs.sh`, `git diff --check`, Rust fmt, clippy e `cargo test --manifest-path server/Cargo.toml` (537 testes), musician typecheck/testes (67)/build e engineer typecheck/testes (59)/build.
 - Scanner `/root/scan_patterns.py` indisponível neste host; revisão manual das alterações documentais não encontrou segredos ou padrões perigosos.
 - CI remoto SUCCESS existente (`37078296183`, `37078296148`) cobre SHA anterior `2f4b8146e577ae5724e058499bead060181e3f27`, não este HEAD. PR #352 segue aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks reportados; política vigente não abre PR nova, não faz merge e não altera `main`.
@@ -9887,7 +9897,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 06:35 -0300 — verificação operacional no HEAD `aaef6fa`
 
-- Lease do repositório validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `aaef6fa39a89b3dce8f4fa442ea20d707fc6a348`; working tree limpa antes desta atualização.
+- Lease do repositório validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `aaef6fa39a89b3dce8f4fa442ea20d707fc6a348`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `scripts/ci/run-pipewire-software-e2e.sh` retornou `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
 - PR #354 contra `main` está `CLEAN`, com 16 checks reais SUCCESS; política vigente não abre PR, não faz merge, squash ou delete de branch.
@@ -9896,7 +9906,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 07:48 -0300 — verificação operacional no HEAD `5ad7405`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `5ad74059ec1ac5c2f7a5bd0e66a39f4a12d31820`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `5ad74059ec1ac5c2f7a5bd0e66a39f4a12d31820`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - Gates locais PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt`, `cargo clippy --all-targets -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` (todos os testes, incluindo 537 testes do servidor, PASS).
 - Frontends PASS: musician typecheck, 67 testes e build; engineer typecheck, 59 testes e build. `npm audit --audit-level=high` retornou 0 vulnerabilidades nos dois frontends.
 - Proxy software PASS: `scripts/ci/run-pipewire-software-e2e.sh` retornou `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED`; sem claim de hardware/WebRTC).
@@ -9906,7 +9916,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 11:43 -0300 — verificação operacional no HEAD `279a066`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `279a066`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `279a066`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece única PR aberta relevante, branch remota vinculada, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates executados: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; `cargo fmt --manifest-path server/Cargo.toml --all -- --check` PASS; `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
@@ -9915,7 +9925,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 11:57 -0300 — verificação operacional no HEAD `03d2d587e762c53c942de478c4501f1829492411`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `03d2d587e762c53c942de478c4501f1829492411`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `03d2d587e762c53c942de478c4501f1829492411`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 permanece única PR aberta relevante, branch remota vinculada, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates executados: `scripts/validate-docs.sh` PASS (`version 0.3.1`); `git diff --check` PASS; `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
@@ -9924,7 +9934,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 13:37 -0300 — verificação operacional no HEAD `027a8ce`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `027a8ce9d593174b04db12397950aea3096f30c6`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` e `origin/develop` sincronizadas no HEAD `027a8ce9d593174b04db12397950aea3096f30c6`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` e `scripts/ci/run-pipewire-software-e2e.sh` executados; proxy PipeWire retornou `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`); nenhuma saída inventada.
 - CI remoto SUCCESS disponível em `develop` cobre SHA anterior `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`, não este HEAD. PR #354 contra `main` permanece aberta, `CLEAN`, com 16 checks reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
@@ -9933,7 +9943,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 13:45 -0300 — verificação operacional no HEAD `30f6e034354c1eae88737c19c655e13852809f00`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `30f6e034354c1eae88737c19c655e13852809f00`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `30f6e034354c1eae88737c19c655e13852809f00`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` e `scripts/ci/run-pipewire-software-e2e.sh` executados; proxy PipeWire retornou `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível (`SCANNER_UNAVAILABLE`); nenhuma saída inventada.
 - CI remoto SUCCESS em `develop` ainda cobre SHA anterior `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`, não este HEAD. PR #354 contra `main` permanece aberta, `CLEAN`, com 16 checks reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
@@ -9941,7 +9951,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 15:06 -0300 — verificação operacional no HEAD `08f7c60`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `08f7c608721a6a54dcc7558f3004bb216532b56b`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `08f7c608721a6a54dcc7558f3004bb216532b56b`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Limpeza confirmou `origin/develop` e `origin/feat/qr-passwordless-hourly-rotation` como branches remotas não fundidas; nenhuma branch local mergeada pendente.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
@@ -9951,7 +9961,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 15:10 -0300 — verificação operacional no HEAD `59e906f`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `59e906ff1ce593fa68e3c4617e06d56cba6e8da6`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `59e906ff1ce593fa68e3c4617e06d56cba6e8da6`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` e limpeza executados; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates deste ciclo: `scripts/validate-docs.sh`, `git diff --check` e proxy `scripts/ci/run-pipewire-software-e2e.sh` PASS; proxy permanece evidência somente `SOFTWARE/SIMULATED`.
@@ -9960,7 +9970,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 15:15 -0300 — verificação operacional no HEAD `0359228`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `0359228`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `0359228`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` e limpeza executados; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates deste ciclo: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` e proxy `scripts/ci/run-pipewire-software-e2e.sh` PASS; proxy permanece evidência somente `SOFTWARE/SIMULATED`.
@@ -9969,7 +9979,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 15:20 -0300 — verificação operacional no HEAD `882e255`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `882e255`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `882e255`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` e limpeza executados; PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates deste ciclo: `scripts/validate-docs.sh` e `git diff --check` PASS; nenhum código de produto alterado.
@@ -9978,7 +9988,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 16:36 -0300 — verificação operacional no HEAD `e2cad3b`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta atualização: `scripts/validate-docs.sh` PASS, `git diff --check` PASS e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS; produto não foi alterado.
@@ -9987,7 +9997,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 17:15 -0300 — verificação operacional no HEAD `87a7065`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `87a706551e4a15e2e77207807e007669c9ecda55`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `87a706551e4a15e2e77207807e007669c9ecda55`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates executados: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS e `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`.
@@ -9997,7 +10007,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 17:40 -0300 — verificação operacional no HEAD `6a0291784c33fbb752059786c82776646b6fb558`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `6a0291784c33fbb752059786c82776646b6fb558`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `6a0291784c33fbb752059786c82776646b6fb558`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado. PR #354 (`feat/qr-passwordless-hourly-rotation`) permanece aberta contra `main`, com `mergeStateStatus=CLEAN` e 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE executável permanece esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates locais desta atualização: `scripts/validate-docs.sh` PASS e `git diff --check` PASS. `gh run list --branch develop` não mostra CI SUCCESS no HEAD atual; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
@@ -10007,7 +10017,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 19:00 -0300 — verificação operacional no HEAD `096e687`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `096e6872384a63e320ce2b807b5ffc190ebced4f`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `096e6872384a63e320ce2b807b5ffc190ebced4f`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; nenhuma PR aberta; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado: nenhuma tarefa de produto executável nova; item `[ ]` restante exige confirmação de release/tag.
 - Gates locais: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (`870` testes de Rust, incluindo doc-tests).
@@ -10017,9 +10027,9 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 20:06 -0300 — verificação operacional no HEAD `e8dfac48fcc793ca53be381b3873003feb7d751d`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e8dfac48fcc793ca53be381b3873003feb7d751d`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `e8dfac48fcc793ca53be381b3873003feb7d751d`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS (`version 0.3.1`), `git diff --check` PASS, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS e `scripts/ci/run-pipewire-software-e2e.sh` PASS (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - CI remoto não cobre o HEAD exato `e8dfac48fcc793ca53be381b3873003feb7d751d`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
@@ -10027,9 +10037,9 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 20:10 -0300 — verificação operacional no HEAD `3e4e0ca66827ecd89c7ee445ff1145a001d16e63`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `3e4e0ca66827ecd89c7ee445ff1145a001d16e63`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `3e4e0ca66827ecd89c7ee445ff1145a001d16e63`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS, `git diff --check` PASS, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS e `scripts/ci/run-pipewire-software-e2e.sh` PASS (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - CI remoto não cobre o HEAD exato `3e4e0ca66827ecd89c7ee445ff1145a001d16e63`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
@@ -10037,9 +10047,9 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 20:25 -0300 — verificação operacional no HEAD `1af54452235bf78531349b40ea6581c3d50dacf0`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `1af54452235bf78531349b40ea6581c3d50dacf0`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `1af54452235bf78531349b40ea6581c3d50dacf0`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; nenhuma PR aberta contra `main`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates: `scripts/validate-docs.sh` PASS, `git diff --check` PASS e lease PASS.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente exigida sobre diff exato desta atualização documental.
 - CI remoto não cobre este HEAD exato; último SUCCESS em `develop` cobre SHA `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`.
@@ -10047,9 +10057,9 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 ## 2026-10-04 20:40 -0300 — verificação operacional no HEAD `f182ea6`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f182ea62a0f71f265ec8f43df437c1e20329bf92`; working tree limpa antes desta atualização.
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `f182ea62a0f71f265ec8f43df437c1e20329bf92`; nenhuma alteração de produto fora desta atualização documental; working tree estava limpa antes da edição.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE consultado; nenhuma tarefa nova foi selecionada. Pendências executáveis identificadas permanecem fora do escopo seguro desta rodada; demais itens `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS (`version 0.3.1`) e `git diff --check` PASS.
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - CI remoto não cobre o HEAD exato `f182ea62a0f71f265ec8f43df437c1e20329bf92`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
