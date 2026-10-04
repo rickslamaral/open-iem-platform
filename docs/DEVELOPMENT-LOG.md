@@ -10014,3 +10014,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - CI remoto não cobre o HEAD exato `3e4e0ca66827ecd89c7ee445ff1145a001d16e63`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência permanece `CODE/CI/SIMULATED`.
+
+## 2026-10-04 20:25 -0300 — verificação operacional no HEAD `1af54452235bf78531349b40ea6581c3d50dacf0`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `1af54452235bf78531349b40ea6581c3d50dacf0`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; nenhuma PR aberta contra `main`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates: `scripts/validate-docs.sh` PASS, `git diff --check` PASS e lease PASS.
+- Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente exigida sobre diff exato desta atualização documental.
+- CI remoto não cobre este HEAD exato; último SUCCESS em `develop` cobre SHA `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; hardware físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`; evidência `CODE/CI/SIMULATED`.
