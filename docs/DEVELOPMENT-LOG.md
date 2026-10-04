@@ -1,3 +1,10 @@
+## 2026-10-04 02:01 -0300 — verificação operacional no HEAD `d703e99`
+
+- Lease adquirido em `.git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `d703e99986470f1346d27b0c8f8bb5385c8c5d96`; working tree limpa antes desta atualização.
+- PR #354 (`feat: expire QR generations hourly`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; CI real concluiu 16/16 checks SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
+- Backlog CODE executável permanece esgotado; pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-04 01:47 -0300 — verificação operacional no HEAD `21e8f98`
 
 - Lease adquirido em `.git/hermes-dev.lock.d`; `develop` e `origin/develop` sincronizadas; working tree limpa.
