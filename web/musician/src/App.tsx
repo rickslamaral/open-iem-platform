@@ -3,7 +3,7 @@ import { Login } from './components/Login';
 import { MixControl } from './components/MixControl';
 import { ConnectionStatus } from './components/ConnectionStatus';
 import { useWebSocket } from './hooks/useWebSocket';
-import { exchangeQr, login as apiLogin, logout as apiLogout, refresh as apiRefresh } from './api/auth';
+import { bootstrapQrSession, exchangeQr, login as apiLogin, logout as apiLogout, refresh as apiRefresh } from './api/auth';
 import styles from './App.module.css';
 import { fetchChannelMetadata } from './api/channels';
 import { fetchActiveSceneId, fetchScenes } from './api/scenes';
@@ -88,6 +88,12 @@ export default function App() {
     setLoginError(null);
     try { setToken((await exchangeQr({ qr_secret: qrSecret, display_name: displayName, instrument_id: instrumentId, username, password })).access_token); }
     catch (err) { setLoginError(err instanceof Error ? err.message : 'QR onboarding failed'); }
+  }, []);
+
+  const handleQrSession = useCallback(async (qrSecret: string, displayName: string, instrumentId: string) => {
+    setLoginError(null);
+    try { setToken((await bootstrapQrSession({ qr_secret: qrSecret, display_name: displayName, instrument_id: instrumentId })).access_token); }
+    catch (err) { setLoginError(err instanceof Error ? err.message : 'QR session bootstrap failed'); }
   }, []);
 
   useEffect(() => {
@@ -201,7 +207,7 @@ export default function App() {
 
   if (restoring) return <div role="status">Restoring session…</div>;
   if (!token) {
-    return <Login onLogin={handleLogin} onQrExchange={handleQrExchange} error={loginError} />;
+    return <Login onLogin={handleLogin} onQrExchange={handleQrExchange} onQrSession={handleQrSession} error={loginError} />;
   }
 
   return (

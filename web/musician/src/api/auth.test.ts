@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { exchangeQr, login, logout, refresh } from './auth';
+import { bootstrapQrSession, exchangeQr, login, logout, refresh } from './auth';
 
 describe('QR auth', () => {
   beforeEach(() => vi.restoreAllMocks());
@@ -9,6 +9,12 @@ describe('QR auth', () => {
     expect(fetchMock).toHaveBeenCalledWith('/api/v1/onboarding/qr/exchange', expect.objectContaining({ method: 'POST', credentials: 'include', body: JSON.stringify({ qr_secret: 'secret', display_name: 'Alex', instrument_id: 'guitar' }) }));
     expect(localStorage.length).toBe(0); expect(sessionStorage.length).toBe(0);
   });
+  it('bootstraps passwordless invitation session on distinct endpoint', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ access_token: 'session-token', role: 'Musician' }), { status: 201 }));
+    await expect(bootstrapQrSession({ qr_secret: 'secret', display_name: 'Alex', instrument_id: 'guitar' })).resolves.toEqual({ access_token: 'session-token', role: 'Musician' });
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/onboarding/qr/session', expect.objectContaining({ method: 'POST', body: JSON.stringify({ qr_secret: 'secret', display_name: 'Alex', instrument_id: 'guitar' }), credentials: 'include' }));
+  });
+
   it('matches login response contract', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ access_token: 'login-token', role: 'MUSICIAN', must_change_password: false }), { status: 200 }));
     await expect(login({ username: 'alex', password: 'password' })).resolves.toEqual({ access_token: 'login-token', role: 'MUSICIAN', must_change_password: false });
