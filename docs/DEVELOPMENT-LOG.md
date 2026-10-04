@@ -1,3 +1,11 @@
+## 2026-10-04 08:41 -0300 — verificação operacional no HEAD `d833348eb086fa31445920d6663bf10663c4d4ae`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `d833348eb086fa31445920d6663bf10663c4d4ae`; working tree limpa antes desta atualização.
+- Backlog CODE consultado: nenhuma tarefa de produto executável nova; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- PR #354 contra `main` permanece aberta, `mergeStateStatus=CLEAN`, com 16 checks remotos reais SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`; política vigente não faz merge, squash, delete ou altera `main`.
+- Gates deste ciclo: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; Rust fmt PASS. Scanner `/root/scan_patterns.py` indisponível neste host (`SCANNER_UNAVAILABLE`); nenhum resultado inventado.
+- Revisão manual do estado sem alterações de código não encontrou novo risco. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-04 08:26 -0300 — verificação operacional no HEAD `0c2228c851f7268a9c009b87fdfa3dc5cb86494a`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `0c2228c851f7268a9c009b87fdfa3dc5cb86494a`; working tree limpa antes desta atualização.
