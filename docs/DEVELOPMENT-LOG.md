@@ -1,3 +1,11 @@
+## 2026-10-04 08:06 -0300 — verificação operacional no HEAD `75d27b8f229004805896e39413a8a0aa483cff68`
+
+- Lease e sincronização `develop`/`origin/develop` validados; working tree limpa.
+- Nenhuma tarefa CODE executável nova; pendências restantes exigem hardware físico, release, secret externo ou runner remoto.
+- PR #354 permanece aberta contra `main`, com CI remoto real 16/16 SUCCESS; política não faz merge nem altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- Evidência física: `USER-APPROVED / NOT EXECUTED`; hardware, WebRTC/DTLS-SRTP e release `v0.3.1` continuam `PENDING/BLOCKED`.
+
 
 ## 2026-10-04 07:26 -0300 — verificação operacional no HEAD `45f413c`
 

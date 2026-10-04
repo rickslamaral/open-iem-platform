@@ -1,3 +1,11 @@
+## 2026-10-04 08:06 -0300 — verificação operacional no HEAD `75d27b8f229004805896e39413a8a0aa483cff68`
+
+- Lease e sincronização `develop`/`origin/develop` validados; working tree limpa antes desta atualização.
+- Backlog CODE consultado: nenhuma tarefa segura de produto disponível; pendências `[ ]` exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- PR #354 contra `main` permanece aberta, com 16 checks remotos reais SUCCESS; política não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Revisão manual e gates locais serão registrados com evidência real.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 
 ## 2026-10-04 07:58 -0300 — verificação operacional no HEAD `bce8fcf`
 
