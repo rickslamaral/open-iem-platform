@@ -1,4 +1,14 @@
 
+## 2026-10-04 07:58 -0300 — verificação operacional no HEAD `bce8fcf`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `bce8fcffee0d9282bf5b57d175673c997df3403e`; working tree limpa.
+- Backlog CODE consultado: nenhuma tarefa segura de produto disponível; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates reais: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; Rust fmt PASS; Rust clippy PASS; `cargo test --manifest-path server/Cargo.toml` PASS (537 testes); `scripts/ci/run-pipewire-software-e2e.sh` PASS somente `SOFTWARE/SIMULATED`; frontend musician typecheck/test/build PASS (67 testes); frontend engineer typecheck/test/build PASS (59 testes).
+- Comando genérico `npm test -- --watchAll=false` não é compatível com Vitest (`Unknown option --watchAll`); rerun correto `npm test` PASS em ambos frontends.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão manual do estado sem alterações de código não encontrou novo risco.
+- PR #354 contra `main` permanece aberta, mergeable, com 16 checks remotos reais SUCCESS; política vigente não faz merge, squash, delete ou altera `main`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-04 07:26 -0300 — verificação operacional no HEAD `45f413c`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `45f413ca66d9293cfeb28d78f2e36b2f04021040`; working tree limpa antes desta atualização.
