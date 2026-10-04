@@ -19,8 +19,22 @@ Implement test-only passwordless musician session entry from a valid QR invitati
 
 ## Security acceptance
 - QR contains invitation capability only, never access/refresh token.
-- Hash-only persistence; TTL, generation, usage, revocation and rate limits enforced server-side.
-- Band scope derived from invitation row; client cannot select band.
-- Previous generation and descendant sessions revoked on rotation/deactivation.
-- No secrets in logs, localStorage, JWT claims, docs or chat.
+- Hash-only persistence; token TTL is 10 minutes, single-use consumption is atomic, and failed/replayed tokens never issue sessions.
+- Invitation generation rotates on UTC hour boundary using server UTC clock. Rotation transaction marks prior generation revoked before creating next generation; restart reruns reconciliation idempotently. No grace period.
+- Each invitation stores generation ID, token hash, issued/expiry timestamps, consumed/revoked state, and server-derived band ID. Client-provided band IDs are ignored/rejected.
+- Exchange transaction locks or atomically updates eligible row (`unconsumed AND unrevoked AND expires_at > now`) before issuing credentials. Concurrent exchanges yield at most one success.
+- Session lifetime is the lesser of configured session TTL and remaining generation lifetime. Rotation/deactivation revokes all sessions linked to prior generation; no descendant session survives revocation.
+- Rate limits apply per source IP and invitation hash: 5 exchange attempts per minute, with failed attempts counted; rejected requests never reveal whether token exists. Limits reset by monotonic server time and fail closed on limiter storage errors.
 - Existing password login remains available.
+- No secrets in logs, localStorage, JWT claims, docs or chat.
+
+## Required tests
+- Token leakage negative tests: URL/log/JWT/localStorage scans contain no bearer tokens.
+- Replay and concurrent exchange tests: exactly one success for same token.
+- Rotation boundary, restart reconciliation, expiry, deactivation and linked-session revocation tests.
+- Band-scope test: client cannot select another band.
+- Rate-limit and generic-error tests.
+
+## Verification evidence
+- Before commit, run `git diff --cached`, added-line secret/injection pattern scans, `scripts/validate-docs.sh`, and affected tests.
+- Record only command output actually executed. Do not claim `/root/scan_patterns.py` results when scanner is unavailable.
