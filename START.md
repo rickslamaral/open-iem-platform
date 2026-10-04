@@ -1,3 +1,12 @@
+## 2026-10-04 05:00 -0300 — verificação operacional no HEAD `cd95c4d`
+
+- Lease validado com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `cd95c4d9d07407a2d489b7cd685368a3f2666166`; working tree limpa antes desta atualização documental.
+- Backlog CODE consultado: nenhuma tarefa segura de produto disponível; itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- PR #354 (`feat: expire QR generations hourly`) permanece aberta contra `main`, `mergeStateStatus=CLEAN`; CI remoto real 16/16 SUCCESS no SHA `15f7c89da7015853b90891b0e23d0e0fc5e44c8d`. Política vigente não faz merge, squash, delete ou altera `main`.
+- `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes e proxy `scripts/ci/run-pipewire-software-e2e.sh` executados neste ciclo; resultados completos registrados no relatório do ciclo.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-04 04:45 -0300 — verificação operacional no HEAD `e73b47f`
 
 - Lease adquirido com `flock -n .git/hermes-dev.lock.d`; branch `develop` e `origin/develop` sincronizadas no HEAD `e73b47f`; working tree limpa antes desta atualização.
