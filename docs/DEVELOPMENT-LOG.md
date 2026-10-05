@@ -1,3 +1,8 @@
+## 2026-10-05 20:42 -0300 — reconciliação de snapshot documental
+
+- README atualizado para refletir `develop`/`origin/develop` no HEAD `edc36ff`; nenhuma PR aberta contra `main`.
+- Nenhum comportamento de código ou claim de hardware alterado; evidência permanece `CODE/CI/SIMULATED`, com validação física e release `v0.3.1` pendentes.
+
 ## 2026-10-05 20:26  — verificação operacional no HEAD `15fa322`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa.

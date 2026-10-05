@@ -92,7 +92,7 @@ Interface prevista para engenheiro: status do backend, revisão, sessões ativas
 
 ## Development Phases
 
-Phase table below is historical/canonical phase tracking, not current branch status. Current branch snapshot: `develop` HEAD `13facee`; PR #340 open/no merge; current streaming work is CODE/CI/SIMULATED and physical/runtime gates remain pending.
+Phase table below is historical/canonical phase tracking, not current branch status. Current branch snapshot: `develop` HEAD `edc36ff`; no open PRs; current streaming work is CODE/CI/SIMULATED and physical/runtime gates remain pending.
 
 | Phase | Name | Status |
 |-------|------|--------|
