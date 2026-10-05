@@ -1,3 +1,13 @@
+## 2026-10-04 21:06 -0300 — verificação operacional no HEAD `13038f5df34253a202b440150a85a5094f846284`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `13038f5df34253a202b440150a85a5094f846284`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- `docs/TODO.md` consultado; backlog CODE executável permanece esgotado. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates desta rodada: lease, `scripts/validate-docs.sh`, `scripts/ci/run-pipewire-software-e2e.sh` e `git diff --check` PASS; proxy PipeWire classificado `SOFTWARE/SIMULATED`.
+- Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado.
+- CI remoto não cobre o HEAD exato `13038f5df34253a202b440150a85a5094f846284`; últimos SUCCESS cobrem SHA anterior `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`, não contam para este HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência `CODE/CI/SIMULATED`.
+
 ## 2026-10-04 20:55 -0300 — verificação operacional no HEAD `75ce6e82c0e42302a5546ff589428cca8c3e662e`
 
 - Lease validado com diretório exclusivo `/tmp/open-iem-development.lock.d`; `git status --short --branch` mostrou `develop...origin/develop` sem alterações antes da edição; HEAD e `origin/develop` sincronizadas.
