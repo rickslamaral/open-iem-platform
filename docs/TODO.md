@@ -4722,3 +4722,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - Gates executados: `scripts/validate-docs.sh` PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS; `cargo clippy --all-targets --manifest-path server/Cargo.toml -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (537 testes principais); `scripts/ci/run-pipewire-software-e2e.sh` PASS (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência desta rodada: `CODE/SIMULATED`.
+
+
+- [x] Verificação operacional 2026-10-05 02:52 -0300 no HEAD `a15ae92`: branch `develop` sincronizada, working tree limpa, documentação/Rust/frontends/npm audit/proxy PipeWire SOFTWARE/SIMULATED PASS; `npm test -- --watchAll=false` incompatível com Vitest, rerun correto `npm test` PASS; scanner indisponível sem resultado inventado.
+- [ ] Permanecem pendentes apenas hardware físico, confirmação de release, secret externo ou runner remoto; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.

@@ -5083,3 +5083,13 @@ test → review → docs/GAP update → PR/CI
 - Gates executados: `scripts/validate-docs.sh` PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS; `cargo clippy --all-targets --manifest-path server/Cargo.toml -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (537 testes principais); `scripts/ci/run-pipewire-software-e2e.sh` PASS (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência desta rodada: `CODE/SIMULATED`.
+
+## 2026-10-05 02:52 -0300 — verificação operacional no HEAD `a15ae92`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates PASS: `scripts/validate-docs.sh`; `git diff --check`; Rust fmt/clippy/testes (`537` testes principais); musician typecheck/testes (`68`)/build; engineer typecheck/testes (`59`)/build; `npm audit --audit-level=high` (0 vulnerabilidades); proxy PipeWire `SOFTWARE/SIMULATED`.
+- Comando documentado `npm test -- --watchAll=false` é incompatível com Vitest (`Unknown option --watchAll`); testes executados corretamente com `npm test`.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência desta rodada: `CODE/SIMULATED`.
