@@ -4947,9 +4947,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 ## 2026-10-05 10:01 -0300 — verificação operacional
 
-- Lease validado com ; branch  e  sincronizadas antes desta atualização; working tree limpa.
--  executado; nenhuma PR aberta contra ; política vigente não abre PR, não faz merge, squash, delete ou altera .
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
-- Scanner  indisponível neste host; nenhuma saída inventada.
-- Gates desta rodada: documentation validation passed (version 0.3.1) PASS,  PASS e  PASS. Proxy PipeWire executado e PASS; evidência permanece somente .
-- ; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release  seguem .
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada.
+- Gates desta rodada: `scripts/validate-docs.sh` PASS (version 0.3.1), `git diff --check` PASS e `scripts/ci/run-pipewire-software-e2e.sh` PASS. Evidência PipeWire permanece somente `SOFTWARE/SIMULATED`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
