@@ -4697,3 +4697,9 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - Gates desta rodada: `scripts/validate-docs.sh` e `git diff --check` PASS; Rust fmt/clippy/testes PASS (537 testes); musician typecheck/testes (68)/build PASS; engineer typecheck/testes (59)/build PASS; `npm audit --audit-level=high` PASS com 0 vulnerabilidades em ambos; proxy PipeWire PASS (`SOFTWARE/SIMULATED`). O comando obrigatório `npm test -- --watchAll=false` é incompatível com Vitest e falhou antes; `npm test` correto passou.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada. Revisão independente será feita sobre o diff exato desta atualização documental.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência permanece `CODE/CI/SIMULATED`.
+
+## 2026-10-05 00:36  — verificação operacional no HEAD `90912026974a0abc6fa5b943c4f3ecc4c6946cd1`
+
+- [x] Branch `develop`, lease, sincronização remota e backlog verificados; nenhuma tarefa CODE executável nova.
+- [x] Validação desta rodada PASS: documentação, Rust, frontends, auditoria npm e proxy PipeWire SOFTWARE/SIMULATED; nenhum CI remoto de SHA anterior foi contado.
+- [ ] Permanecem pendentes apenas hardware físico, confirmação de release, secret externo ou runner remoto.
