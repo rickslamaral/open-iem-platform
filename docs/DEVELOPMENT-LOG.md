@@ -10368,3 +10368,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Gates PASS: `scripts/validate-docs.sh`; `git diff --check`; Rust fmt/clippy/testes (`537` testes principais); proxy PipeWire (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` ausente neste host; nenhuma saída inventada. Diff documental será revisado independentemente.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-05 03:58 -0300 — verificação operacional no HEAD `fe1177d`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `fe1177dc38deeb8661a14a0126e6613998ba88e4`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates PASS: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, demais suítes e doctests PASS); `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada. Revisão independente será feita sobre o diff exato.
+- CI remoto SUCCESS disponível cobre SHAs anteriores, não o HEAD exato `fe1177dc38deeb8661a14a0126e6613998ba88e4`; não contado como evidência deste HEAD.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
