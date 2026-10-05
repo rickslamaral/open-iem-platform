@@ -10279,3 +10279,14 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Backlog CODE consultado; nenhuma tarefa executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Revisão independente PASS; scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; evidência física permanece pendente.
+
+
+## 2026-10-05 00:51 -0300 — verificação operacional no HEAD `e9fb9b3`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree estava limpa antes desta atualização.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --all-targets --manifest-path server/Cargo.toml -- -D warnings`, `cargo test --manifest-path server/Cargo.toml` e `scripts/ci/run-pipewire-software-e2e.sh` retornaram PASS; evidência PipeWire limitada a `SOFTWARE/SIMULATED`.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão independente será feita sobre diff exato antes do commit.
+- CI remoto SUCCESS disponível em `develop` cobre SHA anterior `21d88c9bb3cffef3d5c12690acb64b4663ce22e0`, não este HEAD; não contado como evidência deste ciclo.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
