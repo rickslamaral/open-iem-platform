@@ -4927,3 +4927,13 @@ test → review → docs/GAP update → PR/CI
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - CI remoto não cobre o HEAD exato `3e4e0ca66827ecd89c7ee445ff1145a001d16e63`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência permanece `CODE/CI/SIMULATED`.
+
+## 2026-10-04 21:31 -0300 — verificação operacional no HEAD `d0e0448c5029c3cafbfe86fba6a5ee9125a27114`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `d0e0448c5029c3cafbfe86fba6a5ee9125a27114`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates executados: `scripts/validate-docs.sh` PASS, `git diff --check` PASS, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS e `scripts/ci/run-pipewire-software-e2e.sh` PASS (`SOFTWARE/SIMULATED`; sem claim de hardware/WebRTC).
+- Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado.
+- CI remoto não cobre este HEAD exato; nenhum SUCCESS de SHA anterior contado como evidência deste commit.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência limitada a `CODE/CI/SIMULATED`.
