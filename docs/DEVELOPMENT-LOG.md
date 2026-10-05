@@ -10253,3 +10253,12 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Scanner /root/scan_patterns.py indisponivel; nenhum resultado inventado. Revisao independente sera feita sobre diff exato antes do commit.
 - CI remoto SUCCESS nao cobre HEAD exato; nao contado como evidencia. Evidencia desta rodada: CODE/SIMULATED.
 - PHYSICAL: USER-APPROVED / NOT EXECUTED; Raspberry Pi 5, PipeWire/ALSA fisico, WebRTC/DTLS-SRTP, LAN e release v0.3.1 seguem PENDING/BLOCKED.
+
+## 2026-10-05 00:31 -0300 — verificação operacional no HEAD `723648ff194fdc08539e0dddaf4b7e6a7a2aa858`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates desta rodada: `scripts/validate-docs.sh` e `git diff --check` PASS; Rust fmt/clippy/testes PASS (537 testes); musician typecheck/testes (68)/build PASS; engineer typecheck/testes (59)/build PASS; `npm audit --audit-level=high` PASS com 0 vulnerabilidades em ambos; proxy PipeWire PASS (`SOFTWARE/SIMULATED`). O comando obrigatório `npm test -- --watchAll=false` é incompatível com Vitest e falhou antes; `npm test` correto passou.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada. Revisão independente será feita sobre o diff exato desta atualização documental.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência permanece `CODE/CI/SIMULATED`.
