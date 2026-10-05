@@ -1,3 +1,13 @@
+## 2026-10-05 04:18 -0300 — verificação operacional no HEAD `8eb5f67`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates PASS: `scripts/validate-docs.sh`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, demais suítes e doctests); `npm run typecheck`, `npm test -- --run`, `npm run build` em musician (68 testes) e engineer (59 testes); `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
+- `npm test -- --watchAll=false` permanece incompatível com Vitest; comando correto `npm test -- --run` passou.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada.
+- Revisão independente desta atualização documental: pendente antes do commit.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
 ## 2026-10-05 03:42 -0300 — verificação operacional no HEAD atual
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `7beee8e`; working tree limpa antes desta atualização.
