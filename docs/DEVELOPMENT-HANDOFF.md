@@ -5334,3 +5334,12 @@ test → review → docs/GAP update → PR/CI
 - Gates PASS: `scripts/validate-docs.sh`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --all-targets --manifest-path server/Cargo.toml -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, demais suítes e doctests PASS); `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-05 10:01 -0300 — verificação operacional
+
+- Lease validado com ; branch  e  sincronizadas antes desta atualização; working tree limpa.
+-  executado; nenhuma PR aberta contra ; política vigente não abre PR, não faz merge, squash, delete ou altera .
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Scanner  indisponível neste host; nenhuma saída inventada.
+- Gates desta rodada: documentation validation passed (version 0.3.1) PASS,  PASS e  PASS. Proxy PipeWire executado e PASS; evidência permanece somente .
+- ; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release  seguem .
