@@ -5111,3 +5111,12 @@ test → review → docs/GAP update → PR/CI
 - Gates executados: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; Rust fmt/clippy/testes PASS (537 testes principais); `scripts/ci/run-pipewire-software-e2e.sh` PASS (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão independente PASS; diff documental sem segredos ou padrões perigosos.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-05 03:22 -0300 — verificação operacional no HEAD `597c777`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD atual; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates executados: documentação PASS; `git diff --check` PASS; Rust fmt/clippy/testes PASS (537 testes principais); proxy PipeWire PASS (`SOFTWARE/SIMULATED`).
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhuma saída inventada. Revisão independente será feita sobre o diff exato.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
