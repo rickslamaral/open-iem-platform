@@ -1,6 +1,15 @@
+## 2026-10-05 12:42 -0300 — verificação operacional no HEAD `6c6927e`
+
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- Gates desta rodada: lease, sincronização Git e `scripts/validate-docs.sh` serão confirmados antes do commit; evidência de runtime permanece somente `CODE/CI/SIMULATED`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-05 12:17 -0300 — verificação operacional no HEAD `4a2ff4b`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` e `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`; sink/source virtuais; sem claim de hardware/WebRTC).
@@ -10,7 +19,7 @@
 
 ## 2026-10-05 11:42 -0300 — verificação operacional no HEAD `4024185`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS: `scripts/validate-docs.sh` (version 0.3.1), `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check`. Proxy PASS: `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`; sink/source virtuais; sem claim de hardware/WebRTC).
@@ -19,7 +28,7 @@
 
 ## 2026-10-05 10:31 -0300 — verificação operacional no HEAD `f8c589b`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS nesta rodada: `scripts/validate-docs.sh`; `git diff --check`; lease e sincronização Git.
@@ -28,7 +37,7 @@
 
 ## 2026-10-05 10:09 -0300 — verificação operacional no HEAD `25f005f`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS nesta rodada: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, demais suítes e doctests).
@@ -37,7 +46,7 @@
 
 ## 2026-10-05 09:53 -0300 — verificação operacional no HEAD `13fc210`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS: `scripts/validate-docs.sh`; `git diff --check`; Rust fmt, clippy `--all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml` (537 testes principais, demais suítes e doctests); musician typecheck/68 testes/build; engineer typecheck/59 testes/build; `npm audit --audit-level=high` (0 vulnerabilidades em ambos).
@@ -55,7 +64,7 @@
 
 ## 2026-10-05 09:08 -0300 — verificação operacional no HEAD `10d421303d2eb02ef5b71b1541568110a9a4b917`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS: `scripts/validate-docs.sh`; Rust fmt, clippy `--all-targets -- -D warnings`, `cargo test --manifest-path server/Cargo.toml` (537 testes); musician typecheck/68 testes/build; engineer typecheck/59 testes/build; `npm audit --audit-level=high` (0 vulnerabilidades).
@@ -142,7 +151,7 @@
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
 ## 2026-10-05 06:38 -0300 — verificação operacional no HEAD `369383b1c8a13b8519321a777d614fa698f6ecfb`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS nesta rodada: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, demais suítes e doctests).
@@ -152,7 +161,7 @@
 
 ## 2026-10-05 06:32 -0300 — verificação operacional no HEAD `ff04c0b425dbd16cbd2e10c5e45e3292095fed4a`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, demais suítes e doctests).
@@ -162,7 +171,7 @@
 
 ## 2026-10-05 06:12 -0300 — verificação operacional no HEAD `4d983fb61bc482cf5a505d9407f76c298bbb52e0`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, demais suítes e doctests).
@@ -172,7 +181,7 @@
 
 ## 2026-10-05 06:01 -0300 — verificação operacional no HEAD `1183490fb315f3bee70cf037b5843c6e0e59d1fc`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS nesta rodada: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml`.
@@ -182,7 +191,7 @@
 
 ## 2026-10-05 05:57 -0300 — verificação operacional no HEAD `de7038b33f74b56c949e4a7ea411d7b9b079f1f8`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS nesta rodada: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, demais suítes e doctests).
@@ -203,7 +212,7 @@
 
 ## 2026-10-05 04:18 -0300 — verificação operacional no HEAD `8eb5f67`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS: `scripts/validate-docs.sh`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, demais suítes e doctests); `npm run typecheck`, `npm test -- --run`, `npm run build` em musician (68 testes) e engineer (59 testes); `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
@@ -5292,7 +5301,7 @@ test → review → docs/GAP update → PR/CI
 
 ## 2026-10-05 00:31 -0300 — verificação operacional no HEAD `723648ff194fdc08539e0dddaf4b7e6a7a2aa858`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` e `git diff --check` PASS; Rust fmt/clippy/testes PASS (537 testes); musician typecheck/testes (68)/build PASS; engineer typecheck/testes (59)/build PASS; `npm audit --audit-level=high` PASS com 0 vulnerabilidades em ambos; proxy PipeWire PASS (`SOFTWARE/SIMULATED`). O comando obrigatório `npm test -- --watchAll=false` é incompatível com Vitest e falhou antes; `npm test` correto passou.
@@ -5301,7 +5310,7 @@ test → review → docs/GAP update → PR/CI
 
 ## 2026-10-05 00:36  — verificação operacional no HEAD `90912026974a0abc6fa5b943c4f3ecc4c6946cd1`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS, `git diff --check` PASS, Rust fmt/clippy/testes PASS (537 testes), musician typecheck/testes (68)/build PASS, engineer typecheck/testes (59)/build PASS, `npm audit --audit-level=high` PASS com 0 vulnerabilidades em ambos; proxy PipeWire PASS (`SOFTWARE/SIMULATED`).
@@ -5310,7 +5319,7 @@ test → review → docs/GAP update → PR/CI
 
 ## 2026-10-05 02:12 -0300 — verificação operacional no HEAD `c27c6e4`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates executados: `scripts/validate-docs.sh` PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS; `cargo clippy --all-targets --manifest-path server/Cargo.toml -- -D warnings` PASS; `cargo test --manifest-path server/Cargo.toml` PASS (537 testes principais); `scripts/ci/run-pipewire-software-e2e.sh` PASS (`SOFTWARE/SIMULATED`).
@@ -5319,7 +5328,7 @@ test → review → docs/GAP update → PR/CI
 
 ## 2026-10-05 02:52 -0300 — verificação operacional no HEAD `a15ae92`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS: `scripts/validate-docs.sh`; `git diff --check`; Rust fmt/clippy/testes (`537` testes principais); musician typecheck/testes (`68`)/build; engineer typecheck/testes (`59`)/build; `npm audit --audit-level=high` (0 vulnerabilidades); proxy PipeWire `SOFTWARE/SIMULATED`.
@@ -5329,7 +5338,7 @@ test → review → docs/GAP update → PR/CI
 
 ## 2026-10-05 03:12 -0300 — verificação operacional no HEAD `93bc302`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS: `scripts/validate-docs.sh`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --all-targets --manifest-path server/Cargo.toml -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais); `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
@@ -5356,7 +5365,7 @@ test → review → docs/GAP update → PR/CI
 
 ## 2026-10-05 03:32 -0300 — verificação operacional no HEAD `81bc324`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS: `scripts/validate-docs.sh`; `git diff --check`; Rust fmt/clippy/testes (`537` testes principais); proxy PipeWire (`SOFTWARE/SIMULATED`).
@@ -5365,7 +5374,7 @@ test → review → docs/GAP update → PR/CI
 
 ## 2026-10-05 04:56 -0300 — verificação operacional no HEAD `747166fc30713dd767a43726a78f651191c44299`
 
-- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Lease e sincronização Git verificados antes desta atualização com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` estavam no HEAD exato; working tree estava limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates PASS: `scripts/validate-docs.sh`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --all-targets --manifest-path server/Cargo.toml -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, demais suítes e doctests PASS); `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
