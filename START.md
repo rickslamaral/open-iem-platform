@@ -5368,3 +5368,12 @@ Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRT
 - Scanner `/root/scan_patterns.py` indisponível (arquivo ausente); nenhum resultado inventado. Revisão independente será feita sobre diff exato desta atualização documental.
 - CI remoto não cobre o HEAD exato `f182ea62a0f71f265ec8f43df437c1e20329bf92`; últimos SUCCESS cobrem SHAs anteriores e não contam para este HEAD.
 - `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência permanece `CODE/CI/SIMULATED`.
+
+## 2026-10-05 03:32 -0300 — verificação operacional no HEAD `81bc324`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR aberta. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates PASS: `scripts/validate-docs.sh`; `git diff --check`; Rust fmt/clippy/testes (`537` testes principais); proxy PipeWire (`SOFTWARE/SIMULATED`).
+- Scanner `/root/scan_patterns.py` ausente neste host; nenhuma saída inventada. Diff documental será revisado independentemente.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
