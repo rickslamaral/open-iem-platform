@@ -1,3 +1,10 @@
+## 2026-10-05 17:55 -0300 — verificação operacional no HEAD `59797428c61c3fca9d9f6bfa4787b7ac9a907d6c`
+
+- [x] Lease, branch `develop`, sincronização `origin/develop` e working tree verificados.
+- [x] Backlog CODE consultado; nenhuma tarefa executável nova.
+- [x] Pendências restantes documentadas: hardware físico, confirmação de release, secret externo ou runner remoto.
+- [ ] Validação física, release `v0.3.1` e CI remoto no HEAD exato permanecem bloqueados/pendentes.
+
 ## 2026-10-05 17:51 -0300 — verificação operacional no HEAD `4c5665668b71d4b12fac2bd8017b8c303a585fe4`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa.
