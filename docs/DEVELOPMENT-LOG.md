@@ -11038,3 +11038,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` e `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - Evidência permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+
+## 2026-10-05 21:36 -0300 — verificação operacional no HEAD `37f1155ee750f212f739b5be1ee652fe5151af92`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou `[]`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes, musician/engineer typecheck/testes/build e `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`). Evidência de runtime permanece `CODE/CI/SIMULATED`; CI remoto não possui SUCCESS no HEAD exato.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
