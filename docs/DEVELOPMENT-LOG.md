@@ -1,3 +1,12 @@
+## 2026-10-06 15:15 -0300 — verificação operacional no HEAD `c751fdb`
+
+- Lease e branch validados: `develop` sincronizada com `origin/develop`; working tree limpa; nenhum código de produto alterado.
+- Backlog executável continua bloqueado somente por validação física/matriz real de kiosk e release/CI remoto. PR #355 segue aberta, fora de `develop`, com Clippy e npm audit remotos falhos; política vigente não toca PR, não abre PR, não faz merge ou altera `main`.
+- Evidência CODE/SIMULATED: `scripts/check-kiosk-contract.sh` PASS; `scripts/validate-docs.sh` PASS; shell syntax e `python3 -m py_compile scripts/openiem-qr-broker.py` PASS; `scripts/ci/run-headless-audio.sh` PASS com DSP determinístico e ALSA Dummy/Loopback (`alsa_capture=PASS`, 48 kHz, 440 Hz); Rust fmt/clippy/test PASS (537 testes principais, suítes auxiliares e doctests).
+- `systemd-analyze verify deployment/systemd/openiem-kiosk.service` não fecha no workspace fonte: faltam unit instalada `openiem-qr-broker.service` e launcher `/usr/local/libexec/openiem-kiosk-launch`. Não contado como PASS; precisa execução em ambiente instalado completo.
+- Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Revisão independente `cw-sonnet`: PASS, sem achados de segurança/lógica; recomendou repetir `systemd-analyze verify` após instalação completa.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, matriz X11/Wayland e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-06 14:00 -0300 — verificação operacional no HEAD `4e9ce2a`
 
 - Estado confirmado em `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.

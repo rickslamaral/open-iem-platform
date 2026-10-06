@@ -1,3 +1,9 @@
+## 2026-10-06 15:15 -0300 — verificação operacional no HEAD `c751fdb`
+
+- Gates CODE locais passaram: contrato kiosk, documentação, sintaxe, broker Python, headless DSP/ALSA simulado e Rust fmt/clippy/testes.
+- `systemd-analyze verify` no workspace fonte ficou `BLOCKED` por artefatos de instalação ausentes (`openiem-qr-broker.service` e `/usr/local/libexec/openiem-kiosk-launch`); não marcar validação kiosk como concluída.
+- Pendências `[ ]` continuam: matriz física X11/Wayland, Chromium/Chrome, Raspberry Pi OS/Ubuntu/Debian, reboot/ativação e host instalado/headless.
+
 # Trabalho atual — QR público e modo kiosk Linux
 
 ## Decisão de arquitetura — ADR-016
