@@ -1,3 +1,10 @@
+## 2026-10-06 15:27 -0300 — verificação operacional no HEAD `3753a82`
+
+- Lease validado; `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Gates CODE locais PASS: documentação, contrato kiosk, sintaxe Python/Shell, headless DSP/ALSA Dummy/Loopback (`SOFTWARE/SIMULATED`, 48 kHz, 440 Hz) e Rust fmt/clippy/testes (cargo test PASS; 537 testes principais identificados).
+- Checks locais documentados concluídos; validação kiosk/hardware permanece pendente. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. CI remoto sem `SUCCESS` no SHA exato; PR #355 segue aberta fora de `develop` com falhas remotas, intocada por política vigente.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; matriz kiosk real, Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-06 15:15 -0300 — verificação operacional no HEAD `c751fdb`
 
 - Lease e branch validados: `develop` sincronizada com `origin/develop`; working tree limpa; nenhum código de produto alterado.
@@ -11059,7 +11066,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
 - CI SUCCESS existente cobre SHA anterior, não HEAD atual. PR #352 aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks; política proíbe PR nova, merge ou alteração em `main`.
-- Backlog CODE executável esgotado. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+- Backlog de validação local de software esgotado; validação kiosk/hardware permanece pendente. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
 
 ## 2026-10-03 04:18 -0300 — verificação operacional no HEAD `3c3eaf9`
 

@@ -1,3 +1,11 @@
+## 2026-10-06 15:27 -0300 — verificação operacional no HEAD `3753a82`
+
+- Lease validado; `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Gates reais: `scripts/validate-docs.sh`, `scripts/check-kiosk-contract.sh`, `python3 -m py_compile scripts/openiem-qr-broker.py`, `bash -n scripts/install.sh`, `scripts/ci/run-headless-audio.sh` (`SOFTWARE/SIMULATED`, ALSA Dummy/Loopback, 48 kHz, 440 Hz), Rust fmt/clippy/testes (cargo test PASS; 537 testes principais identificados): PASS.
+- Checks locais documentados concluídos; validação kiosk/hardware permanece pendente. CI remoto não possui `SUCCESS` no SHA exato; scanner `/root/scan_patterns.py` indisponível, sem resultado inventado.
+- PR #355 permanece aberta fora de `develop`, com Rust Clippy e npm audit falhos; política vigente não toca branch, não abre PR, não faz merge e não altera `main`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; matriz X11/Wayland, Chromium/Chrome, Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
 ## 2026-10-06 14:32 -0300 — verificação operacional no HEAD `1a40a29`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
@@ -6245,7 +6253,7 @@ Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRT
 - `scripts/ci/run-pipewire-software-e2e.sh`: `PIPEWIRE_SOFTWARE_E2E: PASS` (`SOFTWARE/SIMULATED` virtual sink/source enumeration; sem claim de hardware/WebRTC).
 - `scripts/validate-docs.sh`, `git diff --check` e `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS.
 - CI SUCCESS existente cobre SHA anterior, não HEAD atual. PR #352 aberta contra `main`, `mergeStateStatus=DIRTY`, sem checks; política proíbe PR nova, merge ou alteração em `main`.
-- Backlog CODE executável esgotado. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
+- Backlog de validação local de software esgotado; validação kiosk/hardware permanece pendente. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`.
 
 ## 2026-10-03 07:03 -0300 — verificação operacional no HEAD `c24ea75`
 

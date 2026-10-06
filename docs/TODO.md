@@ -1,3 +1,11 @@
+## 2026-10-06 15:27 -0300 — verificação operacional no HEAD `3753a82`
+
+- Lease validado; `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Gates reais desta rodada: `scripts/validate-docs.sh` PASS; `scripts/check-kiosk-contract.sh` PASS; `python3 -m py_compile scripts/openiem-qr-broker.py` PASS; `bash -n scripts/install.sh` PASS; `scripts/ci/run-headless-audio.sh` PASS (`SOFTWARE/SIMULATED`, ALSA Dummy/Loopback, 48 kHz, 440 Hz); Rust fmt/clippy/test PASS (cargo test; 537 testes principais identificados).
+- Checks locais documentados continuam concluídos; validação kiosk/hardware permanece pendente. Pendências `[ ]` seguem matriz física X11/Wayland, Chromium/Chrome, Raspberry Pi OS/Ubuntu/Debian, reboot/ativação e host instalado/headless.
+- CI remoto sem `SUCCESS` no SHA exato; últimos SUCCESS cobrem SHA anterior. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
 ## 2026-10-06 15:15 -0300 — verificação operacional no HEAD `c751fdb`
 
 - Gates CODE locais passaram: contrato kiosk, documentação, sintaxe, broker Python, headless DSP/ALSA simulado e Rust fmt/clippy/testes.
@@ -2462,7 +2470,7 @@
 - Backlog CODE executável permanece esgotado. Evidência `CODE/CI/SIMULATED`; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` continuam `PENDING/BLOCKED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 - PR #340 está aberta contra `main`; sem merge neste ciclo.
-- Backlog CODE executável esgotado. WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+- Backlog de validação local de software esgotado; validação kiosk/hardware permanece pendente. WebRTC/DTLS-SRTP, PipeWire/ALSA físico, LAN, Raspberry Pi 5 e release `v0.3.1` seguem `PENDING/BLOCKED`; `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
 
 ## 2026-09-30 — CI remoto confirmado no HEAD `0903072f42398d2f018b71d926f3cb99be1fcef5`
 
