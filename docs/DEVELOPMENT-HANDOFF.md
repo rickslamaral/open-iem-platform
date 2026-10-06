@@ -1,3 +1,12 @@
+## 2026-10-06 08:40 -0300 — verificação operacional no HEAD `23664e0`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `23664e0a1a7cfc18133243062284ff38ed15cd03`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; branches remotas válidas `main`, `develop` e `fix/stable-atomic-counter-update`; `gh pr list --base main --state open` retornou PR #355 aberta com CI falho, sem ação de merge conforme política vigente.
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --all-targets --manifest-path server/Cargo.toml -- -D warnings`, `cargo test --manifest-path server/Cargo.toml` (537 testes principais + suítes auxiliares/doctests), `npm audit --audit-level=high` nos dois frontends, `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão independente encontrou somente snapshots documentais stale, corrigidos nesta atualização; sem segredos ou padrões perigosos.
+- CI remoto não possui `SUCCESS` no HEAD exato `23664e0`; não contado como evidência. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
 ## 2026-10-06 07:26 -0300 — verificação operacional no HEAD `e68886d`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.

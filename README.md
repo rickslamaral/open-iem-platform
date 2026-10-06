@@ -49,7 +49,7 @@ IEM              IEM
 
 ## Current Status
 
-**Estado atual: `develop` sincronizada com `origin/develop`; gates locais Rust/frontend e validação documental PASS. Evidência de produto permanece CODE/CI/SIMULATED; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, rede real, Raspberry Pi 5, latência e release `v0.3.1` continuam pendentes. Fila canônica: `docs/DEVELOPMENT-HANDOFF.md`.**
+**Estado atual: `develop` (`23664e0a1a7cfc18133243062284ff38ed15cd03`) sincronizada com `origin/develop`; gates locais Rust/frontend e validação documental PASS. Evidência de produto permanece CODE/CI/SIMULATED; runtime WebRTC/DTLS-SRTP, PipeWire/ALSA físico, rede real, Raspberry Pi 5, latência e release `v0.3.1` continuam pendentes. Fila canônica: `docs/DEVELOPMENT-HANDOFF.md`.**
 
 **Fases concluídas e mescladas em `main`:**
 

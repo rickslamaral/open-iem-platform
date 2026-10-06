@@ -1,11 +1,11 @@
 # Open IEM — Release Gates
 
-## Current gate status — 2026-10-04
+## Current gate status — 2026-10-06
 
-- `develop` HEAD: `220f5f25b44f4b2b7d9f26589b81b9e2871526d7`; `origin/develop` synchronized.
-- PR #354 (`feat: expire QR generations hourly`) remains open against `main`; policy forbids merge from this job.
-- PR #354 exact HEAD: 16/16 real CI jobs SUCCESS.
-- Software evidence: CODE/CI/SIMULATED. Hardware certification and `v0.3.1` release remain pending.
+- `develop` HEAD: `23664e0a1a7cfc18133243062284ff38ed15cd03`; `origin/develop` synchronized.
+- PR #355 (`fix/stable-atomic-counter-update`) remains open against `main`; CI failed on stale `fetch_update` calls and stale source-map lockfiles. No merge action permitted by policy.
+- Local software gates PASS on exact HEAD: Rust fmt/clippy/tests, frontend high-severity npm audits, documentation validation and `SOFTWARE/SIMULATED` PipeWire E2E.
+- No hosted CI `SUCCESS` exists for exact HEAD. Software evidence remains CODE/CI/SIMULATED. Hardware certification and `v0.3.1` release remain pending.
 
 ## Evidence classes
 
