@@ -410,11 +410,19 @@ impl OpusReceiver {
             .try_send((generation, sequence, payload, packet.len()))
             .map_err(|e| match e {
                 TrySendError::Full(_) => {
-                    let _ = self.ingress_queue_dropped_packets.try_update(
-                        Ordering::Relaxed,
-                        Ordering::Relaxed,
-                        |value| Some(value.saturating_add(1)),
-                    );
+                    let mut current = self.ingress_queue_dropped_packets.load(Ordering::Relaxed);
+                    loop {
+                        let next = current.saturating_add(1);
+                        match self.ingress_queue_dropped_packets.compare_exchange_weak(
+                            current,
+                            next,
+                            Ordering::Relaxed,
+                            Ordering::Relaxed,
+                        ) {
+                            Ok(_) => break,
+                            Err(observed) => current = observed,
+                        }
+                    }
                     if let Some(ref m) = self.metrics {
                         m.record_dropped();
                     }

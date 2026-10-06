@@ -289,11 +289,19 @@ impl MediaPlane {
             if let Err(MediaSessionError::QueueFull) =
                 session.push_frame(samples, engine_revision, capture_timestamp)
             {
-                let _ = self.dropped_total.try_update(
-                    Ordering::Relaxed,
-                    Ordering::Relaxed,
-                    |current| Some(current.saturating_add(1)),
-                );
+                let mut current = self.dropped_total.load(Ordering::Relaxed);
+                loop {
+                    let next = current.saturating_add(1);
+                    match self.dropped_total.compare_exchange_weak(
+                        current,
+                        next,
+                        Ordering::Relaxed,
+                        Ordering::Relaxed,
+                    ) {
+                        Ok(_) => break,
+                        Err(observed) => current = observed,
+                    }
+                }
             }
         }
     }
