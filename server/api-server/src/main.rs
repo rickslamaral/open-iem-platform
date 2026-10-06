@@ -35,8 +35,9 @@ use api_server::{
         presets::{apply_preset, list_presets},
         profile::{get_profile, list_musicians, put_profile},
         qr::{
-            activate as qr_activate, deactivate as qr_deactivate, exchange as qr_exchange,
-            rotate as qr_rotate, session_bootstrap as qr_session_bootstrap, status as qr_status,
+            activate as qr_activate, broker_configure as qr_broker_configure,
+            deactivate as qr_deactivate, exchange as qr_exchange, rotate as qr_rotate,
+            session_bootstrap as qr_session_bootstrap, status as qr_status,
         },
         scenes::{
             backup_scenes, create_scene, delete_scene, duplicate_scene, get_active_scene,
@@ -259,7 +260,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/auth/refresh", post(refresh))
         .route("/api/v1/onboarding/bands", get(list_public_bands))
         .route("/api/v1/onboarding/qr/exchange", post(qr_exchange))
-        .route("/api/v1/onboarding/qr/session", post(qr_session_bootstrap));
+        .route("/api/v1/onboarding/qr/session", post(qr_session_bootstrap))
+        .route("/api/v1/internal/qr/broker", post(qr_broker_configure));
 
     let musician_web_root =
         env::var("OPENIEM_MUSICIAN_WEB_ROOT").unwrap_or_else(|_| "web/musician".to_owned());

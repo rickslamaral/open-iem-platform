@@ -18,7 +18,7 @@ use crate::{
 };
 use axum::{
     extract::{connect_info::ConnectInfo, State},
-    http::{header, StatusCode},
+    http::{header, HeaderMap, StatusCode},
     response::IntoResponse,
     Extension, Json,
 };
@@ -132,6 +132,44 @@ fn unix_hash(secret: &str) -> String {
 pub struct QrConfigure {
     pub expires_in_seconds: Option<u64>,
     pub band_id: Option<i64>,
+}
+
+#[derive(Deserialize)]
+pub struct BrokerConfigure {
+    pub qr_secret: String,
+    pub expires_at: u64,
+}
+
+/// Local broker registration. Capability file is root-readable by API only.
+pub async fn broker_configure(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Json(body): Json<BrokerConfigure>,
+) -> Result<StatusCode, ApiError> {
+    let capability_path = std::env::var("OPENIEM_QR_BROKER_CAPABILITY_FILE")
+        .unwrap_or_else(|_| "/run/openiem-qr-broker/capability".to_owned());
+    let expected = std::fs::read_to_string(capability_path)
+        .map_err(|_| ApiError::Unauthorized("QR broker is not authorized"))?;
+    let supplied = headers
+        .get("x-openiem-qr-broker-capability")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+    if supplied.trim().is_empty() || supplied.trim() != expected.trim() {
+        return Err(ApiError::Unauthorized("QR broker is not authorized"));
+    }
+    validate_secret(&body.qr_secret)?;
+    let now = now();
+    let configured_ttl = qr_session_ttl();
+    let expected_expiry = now.saturating_add(configured_ttl);
+    if body.expires_at.abs_diff(expected_expiry) > 2 {
+        return Err(ApiError::BadRequest(
+            "broker expiry does not match configured TTL".to_owned(),
+        ));
+    }
+    state
+        .db
+        .configure_qr_broker(&unix_hash(&body.qr_secret), body.expires_at)?;
+    Ok(StatusCode::NO_CONTENT)
 }
 #[derive(Serialize)]
 pub struct QrStatus {

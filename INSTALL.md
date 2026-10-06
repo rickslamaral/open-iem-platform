@@ -180,7 +180,7 @@ docker compose up --build -d
 
 Use `http://localhost:5173`, `http://localhost:5174` e `http://localhost:3000`. macOS não valida áudio Linux físico; Docker Desktop fornece somente ambiente de controle.
 
-## Modo kiosk Linux (arquitetura aprovada; implementação em andamento)
+## Modo kiosk Linux (broker QR local seguro)
 
 Instalador Linux terá prompt:
 

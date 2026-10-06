@@ -1,10 +1,14 @@
 [Unit]
-Description=Open IEM kiosk (disabled pending secure local QR broker)
-After=openiem-server.service network-online.target
+Description=Open IEM kiosk QR display
+After=openiem-server.service openiem-qr-broker.service network-online.target
 Wants=network-online.target
-Requires=openiem-server.service
+Requires=openiem-server.service openiem-qr-broker.service
 ConditionPathExists=/usr/local/libexec/openiem-kiosk-launch
-ConditionPathExists=/run/openiem-kiosk-secure-qr-broker
+ConditionPathExists=/run/openiem-qr-broker/capability
+ConditionPathExists=/run/openiem-qr-broker
+
+# Broker owns QR generation; kiosk receives public page only.
+# No administrator credential enters this unit.
 
 [Service]
 Type=simple

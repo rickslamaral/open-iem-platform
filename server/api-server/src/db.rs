@@ -1456,6 +1456,26 @@ impl Db {
         tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
     }
 
+    /// Register QR generation from local broker; stores hash only.
+    pub fn configure_qr_broker(&self, hash: &str, expires: u64) -> Result<(), ApiError> {
+        let mut conn = self
+            .conn
+            .lock()
+            .map_err(|_| ApiError::Internal("db lock poisoned".to_owned()))?;
+        let tx = conn
+            .transaction()
+            .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("UPDATE qr_onboarding SET secret_hash=?1, expires_at=?2, active=1, used_count=0, generation=generation+1, updated_at=unixepoch() WHERE id=1", params![hash, expires as i64]).map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute(
+            "UPDATE musician_onboarding_sessions SET state='REVOKED'",
+            [],
+        )
+        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("UPDATE refresh_tokens SET revoked=1 WHERE id IN (SELECT session_id FROM musician_onboarding_sessions)", []).map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.execute("UPDATE access_sessions SET revoked=1 WHERE session_id IN (SELECT session_id FROM musician_onboarding_sessions)", []).map_err(|e| ApiError::Internal(e.to_string()))?;
+        tx.commit().map_err(|e| ApiError::Internal(e.to_string()))
+    }
+
     /// Atomically consume QR invitation and create musician account/session.
     #[allow(clippy::too_many_arguments)]
     pub fn exchange_qr_account(

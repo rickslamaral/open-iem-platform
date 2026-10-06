@@ -1,6 +1,6 @@
 # ADR-016 — Modo kiosk Linux com QR público local
 
-- **Status:** Blocked pending secure local QR broker
+- **Status:** Implemented pending hardware/LAN validation
 - **Data:** 2026-10-06
 - **Decisor:** Arquitetura Open IEM
 

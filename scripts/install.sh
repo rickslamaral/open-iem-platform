@@ -296,16 +296,60 @@ ensure_soundtech_env() {
 }
 
 install_kiosk_unit() {
-  # Deliberately fail closed: no reviewed local IPC contract exists for obtaining
-  # the active QR without embedding admin credentials in the kiosk process.
+  local broker_unit='/etc/systemd/system/openiem-qr-broker.service'
+  local broker_dir='/etc/systemd/system/openiem-qr-broker.service.d'
+  local cap_dir='/run/openiem-qr-broker'
   if (( KIOSK_MODE == 1 )); then
-    warn '--kiosk requested, but kiosk QR display is disabled: secure local QR broker contract is not available'
-    warn 'API remains installed; open the LAN musician URL from an authenticated QR-management device'
+    (( DRY_RUN )) && { log "would install QR broker and kiosk service"; return; }
+    command -v systemctl >/dev/null 2>&1 || fatal '--kiosk requires systemd'
+    "${SUDO[@]}" install -d -o root -g openiem -m 0750 "$cap_dir"
+    "${SUDO[@]}" install -o root -g openiem -m 0640 /dev/null "$cap_dir/capability"
+    "${SUDO[@]}" sh -c "umask 077; openssl rand -hex 32 > '$cap_dir/capability'"
+    "${SUDO[@]}" install -o root -g root -m 0755 "$TMP_DIR/src/scripts/openiem-qr-broker.py" /usr/local/libexec/openiem-qr-broker
+    "${SUDO[@]}" install -o root -g root -m 0755 /dev/stdin "$KIOSK_SCRIPT" <<EOF
+#!/usr/bin/env bash
+set -Eeuo pipefail
+url="http://$kiosk_ipv4:8090/qr"
+if command -v chromium >/dev/null 2>&1; then exec chromium --kiosk --no-first-run --disable-translate "\$url"; fi
+if command -v chromium-browser >/dev/null 2>&1; then exec chromium-browser --kiosk --no-first-run --disable-translate "\$url"; fi
+if command -v google-chrome >/dev/null 2>&1; then exec google-chrome --kiosk --no-first-run --disable-translate "\$url"; fi
+printf 'Open IEM kiosk headless; QR URL: %s\\n' "\$url"
+exec sleep infinity
+EOF
+    cat > "$STAGE/openiem-qr-broker.service" <<EOF
+[Unit]
+Description=Open IEM local QR broker
+After=$SERVICE_NAME network-online.target
+Requires=$SERVICE_NAME
+[Service]
+Type=simple
+User=openiem
+Group=openiem
+ExecStart=/usr/bin/python3 /usr/local/libexec/openiem-qr-broker
+Environment=OPENIEM_API_URL=http://127.0.0.1:8080
+Environment=OPENIEM_SESSION_PUBLIC_BASE=$kiosk_public_base
+Environment=OPENIEM_QR_BROKER_CAPABILITY_FILE=$cap_dir/capability
+Environment=OPENIEM_QR_BROKER_BIND=0.0.0.0:8090
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=$cap_dir
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
+EOF
+    "${SUDO[@]}" install -o root -g root -m 0644 "$STAGE/openiem-qr-broker.service" "$broker_unit"
+    "${SUDO[@]}" install -d -o root -g root -m 0755 /usr/local/libexec
+    "${SUDO[@]}" install -o root -g root -m 0755 "$TMP_DIR/src/scripts/openiem-qr-broker.py" /usr/local/libexec/openiem-qr-broker
+    "${SUDO[@]}" install -o root -g root -m 0644 "$TMP_DIR/src/deployment/systemd/openiem-kiosk.service" "$KIOSK_UNIT"
+    "${SUDO[@]}" systemctl daemon-reload
+    "${SUDO[@]}" systemctl enable --now openiem-qr-broker.service "$KIOSK_SERVICE_NAME"
     return
   fi
-  if (( DRY_RUN )); then log "would disable/remove $KIOSK_SERVICE_NAME"; return; fi
-  if command -v systemctl >/dev/null 2>&1; then "${SUDO[@]}" systemctl disable --now "$KIOSK_SERVICE_NAME" >/dev/null 2>&1 || true; fi
-  "${SUDO[@]}" rm -f -- "$KIOSK_UNIT" "$KIOSK_SCRIPT"
+  if (( DRY_RUN )); then log "would disable/remove kiosk and QR broker"; return; fi
+  if command -v systemctl >/dev/null 2>&1; then "${SUDO[@]}" systemctl disable --now "$KIOSK_SERVICE_NAME" openiem-qr-broker.service >/dev/null 2>&1 || true; fi
+  "${SUDO[@]}" rm -f -- "$KIOSK_UNIT" "$KIOSK_SCRIPT" /etc/systemd/system/openiem-qr-broker.service /usr/local/libexec/openiem-qr-broker
 }
 
 ensure_service_dropin_dir_secure() {
