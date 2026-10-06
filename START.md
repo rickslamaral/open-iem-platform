@@ -1,3 +1,12 @@
+## 2026-10-06 14:32 -0300 — verificação operacional no HEAD `1a40a29`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Gates reais: documentação PASS; Rust fmt/clippy PASS; `cargo test --manifest-path server/Cargo.toml` PASS (537 testes principais, além de suítes auxiliares e doctests); musician typecheck PASS, Vitest 69/69 PASS, build PASS; engineer typecheck PASS, Vitest 59/59 PASS, build PASS.
+- Primeira tentativa com `npm test -- --watchAll=false` falhou por opção incompatível com Vitest 5; rerun correto `npm test` PASS. Não há regressão de código.
+- Scanner `/root/scan_patterns.py` indisponível; `npm audit --audit-level=high` não executou por lockfile virtual ausente no diretório raiz; nenhum resultado inventado. Frontend lockfiles existem individualmente.
+- PR #355 permanece aberta em `fix/stable-atomic-counter-update`, CI remoto falho em Clippy (`fetch_update` depreciado) e npm audit (`source-map-js` HIGH); branch fora de `develop`, intocada por política vigente.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
 ## 2026-10-06 14:00 -0300 — verificação operacional no HEAD `4e9ce2a`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `4e9ce2a6c09fd33173528bc91e4b1d4d3ae9306c`; working tree limpa antes desta atualização.
