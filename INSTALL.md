@@ -65,12 +65,14 @@ export TMPDIR=/var/tmp/open-iem
 O instalador exige commit imutável. Nunca use branch ou tag mutável:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/rickslamaral/open-iem-platform/main/scripts/install.sh \
+# Substitua SHA por commit completo confiável antes de executar qualquer código privilegiado.
+export OPENIEM_REF=<COMMIT-SHA-40-CHARS>
+[[ "$OPENIEM_REF" =~ ^[0-9a-fA-F]{40}$ ]] || { printf "OPENIEM_REF must be 40-character commit SHA\n" >&2; exit 1; }
+curl -fsSL "https://raw.githubusercontent.com/rickslamaral/open-iem-platform/$OPENIEM_REF/scripts/install.sh" \
   -o /tmp/openiem-install.sh
 chmod 0755 /tmp/openiem-install.sh
 
-# Substitua SHA por commit completo confiável.
-sudo OPENIEM_REF=<COMMIT-SHA-40-CHARS> /tmp/openiem-install.sh --run-tests
+sudo OPENIEM_REF="$OPENIEM_REF" /tmp/openiem-install.sh --run-tests
 ```
 
 Instalação customizada:
