@@ -5374,3 +5374,12 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - Gates locais PASS: documentação, diff, Rust fmt/clippy/testes e proxy PipeWire software.
 - Nenhuma tarefa CODE executável nova no backlog. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; release `v0.3.1`, hardware físico e CI remoto permanecem pendentes.
+
+## 2026-10-06 03:08 -0300 — verificação operacional no HEAD 586702a
+
+- Lease validado com flock; branch develop e origin/develop sincronizadas; working tree limpa antes desta atualização.
+- git fetch --prune executado; branches remotas válidas somente main e develop; nenhuma PR aberta; política vigente não abre PR, não faz merge, squash, delete ou altera main.
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências exigem hardware físico, confirmação de release ou runner remoto.
+- Gates PASS: scripts/validate-docs.sh, git diff --check, cargo fmt, cargo clippy, cargo test (537 testes principais, suítes auxiliares e doctests), scripts/ci/run-pipewire-software-e2e.sh (SOFTWARE/SIMULATED).
+- Scanner /root/scan_patterns.py indisponível; nenhum resultado inventado. Revisão das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- CI remoto sem SUCCESS no HEAD exato; não contado. PHYSICAL: USER-APPROVED / NOT EXECUTED; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release v0.3.1 seguem PENDING/BLOCKED. Evidência: CODE/CI/SIMULATED.
