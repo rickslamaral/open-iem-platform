@@ -1,3 +1,11 @@
+## 2026-10-06 13:22 -0300 — verificação operacional no HEAD `afc59c9`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `afc59c9b02b46d8e451144345c0ef7ab65c92b3e`; working tree estava limpa antes desta atualização.
+- Após atualização documental, `git diff --check` PASS; demais gates locais PASS registrados no HEAD antes desta atualização: `scripts/validate-docs.sh`, Rust fmt/clippy/testes (537 testes principais + suítes auxiliares/doctests), `npm audit --audit-level=high` nos dois frontends e `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
+- Revisão independente fail-closed do estado anterior encontrou nenhum problema de segurança ou lógica; scanner `/root/scan_patterns.py` indisponível, sem resultado inventado.
+- PR #355 permanece aberta em branch não relacionada com CI falho; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-06 11:45 -0300 — reconciliação do backlog kiosk no HEAD `d66b553`
 
 - Auditoria independente confirmou que frontend kiosk, limpeza do fragmento com `history.replaceState`, sessão via refresh cookie, backend de estados inválido/expirado, serviço systemd, prompt `--kiosk`/`--no-kiosk`, URL LAN e fallback headless já existem no código atual.
