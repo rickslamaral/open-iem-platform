@@ -14,6 +14,10 @@ CONFIG_DIR="${OPENIEM_CONFIG_DIR:-/etc/openiem}"
 SERVICE_NAME="openiem-server.service"
 SOUNDTECH_ENV="$CONFIG_DIR/openiem-server.env"
 SERVICE_DROPIN_DIR="/etc/systemd/system/$SERVICE_NAME.d"
+KIOSK_SERVICE_NAME="openiem-kiosk.service"
+KIOSK_UNIT="/etc/systemd/system/$KIOSK_SERVICE_NAME"
+KIOSK_SCRIPT="/usr/local/libexec/openiem-kiosk-url"
+KIOSK_MODE=""
 DRY_RUN=0
 VALIDATE_ONLY=0
 VALIDATION_REPORT=""
@@ -46,6 +50,8 @@ Options:
   --validate-only  Validate host and installed release; write report, no build/install
   --skip-deps      Do not install/check OS packages
   --no-service     Do not install systemd unit
+  --kiosk          Enable optional unprivileged Chromium/Chrome kiosk service
+  --no-kiosk       Disable kiosk service (non-interactive)
   --keep-source    Keep temporary checkout after installation
   --rotate-keys    Replace existing JWT keys after explicit confirmation
   --yes            Confirm destructive actions (use with --rotate-keys)
@@ -72,6 +78,8 @@ while (($#)); do
     --validation-report) VALIDATION_REPORT="${2:?missing report path}"; shift 2 ;;
     --skip-deps) SKIP_DEPS=1; shift ;;
     --no-service) NO_SERVICE=1; shift ;;
+    --kiosk) KIOSK_MODE=1; shift ;;
+    --no-kiosk) KIOSK_MODE=0; shift ;;
     --keep-source) KEEP_SOURCE=1; shift ;;
     --rotate-keys) ROTATE_KEYS=1; shift ;;
     --yes) ASSUME_YES=1; shift ;;
@@ -81,6 +89,17 @@ while (($#)); do
     *) fatal "unknown option: $1 (use --help)" ;;
   esac
 done
+
+if [[ -z "$KIOSK_MODE" && -t 0 ]]; then
+  printf '[open-iem] Enable Chromium/Chrome kiosk service? [y/N] '
+  read -r kiosk_answer
+  case "$kiosk_answer" in
+    [Yy]|[Yy][Ee][Ss]) KIOSK_MODE=1 ;;
+    *) KIOSK_MODE=0 ;;
+  esac
+elif [[ -z "$KIOSK_MODE" ]]; then
+  KIOSK_MODE=0
+fi
 
 [[ "$(uname -s)" == Linux ]] || fatal "Linux required"
 [[ "$PREFIX" = /* && "$BIN_DIR" = /* && "$STATE_DIR" = /* && "$CONFIG_DIR" = /* ]] || fatal "paths must be absolute"
@@ -274,6 +293,70 @@ ensure_soundtech_env() {
   run "${SUDO[@]}" install -o root -g root -m 0600 "$tmp" "$SOUNDTECH_ENV"
   rm -f -- "$tmp"
   log 'generated SoundTech password and stored it in protected env file'
+}
+
+install_kiosk_unit() {
+  if (( KIOSK_MODE == 1 && NO_SERVICE == 1 )); then
+    warn '--kiosk requires systemd API service; kiosk skipped because --no-service was supplied'
+    return
+  fi
+  if (( KIOSK_MODE == 0 )); then
+    if (( DRY_RUN )); then log "would disable/remove $KIOSK_SERVICE_NAME"; return; fi
+    if command -v systemctl >/dev/null 2>&1; then "${SUDO[@]}" systemctl disable --now "$KIOSK_SERVICE_NAME" >/dev/null 2>&1 || true; fi
+    "${SUDO[@]}" rm -f -- "$KIOSK_UNIT" "$KIOSK_SCRIPT"
+    return
+  fi
+  if (( DRY_RUN )); then log "would install optional unprivileged kiosk service"; return; fi
+  command -v systemctl >/dev/null 2>&1 || { warn 'systemd unavailable; API remains installed, kiosk skipped'; return; }
+  local browser
+  browser="$(command -v chromium || command -v chromium-browser || command -v google-chrome || true)"
+  if [[ -z "$browser" ]]; then warn 'Chromium/Chrome not found; API remains installed, kiosk skipped'; return; fi
+  if ! id openiem-kiosk >/dev/null 2>&1; then "${SUDO[@]}" useradd --system --create-home --home-dir /var/lib/openiem-kiosk --shell /usr/sbin/nologin openiem-kiosk; fi
+  "${SUDO[@]}" install -d -o openiem-kiosk -g openiem-kiosk -m 0700 /var/lib/openiem-kiosk
+  "${SUDO[@]}" install -d -o root -g root -m 0755 "$(dirname "$KIOSK_SCRIPT")"
+  local script_tmp unit_tmp
+  script_tmp="$(mktemp)"; unit_tmp="$(mktemp)"
+  cat > "$script_tmp" <<'EOF'
+#!/usr/bin/env bash
+set -Eeuo pipefail
+base="http://$(hostname -s).local"
+if ! getent hosts "$(hostname -s).local" >/dev/null 2>&1; then
+  address="$(hostname -I 2>/dev/null | awk '{print $1}')"
+  [[ -n "$address" ]] && base="http://$address"
+fi
+printf '%s/musician/\n' "$base"
+EOF
+  cat > "$unit_tmp" <<EOF
+[Unit]
+Description=Open IEM optional Chromium kiosk
+After=$SERVICE_NAME network-online.target graphical-session.target
+Wants=network-online.target graphical-session.target
+Requires=$SERVICE_NAME
+ConditionPathExists=$KIOSK_SCRIPT
+
+[Service]
+Type=simple
+User=openiem-kiosk
+Group=openiem-kiosk
+Environment=HOME=/var/lib/openiem-kiosk
+Environment=DISPLAY=:0
+ExecStart=/bin/sh -c 'exec $browser --kiosk --no-first-run --disable-sync --disable-extensions --disable-prompt-on-repost --user-data-dir=/var/lib/openiem-kiosk/chromium "\$($KIOSK_SCRIPT)"'
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/openiem-kiosk
+
+[Install]
+WantedBy=graphical-session.target
+EOF
+  run "${SUDO[@]}" install -o root -g root -m 0755 "$script_tmp" "$KIOSK_SCRIPT"
+  run "${SUDO[@]}" install -o root -g root -m 0644 "$unit_tmp" "$KIOSK_UNIT"
+  rm -f "$script_tmp" "$unit_tmp"
+  run "${SUDO[@]}" systemctl daemon-reload || { warn 'systemd reload failed; API remains installed, kiosk skipped'; return; }
+  run "${SUDO[@]}" systemctl enable --now "$KIOSK_SERVICE_NAME" || warn 'graphical session unavailable; API remains installed, kiosk will start when session exists'
 }
 
 ensure_service_dropin_dir_secure() {
@@ -525,6 +608,7 @@ if (( DRY_RUN == 0 )) && release_is_valid; then
     "${SUDO[@]}" systemctl daemon-reload
     "${SUDO[@]}" systemctl enable --now "$SERVICE_NAME"
   fi
+  install_kiosk_unit
   log 'runtime configuration repaired'
   printf '%s\n' "API binary: $BIN_DIR/api-server" "Admin CLI: $BIN_DIR/open-iem-admin" "State: $STATE_DIR" "Config: $CONFIG_DIR" "SoundTech password: generated or preserved (not printed)"
   if (( NO_SERVICE )); then
@@ -681,6 +765,7 @@ if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
 else
   warn 'systemd unavailable or disabled; start api-server manually'
 fi
+install_kiosk_unit
 
 INSTALL_COMMITTED=1
 log 'installation complete'

@@ -3,15 +3,11 @@ import styles from './Login.module.css';
 const instruments = [['vocals', 'Vocals'], ['guitar', 'Guitar'], ['bass', 'Bass'], ['drums', 'Drums'], ['keys', 'Keys'], ['acoustic-guitar', 'Acoustic guitar'], ['brass', 'Brass'], ['strings', 'Strings']] as const;
 const invitationToken = (value: string): string => {
   try {
-    const url = new URL(value);
-    const queryValues = ['qr_secret', 'invitation']
-      .flatMap((key) => url.searchParams.getAll(key));
-    const fragmentValues = new URLSearchParams(url.hash.replace(/^#/, '')).getAll('invitation');
-    const recognizedValues = [...queryValues, ...fragmentValues].map((candidate) => candidate.trim());
-    if (recognizedValues.length === 0) return value.trim();
-    if (recognizedValues.some((candidate) => !candidate) || new Set(recognizedValues).size > 1) return '';
-    return recognizedValues[0];
-  } catch { return value.trim(); }
+    const url = new URL(value, window.location.href);
+    const values = new URLSearchParams(url.hash.replace(/^#/, '')).getAll('invitation').map((candidate) => candidate.trim());
+    if (values.length === 0 || values.some((candidate) => !candidate) || new Set(values).size > 1) return '';
+    return values[0];
+  } catch { return ''; }
 };
 interface Props { onLogin: (username: string, password: string) => Promise<void>; onQrExchange: (qrSecret: string, displayName: string, instrumentId: string, username: string, password: string) => Promise<void>; onQrSession?: (qrSecret: string, displayName: string, instrumentId: string) => Promise<void>; error: string | null; }
 
@@ -27,10 +23,8 @@ export function Login({ onLogin, onQrExchange, onQrSession, error }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null); const streamRef = useRef<MediaStream | null>(null);
   const scanGenerationRef = useRef(0);
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-    const invitations = [...params.getAll('invitation'), ...hashParams.getAll('invitation')]
-      .map((candidate) => candidate.trim());
+    const invitations = hashParams.getAll('invitation').map((candidate) => candidate.trim());
     const invitation = invitations.length === 0
       ? undefined
       : invitations.some((candidate) => !candidate) || new Set(invitations).size > 1

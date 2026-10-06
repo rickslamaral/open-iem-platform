@@ -5933,7 +5933,7 @@ Local hosts with `snd-dummy` may run `hw:0,0`. Raspberry Pi USB validation remai
 - Admin ou Engineer autorizado pode ativar, rotacionar e desativar o QR. O convite é temporário, de alta entropia, armazenado somente como hash, com TTL, uso limitado/single-use, rate limit, rotação, revogação e auditoria sem segredo. QR estático sem TTL é proibido.
 - Backend QR seguro implementado em `server/api-server/src/routes/qr.rs`, com persistência `M003` em `server/api-server/src/db.rs`. Rotas: `GET /api/v1/admin/qr/status`, `POST /api/v1/admin/qr/activate`, `POST /api/v1/admin/qr/rotate`, `POST /api/v1/admin/qr/deactivate` e público `POST /api/v1/onboarding/qr/exchange`.
 - Política efetiva: gestão QR exige `Engineer` mínimo; `Admin` herda acesso; `Musician` não gerencia QR. Exchange cria papel `Musician`, perfil e sessão com refresh cookie `HttpOnly; SameSite=Strict`; `Secure` é opt-in via `OPENIEM_REQUIRE_SECURE_COOKIES=true`, pois instalações físicas locais usam HTTP por padrão. Banda, usuários visíveis, assignment de mix e comandos WebSocket permanecem server-authoritative.
-- Controles implementados: segredo aleatório de 32 bytes, somente hash SHA-256 persistido, TTL máximo de 10 minutos para o convite, sessão criada pelo convite com 4 horas por padrão, duração configurável por `OPENIEM_QR_SESSION_TTL_SECONDS` entre 60 segundos e 24 horas, uso limitado, replay protection, rotação, validação de nome/instrumento, consumo atômico concorrente, rate limit e auditoria sem segredo. Rotação/desativação revoga sessões QR, refresh tokens e access sessions; refresh/access checks respeitam revogação.
+- Controles implementados: segredo aleatório de 32 bytes, somente hash SHA-256 persistido, TTL igual ao da sessão; padrão de 4 horas para QR e sessão criada pelo convite, duração configurável por `OPENIEM_QR_SESSION_TTL_SECONDS` entre 60 segundos e 24 horas, uso limitado, replay protection, rotação, validação de nome/instrumento, consumo atômico concorrente, rate limit e auditoria sem segredo. Rotação/desativação revoga sessões QR, refresh tokens e access sessions; refresh/access checks respeitam revogação.
 - Persistência local: access token fica em memória; refresh token fica em cookie `HttpOnly` e permite reload sem novo login. HTTP é padrão para Raspberry Pi, laptop, PC, MacBook e LAN local. Para deployment HTTPS, definir `OPENIEM_REQUIRE_SECURE_COOKIES=true` e configurar TLS no proxy/listener.
 - Status: frontend Musician QR com câmera, fallback manual, exchange, session restore via cookie e logout implementado. Mix preferences/assignment UI detalhada permanece pendente. Não declarar runtime WebRTC/PipeWire/ALSA/Raspberry Pi 5 ou release validado; esses itens seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
 - Estado atual: onboarding QR e sessão básica implementados; seleção de banda, roster ativo por sessão e assignment/preferences detalhados exigem implementação server-authoritative antes de serem declarados funcionais.
@@ -6054,8 +6054,8 @@ QR é convite temporário de bootstrap. Não é senha, token permanente, autoriz
 
 ### Segurança
 
-- QR: alta entropia, hash-only, TTL máximo de 10 minutos, uso limitado, replay protection, rotação, revogação, rate limit e auditoria sem segredo.
-- QR nunca aparece em URL, logs, localStorage, auditoria ou resposta após ativação.
+- QR: alta entropia, hash-only, TTL igual ao da sessão (padrão 4 horas, configurável), uso limitado, replay protection, rotação, revogação, rate limit e auditoria sem segredo.
+- QR só aparece temporariamente no fragmento da URL de convite; frontend remove fragmento com history.replaceState. QR nunca aparece em query string, logs, localStorage, auditoria ou resposta após ativação.
 - Username único e normalizado. Senha usa Argon2id.
 - Exchange não sobrescreve usuário existente.
 - Banda inexistente/inativa rejeita operação.

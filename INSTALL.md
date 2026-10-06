@@ -24,7 +24,7 @@ Docker, QEMU, cross-build ARM64 e áudio virtual são evidência de software. N�
 OPENIEM_REQUIRE_SECURE_COOKIES=true
 ```
 
-- QR expira em 10 minutos. Sessão criada via QR dura 4 horas por padrão e aceita 60–86400 segundos:
+- QR e sessão criada via QR expiram juntos. Padrão: 4 horas. Configurável entre 60–86400 segundos:
 
 ```text
 OPENIEM_QR_SESSION_TTL_SECONDS=14400
@@ -179,6 +179,25 @@ docker compose up --build -d
 ```
 
 Use `http://localhost:5173`, `http://localhost:5174` e `http://localhost:3000`. macOS não valida áudio Linux físico; Docker Desktop fornece somente ambiente de controle.
+
+## Modo kiosk Linux (arquitetura aprovada; implementação em andamento)
+
+Instalador Linux terá prompt:
+
+```text
+Ativar modo kiosk para exibir QR público na tela local? [y/N]
+```
+
+Automação usará `--kiosk` ou `--no-kiosk`. Quando ativo, serviço systemd inicia Chromium/Chrome em usuário sem privilégio após rede, API e sessão gráfica. Usuários locais na LAN poderão abrir URL descoberta em runtime. Sem desktop ou navegador, instalação não falha: API continua ativa e imprime URL para outro dispositivo.
+
+Regras:
+
+- QR e sessão expiram juntos conforme `OPENIEM_QR_SESSION_TTL_SECONDS`.
+- Fragmento do convite é removido da barra com `history.replaceState`.
+- Tokens não entram em query string, logs, argumentos, `localStorage` ou `sessionStorage`.
+- Kiosk não recebe senha administrativa embutida.
+- Desativar kiosk remove autostart, não remove banco, chaves ou sessões.
+- Detalhes e critérios: `docs/adr/ADR-016-kiosk-public-qr.md`.
 
 ## HTTPS opcional
 

@@ -1,3 +1,29 @@
+# Trabalho atual — QR público e modo kiosk Linux
+
+## Decisão de arquitetura — ADR-016
+
+- [x] Definir kiosk como perfil opcional do instalador Linux.
+- [x] Definir URL pública LAN descoberta em runtime, sem IP fixo no Git.
+- [x] Definir HTTP local padrão e HTTPS opt-in via `OPENIEM_REQUIRE_SECURE_COOKIES=true`.
+- [x] Definir QR como bearer capability sem `access_token`, `refresh_token` ou segredo em query string, logs, argumentos ou storage persistente.
+- [x] Definir QR e sessão com exatamente o mesmo TTL: `OPENIEM_QR_SESSION_TTL_SECONDS`, padrão 4h, limites 60–86400s.
+- [x] Definir fallback headless: API permanece funcional e imprime URL LAN; não instalar desktop automaticamente.
+- [ ] Resolver contrato seguro de emissão/rotação do QR no kiosk sem credencial administrativa embutida no instalador.
+- [ ] Confirmar frontend público, asset serving e contrato de onboarding antes de criar rota nova.
+- [ ] Validar X11/Wayland, Chromium/Chrome, Raspberry Pi OS, Ubuntu e Debian.
+
+## Sequência de engenharia
+
+- [x] Atualizar backend para remover TTL independente de 10 minutos e validar igualdade QR/sessão. QR, refresh e access expiram no `expires_at` da geração ativa; evidência CODE local.
+- [ ] Adicionar testes de TTL configurável, limite, expiração, revogação, rotação, replay e rate limit.
+- [ ] Implementar frontend kiosk: fragmento limpo com `history.replaceState`, estado expired/revoked/used e sessão via refresh cookie.
+- [ ] Implementar `deployment/systemd/openiem-kiosk.service` com usuário não privilegiado e hardening.
+- [ ] Adicionar prompt interativo `--kiosk`/`--no-kiosk` ao `scripts/install.sh`, comportamento idempotente e fallback sem display.
+- [ ] Publicar URL LAN após instalação e iniciar navegador somente após API, rede e sessão gráfica.
+- [ ] Testar reboot, ativação/desativação, HTTP local, HTTPS opt-in, kiosk gráfico e host headless.
+- [ ] Atualizar `INSTALL.md`, `START.md`, guia Raspberry, matriz de compatibilidade e segurança.
+- [ ] Rodar gates locais, revisão independente e CI no SHA exato da PR.
+
 ## 2026-10-06 08:40 -0300 — verificação operacional no HEAD `23664e0`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `23664e0a1a7cfc18133243062284ff38ed15cd03`; working tree limpa antes desta atualização.
@@ -4293,7 +4319,7 @@ Não fechar item por simulação, CI, cross-build, loopback ou ausência de erro
 - **Guias:** espelhos PT/EN/ES existentes; revisar e sincronizar após validação física.
 - **P1-015 — Versioned SQLite migrations:** concluído em CODE; `M001` registrado em `migrations`, reaplicação evitada no reopen e schema legado compatível quando `must_change_password` já existe.
 - **P0-007 first-access password:** login exposes `must_change_password`; authenticated `PUT /api/v1/auth/password` replaces Argon2id hash and clears bootstrap flag; ordinary users are denied. CODE evidence; runtime remains pending.
-- **M003 musician QR onboarding backend:** Implemented in current working tree (HEAD `2374b59`; uncommitted changes present) (`server/api-server/src/routes/qr.rs`, `server/api-server/src/db.rs`). Admin/Engineer QR status, activation, rotation and deactivation use `/api/v1/admin/qr/{status,activate,rotate,deactivate}`; public exchange uses `POST /api/v1/onboarding/qr/exchange`. Engineer is minimum management role; Admin inherits; exchange yields only Musician credentials and `PENDING` profile. Hash-only secret storage, 10-minute maximum TTL, single-use atomic consumption, input/catalog validation, HttpOnly/Secure/SameSite=Strict refresh cookie, Origin protection, non-loopback HTTP guard, and QR-session revocation on rotation/deactivation are implemented. QR audit events, camera scanning, and mix preferences/assignment UI remain pending; bounded per-IP rate limiting is implemented; Musician frontend QR paste/exchange and cookie-backed session restore are implemented. Evidence `CODE/CI/SIMULATED`; WebRTC/PipeWire/ALSA/Raspberry Pi 5/release remain pending.
+- **M003 musician QR onboarding backend:** Implemented in current working tree (HEAD `2374b59`; uncommitted changes present) (`server/api-server/src/routes/qr.rs`, `server/api-server/src/db.rs`). Admin/Engineer QR status, activation, rotation and deactivation use `/api/v1/admin/qr/{status,activate,rotate,deactivate}`; public exchange uses `POST /api/v1/onboarding/qr/exchange`. Engineer is minimum management role; Admin inherits; exchange yields only Musician credentials and `PENDING` profile. Hash-only secret storage, QR TTL igual ao TTL da sessão (padrão 4 horas, configurável), single-use atomic consumption, input/catalog validation, HttpOnly/Secure/SameSite=Strict refresh cookie, Origin protection, non-loopback HTTP guard, and QR-session revocation on rotation/deactivation are implemented. QR audit events, camera scanning, and mix preferences/assignment UI remain pending; bounded per-IP rate limiting is implemented; Musician frontend QR paste/exchange and cookie-backed session restore are implemented. Evidence `CODE/CI/SIMULATED`; WebRTC/PipeWire/ALSA/Raspberry Pi 5/release remain pending.
 - **P0-003 media handoff:** PRs #119 and #125 merged; GAP-001 implementation is CODE/SIMULATED complete, while real WebRTC/network runtime validation remains pending. In-memory `TransportAdapter::send_from_registry` UDP delivery coverage now passes in CODE. `MediaBridge`, bounded `SessionRegistry::drive_once`, `MediaWriter` Opus encoding, negotiated `str0m::media::Writer` boundary and bounded `TransportAdapter` socket owner exist at CODE/SIMULATED; failed sends requeue within bounded capacity. Runtime and hardware remain pending.
 - **P2 Engineer Console scenes UI:** listar, criar, recuperar, editar revisões e deletar cenas integrado às rotas REST em `web/engineer`; cobertura CODE permanece nos testes do console.
 - **P2 Engineer Console scene revisions:** edição JSON e criação de nova revisão via PUT integradas; cobertura CODE+CI (PR #136, run `35189802675`).

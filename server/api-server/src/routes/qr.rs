@@ -32,11 +32,9 @@ use std::{
 };
 use uuid::Uuid;
 
-const QR_TTL: u64 = 10 * 60;
 const QR_SESSION_TTL_DEFAULT: u64 = 4 * 60 * 60;
 const QR_SESSION_TTL_MAX: u64 = 24 * 60 * 60;
 /// Maximum lifetime of one active generation in test mode.
-const QR_ROTATION_INTERVAL: u64 = 60 * 60;
 
 fn qr_session_ttl() -> u64 {
     std::env::var("OPENIEM_QR_SESSION_TTL_SECONDS")
@@ -167,7 +165,7 @@ pub async fn status(
     let current = now();
     let _ = state
         .db
-        .expire_qr_generation_if_due(current, QR_ROTATION_INTERVAL)?;
+        .expire_qr_generation_if_due(current, qr_session_ttl())?;
     let (active, expires, remaining, generation, band_id) = state.db.qr_status(current)?;
     Ok(Json(QrStatus {
         active,
@@ -185,13 +183,16 @@ async fn configure(
 ) -> Result<impl IntoResponse, ApiError> {
     require_min_role(&claims, Role::Engineer)?;
     let secret = qr_secret();
-    let lifetime = body.expires_in_seconds.unwrap_or(QR_TTL).min(QR_TTL);
-    if lifetime == 0 {
+    let configured_ttl = qr_session_ttl();
+    if body
+        .expires_in_seconds
+        .is_some_and(|requested| requested != configured_ttl)
+    {
         return Err(ApiError::BadRequest(
-            "expires_in_seconds must be greater than zero".to_owned(),
+            "expires_in_seconds must match OPENIEM_QR_SESSION_TTL_SECONDS".to_owned(),
         ));
     }
-    let expires = now() + lifetime;
+    let expires = now() + configured_ttl;
     state.db.configure_qr_audited(
         &unix_hash(&secret),
         expires,
@@ -250,17 +251,16 @@ pub async fn session_bootstrap(
     let current = now();
     state
         .db
-        .expire_qr_generation_if_due(current, QR_ROTATION_INTERVAL)?;
+        .expire_qr_generation_if_due(current, qr_session_ttl())?;
     let (_, expires, _, generation, _) = state.db.qr_status(current)?;
     if expires <= current {
         return Err(ApiError::Unauthorized("invalid or expired QR invitation"));
     }
     let raw_refresh = generate_refresh_token();
     let jti = Uuid::new_v4().to_string();
-    // QR secret remains usable only until `expires`; successful session receives
-    // its own configurable lifetime and does not inherit the short QR lifetime.
-    let refresh_exp = current.saturating_add(qr_session_ttl());
-    let access_exp = current.saturating_add(crate::auth::ACCESS_TOKEN_TTL_S);
+    // Session expires with active QR generation, not from exchange time.
+    let refresh_exp = expires;
+    let access_exp = expires;
     let (user_id, session_id, username) = match state.db.exchange_qr_session(
         &unix_hash(&body.qr_secret),
         &body.display_name,
@@ -325,34 +325,32 @@ pub async fn exchange(
     let current = now();
     let _ = state
         .db
-        .expire_qr_generation_if_due(current, QR_ROTATION_INTERVAL)?;
+        .expire_qr_generation_if_due(current, qr_session_ttl())?;
     validate_secret(&body.qr_secret)?;
     validate_account(&body.username, &body.password)?;
     validate(&body.display_name, &body.instrument_id)?;
     let password_hash = hash_password(&body.password)?;
+    let (_, expires, _, generation, _) = state.db.qr_status(current)?;
+    if expires <= current {
+        return Err(ApiError::Unauthorized("invalid or expired QR invitation"));
+    }
     let raw_refresh = generate_refresh_token();
     let jti = Uuid::new_v4().to_string();
-    let now = now();
     let (user_id, session_id, username) = match state.db.exchange_qr_account(
         &unix_hash(&body.qr_secret),
         &body.username,
         &password_hash,
         &body.display_name,
         &body.instrument_id,
-        now,
+        current,
         &token_to_storage_key(&raw_refresh),
-        now + crate::auth::REFRESH_TOKEN_TTL_S,
+        expires,
         &Uuid::new_v4().to_string(),
         &jti,
-        now + crate::auth::ACCESS_TOKEN_TTL_S,
+        expires,
     ) {
         Ok(value) => value,
         Err(error) => {
-            let generation = state
-                .db
-                .qr_status(now)
-                .map(|status| status.3)
-                .unwrap_or_default();
             let _ = state
                 .db
                 .record_qr_audit(None, "EXCHANGE", generation, false);
@@ -378,7 +376,6 @@ pub async fn exchange(
                 return Err(error);
             }
         };
-    let generation = state.db.qr_status(now)?.3;
     if let Err(error) = state.db.record_qr_audit(None, "EXCHANGE", generation, true) {
         state.db.cleanup_qr_exchange(
             &token_to_storage_key(&raw_refresh),
@@ -392,7 +389,7 @@ pub async fn exchange(
         StatusCode::CREATED,
         [(
             header::SET_COOKIE,
-            refresh_cookie(&raw_refresh, crate::auth::REFRESH_TOKEN_TTL_S),
+            refresh_cookie(&raw_refresh, expires.saturating_sub(current)),
         )],
         Json(ExchangeResponse {
             access_token: access,
@@ -455,8 +452,11 @@ mod tests {
     }
 
     #[test]
-    fn ttl_is_capped_at_ten_minutes() {
-        assert_eq!(QR_TTL, 600);
+    fn qr_ttl_uses_same_configured_value_as_session_ttl() {
+        std::env::set_var("OPENIEM_QR_SESSION_TTL_SECONDS", "3600");
+        assert_eq!(qr_session_ttl(), 3600);
+        std::env::remove_var("OPENIEM_QR_SESSION_TTL_SECONDS");
+        assert_eq!(qr_session_ttl(), QR_SESSION_TTL_DEFAULT);
     }
 
     #[tokio::test]
@@ -532,13 +532,13 @@ mod tests {
             .expect("activate");
         let before = db.qr_status(4_000_000_000).expect("status").3;
         assert!(db
-            .expire_qr_generation_if_due(4_000_000_000, QR_ROTATION_INTERVAL)
+            .expire_qr_generation_if_due(4_000_000_000, qr_session_ttl())
             .expect("expire"));
         let after = db.qr_status(4_000_000_000).expect("status");
         assert!(!after.0);
         assert_eq!(after.3, before + 1);
         assert!(!db
-            .expire_qr_generation_if_due(4_000_000_001, QR_ROTATION_INTERVAL)
+            .expire_qr_generation_if_due(4_000_000_001, qr_session_ttl())
             .expect("expire again"));
     }
 
