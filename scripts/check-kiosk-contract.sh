@@ -7,8 +7,9 @@ installer="$repo_root/scripts/install.sh"
 launcher="$repo_root/deployment/systemd/openiem-kiosk.service"
 main="$repo_root/server/api-server/src/main.rs"
 security="$repo_root/server/api-server/src/security.rs"
+qr="$repo_root/server/api-server/src/routes/qr.rs"
 
-for file in "$server" "$installer" "$launcher" "$main" "$security"; do [[ -f "$file" ]] || { echo "missing: $file" >&2; exit 1; }; done
+for file in "$server" "$installer" "$launcher" "$main" "$security" "$qr"; do [[ -f "$file" ]] || { echo "missing: $file" >&2; exit 1; }; done
 bash -n "$installer" "$launcher"
 grep -q "kiosk_bind='0.0.0.0:8080'" "$installer"
 grep -q "kiosk_bind='127.0.0.1:8080'" "$installer"
@@ -17,13 +18,21 @@ grep -q 'OPENIEM_KIOSK_MODE=false' "$server"
 grep -q 'OPENIEM_BIND_ADDR=127.0.0.1:8080' "$server"
 grep -q 'openiem-qr-broker.service' "$installer"
 grep -q 'ConditionPathExists=/run/openiem-qr-broker/capability' "$launcher"
-grep -q 'configure_qr_broker' "$security"
+grep -q 'configure_qr_broker' "$qr"
 grep -q 'OPENIEM_KIOSK_MODE.*requires non-loopback' "$main"
 grep -q 'same_host_origin' "$security"
 grep -q 'CACHE_CONTROL' "$main"
 grep -q 'CONTENT_SECURITY_POLICY' "$main"
 grep -q 'ServeFile' "$main"
-grep -q 'OPENIEM_QR_SESSION_TTL_SECONDS' "$repo_root/server/api-server/src/routes/qr.rs"
+grep -q 'OPENIEM_QR_SESSION_TTL_SECONDS' "$qr"
+grep -q 'ensure_kiosk_account' "$installer"
+grep -q 'openiem-kiosk' "$installer"
+grep -q '/var/lib/openiem-kiosk' "$installer"
+grep -q 'Chromium/Chrome browser unavailable' "$installer"
+if grep -q 'exec sleep infinity' "$installer"; then
+  echo 'headless fallback must not pretend to be browser kiosk' >&2
+  exit 1
+fi
 if grep -qE 'ufw|firewall-cmd|iptables|nft ' "$installer"; then
   echo 'installer must not silently open firewall' >&2
   exit 1

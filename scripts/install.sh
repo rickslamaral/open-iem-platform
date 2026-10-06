@@ -31,11 +31,27 @@ ROTATE_KEYS=0
 ASSUME_YES=0
 RUN_TESTS=0
 TEST_REPORT=""
+FAST_STAGE=""
+DROPIN_TMP=""
+KIOSK_UNIT_TMP=""
 
 log() { printf '[open-iem] %s\n' "$*"; }
 warn() { printf '[open-iem] WARNING: %s\n' "$*" >&2; }
-fatal() { printf '[open-iem] ERROR: %s\n' "$*" >&2; exit 1; }
+fatal() {
+  printf '[open-iem] ERROR: %s\n' "$*" >&2
+  [[ -n "${FAST_STAGE:-}" && -d "$FAST_STAGE" ]] && rm -rf -- "$FAST_STAGE"
+  [[ -n "${DROPIN_TMP:-}" && -d "$DROPIN_TMP" ]] && rm -rf -- "$DROPIN_TMP"
+  [[ -n "${KIOSK_UNIT_TMP:-}" && -f "$KIOSK_UNIT_TMP" ]] && rm -f -- "$KIOSK_UNIT_TMP"
+  exit 1
+}
 run() { if (( DRY_RUN )); then printf '+ %q' "$1"; shift; printf ' %q' "$@"; printf '\n'; else "$@"; fi; }
+cleanup() {
+  [[ -n "${FAST_STAGE:-}" && -d "$FAST_STAGE" ]] && rm -rf -- "$FAST_STAGE"
+  [[ -n "${DROPIN_TMP:-}" && -d "$DROPIN_TMP" ]] && rm -rf -- "$DROPIN_TMP"
+  [[ -n "${KIOSK_UNIT_TMP:-}" && -f "$KIOSK_UNIT_TMP" ]] && rm -f -- "$KIOSK_UNIT_TMP"
+  if [[ -n "${TMP_DIR:-}" && -d "$TMP_DIR" && $KEEP_SOURCE -eq 0 ]]; then rm -rf -- "$TMP_DIR"; fi
+}
+trap cleanup EXIT
 need_cmd() { command -v "$1" >/dev/null 2>&1 || fatal "missing command: $1"; }
 
 usage() {
@@ -99,6 +115,14 @@ if [[ -z "$KIOSK_MODE" && -t 0 ]]; then
   esac
 elif [[ -z "$KIOSK_MODE" ]]; then
   KIOSK_MODE=0
+fi
+(( NO_SERVICE == 0 || KIOSK_MODE == 0 )) || fatal '--no-service cannot be combined with --kiosk'
+if (( KIOSK_MODE == 1 )); then
+  if ! command -v systemctl >/dev/null 2>&1; then
+    fatal '--kiosk requires systemd'
+  elif ! command -v chromium >/dev/null 2>&1 && ! command -v chromium-browser >/dev/null 2>&1 && ! command -v google-chrome >/dev/null 2>&1; then
+    fatal '--kiosk requires Chromium/Chrome browser'
+  fi
 fi
 
 [[ "$(uname -s)" == Linux ]] || fatal "Linux required"
@@ -265,6 +289,36 @@ runtime_config_is_secure() {
   [[ "$env_owner" == 0 && "$env_mode" == 600 && "$env_type" == regular\ file ]]
 }
 
+ensure_kiosk_account() {
+  local kiosk_user=openiem-kiosk kiosk_group=openiem-kiosk kiosk_home=/var/lib/openiem-kiosk
+  local passwd_entry group_entry uid gid home shell supplementary_groups
+  if ! getent group "$kiosk_group" >/dev/null 2>&1; then
+    run "${SUDO[@]}" groupadd --system "$kiosk_group"
+  fi
+  group_entry="$(getent group "$kiosk_group")" || fatal "cannot inspect kiosk group: $kiosk_group"
+  IFS=: read -r _ gid _ group_members <<< "$group_entry"
+  [[ "$gid" =~ ^[0-9]+$ && "$gid" != 0 && -z "$group_members" ]] || fatal "existing kiosk group is not dedicated and unprivileged: $kiosk_group"
+  getent passwd | awk -F: -v gid="$gid" '$4 == gid && $1 != "openiem-kiosk" { exit 1 }' || fatal "kiosk group is another user's primary group: $kiosk_group"
+  if getent passwd "$kiosk_user" >/dev/null 2>&1; then
+    passwd_entry="$(getent passwd "$kiosk_user")" || fatal "cannot inspect kiosk account: $kiosk_user"
+    IFS=: read -r _ _ uid primary_gid _ home shell <<< "$passwd_entry"
+    supplementary_groups="$(id -G "$kiosk_user")" || fatal "cannot inspect kiosk supplementary groups: $kiosk_user"
+    [[ "$uid" =~ ^[0-9]+$ && "$uid" != 0 && "$primary_gid" == "$gid" && "$home" == "$kiosk_home" && "$shell" == /usr/sbin/nologin && "$supplementary_groups" == "$primary_gid" ]] || fatal "existing kiosk account is not dedicated and unprivileged: $kiosk_user"
+  else
+    run "${SUDO[@]}" useradd --system --gid "$kiosk_group" --home-dir "$kiosk_home" --no-create-home --shell /usr/sbin/nologin "$kiosk_user"
+    passwd_entry="$(getent passwd "$kiosk_user")" || fatal "cannot inspect new kiosk account: $kiosk_user"
+    IFS=: read -r _ _ uid primary_gid _ home shell <<< "$passwd_entry"
+    [[ "$uid" =~ ^[0-9]+$ && "$uid" != 0 && "$primary_gid" == "$gid" && "$home" == "$kiosk_home" && "$shell" == /usr/sbin/nologin ]] || fatal "new kiosk account is not dedicated and unprivileged: $kiosk_user"
+    run "${SUDO[@]}" usermod --groups '' "$kiosk_user"
+    passwd_entry="$(getent passwd "$kiosk_user")" || fatal "cannot inspect kiosk account after group reset: $kiosk_user"
+    IFS=: read -r _ _ uid primary_gid _ home shell <<< "$passwd_entry"
+    supplementary_groups="$(id -G "$kiosk_user")" || fatal "cannot inspect kiosk supplementary groups after group reset: $kiosk_user"
+    [[ "$uid" =~ ^[0-9]+$ && "$uid" != 0 && "$primary_gid" == "$gid" && "$home" == "$kiosk_home" && "$shell" == /usr/sbin/nologin && "$supplementary_groups" == "$primary_gid" ]] || fatal "new kiosk account changed during group reset: $kiosk_user"
+  fi
+  run "${SUDO[@]}" passwd --lock "$kiosk_user"
+  run "${SUDO[@]}" install -d -o "$kiosk_user" -g "$kiosk_group" -m 0750 "$kiosk_home"
+}
+
 ensure_soundtech_env() {
   local tmp env_content env_bytes env_last_byte env_stat env_owner env_mode env_type password
   local IFS=' '
@@ -299,13 +353,18 @@ install_kiosk_unit() {
   local broker_unit='/etc/systemd/system/openiem-qr-broker.service'
   local broker_dir='/etc/systemd/system/openiem-qr-broker.service.d'
   local cap_dir='/run/openiem-qr-broker'
+  local source_root="${SOURCE_ROOT:-$TMP_DIR/src}"
   if (( KIOSK_MODE == 1 )); then
-    (( DRY_RUN )) && { log "would install QR broker and kiosk service"; return; }
+    (( DRY_RUN )) && { log "would provision kiosk account and install QR broker and kiosk service"; return; }
     command -v systemctl >/dev/null 2>&1 || fatal '--kiosk requires systemd'
+    if ! command -v chromium >/dev/null 2>&1 && ! command -v chromium-browser >/dev/null 2>&1 && ! command -v google-chrome >/dev/null 2>&1; then
+      fatal '--kiosk requires Chromium/Chrome browser'
+    fi
+    ensure_kiosk_account
     "${SUDO[@]}" install -d -o root -g openiem -m 0750 "$cap_dir"
     "${SUDO[@]}" install -o root -g openiem -m 0640 /dev/null "$cap_dir/capability"
     "${SUDO[@]}" sh -c "umask 077; openssl rand -hex 32 > '$cap_dir/capability'"
-    "${SUDO[@]}" install -o root -g root -m 0755 "$TMP_DIR/src/scripts/openiem-qr-broker.py" /usr/local/libexec/openiem-qr-broker
+    "${SUDO[@]}" install -o root -g root -m 0755 "$source_root/scripts/openiem-qr-broker.py" /usr/local/libexec/openiem-qr-broker
     "${SUDO[@]}" install -o root -g root -m 0755 /dev/stdin "$KIOSK_SCRIPT" <<EOF
 #!/usr/bin/env bash
 set -Eeuo pipefail
@@ -313,8 +372,8 @@ url="http://$kiosk_ipv4:8090/qr"
 if command -v chromium >/dev/null 2>&1; then exec chromium --kiosk --no-first-run --disable-translate "\$url"; fi
 if command -v chromium-browser >/dev/null 2>&1; then exec chromium-browser --kiosk --no-first-run --disable-translate "\$url"; fi
 if command -v google-chrome >/dev/null 2>&1; then exec google-chrome --kiosk --no-first-run --disable-translate "\$url"; fi
-printf 'Open IEM kiosk headless; QR URL: %s\\n' "\$url"
-exec sleep infinity
+printf 'Chromium/Chrome browser unavailable; browser kiosk disabled\\n' >&2
+exit 1
 EOF
     cat > "$STAGE/openiem-qr-broker.service" <<EOF
 [Unit]
@@ -341,8 +400,7 @@ WantedBy=multi-user.target
 EOF
     "${SUDO[@]}" install -o root -g root -m 0644 "$STAGE/openiem-qr-broker.service" "$broker_unit"
     "${SUDO[@]}" install -d -o root -g root -m 0755 /usr/local/libexec
-    "${SUDO[@]}" install -o root -g root -m 0755 "$TMP_DIR/src/scripts/openiem-qr-broker.py" /usr/local/libexec/openiem-qr-broker
-    "${SUDO[@]}" install -o root -g root -m 0644 "$TMP_DIR/src/deployment/systemd/openiem-kiosk.service" "$KIOSK_UNIT"
+    "${SUDO[@]}" install -o root -g root -m 0644 "$source_root/deployment/systemd/openiem-kiosk.service" "$KIOSK_UNIT"
     "${SUDO[@]}" systemctl daemon-reload
     "${SUDO[@]}" systemctl enable --now openiem-qr-broker.service "$KIOSK_SERVICE_NAME"
     return
@@ -350,6 +408,7 @@ EOF
   if (( DRY_RUN )); then log "would disable/remove kiosk and QR broker"; return; fi
   if command -v systemctl >/dev/null 2>&1; then "${SUDO[@]}" systemctl disable --now "$KIOSK_SERVICE_NAME" openiem-qr-broker.service >/dev/null 2>&1 || true; fi
   "${SUDO[@]}" rm -f -- "$KIOSK_UNIT" "$KIOSK_SCRIPT" /etc/systemd/system/openiem-qr-broker.service /usr/local/libexec/openiem-qr-broker
+  "${SUDO[@]}" rm -rf -- "$cap_dir"
 }
 
 ensure_service_dropin_dir_secure() {
@@ -595,13 +654,59 @@ if (( DRY_RUN == 0 )) && release_is_valid; then
   "${SUDO[@]}" install -d -m 0755 "$CONFIG_DIR" "$STATE_DIR"
   ensure_soundtech_env
   if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
-    DROPIN_TMP="$(mktemp -d -t openiem-dropin.XXXXXX)"
-    install_service_env_dropin "$DROPIN_TMP"
-    rm -rf -- "$DROPIN_TMP"
+      DROPIN_TMP="$(mktemp -d -t openiem-dropin.XXXXXX)"
+      install_service_env_dropin "$DROPIN_TMP"
+      rm -rf -- "$DROPIN_TMP"
+
+    [[ -f "/etc/systemd/system/$SERVICE_NAME" ]] || fatal "cannot reconcile fast-path $SERVICE_NAME unit: unit missing"
+    if (( KIOSK_MODE == 1 )); then
+      kiosk_bind='0.0.0.0:8080'
+      kiosk_env='true'
+      command -v ip >/dev/null 2>&1 || fatal '--kiosk requires iproute2 (ip command)'
+    kiosk_ipv4="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for (i=1;i<=NF;i++) if ($i == "src") {print $(i+1); exit}}')"
+      [[ "$kiosk_ipv4" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || fatal '--kiosk requires reachable IPv4 interface; ip -4 route get returned none'
+      kiosk_public_base="http://$kiosk_ipv4:8080"
+      kiosk_origins="$kiosk_public_base"
+    else
+      kiosk_bind='127.0.0.1:8080'
+      kiosk_env='false'
+      kiosk_public_base='http://127.0.0.1:8080'
+      kiosk_origins='https://iem.local'
+    fi
+    KIOSK_UNIT_TMP="$(mktemp -t openiem-server-unit.XXXXXX)"
+    kiosk_unit_tmp="$KIOSK_UNIT_TMP"
+    sed -e "s#^Environment=OPENIEM_BIND_ADDR=.*#Environment=OPENIEM_BIND_ADDR=$kiosk_bind#" \
+        -e "s#^Environment=OPENIEM_KIOSK_MODE=.*#Environment=OPENIEM_KIOSK_MODE=$kiosk_env#" \
+        -e "s#^Environment=OPENIEM_ALLOWED_ORIGINS=.*#Environment=OPENIEM_ALLOWED_ORIGINS=$kiosk_origins#" \
+        -e "s#^Environment=OPENIEM_SESSION_PUBLIC_BASE=.*#Environment=OPENIEM_SESSION_PUBLIC_BASE=$kiosk_public_base#" \
+        "/etc/systemd/system/$SERVICE_NAME" > "$kiosk_unit_tmp"
+    grep -Fxq -- "Environment=OPENIEM_BIND_ADDR=$kiosk_bind" "$kiosk_unit_tmp" || fatal 'fast-path server unit bind environment missing after rewrite'
+    grep -Fxq -- "Environment=OPENIEM_KIOSK_MODE=$kiosk_env" "$kiosk_unit_tmp" || fatal 'fast-path server unit mode environment missing after rewrite'
+    grep -Fxq -- "Environment=OPENIEM_ALLOWED_ORIGINS=$kiosk_origins" "$kiosk_unit_tmp" || fatal 'fast-path server unit origin environment missing after rewrite'
+    grep -Fxq -- "Environment=OPENIEM_SESSION_PUBLIC_BASE=$kiosk_public_base" "$kiosk_unit_tmp" || fatal 'fast-path server unit session base environment missing after rewrite'
+    run "${SUDO[@]}" install -o root -g root -m 0644 "$kiosk_unit_tmp" "/etc/systemd/system/$SERVICE_NAME"
+    rm -f -- "$kiosk_unit_tmp"
+    grep -Fxq -- "Environment=OPENIEM_BIND_ADDR=$kiosk_bind" "/etc/systemd/system/$SERVICE_NAME" || fatal 'fast-path installed server unit bind environment invalid'
+    grep -Fxq -- "Environment=OPENIEM_KIOSK_MODE=$kiosk_env" "/etc/systemd/system/$SERVICE_NAME" || fatal 'fast-path installed server unit mode environment invalid'
+    grep -Fxq -- "Environment=OPENIEM_ALLOWED_ORIGINS=$kiosk_origins" "/etc/systemd/system/$SERVICE_NAME" || fatal 'fast-path installed server unit origin environment invalid'
+    grep -Fxq -- "Environment=OPENIEM_SESSION_PUBLIC_BASE=$kiosk_public_base" "/etc/systemd/system/$SERVICE_NAME" || fatal 'fast-path installed server unit session base environment invalid'
     "${SUDO[@]}" systemctl daemon-reload
+  fi
+  SOURCE_ROOT="$PREFIX/releases/$REF"
+  if (( KIOSK_MODE == 1 )); then
+    [[ -f "$SOURCE_ROOT/scripts/openiem-qr-broker.py" && -f "$SOURCE_ROOT/deployment/systemd/openiem-kiosk.service" ]] || fatal "kiosk sources unavailable in active release"
+  fi
+  STAGE="$(mktemp -d -t openiem-fast-stage.XXXXXX)"
+  FAST_STAGE="$STAGE"
+  if (( NO_SERVICE == 0 )); then
+    install_kiosk_unit
+  fi
+  if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
     "${SUDO[@]}" systemctl enable --now "$SERVICE_NAME"
   fi
-  install_kiosk_unit
+  rm -rf -- "$STAGE"
+  FAST_STAGE=""
+  KIOSK_UNIT_TMP=""
   log 'runtime configuration repaired'
   printf '%s\n' "API binary: $BIN_DIR/api-server" "Admin CLI: $BIN_DIR/open-iem-admin" "State: $STATE_DIR" "Config: $CONFIG_DIR" "SoundTech password: generated or preserved (not printed)"
   if (( NO_SERVICE )); then
@@ -639,10 +744,6 @@ fi
 ensure_rust_toolchain
 
 TMP_DIR=""
-cleanup() {
-  if [[ -n "$TMP_DIR" && -d "$TMP_DIR" && $KEEP_SOURCE -eq 0 ]]; then rm -rf -- "$TMP_DIR"; fi
-}
-trap cleanup EXIT
 
 check_tools
 
@@ -696,11 +797,13 @@ cleanup_release() {
   cleanup
 }
 trap cleanup_release EXIT
-mkdir -p "$STAGE/server" "$STAGE/web/musician" "$STAGE/web/engineer"
+mkdir -p "$STAGE/server" "$STAGE/web/musician" "$STAGE/web/engineer" "$STAGE/scripts" "$STAGE/deployment/systemd"
 install -m 0755 server/target/release/api-server "$STAGE/server/api-server"
 install -m 0755 server/target/release/open-iem-admin "$STAGE/server/open-iem-admin"
 cp -a web/musician/dist/. "$STAGE/web/musician/"
 cp -a web/engineer/dist/. "$STAGE/web/engineer/"
+install -m 0755 scripts/openiem-qr-broker.py "$STAGE/scripts/openiem-qr-broker.py"
+install -m 0644 deployment/systemd/openiem-kiosk.service "$STAGE/deployment/systemd/openiem-kiosk.service"
 [[ ! -e "$RELEASE_DIR" ]] || fatal "release already installed at $RELEASE_DIR; choose a different immutable commit"
 run "${SUDO[@]}" install -d -m 0755 "$PREFIX/releases" "$RELEASE_DIR" "$BIN_DIR" "$CONFIG_DIR" "$STATE_DIR"
 ensure_config_dir_secure
@@ -774,7 +877,9 @@ if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
 else
   warn 'systemd unavailable or disabled; start api-server manually'
 fi
-install_kiosk_unit
+if (( NO_SERVICE == 0 )); then
+  install_kiosk_unit
+fi
 
 INSTALL_COMMITTED=1
 log 'installation complete'
