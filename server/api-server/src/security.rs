@@ -36,10 +36,22 @@ pub async fn validate_origin(req: Request, next: Next) -> Result<Response, ApiEr
             ))?
             .to_str()
             .map_err(|_| ApiError::Forbidden("invalid Origin header"))?;
-        let allowed = std::env::var("OPENIEM_ALLOWED_ORIGINS").ok().map_or_else(
-            || DEFAULT_ALLOWED_ORIGINS.contains(&origin),
-            |value| value.split(',').map(str::trim).any(|item| item == origin),
-        );
+        let same_host_origin = std::env::var("OPENIEM_KIOSK_MODE")
+            .is_ok_and(|value| value.eq_ignore_ascii_case("true"))
+            && req
+                .headers()
+                .get(header::HOST)
+                .and_then(|value| value.to_str().ok())
+                .is_some_and(|host| {
+                    origin
+                        .strip_prefix("http://")
+                        .is_some_and(|origin_host| origin_host == host)
+                });
+        let allowed = same_host_origin
+            || std::env::var("OPENIEM_ALLOWED_ORIGINS").ok().map_or_else(
+                || DEFAULT_ALLOWED_ORIGINS.contains(&origin),
+                |value| value.split(',').map(str::trim).any(|item| item == origin),
+            );
         if !allowed {
             return Err(ApiError::Forbidden("origin is not allowed"));
         }

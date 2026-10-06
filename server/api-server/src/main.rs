@@ -95,10 +95,16 @@ async fn main() -> anyhow::Result<()> {
         env::var("OPENIEM_JWT_PUBLIC_PEM").unwrap_or_else(|_| "keys/ed25519_public.pem".to_owned());
     let db_path = env::var("OPENIEM_DB_PATH").unwrap_or_else(|_| "openiem.db".to_owned());
     let bind_addr = env::var("OPENIEM_BIND_ADDR").unwrap_or_else(|_| "127.0.0.1:8080".to_owned());
-    // Local physical deployments use HTTP by default. Enable TLS hardening
-    // explicitly for production or internet-facing deployments.
-    let allow_insecure_http = env::var("OPENIEM_ALLOW_INSECURE_HTTP")
-        .map_or(true, |value| !value.eq_ignore_ascii_case("false"));
+    // Loopback HTTP is safe by default. LAN HTTP is opt-in through kiosk mode;
+    // internet-facing deployments must use a TLS reverse proxy.
+    let kiosk_mode =
+        env::var("OPENIEM_KIOSK_MODE").is_ok_and(|value| value.eq_ignore_ascii_case("true"));
+    let allow_insecure_http = kiosk_mode
+        || env::var("OPENIEM_ALLOW_INSECURE_HTTP")
+            .is_ok_and(|value| value.eq_ignore_ascii_case("true"));
+    if kiosk_mode && bind_addr.starts_with("127.0.0.1:") {
+        anyhow::bail!("OPENIEM_KIOSK_MODE requires non-loopback OPENIEM_BIND_ADDR");
+    }
     let parsed_bind_addr: std::net::SocketAddr = bind_addr
         .parse()
         .map_err(|_| anyhow::anyhow!("OPENIEM_BIND_ADDR must be a valid socket address"))?;

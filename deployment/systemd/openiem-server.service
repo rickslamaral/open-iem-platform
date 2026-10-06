@@ -25,13 +25,17 @@ Environment=OPENIEM_JWT_PUBLIC_PEM=/etc/openiem/keys/ed25519_public.pem
 Environment=OPENIEM_DB_PATH=/var/lib/openiem/openiem.db
 Environment=OPENIEM_MUSICIAN_WEB_ROOT=/opt/openiem/current/web/musician
 
-# Bind to loopback only; Caddy terminates TLS and proxies to this port.
+# Installer changes this to 0.0.0.0:8080 only with --kiosk. Default stays loopback.
 Environment=OPENIEM_BIND_ADDR=127.0.0.1:8080
+# Kiosk enables explicit same-host LAN origins; disabled mode uses allowlist below.
+Environment=OPENIEM_KIOSK_MODE=false
 # Browser state-changing requests must match TLS reverse-proxy origin.
 Environment=OPENIEM_ALLOWED_ORIGINS=https://iem.local
 
+# Kiosk LAN mode is plain HTTP on local networks, not Internet-safe. Use a TLS
+# reverse proxy and explicit HTTPS origins for untrusted networks.
 # OPENIEM_ALLOW_INSECURE_HTTP is intentionally NOT set here.
-# Omitting it means non-loopback HTTP is rejected (fail-closed).
+# Non-loopback HTTP is rejected unless installer explicitly enables kiosk mode.
 
 # Logging
 Environment=RUST_LOG=api_server=info,tower_http=warn

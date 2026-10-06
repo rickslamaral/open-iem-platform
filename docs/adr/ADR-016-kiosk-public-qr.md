@@ -12,7 +12,7 @@ Instalações locais em Raspberry Pi, Ubuntu e Debian podem operar como kiosk. U
 
 Adicionar kiosk como perfil opcional do instalador Linux. A instalação pergunta se deve ativar kiosk; automação usa `--kiosk` ou `--no-kiosk` e nunca bloqueia aguardando input. Quando ativo, um serviço systemd opcional inicia navegador Chromium/Chrome em usuário não privilegiado após rede e sessão gráfica. Sem display ou navegador, instalação mantém API funcional e imprime URL LAN para abertura em outro dispositivo.
 
-A URL pública usa hostname mDNS quando disponível e endereços LAN descobertos em runtime. Nenhum IP fica gravado no Git. HTTP local continua padrão; HTTPS é opt-in com `OPENIEM_REQUIRE_SECURE_COOKIES=true` somente quando TLS estiver realmente ativo.
+A URL pública usa hostname mDNS quando disponível e endereços LAN descobertos em runtime. Nenhum IP fica gravado no Git. Com `--kiosk`, instalador configura API em `0.0.0.0:8080`, mantém URL em HTTP LAN e permite origem same-host sem credenciais. Sem kiosk, API permanece em `127.0.0.1:8080`. HTTP LAN não é seguro contra observadores nem deve ser exposto à Internet; HTTPS exige reverse proxy TLS e allowlist explícita de origens HTTPS. Instalador não altera firewall automaticamente.
 
 QR continua bearer capability e usa contrato existente de geração, rotação, revogação, rate limit e consumo. QR e sessão criada por QR usam exatamente o mesmo TTL, configurável por `OPENIEM_QR_SESSION_TTL_SECONDS`; padrão 4 horas, mínimo 60 segundos, máximo 86400 segundos. Não existe mais TTL independente de 10 minutos.
 

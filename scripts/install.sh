@@ -753,9 +753,19 @@ fi
 ensure_soundtech_env
 
 if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
+  if (( KIOSK_MODE == 1 )); then
+    kiosk_bind='0.0.0.0:8080'; kiosk_env='true'
+    kiosk_origins='http://localhost:8080,http://127.0.0.1:8080'
+  else
+    kiosk_bind='127.0.0.1:8080'; kiosk_env='false'
+    kiosk_origins='https://iem.local'
+  fi
   sed -e "s#^WorkingDirectory=.*#WorkingDirectory=$PREFIX#" \
       -e "s#^ExecStart=.*#ExecStart=$PREFIX/current/server/api-server#" \
       -e "s#^Environment=OPENIEM_DB_PATH=.*#Environment=OPENIEM_DB_PATH=$STATE_DIR/openiem.db#" \
+      -e "s#^Environment=OPENIEM_BIND_ADDR=.*#Environment=OPENIEM_BIND_ADDR=$kiosk_bind#" \
+      -e "s#^Environment=OPENIEM_KIOSK_MODE=.*#Environment=OPENIEM_KIOSK_MODE=$kiosk_env#" \
+      -e "s#^Environment=OPENIEM_ALLOWED_ORIGINS=.*#Environment=OPENIEM_ALLOWED_ORIGINS=$kiosk_origins#" \
       -e "s#^Environment=OPENIEM_MUSICIAN_WEB_ROOT=.*#Environment=OPENIEM_MUSICIAN_WEB_ROOT=$PREFIX/current/web/musician#" \
       -e "s#^Environment=OPENIEM_JWT_PRIVATE_PEM=.*#Environment=OPENIEM_JWT_PRIVATE_PEM=$CONFIG_DIR/keys/ed25519_private.pem#" \
       -e "s#^Environment=OPENIEM_JWT_PUBLIC_PEM=.*#Environment=OPENIEM_JWT_PUBLIC_PEM=$CONFIG_DIR/keys/ed25519_public.pem#" \
