@@ -13,6 +13,7 @@ use crate::{
     auth::{generate_refresh_token, hash_password, token_to_storage_key, JwtClaims},
     error::ApiError,
     middleware::require_min_role,
+    routes::auth::refresh_cookie,
     state::AppState,
 };
 use axum::{
@@ -32,8 +33,18 @@ use std::{
 use uuid::Uuid;
 
 const QR_TTL: u64 = 10 * 60;
+const QR_SESSION_TTL_DEFAULT: u64 = 4 * 60 * 60;
+const QR_SESSION_TTL_MAX: u64 = 24 * 60 * 60;
 /// Maximum lifetime of one active generation in test mode.
 const QR_ROTATION_INTERVAL: u64 = 60 * 60;
+
+fn qr_session_ttl() -> u64 {
+    std::env::var("OPENIEM_QR_SESSION_TTL_SECONDS")
+        .ok()
+        .and_then(|value| value.parse::<u64>().ok())
+        .filter(|value| (60..=QR_SESSION_TTL_MAX).contains(value))
+        .unwrap_or(QR_SESSION_TTL_DEFAULT)
+}
 const MAX_NAME: usize = 80;
 const QR_SECRET_HEX_LEN: usize = 64;
 const INSTRUMENTS: &[&str] = &[
@@ -246,8 +257,10 @@ pub async fn session_bootstrap(
     }
     let raw_refresh = generate_refresh_token();
     let jti = Uuid::new_v4().to_string();
-    let refresh_exp = (current + crate::auth::REFRESH_TOKEN_TTL_S).min(expires);
-    let access_exp = (current + crate::auth::ACCESS_TOKEN_TTL_S).min(expires);
+    // QR secret remains usable only until `expires`; successful session receives
+    // its own configurable lifetime and does not inherit the short QR lifetime.
+    let refresh_exp = current.saturating_add(qr_session_ttl());
+    let access_exp = current.saturating_add(crate::auth::ACCESS_TOKEN_TTL_S);
     let (user_id, session_id, username) = match state.db.exchange_qr_session(
         &unix_hash(&body.qr_secret),
         &body.display_name,
@@ -288,7 +301,17 @@ pub async fn session_bootstrap(
     state
         .db
         .record_qr_audit(None, "EXCHANGE", generation, true)?;
-    Ok((StatusCode::CREATED, [(header::SET_COOKIE, format!("refresh_token={raw_refresh}; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age={}", refresh_exp.saturating_sub(current)))], Json(ExchangeResponse { access_token: access, role: Role::Musician })))
+    Ok((
+        StatusCode::CREATED,
+        [(
+            header::SET_COOKIE,
+            refresh_cookie(&raw_refresh, refresh_exp.saturating_sub(current)),
+        )],
+        Json(ExchangeResponse {
+            access_token: access,
+            role: Role::Musician,
+        }),
+    ))
 }
 
 pub async fn exchange(
@@ -365,7 +388,17 @@ pub async fn exchange(
         )?;
         return Err(error);
     }
-    Ok((StatusCode::CREATED, [(header::SET_COOKIE, format!("refresh_token={raw_refresh}; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age={}", crate::auth::REFRESH_TOKEN_TTL_S))], Json(ExchangeResponse { access_token: access, role })))
+    Ok((
+        StatusCode::CREATED,
+        [(
+            header::SET_COOKIE,
+            refresh_cookie(&raw_refresh, crate::auth::REFRESH_TOKEN_TTL_S),
+        )],
+        Json(ExchangeResponse {
+            access_token: access,
+            role,
+        }),
+    ))
 }
 
 #[cfg(test)]
