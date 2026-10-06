@@ -1,3 +1,11 @@
+## 2026-10-06 19:20 -0300 — verificação operacional no HEAD `50d3294`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- PR #355 permanece aberta fora de `develop`; CI remoto falha em `Rust Format + Clippy + Tests` (`fetch_update` depreciado em `streaming/src/media_plane.rs:292` e `streaming/src/opus_receiver.rs:413`) e `npm Security Audit` (`source-map-js` HIGH). Política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- Evidência: `CODE/CI/SIMULATED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-06 19:06 -0300 — verificação operacional no HEAD `805541c`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; `develop` sincronizada com `origin/develop` no HEAD exato; working tree limpa antes desta atualização.
