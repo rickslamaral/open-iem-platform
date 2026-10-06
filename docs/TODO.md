@@ -5330,3 +5330,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --all-targets --manifest-path server/Cargo.toml -- -D warnings`, `cargo test --manifest-path server/Cargo.toml` (537 testes principais, suítes auxiliares e doctests PASS), `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - CI remoto não possui SUCCESS no HEAD exato; não contado como evidência. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência disponível: `CODE/CI/SIMULATED`.
+
+## 2026-10-06 02:22 -0300 — verificação operacional no HEAD após gates locais
+
+- Gates locais PASS: documentação, diff, Rust fmt/clippy/testes e proxy PipeWire software.
+- Nenhuma tarefa CODE executável nova no backlog. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; release `v0.3.1`, hardware físico e CI remoto permanecem pendentes.
