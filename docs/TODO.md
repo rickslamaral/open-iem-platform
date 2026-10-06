@@ -5733,3 +5733,6 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Verificação operacional 2026-10-06 19:06 -0300: `develop`/`origin/develop` sincronizadas no HEAD `805541c`; working tree limpa; backlog CODE sem tarefa segura nova; PR #355 aberta fora de `develop` com CI falho; scanner indisponível; evidência `CODE/CI/SIMULATED`; físico e release seguem `PENDING/BLOCKED`.
 - [ ] Permanecem pendentes apenas hardware físico, confirmação de release, secret externo ou runner remoto.
+
+- [x] Verificação operacional 2026-10-06 19:47 -0300 no HEAD `5c15c4d`: branch `develop`/`origin/develop` sincronizadas; gates locais Rust, frontends, documentação e proxy PipeWire `SOFTWARE/SIMULATED` PASS; scanner indisponível; PR #355 segue aberta com CI falho; físico e release permanecem bloqueados.
+- [ ] Permanecem pendentes apenas hardware físico, confirmação de release, secret externo ou runner remoto.
