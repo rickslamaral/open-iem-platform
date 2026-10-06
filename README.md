@@ -180,6 +180,7 @@ scripts/              — Development utilities
 - [Skills Registry](docs/SKILLS.md)
 - [TODO](docs/TODO.md)
 - [Development Log](docs/DEVELOPMENT-LOG.md)
+- [Instalação multiplataforma — Raspberry, Linux, Windows e macOS](INSTALL.md)
 - [Windows + Docker Desktop Guide](docs/guides/WINDOWS-DOCKER-GUIDE.md)
 - [Guias em português](docs/guides/pt/)
 - [Guides in English](docs/guides/en/)
