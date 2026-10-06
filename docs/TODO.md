@@ -1,3 +1,11 @@
+## 2026-10-06 01:16 -0300 — verificação operacional no HEAD `80d327a`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato `80d327aa7e2779c573ec10e037e28c6e86529b68`; working tree limpa antes desta atualização.
+- `git fetch --prune` executado; branches remotas válidas somente `main` e `develop`; `gh pr list --base main --state open` retornou `[]`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa de produto executável nova. Pendências restantes exigem hardware físico, confirmação de release ou runner remoto.
+- Esta rodada executará validação documental, Rust e proxy de áudio software; scanner `/root/scan_patterns.py` será reportado somente se disponível.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` permanecem `PENDING/BLOCKED`.
+
 ## 2026-10-06 01:12 -0300 — verificação operacional no HEAD `d6ef530`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato `d6ef5305684821634d553ab70761ae5debcd271b`; working tree limpa antes desta atualização.
