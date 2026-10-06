@@ -15,14 +15,14 @@
 ## Sequência de engenharia
 
 - [x] Atualizar backend para remover TTL independente de 10 minutos e validar igualdade QR/sessão. QR, refresh e access expiram no `expires_at` da geração ativa; evidência CODE local.
-- [ ] Adicionar testes de TTL configurável, limite, expiração, revogação, rotação, replay e rate limit.
-- [ ] Implementar frontend kiosk: fragmento limpo com `history.replaceState`, estado expired/revoked/used e sessão via refresh cookie.
-- [ ] Implementar `deployment/systemd/openiem-kiosk.service` com usuário não privilegiado e hardening.
-- [ ] Adicionar prompt interativo `--kiosk`/`--no-kiosk` ao `scripts/install.sh`, comportamento idempotente e fallback sem display.
-- [ ] Publicar URL LAN após instalação e iniciar navegador somente após API, rede e sessão gráfica.
+- [x] Adicionar testes de TTL configurável, limite, expiração, revogação, rotação, replay e rate limit.
+- [x] Implementar frontend kiosk: fragmento limpo com `history.replaceState`, sessão via refresh cookie e erro explícito para convite expirado/revogado/usado.
+- [x] Implementar `deployment/systemd/openiem-kiosk.service` com usuário não privilegiado e hardening.
+- [x] Adicionar prompt interativo `--kiosk`/`--no-kiosk` ao `scripts/install.sh`, comportamento idempotente e fallback sem display.
+- [x] Publicar URL LAN após instalação e iniciar navegador somente após API, rede e sessão gráfica.
 - [ ] Testar reboot, ativação/desativação, HTTP local, HTTPS opt-in, kiosk gráfico e host headless.
-- [ ] Atualizar `INSTALL.md`, `START.md`, guia Raspberry, matriz de compatibilidade e segurança.
-- [ ] Rodar gates locais, revisão independente e CI no SHA exato da PR.
+- [x] Atualizar `INSTALL.md`, `START.md`, guia Raspberry, matriz de compatibilidade e segurança.
+- [x] Rodar gates locais e revisão independente; CI remoto no SHA exato permanece pendente.
 
 ## 2026-10-06 08:40 -0300 — verificação operacional no HEAD `23664e0`
 

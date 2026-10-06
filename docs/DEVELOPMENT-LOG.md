@@ -1,3 +1,9 @@
+## 2026-10-06 11:45 -0300 — reconciliação do backlog kiosk no HEAD `d66b553`
+
+- Auditoria independente confirmou que frontend kiosk, limpeza do fragmento com `history.replaceState`, sessão via refresh cookie, backend de estados inválido/expirado, serviço systemd, prompt `--kiosk`/`--no-kiosk`, URL LAN e fallback headless já existem no código atual.
+- Testes de QR cobrem expiração, replay, rate limit, rotação e bootstrap de sessão; gates locais anteriores permanecem válidos. Itens de validação física e matriz real de X11/Wayland, Chromium/Chrome, Raspberry Pi OS, Ubuntu e Debian continuam pendentes.
+- CI remoto no SHA exato `d66b553` não foi executado; não contado como evidência. Evidência disponível: `CODE/CI/SIMULATED`.
+
 ## 2026-10-06 08:40 -0300 — verificação operacional no HEAD `23664e0`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `23664e0a1a7cfc18133243062284ff38ed15cd03`; working tree limpa antes desta atualização.
