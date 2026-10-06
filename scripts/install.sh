@@ -16,7 +16,7 @@ SOUNDTECH_ENV="$CONFIG_DIR/openiem-server.env"
 SERVICE_DROPIN_DIR="/etc/systemd/system/$SERVICE_NAME.d"
 KIOSK_SERVICE_NAME="openiem-kiosk.service"
 KIOSK_UNIT="/etc/systemd/system/$KIOSK_SERVICE_NAME"
-KIOSK_SCRIPT="/usr/local/libexec/openiem-kiosk-url"
+KIOSK_SCRIPT="/usr/local/libexec/openiem-kiosk-launch"
 KIOSK_MODE=""
 DRY_RUN=0
 VALIDATE_ONLY=0
@@ -316,15 +316,16 @@ install_kiosk_unit() {
   "${SUDO[@]}" install -d -o root -g root -m 0755 "$(dirname "$KIOSK_SCRIPT")"
   local script_tmp unit_tmp
   script_tmp="$(mktemp)"; unit_tmp="$(mktemp)"
-  cat > "$script_tmp" <<'EOF'
+  cat > "$script_tmp" <<EOF
 #!/usr/bin/env bash
 set -Eeuo pipefail
-base="http://$(hostname -s).local"
-if ! getent hosts "$(hostname -s).local" >/dev/null 2>&1; then
-  address="$(hostname -I 2>/dev/null | awk '{print $1}')"
-  [[ -n "$address" ]] && base="http://$address"
+base="http://\$(hostname -s).local:8080"
+if ! getent hosts "\$(hostname -s).local" >/dev/null 2>&1; then
+  address="\$(hostname -I 2>/dev/null | awk '{print \$1}')"
+  [[ -n "\$address" ]] && base="http://\$address:8080"
 fi
-printf '%s/musician/\n' "$base"
+exec "$browser" --kiosk --no-first-run --disable-sync --disable-extensions \\
+  --disable-prompt-on-repost --user-data-dir=/var/lib/openiem-kiosk/chromium "\${base}/musician/"
 EOF
   cat > "$unit_tmp" <<EOF
 [Unit]
@@ -340,7 +341,7 @@ User=openiem-kiosk
 Group=openiem-kiosk
 Environment=HOME=/var/lib/openiem-kiosk
 Environment=DISPLAY=:0
-ExecStart=/bin/sh -c 'exec $browser --kiosk --no-first-run --disable-sync --disable-extensions --disable-prompt-on-repost --user-data-dir=/var/lib/openiem-kiosk/chromium "\$($KIOSK_SCRIPT)"'
+ExecStart=$KIOSK_SCRIPT
 Restart=on-failure
 RestartSec=5s
 NoNewPrivileges=true
@@ -755,6 +756,7 @@ if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
   sed -e "s#^WorkingDirectory=.*#WorkingDirectory=$PREFIX#" \
       -e "s#^ExecStart=.*#ExecStart=$PREFIX/current/server/api-server#" \
       -e "s#^Environment=OPENIEM_DB_PATH=.*#Environment=OPENIEM_DB_PATH=$STATE_DIR/openiem.db#" \
+      -e "s#^Environment=OPENIEM_MUSICIAN_WEB_ROOT=.*#Environment=OPENIEM_MUSICIAN_WEB_ROOT=$PREFIX/current/web/musician#" \
       -e "s#^Environment=OPENIEM_JWT_PRIVATE_PEM=.*#Environment=OPENIEM_JWT_PRIVATE_PEM=$CONFIG_DIR/keys/ed25519_private.pem#" \
       -e "s#^Environment=OPENIEM_JWT_PUBLIC_PEM=.*#Environment=OPENIEM_JWT_PUBLIC_PEM=$CONFIG_DIR/keys/ed25519_public.pem#" \
       "$TMP_DIR/src/deployment/systemd/openiem-server.service" > "$STAGE/$SERVICE_NAME"

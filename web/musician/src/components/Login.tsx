@@ -5,7 +5,8 @@ const invitationToken = (value: string): string => {
   try {
     const url = new URL(value, window.location.href);
     const values = new URLSearchParams(url.hash.replace(/^#/, '')).getAll('invitation').map((candidate) => candidate.trim());
-    if (values.length === 0 || values.some((candidate) => !candidate) || new Set(values).size > 1) return '';
+    if (values.length === 0) return value.trim();
+    if (values.some((candidate) => !candidate) || new Set(values).size > 1) return '';
     return values[0];
   } catch { return ''; }
 };

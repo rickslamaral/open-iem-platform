@@ -28,6 +28,18 @@ describe('Login', () => {
     expect(screen.getByRole('alert')).toBeTruthy();
     expect(screen.getByText(/invalid credentials/i)).toBeTruthy();
   });
+  it('consumes invitation from fragment, clears URL, and does not persist secret', async () => {
+    window.history.replaceState({}, '', '/musician/#invitation=fragment-secret');
+    const onQrExchange = vi.fn().mockResolvedValue(undefined);
+    render(<Login onLogin={vi.fn()} onQrExchange={onQrExchange} error={null} />);
+    await waitFor(() => expect(screen.getByLabelText(/qr secret/i)).toHaveValue('fragment-secret'));
+    expect(window.location.hash).toBe('');
+    expect(window.location.search).not.toContain('access_token');
+    expect(window.location.search).not.toContain('refresh_token');
+    expect(localStorage.length).toBe(0);
+    expect(sessionStorage.length).toBe(0);
+  });
+
   it('offers camera scanning and reports unsupported browser', async () => {
     render(<Login onLogin={vi.fn()} onQrExchange={vi.fn()} error={null} />);
     fireEvent.click(screen.getByRole('button', { name: /QR onboarding/i }));

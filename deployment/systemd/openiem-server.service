@@ -23,6 +23,7 @@ Environment=OPENIEM_JWT_PUBLIC_PEM=/etc/openiem/keys/ed25519_public.pem
 
 # SQLite database — writable by openiem user.
 Environment=OPENIEM_DB_PATH=/var/lib/openiem/openiem.db
+Environment=OPENIEM_MUSICIAN_WEB_ROOT=/opt/openiem/current/web/musician
 
 # Bind to loopback only; Caddy terminates TLS and proxies to this port.
 Environment=OPENIEM_BIND_ADDR=127.0.0.1:8080

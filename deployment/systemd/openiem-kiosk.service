@@ -1,0 +1,24 @@
+[Unit]
+Description=Open IEM local Chromium kiosk
+After=openiem-server.service network-online.target graphical-session.target
+Wants=network-online.target graphical-session.target
+Requires=openiem-server.service
+ConditionPathExists=/usr/local/libexec/openiem-kiosk-launch
+
+[Service]
+Type=simple
+User=openiem-kiosk
+Group=openiem-kiosk
+Environment=HOME=/var/lib/openiem-kiosk
+Environment=DISPLAY=:0
+ExecStart=/usr/local/libexec/openiem-kiosk-launch
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/openiem-kiosk
+
+[Install]
+WantedBy=graphical-session.target

@@ -58,7 +58,7 @@ use axum::{
 };
 use control_server::ControlState;
 use std::{env, fs};
-use tower_http::trace::TraceLayer;
+use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
@@ -231,9 +231,15 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/v1/onboarding/qr/exchange", post(qr_exchange))
         .route("/api/v1/onboarding/qr/session", post(qr_session_bootstrap));
 
+    let musician_web_root =
+        env::var("OPENIEM_MUSICIAN_WEB_ROOT").unwrap_or_else(|_| "web/musician".to_owned());
     let app = Router::new()
         .merge(protected)
         .merge(public)
+        .nest_service(
+            "/musician",
+            ServeDir::new(musician_web_root).append_index_html_on_directories(true),
+        )
         .with_state(state)
         .layer(DefaultBodyLimit::max(32 * 1024))
         .layer(middleware::from_fn(validate_origin))

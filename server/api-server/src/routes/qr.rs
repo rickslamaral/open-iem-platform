@@ -34,8 +34,7 @@ use uuid::Uuid;
 
 const QR_SESSION_TTL_DEFAULT: u64 = 4 * 60 * 60;
 const QR_SESSION_TTL_MAX: u64 = 24 * 60 * 60;
-/// Maximum lifetime of one active generation in test mode.
-
+/// Read configured QR/session lifetime.
 fn qr_session_ttl() -> u64 {
     std::env::var("OPENIEM_QR_SESSION_TTL_SECONDS")
         .ok()
@@ -280,12 +279,13 @@ pub async fn session_bootstrap(
             return Err(error);
         }
     };
-    let access = match state.jwt.issue_with_session(
+    let access = match state.jwt.issue_with_session_until(
         &username,
         user_id,
         Role::Musician,
         &jti,
         Some(session_id),
+        access_exp,
     ) {
         Ok(value) => value,
         Err(error) => {
@@ -358,24 +358,27 @@ pub async fn exchange(
         }
     };
     let role = Role::Musician;
-    let access =
-        match state
-            .jwt
-            .issue_with_session(&username, user_id, role, &jti, Some(session_id))
-        {
-            Ok(access) => access,
-            Err(error) => {
-                // DB exchange commits before JWT signing. Remove all newly-created rows and
-                // restore invitation capacity when signing fails, otherwise QR use leaks.
-                state.db.cleanup_qr_exchange(
-                    &token_to_storage_key(&raw_refresh),
-                    &jti,
-                    user_id,
-                    session_id,
-                )?;
-                return Err(error);
-            }
-        };
+    let access = match state.jwt.issue_with_session_until(
+        &username,
+        user_id,
+        role,
+        &jti,
+        Some(session_id),
+        expires,
+    ) {
+        Ok(access) => access,
+        Err(error) => {
+            // DB exchange commits before JWT signing. Remove all newly-created rows and
+            // restore invitation capacity when signing fails, otherwise QR use leaks.
+            state.db.cleanup_qr_exchange(
+                &token_to_storage_key(&raw_refresh),
+                &jti,
+                user_id,
+                session_id,
+            )?;
+            return Err(error);
+        }
+    };
     if let Err(error) = state.db.record_qr_audit(None, "EXCHANGE", generation, true) {
         state.db.cleanup_qr_exchange(
             &token_to_storage_key(&raw_refresh),

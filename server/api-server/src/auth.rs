@@ -93,6 +93,29 @@ impl JwtKeys {
         jti: &str,
         session_id: Option<i64>,
     ) -> Result<String, ApiError> {
+        self.issue_with_session_until(
+            username,
+            user_id,
+            role,
+            jti,
+            session_id,
+            unix_now().saturating_add(ACCESS_TOKEN_TTL_S),
+        )
+    }
+
+    /// Issue access token with an explicit absolute expiration.
+    ///
+    /// # Errors
+    /// Returns `ApiError::Internal` if signing fails.
+    pub fn issue_with_session_until(
+        &self,
+        username: &str,
+        user_id: i64,
+        role: Role,
+        jti: &str,
+        session_id: Option<i64>,
+        expires_at: u64,
+    ) -> Result<String, ApiError> {
         let now = unix_now();
         let claims = JwtClaims {
             sub: username.to_owned(),
@@ -103,7 +126,7 @@ impl JwtKeys {
             iss: JWT_ISSUER.to_owned(),
             aud: JWT_AUDIENCE.to_owned(),
             iat: now,
-            exp: now + ACCESS_TOKEN_TTL_S,
+            exp: expires_at,
         };
         encode(&Header::new(Algorithm::EdDSA), &claims, &self.encoding)
             .map_err(|e| ApiError::Internal(e.to_string()))

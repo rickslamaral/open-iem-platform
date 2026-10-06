@@ -8,8 +8,8 @@
 - [x] Definir QR como bearer capability sem `access_token`, `refresh_token` ou segredo em query string, logs, argumentos ou storage persistente.
 - [x] Definir QR e sessão com exatamente o mesmo TTL: `OPENIEM_QR_SESSION_TTL_SECONDS`, padrão 4h, limites 60–86400s.
 - [x] Definir fallback headless: API permanece funcional e imprime URL LAN; não instalar desktop automaticamente.
-- [ ] Resolver contrato seguro de emissão/rotação do QR no kiosk sem credencial administrativa embutida no instalador.
-- [ ] Confirmar frontend público, asset serving e contrato de onboarding antes de criar rota nova.
+- [ ] Resolver emissão/rotação sem credencial no kiosk: Engineer gera `session_url`; kiosk abre `/musician/`, mas ainda não mostra QR ativo sem segredo persistido.
+- [x] Confirmar frontend público, asset serving e contrato de onboarding; API serve build Musician em `/musician/`.
 - [ ] Validar X11/Wayland, Chromium/Chrome, Raspberry Pi OS, Ubuntu e Debian.
 
 ## Sequência de engenharia

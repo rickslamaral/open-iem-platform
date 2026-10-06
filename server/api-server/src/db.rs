@@ -1292,7 +1292,7 @@ impl Db {
     pub fn expire_qr_generation_if_due(
         &self,
         now: u64,
-        rotation_interval: u64,
+        _rotation_interval: u64,
     ) -> Result<bool, ApiError> {
         let mut conn = self
             .conn
@@ -1303,8 +1303,8 @@ impl Db {
             .map_err(|e| ApiError::Internal(e.to_string()))?;
         let due: bool = tx
             .query_row(
-                "SELECT active = 1 AND updated_at + ?1 <= ?2 FROM qr_onboarding WHERE id = 1",
-                params![rotation_interval as i64, now as i64],
+                "SELECT active = 1 AND expires_at <= ?1 FROM qr_onboarding WHERE id = 1",
+                params![now as i64],
                 |row| row.get(0),
             )
             .map_err(|e| ApiError::Internal(e.to_string()))?;

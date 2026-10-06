@@ -5,6 +5,7 @@ const apiProxyTarget = process.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8080';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/musician/',
   plugins: [react()],
   test: {
     environment: 'jsdom',
