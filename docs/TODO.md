@@ -1,3 +1,7 @@
+## 2026-10-06 02:56 -0300 — verificação operacional
+
+- [x] Gates locais completos no HEAD d56da6c2f98261af240f4634f5155fcb320c0994; backlog CODE executável esgotado; pendências físicas, release e runner permanecem bloqueadas.
+
 ## 2026-10-06 02:40 -0300 — verificação operacional no HEAD `81b9ded8d12a6d53993a66f24219d451768144b0`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
