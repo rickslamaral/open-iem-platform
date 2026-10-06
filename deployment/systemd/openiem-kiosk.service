@@ -1,16 +1,16 @@
 [Unit]
-Description=Open IEM local Chromium kiosk
-After=openiem-server.service network-online.target graphical-session.target
-Wants=network-online.target graphical-session.target
+Description=Open IEM kiosk (disabled pending secure local QR broker)
+After=openiem-server.service network-online.target
+Wants=network-online.target
 Requires=openiem-server.service
 ConditionPathExists=/usr/local/libexec/openiem-kiosk-launch
+ConditionPathExists=/run/openiem-kiosk-secure-qr-broker
 
 [Service]
 Type=simple
 User=openiem-kiosk
 Group=openiem-kiosk
 Environment=HOME=/var/lib/openiem-kiosk
-Environment=DISPLAY=:0
 ExecStart=/usr/local/libexec/openiem-kiosk-launch
 Restart=on-failure
 RestartSec=5s
@@ -21,4 +21,4 @@ ProtectHome=true
 ReadWritePaths=/var/lib/openiem-kiosk
 
 [Install]
-WantedBy=graphical-session.target
+WantedBy=multi-user.target

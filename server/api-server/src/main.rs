@@ -52,15 +52,39 @@ use api_server::{
 };
 use axum::{
     extract::DefaultBodyLimit,
+    http::{header, HeaderValue},
     middleware,
+    response::Response,
     routing::{get, post, put},
     Router,
 };
 use control_server::ControlState;
 use std::{env, fs};
-use tower_http::{services::ServeDir, trace::TraceLayer};
+use tower_http::{
+    services::{ServeDir, ServeFile},
+    trace::TraceLayer,
+};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
+
+async fn security_headers(request: axum::extract::Request, next: middleware::Next) -> Response {
+    let mut response = next.run(request).await;
+    let headers = response.headers_mut();
+    headers.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
+    headers.insert(
+        header::REFERRER_POLICY,
+        HeaderValue::from_static("no-referrer"),
+    );
+    headers.insert(
+        header::X_CONTENT_TYPE_OPTIONS,
+        HeaderValue::from_static("nosniff"),
+    );
+    headers.insert(
+        header::CONTENT_SECURITY_POLICY,
+        HeaderValue::from_static("default-src 'self'; connect-src 'self' ws: wss:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; base-uri 'none'; frame-ancestors 'none'"),
+    );
+    response
+}
 
 #[tokio::main]
 #[allow(clippy::too_many_lines)]
@@ -102,12 +126,12 @@ async fn main() -> anyhow::Result<()> {
     let allow_insecure_http = kiosk_mode
         || env::var("OPENIEM_ALLOW_INSECURE_HTTP")
             .is_ok_and(|value| value.eq_ignore_ascii_case("true"));
-    if kiosk_mode && bind_addr.starts_with("127.0.0.1:") {
-        anyhow::bail!("OPENIEM_KIOSK_MODE requires non-loopback OPENIEM_BIND_ADDR");
-    }
     let parsed_bind_addr: std::net::SocketAddr = bind_addr
         .parse()
         .map_err(|_| anyhow::anyhow!("OPENIEM_BIND_ADDR must be a valid socket address"))?;
+    if kiosk_mode && parsed_bind_addr.ip().is_loopback() {
+        anyhow::bail!("OPENIEM_KIOSK_MODE requires non-loopback OPENIEM_BIND_ADDR");
+    }
     if !parsed_bind_addr.ip().is_loopback() && !allow_insecure_http {
         anyhow::bail!(
             "refusing insecure HTTP on non-loopback address {bind_addr}; configure TLS reverse proxy or set OPENIEM_ALLOW_INSECURE_HTTP=true only for isolated development"
@@ -239,16 +263,20 @@ async fn main() -> anyhow::Result<()> {
 
     let musician_web_root =
         env::var("OPENIEM_MUSICIAN_WEB_ROOT").unwrap_or_else(|_| "web/musician".to_owned());
+    let musician_index = format!("{musician_web_root}/index.html");
     let app = Router::new()
         .merge(protected)
         .merge(public)
         .nest_service(
             "/musician",
-            ServeDir::new(musician_web_root).append_index_html_on_directories(true),
+            ServeDir::new(&musician_web_root)
+                .append_index_html_on_directories(true)
+                .fallback(ServeFile::new(musician_index)),
         )
         .with_state(state)
         .layer(DefaultBodyLimit::max(32 * 1024))
         .layer(middleware::from_fn(validate_origin))
+        .layer(middleware::from_fn(security_headers))
         .layer(TraceLayer::new_for_http());
 
     let listener = tokio::net::TcpListener::bind(&bind_addr).await?;

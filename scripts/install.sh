@@ -296,68 +296,16 @@ ensure_soundtech_env() {
 }
 
 install_kiosk_unit() {
-  if (( KIOSK_MODE == 1 && NO_SERVICE == 1 )); then
-    warn '--kiosk requires systemd API service; kiosk skipped because --no-service was supplied'
+  # Deliberately fail closed: no reviewed local IPC contract exists for obtaining
+  # the active QR without embedding admin credentials in the kiosk process.
+  if (( KIOSK_MODE == 1 )); then
+    warn '--kiosk requested, but kiosk QR display is disabled: secure local QR broker contract is not available'
+    warn 'API remains installed; open the LAN musician URL from an authenticated QR-management device'
     return
   fi
-  if (( KIOSK_MODE == 0 )); then
-    if (( DRY_RUN )); then log "would disable/remove $KIOSK_SERVICE_NAME"; return; fi
-    if command -v systemctl >/dev/null 2>&1; then "${SUDO[@]}" systemctl disable --now "$KIOSK_SERVICE_NAME" >/dev/null 2>&1 || true; fi
-    "${SUDO[@]}" rm -f -- "$KIOSK_UNIT" "$KIOSK_SCRIPT"
-    return
-  fi
-  if (( DRY_RUN )); then log "would install optional unprivileged kiosk service"; return; fi
-  command -v systemctl >/dev/null 2>&1 || { warn 'systemd unavailable; API remains installed, kiosk skipped'; return; }
-  local browser
-  browser="$(command -v chromium || command -v chromium-browser || command -v google-chrome || true)"
-  if [[ -z "$browser" ]]; then warn 'Chromium/Chrome not found; API remains installed, kiosk skipped'; return; fi
-  if ! id openiem-kiosk >/dev/null 2>&1; then "${SUDO[@]}" useradd --system --create-home --home-dir /var/lib/openiem-kiosk --shell /usr/sbin/nologin openiem-kiosk; fi
-  "${SUDO[@]}" install -d -o openiem-kiosk -g openiem-kiosk -m 0700 /var/lib/openiem-kiosk
-  "${SUDO[@]}" install -d -o root -g root -m 0755 "$(dirname "$KIOSK_SCRIPT")"
-  local script_tmp unit_tmp
-  script_tmp="$(mktemp)"; unit_tmp="$(mktemp)"
-  cat > "$script_tmp" <<EOF
-#!/usr/bin/env bash
-set -Eeuo pipefail
-base="http://\$(hostname -s).local:8080"
-if ! getent hosts "\$(hostname -s).local" >/dev/null 2>&1; then
-  address="\$(hostname -I 2>/dev/null | awk '{print \$1}')"
-  [[ -n "\$address" ]] && base="http://\$address:8080"
-fi
-exec "$browser" --kiosk --no-first-run --disable-sync --disable-extensions \\
-  --disable-prompt-on-repost --user-data-dir=/var/lib/openiem-kiosk/chromium "\${base}/musician/"
-EOF
-  cat > "$unit_tmp" <<EOF
-[Unit]
-Description=Open IEM optional Chromium kiosk
-After=$SERVICE_NAME network-online.target graphical-session.target
-Wants=network-online.target graphical-session.target
-Requires=$SERVICE_NAME
-ConditionPathExists=$KIOSK_SCRIPT
-
-[Service]
-Type=simple
-User=openiem-kiosk
-Group=openiem-kiosk
-Environment=HOME=/var/lib/openiem-kiosk
-Environment=DISPLAY=:0
-ExecStart=$KIOSK_SCRIPT
-Restart=on-failure
-RestartSec=5s
-NoNewPrivileges=true
-PrivateTmp=true
-ProtectSystem=strict
-ProtectHome=true
-ReadWritePaths=/var/lib/openiem-kiosk
-
-[Install]
-WantedBy=graphical-session.target
-EOF
-  run "${SUDO[@]}" install -o root -g root -m 0755 "$script_tmp" "$KIOSK_SCRIPT"
-  run "${SUDO[@]}" install -o root -g root -m 0644 "$unit_tmp" "$KIOSK_UNIT"
-  rm -f "$script_tmp" "$unit_tmp"
-  run "${SUDO[@]}" systemctl daemon-reload || { warn 'systemd reload failed; API remains installed, kiosk skipped'; return; }
-  run "${SUDO[@]}" systemctl enable --now "$KIOSK_SERVICE_NAME" || warn 'graphical session unavailable; API remains installed, kiosk will start when session exists'
+  if (( DRY_RUN )); then log "would disable/remove $KIOSK_SERVICE_NAME"; return; fi
+  if command -v systemctl >/dev/null 2>&1; then "${SUDO[@]}" systemctl disable --now "$KIOSK_SERVICE_NAME" >/dev/null 2>&1 || true; fi
+  "${SUDO[@]}" rm -f -- "$KIOSK_UNIT" "$KIOSK_SCRIPT"
 }
 
 ensure_service_dropin_dir_secure() {
@@ -755,9 +703,13 @@ ensure_soundtech_env
 if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
   if (( KIOSK_MODE == 1 )); then
     kiosk_bind='0.0.0.0:8080'; kiosk_env='true'
-    kiosk_origins='http://localhost:8080,http://127.0.0.1:8080'
+    kiosk_ipv4="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for (i=1;i<=NF;i++) if ($i == \"src\") {print $(i+1); exit}}')"
+    [[ "$kiosk_ipv4" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || fatal '--kiosk requires reachable IPv4 interface; ip -4 route get returned none'
+    kiosk_public_base="http://$kiosk_ipv4:8080"
+    kiosk_origins="$kiosk_public_base"
   else
     kiosk_bind='127.0.0.1:8080'; kiosk_env='false'
+    kiosk_public_base='http://127.0.0.1:8080'
     kiosk_origins='https://iem.local'
   fi
   sed -e "s#^WorkingDirectory=.*#WorkingDirectory=$PREFIX#" \
@@ -766,6 +718,7 @@ if (( NO_SERVICE == 0 )) && command -v systemctl >/dev/null 2>&1; then
       -e "s#^Environment=OPENIEM_BIND_ADDR=.*#Environment=OPENIEM_BIND_ADDR=$kiosk_bind#" \
       -e "s#^Environment=OPENIEM_KIOSK_MODE=.*#Environment=OPENIEM_KIOSK_MODE=$kiosk_env#" \
       -e "s#^Environment=OPENIEM_ALLOWED_ORIGINS=.*#Environment=OPENIEM_ALLOWED_ORIGINS=$kiosk_origins#" \
+      -e "s#^Environment=OPENIEM_SESSION_PUBLIC_BASE=.*#Environment=OPENIEM_SESSION_PUBLIC_BASE=$kiosk_public_base#" \
       -e "s#^Environment=OPENIEM_MUSICIAN_WEB_ROOT=.*#Environment=OPENIEM_MUSICIAN_WEB_ROOT=$PREFIX/current/web/musician#" \
       -e "s#^Environment=OPENIEM_JWT_PRIVATE_PEM=.*#Environment=OPENIEM_JWT_PRIVATE_PEM=$CONFIG_DIR/keys/ed25519_private.pem#" \
       -e "s#^Environment=OPENIEM_JWT_PUBLIC_PEM=.*#Environment=OPENIEM_JWT_PUBLIC_PEM=$CONFIG_DIR/keys/ed25519_public.pem#" \

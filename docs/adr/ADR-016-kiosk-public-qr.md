@@ -1,6 +1,6 @@
 # ADR-016 — Modo kiosk Linux com QR público local
 
-- **Status:** Proposed
+- **Status:** Blocked pending secure local QR broker
 - **Data:** 2026-10-06
 - **Decisor:** Arquitetura Open IEM
 
@@ -10,9 +10,9 @@ Instalações locais em Raspberry Pi, Ubuntu e Debian podem operar como kiosk. U
 
 ## Decisão
 
-Adicionar kiosk como perfil opcional do instalador Linux. A instalação pergunta se deve ativar kiosk; automação usa `--kiosk` ou `--no-kiosk` e nunca bloqueia aguardando input. Quando ativo, um serviço systemd opcional inicia navegador Chromium/Chrome em usuário não privilegiado após rede e sessão gráfica. Sem display ou navegador, instalação mantém API funcional e imprime URL LAN para abertura em outro dispositivo.
+O perfil kiosk permanece explicitamente bloqueado no instalador até existir contrato local protegido (por exemplo, broker Unix socket com autenticação de sessão) para obter QR ativo sem credencial admin. A instalação pergunta se deve ativar kiosk; automação usa `--kiosk` ou `--no-kiosk` e nunca bloqueia aguardando input. O instalador não inicia navegador kiosk: não existe contrato seguro revisado para broker local de QR, e nenhum admin token/segredo pode entrar em serviço, ambiente, argumentos ou storage. Sem display ou navegador, instalação mantém API funcional e imprime URL LAN para abertura em outro dispositivo.
 
-A URL pública usa hostname mDNS quando disponível e endereços LAN descobertos em runtime. Nenhum IP fica gravado no Git. Com `--kiosk`, instalador configura API em `0.0.0.0:8080`, mantém URL em HTTP LAN e permite origem same-host sem credenciais. Sem kiosk, API permanece em `127.0.0.1:8080`. HTTP LAN não é seguro contra observadores nem deve ser exposto à Internet; HTTPS exige reverse proxy TLS e allowlist explícita de origens HTTPS. Instalador não altera firewall automaticamente.
+A URL pública usa hostname mDNS quando disponível e endereços LAN descobertos em runtime. Nenhum IP fica gravado no Git. A API LAN pode ser configurada por `--kiosk`, mas o navegador kiosk não é alegado como funcional enquanto broker seguro não existir. Sem kiosk, API permanece em `127.0.0.1:8080`. HTTP LAN não é seguro contra observadores nem deve ser exposto à Internet; HTTPS exige reverse proxy TLS e allowlist explícita de origens HTTPS. Instalador não altera firewall automaticamente.
 
 QR continua bearer capability e usa contrato existente de geração, rotação, revogação, rate limit e consumo. QR e sessão criada por QR usam exatamente o mesmo TTL, configurável por `OPENIEM_QR_SESSION_TTL_SECONDS`; padrão 4 horas, mínimo 60 segundos, máximo 86400 segundos. Não existe mais TTL independente de 10 minutos.
 
@@ -36,9 +36,9 @@ O frontend lê convite do fragmento, remove o fragmento imediatamente com `histo
 
 ## Critérios de aceitação
 
-1. Prompt interativo pergunta ativação; flags não interativas funcionam.
-2. Reexecução é idempotente e reboot reabre kiosk quando habilitado.
-3. `openiem-server.service` inicia antes do navegador.
+1. Kiosk permanece bloqueado explicitamente; `--kiosk` não instala serviço falso.
+2. Reexecução remove serviço kiosk anterior sem tocar API, banco ou chaves.
+3. Broker local protegido deve existir antes de qualquer futura unidade kiosk.
 4. URL LAN funciona sem IP fixo no repositório.
 5. QR e sessão expiram no mesmo instante configurado.
 6. QR expirado, revogado e reutilizado não criam sessão.

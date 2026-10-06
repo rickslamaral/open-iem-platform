@@ -29,6 +29,7 @@ Environment=OPENIEM_MUSICIAN_WEB_ROOT=/opt/openiem/current/web/musician
 Environment=OPENIEM_BIND_ADDR=127.0.0.1:8080
 # Kiosk enables explicit same-host LAN origins; disabled mode uses allowlist below.
 Environment=OPENIEM_KIOSK_MODE=false
+Environment=OPENIEM_SESSION_PUBLIC_BASE=http://127.0.0.1:8080
 # Browser state-changing requests must match TLS reverse-proxy origin.
 Environment=OPENIEM_ALLOWED_ORIGINS=https://iem.local
 

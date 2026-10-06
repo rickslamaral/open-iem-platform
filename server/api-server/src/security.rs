@@ -1,7 +1,7 @@
 //! Request-boundary security checks for browser-originated state changes.
 
 use crate::error::ApiError;
-use axum::http::{header, Method};
+use axum::http::{header, Method, Uri};
 use axum::{extract::Request, middleware::Next, response::Response};
 
 const DEFAULT_ALLOWED_ORIGINS: &[&str] = &["http://localhost", "http://127.0.0.1"];
@@ -43,9 +43,14 @@ pub async fn validate_origin(req: Request, next: Next) -> Result<Response, ApiEr
                 .get(header::HOST)
                 .and_then(|value| value.to_str().ok())
                 .is_some_and(|host| {
-                    origin
-                        .strip_prefix("http://")
-                        .is_some_and(|origin_host| origin_host == host)
+                    let Ok(uri) = origin.parse::<Uri>() else {
+                        return false;
+                    };
+                    uri.scheme_str() == Some("http")
+                        && uri.authority().is_some_and(|authority| {
+                            authority.host().parse::<std::net::IpAddr>().is_ok()
+                                && authority.as_str() == host
+                        })
                 });
         let allowed = same_host_origin
             || std::env::var("OPENIEM_ALLOWED_ORIGINS").ok().map_or_else(

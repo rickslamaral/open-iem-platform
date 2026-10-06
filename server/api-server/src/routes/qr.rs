@@ -35,12 +35,20 @@ use uuid::Uuid;
 const QR_SESSION_TTL_DEFAULT: u64 = 4 * 60 * 60;
 const QR_SESSION_TTL_MAX: u64 = 24 * 60 * 60;
 /// Read configured QR/session lifetime.
-fn qr_session_ttl() -> u64 {
-    std::env::var("OPENIEM_QR_SESSION_TTL_SECONDS")
-        .ok()
+#[must_use]
+pub fn parse_qr_session_ttl(value: Option<&str>) -> u64 {
+    value
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| (60..=QR_SESSION_TTL_MAX).contains(value))
         .unwrap_or(QR_SESSION_TTL_DEFAULT)
+}
+
+fn qr_session_ttl() -> u64 {
+    parse_qr_session_ttl(
+        std::env::var("OPENIEM_QR_SESSION_TTL_SECONDS")
+            .ok()
+            .as_deref(),
+    )
 }
 const MAX_NAME: usize = 80;
 const QR_SECRET_HEX_LEN: usize = 64;
@@ -202,7 +210,7 @@ async fn configure(
     let session_base = std::env::var("OPENIEM_SESSION_PUBLIC_BASE")
         .unwrap_or_else(|_| "http://localhost:5173".to_owned());
     let session_url = format!(
-        "{}/#invitation={secret}",
+        "{}/musician/#invitation={secret}",
         session_base.trim_end_matches('/')
     );
     Ok((
@@ -455,11 +463,14 @@ mod tests {
     }
 
     #[test]
-    fn qr_ttl_uses_same_configured_value_as_session_ttl() {
-        std::env::set_var("OPENIEM_QR_SESSION_TTL_SECONDS", "3600");
-        assert_eq!(qr_session_ttl(), 3600);
-        std::env::remove_var("OPENIEM_QR_SESSION_TTL_SECONDS");
-        assert_eq!(qr_session_ttl(), QR_SESSION_TTL_DEFAULT);
+    fn qr_ttl_parser_enforces_default_and_bounds() {
+        assert_eq!(parse_qr_session_ttl(None), QR_SESSION_TTL_DEFAULT);
+        assert_eq!(parse_qr_session_ttl(Some("3600")), 3600);
+        assert_eq!(parse_qr_session_ttl(Some("60")), 60);
+        assert_eq!(parse_qr_session_ttl(Some("86400")), 86400);
+        for value in ["0", "59", "86401", "bad"] {
+            assert_eq!(parse_qr_session_ttl(Some(value)), QR_SESSION_TTL_DEFAULT);
+        }
     }
 
     #[tokio::test]
