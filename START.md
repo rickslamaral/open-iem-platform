@@ -6160,6 +6160,30 @@ Cada operação exige permission check explícito no servidor. Banda nunca conce
 - Revogação remove sessão e presença.
 - Testes cobrem RBAC, concorrência QR, username duplicado, banda inativa, logout, expiração, reconexão e corrida de revogação.
 
+### Servidor Docker de teste Web UI
+
+Usar sempre este ambiente antes de merge para validar fluxos completos pela interface web:
+
+URLs são geradas em runtime pelo host informado ao script:
+
+```text
+Engineer: http://<PUBLIC_HOST>:5174/
+Musician: http://<PUBLIC_HOST>:5173/
+API:      http://<PUBLIC_HOST>:3000/
+```
+
+Configuração usa `OPENIEM_PUBLIC_HOST`; nenhum IP fica versionado:
+
+```bash
+OPENIEM_ALLOW_INSECURE_HTTP_ACK=I_UNDERSTAND_HTTP_ONLY scripts/start-public-test.sh <PUBLIC_HOST>
+```
+
+Stack usa HTTP sem TLS. Rodar somente em LAN/trusted network para teste; nunca usar produção. O script aborta sem confirmação explícita, valida senha e chave JWT.
+
+Compose injeta `OPENIEM_ALLOWED_ORIGINS`, `OPENIEM_SESSION_PUBLIC_BASE` e `VITE_API_BASE_URL`; script valida Compose e força recriação de API e UIs.
+
+Validar no Chrome Android/Desktop: login Engineer, QR gerar/rotacionar/desativar, URL Musician, onboarding, login Musician, banda/`Default/Padrão`, presença, assignment, controles e logout. QR antigo fica inválido após rotação; não reutilizar.
+
 ### Validação antes de merge
 
 ```bash
