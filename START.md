@@ -1,3 +1,12 @@
+## 2026-10-06 16:47 -0300 — verificação operacional no HEAD `78a2961`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; `git fetch --prune` executado; branch `develop` e `origin/develop` sincronizadas no HEAD `78a2961ffbc209b1e1cf170a34ab624d0867cf72`; working tree limpa antes desta atualização.
+- Backlog revisado: nenhuma tarefa CODE segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates reais desta rodada: `scripts/validate-docs.sh` PASS; `scripts/check-kiosk-contract.sh` PASS; `python3 -m py_compile scripts/openiem-qr-broker.py` PASS; `bash -n scripts/install.sh` PASS; `git diff --check` PASS; Rust fmt/clippy/testes PASS (`cargo test --manifest-path server/Cargo.toml`: 537 testes principais, suítes auxiliares e doctests); musician typecheck, 69 testes e build PASS; engineer typecheck, 59 testes e build PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Evidência permanece `CODE/CI/SIMULATED`.
+- PR #355 permanece aberta fora de `develop`; CI remoto falha em Rust Format + Clippy + Tests e npm Security Audit. Política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; matriz kiosk X11/Wayland, Chromium/Chrome, Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-06 16:07 -0300 — verificação operacional no HEAD `0021f57`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
