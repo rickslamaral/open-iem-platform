@@ -47,6 +47,22 @@ fn unix_now() -> u64 {
         .as_secs()
 }
 
+/// Build refresh cookie attributes.
+///
+/// Local installs use HTTP by default, including Raspberry Pi and desktop
+/// deployments. Production hardening opts into `Secure` explicitly with
+/// `OPENIEM_REQUIRE_SECURE_COOKIES=true`.
+pub(crate) fn refresh_cookie(raw: &str, max_age: u64) -> String {
+    let secure = if std::env::var("OPENIEM_REQUIRE_SECURE_COOKIES").as_deref() == Ok("true") {
+        " Secure;"
+    } else {
+        ""
+    };
+    format!(
+        "refresh_token={raw}; HttpOnly;{secure} SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age={max_age}"
+    )
+}
+
 /// Parse a named cookie from the `Cookie` request header.
 /// Returns the value as `&str` if found.
 fn extract_cookie_value<'a>(headers: &'a axum::http::HeaderMap, name: &str) -> Option<&'a str> {
@@ -138,9 +154,7 @@ pub async fn login(
         StatusCode::OK,
         [(
             header::SET_COOKIE,
-            format!(
-                "refresh_token={raw_refresh}; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age={REFRESH_TOKEN_TTL_S}"
-            ),
+            refresh_cookie(&raw_refresh, REFRESH_TOKEN_TTL_S),
         )],
         Json(LoginResponse {
             access_token: access,
@@ -241,9 +255,7 @@ pub async fn refresh(
         StatusCode::OK,
         [(
             header::SET_COOKIE,
-            format!(
-                "refresh_token={raw_new_refresh}; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth/refresh; Max-Age={REFRESH_TOKEN_TTL_S}"
-            ),
+            refresh_cookie(&raw_new_refresh, REFRESH_TOKEN_TTL_S),
         )],
         Json(RefreshResponse {
             access_token: access,

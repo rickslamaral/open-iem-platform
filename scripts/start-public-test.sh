@@ -6,7 +6,6 @@ REPO_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 COMPOSE_FILE="$REPO_ROOT/docker-compose.public.yml"
 ENV_FILE="$REPO_ROOT/.env.local"
 PUBLIC_HOST="${1:-${OPENIEM_PUBLIC_HOST:-}}"
-INSECURE_HTTP_ACK="${OPENIEM_ALLOW_INSECURE_HTTP_ACK:-}"
 
 if [[ -z "$PUBLIC_HOST" ]]; then
   printf 'usage: %s PUBLIC_HOST\n' "$0" >&2
@@ -31,11 +30,6 @@ else
     [[ "${#label}" -le 63 ]] || { printf 'invalid DNS host\n' >&2; exit 2; }
     [[ "$label" =~ ^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?$ ]] || { printf 'invalid DNS host\n' >&2; exit 2; }
   done
-fi
-
-if [[ "$INSECURE_HTTP_ACK" != "I_UNDERSTAND_HTTP_ONLY" ]]; then
-  printf 'refusing plaintext HTTP stack; set OPENIEM_ALLOW_INSECURE_HTTP_ACK=I_UNDERSTAND_HTTP_ONLY for trusted LAN testing only\n' >&2
-  exit 2
 fi
 
 [[ -f "$COMPOSE_FILE" && ! -L "$COMPOSE_FILE" ]] || { printf 'missing compose file: %s\n' "$COMPOSE_FILE" >&2; exit 1; }
