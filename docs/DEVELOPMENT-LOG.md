@@ -1,3 +1,12 @@
+## 2026-10-05 21:26 -0300 — verificação operacional no HEAD `a7e4609a8f8ef3bc77628a204c61f39165ec2795`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa.
+- `git fetch --prune` executado; `gh pr list --base main --state open` retornou `[]`; política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE consultado; nenhuma tarefa executável nova. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check` e `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
+- `gh run list --branch develop` não possui SUCCESS no HEAD exato; últimos SUCCESS cobrem SHA anterior `21d88c9bb3cffef3d5c12690acb64b4663ce22e0` e não contam como evidência. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- Evidência permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-05 20:51 -0300 — verificação operacional no HEAD `4a8441a7963081a08f6b2ca28dcc9044c9e0ccb7`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree estava limpa antes desta atualização documental.
