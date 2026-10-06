@@ -1,3 +1,11 @@
+## 2026-10-06 14:00 -0300 — verificação operacional no HEAD `4e9ce2a`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `4e9ce2a6c09fd33173528bc91e4b1d4d3ae9306c`; working tree limpa antes desta atualização.
+- PR #355 permanece aberta em `fix/stable-atomic-counter-update`, fora de `develop`, com falhas registradas nos logs remotos: Rust Clippy rejeita `fetch_update` depreciado em `streaming/src/media_plane.rs:292` e `streaming/src/opus_receiver.rs:413`; npm audit acusa 1 vulnerabilidade HIGH em `source-map-js`. Política vigente não altera branch da PR, não abre PR, não faz merge e não altera `main`.
+- Gates locais desta rodada: `scripts/validate-docs.sh` PASS; `git diff --check` PASS; demais gates de produto não repetidos porque working tree limpa e backlog CODE permanece sem tarefa executável segura.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência disponível: `CODE/CI/SIMULATED`.
+
 ## 2026-10-06 13:22 -0300 — verificação operacional no HEAD `afc59c9`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `afc59c9b02b46d8e451144345c0ef7ab65c92b3e`; working tree estava limpa antes desta atualização.

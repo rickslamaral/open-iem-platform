@@ -1,3 +1,9 @@
+## 2026-10-06 14:00 -0300 — verificação operacional no HEAD `4e9ce2a`
+
+- Estado confirmado em `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
+- PR #355 continua bloqueada: Clippy remoto rejeita `fetch_update` depreciado nos dois pontos do crate `streaming`, recomendando `try_update`; auditoria npm falha por `source-map-js` HIGH. Política do ciclo proíbe tocar branch da PR, abrir PR ou fazer merge.
+- `scripts/validate-docs.sh` e `git diff --check` passaram localmente. Backlog documenta hardware físico, release, secret externo e runner remoto como pendências.
+
 ## 2026-10-06 13:22 -0300 — verificação operacional no HEAD `afc59c9`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `afc59c9b02b46d8e451144345c0ef7ab65c92b3e`; working tree estava limpa antes desta atualização.

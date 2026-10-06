@@ -1,3 +1,10 @@
+## 2026-10-06 14:00 -0300 — verificação operacional no HEAD `4e9ce2a`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- PR #355 permanece aberta e falha em dois gates remotos: Clippy rejeita `fetch_update` depreciado em `streaming/src/media_plane.rs:292` e `streaming/src/opus_receiver.rs:413`, recomendando `try_update`; npm audit reporta vulnerabilidade HIGH em `source-map-js`. Branch da PR não foi alterada por política vigente.
+- Gates locais executados: `scripts/validate-docs.sh` PASS e `git diff --check` PASS. Backlog consultado; itens restantes documentados exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; evidência `CODE/CI/SIMULATED`.
+
 ## 2026-10-06 13:22 -0300 — verificação operacional no HEAD `afc59c9`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD `afc59c9b02b46d8e451144345c0ef7ab65c92b3e`; working tree estava limpa antes desta atualização.
