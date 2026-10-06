@@ -5721,3 +5721,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - Gates PASS: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --all-targets --manifest-path server/Cargo.toml -- -D warnings`, `cargo test --manifest-path server/Cargo.toml` (537 testes principais + suítes auxiliares/doctests).
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão das linhas adicionadas não encontrou segredos ou padrões perigosos.
 - CI remoto sem execução `SUCCESS` no HEAD exato; não contado como evidência. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`. Evidência: `CODE/CI/SIMULATED`.
+
+
+- [x] Verificação operacional 2026-10-06 19:06 -0300: `develop`/`origin/develop` sincronizadas no HEAD `805541c`; working tree limpa; backlog CODE sem tarefa segura nova; PR #355 aberta fora de `develop` com CI falho; scanner indisponível; evidência `CODE/CI/SIMULATED`; físico e release seguem `PENDING/BLOCKED`.
+- [ ] Permanecem pendentes apenas hardware físico, confirmação de release, secret externo ou runner remoto.
