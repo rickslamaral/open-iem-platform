@@ -1,3 +1,12 @@
+## 2026-10-07 17:16 -0300 — verificação operacional no HEAD `937771fc3504e3072f8043cb181910c7189dde54`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` concluído; branch `develop` e `origin/develop` estavam sincronizadas no SHA exato `937771fc3504e3072f8043cb181910c7189dde54` antes deste registro; working tree limpa antes desta alteração documental.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável neste host. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa foi inventada.
+- PRs abertas externas a `develop`: #355 permanece com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; Dependabot #356–#366 também reportam `npm Security Audit` falho. Política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- CI remoto de `develop` não possui execução no HEAD base exato; `gh run list --branch develop --commit 937771fc3504e3072f8043cb181910c7189dde54 --limit 5` retornou `[]`. Runs de outros SHAs não contam.
+- Gates desta alteração documental: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`. Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 16:57 -0300 — verificação operacional no HEAD `8da6c025ac96ecf30954491e54e493308b2092eb`
 
 - Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` concluído; branch `develop`, `origin/develop` e working tree limpas/sincronizadas no SHA exato `8da6c025ac96ecf30954491e54e493308b2092eb`.
