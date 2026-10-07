@@ -7451,3 +7451,12 @@ Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRT
 - PRs externas #355 e #356–#366 permanecem fora de `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Alteração desta rodada é somente registro operacional, sem código de produto ou segredos.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-07 19:30 -0300 — verificação operacional no HEAD `8f462e5929c3f36e886a9af01ca186498c12f9eb`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` concluído; branch `develop`, `origin/develop` e working tree limpas/sincronizadas no SHA exato `8f462e5929c3f36e886a9af01ca186498c12f9eb`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável neste host. Pendências exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção de PR externa; nenhuma tarefa inventada.
+- CI remoto no HEAD exato não possui execução `SUCCESS`; nenhum SUCCESS de SHA diferente foi contado como evidência.
+- PRs externas permanecem fora de `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível neste host (`No such file or directory`); nenhum resultado inventado. Esta alteração é somente registro operacional, sem código de produto ou segredos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
