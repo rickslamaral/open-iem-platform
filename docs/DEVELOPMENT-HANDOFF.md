@@ -6497,3 +6497,14 @@ test → review → docs/GAP update → PR/CI
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Linhas adicionadas são somente registro operacional, sem código de produto ou segredos.
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `4571ff2`; últimas execuções verdes cobrem SHAs anteriores e não contam como evidência.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+
+## 2026-10-07 07:12 -0300 — verificação operacional no HEAD 5c93076
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta rodada.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa foi inventada.
+- Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; Rust fmt, clippy e testes (`537` testes principais + suítes auxiliares/doctests); musician typecheck, `69` testes e build; engineer typecheck, `59` testes e build; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
+- Comando genérico `npm test -- --watchAll=false` falhou porque Vitest 5 rejeita opção Jest `--watchAll`; execução correta `npm test` passou nos dois frontends.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Mudança desta rodada é somente registro operacional, sem código de produto ou segredos.
+- CI remoto de `develop` não possui `SUCCESS` no HEAD exato; PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
