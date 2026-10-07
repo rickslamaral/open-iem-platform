@@ -12017,3 +12017,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Scanner /root/scan_patterns.py indisponível neste host; nenhum resultado inventado. Diff desta rodada é somente registro operacional, sem código de produto ou segredos.
 - CI remoto de develop não possui SUCCESS no HEAD exato 7800a16; execuções anteriores cobrem outros SHAs e não contam como evidência. PR #355 permanece aberta em branch externa com Rust Format + Clippy + Tests e npm Security Audit falhos; política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera main.
 - Evidência: CODE/CI/SIMULATED; PHYSICAL: USER-APPROVED / NOT EXECUTED. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release v0.3.1 seguem PENDING/BLOCKED.
+
+## 2026-10-07 01:22 -0300 — verificação operacional no HEAD `2755946`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas no SHA exato `2755946ada5b389d04686f7acb599942f6ce0e77`; working tree limpa antes desta atualização.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa foi inventada.
+- PR #355 permanece aberta em branch externa `fix/stable-atomic-counter-update`; CI falha em `Rust Format + Clippy + Tests` e `npm Security Audit`. Política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Gates reais PASS nesta rodada: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, suítes auxiliares e doctests); `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Alteração desta rodada é somente este registro operacional, sem código de produto ou segredos; revisão independente de código não aplicável.
+- CI remoto de `develop` não possui `SUCCESS` no HEAD exato `2755946`; execuções anteriores cobrem outros SHAs e não contam como evidência.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
