@@ -1,3 +1,12 @@
+## 2026-10-07 00:47 -0300 — verificação operacional no HEAD 2753f1b
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; `git fetch --prune`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates reais desta rodada: `scripts/validate-docs.sh`, `git diff --check`, `cargo fmt --all --manifest-path server/Cargo.toml -- --check`, `cargo clippy --all-targets --manifest-path server/Cargo.toml -- -D warnings` e `cargo test --manifest-path server/Cargo.toml` PASS (537 testes principais, suítes auxiliares e doctests).
+- `gh run list --branch develop --limit 5` não possui `SUCCESS` no HEAD exato 2753f1b; execuções anteriores não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 00:41 -0300 — verificação operacional no HEAD 0296b1d
 
 - Lease adquirido com `flock -n .git/hermes-dev.lock`; `git fetch --prune` executado; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes desta atualização.
