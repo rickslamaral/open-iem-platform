@@ -1,3 +1,13 @@
+## 2026-10-07 16:57 -0300 — verificação operacional no HEAD `8da6c025ac96ecf30954491e54e493308b2092eb`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` concluído; branch `develop`, `origin/develop` e working tree limpas/sincronizadas no SHA exato `8da6c025ac96ecf30954491e54e493308b2092eb`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável neste host. Pendências exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa; nenhuma tarefa foi inventada.
+- Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais + suítes auxiliares/doctests); musician typecheck, 69 testes, build; engineer typecheck, 59 testes, build.
+- Comando prescrito `npm test -- --watchAll=false` falha por opção incompatível com Vitest (`CACError: Unknown option \`--watchAll\``); rerun correto `npm test -- --run` PASS em ambos frontends.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- CI remoto de `develop` não possui execução `SUCCESS` no HEAD exato; `gh run list --branch develop --commit 8da6c025ac96ecf30954491e54e493308b2092eb --limit 10` não retornou runs. PR #355 e #356–#366 permanecem externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 16:50 -0300 — verificação operacional no HEAD `3836a4311e57170805d4375a0c17028aa6c67016`
 
 - Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização; HEAD exato `3836a4311e57170805d4375a0c17028aa6c67016`.
