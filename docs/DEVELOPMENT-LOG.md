@@ -1,3 +1,12 @@
+## 2026-10-07 12:35 -0300 — verificação operacional no HEAD `dfb188da3e5de9c0da233ae6d6235fde60b58f51`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` concluído; branch `develop`, `origin/develop` e working tree estavam sincronizadas no SHA exato antes deste registro.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Itens `[ ]` restantes exigem validação física de X11/Wayland, Chromium/Chrome, Raspberry Pi OS, Ubuntu/Debian, reboot, kiosk e host headless; execução física segue fora deste host.
+- PR #355 permanece aberta fora de `develop`, em `fix/stable-atomic-counter-update`, com falhas reais em `Rust Format + Clippy + Tests` e `npm Security Audit`; política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- CI remoto de `develop` não possui execução no HEAD exato; SUCCESS de outros SHAs não conta como evidência.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Alteração desta rodada é somente registro operacional, sem código de produto ou segredos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 12:30 -0300 — verificação operacional no HEAD `5b84762033db7dc9d08c97b7c3233c24b953f19d`
 
 - Lease `flock -n .git/hermes-dev.lock` e `git fetch --prune` PASS; branch `develop` e `origin/develop` estavam sincronizadas no SHA exato antes deste registro; working tree estava limpa antes do staging deste registro.
