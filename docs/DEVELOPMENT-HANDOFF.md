@@ -1,3 +1,13 @@
+## 2026-10-07 03:01 -0300 — verificação operacional no HEAD `6672a0cc556a50999ddab51b19efbcbacc68fb7c`
+
+- Lease validado com `flock`; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável nesta rodada. Itens restantes exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa; nenhuma tarefa foi inventada.
+- PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, suítes auxiliares e doctests).
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Mudança desta rodada é somente registro operacional, sem código de produto ou segredos.
+- CI remoto de `develop` não possui `SUCCESS` no HEAD exato `6672a0cc556a50999ddab51b19efbcbacc68fb7c`; execuções verdes anteriores cobrem SHAs anteriores e não contam como evidência.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 02:57 -0300 — verificação operacional no HEAD `4ffe2182554e7dba6aebbd2f872cf5cad0a905a6`
 
 - Lease validado com `flock`; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas no SHA exato `4ffe2182554e7dba6aebbd2f872cf5cad0a905a6`; working tree limpa antes desta atualização.
