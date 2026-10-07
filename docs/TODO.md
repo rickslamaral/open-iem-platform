@@ -1,3 +1,11 @@
+## 2026-10-07 06:55 -0300 — verificação operacional no HEAD `0d035b8`
+
+- Lease validado; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes da rodada.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa.
+- Gates desta rodada serão executados após este registro. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 
 ## 2026-10-07 05:48 -0300 — verificação operacional no HEAD `28e6ba1e6db2e2504e7debe7335f8314f4f2fe54`
 
