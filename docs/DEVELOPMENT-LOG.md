@@ -1,3 +1,11 @@
+## 2026-10-07 12:16 -0300 — verificação operacional no HEAD `5d7cc5b73d8733433aaa15c1bb8510ddb215df3c`
+
+- Lease `flock -n .git/hermes-dev.lock` e `git fetch --prune` PASS; após o registro anterior, `develop` local está 1 commit à frente de `origin/develop` (`HEAD=5d7cc5b73d8733433aaa15c1bb8510ddb215df3c`, remoto=`ed2a1a668e559a79e2fd090a2074ffd1c956af7e`).
+- `gh run list --branch develop --commit 5d7cc5b73d8733433aaa15c1bb8510ddb215df3c --limit 10` não retornou execuções; nenhum SUCCESS remoto foi contado.
+- `scripts/validate-docs.sh` PASS; `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado.
+- PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Hardware físico, WebRTC/DTLS-SRTP, release `v0.3.1` e demais pendências seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 12:10 -0300 — verificação operacional no HEAD `ed2a1a668e559a79e2fd090a2074ffd1c956af7e`
 
 - Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` PASS; branch `develop`, `origin/develop` e working tree sincronizadas no SHA exato `ed2a1a668e559a79e2fd090a2074ffd1c956af7e`.
