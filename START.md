@@ -7309,3 +7309,13 @@ Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRT
 - Gates desta rodada PASS: documentação, sintaxe, Rust fmt/clippy/testes (537 testes principais + suítes auxiliares/doctests), musician/engineer typecheck/testes/build e `git diff --check`. Scanner `/root/scan_patterns.py` indisponível neste host (`No such file or directory`); nenhum resultado inventado.
 - CI remoto de `develop` não possui execução `SUCCESS` no HEAD exato; execuções antigas não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+
+## 2026-10-07 15:11 -0300 — verificação operacional no HEAD `dbba70905904d3e8bdefeb2e9a57fcccce368795`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` concluído; branch `develop`, `origin/develop` e working tree limpas/sincronizadas no SHA exato `dbba70905904d3e8bdefeb2e9a57fcccce368795`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa; nenhuma tarefa foi inventada.
+- Gates desta rodada PASS: `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`.
+- Scanner `/root/scan_patterns.py` indisponível neste host (`No such file or directory`); nenhum resultado inventado. Esta rodada não altera código de produto nem adiciona segredos.
+- CI remoto real de `develop` ainda não cobre o HEAD exato `dbba70905904d3e8bdefeb2e9a57fcccce368795`; últimos SUCCESS cobrem SHAs anteriores e não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.

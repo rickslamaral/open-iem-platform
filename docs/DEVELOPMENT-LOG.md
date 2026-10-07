@@ -12790,3 +12790,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Revisão das linhas adicionadas: somente registro operacional, sem segredos ou padrões perigosos.
 - CI remoto de `develop` não possui execução no HEAD exato `ce74e3187297dfa69ebc74c91239ca7316db3268`; `gh run list` retornou `[]`. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+
+## 2026-10-07 15:11 -0300 — verificação operacional no HEAD `dbba70905904d3e8bdefeb2e9a57fcccce368795`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` concluído; branch `develop`, `origin/develop` e working tree limpas/sincronizadas no SHA exato `dbba70905904d3e8bdefeb2e9a57fcccce368795`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa; nenhuma tarefa foi inventada.
+- Gates desta rodada PASS: `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`.
+- Scanner `/root/scan_patterns.py` indisponível neste host (`No such file or directory`); nenhum resultado inventado. Esta rodada não altera código de produto nem adiciona segredos.
+- CI remoto real de `develop` ainda não cobre o HEAD exato `dbba70905904d3e8bdefeb2e9a57fcccce368795`; últimos SUCCESS cobrem SHAs anteriores e não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
