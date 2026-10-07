@@ -1,3 +1,11 @@
+## 2026-10-07 11:51 -0300 — verificação operacional no HEAD `c07998f7567d45fb2cd8e583acc3780ba50fef12`
+
+- `flock -n .git/hermes-dev.lock -c ...` PASS; `git fetch --prune` PASS; branch `develop`; `HEAD` e `origin/develop` iguais em `c07998f7567d45fb2cd8e583acc3780ba50fef12`; working tree limpa antes deste registro.
+- `scripts/validate-docs.sh` PASS; `git diff --check` PASS.
+- `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. A alteração desta rodada é somente este registro operacional.
+- `gh run list --branch develop --limit 10` não listou execução no SHA atual; `gh pr list --base main --state open` confirmou PR #355 aberta, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Nenhuma ação foi feita na PR ou em `main`.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-07 10:58 -0300 — verificação operacional no HEAD `03841f3`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; `git fetch --prune` concluído; branch `develop`, `origin/develop` e working tree limpas/sincronizadas no SHA exato `03841f3422e54388cef5ec798913f525f3cd3d74` antes deste registro.
