@@ -1,3 +1,12 @@
+## 2026-10-07 20:15 -0300 — verificação operacional no HEAD `117adff2052562dd23e5a49ed6549123f7525101`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` já concluído; branch `develop`, `origin/develop` e working tree limpas/sincronizadas no SHA exato atual.
+- `docs/TODO.md` revisado: nenhuma tarefa CODE segura disponível; pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto. Nenhuma tarefa inventada.
+- PRs abertas são externas a `develop` (Dependabot e `fix/stable-atomic-counter-update`); política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`. CI dessas PRs mantém `npm Security Audit` falho; isso não é evidência sobre `develop`.
+- `gh run list --branch develop --commit 117adff2052562dd23e5a49ed6549123f7525101 --limit 10` no HEAD exato retornou `[]`; nenhum SUCCESS de SHA diferente contado. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- Gates desta rodada: lease, sincronização, estado Git e revisão documental. Sem código de produto alterado; não repetir gates de produto.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 20:10 -0300 — verificação operacional no HEAD `4aa64ed10757a521714c656ab2eeec2bb93bd76b`
 
 - Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune` e sincronização branch `develop`/`origin/develop` PASS; working tree limpa e SHA local/remoto exato `4aa64ed10757a521714c656ab2eeec2bb93bd76b`.
