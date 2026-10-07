@@ -1,7 +1,16 @@
+## 2026-10-06 23:11 -0300 — verificação operacional no HEAD 6e5acbd
+
+- Lease adquirido com flock; nesta execução, `git fetch --prune` retornou sucesso; `git rev-parse HEAD origin/develop` confirmou ambos em `6e5acbda3d72549f9914ca2a3b119b21ecff019b`; working tree estava limpa antes desta atualização.
+- Backlog CODE revisado nesta execução: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- `gh pr view 355` rechecado nesta execução: PR #355 permanece aberta fora de develop; `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera main.
+- `gh run list --branch develop --limit 5` rechecado nesta execução: nenhum `SUCCESS` no HEAD exato `6e5acbda3d72549f9914ca2a3b119b21ecff019b`; `SUCCESS` anteriores cobrem outros SHAs e não contam como evidência.
+- Gates rechecados nesta execução: `scripts/validate-docs.sh` PASS; `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- Evidência: CODE/CI/SIMULATED. PHYSICAL: USER-APPROVED / NOT EXECUTED; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release v0.3.1 seguem PENDING/BLOCKED.
+
 ## 2026-10-06 23:06 -0300 — verificação operacional no HEAD c3c5390
 
 - Lease adquirido com flock; branch develop sincronizada com origin/develop; working tree limpa antes desta atualização.
-- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE revisado nesta execução: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #355 permanece aberta fora de develop, com Rust Format + Clippy + Tests e npm Security Audit falhos; política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera main.
 - CI remoto de develop não possui SUCCESS no HEAD exato c3c5390; últimos SUCCESS cobrem 21d88c9 e não contam como evidência.
 - Gates desta rodada: scripts/validate-docs.sh e git diff --check PASS. Scanner /root/scan_patterns.py indisponível neste host; nenhum resultado inventado.
@@ -11,7 +20,7 @@
 
 - Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
 - `git fetch --prune` executado; branches remotas válidas: `main`, `develop` e `fix/stable-atomic-counter-update`; PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
-- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE revisado nesta execução: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS (version 0.3.1) e `git diff --check` PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Diff desta atualização é somente registro operacional, sem código de produto ou segredos; revisão independente de código não aplicável.
 - Evidência: `CODE/CI/SIMULATED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
@@ -19,7 +28,7 @@
 ## 2026-10-06 22:56 -0300 — verificação operacional no HEAD `1a91d93`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
-- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE revisado nesta execução: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - `git fetch --prune` executado; PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Gates desta rodada: `scripts/validate-docs.sh` e `git diff --check` serão executados após este registro. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - Evidência: `CODE/CI/SIMULATED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
@@ -27,7 +36,7 @@
 ## 2026-10-06 22:42 -0300 — verificação operacional no HEAD `4afb6bf`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
-- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE revisado nesta execução: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #355 permanece aberta fora de `develop`; `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `4afb6bf`; últimos SUCCESS cobrem `21d88c9` e não contam como evidência.
 - Gates desta rodada: `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
@@ -36,7 +45,7 @@
 ## 2026-10-06 22:22 -0300 — verificação operacional no HEAD `0d64f99`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
-- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE revisado nesta execução: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais desta rodada PASS: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, suítes auxiliares e doctests); musician typecheck/69 testes/build; engineer typecheck/59 testes/build.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Mudança desta rodada é somente registro operacional, sem código de produto ou segredos.
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `0d64f99`; últimos SUCCESS cobrem `21d88c9` e não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
@@ -45,7 +54,7 @@
 ## 2026-10-06 22:03 -0300 — verificação operacional no HEAD `1023c67`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
-- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE revisado nesta execução: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais desta rodada: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes (537 testes principais, suítes auxiliares e doctests), musician typecheck/69 testes/build e engineer typecheck/59 testes/build PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Mudança desta rodada é somente registro operacional, sem código de produto ou segredos.
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `1023c67`; últimos SUCCESS cobrem `21d88c9` e não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
@@ -54,7 +63,7 @@
 ## 2026-10-06 21:53 -0300 — verificação operacional no HEAD `ff25613`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
-- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE revisado nesta execução: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais desta rodada: `scripts/validate-docs.sh`, `git diff --check`, Rust fmt/clippy/testes (537 testes principais, suítes auxiliares e doctests), musician typecheck/69 testes/build e engineer typecheck/59 testes/build PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Diff desta atualização contém somente registro operacional, sem código de produto ou segredos.
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `ff25613`; últimos SUCCESS cobrem `21d88c9` e não contam como evidência. PR #355 permanece aberta fora de `develop` com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
@@ -63,7 +72,7 @@
 ## 2026-10-06 21:48 -0300 — verificação operacional no HEAD `bd4e3b0`
 
 - Branch `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização. Lease não foi adquirido nesta rodada.
-- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE revisado nesta execução: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais desta rodada: `scripts/validate-docs.sh` e `git diff --check` PASS; Rust fmt/clippy/testes PASS (537 testes principais, suítes auxiliares e doctests); musician typecheck/69 testes/build PASS; engineer typecheck/59 testes/build PASS; `bash -n scripts/install.sh` e `python3 -m py_compile scripts/openiem-qr-broker.py` PASS.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Não há diff de produto antes desta atualização.
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `bd4e3b0`; execuções anteriores não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
@@ -11863,7 +11872,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-10-06 19:47 -0300 — verificação operacional no HEAD `5c15c4d`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
-- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE revisado nesta execução: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais PASS: `scripts/validate-docs.sh`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --all-targets --manifest-path server/Cargo.toml -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, suítes auxiliares e doctests); musician typecheck/69 testes/build; engineer typecheck/59 testes/build; `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`); `git diff --check`.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - PR #355 permanece aberta fora de `develop`; CI falha em `Rust Format + Clippy + Tests` (`fetch_update` depreciado) e `npm Security Audit` (`source-map-js` HIGH). Política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
@@ -11881,7 +11890,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-10-06 22:07 -0300 — verificação operacional no HEAD `6a12ca3`
 
 - Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
-- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE revisado nesta execução: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais desta rodada PASS: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, suítes auxiliares e doctests); musician typecheck/69 testes/build; engineer typecheck/59 testes/build.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Mudança desta rodada é somente registro operacional, sem código de produto ou segredos.
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `6a12ca3`; últimos SUCCESS cobrem `21d88c9` e não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
@@ -11890,7 +11899,7 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 ## 2026-10-06 22:12 -0300 — verificação operacional no HEAD `b8bc58e`
 
 - Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato `b8bc58ec62f98272da5948466b6adaf0d882966f`; working tree limpa antes desta atualização.
-- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Backlog CODE revisado nesta execução: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates reais PASS: `scripts/validate-docs.sh`, `git diff --check`, `bash -n scripts/install.sh`, `python3 -m py_compile scripts/openiem-qr-broker.py`; Rust fmt/clippy/testes (537 testes principais, suítes auxiliares e doctests); musician typecheck/69 testes/build; engineer typecheck/59 testes/build.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Mudança desta rodada é somente registro operacional, sem código de produto ou segredos.
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `b8bc58e`; últimos SUCCESS cobrem `21d88c9` e não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
