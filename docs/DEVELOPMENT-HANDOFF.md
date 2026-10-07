@@ -6277,3 +6277,10 @@ test → review → docs/GAP update → PR/CI
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - PR #355 permanece aberta fora de `develop`; CI falha em `Rust Format + Clippy + Tests` (`fetch_update` depreciado) e `npm Security Audit` (`source-map-js` HIGH). Política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Evidência: `CODE/CI/SIMULATED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-06 22:31 -0300 — checkpoint operacional
+
+- `develop`/`origin/develop` em `bdfc07d`; lease validado e working tree estava limpa antes desta atualização.
+- Nenhuma tarefa CODE segura disponível; pendências exigem hardware físico, release, secret externo ou runner remoto.
+- PR #355 continua fora de `develop` e falha em Rust Format + Clippy + Tests e npm Security Audit; não tocar sob política vigente.
+- Evidência disponível: `CODE/CI/SIMULATED`; físico `USER-APPROVED / NOT EXECUTED`.

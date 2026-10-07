@@ -5808,3 +5808,8 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; Rust fmt/clippy/testes (537 testes principais + suítes auxiliares/doctests); musician typecheck/69 testes/build; engineer typecheck/59 testes/build; `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - Evidência: `CODE/CI/SIMULATED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-06 22:31 -0300 — estado do backlog
+
+- Backlog CODE executável esgotado nesta revisão. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Evidência atual permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
