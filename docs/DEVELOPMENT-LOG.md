@@ -12321,3 +12321,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato; não contado como evidência.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+
+## 2026-10-07 07:25 -0300 — verificação operacional no HEAD `e972054`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop`, `origin/develop` e working tree limpas/sincronizadas antes da rodada.
+- Backlog CODE revisado; nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa; política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`.
+- PR #355 permanece aberta fora de `develop`; checks remotos falham em `Rust Format + Clippy + Tests` e `npm Security Audit`; demais jobs reportados PASS. Falhas não pertencem a `develop` e não foram inventadas/corrigidas nesta rodada.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Mudança é somente registro operacional, sem código de produto ou segredos.
+- CI remoto verde no HEAD exato de `develop` não foi encontrado; execuções antigas não contam como evidência. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
