@@ -1,3 +1,12 @@
+## 2026-10-07 06:47 -0300 — verificação operacional no HEAD 41a3318
+
+- Lease validado; `git fetch --prune`; branch `develop` e `origin/develop` sincronizadas; working tree limpa.
+- Nenhuma tarefa de produto segura executável. Pendências exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa.
+- Gates PASS: `scripts/validate-docs.sh`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; `git diff --check`; Rust fmt/clippy/testes (537 testes principais + suítes auxiliares/doctests); musician typecheck/69 testes/build; engineer typecheck/59 testes/build.
+- Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Registro sem código de produto ou segredos.
+- CI remoto sem `SUCCESS` no HEAD exato `41a3318`; execuções verdes anteriores não contam. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos.
+- Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 
 ## 2026-10-07 06:13 -0300 — verificação operacional no HEAD aa1bc06
 

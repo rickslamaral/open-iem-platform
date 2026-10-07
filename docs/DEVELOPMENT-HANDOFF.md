@@ -1,3 +1,12 @@
+## 2026-10-07 06:47 -0300 — verificação operacional no HEAD `41a3318`
+
+- Lease validado; `git fetch --prune`; branch `develop` e `origin/develop` sincronizadas no HEAD exato; working tree limpa antes da rodada.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa.
+- Gates locais PASS: `scripts/validate-docs.sh`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; `git diff --check`; Rust fmt/clippy/testes (537 testes principais + suítes auxiliares/doctests); musician typecheck/69 testes/build; engineer typecheck/59 testes/build.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão das linhas adicionadas limitada ao registro operacional; sem segredos ou padrões perigosos.
+- CI remoto de `develop` não possui `SUCCESS` no HEAD exato `41a3318`; últimas execuções verdes cobrem SHA `21d88c9` e não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política não toca branch externa.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 
 ## 2026-10-07 05:48 -0300 — verificação operacional no HEAD `28e6ba1e6db2e2504e7debe7335f8314f4f2fe54`
 
