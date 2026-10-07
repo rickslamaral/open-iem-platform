@@ -212,7 +212,7 @@
 - Backlog CODE revisado: nenhuma tarefa de produto segura executável nesta rodada. Itens restantes exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa; nenhuma tarefa foi inventada.
 - PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, suítes auxiliares e doctests); `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
-- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Esta mudança é somente registro operacional, sem código de produto ou segredos.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Esta mudança é somente registro operacional; varredura disponível das linhas adicionadas não encontrou segredos ou padrões perigosos.
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `4ffe2182554e7dba6aebbd2f872cf5cad0a905a6`; execuções verdes anteriores cobrem SHAs anteriores e não contam como evidência.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
 
@@ -7163,3 +7163,13 @@ Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRT
 - PR #355 permanece aberta fora de `develop`; `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch externa.
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `b769057`; execuções verdes de outros SHAs não contam.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Hardware físico, WebRTC/DTLS-SRTP, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+
+## 2026-10-07 08:55 -0300 — verificação operacional no HEAD `61c5a11`
+
+- Lease `flock -n .git/hermes-dev.lock` e sincronização `develop`/`origin/develop` validados; working tree limpa antes desta atualização.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa; nenhuma tarefa inventada.
+- PR #355 permanece aberta fora de `develop`; `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Entre as cinco execuções remotas recentes listadas para `develop`, nenhuma cobre o HEAD exato `61c5a11fb6a00939c7d0ab255268f6e9d125d114` com `SUCCESS`; execuções verdes de outros SHAs não contam como evidência.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Esta mudança é somente registro operacional; varredura disponível das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
