@@ -12594,3 +12594,11 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `9f8c05c`; execuções verdes listadas cobrem SHAs anteriores e não contam como evidência.
 - Gates desta rodada: `scripts/validate-docs.sh` PASS; `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-07 11:15 -0300 — verificação operacional no HEAD `bd2ca0e`
+
+- Antes deste registro, lease validado com `flock -n .git/hermes-dev.lock`; `git fetch --prune` concluído; branch `develop`, `origin/develop` e working tree estavam limpas/sincronizadas no SHA exato `bd2ca0eaba8dfe16db7f3cce3f70a4fbc03bf2`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável nesta rodada. Pendências restantes exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa; nenhuma tarefa inventada.
+- CI remoto no HEAD exato `bd2ca0eaba8dfe16db7f3cce3f70a4fbc03bf2f2` retornou `[]`; nenhum SUCCESS remoto encontrado. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Alteração desta rodada é somente registro operacional, sem código de produto ou segredos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
