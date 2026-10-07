@@ -6860,3 +6860,12 @@ Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRT
 - Gates desta rodada: documentação e diff serão executados após este registro; código de produto não foi alterado.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - Evidência: `CODE/CI/SIMULATED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-07 01:37 -0300 — verificação operacional no HEAD `62f0adee1b9b6dc827912845644b4809f2f22c04`
+
+- Lease validado com `flock`; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas no SHA exato `62f0adee1b9b6dc827912845644b4809f2f22c04`; working tree limpa antes desta atualização.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável nesta rodada. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa foi inventada.
+- Gates reais PASS: `scripts/validate-docs.sh` (version 0.3.1) e `git diff --check`. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- PR #355 permanece aberta em branch externa `fix/stable-atomic-counter-update`; checks remotos falham em `Rust Format + Clippy + Tests` e `npm Security Audit`. Política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- CI remoto de `develop` não possui `SUCCESS` no HEAD exato `62f0adee1b9b6dc827912845644b4809f2f22c04`; execuções SUCCESS anteriores cobrem outros SHAs e não contam como evidência.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
