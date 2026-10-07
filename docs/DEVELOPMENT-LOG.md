@@ -4,7 +4,7 @@
 - Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa foi inventada.
 - PR #355 permanece aberta em branch externa `fix/stable-atomic-counter-update`; CI falha em `Rust Format + Clippy + Tests` e `npm Security Audit`. Política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
 - `gh run list --branch develop --limit 5` não possui `SUCCESS` no HEAD exato; execuções anteriores cobrem outros SHAs e não contam como evidência.
-- Gates desta rodada: `scripts/validate-docs.sh` e `git diff --check` serão executados após este registro. Scanner `/root/scan_patterns.py` permanece indisponível neste host; nenhum resultado inventado.
+- Gates desta rodada: `scripts/validate-docs.sh` PASS e `git diff --check` PASS. Scanner `/root/scan_patterns.py` permanece indisponível neste host; nenhum resultado inventado.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
 
 ## 2026-10-06 23:41 -0300 — verificação operacional no HEAD f555c76
