@@ -1,3 +1,12 @@
+## 2026-10-07 15:27 -0300 — verificação operacional no HEAD `5f50b4c69013e51b7f1bf4560e8431ccd1bde4c3`
+
+- Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, `origin/develop` e working tree limpas/sincronizadas PASS; HEAD remoto/local exato `5f50b4c69013e51b7f1bf4560e8431ccd1bde4c3`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais + suítes auxiliares/doctests); musician typecheck, 69 testes, build; engineer typecheck, 59 testes, build.
+- CI remoto de `develop` não possui execução no HEAD exato (`gh run list --branch develop --commit 5f50b4c69013e51b7f1bf4560e8431ccd1bde4c3` retornou vazio); nenhum SUCCESS de SHA diferente foi contado. PRs Dependabot #356–#366 seguem fora de `develop`, alguns ainda em execução e #355 permanece com falhas; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Revisão independente desta alteração documental deve usar o diff exato; não há código de produto ou segredo adicionado.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 15:22 -0300 — verificação operacional no HEAD `121eeb117f84d121c30145c714f497da72be4c32`
 
 - Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, `origin/develop` e working tree limpas/sincronizadas PASS; HEAD remoto/local exato `121eeb117f84d121c30145c714f497da72be4c32`.
