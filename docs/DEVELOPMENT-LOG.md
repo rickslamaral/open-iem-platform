@@ -12522,3 +12522,12 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Entre as cinco execuções remotas recentes listadas para `develop`, nenhuma cobre o HEAD exato `61c5a11fb6a00939c7d0ab255268f6e9d125d114` com `SUCCESS`; execuções verdes de outros SHAs não contam como evidência.
 - Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Esta mudança é somente registro operacional; varredura disponível das linhas adicionadas não encontrou segredos ou padrões perigosos.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-07 09:58 -0300 — verificação operacional no HEAD `1f287fe15b061f22a65806d53ca972a62507f370`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; `git fetch --prune` concluído; refs `develop` e `origin/develop` sincronizadas no SHA exato `1f287fe15b061f22a65806d53ca972a62507f370`; alterações documentais desta rodada aguardam commit.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa; nenhuma tarefa inventada.
+- PR #355 permanece aberta fora de `develop`; `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Consulta de CI no HEAD exato `1f287fe15b061f22a65806d53ca972a62507f370` ainda não fornece execução remota verde; runs de outros SHAs não contam como evidência.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Alteração desta rodada é somente registro operacional, sem código de produto ou segredos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
