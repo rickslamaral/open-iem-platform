@@ -1,3 +1,12 @@
+## 2026-10-07 06:50 -0300 — verificação operacional no HEAD f064969
+
+- Lease validado; git fetch --prune concluído; branch develop e origin/develop sincronizadas; working tree limpa.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa.
+- Gates PASS: scripts/validate-docs.sh; bash -n scripts/install.sh; python3 -m py_compile scripts/openiem-qr-broker.py; git diff --check.
+- Scanner /root/scan_patterns.py indisponível; nenhum resultado inventado. Registro sem código de produto ou segredos.
+- CI remoto sem SUCCESS no HEAD exato f064969; execuções verdes anteriores não contam. PR #355 permanece aberta fora de develop, com Rust Format + Clippy + Tests e npm Security Audit falhos.
+- Evidência CODE/CI/SIMULATED; PHYSICAL: USER-APPROVED / NOT EXECUTED. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release v0.3.1 seguem PENDING/BLOCKED.
+
 ## 2026-10-07 06:47 -0300 — verificação operacional no HEAD 41a3318
 
 - Lease validado; `git fetch --prune`; branch `develop` e `origin/develop` sincronizadas; working tree limpa.
