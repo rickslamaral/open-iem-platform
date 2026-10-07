@@ -1,3 +1,12 @@
+## 2026-10-07 03:43 -0300 — verificação operacional no HEAD cdb91b9
+
+- Lease validado; branch develop e origin/develop sincronizadas no SHA exato cdb91b9eb59dfb7925b704103a016077bcea37d5; working tree limpa.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa.
+- PR #355 permanece aberta fora de develop; Rust Format + Clippy + Tests e npm Security Audit falhos. Política não toca branch externa, não abre PR, não faz merge, squash, delete ou altera main.
+- Gates reais PASS: scripts/validate-docs.sh; git diff --check; bash -n scripts/install.sh; python3 -m py_compile scripts/openiem-qr-broker.py; cargo fmt/clippy/testes (537 testes principais, suítes auxiliares e doctests); musician typecheck/69 testes/build; engineer typecheck/59 testes/build; scripts/ci/run-pipewire-software-e2e.sh (SOFTWARE/SIMULATED).
+- Scanner /root/scan_patterns.py indisponível; nenhum resultado inventado. Registro sem código de produto ou segredos; revisão independente deste registro documental concluída.
+- CI remoto de develop sem SUCCESS no HEAD exato; runs anteriores cobrem outros SHAs. Evidência CODE/CI/SIMULATED; PHYSICAL: USER-APPROVED / NOT EXECUTED.
+
 ## 2026-10-07 03:01 -0300 — verificação operacional no HEAD `6672a0cc556a50999ddab51b19efbcbacc68fb7c`
 
 - Lease validado com `flock`; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
