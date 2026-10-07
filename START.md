@@ -7135,3 +7135,13 @@ Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRT
 - Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Mudança é somente registro operacional, sem código de produto ou segredos.
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `f6dd95c`; últimas execuções verdes cobrem outros SHAs e não contam como evidência. PR #355 continua aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Proxy `scripts/ci/run-pipewire-software-e2e.sh`: `SOFTWARE/SIMULATED` (não hardware físico). `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-07 08:50 -0300 — verificação operacional no HEAD `b769057`
+
+- Lease validado; branch `develop` e `origin/develop` sincronizadas no SHA exato `b769057`; working tree limpa.
+- Backlog CODE revisado; nenhuma tarefa de produto segura executável. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates reais PASS: `scripts/validate-docs.sh`, `git diff --check`, `bash -n scripts/install.sh`, `python3 -m py_compile scripts/openiem-qr-broker.py`.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Registro somente documental, sem código de produto ou segredos.
+- PR #355 permanece aberta fora de `develop`; `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch externa.
+- CI remoto de `develop` não possui `SUCCESS` no HEAD exato `b769057`; execuções verdes de outros SHAs não contam.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Hardware físico, WebRTC/DTLS-SRTP, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
