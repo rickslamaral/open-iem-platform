@@ -6802,3 +6802,13 @@ test → review → docs/GAP update → PR/CI
 - CI remoto de `develop` não possui execução no HEAD exato `a900028b2f1553bf836a18a51297953b72547d6a`; `gh run list --branch develop --commit a900028b2f1553bf836a18a51297953b72547d6a --limit 10` retornou `[]`.
 - Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Esta alteração é somente registro operacional, sem código de produto ou segredos.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+
+## 2026-10-07 20:20 -0300 — verificação operacional
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; branch `develop`, `origin/develop` e working tree estavam limpas/sincronizadas antes desta rodada.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável neste host. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa foi inventada.
+- PRs externas #355 e #356–#366 permanecem fora de `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Consulta CI remota pré-commit no HEAD `ac4621640f29ea20033de7445a1789225bc170eb` retornou `[]`; nenhum SUCCESS de SHA diferente conta como evidência. Consulta pós-commit fica para o próximo ciclo.
+- Gates desta rodada foram executados antes do commit: documentação, Rust, frontends, scripts e diff PASS; scanner `/root/scan_patterns.py` indisponível. Revisão independente PASS nesta entrada; diff somente documental, sem concerns de segurança ou lógica.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
