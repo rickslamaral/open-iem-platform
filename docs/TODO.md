@@ -1,3 +1,9 @@
+## 2026-10-06 23:31 -0300 — verificação operacional no HEAD abda7fc
+
+- Backlog CODE executável permanece esgotado; nenhuma tarefa segura disponível neste ciclo. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- PR #355 permanece aberta fora de `develop`, com CI falho em `Rust Format + Clippy + Tests` e `npm Security Audit`; política vigente não toca branch da PR.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
 ## 2026-10-06 22:22 -0300 — verificação operacional no HEAD `0d64f99`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
