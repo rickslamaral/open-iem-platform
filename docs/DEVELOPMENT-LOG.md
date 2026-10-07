@@ -11760,3 +11760,12 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - PR #355 permanece aberta fora de `develop`; CI falha em `Rust Format + Clippy + Tests` (`fetch_update` depreciado) e `npm Security Audit` (`source-map-js` HIGH). Política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Evidência: `CODE/CI/SIMULATED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-06 21:03 -0300 — verificação operacional no HEAD `f405b7e`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- `git fetch --prune` executado. PR #355 permanece aberta fora de `develop`, com CI falho em Rust Format + Clippy + Tests e npm Security Audit; política vigente não toca branch, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; Rust fmt/clippy/testes (537 testes principais + suítes auxiliares/doctests); musician typecheck/69 testes/build; engineer typecheck/59 testes/build; `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- Evidência: `CODE/CI/SIMULATED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
