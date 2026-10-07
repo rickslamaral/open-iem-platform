@@ -1,3 +1,13 @@
+## 2026-10-06 21:38 -0300 — verificação operacional no HEAD `cafdf20`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Itens restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates reais: `scripts/validate-docs.sh` PASS; `cargo fmt --all --manifest-path server/Cargo.toml -- --check` PASS; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings` PASS; Rust testes PASS (`cargo test --manifest-path server/Cargo.toml`: 537 testes principais, suítes auxiliares e doctests); musician typecheck/69 testes/build PASS; engineer typecheck/59 testes/build PASS; `bash -n scripts/install.sh`, `python3 -m py_compile scripts/openiem-qr-broker.py` e `git diff --check` PASS.
+- Primeiro comando Rust sem `--manifest-path` falhou por ausência de `Cargo.toml` na raiz; rerun correto contra `server/Cargo.toml` PASS. Primeiro comando frontend com `--watchAll=false` falhou porque Vitest 5 não aceita essa opção; rerun correto `npm test` PASS. Falhas de comando, não de código.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Sem diff de produto nesta rodada; revisão independente cobriu este registro documental e não encontrou bloqueador de segurança no diff.
+- CI remoto de `develop` não possui `SUCCESS` no HEAD exato `cafdf20`; execuções anteriores não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Evidência: `CODE/CI/SIMULATED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-06 20:46 -0300 — verificação operacional no HEAD `57fa256`
 
 - Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` sincronizada com `origin/develop`; working tree limpa.
