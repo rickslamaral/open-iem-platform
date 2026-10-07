@@ -12342,3 +12342,12 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `b1e195e9c3a3d4149c0de1bde94aef14f66ada99`; execuções verdes anteriores cobrem outros SHAs e não contam como evidência.
 - PR #355 permanece aberta fora de `develop`; `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-07 07:45 -0300 — verificação operacional no HEAD `3758939`
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; branch `develop`, `origin/develop` e working tree limpas/sincronizadas no HEAD exato `3758939292744a451d996c3fb941ddb3fcf429b9`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa; nenhuma tarefa inventada.
+- Gates reais PASS mantidos: `scripts/validate-docs.sh`; `git diff --check`; gates Rust, frontends, scripts e proxy `scripts/ci/run-pipewire-software-e2e.sh` registrados no ciclo anterior.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Alteração desta rodada é somente registro operacional, sem código de produto ou segredos.
+- CI remoto de `develop` não possui `SUCCESS` no HEAD exato `3758939`; execuções anteriores não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
