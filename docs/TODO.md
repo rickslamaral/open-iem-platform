@@ -1,3 +1,12 @@
+## 2026-10-06 23:37 -0300 — verificação operacional no HEAD 3a3cb37
+
+- Lease validado com `flock -n .git/hermes-dev.lock`; `git fetch --prune` executado; branch `develop` sincronizada com `origin/develop`; working tree limpa.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável nesta rodada. Pendências restantes exigem validação física, confirmação de release ou ação em branch/runner externo.
+- PR #355 permanece aberta fora de `develop`; CI falha em `Rust Format + Clippy + Tests`; saída exata do runner registra `use of deprecated method std::sync::atomic::Atomic::<u64>::fetch_update` em `streaming/src/media_plane.rs:292` e `streaming/src/opus_receiver.rs:413`; `npm Security Audit` falha por `source-map-js` HIGH. Política vigente não altera branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
+- `HEAD` e `origin/develop` confirmados em `3a3cb376c35998f3368a8c9f57594bc348431527`; `scripts/validate-docs.sh` e `git diff --check` PASS.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Mudança desta rodada é somente registro operacional, sem código de produto ou segredos.
+- Evidência: `CODE/CI/SIMULATED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-06 23:31 -0300 — verificação operacional no HEAD abda7fc
 
 - Backlog CODE executável permanece esgotado; nenhuma tarefa segura disponível neste ciclo. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
