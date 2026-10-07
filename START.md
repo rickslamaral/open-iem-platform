@@ -6761,3 +6761,12 @@ Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRT
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - PR #355 permanece aberta fora de `develop`, com Rust Format + Clippy + Tests e npm Security Audit falhos; política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Evidência: `CODE/CI/SIMULATED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-06 23:26 -0300 — verificação operacional no HEAD `ee96fcf`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- `git fetch --prune` executado. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- Gates desta rodada: documentação e diff serão executados após este registro; código de produto não foi alterado.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- Evidência: `CODE/CI/SIMULATED`. `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.

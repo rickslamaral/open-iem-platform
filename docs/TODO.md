@@ -5813,3 +5813,10 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - Backlog CODE executável esgotado nesta revisão. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - Evidência atual permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
+
+## 2026-10-06 23:26 -0300 — verificação operacional
+
+- HEAD `ee96fcf`, branch `develop` sincronizada com `origin/develop`, working tree limpa antes desta atualização.
+- Backlog CODE executável esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- PR #355 permanece aberta fora de `develop` com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Evidência permanece `CODE/CI/SIMULATED`; físico e release `v0.3.1` seguem `PENDING/BLOCKED`.

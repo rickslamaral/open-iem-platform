@@ -11911,3 +11911,11 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Nenhuma tarefa de produto executável; backlog restante depende de hardware físico, confirmação de release, secret externo ou runner remoto.
 - Gates finais: `scripts/validate-docs.sh` PASS e `git diff --check` PASS; scanner `/root/scan_patterns.py` indisponível, sem saída inventada.
 - PR #355 permanece falha fora de `develop`; nenhuma ação de PR conforme política do ciclo.
+
+## 2026-10-06 23:26 -0300 — verificação operacional no HEAD `ee96fcf`
+
+- Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas; working tree limpa antes desta atualização.
+- Backlog CODE executável esgotado. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- `git fetch --prune` executado; PR #355 permanece aberta fora de `develop`, com Rust Format + Clippy + Tests e npm Security Audit falhos. Política vigente não toca branch, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
