@@ -1,3 +1,12 @@
+## 2026-10-07 16:25 -0300 — verificação operacional no HEAD `7f95f11f005d8f370e418e29ba15354d668f827f`
+
+- Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, `origin/develop` e working tree limpas/sincronizadas PASS; HEAD local/remoto exato `7f95f11f005d8f370e418e29ba15354d668f827f`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável neste host. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais + suítes auxiliares/doctests); musician typecheck, 69 testes, build; engineer typecheck, 59 testes, build.
+- CI remoto de `develop` não possui execução no HEAD exato (`gh run list --branch develop --commit 7f95f11f005d8f370e418e29ba15354d668f827f` retornou `[]`); nenhum SUCCESS de SHA diferente foi contado. PRs #355 e #356–#366 permanecem externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Esta alteração é somente registro operacional, sem código de produto ou segredos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 16:16 -0300 — verificação operacional no HEAD `405ca1a0e9b8c80a551f189d04876ece75c89a8f`
 
 - Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, `origin/develop` e working tree limpas/sincronizadas PASS; HEAD local/remoto exato `405ca1a0e9b8c80a551f189d04876ece75c89a8f`.
