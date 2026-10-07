@@ -1,3 +1,12 @@
+## 2026-10-06 23:06 -0300 — verificação operacional no HEAD c3c5390
+
+- Lease adquirido com flock; branch develop sincronizada com origin/develop; working tree limpa antes desta atualização.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
+- PR #355 permanece aberta fora de develop, com Rust Format + Clippy + Tests e npm Security Audit falhos; política vigente não toca branch da PR, não abre PR, não faz merge, squash, delete ou altera main.
+- CI remoto de develop não possui SUCCESS no HEAD exato c3c5390; últimos SUCCESS cobrem 21d88c9 e não contam como evidência.
+- Gates desta rodada: scripts/validate-docs.sh e git diff --check PASS. Scanner /root/scan_patterns.py indisponível neste host; nenhum resultado inventado.
+- Evidência: CODE/CI/SIMULATED. PHYSICAL: USER-APPROVED / NOT EXECUTED; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release v0.3.1 seguem PENDING/BLOCKED.
+
 ## 2026-10-06 23:01 -0300 — verificação operacional no HEAD `1efc463`
 
 - Lease adquirido com `flock -n .git/hermes-dev.lock`; branch `develop` sincronizada com `origin/develop`; working tree limpa antes desta atualização.
