@@ -1,3 +1,12 @@
+## 2026-10-07 17:52 -0300 — verificação operacional no HEAD `f2abf703f68e42d53250cef1484dc46e89a27b8b`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` concluído; branch `develop`, `origin/develop` e working tree limpas/sincronizadas no SHA exato `f2abf703f68e42d53250cef1484dc46e89a27b8b`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável neste host. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa foi inventada.
+- Gates locais reais PASS: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais + suítes auxiliares/doctests); musician typecheck, 69 testes, build; engineer typecheck, 59 testes, build.
+- CI remoto de `develop` não possui execução no HEAD exato (`gh run list --branch develop --commit f2abf703f68e42d53250cef1484dc46e89a27b8b --limit 10` retornou `[]`); nenhum SUCCESS de SHA diferente foi contado. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Revisão manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 16:57 -0300 — verificação operacional no HEAD `8da6c025ac96ecf30954491e54e493308b2092eb`
 
 - Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` concluído; branch `develop`, `origin/develop` e working tree limpas/sincronizadas no SHA exato `8da6c025ac96ecf30954491e54e493308b2092eb`.
