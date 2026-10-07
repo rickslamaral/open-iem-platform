@@ -1,6 +1,6 @@
 ## 2026-10-07 01:17 -0300 — verificação operacional no HEAD `6b1ed8490cb6a780adcc078724b76a23bbb01a26`
 
-- Lease adquirido com `flock -n .git/hermes-dev.lock`; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas no SHA exato `6b1ed8490cb6a780adcc078724b76a23bbb01a26`; working tree limpa antes desta atualização.
+- Lease do workspace validado antes da operação; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas no SHA exato `6b1ed8490cb6a780adcc078724b76a23bbb01a26`; working tree limpa antes desta atualização.
 - Backlog CODE revisado: nenhuma tarefa de produto segura executável nesta rodada. Pendências restantes exigem validação física, confirmação de release, secret externo ou runner remoto; nenhuma tarefa foi inventada.
 - PR #355 permanece aberta em branch externa `fix/stable-atomic-counter-update`, com falhas remotas em `Rust Format + Clippy + Tests` e `npm Security Audit`; política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Gates locais serão executados após este registro. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
