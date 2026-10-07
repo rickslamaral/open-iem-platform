@@ -1,3 +1,13 @@
+## 2026-10-07 09:51 -0300 — verificação operacional no HEAD `1a7f85ce23654b888613a695591c78a6207599f0`
+
+- Lease validado com `flock`; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas; working tree limpa em HEAD `1a7f85ce23654b888613a695591c78a6207599f0`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa; nenhuma tarefa inventada.
+- PR #355 permanece aberta fora de `develop`; `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- CI remoto de `develop` não possui execução `SUCCESS` no HEAD exato `1a7f85ce23654b888613a695591c78a6207599f0`; runs anteriores cobrem outros SHAs e não contam como evidência.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Registro desta rodada é somente operacional, sem código de produto ou segredos.
+- Evidência verificável: `flock -n 9` e `git fetch --prune` retornaram sucesso; `git rev-parse HEAD origin/develop` retornou `1a7f85ce23654b888613a695591c78a6207599f0` em ambos; `git status --short --branch` retornou `develop...origin/develop` sem arquivos antes do registro. `gh pr list --base main --state open` confirmou PR #355 aberta; checks `Rust Format + Clippy + Tests` e `npm Security Audit` retornaram `FAILURE`. `gh run list --branch develop --commit 1a7f85ce23654b888613a695591c78a6207599f0 --limit 100` retornou lista vazia; nenhum CI remoto encontrado no HEAD exato. `gh pr checks 355` confirmou falhas em `Rust Format + Clippy + Tests` e `npm Security Audit`.
+- Evidência: `CODE/CI/SIMULATED` para gates não executados nesta rodada; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 09:45 -0300 — verificação operacional no HEAD `59af2fd`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; `git fetch --prune` concluído; branch `develop`, `origin/develop` e working tree sincronizadas no SHA exato `59af2fd20cc1569422524ad13d25f2f414b4da55`.
