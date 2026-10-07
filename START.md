@@ -7126,3 +7126,12 @@ Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRT
 - CI remoto de `develop` não possui `SUCCESS` no HEAD exato `d420309`; execuções verdes anteriores cobrem outros SHAs e não contam como evidência.
 - Gates locais desta rodada: `flock` PASS, `git fetch --prune` PASS, `git diff --check` PASS; scanner `/root/scan_patterns.py` indisponível neste host, nenhum resultado inventado.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-07 08:37 -0300 — verificação operacional no HEAD `f6dd95c`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; branch `develop`, `origin/develop` e working tree limpas/sincronizadas; `git fetch --prune` concluído.
+- Nenhuma tarefa de produto segura disponível no backlog. Pendências exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa.
+- Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; Rust fmt/clippy/testes (`537` testes principais + suítes auxiliares/doctests); musician typecheck/69 testes/build; engineer typecheck/59 testes/build.
+- Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Mudança é somente registro operacional, sem código de produto ou segredos.
+- CI remoto de `develop` não possui `SUCCESS` no HEAD exato `f6dd95c`; últimas execuções verdes cobrem outros SHAs e não contam como evidência. PR #355 continua aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Proxy `scripts/ci/run-pipewire-software-e2e.sh`: `SOFTWARE/SIMULATED` (não hardware físico). `PHYSICAL: USER-APPROVED / NOT EXECUTED`; Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
