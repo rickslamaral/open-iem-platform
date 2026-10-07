@@ -5652,7 +5652,7 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 - [x] Branch `develop`, lease, sincronização remota e backlog verificados; nenhuma tarefa CODE executável nova.
 - [x] Validação desta rodada PASS: documentação, Rust, frontends, auditoria npm e proxy PipeWire SOFTWARE/SIMULATED; nenhum CI remoto de SHA anterior foi contado.
-- [ ] Permanecem pendentes apenas hardware físico, confirmação de release, secret externo ou runner remoto.
+- [ ] Permanecem pendentes hardware físico, confirmação de release, secret externo, runner remoto e correção da PR #355 falha.
 
 ## 2026-10-05 02:12 -0300 — verificação operacional no HEAD `c27c6e4`
 
@@ -5838,10 +5838,10 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 
 
 - [x] Verificação operacional 2026-10-06 19:06 -0300: `develop`/`origin/develop` sincronizadas no HEAD `805541c`; working tree limpa; backlog CODE sem tarefa segura nova; PR #355 aberta fora de `develop` com CI falho; scanner indisponível; evidência `CODE/CI/SIMULATED`; físico e release seguem `PENDING/BLOCKED`.
-- [ ] Permanecem pendentes apenas hardware físico, confirmação de release, secret externo ou runner remoto.
+- [ ] Permanecem pendentes hardware físico, confirmação de release, secret externo, runner remoto e correção da PR #355 falha.
 
 - [x] Verificação operacional 2026-10-06 19:47 -0300 no HEAD `5c15c4d`: branch `develop`/`origin/develop` sincronizadas; gates locais Rust, frontends, documentação e proxy PipeWire `SOFTWARE/SIMULATED` PASS; scanner indisponível; PR #355 segue aberta com CI falho; físico e release permanecem bloqueados.
-- [ ] Permanecem pendentes apenas hardware físico, confirmação de release, secret externo ou runner remoto.
+- [ ] Permanecem pendentes hardware físico, confirmação de release, secret externo, runner remoto e correção da PR #355 falha.
 
 ## 2026-10-06 20:36 -0300 — verificação operacional no HEAD `4bcbae0`
 
@@ -5871,3 +5871,6 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - Backlog CODE executável esgotado; itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
 - PR #355 permanece aberta fora de `develop` com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Evidência permanece `CODE/CI/SIMULATED`; físico e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+- [x] Verificação operacional 2026-10-07 01:07 -0300 no HEAD 7800a16: gates locais Rust, frontends, documentação e proxy PipeWire SOFTWARE/SIMULATED PASS; scanner indisponível; PR #355 segue aberta com CI falho; físico e release permanecem PENDING/BLOCKED.
+- [ ] Permanecem pendentes hardware físico, confirmação de release, secret externo, runner remoto e correção da PR #355 falha.
