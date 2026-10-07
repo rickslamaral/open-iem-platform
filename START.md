@@ -1,3 +1,12 @@
+## 2026-10-07 01:52 -0300 — verificação operacional no HEAD `e2d3e93a11117c3167a918cebd1b4de932513c58`
+
+- Lease validado com `flock`; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas no SHA exato `e2d3e93a11117c3167a918cebd1b4de932513c58`; working tree limpa antes desta atualização.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável nesta rodada. Pendências restantes exigem hardware físico, confirmação de release, secret externo, runner remoto ou correção da PR #355 externa; nenhuma tarefa foi inventada.
+- PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos. Política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- CI remoto de `develop` não possui `SUCCESS` no HEAD exato `e2d3e93a11117c3167a918cebd1b4de932513c58`; execuções verdes anteriores cobrem SHAs anteriores e não contam como evidência.
+- Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; `cargo fmt --all --manifest-path server/Cargo.toml -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, suítes auxiliares e doctests); `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`). Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 01:47 -0300 — verificação operacional no HEAD `6892e20f9eb89bb08b5d0b3bbea01a3a77c69997`
 
 - Lease validado com `flock`; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas no SHA exato `6892e20f9eb89bb08b5d0b3bbea01a3a77c69997`; working tree limpa antes desta atualização.
