@@ -7347,3 +7347,12 @@ Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRT
 - Scanner `/root/scan_patterns.py` indisponível neste host (`No such file or directory`); nenhum resultado inventado. Esta rodada não altera código de produto nem adiciona segredos.
 - CI remoto real de `develop` ainda não cobre o HEAD exato `dbba70905904d3e8bdefeb2e9a57fcccce368795`; últimos SUCCESS cobrem SHAs anteriores e não contam como evidência. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-07 16:30 -0300 — verificação operacional no HEAD `48cd84b5b1dd49614ea2e75c531eba5593a01d7d`
+
+- Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, `origin/develop` e working tree limpas/sincronizadas PASS; HEAD local/remoto exato `48cd84b5b1dd49614ea2e75c531eba5593a01d7d`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável neste host. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- CI remoto no HEAD exato não possui execução (`gh run list --branch develop --commit 48cd84b5b1dd49614ea2e75c531eba5593a01d7d --limit 5` retornou `[]`); nenhum SUCCESS de SHA diferente foi contado.
+- PRs externas #355 e #356–#366 não pertencem a `develop`; há falhas em `npm Security Audit` e estados cancelados/falhos nelas. Política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Alteração desta rodada é somente registro operacional, sem código de produto ou segredos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
