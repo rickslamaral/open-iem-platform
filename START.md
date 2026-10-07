@@ -1,3 +1,12 @@
+## 2026-10-07 14:12 -0300 — verificação operacional no HEAD `74c7f3d97eb922608df3b86f4dc2ff638e8e1f66`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` concluído; branch `develop`, `origin/develop` e working tree sincronizadas antes deste registro.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- Gates locais reais PASS: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; Rust fmt/clippy/testes (537 testes principais, suítes auxiliares e doctests); musician typecheck/69 testes/build; engineer typecheck/59 testes/build.
+- CI remoto no HEAD exato `74c7f3d97eb922608df3b86f4dc2ff638e8e1f66` retornou `[]`; nenhum SUCCESS remoto encontrado. PR #355 permanece aberta fora de `develop`, com `Rust Format + Clippy + Tests` e `npm Security Audit` falhos; política vigente não toca branch externa, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Linhas desta rodada são somente registro operacional, sem código de produto ou segredos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 10:50 -0300 — verificação operacional no HEAD `18a88e03cf77884b353b312d181460da79a8aa8c`
 
 - Lease validado com `flock -n .git/hermes-dev.lock`; `git fetch --prune` concluído; branch `develop` e `origin/develop` sincronizadas no SHA exato `18a88e03cf77884b353b312d181460da79a8aa8c`; working tree estava limpa antes deste registro e contém apenas estas alterações documentais staged.
