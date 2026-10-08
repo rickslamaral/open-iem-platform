@@ -13147,3 +13147,10 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - PRs abertas permanecem externas a `develop`; PR #355 segue com `Rust Format + Clippy + Tests` falho, e PRs Dependabot #356–#366 seguem com `npm Security Audit` falho. Política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Alteração somente documental, sem código de produto ou segredos.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+## 2026-10-07 23:50 -0300 — verificação operacional no HEAD 7c2063b
+
+- Lease flock, git fetch --prune, branch develop, working tree e sincronização com origin/develop PASS; SHA local/remoto exato 7c2063bb22776f947eece661ed4e4f93092a4abc.
+- docs/TODO.md revisado: pendências [ ] restantes exigem validação física X11/Wayland/kiosk/headless, hardware real, confirmação de release, secret externo ou runner remoto; nenhuma tarefa de produto segura foi inventada.
+- gh run list --branch develop --limit 5 mostra últimos workflows SUCCESS em SHAs anteriores; não há SUCCESS no HEAD atual. PRs abertas são externas a develop; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera main.
+- Gates desta rodada: git diff --check e scripts/validate-docs.sh PASS; scanner /root/scan_patterns.py permanece indisponível neste host, sem resultado inventado.
+- Alteração somente documental, sem código de produto ou segredos. Evidência CODE/CI/SIMULATED; PHYSICAL: USER-APPROVED / NOT EXECUTED. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release v0.3.1 seguem PENDING/BLOCKED.
