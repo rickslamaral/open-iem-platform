@@ -1955,7 +1955,7 @@
 - Lease Git validado com `flock -n .git/hermes-dev.lock`; branch `develop` e `origin/develop` sincronizadas no HEAD exato `93b35f51cfdc`; working tree limpa.
 - `git fetch --prune` executado; `gh pr list --base main --state open` retornou nenhuma PR. Política vigente não abre PR, não faz merge, squash, delete ou altera `main`.
 - Backlog consultado; nenhuma tarefa CODE executável nova. Itens `[ ]` restantes exigem hardware físico, confirmação de release, secret externo ou runner remoto.
-- Gates desta rodada: `scripts/validate-docs.sh` e `git diff --check` serão executados antes do commit. Scanner `/root/scan_patterns.py` permanece indisponível neste host; nenhum resultado inventado.
+- Gates desta rodada: `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` permanece indisponível neste host; nenhum resultado inventado.
 - Evidência permanece `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN e release `v0.3.1` seguem `PENDING/BLOCKED`.
 
 ## 2026-10-05 14:55 -0300 — verificação operacional no HEAD `976f1e9`
@@ -13364,3 +13364,11 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Lease/sincronização Git PASS; backlog CODE executável esgotado; nenhuma tarefa inventada. CI remoto no HEAD exato retornou `[]`; PRs abertas são externas a `develop` e não foram alteradas.
 - Registro documental sem código de produto ou segredos. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; hardware, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
+
+## 2026-10-08 06:20 -0300 — verificação operacional no HEAD `358646d02de9e15658a60ba943623692f74a8738`
+
+- Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, working tree limpa e sincronização com `origin/develop` confirmados; nenhum trabalho não relacionado encontrado.
+- `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md` e `docs/DEVELOPMENT-LOG.md` revisados. Backlog CODE executável permanece esgotado; itens restantes exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto. Nenhuma tarefa inventada.
+- `gh run list --branch develop --commit 358646d02de9e15658a60ba943623692f74a8738 --limit 10` não retornou execução no HEAD exato; nenhum SUCCESS de SHA diferente contado. PRs abertas permanecem externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Gates desta rodada: `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` permanece indisponível; nenhum resultado será inventado.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
