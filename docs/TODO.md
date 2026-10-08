@@ -1,3 +1,12 @@
+## 2026-10-08 02:01 -0300 — verificação operacional no HEAD `827a6fe90164821829184a60a0dc00060021f239`
+
+- Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, working tree limpa e sincronização com `origin/develop` confirmados antes desta atualização.
+- `docs/TODO.md` revisado: backlog CODE executável esgotado; pendências `[ ]` restantes exigem hardware real, validação X11/Wayland/kiosk/headless, secret externo, confirmação de release ou runner remoto. Nenhuma tarefa inventada.
+- `gh run list --branch develop --commit 827a6fe90164821829184a60a0dc00060021f239 --limit 10` retornou `[]`; nenhum CI remoto no HEAD exato. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Gates locais PASS: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (`537` testes principais + suítes auxiliares/doctests); musician typecheck/testes (`69`)/build; engineer typecheck/testes (`59`)/build.
+- O comando prescrito `npm test -- --watchAll=false` permanece incompatível com Vitest 5 (`Unknown option --watchAll`); testes executados corretamente com `npm test`, todos PASS. Scanner `/root/scan_patterns.py` indisponível; varredura manual das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- Alteração somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-08 01:56 -0300 — verificação operacional no HEAD `316f1e4fafdca1413712bee9ee9335f334335cbb`
 
 - Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, working tree limpa e sincronização com `origin/develop` confirmados.
