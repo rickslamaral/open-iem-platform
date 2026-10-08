@@ -1,4 +1,13 @@
 
+## 2026-10-08 10:57 -0300 — verificação operacional no HEAD `74a7a8dced9ed43fba3717a39e815e6d8ad56fa5`
+
+- Lease `flock -n .git/hermes-dev.lock`, branch `develop`, `origin/develop` e working tree limpa/sincronizada confirmados antes desta atualização.
+- `docs/TODO.md` e `docs/DEVELOPMENT-HANDOFF.md` revisados; backlog CODE executável permanece esgotado. Pendências restantes exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- Gates PASS: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; Rust fmt/clippy/testes (`537` testes principais, suítes auxiliares e doctests); musician typecheck/testes (`69`)/build; engineer typecheck/testes (`59`)/build.
+- Vitest 5 rejeita `--watchAll=false`; execução suportada `npm test -- --run` passou nos dois frontends. Scanner `/root/scan_patterns.py` indisponível; revisão manual não encontrou segredos ou padrões perigosos.
+- `gh run list --branch develop --commit 74a7a8dced9ed43fba3717a39e815e6d8ad56fa5 --limit 10` retornou `[]`; CI remoto não executado no HEAD exato. PRs abertas são externas a `develop`; política vigente não abre PR, não faz merge, squash, delete nem altera `main`.
+- Alteração somente documental, sem código de produto ou segredos. Evidência `CODE`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-08 10:41 -0300 — verificação operacional no HEAD `aeb8454b0bcd1a962db2a4a1021f805201d7418e`
 
 - Lease `flock -n .git/hermes-dev.lock`, branch `develop`, `origin/develop` e working tree limpa/sincronizada confirmados antes desta atualização.
