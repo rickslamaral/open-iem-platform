@@ -13346,3 +13346,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 
 - Lease/sincronização Git PASS; backlog CODE executável esgotado; nenhuma tarefa inventada. CI remoto no HEAD exato retornou `[]`; PRs abertas são externas a `develop` e não foram alteradas.
 - Registro documental sem código de produto ou segredos. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; hardware, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
+
+## 2026-10-08 05:50 -0300 — verificação operacional no HEAD `830afcf82bc185a7dae959553946670404325ad9`
+
+- Lease/sincronização Git PASS; backlog CODE executável esgotado; nenhuma tarefa inventada. CI remoto no HEAD exato retornou `[]`; PRs abertas são externas a `develop` e não foram alteradas.
+- Registro documental sem código de produto ou segredos. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; hardware, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
