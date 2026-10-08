@@ -13544,3 +13544,11 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `gh run list --branch develop --commit 62a7f9fe2229dac3cbbef4d9afbea0b533339d50 --limit 10` retornou `[]`; nenhum CI remoto no HEAD exato. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Gates desta rodada: `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - Registro somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-08 11:41 -0300 — verificação operacional no HEAD `4a9291ab9d48b7b5844446d383c288e4db801fa4`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; branch `develop`; working tree limpa; `HEAD` e `origin/develop` sincronizados no SHA exato `4a9291ab9d48b7b5844446d383c288e4db801fa4`.
+- `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md` e `docs/DEVELOPMENT-LOG.md` revisados; backlog CODE executável permanece esgotado. Pendências restantes exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- `gh run list --branch develop --commit 4a9291ab9d48b7b5844446d383c288e4db801fa4` retornou `[]`; nenhum CI remoto no HEAD exato. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Gates PASS: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- Registro somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
