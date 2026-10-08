@@ -1,3 +1,11 @@
+## 2026-10-07 22:40 -0300 — verificação operacional no HEAD `9f5686a`
+
+- Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop` e sincronização com `origin/develop` passaram antes desta edição; não havia mudanças unstaged/untracked pré-existentes. Esta atualização está staged.
+- `docs/TODO.md` revisado: itens `[ ]` executáveis restantes exigem validação física X11/Wayland/kiosk/headless, hardware real, confirmação de release, secret externo ou runner remoto; nenhuma tarefa CODE segura foi inventada.
+- `gh run list --branch develop --commit 9f5686a --limit 10` retornou `[]`; não há run reportado para HEAD exato. `gh pr list --base main --state open` mostrou somente branches externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Gates executados nesta rodada: `git diff --check` e `scripts/validate-docs.sh` PASS; scanner `/root/scan_patterns.py` indisponível neste host, sem resultado inventado.
+- Alteração somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-07 22:25 -0300 — verificação operacional no HEAD `2c54b4b231b055fb24a5839c4379148680a197e6`
 
 - Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, `origin/develop` e working tree limpa antes desta atualização PASS; SHA local/remoto confirmado.
@@ -67,7 +75,7 @@
 
 - Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune` e sincronização branch `develop`/`origin/develop` PASS; working tree limpa e SHA local/remoto exato `4aa64ed10757a521714c656ab2eeec2bb93bd76b`.
 - Backlog CODE revisado: nenhum item executável com segurança neste host. Pendências exigem hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
-- CI remoto no HEAD exato não retornou runs (`gh run list --branch develop --commit HEAD --limit 10` retornou `[]`); nenhum SUCCESS de SHA diferente contado. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- CI remoto no HEAD exato não retornou runs (`gh run list --branch develop --commit 9f5686a --limit 10` retornou `[]`); nenhum SUCCESS de SHA diferente contado. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Gates desta rodada: `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. `.env.local` e chave privada são ignorados pelo Git; nenhum segredo entrou no diff.
 - Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
 
