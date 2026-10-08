@@ -13341,3 +13341,8 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `gh run list --branch develop --commit bf1b51d01e5d0adbc807182883a5c7d98f4fa19a --limit 10` retornou `[]`; nenhum CI remoto no HEAD exato. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Validação desta rodada: lease/sincronização/estado Git/backlog PASS; `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
 - Alteração somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-08 05:21 -0300 — verificação operacional no HEAD `ca3c8b26b5a3c4f037e15a8956d7cf1bf14c858a`
+
+- Lease/sincronização Git PASS; backlog CODE executável esgotado; nenhuma tarefa inventada. CI remoto no HEAD exato retornou `[]`; PRs abertas são externas a `develop` e não foram alteradas.
+- Registro documental sem código de produto ou segredos. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; hardware, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
