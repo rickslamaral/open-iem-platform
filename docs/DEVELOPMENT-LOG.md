@@ -13041,3 +13041,10 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `gh run list --branch develop --commit 0e712bf828ad37be4ad490bd648fdf338304b2f3 --limit 5` retornou `[]`; nenhum SUCCESS de SHA diferente contado. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Diff desta rodada contém somente duas atualizações Markdown; inspeção das linhas adicionadas não encontrou padrão de segredo.
 - Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+## 2026-10-07 21:55 -0300 — verificação operacional no HEAD `d3f295313239577a8ba26b18a00a29a75df6190d`
+
+- Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, sincronização com `origin/develop` e working tree limpa PASS.
+- `docs/TODO.md` revisado: pendências CODE restantes exigem validação física, X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- `gh run list --branch develop --commit d3f295313239577a8ba26b18a00a29a75df6190d --limit 10 --json databaseId,headSha,status,conclusion,name,url` retornou `[]`; nenhum SUCCESS de SHA diferente contado. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Gates desta rodada: lease, sincronização e estado Git PASS; scanner `/root/scan_patterns.py` indisponível neste host, sem resultado inventado.
+- Alteração somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
