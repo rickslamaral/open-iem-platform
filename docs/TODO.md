@@ -6187,3 +6187,6 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - [ ] Permanecem pendentes validação física, X11/Wayland/kiosk/headless, confirmação de release, secret externo e runner remoto.
 
 - [x] Verificação operacional 2026-10-07 22:46 -0300 no HEAD `28c34de`: sincronização, gates documentais/sintáticos PASS; backlog CODE executável esgotado; físico, release, secret externo e runner remoto seguem pendentes.
+
+
+- [x] Verificação operacional 2026-10-07 22:50 -0300 no HEAD `793e5f2`: backlog CODE executável esgotado; gates documentais/sintáticos PASS; físico, release, secret externo e runner remoto seguem pendentes. Evidência: comandos documentais/sintáticos retornaram exit 0; CI remoto no SHA exato não retornou run.
