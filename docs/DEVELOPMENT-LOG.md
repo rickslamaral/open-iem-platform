@@ -1,3 +1,11 @@
+## 2026-10-08 13:16 -0300 — verificação operacional no HEAD `9701433`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` PASS; branch `develop`, working tree limpa e `HEAD`/`origin/develop` sincronizados no SHA exato `97014337eaee7113ba13afc718a1b0c4ebab42ac`.
+- `START.md`, `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md`, `docs/DEVELOPMENT-LOG.md` e skills relevantes revisados. Backlog CODE executável permanece esgotado; itens `[ ]` restantes exigem hardware físico, validação X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto. Nenhuma tarefa inventada.
+- `gh run list --branch develop --commit 97014337eaee7113ba13afc718a1b0c4ebab42ac --limit 10` retornou `[]`; CI remoto não executado no HEAD exato. Política vigente não abre PR, não faz merge, squash, delete nem altera `main`; PRs abertas permanecem em branches externas.
+- Gates documentais executados nesta rodada: `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Alteração somente documental, sem código de produto ou segredos.
+- Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
+
 ## 2026-10-08 13:00 -0300 — verificação operacional no HEAD 78ed164
 
 - Lease PASS; git fetch --prune PASS; branch develop, HEAD e origin/develop sincronizados; working tree estava limpa antes desta atualização documental.
