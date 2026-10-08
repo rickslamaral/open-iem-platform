@@ -6258,3 +6258,5 @@ Priority labels: **BLOCKER** | **HIGH** | **MEDIUM** | **LOW** | **RESEARCH**
 - CI remoto: últimos workflows `SUCCESS` cobrem SHAs anteriores (`21d88c9...`, `2f4b814...`, `56a17fc...`), não HEAD atual; nenhum SUCCESS de SHA diferente contado como evidência. PRs abertas permanecem externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Alteração somente documental, sem código de produto ou segredos.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+- 2026-10-08 02:10 -0300: backlog CODE revisado; nenhuma tarefa de produto segura executável neste host. Pendências `[ ]` restantes exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada. HEAD `c7dce298ab104d3423d60de20d691af313161fcf` e `origin/develop` sincronizados; `scripts/validate-docs.sh` e `git diff --check` PASS.
