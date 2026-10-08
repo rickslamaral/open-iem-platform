@@ -372,6 +372,14 @@
 - `systemd-analyze verify` no workspace fonte ficou `BLOCKED` por artefatos de instalação ausentes (`openiem-qr-broker.service` e `/usr/local/libexec/openiem-kiosk-launch`); não marcar validação kiosk como concluída.
 - Pendências `[ ]` continuam: matriz física X11/Wayland, Chromium/Chrome, Raspberry Pi OS/Ubuntu/Debian, reboot/ativação e host instalado/headless.
 
+## 2026-10-07 21:05 -0300 — verificação operacional no HEAD `9dd6d196bd918ebb235593a52c24c9fe6882d58f`
+
+- Antes desta atualização documental, lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, `origin/develop` e working tree limpas/sincronizadas PASS.
+- `docs/TODO.md` revisado: itens pendentes continuam restritos a validação X11/Wayland, reboot/kiosk/headless, hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa CODE segura foi inventada.
+- `gh run list --branch develop --commit 9dd6d196bd918ebb235593a52c24c9fe6882d58f --limit 5` retornou `[]`; nenhum SUCCESS de SHA diferente contado. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Alteração somente documental, sem código de produto ou segredos.
+- Gates documentais: `git diff --cached --check` e `scripts/validate-docs.sh` PASS. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 # Trabalho atual — QR público e modo kiosk Linux
 
 ## Decisão de arquitetura — ADR-016
