@@ -13194,3 +13194,11 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - CI remoto: últimos workflows `SUCCESS` cobrem SHAs anteriores (`21d88c9...`, `2f4b814...`, `56a17fc...`), não HEAD atual; nenhum SUCCESS de SHA diferente contado como evidência. PRs abertas permanecem externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Alteração somente documental, sem código de produto ou segredos.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-08 01:45 -0300 — verificação operacional no HEAD `091b2e16c01167519e507ddb0e8a1759bbe153dc`
+
+- Registro dos comandos desta rodada: lease `flock -n .git/hermes-dev.lock` retornou PASS; branch observada `develop`; `HEAD` e `origin/develop` observados no SHA `091b2e16c01167519e507ddb0e8a1759bbe153dc`; working tree observada sem alterações.
+- `docs/TODO.md` e `docs/DEVELOPMENT-HANDOFF.md` revisados: nenhuma tarefa CODE segura executável neste host. Pendências exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- `gh run list --branch develop --commit 091b2e16c01167519e507ddb0e8a1759bbe153dc --limit 5` retornou `[]`; nenhum SUCCESS de SHA diferente contado como evidência.
+- Saída dos comandos desta rodada: `scripts/validate-docs.sh` retornou PASS; `git diff --check` retornou PASS. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- Alteração somente documental, sem código de produto ou segredos. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
