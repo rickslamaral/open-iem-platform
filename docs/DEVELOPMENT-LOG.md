@@ -13576,3 +13576,12 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `gh run list --branch develop --commit 76374e1 --limit 10` retornou `[]`; CI remoto não executado no HEAD exato. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - `scripts/validate-docs.sh` e `git diff --check` serão executados antes do commit. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - Registro somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Hardware físico, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
+
+
+## 2026-10-08 12:41 -0300 — verificação operacional no HEAD `39ccd2bed7dae602665b61f996bd39ce6beded04`
+
+- Lease `flock -n .git/hermes-dev.lock` e `git fetch --prune` concluídos; branch `develop`, `HEAD` e `origin/develop` sincronizados; working tree limpa antes desta alteração.
+- `START.md`, `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md` e skills relevantes revisados; backlog CODE executável permanece esgotado. Pendências restantes exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- `gh run list --branch develop --commit 39ccd2bed7dae602665b61f996bd39ce6beded04 --limit 10` não possui execução CI remota no HEAD exato; nenhum SUCCESS de SHA diferente contado. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Alteração somente documental, sem código de produto ou segredos. Gates: `scripts/validate-docs.sh` e `git diff --check` PASS; scanner `/root/scan_patterns.py` indisponível neste host, nenhum resultado inventado.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Hardware físico, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
