@@ -1,3 +1,12 @@
+## 2026-10-08 06:41 -0300 — verificação operacional no HEAD `def6ae709803dc53c49b120a1642ea147df6d795`
+
+- Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, working tree limpa e sincronização com `origin/develop` confirmados.
+- `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md` e `docs/DEVELOPMENT-LOG.md` revisados; backlog CODE executável permanece esgotado. Pendências restantes exigem X11/Wayland/kiosk/headless, hardware físico, confirmação de release, secret externo ou runner remoto. Nenhuma tarefa inventada.
+- `gh run list --branch develop --commit def6ae709803dc53c49b120a1642ea147df6d795 --limit 10` não possui CI remoto no HEAD exato; nenhum SUCCESS de SHA diferente contado. PRs abertas permanecem em branches externas a `develop`; política vigente não abre PR, não faz merge, squash, delete nem altera `main`.
+- Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; `cargo fmt --manifest-path server/Cargo.toml --all -- --check`; `cargo clippy --manifest-path server/Cargo.toml --all-targets -- -D warnings`; `cargo test --manifest-path server/Cargo.toml` (537 testes principais, suítes auxiliares e doctests); musician typecheck/testes (69)/build; engineer typecheck/testes (59)/build; `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`). Vitest executado com `npm test -- --run`; `--watchAll=false` permanece incompatível com Vitest 5.
+- Scanner `/root/scan_patterns.py` indisponível; varredura manual das linhas adicionadas não encontrou segredos ou padrões perigosos. Alteração somente documental, sem código de produto ou segredos.
+- Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
 ## 2026-10-08 06:25 -0300 — verificação operacional no HEAD `b56c3e38546ccf180499661a588b51d25bf58d92`
 
 - Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, working tree limpa e sincronização com `origin/develop` confirmados antes desta atualização.
