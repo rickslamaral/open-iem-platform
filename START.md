@@ -1,3 +1,12 @@
+## 2026-10-08 12:46 -0300 — verificação operacional no HEAD `da4c89d`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` PASS; branch `develop`, `HEAD` e `origin/develop` sincronizados; working tree limpa antes desta alteração.
+- `START.md`, `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md`, `docs/DEVELOPMENT-LOG.md` e skills relevantes revisados; backlog CODE executável permanece esgotado. Pendências `[ ]` exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- `gh run list --branch develop --commit da4c89dcd525ae31dff5ed41dd4d9636587000cd --limit 10` retornou `[]`; CI remoto não executado no HEAD exato. PRs abertas são externas a `develop`; política vigente não abre PR, não faz merge, squash, delete nem altera `main`.
+- PRs abertas com falhas: #355 falha em Rust Format + Clippy + Tests e npm Security Audit; PRs Dependabot #356–#366 têm npm Security Audit falho, com cancelamentos adicionais em #356, #358, #360 e #361. Política vigente não toca branches externas.
+- Gates documentais: `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Alteração somente documental, sem código de produto ou segredos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Hardware físico, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
+
 ## 2026-10-08 11:56 -0300 — verificação operacional no HEAD `44c8c416d42248f79266ada4884add9a078fa0c0`
 
 - Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` PASS; branch `develop`, `HEAD` local e `origin/develop` sincronizados; working tree limpa.
