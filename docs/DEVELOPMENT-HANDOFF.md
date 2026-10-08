@@ -1,3 +1,11 @@
+## 2026-10-08 10:01 -0300 — verificação operacional no HEAD `3b6e5aa0c0ff85250dadf739ce178469473ae899`
+
+- Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, working tree limpa e sincronização com `origin/develop` confirmados.
+- `START.md`, `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md` e `docs/DEVELOPMENT-LOG.md` revisados; backlog CODE executável permanece esgotado. Nenhuma tarefa inventada.
+- `gh run list --branch develop --commit 3b6e5aa0c0ff85250dadf739ce178469473ae899 --limit 10` retornou `[]`; CI remoto não executado no HEAD exato. PRs abertas permanecem externas a `develop`; política vigente não abre PR, não faz merge, squash, delete nem altera `main`.
+- Gates documentais serão executados nesta rodada: `scripts/validate-docs.sh` e `git diff --check`. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- Registro somente documental, sem código de produto ou segredos. Evidência `CODE`; CI remoto, hardware físico, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
+
 ## 2026-10-08 09:55 -0300 — verificação operacional no HEAD `5cb2bccaaa252b42b21e51ae7f8fad21ed89febe`
 
 - Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, `HEAD` e `origin/develop` sincronizados; working tree limpa.
