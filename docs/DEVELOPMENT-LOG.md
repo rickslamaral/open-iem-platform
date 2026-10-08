@@ -13325,3 +13325,11 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `gh run list --branch develop --commit 969fd86c3b00a2e8a146f1ffa14e638688197340 --limit 10` retornou `[]`; nenhum CI remoto no HEAD exato. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Gates documentais PASS: `scripts/validate-docs.sh`; `git diff --check`. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão estática da alteração documental não encontrou segredos ou padrões perigosos.
 - Alteração somente documental, sem código de produto ou segredos. Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-08 04:55 -0300 — verificação operacional no HEAD `bf1b51d01e5d0adbc807182883a5c7d98f4fa19a`
+
+- Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, working tree limpa e `origin/develop` sincronizada no SHA exato confirmados.
+- `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md` e `docs/DEVELOPMENT-LOG.md` revisados; backlog CODE executável permanece esgotado. Nenhuma tarefa inventada.
+- `gh run list --branch develop --commit bf1b51d01e5d0adbc807182883a5c7d98f4fa19a --limit 10` retornou `[]`; nenhum CI remoto no HEAD exato. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Validação desta rodada: lease/sincronização/estado Git/backlog PASS; `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
+- Alteração somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
