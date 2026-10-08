@@ -3,7 +3,7 @@
 - Antes desta atualização documental, lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, `origin/develop` e working tree limpas/sincronizadas PASS.
 - `docs/TODO.md` revisado: itens pendentes continuam restritos a validação X11/Wayland, reboot/kiosk/headless, hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa CODE segura foi inventada.
 - `gh run list --branch develop --commit 9dd6d196bd918ebb235593a52c24c9fe6882d58f --limit 5` retornou `[]`; nenhum SUCCESS de SHA diferente contado. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
-- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Alteração somente documental, sem código de produto ou segredos.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Diff desta rodada contém somente duas atualizações Markdown; inspeção das linhas adicionadas não encontrou padrão de segredo.
 - Gates documentais: `git diff --cached --check` e `scripts/validate-docs.sh` PASS. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
 
 ## 2026-10-07 21:00 -0300 — verificação operacional no HEAD `2481d3f3e5038678533fb45625710fcadcfb472b`
@@ -13017,3 +13017,11 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - Consulta CI remota pré-commit no HEAD `ac4621640f29ea20033de7445a1789225bc170eb` retornou `[]`; nenhum SUCCESS de SHA diferente conta como evidência. Consulta pós-commit fica para o próximo ciclo.
 - Gates desta rodada foram executados antes do commit: documentação, Rust, frontends, scripts e diff PASS; scanner `/root/scan_patterns.py` indisponível. Revisão independente PASS nesta entrada; diff somente documental, sem concerns de segurança ou lógica.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+## 2026-10-07 21:26 -0300 — verificação operacional no HEAD `0e712bf828ad37be4ad490bd648fdf338304b2f3`
+
+- Evidência bruta: `flock -n .git/hermes-dev.lock -c ...` retornou exit 0; `git status --short --branch` mostrou `develop...origin/develop` sem alterações; `git rev-parse HEAD` e `git rev-parse origin/develop` retornaram `0e712bf828ad37be4ad490bd648fdf338304b2f3`.
+- `docs/TODO.md` e `docs/DEVELOPMENT-HANDOFF.md` revisados: nenhuma tarefa CODE segura nova. Pendências documentadas exigem X11/Wayland, navegador, reboot/kiosk/headless, hardware físico, confirmação de release, secret externo ou runner remoto; nenhuma tarefa foi inventada.
+- `gh run list --branch develop --commit 0e712bf828ad37be4ad490bd648fdf338304b2f3 --limit 5` retornou `[]`; nenhum SUCCESS de SHA diferente contado. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Diff desta rodada contém somente duas atualizações Markdown; inspeção das linhas adicionadas não encontrou padrão de segredo.
+- Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
