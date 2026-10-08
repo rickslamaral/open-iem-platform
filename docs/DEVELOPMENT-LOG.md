@@ -13238,3 +13238,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `gh run list --branch develop --commit 643710ff60f5c0df792194974f13e95f464dbd99` retornou `[]`; nenhum CI remoto no HEAD exato. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão estática das linhas adicionadas não encontrou segredos ou padrões perigosos.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+
+## 2026-10-08 02:36 -0300 — verificação operacional no HEAD `9f7787220aa8a78d46e1d713248f0dd5e9ef9a6d`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` PASS; branch `develop`, `HEAD` e `origin/develop` sincronizados no SHA exato `9f7787220aa8a78d46e1d713248f0dd5e9ef9a6d`; alterações documentais desta rodada estão staged.
+- `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md` e `docs/DEVELOPMENT-LOG.md` revisados; backlog CODE executável permanece esgotado. Pendências restantes exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- CI remoto: `gh run list --branch develop --commit 9f7787220aa8a78d46e1d713248f0dd5e9ef9a6d --limit 10` retornou `[]`; nenhum SUCCESS de SHA diferente contado como evidência. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`. Código de produto não foi alterado.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Revisão estática da alteração documental não encontrou segredos ou padrões perigosos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, matriz kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
