@@ -13137,3 +13137,13 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `gh run list --branch develop --commit 28c34de4e4e0634705731f182617edf516adebdf --limit 10` não retornou execução no HEAD exato; nenhum SUCCESS de SHA diferente contado. PRs abertas pertencem a branches externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Gates reais PASS: `scripts/validate-docs.sh`, `git diff --check`, `bash -n scripts/install.sh` e `python3 -m py_compile scripts/openiem-qr-broker.py`. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - Alteração somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+
+
+## 2026-10-07 23:41 -0300 — verificação operacional no HEAD `9b986aac44013c44debf2e4e8482d6e241f68f11`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; branch `develop`, `origin/develop` e working tree limpas/sincronizadas no SHA exato `9b986aac44013c44debf2e4e8482d6e241f68f11`.
+- Backlog CODE revisado: nenhuma tarefa de produto segura executável. Pendências exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- `gh run list --branch develop --commit 9b986aac44013c44debf2e4e8482d6e241f68f11` retornou `[]`; nenhum SUCCESS de SHA diferente contado como evidência.
+- PRs abertas permanecem externas a `develop`; PR #355 segue com `Rust Format + Clippy + Tests` falho, e PRs Dependabot #356–#366 seguem com `npm Security Audit` falho. Política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Scanner `/root/scan_patterns.py` indisponível (`No such file or directory`); nenhum resultado inventado. Alteração somente documental, sem código de produto ou segredos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
