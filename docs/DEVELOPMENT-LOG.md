@@ -1,3 +1,13 @@
+## 2026-10-08 07:02 -0300 — verificação operacional no HEAD `21b12485e01bf425d3cc2b20105a10b4a7427b46`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` PASS; branch `develop`, `origin/develop` e working tree limpas/sincronizadas no SHA exato antes desta atualização.
+- `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md` e `docs/DEVELOPMENT-LOG.md` revisados; backlog CODE executável permanece esgotado. Pendências restantes exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto. Nenhuma tarefa inventada.
+- `gh run list --branch develop --commit 21b12485e01bf425d3cc2b20105a10b4a7427b46 --limit 10` retornou `[]`; nenhum CI remoto no HEAD exato. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Gates reais PASS: `scripts/validate-docs.sh`; `git diff --check`; `bash -n scripts/install.sh`; `python3 -m py_compile scripts/openiem-qr-broker.py`; `cargo fmt`; `cargo clippy`; `cargo test` (537 testes principais, suítes auxiliares e doctests); musician typecheck/69 testes/build; engineer typecheck/59 testes/build; `scripts/ci/run-pipewire-software-e2e.sh` (`SOFTWARE/SIMULATED`).
+- Vitest executado com `npm test -- --run`; `npm test -- --watchAll=false` permanece incompatível com Vitest 5. Scanner `/root/scan_patterns.py` indisponível; revisão estática das linhas adicionadas não encontrou segredos ou padrões perigosos.
+- Alteração somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, LAN, kiosk e release `v0.3.1` seguem `PENDING/BLOCKED`.
+- Evidência bruta desta rodada: comandos acima retornaram exit 0; saída completa dos gates Rust está em `/root/.hermes/cache/terminal-output/out-1791453655-842516-4410.log`; gates frontend e proxy retornaram exit 0.
+
 ## 2026-10-08 06:55 -0300 — verificação operacional no HEAD `9f52d59c640c42c18b922a15f605e95b8b12a0e2`
 
 - Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, working tree limpa e sincronização com `origin/develop` confirmados.

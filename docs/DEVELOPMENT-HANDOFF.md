@@ -1,3 +1,10 @@
+## 2026-10-08 07:02 -0300 — verificação operacional no HEAD `21b12485e01bf425d3cc2b20105a10b4a7427b46`
+
+- Lease, sincronização remota, branch `develop` e working tree limpa antes desta atualização confirmados.
+- Backlog CODE executável esgotado; nenhuma tarefa inventada. Pendências: hardware físico, X11/Wayland/kiosk/headless, release, secret externo e runner remoto.
+- Gates locais PASS: documentação, sintaxe, Rust, frontends e proxy PipeWire `SOFTWARE/SIMULATED`; CI remoto no SHA exato retornou `[]`.
+- `PHYSICAL: USER-APPROVED / NOT EXECUTED`. PR #355 permanece aberta e falha em Rust Format/Clippy/Tests e npm Security Audit; política vigente não toca branch externa.
+
 ## 2026-10-08 06:41 -0300 — verificação operacional no HEAD `def6ae709803dc53c49b120a1642ea147df6d795`
 
 - Lease `flock -n .git/hermes-dev.lock`, `git fetch --prune`, branch `develop`, working tree limpa e sincronização com `origin/develop` confirmados.
