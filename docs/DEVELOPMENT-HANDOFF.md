@@ -7343,3 +7343,10 @@ test → review → docs/GAP update → PR/CI
 - Backlog CODE executável permanece esgotado; nenhuma tarefa inventada. Pendências exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto.
 - `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. CI remoto não cobre HEAD exato.
 - Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; hardware, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
+
+## 2026-10-08 14:26 -0300 — verificação operacional no HEAD `a1c815edcf2f71c493de7c2e4aa082090ccabc11`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; branch `develop`; working tree limpa; `HEAD` e `origin/develop` sincronizados no SHA exato `a1c815edcf2f71c493de7c2e4aa082090ccabc11`.
+- `START.md`, `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md`, `docs/DEVELOPMENT-LOG.md` e skills relevantes revisados. Backlog CODE executável permanece esgotado; nenhuma tarefa de produto segura foi inventada. Pendências exigem hardware físico, X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto.
+- Gates documentais/sintáticos PASS: `scripts/validate-docs.sh`, `git diff --check`, `bash -n scripts/install.sh`, `python3 -m py_compile scripts/openiem-qr-broker.py`. `gh run list --branch develop --commit a1c815edcf2f71c493de7c2e4aa082090ccabc11` retornou `[]`; CI remoto não executou no HEAD exato.
+- Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Alteração somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.

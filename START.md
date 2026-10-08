@@ -7663,3 +7663,10 @@ Evidência CODE/CI/SIMULATED não substitui validação física. WebRTC/DTLS-SRT
 - `gh run list --branch develop --commit 76374e1 --limit 10` retornou `[]`; CI remoto não executado no HEAD exato. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - `scripts/validate-docs.sh` e `git diff --check` serão executados antes do commit. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - Registro somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Hardware físico, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
+
+## 2026-10-08 14:26 -0300 — verificação operacional no HEAD `a1c815edcf2f71c493de7c2e4aa082090ccabc11`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; branch `develop`; working tree limpa; `HEAD` e `origin/develop` sincronizados no SHA exato `a1c815edcf2f71c493de7c2e4aa082090ccabc11`.
+- `START.md`, `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md`, `docs/DEVELOPMENT-LOG.md` e skills relevantes revisados. Backlog CODE executável permanece esgotado; nenhuma tarefa de produto segura foi inventada. Pendências exigem hardware físico, X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto.
+- Gates documentais/sintáticos PASS: `scripts/validate-docs.sh`, `git diff --check`, `bash -n scripts/install.sh`, `python3 -m py_compile scripts/openiem-qr-broker.py`. `gh run list --branch develop --commit a1c815edcf2f71c493de7c2e4aa082090ccabc11` retornou `[]`; CI remoto não executou no HEAD exato.
+- Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. Alteração somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`.
