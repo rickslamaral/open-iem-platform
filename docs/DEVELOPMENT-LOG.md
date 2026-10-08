@@ -13634,3 +13634,11 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `gh run list --branch develop --commit 39ccd2bed7dae602665b61f996bd39ce6beded04 --limit 10` não possui execução CI remota no HEAD exato; nenhum SUCCESS de SHA diferente contado. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - Alteração somente documental, sem código de produto ou segredos. Gates: `scripts/validate-docs.sh` e `git diff --check` PASS; scanner `/root/scan_patterns.py` indisponível neste host, nenhum resultado inventado.
 - Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Hardware físico, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
+
+## 2026-10-08 14:01 -0300 — verificação operacional no HEAD `9d79b0009745bed1ba879c876559b91234c226bb`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` PASS; branch `develop`, working tree e `origin/develop` sincronizados no SHA exato `9d79b0009745bed1ba879c876559b91234c226bb`.
+- `START.md`, `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md` e skills relevantes revisados; backlog CODE executável permanece esgotado. Pendências restantes exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto; nenhuma tarefa inventada.
+- Gates documentais reais PASS: `scripts/validate-docs.sh`; `git diff --check`. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
+- CI remoto não executou no HEAD exato (`gh run list --branch develop --commit 9d79b0009745bed1ba879c876559b91234c226bb` não retornou esse SHA); execuções verdes de SHAs anteriores não contam como evidência. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
+- Registro somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Hardware físico, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.

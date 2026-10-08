@@ -7335,3 +7335,11 @@ test → review → docs/GAP update → PR/CI
 - `gh run list --branch develop --commit 76374e1 --limit 10` retornou `[]`; CI remoto não executado no HEAD exato. PRs abertas são externas a `develop`; política vigente não toca branches externas, não abre PR, não faz merge, squash, delete ou altera `main`.
 - `scripts/validate-docs.sh` e `git diff --check` serão executados antes do commit. Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado.
 - Registro somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Hardware físico, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
+
+
+## 2026-10-08 14:01 -0300 — verificação operacional no HEAD `9d79b0009745bed1ba879c876559b91234c226bb`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; branch `develop`, working tree e `origin/develop` sincronizados no SHA exato `9d79b0009745bed1ba879c876559b91234c226bb`.
+- Backlog CODE executável permanece esgotado; nenhuma tarefa inventada. Pendências exigem validação física/X11/Wayland/kiosk/headless, confirmação de release, secret externo ou runner remoto.
+- `scripts/validate-docs.sh` e `git diff --check` PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado. CI remoto não cobre HEAD exato.
+- Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`; hardware, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
