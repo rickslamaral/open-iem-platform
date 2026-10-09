@@ -13793,3 +13793,12 @@ Streaming writer and receiver now use one exported `OPUS_MAX_PACKET_BYTES` const
 - `gh run list --branch develop --commit ad18a6466e8b9cb753655d95c07c5e7d35d19681 --limit 10` retornou `[]`; CI remoto não executou no HEAD exato. Política vigente não abre PR, não faz merge, squash, delete nem altera `main`; PRs abertas permanecem em branches externas.
 - Gates locais: `scripts/validate-docs.sh`, `bash -n scripts/install.sh`, `python3 -m py_compile scripts/openiem-qr-broker.py`, `cargo fmt --manifest-path server/Cargo.toml --all -- --check` e `git diff --check` PASS. Revisão independente PASS. Scanner `/root/scan_patterns.py` indisponível; nenhum resultado inventado.
 - Alteração somente documental, sem código de produto ou segredos. Evidência `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Raspberry Pi 5, PipeWire/ALSA físico, WebRTC/DTLS-SRTP, kiosk, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
+
+## 2026-10-08 22:46 -0300 — verificação operacional no HEAD `18173335b938dbe77f7849244fe0252793585650`
+
+- Lease `flock -n .git/hermes-dev.lock` PASS; `git fetch --prune` PASS; branch `develop`; working tree limpa antes desta atualização documental; `HEAD` e `origin/develop` sincronizados no SHA exato `18173335b938dbe77f7849244fe0252793585650`.
+- `START.md`, `docs/TODO.md`, `docs/DEVELOPMENT-HANDOFF.md`, `docs/DEVELOPMENT-LOG.md` e skills relevantes revisados. Backlog CODE executável permanece esgotado; nenhuma tarefa segura de produto foi inventada.
+- `gh run list --branch develop --commit 18173335b938dbe77f7849244fe0252793585650 --limit 10` retornou `[]`; CI remoto não executou no HEAD exato. PRs abertas estão fora de `develop`; política vigente não abre PR, não faz merge, squash, delete nem altera `main`.
+- Gates desta rodada PASS: `scripts/validate-docs.sh`, `git diff --check`, `bash -n scripts/install.sh`, `python3 -m py_compile scripts/openiem-qr-broker.py` e `cargo fmt --manifest-path server/Cargo.toml --all -- --check`.
+- Scanner `/root/scan_patterns.py` indisponível neste host; nenhum resultado inventado. Alteração somente documental, sem código de produto ou segredos.
+- Evidência: `CODE/CI/SIMULATED`; `PHYSICAL: USER-APPROVED / NOT EXECUTED`. Hardware físico, X11/Wayland/kiosk/headless, release `v0.3.1`, secret externo e runner remoto seguem `PENDING/BLOCKED`.
