@@ -232,7 +232,7 @@ jobs:
           subject-path: open-iem-server-*.tar.gz
 
       - name: Upload artefact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: server-x86_64-linux
           if-no-files-found: error
@@ -354,7 +354,7 @@ jobs:
           subject-path: open-iem-server-*.tar.gz
 
       - name: Upload artefact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: server-aarch64-linux
           if-no-files-found: error
@@ -421,7 +421,7 @@ jobs:
           done
 
       - name: Upload web artefacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: web-dist
           if-no-files-found: error
